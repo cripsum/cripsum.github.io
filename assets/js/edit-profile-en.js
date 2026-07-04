@@ -32,6 +32,151 @@
         return Number(value) === 1 || value === true ? 'checked' : '';
     }
 
+    function openMarkdownGuide() {
+        let modal = document.getElementById('markdownGuideModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'markdownGuideModal';
+            modal.className = 'markdown-guide-modal';
+            
+            const titleText = isEnglish ? 'Markdown Formatting Guide' : 'Guida alla formattazione Markdown';
+            const closeText = isEnglish ? 'Close' : 'Chiudi';
+            
+            const rowsData = [
+                {
+                    name: isEnglish ? 'Bold' : 'Grassetto',
+                    syntax: '**text**',
+                    preview: '<strong>' + (isEnglish ? 'Bold text' : 'Testo in grassetto') + '</strong>'
+                },
+                {
+                    name: isEnglish ? 'Italic' : 'Corsivo',
+                    syntax: '*text*',
+                    preview: '<em>' + (isEnglish ? 'Italic text' : 'Testo in corsivo') + '</em>'
+                },
+                {
+                    name: isEnglish ? 'Strikethrough' : 'Sbarrato',
+                    syntax: '~~text~~',
+                    preview: '<del>' + (isEnglish ? 'Strikethrough text' : 'Testo sbarrato') + '</del>'
+                },
+                {
+                    name: isEnglish ? 'Header 1' : 'Intestazione 1',
+                    syntax: '# Title',
+                    preview: '<h1>Title</h1>'
+                },
+                {
+                    name: isEnglish ? 'Header 2' : 'Intestazione 2',
+                    syntax: '## Title',
+                    preview: '<h2>Title</h2>'
+                },
+                {
+                    name: isEnglish ? 'Header 3' : 'Intestazione 3',
+                    syntax: '### Title',
+                    preview: '<h3>Title</h3>'
+                },
+                {
+                    name: isEnglish ? 'Link' : 'Collegamento',
+                    syntax: '[Cripsum](https://cripsum.com)',
+                    preview: '<a href="https://cripsum.com" target="_blank" rel="noopener">Cripsum</a>'
+                },
+                {
+                    name: isEnglish ? 'Bullet List' : 'Elenco Puntato',
+                    syntax: '- Item 1\\n- Item 2',
+                    preview: '<ul style="margin:0; padding-left:1.2rem;"><li style="list-style-type:disc;">Item 1</li><li style="list-style-type:disc;">Item 2</li></ul>'
+                },
+                {
+                    name: isEnglish ? 'Numbered List' : 'Elenco Numerato',
+                    syntax: '1. First\\n2. Second',
+                    preview: '<ol style="margin:0; padding-left:1.2rem;"><li style="list-style-type: decimal;">First</li><li style="list-style-type: decimal;">Second</li></ol>'
+                },
+                {
+                    name: isEnglish ? 'Blockquote' : 'Citazione',
+                    syntax: '> Citation',
+                    preview: '<blockquote>Citation</blockquote>'
+                },
+                {
+                    name: isEnglish ? 'Inline Code' : 'Codice Inline',
+                    syntax: '`code`',
+                    preview: '<code>code</code>'
+                },
+                {
+                    name: isEnglish ? 'Separator Line' : 'Linea Divisoria',
+                    syntax: '---',
+                    preview: '<hr style="border:none; border-top: 1px solid rgba(255,255,255,0.15); margin: 8px 0;">'
+                }
+            ];
+
+            let rowsHtml = '';
+            rowsData.forEach(r => {
+                rowsHtml += `
+                    <div class="markdown-guide-row">
+                        <div class="markdown-guide-meta">
+                            <span class="markdown-guide-name">${r.name}</span>
+                        </div>
+                        <div class="markdown-guide-code">
+                            <code>${escapeAttr(r.syntax)}</code>
+                            <button type="button" class="markdown-guide-copy" data-copy="${escapeAttr(r.syntax)}" title="${isEnglish ? 'Copy syntax' : 'Copia sintassi'}">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="markdown-guide-preview">
+                            ${r.preview}
+                        </div>
+                    </div>
+                `;
+            });
+
+            modal.innerHTML = `
+                <div class="markdown-guide-modal-backdrop"></div>
+                <div class="markdown-guide-modal-card">
+                    <div class="markdown-guide-modal-header">
+                        <div class="markdown-guide-modal-title">
+                            <i class="fa-brands fa-markdown"></i>
+                            <span>${titleText}</span>
+                        </div>
+                        <button type="button" class="markdown-guide-modal-close" title="${closeText}">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="markdown-guide-modal-body">
+                        ${rowsHtml}
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            const copyBtns = modal.querySelectorAll('.markdown-guide-copy');
+            copyBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const text = btn.getAttribute('data-copy').replace(/\\n/g, '\n');
+                    navigator.clipboard.writeText(text).then(() => {
+                        const icon = btn.querySelector('i');
+                        icon.className = 'fa-solid fa-check';
+                        btn.classList.add('copied');
+                        setTimeout(() => {
+                            icon.className = 'fa-regular fa-copy';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+            });
+
+            const closeBtn = modal.querySelector('.markdown-guide-modal-close');
+            const backdrop = modal.querySelector('.markdown-guide-modal-backdrop');
+            
+            const closeModal = () => {
+                modal.classList.remove('is-active');
+            };
+            
+            closeBtn.addEventListener('click', closeModal);
+            backdrop.addEventListener('click', closeModal);
+        }
+        
+        setTimeout(() => {
+            modal.classList.add('is-active');
+        }, 10);
+    }
+
     const repeaters = {
         socials: $('#socialsRepeater'),
         links: $('#linksRepeater'),
@@ -246,6 +391,7 @@
                         <textarea data-field="body" class="block-body-textarea" maxlength="${isPrem ? 5000 : 700}" placeholder="${isEng ? 'Write text or code here...' : 'Scrivi il testo o il codice qui...'}">${escapeAttr(data.body || '')}</textarea>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 0.75rem; color: var(--muted-2);">
                             <span class="block-body-hint"></span>
+                            <button type="button" class="btn-markdown-guide" style="display: none; background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; font-size: 0.75rem; font-weight: 600; align-items: center; gap: 4px; transition: color 0.2s;"><i class="fa-brands fa-markdown"></i> ${isEng ? 'Markdown Guide' : 'Guida Markdown'}</button>
                             <span class="block-body-counter">0 / ${isPrem ? 5000 : 700}</span>
                         </div>
                     </div>
@@ -466,6 +612,10 @@
                     if (blockTypeSelect && bodyHint) {
                         const val = blockTypeSelect.value;
                         let hint = '';
+                        const guideBtn = row.querySelector('.btn-markdown-guide');
+                        if (guideBtn) {
+                            guideBtn.style.display = val === 'markdown' ? 'flex' : 'none';
+                        }
                         if (val === 'text') {
                             hint = isEnglish ? 'Plain text. No formatting allowed.' : 'Testo semplice. Nessuna formattazione consentita.';
                         } else if (val === 'markdown') {
@@ -511,6 +661,13 @@
 
                 if (bodyTextarea) {
                     bodyTextarea.addEventListener('input', updateHintAndCounter);
+                }
+
+                const guideBtn = row.querySelector('.btn-markdown-guide');
+                if (guideBtn) {
+                    guideBtn.addEventListener('click', () => {
+                        openMarkdownGuide();
+                    });
                 }
 
                 updateHintAndCounter();
