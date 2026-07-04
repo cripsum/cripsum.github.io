@@ -2331,7 +2331,10 @@
         let sectionsConfig = {};
         if (sectionsConfigInput && sectionsConfigInput.value) {
             try {
-                sectionsConfig = JSON.parse(sectionsConfigInput.value);
+                const parsed = JSON.parse(sectionsConfigInput.value);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    sectionsConfig = parsed;
+                }
             } catch(e) {
                 sectionsConfig = {};
             }
