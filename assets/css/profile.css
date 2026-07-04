@@ -4986,27 +4986,28 @@ body[data-profile-effect="bg_grain"] .profile-effects-layer::before {
     }
 }
 
-/* 10. Scanlines (Foreground overlay) */
-/* 10. Scanlines (Foreground overlay) */
+/* 10. Scanlines */
 body[data-profile-effect="scanlines"] .profile-effects-layer::before {
     content: "" !important;
     position: fixed !important;
     inset: 0 !important;
-    background: linear-gradient(rgba(0, 0, 0, 0.3) 50%, rgba(255, 255, 255, 0.02) 50%),
+    background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.28) 0 2px, transparent 2px 4px),
         linear-gradient(to bottom, transparent 0%, rgba(var(--accent-rgb), 0.08) 10%, rgba(var(--accent-rgb), 0.15) 11%, transparent 12%, transparent 100%) !important;
     background-size: 100% 4px, 100% 1000% !important;
     pointer-events: none !important;
-    opacity: 0.65 !important;
+    opacity: 0.58 !important;
     animation: premiumScanlineRoll 30s linear infinite !important;
+    transform: translateZ(0);
+    backface-visibility: hidden;
     z-index: 1 !important;
 }
 body[data-profile-effect="scanlines"] .profile-effects-layer::after {
     content: "" !important;
     position: fixed !important;
     inset: 0 !important;
-    background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.4) 120%), rgba(18, 16, 16, 0.04) !important;
+    background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.4) 120%), rgba(18, 16, 16, 0.025) !important;
     pointer-events: none !important;
-    animation: premiumFlicker 0.12s infinite !important;
+    animation: none !important;
     z-index: 2 !important;
 }
 @keyframes premiumScanlineRoll {
@@ -5017,16 +5018,6 @@ body[data-profile-effect="scanlines"] .profile-effects-layer::after {
         background-position: 0 0, 0 100%;
     }
 }
-@keyframes premiumFlicker {
-    0%,
-    100% {
-        opacity: 0.05;
-    }
-    50% {
-        opacity: 0.03;
-    }
-}
-
 /* Editor controls polish */
 .profile-field input[type="color"],
 .profile-row-grid input[type="color"] {
@@ -5406,7 +5397,7 @@ body[data-theme="light"] .profile-select-menu {
     flex-direction: column;
     align-items: center;
     overflow: hidden;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(var(--accent-rgb), 0.34);
     border-radius: var(--radius-md);
     background: rgba(255, 255, 255, 0.055);
     text-decoration: none;
@@ -5419,17 +5410,6 @@ body[data-theme="light"] .profile-select-menu {
     transform: translateY(-3px);
     border-color: rgba(var(--accent-rgb), 0.5);
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
-}
-
-/* Rarità: bordo colorato come i badge */
-.profile-character-card.rarity-legendary {
-    border-color: rgba(245, 158, 11, 0.5);
-}
-.profile-character-card.rarity-epic {
-    border-color: rgba(139, 92, 246, 0.5);
-}
-.profile-character-card.rarity-rare {
-    border-color: rgba(59, 130, 246, 0.5);
 }
 
 /* Shimmer overlay al hover (stesso pattern dei link) */
@@ -5524,22 +5504,6 @@ body[data-theme="light"] .profile-select-menu {
     color: var(--accent);
     border: 1px solid rgba(var(--accent-rgb), 0.24);
     flex-shrink: 0;
-}
-
-.rarity-legendary .profile-character-rarity {
-    background: rgba(245, 158, 11, 0.14);
-    color: #fbbf24;
-    border-color: rgba(245, 158, 11, 0.32);
-}
-.rarity-epic .profile-character-rarity {
-    background: rgba(139, 92, 246, 0.14);
-    color: #a78bfa;
-    border-color: rgba(139, 92, 246, 0.32);
-}
-.rarity-rare .profile-character-rarity {
-    background: rgba(59, 130, 246, 0.14);
-    color: #60a5fa;
-    border-color: rgba(59, 130, 246, 0.32);
 }
 
 .profile-character-qty {

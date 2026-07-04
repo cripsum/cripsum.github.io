@@ -244,9 +244,12 @@
                     <div class="block-textarea-wrapper full" style="margin-top: 12px;">
                         <strong>${isEng ? 'Block Text' : 'Testo del Blocco'}</strong>
                         <textarea data-field="body" class="block-body-textarea" maxlength="${isPrem ? 5000 : 700}" placeholder="${isEng ? 'Write text or code here...' : 'Scrivi il testo o il codice qui...'}">${escapeAttr(data.body || '')}</textarea>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 0.75rem; color: var(--muted-2);">
+                        <div class="block-body-meta">
                             <span class="block-body-hint"></span>
-                            <span class="block-body-counter">0 / ${isPrem ? 5000 : 700}</span>
+                            <div class="block-body-meta-actions">
+                                <button type="button" class="markdown-guide-trigger" data-open-markdown-guide ${blockTypeVal === 'markdown' ? '' : 'hidden'} title="${isEng ? 'Open Markdown guide' : 'Apri la guida Markdown'}"><i class="fa-brands fa-markdown"></i><span>${isEng ? 'Markdown guide' : 'Guida Markdown'}</span></button>
+                                <span class="block-body-counter">0 / ${isPrem ? 5000 : 700}</span>
+                            </div>
                         </div>
                     </div>
 

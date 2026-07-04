@@ -86,11 +86,15 @@ function profile_discord_avatar_url(string $discordId, ?string $avatarHash, int 
 {
     $discordId = trim($discordId);
     $avatarHash = trim((string)$avatarHash);
-    if (!profile_is_valid_discord_id($discordId) || $discordId === '' || $avatarHash === '') return null;
+    if (!profile_is_valid_discord_id($discordId) || $discordId === '') return null;
+
+    $size = in_array($size, [64, 128, 256, 512, 1024], true) ? $size : 256;
+    if ($avatarHash === '') {
+        $fallbackIndex = abs(((int)$discordId >> 22) % 6);
+        return 'https://cdn.discordapp.com/embed/avatars/' . $fallbackIndex . '.png';
+    }
 
     $ext = str_starts_with($avatarHash, 'a_') ? 'gif' : 'png';
-    $size = in_array($size, [64, 128, 256, 512, 1024], true) ? $size : 256;
-
     return 'https://cdn.discordapp.com/avatars/' . rawurlencode($discordId) . '/' . rawurlencode($avatarHash) . '.' . $ext . '?size=' . $size;
 }
 

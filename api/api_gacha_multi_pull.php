@@ -22,16 +22,12 @@ require_once __DIR__ . '/../includes/mission_tracker.php';
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
-// ════════════════════════════════════════════════════════════════════════════
-// CONFIG (deve corrispondere a api_gacha_pull.php)
-// ════════════════════════════════════════════════════════════════════════════
-
 defined('PITY_STANDARD_SOFT') || define('PITY_STANDARD_SOFT', 70);
 defined('PITY_STANDARD_HARD') || define('PITY_STANDARD_HARD', 90);
 defined('PITY_EVENTO_SOFT')   || define('PITY_EVENTO_SOFT',   65);
 defined('PITY_EVENTO_HARD')   || define('PITY_EVENTO_HARD',   80);
 
-defined('MULTI_RATE_LIMIT_S') || define('MULTI_RATE_LIMIT_S', 5);   // secondi tra multi
+defined('MULTI_RATE_LIMIT_S') || define('MULTI_RATE_LIMIT_S', 5);   
 defined('MULTI_MAX_QUANTITY') || define('MULTI_MAX_QUANTITY', 10);
 
 defined('BASE_WEIGHTS_M') || define('BASE_WEIGHTS_M', [
@@ -44,9 +40,6 @@ defined('BASE_WEIGHTS_M') || define('BASE_WEIGHTS_M', [
     'theone'      =>  0.001,
 ]);
 
-// ════════════════════════════════════════════════════════════════════════════
-// VALIDAZIONI
-// ════════════════════════════════════════════════════════════════════════════
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -62,7 +55,6 @@ if (!isLoggedIn()) {
 
 $userId = (int) $_SESSION['user_id'];
 
-// Rate limit multi (sessione)
 $now = time();
 if (isset($_SESSION['gacha_multi_last_ts'])) {
     $elapsed = $now - (int)$_SESSION['gacha_multi_last_ts'];
@@ -78,7 +70,6 @@ if (isset($_SESSION['gacha_multi_last_ts'])) {
 }
 $_SESSION['gacha_multi_last_ts'] = $now;
 
-// Leggi body
 $rawInput = file_get_contents('php://input');
 $input    = !empty($rawInput) ? (json_decode($rawInput, true) ?? []) : [];
 if (empty($input)) $input = $_POST;
@@ -92,7 +83,6 @@ if ($rawBannerId === null) {
     exit();
 }
 
-// ── Identifica banner ────────────────────────────────────────────────────────
 $bannerType = null;
 $bannerData = null;
 $bannerId   = null;
@@ -133,9 +123,6 @@ if ($rawBannerId === 'standard') {
     exit();
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// FUNZIONI CONDIVISE CON api_gacha_pull.php
-// ════════════════════════════════════════════════════════════════════════════
 
 function loadStandardPoolM(mysqli $db): array
 {
@@ -219,13 +206,8 @@ function loadCharByIdM(mysqli $db, int $id): ?array
     return $char ?: null;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// CARICA POOL (fuori dalla transazione, read-only)
-// ════════════════════════════════════════════════════════════════════════════
-
 $standardPool = loadStandardPoolM($mysqli);
 
-// Admin force_rarity
 $forceRarity = null;
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
 if (in_array($ruolo, ['admin', 'owner'], true)) {
@@ -234,14 +216,9 @@ if (in_array($ruolo, ['admin', 'owner'], true)) {
     if ($fr && in_array($fr, $validRarities, true)) $forceRarity = $fr;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// TRANSAZIONE UNICA PER TUTTE E 10 LE PULL
-// ════════════════════════════════════════════════════════════════════════════
-
 $mysqli->begin_transaction();
 
 try {
-    // Blocca riga utente per tutta la durata delle 10 pull
     $stmtLock = $mysqli->prepare(
         'SELECT soldi, godoshards_balance, pity_standard, pity_evento, garantito_evento
          FROM utenti WHERE id = ? LIMIT 1 FOR UPDATE'
@@ -259,7 +236,6 @@ try {
     $pityEvento   = (int)$user['pity_evento'];
     $garantito    = (int)$user['garantito_evento'];
 
-    // Verifica costo totale
     $costoSingolaPunti = ($bannerType === 'standard') ? 0 : (int)$bannerData['costo_punti'];
     $costoTotalePunti  = $costoSingolaPunti * $quantity;
     $costoTotaleShards = (int)ceil($costoTotalePunti / 100);
@@ -280,7 +256,6 @@ try {
         }
     }
 
-    // Prepara statement riutilizzabili
     $stmtInv = $mysqli->prepare(
         'INSERT INTO utenti_personaggi (utente_id, personaggio_id, quantità, data)
          VALUES (?, ?, 1, NOW())
@@ -309,7 +284,6 @@ try {
         $vinto50_50   = null;
         $personaggio  = null;
 
-        // Aggiorna pity
         if ($bannerType === 'standard') {
             $pityStandard++;
             if (in_array($rarità, ['speciale', 'segreto', 'theone'], true)) $pityStandard = 0;
@@ -317,7 +291,6 @@ try {
             $pityEvento++;
         }
 
-        // Selezione personaggio + 50/50
         if ($bannerType === 'evento' && $isTopRarity) {
             if ($garantito === 1) {
                 $personaggio = loadCharByIdM($mysqli, $rateupId);
@@ -343,13 +316,11 @@ try {
 
         $personaggioId = (int)$personaggio['id'];
 
-        // Upsert inventario
         $stmtInv->bind_param('ii', $userId, $personaggioId);
         $stmtInv->execute();
         $isNew = ($stmtInv->affected_rows === 1);
         $isNewInt = $isNew ? 1 : 0;
 
-        // Storico pull
         if ($vinto50_50 !== null) {
             $v50 = (int)$vinto50_50;
             $stmtHistVal->bind_param('isisiii', $userId, $bannerId, $personaggioId, $rarità, $pityCorrente, $v50, $isNewInt);
@@ -374,7 +345,6 @@ try {
         ];
     }
 
-    // Scala valuta una volta sola
     if ($shardsToUse > 0) {
         $stmtShards = $mysqli->prepare(
             'UPDATE utenti SET godoshards_balance = godoshards_balance - ? WHERE id = ? AND godoshards_balance >= ?'
@@ -400,7 +370,6 @@ try {
         $stmtMoney->close();
     }
 
-    // Aggiorna pity e garantito
     $stmtPity = $mysqli->prepare(
         'UPDATE utenti SET pity_standard=?, pity_evento=?, garantito_evento=? WHERE id=?'
     );
@@ -414,9 +383,6 @@ try {
 
     $mysqli->commit();
 
-    // ── MISSION TRACKING ─────────────────────────────────────────────────────
-    // Eseguito DOPO il commit: il tracking non deve mai bloccare le pull.
-    // Si itera su ogni singola pull del multi per aggiornare correttamente i contatori.
     try {
         $rarityRarePlus = ['raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
         $rarityEpicPlus = ['epico', 'leggendario', 'speciale', 'segreto', 'theone'];
@@ -427,7 +393,6 @@ try {
         foreach ($pulls as $pull) {
             $pullRarity = strtolower(trim($pull['personaggio']['rarità'] ?? ''));
 
-            // Ogni pull = 1 apertura lootbox
             trackMissionProgress($mysqli, $userId, 'lootbox_open');
 
             if (in_array($pullRarity, $rarityRarePlus, true)) {
@@ -446,9 +411,7 @@ try {
     } catch (Throwable $trackErr) {
         error_log('[MissionTracking gacha_multi_pull] ' . $trackErr->getMessage());
     }
-    // ── /MISSION TRACKING ────────────────────────────────────────────────────
 
-    // Leggi valute aggiornate
     $stmtS = $mysqli->prepare('SELECT soldi, godoshards_balance FROM utenti WHERE id=? LIMIT 1');
     $stmtS->bind_param('i', $userId);
     $stmtS->execute();

@@ -199,6 +199,97 @@
         revealItems.forEach((item) => observer.observe(item));
     };
 
+    const initLiveDiscordAvatars = () => {
+        const images = Array.from(document.querySelectorAll('img[data-live-discord-avatar][data-discord-id]'));
+        if (!images.length) return;
+
+        const defaultAvatarUrl = (discordId) => {
+            try {
+                return `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(discordId) >> 22n) % 6n)}.png`;
+            } catch (_) {
+                return 'https://cdn.discordapp.com/embed/avatars/0.png';
+            }
+        };
+
+        const avatarUrl = (user, size) => {
+            const id = String(user?.id || '');
+            const avatar = String(user?.avatar || '');
+            if (!id || !avatar) return defaultAvatarUrl(id);
+            const extension = avatar.startsWith('a_') ? 'gif' : 'png';
+            return `https://cdn.discordapp.com/avatars/${encodeURIComponent(id)}/${encodeURIComponent(avatar)}.${extension}?size=${size}`;
+        };
+
+        const fetchDiscordUser = async (discordId) => {
+            const cacheKey = `cripsum-discord-user-v1:${discordId}`;
+            try {
+                const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+                if (cached?.user && Number(cached.expires) > Date.now()) return cached.user;
+            } catch (_) {
+                // Storage can be unavailable in private browsing.
+            }
+
+            const endpoints = [
+                `https://api.cripsum.com/v1/users/${encodeURIComponent(discordId)}`,
+                `https://api.lanyard.rest/v1/users/${encodeURIComponent(discordId)}`,
+            ];
+
+            for (const endpoint of endpoints) {
+                const controller = new AbortController();
+                const timeout = window.setTimeout(() => controller.abort(), 4500);
+                try {
+                    const response = await fetch(endpoint, {
+                        headers: { Accept: 'application/json' },
+                        credentials: 'omit',
+                        signal: controller.signal,
+                    });
+                    if (!response.ok) continue;
+                    const payload = await response.json();
+                    const user = payload?.data?.discord_user;
+                    if (!user || String(user.id || '') !== discordId) continue;
+                    try {
+                        sessionStorage.setItem(cacheKey, JSON.stringify({
+                            user,
+                            expires: Date.now() + 5 * 60 * 1000,
+                        }));
+                    } catch (_) {
+                        // The live result still works without caching.
+                    }
+                    return user;
+                } catch (_) {
+                    // Try the next presence provider.
+                } finally {
+                    window.clearTimeout(timeout);
+                }
+            }
+            return null;
+        };
+
+        const groupedImages = new Map();
+        images.forEach((image) => {
+            const discordId = image.dataset.discordId?.trim();
+            if (!/^\d{15,25}$/.test(discordId || '')) return;
+            const fallback = defaultAvatarUrl(discordId);
+            image.addEventListener('error', () => {
+                if (image.src !== fallback) image.src = fallback;
+            });
+            if (!groupedImages.has(discordId)) groupedImages.set(discordId, []);
+            groupedImages.get(discordId).push(image);
+        });
+
+        groupedImages.forEach((discordImages, discordId) => {
+            fetchDiscordUser(discordId).then((user) => {
+                if (!user) return;
+                discordImages.forEach((image) => {
+                    const size = [64, 128, 256, 512, 1024].includes(Number(image.dataset.avatarSize))
+                        ? Number(image.dataset.avatarSize)
+                        : 256;
+                    const currentUrl = avatarUrl(user, size);
+                    if (image.src !== currentUrl) image.src = currentUrl;
+                });
+            });
+        });
+    };
+
     const initEmbedInteractions = () => {
         const isItalian = document.documentElement.lang === 'it';
 
@@ -1712,6 +1803,7 @@
         initNavbarDropdownAlignment();
         initDropdownFallback();
         initReveal();
+        initLiveDiscordAvatars();
         initEmbedInteractions();
         initTilt();
         initQrModal();
