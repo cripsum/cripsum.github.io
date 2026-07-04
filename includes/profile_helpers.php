@@ -338,6 +338,10 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
     $result = $stmt->get_result();
     $profile = $result->fetch_assoc();
     $stmt->close();
+    if ($profile) {
+        $isPremVal = $profile['is_premium'] ?? 0;
+        $profile['is_premium'] = ($isPremVal === 1 || $isPremVal === '1' || $isPremVal === true || strtolower((string)$isPremVal) === 'true') ? 1 : 0;
+    }
     return $profile ?: null;
 }
 
@@ -477,6 +481,10 @@ function profile_get_public_profile_by_alias(mysqli $mysqli, string $alias): ?ar
     $result = $stmt->get_result();
     $profile = $result->fetch_assoc();
     $stmt->close();
+    if ($profile) {
+        $isPremVal = $profile['is_premium'] ?? 0;
+        $profile['is_premium'] = ($isPremVal === 1 || $isPremVal === '1' || $isPremVal === true || strtolower((string)$isPremVal) === 'true') ? 1 : 0;
+    }
     return $profile ?: null;
 }
 
@@ -487,6 +495,10 @@ function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
     $stmt->close();
+    if ($profile) {
+        $isPremVal = $profile['is_premium'] ?? 0;
+        $profile['is_premium'] = ($isPremVal === 1 || $isPremVal === '1' || $isPremVal === true || strtolower((string)$isPremVal) === 'true') ? 1 : 0;
+    }
     return $profile ?: null;
 }
 
