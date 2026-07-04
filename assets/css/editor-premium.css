@@ -2124,14 +2124,6 @@ input[type="range"]::-moz-range-track {
     }
 }
 
-/* ==========================================================================
-   DEFINITIVE MOBILE OVERFLOW FIX — WIDTH CONTAINMENT (NO CLIP)
-   Uses width constraints instead of overflow:hidden on inner containers,
-   so that position:absolute dropdown menus remain visible on desktop.
-   overflow-x:hidden is ONLY on the top-level sidebar scroll wrapper.
-   ========================================================================== */
-
-/* 1. Only the sidebar scroll wrapper clips horizontally */
 .editor-sidebar {
     overflow-x: hidden !important;
 }
@@ -2139,7 +2131,6 @@ input[type="range"]::-moz-range-track {
     overflow-x: hidden !important;
 }
 
-/* 2. The repeater row card: constrained width, NO overflow:hidden */
 .profile-row-card {
     width: 100% !important;
     max-width: 100% !important;
@@ -2147,7 +2138,6 @@ input[type="range"]::-moz-range-track {
     box-sizing: border-box !important;
 }
 
-/* 3. The row head (title + action buttons bar) */
 .profile-row-head {
     width: 100% !important;
     max-width: 100% !important;
@@ -2156,7 +2146,6 @@ input[type="range"]::-moz-range-track {
     gap: 4px !important;
 }
 
-/* 4. Title container must shrink, never push actions out */
 .profile-row-title-container {
     min-width: 0 !important;
     flex: 1 1 0% !important;
@@ -2164,7 +2153,6 @@ input[type="range"]::-moz-range-track {
     max-width: none !important;
 }
 
-/* 5. Title text truncates */
 .profile-row-title-text {
     min-width: 0 !important;
     overflow: hidden !important;
@@ -2172,7 +2160,6 @@ input[type="range"]::-moz-range-track {
     white-space: nowrap !important;
 }
 
-/* 6. Action buttons never shrink but stay compact */
 .profile-row-actions {
     flex-shrink: 0 !important;
     gap: 2px !important;
@@ -2183,7 +2170,6 @@ input[type="range"]::-moz-range-track {
     flex-shrink: 0 !important;
 }
 
-/* 7. The row body (expanded content) — width constrained, NOT clipped */
 .profile-row-body {
     width: 100% !important;
     max-width: 100% !important;
@@ -2191,14 +2177,12 @@ input[type="range"]::-moz-range-track {
     box-sizing: border-box !important;
 }
 
-/* 8. Content group inside body */
 .editor-row-content-group {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
 }
 
-/* 9. All grids/field containers inside rows */
 .profile-row-grid,
 .profile-field-grid,
 .editor-sub-card,
@@ -2210,7 +2194,6 @@ input[type="range"]::-moz-range-track {
     box-sizing: border-box !important;
 }
 
-/* 10. All form inputs, selects, textareas */
 .profile-editor-shell input[type="text"],
 .profile-editor-shell input[type="url"],
 .profile-editor-shell input[type="number"],
@@ -2225,7 +2208,6 @@ input[type="range"]::-moz-range-track {
     box-sizing: border-box !important;
 }
 
-/* 11. Custom select wrappers — width constrained, overflow VISIBLE for dropdown */
 .profile-custom-select {
     max-width: 100% !important;
     min-width: 0 !important;
@@ -2244,7 +2226,6 @@ input[type="range"]::-moz-range-track {
     text-overflow: ellipsis !important;
 }
 
-/* 12. Labels inside repeaters — column layout, full width */
 .profile-row-body label:not(.profile-check-line):not(.profile-toggle-card) {
     display: flex !important;
     flex-direction: column !important;
@@ -2253,7 +2234,6 @@ input[type="range"]::-moz-range-track {
     gap: 4px !important;
 }
 
-/* 13. Upload row: input shrinks, button stays */
 .input-with-upload {
     display: flex !important;
     flex-direction: row !important;
@@ -2271,7 +2251,6 @@ input[type="range"]::-moz-range-track {
     flex-shrink: 0 !important;
 }
 
-/* 14. Row grid labels must also shrink */
 .profile-row-grid label {
     min-width: 0 !important;
 }

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/gacha_helpers.php';
+require_once __DIR__ . '/../includes/redeem_codes.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
@@ -33,18 +34,22 @@ try {
     $input = gacha_read_input();
     $code = strtolower(trim((string)($input['code'] ?? $input['codice'] ?? '')));
 
-    $codes = [
-        'signortoki' => 'TOKI',
-        'cripsum' => 'CRIPSUM',
-        'peak' => 'MAOMAO',
-    ];
+    $codes = cripsum_redeem_codes();
+    $codeEntry = $codes[$code] ?? null;
 
-    if (!isset($codes[$code])) {
+    if (!$codeEntry || ($codeEntry['tipo'] ?? null) !== 'personaggio') {
         gacha_throw('Codice non valido.', 404);
+    }
+    $codeStatus = cripsum_redeem_code_status($codeEntry);
+    if ($codeStatus === 'expired') {
+        gacha_throw('Questo codice e scaduto.', 410, ['code' => 'EXPIRED']);
+    }
+    if ($codeStatus !== 'active') {
+        gacha_throw('Questo codice non e disponibile al momento.', 404, ['code' => strtoupper($codeStatus)]);
     }
 
     $userId = (int)$_SESSION['user_id'];
-    $characterName = $codes[$code];
+    $characterName = (string)$codeEntry['nome'];
 
     $mysqli->begin_transaction();
 
@@ -99,4 +104,3 @@ try {
         'message' => 'Errore interno durante il riscatto.',
     ], 500);
 }
-

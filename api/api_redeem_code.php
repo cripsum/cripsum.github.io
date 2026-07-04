@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/redeem_codes.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -24,6 +25,8 @@ if ($codice === '') {
 $t = [
     'it' => [
         'err_invalid'      => 'Codice non valido, skill issue!',
+        'err_expired'      => 'Questo codice è scaduto.',
+        'err_unavailable'  => 'Questo codice non è disponibile al momento.',
         'err_already_used' => 'Codice già riscattato!',
         'err_char_missing' => 'Personaggio non trovato nel database.',
         'err_char_owned'   => 'Hai già questo personaggio!',
@@ -33,6 +36,8 @@ $t = [
     ],
     'en' => [
         'err_invalid'      => 'Invalid code, skill issue!',
+        'err_expired'      => 'This code has expired.',
+        'err_unavailable'  => 'This code is not available right now.',
         'err_already_used' => 'Code already redeemed!',
         'err_char_missing' => 'Character not found in the database.',
         'err_char_owned'   => 'You already have this character!',
@@ -42,89 +47,7 @@ $t = [
     ],
 ][$lang];
 
-$codici = [
-    'signortoki' => ['tipo' => 'personaggio', 'nome' => 'TOKI'],
-    'cripsum'    => ['tipo' => 'personaggio', 'nome' => 'CRIPSUM'],
-    'peak'       => ['tipo' => 'personaggio', 'nome' => 'MAOMAO'],
-    'sburevole'  => ['tipo' => 'personaggio', 'nome' => 'ZIO DANILO SBUREVOLE'],
-
-    '67'    => [
-        'tipo'        => 'punti',
-        'punti'       => 67,
-        'descrizione' => ['it' => '+67, aura', 'en' => '+67, aura'],
-    ],
-    'godo' => [
-        'tipo'        => 'punti',
-        'punti'       => 1000,
-        'descrizione' => ['it' => '+1000, tieni, prenditi sta multi', 'en' => '+1000, here, take these 10 pulls'],
-    ],
-    'nauzterrone'     => [
-        'tipo'        => 'punti',
-        'punti'       => 6767,
-        'descrizione' => ['it' => 'xd xd 67 xd nauz terrone', 'en' => 'xd xd 67 xd nauz terrone'],
-    ],
-    'update30' => [
-        'tipo'        => 'punti',
-        'punti'       => 3000,
-        'descrizione' => ['it' => '+3000 punti per l\'aggiornamento!', 'en' => '+3000 points for the update!'],
-    ],
-    'cripsumgift' => [
-        'tipo'        => 'punti',
-        'punti'       => 500,
-        'descrizione' => ['it' => '5 pull uwu', 'en' => '5 pulls uwu'],
-    ],
-    '5050loser' => [
-        'tipo'        => 'punti',
-        'punti'       => 5000,
-        'descrizione' => ['it' => 'Ci dispiaceva per la tua sfiga, quindi beccati queste 50 pull.', 'en' => 'We felt bad for your terrible luck, so take these 50 pulls',],
-    ],
-    'sossio' => [
-        'tipo'        => 'punti',
-        'punti'       => 10067,
-        'descrizione' => ['it' => 'SOSSIOHH Ecco 100 pull!', 'en' => 'SOSSIOHH Here are 100 pulls!'],
-    ],
-    'tunggodisreal' => [
-        'tipo'        => 'punti',
-        'punti'       => 12000,
-        'descrizione' => ['it' => 'Tung god ti ha fatto un regalino... Ecco 120 pull!', 'en' => 'Tung god made you a little gift... Here are 120 pulls!'],
-    ],
-    'sonsofsparda' => [
-        'tipo'        => 'punti',
-        'punti'       => 5000,
-        'descrizione' => ['it' => 'Dante e Vergil ti hanno regalato 50 pull!', 'en' => 'Dante and Vergil gifted you 50 pulls!'],
-    ],
-    'jackpot' => [
-        'tipo'        => 'punti',
-        'punti'       => 8000,
-        'descrizione' => ['it' => 'Jackpot! Ecco 80 pull!', 'en' => 'Jackpot! Here are 80 pulls!'],
-    ],
-    'godo2' => [
-        'tipo'        => 'punti',
-        'punti'       => 1000,
-        'descrizione' => ['it' => '+1000, tieni, prenditi sta multi', 'en' => '+1000, here, take these 10 pulls'],
-    ],
-    'update31' => [
-        'tipo'        => 'punti',
-        'punti'       => 3100,
-        'descrizione' => ['it' => '+3000 punti per l\'aggiornamento!', 'en' => '+3000 points for the update!'],
-    ],
-    'palestine' => [
-        'tipo'        => 'punti',
-        'punti'       => 3000,
-        'descrizione' => ['it' => '+30 pull da parte di netanyahu', 'en' => '+30 pulls from netanyahu'],
-    ],
-    'isekaiglzer' => [
-        'tipo'        => 'punti',
-        'punti'       => 1000,
-        'descrizione' => ['it' => '+10 pull', 'en' => '+10 pulls'],
-    ],
-    'sticazziminecraftdungeonplayerzestyahhh' => [
-        'tipo'        => 'punti',
-        'punti'       => 3000,
-        'descrizione' => ['it' => '+30 pull', 'en' => '+30 pulls'],
-    ],
-
-];
+$codici = cripsum_redeem_codes();
 
 
 if (!isset($codici[$codice])) {
@@ -133,6 +56,15 @@ if (!isset($codici[$codice])) {
 }
 
 $entry = $codici[$codice];
+$codeStatus = cripsum_redeem_code_status($entry);
+if ($codeStatus !== 'active') {
+    echo json_encode([
+        'status' => 'error',
+        'message' => $codeStatus === 'expired' ? $t['err_expired'] : $t['err_unavailable'],
+        'code' => strtoupper($codeStatus),
+    ]);
+    exit;
+}
 
 $stmtCheck = $mysqli->prepare(
     'SELECT id FROM codici_riscattati WHERE codice = ? AND user_id = ? LIMIT 1'
