@@ -2187,7 +2187,7 @@ body.markdown-guide-open {
     overflow: hidden !important;
 }
 
-body.bio-v2-body > .markdown-guide-overlay {
+.markdown-guide-overlay {
     position: fixed !important;
     inset: 0;
     z-index: 30000 !important;
