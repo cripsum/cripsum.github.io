@@ -478,7 +478,7 @@ try {
                     $sanitized[$key] = [
                         'hidden' => !empty($conf['hidden']) ? 1 : 0,
                         'title' => isset($conf['title']) ? profile_clean_text($conf['title'], 80) : '',
-                        'icon' => isset($conf['icon']) ? profile_clean_text($conf['icon'], 50) : '',
+                        'icon' => isset($conf['icon']) ? profile_clean_text($conf['icon'], 255) : '',
                     ];
                 }
                 $sectionsConfig = json_encode($sanitized);

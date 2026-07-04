@@ -5910,6 +5910,62 @@ body.click-to-enter-active {
     border: 1px solid rgba(255, 255, 255, 0.06);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
+.profile-embed-interaction-shield {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    color: #fff;
+    background: transparent;
+    cursor: pointer;
+}
+.profile-embed-interaction-shield i,
+.profile-embed-interaction-exit {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: var(--ui-shape-button, 999px);
+    color: #fff;
+    background: rgba(5, 7, 13, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+}
+.profile-embed-interaction-shield i {
+    opacity: 0;
+    transform: scale(0.88);
+    transition: opacity 160ms ease, transform 160ms ease;
+}
+.profile-embed-wrapper:hover .profile-embed-interaction-shield i,
+.profile-embed-interaction-shield:focus-visible i {
+    opacity: 0.9;
+    transform: scale(1);
+}
+.profile-embed-wrapper.is-interacting .profile-embed-interaction-shield {
+    pointer-events: none;
+}
+.profile-embed-wrapper.is-interacting .profile-embed-interaction-shield i {
+    opacity: 0;
+}
+.profile-embed-interaction-exit {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    z-index: 7;
+    display: none;
+    padding: 0;
+    cursor: pointer;
+}
+.profile-embed-wrapper.is-interacting .profile-embed-interaction-exit {
+    display: grid;
+}
 .profile-embed-header {
     padding: 0.65rem 0.85rem;
     font-size: 0.82rem;
@@ -5933,6 +5989,34 @@ body.click-to-enter-active {
 .profile-embed-youtube iframe {
     height: 100%;
     border: none;
+}
+
+.profile-custom-icon-wrap {
+    display: inline-grid;
+    place-items: center;
+    width: 1em;
+    height: 1em;
+    flex: 0 0 1em;
+    vertical-align: middle;
+}
+.profile-custom-icon-wrap > * {
+    grid-area: 1 / 1;
+}
+.profile-custom-icon {
+    display: block;
+    width: 1em;
+    height: 1em;
+    border-radius: 4px;
+    object-fit: contain;
+}
+.profile-custom-icon-fallback {
+    display: none;
+}
+.profile-custom-icon-wrap.is-broken .profile-custom-icon {
+    display: none;
+}
+.profile-custom-icon-wrap.is-broken .profile-custom-icon-fallback {
+    display: inline-block;
 }
 
 /* Editor UX Styling */

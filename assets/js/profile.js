@@ -199,6 +199,54 @@
         revealItems.forEach((item) => observer.observe(item));
     };
 
+    const initEmbedInteractions = () => {
+        const isItalian = document.documentElement.lang === 'it';
+
+        document.querySelectorAll('.profile-embed-wrapper').forEach((wrapper) => {
+            const iframe = wrapper.querySelector('iframe');
+            if (!iframe || wrapper.dataset.embedInteractionReady === '1') return;
+
+            wrapper.dataset.embedInteractionReady = '1';
+
+            const shield = document.createElement('button');
+            shield.type = 'button';
+            shield.className = 'profile-embed-interaction-shield';
+            shield.setAttribute('aria-label', isItalian ? 'Interagisci con embed' : 'Interact with embed');
+            shield.setAttribute('title', isItalian ? 'Interagisci con embed' : 'Interact with embed');
+            shield.innerHTML = '<i class="fa-solid fa-hand-pointer"></i>';
+
+            const exitButton = document.createElement('button');
+            exitButton.type = 'button';
+            exitButton.className = 'profile-embed-interaction-exit';
+            exitButton.setAttribute('aria-label', isItalian ? 'Torna alla navigazione' : 'Return to navigation');
+            exitButton.setAttribute('title', isItalian ? 'Torna alla navigazione' : 'Return to navigation');
+            exitButton.innerHTML = '<i class="fa-solid fa-arrow-pointer"></i>';
+
+            const deactivate = () => {
+                wrapper.classList.remove('is-interacting');
+                iframe.blur();
+            };
+
+            shield.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                wrapper.classList.add('is-interacting');
+                iframe.focus();
+            });
+
+            exitButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                deactivate();
+                shield.focus({ preventScroll: true });
+            });
+
+            wrapper.addEventListener('mouseleave', deactivate);
+            wrapper.appendChild(shield);
+            wrapper.appendChild(exitButton);
+        });
+    };
+
     const initTilt = () => {
         const cards = document.querySelectorAll('.js-tilt-card');
         const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -1664,6 +1712,7 @@
         initNavbarDropdownAlignment();
         initDropdownFallback();
         initReveal();
+        initEmbedInteractions();
         initTilt();
         initQrModal();
         initProfileThreeDotsDropdown();

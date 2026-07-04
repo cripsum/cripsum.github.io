@@ -1450,11 +1450,38 @@ function profile_render_icon(?string $icon, string $default = 'fa-solid fa-link'
     if ($icon === '') {
         return '';
     }
-    
-    if (preg_match('/^https?:\/\//i', $icon) || str_starts_with($icon, '/uploads/') || str_contains($icon, '.')) {
-        return '<img src="' . profile_h($icon) . '" class="profile-custom-icon ' . profile_h($class) . '" alt="icon" style="width: 1em; height: 1em; object-fit: contain; vertical-align: middle; border-radius: 4px;">';
+
+    if (str_starts_with($icon, 'uploads/profile_media/')) {
+        $icon = '/' . $icon;
     }
-    
+
+    // Older section configs truncated uploaded paths to 50 characters. Resolve
+    // a unique matching file so existing custom icons keep working.
+    if (preg_match('#^/uploads/profile_media/user_\d+/(?:media|cursor)_[a-f0-9]+$#i', $icon)) {
+        $root = realpath(__DIR__ . '/..');
+        if ($root !== false) {
+            $matches = glob($root . str_replace('/', DIRECTORY_SEPARATOR, $icon) . '*') ?: [];
+            $matches = array_values(array_filter($matches, static function ($path) {
+                return is_file($path) && preg_match('/\.(?:png|jpe?g|gif|webp|svg)$/i', $path);
+            }));
+            if (count($matches) === 1) {
+                $relative = str_replace('\\', '/', substr($matches[0], strlen($root)));
+                $icon = '/' . ltrim($relative, '/');
+            }
+        }
+    }
+
+    $isRemoteImage = preg_match('/^https?:\/\//i', $icon) === 1 && profile_is_safe_url($icon, true);
+    $isUploadedImage = str_starts_with($icon, '/uploads/profile_media/') && profile_is_safe_url($icon, true);
+
+    if ($isRemoteImage || $isUploadedImage) {
+        $fallbackClass = trim($default) !== '' ? trim($default) : 'fa-solid fa-image';
+        return '<span class="profile-custom-icon-wrap ' . profile_h($class) . '">' .
+            '<img src="' . profile_h($icon) . '" class="profile-custom-icon" alt="" onerror="this.parentElement.classList.add(\'is-broken\')">' .
+            '<i class="profile-custom-icon-fallback ' . profile_h($fallbackClass) . '" aria-hidden="true"></i>' .
+            '</span>';
+    }
+
     return '<i class="' . profile_h($icon) . ' ' . profile_h($class) . '"></i>';
 }
 
@@ -1574,4 +1601,3 @@ function profile_cleanup_unused_media(mysqli $mysqli, int $userId): void
         }
     }
 }
-
