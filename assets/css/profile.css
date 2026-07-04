@@ -164,19 +164,25 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-card {
     position: relative;
     background: var(--card);
-    backdrop-filter: blur(var(--profile-card-blur, 20px));
-    -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
     border: var(--profile-border-width, 1px) solid color-mix(in srgb, var(--border) calc(100% * var(--profile-border-opacity, 1)), transparent);
     border-radius: var(--radius-lg);
     box-shadow: 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1)));
     overflow: hidden;
+    transform-style: preserve-3d;
 }
 
-/* Blur is applied directly to the card. The old negative pseudo-layer could be
-   composed a frame late in Firefox/Chromium, causing a visible blur flash. */
+/* Pseudo-element workaround for Firefox rendering backdrop-filter bugs on transformed/tilted elements.
+   Uses negative inset to pull sampled blur edges outside the card container (where they are clipped by overflow: hidden),
+   eliminating the edge light halo / bleed. transform: translateZ(-1px) ensures it remains synchronized with the card's 3D tilt. */
 .bio-card::after {
-    content: none;
-    display: none;
+    content: "";
+    position: absolute;
+    inset: calc(-2 * var(--profile-card-blur, 20px));
+    z-index: -1;
+    transform: translateZ(-1px);
+    backdrop-filter: blur(var(--profile-card-blur, 20px));
+    -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
+    pointer-events: none;
 }
 
 .bio-card::before {
