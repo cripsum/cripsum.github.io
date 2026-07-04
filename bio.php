@@ -277,7 +277,7 @@ $statCards = [
     <meta property="og:url" content="<?= e($profileUrl); ?>">
     <link rel="stylesheet" href="css/style-users.css?v=3">
     <link rel="stylesheet" href="css/bio-v2.css?v=20260425">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.13">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.9.14">
     <title><?= e($profileConfig['display_name']); ?> — Bio</title>
     <script src="js/nomePagina.js" defer></script>
     <script src="js/bio-v2.js?v=20260425" defer></script>
