@@ -145,19 +145,45 @@
 
             document.body.appendChild(modal);
 
+            const showSuccess = (btn) => {
+                const icon = btn.querySelector('i');
+                icon.className = 'fa-solid fa-check';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    icon.className = 'fa-regular fa-copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            };
+
+            const fallbackCopy = (text, btn) => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccess(btn);
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                }
+                document.body.removeChild(textarea);
+            };
+
             const copyBtns = modal.querySelectorAll('.markdown-guide-copy');
             copyBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const text = btn.getAttribute('data-copy').replace(/\\n/g, '\n');
-                    navigator.clipboard.writeText(text).then(() => {
-                        const icon = btn.querySelector('i');
-                        icon.className = 'fa-solid fa-check';
-                        btn.classList.add('copied');
-                        setTimeout(() => {
-                            icon.className = 'fa-regular fa-copy';
-                            btn.classList.remove('copied');
-                        }, 2000);
-                    });
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            showSuccess(btn);
+                        }).catch(err => {
+                            fallbackCopy(text, btn);
+                        });
+                    } else {
+                        fallbackCopy(text, btn);
+                    }
                 });
             });
 

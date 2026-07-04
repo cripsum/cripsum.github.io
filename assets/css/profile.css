@@ -168,18 +168,23 @@ body[data-theme="light"] .bio-background__overlay {
     border-radius: var(--radius-lg);
     box-shadow: 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1)));
     overflow: hidden;
+    transform-style: preserve-3d;
 }
 
 /* Pseudo-element workaround for Firefox rendering backdrop-filter bugs on transformed/tilted elements.
-   Uses negative inset to pull sampled blur edges outside the card container (where they are clipped by overflow: hidden),
-   eliminating the edge light halo / bleed. */
+   Uses negative inset to pull sampled blur edges outside the card container,
+   eliminating the edge light halo / bleed. clip-path ensures it is clipped perfectly to the card's rounded borders.
+   transform: translateZ(-1px) ensures it remains synchronized with the card's 3D tilt. */
 .bio-card::after {
     content: "";
     position: absolute;
     inset: calc(-2 * var(--profile-card-blur, 20px));
     z-index: -1;
+    transform: translateZ(-1px);
     backdrop-filter: blur(var(--profile-card-blur, 20px));
     -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
+    clip-path: inset(calc(2 * var(--profile-card-blur, 20px)) round var(--radius-lg)) !important;
+    -webkit-clip-path: inset(calc(2 * var(--profile-card-blur, 20px)) round var(--radius-lg)) !important;
     pointer-events: none;
 }
 
@@ -199,6 +204,7 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-hero {
     padding: 1.35rem;
     text-align: center;
+    transform-style: preserve-3d;
     transition: transform var(--transition), border-color var(--transition), background var(--transition);
 }
 
@@ -2071,6 +2077,7 @@ body[data-theme="light"] .bio-background img.bio-background__media {
 
 .js-tilt-card {
     will-change: transform;
+    transform-style: preserve-3d;
 }
 
 .profile-hero-actions-top {
