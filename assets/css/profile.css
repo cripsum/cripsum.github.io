@@ -164,22 +164,19 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-card {
     position: relative;
     background: var(--card);
+    backdrop-filter: blur(var(--profile-card-blur, 20px));
+    -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
     border: var(--profile-border-width, 1px) solid color-mix(in srgb, var(--border) calc(100% * var(--profile-border-opacity, 1)), transparent);
     border-radius: var(--radius-lg);
     box-shadow: 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1)));
     overflow: hidden;
 }
 
-/* Pseudo-element workaround for Firefox rendering backdrop-filter bugs on transformed/tilted elements */
+/* Blur is applied directly to the card. The old negative pseudo-layer could be
+   composed a frame late in Firefox/Chromium, causing a visible blur flash. */
 .bio-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    backdrop-filter: blur(var(--profile-card-blur, 20px));
-    -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px));
-    border-radius: inherit;
-    pointer-events: none;
+    content: none;
+    display: none;
 }
 
 .bio-card::before {
@@ -1038,6 +1035,13 @@ body[data-theme="light"] .bio-name-block h1 {
 .js-reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Transforming a backdrop-filter element during first paint forces some
+   browsers to rebuild its backdrop layer after the card is already visible. */
+.bio-card.js-reveal,
+.bio-card.js-reveal.is-visible {
+    transform: none;
 }
 
 /* Discord status v2 */
@@ -4363,12 +4367,16 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
 /* Better profile effects */
 /* Premium custom page effects overlay layering */
 body[data-profile-effect="soft_particles"] .profile-effects-layer,
-body[data-profile-effect="sakura_falling"] .profile-effects-layer,
+body[data-profile-effect="sakura_falling"] .profile-effects-layer {
+    z-index: 1000 !important;
+}
+
+/* Screen textures affect only the background, never the profile cards. */
 body[data-profile-effect="scanlines"] .profile-effects-layer,
 body[data-profile-effect="digital_noise"] .profile-effects-layer,
 body[data-profile-effect="bg_grain"] .profile-effects-layer,
 body[data-bg-grain="1"] .profile-effects-layer {
-    z-index: 1000 !important;
+    z-index: 20 !important;
 }
 
 /* 1. Cursor Glow / Mouse Glow */
