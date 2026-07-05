@@ -285,6 +285,7 @@ body.api-docs-body {
 .docs-endpoint {
     border-radius: var(--docs-radius-lg);
     padding: clamp(1rem, 2.2vw, 1.35rem);
+    scroll-margin-top: 6rem; /* Offset to scroll nicely with headers */
 }
 
 .docs-section-title {
@@ -370,6 +371,7 @@ body.api-docs-body {
 .docs-path {
     display: inline-flex;
     min-width: 0;
+    max-width: 100%;
     padding: 0.42rem 0.7rem;
     border-radius: 12px;
     color: #dbeafe;
@@ -444,6 +446,11 @@ body.api-docs-body {
     padding: 0.12rem 0.32rem;
 }
 
+.docs-terminal,
+.docs-code {
+    max-width: 100%;
+}
+
 .docs-code {
     position: relative;
     margin-top: 0.9rem;
@@ -513,6 +520,27 @@ body.api-docs-body {
     .docs-sidebar {
         position: relative;
         top: 0;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.9rem 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .docs-sidebar strong {
+        margin-bottom: 0;
+        margin-right: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .docs-sidebar a {
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .docs-grid-cards {

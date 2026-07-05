@@ -209,18 +209,19 @@ function formatUptime(int $seconds): string {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(17, 24, 39, 0.45);
-            --card-border: rgba(255, 255, 255, 0.06);
+            --bg-color: #030712;
+            --card-bg: rgba(17, 24, 39, 0.35);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --card-border-hover: rgba(139, 92, 246, 0.3);
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
             
-            --color-green: #23a55a;
+            --color-green: #10b981;
             --color-yellow: #f59e0b;
             --color-red: #ef4444;
             
             --accent: #8b5cf6;
-            --accent-glow: rgba(139, 92, 246, 0.15);
+            --accent-glow: rgba(139, 92, 246, 0.2);
         }
 
         * {
@@ -240,8 +241,9 @@ function formatUptime(int $seconds): string {
             padding: 3rem 1.5rem;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.04) 0%, transparent 45%),
-                radial-gradient(circle at 90% 80%, rgba(15, 91, 255, 0.04) 0%, transparent 45%);
+                radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(47, 107, 255, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.5) 0%, transparent 100%);
         }
 
         .container {
@@ -253,10 +255,68 @@ function formatUptime(int $seconds): string {
         header {
             text-align: center;
             margin-bottom: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--color-green);
+            letter-spacing: 0.08em;
+            margin-bottom: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.03);
+            animation: pulse-border 2s infinite alternate;
+        }
+
+        .live-indicator.updating {
+            background: rgba(16, 185, 129, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--color-green);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .live-dot::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-green);
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            animation: live-pulse-ring 1.5s ease-out infinite;
+        }
+
+        @keyframes live-pulse-ring {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3.5); opacity: 0; }
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: rgba(16, 185, 129, 0.15); }
+            100% { border-color: rgba(16, 185, 129, 0.35); }
         }
 
         header h1 {
-            font-size: 2.4rem;
+            font-size: 2.6rem;
             font-weight: 800;
             letter-spacing: -0.03em;
             background: linear-gradient(135deg, #ffffff 40%, #a78bfa 100%);
@@ -280,25 +340,25 @@ function formatUptime(int $seconds): string {
             align-items: center;
             gap: 1.2rem;
             margin-bottom: 2rem;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            transition: all 0.5s ease;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .status-banner.operational {
-            border-color: rgba(35, 165, 90, 0.2);
-            background: linear-gradient(135deg, rgba(35, 165, 90, 0.02) 0%, var(--card-bg) 100%);
+            border-color: rgba(16, 185, 129, 0.2);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.03) 0%, var(--card-bg) 100%);
         }
 
         .status-banner.partial_outage {
             border-color: rgba(245, 158, 11, 0.2);
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.02) 0%, var(--card-bg) 100%);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.03) 0%, var(--card-bg) 100%);
         }
 
         .status-banner.major_outage {
             border-color: rgba(239, 68, 68, 0.2);
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.02) 0%, var(--card-bg) 100%);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.03) 0%, var(--card-bg) 100%);
         }
 
         .pulse-dot {
@@ -353,9 +413,16 @@ function formatUptime(int $seconds): string {
             border: 1px solid var(--card-border);
             border-radius: 18px;
             padding: 1.6rem;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--card-border-hover);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 0 20px rgba(139, 92, 246, 0.08);
         }
 
         .service-header {
@@ -363,6 +430,7 @@ function formatUptime(int $seconds): string {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.2rem;
+            transition: all 0.3s ease;
         }
 
         .service-name {
@@ -377,12 +445,17 @@ function formatUptime(int $seconds): string {
         .service-name i {
             color: var(--text-muted);
             font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .service-card:hover .service-name i {
+            color: var(--accent);
         }
 
         .service-status-badge {
             font-size: 0.8rem;
             font-weight: 600;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -392,14 +465,16 @@ function formatUptime(int $seconds): string {
         }
 
         .service-status-badge.operational { 
-            background: rgba(35, 165, 90, 0.08); 
+            background: rgba(16, 185, 129, 0.08); 
             color: var(--color-green);
-            border-color: rgba(35, 165, 90, 0.15);
+            border-color: rgba(16, 185, 129, 0.18);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.05);
         }
         .service-status-badge.major_outage { 
             background: rgba(239, 68, 68, 0.08); 
             color: var(--color-red);
-            border-color: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.18);
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.05);
         }
 
         .latency-text {
@@ -418,7 +493,7 @@ function formatUptime(int $seconds): string {
 
         .timeline-bars {
             display: flex;
-            gap: 3px;
+            gap: 4px;
             justify-content: space-between;
             height: 32px;
             align-items: flex-end;
@@ -427,18 +502,18 @@ function formatUptime(int $seconds): string {
         .bar {
             flex-grow: 1;
             height: 24px;
-            border-radius: 3px;
-            transition: all 0.2s ease;
+            border-radius: 4px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             transform-origin: bottom;
             opacity: 0;
             animation: pop-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        .bar-green { background-color: rgba(35, 165, 90, 0.55); }
-        .bar-green:hover { background-color: var(--color-green); transform: scaleY(1.25); box-shadow: 0 0 8px rgba(35, 165, 90, 0.4); }
+        .bar-green { background: linear-gradient(to top, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.65)); }
+        .bar-green:hover { background: linear-gradient(to top, rgba(16, 185, 129, 0.7), #10b981); transform: scaleY(1.25); box-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
         
-        .bar-yellow { background-color: rgba(245, 158, 11, 0.55); }
-        .bar-yellow:hover { background-color: var(--color-yellow); transform: scaleY(1.25); box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+        .bar-yellow { background: linear-gradient(to top, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.65)); }
+        .bar-yellow:hover { background: linear-gradient(to top, rgba(245, 158, 11, 0.7), #f59e0b); transform: scaleY(1.25); box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
 
         @keyframes pop-in {
             0% { transform: scaleY(0); opacity: 0; }
@@ -460,10 +535,16 @@ function formatUptime(int $seconds): string {
             border: 1px solid var(--card-border);
             border-radius: 18px;
             padding: 1.8rem;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             margin-bottom: 2.5rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s ease;
+        }
+
+        .hardware-section:hover {
+            border-color: var(--card-border-hover);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25), 0 0 20px rgba(139, 92, 246, 0.08);
         }
 
         .hardware-title {
@@ -498,6 +579,16 @@ function formatUptime(int $seconds): string {
             display: flex;
             flex-direction: column;
             gap: 6px;
+        }
+
+        .stat-box.full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 580px) {
+            .stat-box.full-width {
+                grid-column: span 1;
+            }
         }
 
         .stat-label {
@@ -544,6 +635,7 @@ function formatUptime(int $seconds): string {
             border-radius: 10px;
             animation: fill-bar 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
             transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.35);
         }
 
         .server-offline-msg {
@@ -592,11 +684,49 @@ function formatUptime(int $seconds): string {
         footer a:hover {
             text-decoration: underline;
         }
-    </style>
+
+        /* Responsive timeline bars and elements */
+        @media (max-width: 600px) {
+            .timeline-bars .bar:nth-child(-n+60) {
+                display: none;
+            }
+            .timeline-start-desktop {
+                display: none !important;
+            }
+            .timeline-start-mobile {
+                display: inline !important;
+            }
+            .timeline-bars {
+                gap: 3px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .service-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+            .service-status-badge {
+                align-self: flex-start;
+                width: auto;
+            }
+            .status-banner {
+                padding: 1.2rem 1.4rem;
+                gap: 0.8rem;
+            }
+            .status-message {
+                font-size: 1rem;
+            }
+        }
 </head>
 <body>
 
     <header>
+        <div class="live-indicator">
+            <span class="live-dot"></span>
+            <span>LIVE MONITORING</span>
+        </div>
         <h1>Cripsum Status</h1>
         <p>Monitoraggio in tempo reale dei nostri servizi</p>
     </header>
@@ -642,7 +772,8 @@ function formatUptime(int $seconds): string {
                         ?>
                     </div>
                     <div class="timeline-footer">
-                        <span>90 giorni fa</span>
+                        <span class="timeline-start-desktop">90 giorni fa</span>
+                        <span class="timeline-start-mobile" style="display: none;">30 giorni fa</span>
                         <span>100% uptime</span>
                         <span>Oggi</span>
                     </div>
@@ -677,7 +808,8 @@ function formatUptime(int $seconds): string {
                         ?>
                     </div>
                     <div class="timeline-footer">
-                        <span>90 giorni fa</span>
+                        <span class="timeline-start-desktop">90 giorni fa</span>
+                        <span class="timeline-start-mobile" style="display: none;">30 giorni fa</span>
                         <span><?php echo $apiStatus === 'operational' ? '99.9%' : '98.5%'; ?> uptime</span>
                         <span>Oggi</span>
                     </div>
@@ -706,7 +838,8 @@ function formatUptime(int $seconds): string {
                         ?>
                     </div>
                     <div class="timeline-footer">
-                        <span>90 giorni fa</span>
+                        <span class="timeline-start-desktop">90 giorni fa</span>
+                        <span class="timeline-start-mobile" style="display: none;">30 giorni fa</span>
                         <span>100% uptime</span>
                         <span>Oggi</span>
                     </div>
@@ -768,7 +901,7 @@ function formatUptime(int $seconds): string {
                     </div>
 
                     <!-- Server Platform -->
-                    <div class="stat-box" style="grid-column: span 2;">
+                    <div class="stat-box full-width">
                         <span class="stat-label"><i class="fa-solid fa-gears"></i> Architettura & OS</span>
                         <span class="stat-value" style="font-size: 0.9rem; font-family: inherit; font-weight: 400; opacity: 0.95;">
                             <?php echo htmlspecialchars($serverStats['platform']); ?> — <?php echo htmlspecialchars($serverStats['cpu']['model']); ?>
@@ -812,6 +945,13 @@ function formatUptime(int $seconds): string {
                 const response = await fetch('status.php?ajax=1');
                 if (!response.ok) return;
                 const data = await response.json();
+
+                // Highlight the live indicator to show a real-time update happened
+                const liveIndicator = document.querySelector('.live-indicator');
+                if (liveIndicator) {
+                    liveIndicator.classList.add('updating');
+                    setTimeout(() => liveIndicator.classList.remove('updating'), 500);
+                }
 
                 // 1. Aggiorna il banner dello stato generale
                 const banner = document.querySelector('.status-banner');
@@ -911,7 +1051,7 @@ function formatUptime(int $seconds): string {
                             </div>
 
                             <!-- Server Platform -->
-                            <div class="stat-box" style="grid-column: span 2;">
+                            <div class="stat-box full-width">
                                 <span class="stat-label"><i class="fa-solid fa-gears"></i> Architettura & OS</span>
                                 <span class="stat-value" style="font-size: 0.9rem; font-family: inherit; font-weight: 400; opacity: 0.95;">-</span>
                             </div>
