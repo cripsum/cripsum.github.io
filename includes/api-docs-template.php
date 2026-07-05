@@ -73,8 +73,8 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
     <meta property="og:image" content="https://cripsum.com/img/Susremaster.png">
     <meta property="og:url" content="https://cripsum.com/<?php echo api_docs_h($lang); ?>/api-docs">
     <meta name="twitter:card" content="summary_large_image">
-    <link rel="stylesheet" href="/assets/api-docs/api-docs.css?v=1.0">
-    <script src="/assets/api-docs/api-docs.js?v=1.0" defer></script>
+    <link rel="stylesheet" href="/assets/api-docs/api-docs.css?v=1.3">
+    <script src="/assets/api-docs/api-docs.js?v=1.3" defer></script>
 </head>
 
 <body class="api-docs-body">

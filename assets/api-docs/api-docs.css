@@ -24,6 +24,8 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 body.api-docs-body {
@@ -35,6 +37,7 @@ body.api-docs-body {
         radial-gradient(circle at 92% 15%, rgba(139, 92, 246, 0.19), transparent 28rem),
         linear-gradient(135deg, var(--docs-bg), var(--docs-bg-soft));
     overflow-x: hidden;
+    max-width: 100%;
 }
 
 .docs-bg {
@@ -90,6 +93,8 @@ body.api-docs-body {
 
 .docs-page {
     width: min(1180px, calc(100% - 32px));
+    max-width: 100%;
+    box-sizing: border-box;
     min-height: 100vh;
     margin: 0 auto;
     padding: 7.2rem 0 4rem;
@@ -104,6 +109,8 @@ body.api-docs-body {
     box-shadow: var(--docs-shadow);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .docs-hero {
@@ -114,6 +121,7 @@ body.api-docs-body {
     overflow: hidden;
     border-radius: var(--docs-radius-xl);
     padding: clamp(1.25rem, 3.4vw, 2.4rem);
+    max-width: 100%;
 }
 
 .docs-hero::after {
