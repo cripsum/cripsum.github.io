@@ -1411,7 +1411,7 @@ function profile_json_script(string $id, array $data): void
                         <div class="editor-card-body">
                             <div class="bio-section-heading">
                                 <div><span><i class="fa-solid fa-magic"></i> Preset del Profilo</span>
-                                    <p>Salva e carica configurazioni complete del tuo profilo (massimo 3 preset).</p>
+                                    <p>Salva e carica configurazioni complete del tuo profilo (massimo 5 preset).</p>
                                 </div>
                                 <button type="button" class="bio-button" id="saveNewPresetBtn"><i class="fa-solid fa-plus"></i> Salva Preset Corrente</button>
                             </div>

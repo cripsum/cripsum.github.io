@@ -164,7 +164,7 @@ switch ($action) {
             exit;
         }
 
-        // Limit count check (3 presets max)
+        // Limit count check (5 presets max)
         $stmt = $mysqli->prepare("SELECT COUNT(*) as count FROM utenti_presets WHERE utente_id = ?");
         $stmt->bind_param('i', $targetUserId);
         $stmt->execute();
@@ -180,8 +180,8 @@ switch ($action) {
             exit;
         }
 
-        if ($count >= 10) {
-            echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 10 preset.']);
+        if ($count >= 5) {
+            echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 5 preset.']);
             exit;
         }
 
@@ -681,7 +681,7 @@ switch ($action) {
             exit;
         }
 
-        // Count limit check (3 presets max)
+        // Count limit check (5 presets max)
         $stmt = $mysqli->prepare("SELECT COUNT(*) as count FROM utenti_presets WHERE utente_id = ?");
         $stmt->bind_param('i', $targetUserId);
         $stmt->execute();
@@ -697,8 +697,8 @@ switch ($action) {
             exit;
         }
 
-        if ($count >= 10) {
-            echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 10 preset.']);
+        if ($count >= 5) {
+            echo json_encode(['ok' => false, 'message' => 'Hai raggiunto il limite massimo di 5 preset.']);
             exit;
         }
         $stmt = $mysqli->prepare("SELECT nome, preset_data FROM utenti_presets WHERE id = ? AND (utente_id = ? OR utente_id = ?) LIMIT 1");
