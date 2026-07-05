@@ -104,7 +104,7 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.10.0">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.10.1">
     <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.10.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,8 +113,8 @@ function profile_json_script(string $id, array $data): void
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.10.0" defer></script>
-    <script src="/assets/js/profile-markdown-guide.js?v=5.10.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.10.1" defer></script>
+    <script src="/assets/js/profile-markdown-guide.js?v=5.10.1" defer></script>
     <script src="/assets/js/edit-profile-en.js?v=5.10.1" defer></script>
 </head>
 

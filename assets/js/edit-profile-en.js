@@ -472,7 +472,7 @@
                         if (val === 'text') {
                             hint = isEnglish ? 'Plain text. No formatting allowed.' : 'Testo semplice. Nessuna formattazione consentita.';
                         } else if (val === 'markdown') {
-                            hint = isEnglish ? 'Supports Markdown formatting (e.g. **bold**, *italic*, [link](url)).' : 'Supporta la formattazione Markdown (es. **grassetto**, *corsivo*, [link](url)).';
+                            hint = isEnglish ? 'Use **bold** and *italic*. Underscores stay as normal text.' : 'Usa **grassetto** e *corsivo*. I trattini bassi restano testo normale.';
                         } else if (val === 'html') {
                             hint = isEnglish ? 'Supports custom HTML code.' : 'Supporta codice HTML personalizzato.';
                         }

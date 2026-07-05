@@ -1252,18 +1252,72 @@ function profile_markdown_to_html(?string $markdown): string
         return '';
     }
 
-    // Convertiamo i fine riga nello standard \n
     $markdown = str_replace(["\r\n", "\r"], "\n", $markdown);
 
-    // Escape dei caratteri HTML per sicurezza
-    $html = htmlspecialchars($markdown, ENT_QUOTES, 'UTF-8');
+    $tokens = [];
+    $tokenPrefix = 'CRIPSUMMDTOKEN';
+    while (str_contains($markdown, $tokenPrefix)) {
+        $tokenPrefix .= 'X';
+    }
+    $storeToken = static function (string $safeHtml) use (&$tokens, $tokenPrefix): string {
+        $token = '@@' . $tokenPrefix . count($tokens) . '@@';
+        $tokens[$token] = $safeHtml;
+        return $token;
+    };
 
-    // 1. Code Blocks (prima di altri tag, per evitare conflitti)
-    $html = preg_replace_callback('/```(?:[a-zA-Z0-9#+-]+)?\n(.*?)\n```/s', function($matches) {
-        return '<pre><code>' . $matches[1] . '</code></pre>';
-    }, $html);
+    // Protect fenced code before applying any inline formatting.
+    $markdown = preg_replace_callback(
+        '/(^|\n)```[^\n]*\n(.*?)\n```(?=\n|$)/s',
+        static function (array $matches) use ($storeToken): string {
+            return $matches[1] . $storeToken('<pre><code>' . profile_h($matches[2]) . '</code></pre>');
+        },
+        $markdown
+    ) ?? $markdown;
 
-    // 2. Headings
+    $html = profile_h($markdown);
+
+    // Inline code must stay literal, including underscores and asterisks.
+    $html = preg_replace_callback('/`([^`\n]+)`/', static function (array $matches) use ($storeToken): string {
+        return $storeToken('<code>' . $matches[1] . '</code>');
+    }, $html) ?? $html;
+
+    $sanitizeDestination = static function (string $destination, bool $image = false): ?string {
+        $destination = html_entity_decode(trim($destination), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if ($destination === '' || preg_match('/[\x00-\x1F\x7F<>"\']/', $destination)) {
+            return null;
+        }
+
+        if (str_starts_with($destination, '/')) {
+            if (str_starts_with($destination, '//') || str_contains($destination, '\\')) return null;
+            $path = (string)(parse_url($destination, PHP_URL_PATH) ?? '');
+            if (preg_match('#(?:^|/)\.\.(?:/|$)#', $path)) return null;
+            return $destination;
+        }
+
+        if (!filter_var($destination, FILTER_VALIDATE_URL)) return null;
+        $scheme = strtolower((string)(parse_url($destination, PHP_URL_SCHEME) ?? ''));
+        $allowedSchemes = $image ? ['http', 'https'] : ['http', 'https', 'mailto'];
+        return in_array($scheme, $allowedSchemes, true) ? $destination : null;
+    };
+
+    // Extract media and links before emphasis so underscores in URLs stay literal.
+    $html = preg_replace_callback('/!\[([^\]\n]*)\]\(([^)\n]+)\)/', static function (array $matches) use ($sanitizeDestination, $storeToken): string {
+        $url = $sanitizeDestination($matches[2], true);
+        if ($url === null) return $matches[0];
+        return $storeToken('<img src="' . profile_h($url) . '" alt="' . $matches[1] . '" loading="lazy">');
+    }, $html) ?? $html;
+
+    $html = preg_replace_callback('/\[([^\]\n]+)\]\(([^)\n]+)\)/', static function (array $matches) use ($sanitizeDestination, $storeToken): string {
+        $url = $sanitizeDestination($matches[2], false);
+        if ($url === null) return $matches[0];
+        return $storeToken('<a href="' . profile_h($url) . '" target="_blank" rel="noopener noreferrer">' . $matches[1] . '</a>');
+    }, $html) ?? $html;
+
+    // Underscores are intentionally plain text. Emphasis only uses asterisks.
+    $html = preg_replace('/~~([^~\n]+)~~/', '<del>$1</del>', $html) ?? $html;
+    $html = preg_replace('/(?<!\*)\*\*([^*\n]+)\*\*(?!\*)/', '<strong>$1</strong>', $html) ?? $html;
+    $html = preg_replace('/(?<!\*)\*([^*\n]+)\*(?!\*)/', '<em>$1</em>', $html) ?? $html;
+
     $html = preg_replace('/^######\s+(.*?)$/m', '<h6>$1</h6>', $html);
     $html = preg_replace('/^#####\s+(.*?)$/m', '<h5>$1</h5>', $html);
     $html = preg_replace('/^####\s+(.*?)$/m', '<h4>$1</h4>', $html);
@@ -1271,27 +1325,14 @@ function profile_markdown_to_html(?string $markdown): string
     $html = preg_replace('/^##\s+(.*?)$/m', '<h2>$1</h2>', $html);
     $html = preg_replace('/^#\s+(.*?)$/m', '<h1>$1</h1>', $html);
 
-    // 3. Strikethrough (Sbarrato)
-    $html = preg_replace('/~~(.*?)~~/', '<del>$1</del>', $html);
+    $html = preg_replace('/^\s*(?:\*{3,}|-{3,})\s*$/m', '<hr>', $html);
 
-    // 4. Bold, Italic, Images, Links, Inline Code
-    $html = preg_replace('/(\*\*|__)(.*?)\1/', '<strong>$2</strong>', $html);
-    $html = preg_replace('/(\*|_)(.*?)\1/', '<em>$2</em>', $html);
-    $html = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1" style="max-width:100%; height:auto;">', $html);
-    $html = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>', $html);
-    $html = preg_replace('/`(.*?)`/', '<code>$1</code>', $html);
-
-    // 5. Horizontal Rules (hr)
-    $html = preg_replace('/^\s*([-*_]){3,}\s*$/m', '<hr>', $html);
-
-    // 6. Tabelle, Liste, Citazioni (lavorando riga per riga)
     $lines = explode("\n", $html);
-    $inList = false; // 'ul', 'ol' o false
+    $inList = false;
     $inBlockquote = false;
     $inTable = false;
     $tableRows = [];
 
-    // Helper per renderizzare una tabella accumulata
     $renderTable = function(array $rows): string {
         if (count($rows) === 0) return '';
         $htmlTable = '<div style="overflow-x: auto; margin: 1rem 0;"><table class="profile-markdown-table" style="width: 100%; border-collapse: collapse; border: 1px solid rgba(255,255,255,0.1);">';
@@ -1299,7 +1340,6 @@ function profile_markdown_to_html(?string $markdown): string
         $hasHeader = false;
         if (count($rows) > 1) {
             $separator = trim($rows[1]);
-            // Rimuoviamo caratteri di formattazione della riga separatore
             $separator = str_replace(['-', ':', ' ', '|'], '', $separator);
             if ($separator === '') {
                 $hasHeader = true;
@@ -1307,7 +1347,6 @@ function profile_markdown_to_html(?string $markdown): string
         }
         
         if ($hasHeader) {
-            // Intestazione
             $htmlTable .= '<thead><tr>';
             $cols = explode('|', $rows[0]);
             foreach ($cols as $col) {
@@ -1315,7 +1354,6 @@ function profile_markdown_to_html(?string $markdown): string
             }
             $htmlTable .= '</tr></thead>';
             
-            // Corpo
             $htmlTable .= '<tbody>';
             for ($r = 2; $r < count($rows); $r++) {
                 $htmlTable .= '<tr>';
@@ -1327,7 +1365,6 @@ function profile_markdown_to_html(?string $markdown): string
             }
             $htmlTable .= '</tbody>';
         } else {
-            // Corpo semplice senza header
             $htmlTable .= '<tbody>';
             foreach ($rows as $row) {
                 $htmlTable .= '<tr>';
@@ -1346,7 +1383,6 @@ function profile_markdown_to_html(?string $markdown): string
     foreach ($lines as $i => $line) {
         $trimmed = trim($line);
 
-        // --- Gestione Tabelle ---
         if (preg_match('/^\|(.*)\|$/', $trimmed, $matches)) {
             if ($inList) {
                 $lines[$i - 1] .= '</' . $inList . '>';
@@ -1377,7 +1413,6 @@ function profile_markdown_to_html(?string $markdown): string
             }
         }
 
-        // --- Gestione Blockquote ---
         if (preg_match('/^&gt;\s?(.*)$/', $trimmed, $matches)) {
             if ($inList) {
                 $lines[$i] = '</' . $inList . '>' . $lines[$i];
@@ -1398,7 +1433,6 @@ function profile_markdown_to_html(?string $markdown): string
             }
         }
 
-        // --- Gestione Liste (ul e ol) ---
         if (preg_match('/^[\*\-]\s+(.*)$/', $trimmed, $matches)) {
             $li = $matches[1];
             if ($inList !== 'ul') {
@@ -1446,13 +1480,17 @@ function profile_markdown_to_html(?string $markdown): string
 
     $html = nl2br($html);
 
+    if ($tokens) {
+        $html = strtr($html, $tokens);
+    }
+
     $html = preg_replace('/(<h[1-6]>.*?<\/h[1-6]>)<br\s*\/?>/', '$1', $html);
-    $html = preg_replace('/(<\/?[u|o]l>)<br\s*\/?>/', '$1', $html);
+    $html = preg_replace('/(<\/?(?:ul|ol)>)<br\s*\/?>/', '$1', $html);
     $html = preg_replace('/(<li>.*?<\/li>)<br\s*\/?>/', '$1', $html);
     $html = preg_replace('/(<\/blockquote>)<br\s*\/?>/', '$1', $html);
     $html = preg_replace('/(<hr>)<br\s*\/?>/', '$1', $html);
     $html = preg_replace('/(<\/table>|<\/tr>|<\/thead>|<\/tbody>|<div style="overflow-x: auto; margin: 1rem 0;">)<br\s*\/?>/', '$1', $html);
-    $html = preg_replace('/(<\/pre>|<pre><code>|<\/code><\/pre>)<br\s*\/?>/', '$1', $html);
+    $html = preg_replace('/(<\/pre>)<br\s*\/?>/', '$1', $html);
 
     return $html;
 }

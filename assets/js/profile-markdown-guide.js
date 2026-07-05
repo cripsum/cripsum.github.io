@@ -34,7 +34,7 @@
 
     const examples = isEnglish ? [
         { category: 'text', icon: 'fa-bold', title: 'Bold', description: 'Give strong emphasis to important text.', syntax: '**important text**', preview: '<strong>important text</strong>' },
-        { category: 'text', icon: 'fa-italic', title: 'Italic', description: 'Add light emphasis or a different tone.', syntax: '*italic text*', preview: '<em>italic text</em>' },
+        { category: 'text', icon: 'fa-italic', title: 'Italic', description: 'Use asterisks for emphasis. Underscores always stay visible.', syntax: '*italic text*', preview: '<em>italic text</em>' },
         { category: 'text', icon: 'fa-strikethrough', title: 'Strikethrough', description: 'Show content that has been removed or superseded.', syntax: '~~old text~~', preview: '<del>old text</del>' },
         { category: 'text', icon: 'fa-code', title: 'Inline code', description: 'Highlight a command, variable or short code fragment.', syntax: '`npm run dev`', preview: '<code>npm run dev</code>' },
         { category: 'text', icon: 'fa-link', title: 'Link', description: 'Create a clickable external link.', syntax: '[Visit Cripsum](https://cripsum.com)', preview: '<a href="https://cripsum.com" target="_blank" rel="noopener noreferrer">Visit Cripsum</a>' },
@@ -49,7 +49,7 @@
         { category: 'advanced', icon: 'fa-table', title: 'Table', description: 'Compare structured values in rows and columns.', syntax: '| Name | Status |\n| --- | --- |\n| Profile | Online |\n| Project | Active |', preview: '<table class="profile-markdown-table"><thead><tr><th>Name</th><th>Status</th></tr></thead><tbody><tr><td>Profile</td><td>Online</td></tr><tr><td>Project</td><td>Active</td></tr></tbody></table>' },
     ] : [
         { category: 'text', icon: 'fa-bold', title: 'Grassetto', description: 'Dai maggiore risalto alle parole importanti.', syntax: '**testo importante**', preview: '<strong>testo importante</strong>' },
-        { category: 'text', icon: 'fa-italic', title: 'Corsivo', description: 'Aggiungi un’enfasi leggera o un tono diverso.', syntax: '*testo in corsivo*', preview: '<em>testo in corsivo</em>' },
+        { category: 'text', icon: 'fa-italic', title: 'Corsivo', description: 'Usa gli asterischi. I trattini bassi restano sempre visibili.', syntax: '*testo in corsivo*', preview: '<em>testo in corsivo</em>' },
         { category: 'text', icon: 'fa-strikethrough', title: 'Barrato', description: 'Mostra un contenuto rimosso o non più valido.', syntax: '~~testo precedente~~', preview: '<del>testo precedente</del>' },
         { category: 'text', icon: 'fa-code', title: 'Codice inline', description: 'Evidenzia un comando, una variabile o poco codice.', syntax: '`npm run dev`', preview: '<code>npm run dev</code>' },
         { category: 'text', icon: 'fa-link', title: 'Link', description: 'Crea un collegamento esterno cliccabile.', syntax: '[Visita Cripsum](https://cripsum.com)', preview: '<a href="https://cripsum.com" target="_blank" rel="noopener noreferrer">Visita Cripsum</a>' },
