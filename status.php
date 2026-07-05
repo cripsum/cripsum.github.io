@@ -719,6 +719,7 @@ function formatUptime(int $seconds): string {
                 font-size: 1rem;
             }
         }
+    </style>
 </head>
 <body>
 
