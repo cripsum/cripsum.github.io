@@ -47,6 +47,8 @@ $t = [
         'user_badge'   => 'Utente',
         'my_profile_alt' => 'Profilo',
         'missions'     => 'Missioni',
+        'private_chat' => 'Chat Privata',
+        'friends'      => 'Amici',
     ],
     'en' => [
         'memes'        => 'Memes',
@@ -75,6 +77,8 @@ $t = [
         'user_badge'   => 'User',
         'my_profile_alt' => 'Profile',
         'missions'     => 'Missions',
+        'private_chat' => 'Private Chat',
+        'friends'      => 'Friends',
     ],
 ][$lang];
 
@@ -234,6 +238,17 @@ if ($isLoggedIn) {
                             <li><a class="dropdown-item" href="/<?= $lang ?>/missions"><i class="fa-solid fa-bullseye me-2"></i><?= $t['missions'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fa-solid fa-box me-2"></i><?= $t['inventory'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/global-chat"><i class="fa-solid fa-envelope me-2"></i><?= $t['global_chat'] ?></a></li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="/<?= $lang ?>/chat">
+                                    <span><i class="fa-solid fa-message me-2"></i><?= $t['private_chat'] ?></span>
+                                    <?php
+                                    $unreadChatCount = getUnreadPrivateChatsCount($mysqli, $_SESSION['user_id']);
+                                    if ($unreadChatCount > 0): ?>
+                                        <span class="badge bg-danger rounded-pill" style="font-size: 0.75rem; padding: 0.25em 0.6em;"><?= $unreadChatCount ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
+                            <li><a class="dropdown-item" href="/<?= $lang ?>/amici"><i class="fa-solid fa-user-group me-2"></i><?= $t['friends'] ?></a></li>
                             <?php if ($nsfw === 1): ?>
                                 <li><a class="dropdown-item" href="/<?= $lang ?>/goonland/home"><i class="fa-solid fa-eye-slash me-2"></i>GoonLand</a></li>
                             <?php endif; ?>
@@ -593,7 +608,11 @@ if ($isLoggedIn) {
             };
             syncBadges();
             const observer = new MutationObserver(syncBadges);
-            observer.observe(desktopBadge, { attributes: true, childList: true, characterData: true });
+            observer.observe(desktopBadge, {
+                attributes: true,
+                childList: true,
+                characterData: true
+            });
         }
     })();
 </script>
