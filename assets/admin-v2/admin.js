@@ -567,8 +567,14 @@
                 <input name="categoria" value="${escapeHtml(item.categoria || '')}" placeholder="anime, poppy...">
             </div>
             <div class="admin-field">
-                <label>Video URL</label>
-                <input name="video_url" value="${escapeHtml(item.video_url || '')}" placeholder="https://youtube.com/embed/...">
+                <label>Video (Nome file o URL)</label>
+                <div class="admin-input-group">
+                    <input type="text" name="video_url" id="char_video_url" value="${escapeHtml(item.video_url || '')}" placeholder="video.mp4 o https://...">
+                    <label class="admin-btn admin-btn--secondary" style="margin: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; height: 2.75rem;">
+                        <i class="fa-solid fa-upload"></i> Carica
+                        <input type="file" id="char_video_file" accept="video/*" style="display: none;">
+                    </label>
+                </div>
             </div>
             <div class="admin-field">
                 <label>Immagine (Nome file o URL)</label>
@@ -666,6 +672,30 @@
                     }
                 } catch (error) {
                     showToast(error.message || 'Errore caricamento audio.', true);
+                }
+            });
+        }
+
+        const videoInput = $('#char_video_file');
+        const videoUrlTxt = $('#char_video_url');
+        if (videoInput && videoUrlTxt) {
+            videoInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('type', 'video');
+                try {
+                    showToast('Caricamento video...');
+                    const res = await api('upload_media.php', { method: 'POST', body: fd });
+                    if (res.ok && res.filename) {
+                        videoUrlTxt.value = res.filename;
+                        showToast('Video caricato!');
+                    } else {
+                        showToast(res.message || 'Errore caricamento video.', true);
+                    }
+                } catch (error) {
+                    showToast(error.message || 'Errore caricamento video.', true);
                 }
             });
         }

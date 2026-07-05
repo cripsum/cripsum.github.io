@@ -13,11 +13,18 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
 $file = $_FILES['file'];
 $type = trim((string)($_POST['type'] ?? ''));
 
-if ($type !== 'image' && $type !== 'audio') {
+if ($type !== 'image' && $type !== 'audio' && $type !== 'video') {
     admin_fail('Tipo di media non specificato o non valido.');
 }
 
-$maxSize = ($type === 'image') ? 10 * 1024 * 1024 : 35 * 1024 * 1024;
+if ($type === 'image') {
+    $maxSize = 10 * 1024 * 1024;
+} elseif ($type === 'audio') {
+    $maxSize = 35 * 1024 * 1024;
+} else {
+    $maxSize = 100 * 1024 * 1024;
+}
+
 if ($file['size'] <= 0 || $file['size'] > $maxSize) {
     admin_fail('Il file supera la dimensione massima consentita.');
 }
@@ -28,9 +35,12 @@ $targetDir = '';
 if ($type === 'image') {
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     $targetDir = __DIR__ . '/../../img/';
-} else {
+} elseif ($type === 'audio') {
     $allowedExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'aac'];
     $targetDir = __DIR__ . '/../../audio/';
+} else {
+    $allowedExtensions = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'];
+    $targetDir = __DIR__ . '/../../vid/';
 }
 
 $origName = basename($file['name']);
@@ -49,10 +59,15 @@ if ($type === 'image') {
     if (!in_array($mimeType, $allowedMimes, true)) {
         admin_fail('Tipo MIME dell\'immagine non valido.');
     }
-} else {
+} elseif ($type === 'audio') {
     $isAudioMime = str_starts_with($mimeType, 'audio/') || $mimeType === 'application/octet-stream' || $mimeType === 'application/x-zip-compressed';
     if (!$isAudioMime) {
         admin_fail('Tipo MIME audio non valido.');
+    }
+} else {
+    $isVideoMime = str_starts_with($mimeType, 'video/') || $mimeType === 'application/octet-stream';
+    if (!$isVideoMime) {
+        admin_fail('Tipo MIME video non valido.');
     }
 }
 

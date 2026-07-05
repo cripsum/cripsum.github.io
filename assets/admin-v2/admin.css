@@ -197,6 +197,44 @@ body.admin-v2-body {
     gap: .4rem;
 }
 
+.admin-field input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    display: inline-grid;
+    place-content: center;
+    cursor: pointer;
+    transition: background var(--admin-transition), border-color var(--admin-transition), box-shadow var(--admin-transition);
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+}
+.admin-field input[type="checkbox"]::before {
+    content: "";
+    width: 0.65rem;
+    height: 0.65rem;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    background-color: var(--admin-accent);
+    transform-origin: center;
+    clip-path: polygon(14% 44%, 0 58%, 38% 96%, 100% 21%, 86% 7%, 38% 68%);
+}
+.admin-field input[type="checkbox"]:checked {
+    border-color: var(--admin-accent);
+    background: rgba(var(--admin-accent-rgb), 0.15);
+}
+.admin-field input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+.admin-field input[type="checkbox"]:focus {
+    border-color: rgba(var(--admin-accent-rgb), .55);
+    box-shadow: 0 0 0 3px rgba(var(--admin-accent-rgb), .12);
+}
+
 .admin-detail-grid { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 1rem; }
 .admin-detail-side { border: 1px solid var(--admin-border); border-radius: 22px; padding: 1rem; background: rgba(255,255,255,.045); text-align: center; }
 .admin-detail-avatar { width: 116px; height: 116px; border-radius: 32px; object-fit: cover; margin-bottom: .8rem; }

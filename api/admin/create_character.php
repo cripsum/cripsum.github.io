@@ -34,7 +34,6 @@ try {
     $rarity = trim((string)($input['rarità'] ?? $input['rarita'] ?? $input['rarity'] ?? ''));
     $rarity_en = trim((string)($input['rarita_en'] ?? $input['rarità_en'] ?? $input['rarity_en'] ?? ''));
     $category = trim((string)($input['categoria'] ?? $input['category'] ?? ''));
-    $video_url = trim((string)($input['video_url'] ?? ''));
     $pool_evento = isset($input['pool_evento']) ? (int)$input['pool_evento'] : 0;
     $in_pool_standard = isset($input['in_pool_standard']) ? (int)$input['in_pool_standard'] : 0;
     $ruolo = trim((string)($input['ruolo'] ?? ''));
@@ -49,6 +48,12 @@ try {
         $input['audio_url'] ?? $input['audio'] ?? '',
         ['mp3', 'wav', 'ogg', 'm4a', 'aac'],
         'Audio'
+    );
+
+    $videoValue = admin_normalize_media_file(
+        $input['video_url'] ?? $input['video'] ?? '',
+        ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'],
+        'Video'
     );
 
     $fields = [admin_qcol($nameCol)];
@@ -66,7 +71,7 @@ try {
         'rarity_en' => $rarity_en,
         'audio' => $audioValue,
         'category' => $category,
-        'video_url' => $video_url,
+        'video_url' => $videoValue,
         'pool_evento' => $pool_evento,
         'in_pool_standard' => $in_pool_standard,
         'ruolo' => $ruolo,
