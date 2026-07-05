@@ -33,11 +33,18 @@ try {
     $select = 'id';
     $select .= $nameCol ? ', ' . admin_qcol($nameCol) . ' AS nome' : ", CONCAT('Personaggio #', id) AS nome";
     $select .= $cols['description'] ? ', ' . admin_qcol($cols['description']) . ' AS descrizione' : ', NULL AS descrizione';
+    $select .= $cols['description_en'] ? ', ' . admin_qcol($cols['description_en']) . ' AS descrizione_en' : ', NULL AS descrizione_en';
     $select .= $cols['features'] ? ', ' . admin_qcol($cols['features']) . ' AS caratteristiche' : ', NULL AS caratteristiche';
+    $select .= $cols['features_en'] ? ', ' . admin_qcol($cols['features_en']) . ' AS caratteristiche_en' : ', NULL AS caratteristiche_en';
     $select .= $cols['image'] ? ', ' . admin_qcol($cols['image']) . ' AS img_url' : ', NULL AS img_url';
     $select .= $cols['rarity'] ? ', ' . admin_qcol($cols['rarity']) . ' AS rarita' : ', NULL AS rarita';
+    $select .= $cols['rarity_en'] ? ', ' . admin_qcol($cols['rarity_en']) . ' AS rarita_en' : ', NULL AS rarita_en';
     $select .= $cols['audio'] ? ', ' . admin_qcol($cols['audio']) . ' AS audio_url' : ', NULL AS audio_url';
     $select .= $cols['category'] ? ', ' . admin_qcol($cols['category']) . ' AS categoria' : ', NULL AS categoria';
+    $select .= $cols['video_url'] ? ', ' . admin_qcol($cols['video_url']) . ' AS video_url' : ', NULL AS video_url';
+    $select .= isset($cols['pool_evento']) && $cols['pool_evento'] ? ', ' . admin_qcol($cols['pool_evento']) . ' AS pool_evento' : ', 0 AS pool_evento';
+    $select .= isset($cols['in_pool_standard']) && $cols['in_pool_standard'] ? ', ' . admin_qcol($cols['in_pool_standard']) . ' AS in_pool_standard' : ', 0 AS in_pool_standard';
+    $select .= $cols['ruolo'] ? ', ' . admin_qcol($cols['ruolo']) . ' AS ruolo' : ', NULL AS ruolo';
 
     $order = $nameCol ? admin_qcol($nameCol) : 'id';
     $stmt = $mysqli->prepare("SELECT $select FROM personaggi $where ORDER BY $order ASC LIMIT $limit OFFSET $offset");

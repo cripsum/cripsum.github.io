@@ -534,19 +534,148 @@
     const characterFormHtml = (item = {}) => `
         <form id="characterForm" class="admin-form-grid">
             ${item.id ? `<input type="hidden" name="id" value="${Number(item.id)}">` : ''}
-            <div class="admin-field"><label>Nome</label><input name="nome" value="${escapeHtml(item.nome || '')}" required maxlength="80"></div>
-            <div class="admin-field"><label>Rarità</label><input name="rarita" value="${escapeHtml(item.rarita || '')}" placeholder="comune, raro, epico..."></div>
-            <div class="admin-field"><label>Categoria</label><input name="categoria" value="${escapeHtml(item.categoria || '')}" placeholder="anime, poppy..."></div>
-            <div class="admin-field"><label>Immagine URL</label><input name="img_url" value="${escapeHtml(item.img_url || '')}" placeholder="https://..."></div>
-            <div class="admin-field admin-field--full"><label>Audio URL</label><input name="audio_url" value="${escapeHtml(item.audio_url || '')}" placeholder="https://..."></div>
+            <div class="admin-field">
+                <label>Nome</label>
+                <input name="nome" value="${escapeHtml(item.nome || '')}" required maxlength="80">
+            </div>
+            <div class="admin-field">
+                <label>Ruolo</label>
+                <select name="ruolo">
+                    <option value="">Nessuno / Default</option>
+                    <option value="Tank" ${item.ruolo === 'Tank' ? 'selected' : ''}>Tank</option>
+                    <option value="Bruiser" ${item.ruolo === 'Bruiser' ? 'selected' : ''}>Bruiser</option>
+                    <option value="DPS" ${item.ruolo === 'DPS' ? 'selected' : ''}>DPS</option>
+                    <option value="Burst DPS" ${item.ruolo === 'Burst DPS' ? 'selected' : ''}>Burst DPS</option>
+                    <option value="Sub DPS" ${item.ruolo === 'Sub DPS' ? 'selected' : ''}>Sub DPS</option>
+                    <option value="Support" ${item.ruolo === 'Support' ? 'selected' : ''}>Support</option>
+                    <option value="Healer" ${item.ruolo === 'Healer' ? 'selected' : ''}>Healer</option>
+                    <option value="Controller" ${item.ruolo === 'Controller' ? 'selected' : ''}>Controller</option>
+                    <option value="Debuffer" ${item.ruolo === 'Debuffer' ? 'selected' : ''}>Debuffer</option>
+                    <option value="Buffer" ${item.ruolo === 'Buffer' ? 'selected' : ''}>Buffer</option>
+                </select>
+            </div>
+            <div class="admin-field">
+                <label>Rarità (IT)</label>
+                <input name="rarita" value="${escapeHtml(item.rarita || '')}" placeholder="comune, raro, epico, leggendario...">
+            </div>
+            <div class="admin-field">
+                <label>Rarità (EN)</label>
+                <input name="rarita_en" value="${escapeHtml(item.rarita_en || '')}" placeholder="common, rare, epic, legendary...">
+            </div>
+            <div class="admin-field">
+                <label>Categoria</label>
+                <input name="categoria" value="${escapeHtml(item.categoria || '')}" placeholder="anime, poppy...">
+            </div>
+            <div class="admin-field">
+                <label>Video URL</label>
+                <input name="video_url" value="${escapeHtml(item.video_url || '')}" placeholder="https://youtube.com/embed/...">
+            </div>
+            <div class="admin-field">
+                <label>Immagine (Nome file o URL)</label>
+                <div class="admin-input-group">
+                    <input type="text" name="img_url" id="char_img_url" value="${escapeHtml(item.img_url || '')}" placeholder="abdul.jpg o https://...">
+                    <label class="admin-btn admin-btn--secondary" style="margin: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; height: 2.75rem;">
+                        <i class="fa-solid fa-upload"></i> Carica
+                        <input type="file" id="char_img_file" accept="image/*" style="display: none;">
+                    </label>
+                </div>
+            </div>
+            <div class="admin-field">
+                <label>Audio (Nome file o URL)</label>
+                <div class="admin-input-group">
+                    <input type="text" name="audio_url" id="char_audio_url" value="${escapeHtml(item.audio_url || '')}" placeholder="audio.mp3 o https://...">
+                    <label class="admin-btn admin-btn--secondary" style="margin: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; height: 2.75rem;">
+                        <i class="fa-solid fa-upload"></i> Carica
+                        <input type="file" id="char_audio_file" accept="audio/*" style="display: none;">
+                    </label>
+                </div>
+            </div>
+            <div class="admin-field">
+                <label>Caratteristiche (IT)</label>
+                <input name="caratteristiche" value="${escapeHtml(item.caratteristiche || '')}" placeholder="Caratteristiche separate da virgola">
+            </div>
+            <div class="admin-field">
+                <label>Caratteristiche (EN)</label>
+                <input name="caratteristiche_en" value="${escapeHtml(item.caratteristiche_en || '')}" placeholder="Traits separated by commas">
+            </div>
+            <div class="admin-field" style="display: flex; flex-direction: row; gap: 1.5rem; align-items: center; height: 100%; margin-top: 1.25rem;">
+                <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin-bottom: 0;">
+                    <input type="checkbox" name="pool_evento" id="char_pool_evento" value="1" ${Number(item.pool_evento) === 1 ? 'checked' : ''}>
+                    <span>Pool Evento</span>
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin-bottom: 0;">
+                    <input type="checkbox" name="in_pool_standard" id="char_in_pool_standard" value="1" ${item.in_pool_standard === undefined || Number(item.in_pool_standard) === 1 ? 'checked' : ''}>
+                    <span>Pool Standard</span>
+                </label>
+            </div>
+            <div class="admin-field admin-field--full">
+                <label>Descrizione (IT)</label>
+                <textarea name="descrizione" rows="3" placeholder="Descrizione del personaggio...">${escapeHtml(item.descrizione || '')}</textarea>
+            </div>
+            <div class="admin-field admin-field--full">
+                <label>Descrizione (EN)</label>
+                <textarea name="descrizione_en" rows="3" placeholder="Character description in English...">${escapeHtml(item.descrizione_en || '')}</textarea>
+            </div>
         </form>`;
 
     const openCharacterForm = (item = null) => {
         openModal(item ? 'Modifica personaggio' : 'Nuovo personaggio', item ? `ID ${item.id}` : '', characterFormHtml(item || {}), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveCharacterBtn">Salva</button>`);
+        
+        // Upload handlers
+        const imgInput = $('#char_img_file');
+        const imgUrlTxt = $('#char_img_url');
+        if (imgInput && imgUrlTxt) {
+            imgInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('type', 'image');
+                try {
+                    showToast('Caricamento immagine...');
+                    const res = await api('upload_media.php', { method: 'POST', body: fd });
+                    if (res.ok && res.filename) {
+                        imgUrlTxt.value = res.filename;
+                        showToast('Immagine caricata!');
+                    } else {
+                        showToast(res.message || 'Errore caricamento immagine.', true);
+                    }
+                } catch (error) {
+                    showToast(error.message || 'Errore caricamento immagine.', true);
+                }
+            });
+        }
+
+        const audioInput = $('#char_audio_file');
+        const audioUrlTxt = $('#char_audio_url');
+        if (audioInput && audioUrlTxt) {
+            audioInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('type', 'audio');
+                try {
+                    showToast('Caricamento audio...');
+                    const res = await api('upload_media.php', { method: 'POST', body: fd });
+                    if (res.ok && res.filename) {
+                        audioUrlTxt.value = res.filename;
+                        showToast('Audio caricato!');
+                    } else {
+                        showToast(res.message || 'Errore caricamento audio.', true);
+                    }
+                } catch (error) {
+                    showToast(error.message || 'Errore caricamento audio.', true);
+                }
+            });
+        }
+
         $('#saveCharacterBtn')?.addEventListener('click', async () => {
             const form = $('#characterForm');
             if (!form) return;
             const payload = Object.fromEntries(new FormData(form).entries());
+            payload.pool_evento = $('#char_pool_evento')?.checked ? 1 : 0;
+            payload.in_pool_standard = $('#char_in_pool_standard')?.checked ? 1 : 0;
             try { await api(item ? 'update_character.php' : 'create_character.php', { method: 'POST', body: payload }); closeModal(); showToast('Personaggio salvato.'); loadCharacters(); loadDashboard(); }
             catch (error) { showToast(error.message, true); }
         });

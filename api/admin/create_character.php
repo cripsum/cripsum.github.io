@@ -1,65 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 
-/**
- * Accetta sia URL http/https sia nomi file semplici.
- * Esempi validi:
- * - nome.jpg
- * - nome.png
- * - personaggi/nome.webp
- * - audio.mp3
- * - https://example.com/nome.jpg
- *
- * Non accetta:
- * - ../file.jpg
- * - javascript:...
- * - file senza estensione valida
- */
-function admin_normalize_media_file($value, array $allowedExtensions, string $fieldLabel): string
-{
-    $value = trim((string)($value ?? ''));
-
-    if ($value === '') {
-        return '';
-    }
-
-    $value = str_replace("\0", '', $value);
-
-    // URL completo, se mai ti serve.
-    if (preg_match('~^https?://~i', $value)) {
-        if (!filter_var($value, FILTER_VALIDATE_URL)) {
-            admin_fail($fieldLabel . ' non valido.');
-        }
-
-        $path = parse_url($value, PHP_URL_PATH) ?: '';
-        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-
-        if (!in_array($ext, $allowedExtensions, true)) {
-            admin_fail($fieldLabel . ' ha un formato non supportato.');
-        }
-
-        return $value;
-    }
-
-    // Blocca path pericolosi.
-    if (strpos($value, '..') !== false || preg_match('~^[a-z]+:~i', $value)) {
-        admin_fail($fieldLabel . ' non valido.');
-    }
-
-    // Permette nomi file e sottocartelle semplici.
-    if (!preg_match('~^[a-zA-Z0-9_\-./ ()]+$~', $value)) {
-        admin_fail($fieldLabel . ' contiene caratteri non validi.');
-    }
-
-    $ext = strtolower(pathinfo($value, PATHINFO_EXTENSION));
-
-    if (!in_array($ext, $allowedExtensions, true)) {
-        admin_fail($fieldLabel . ' ha un formato non supportato.');
-    }
-
-    return $value;
-}
-
 function admin_bind_stmt_params(mysqli_stmt $stmt, string $types, array &$params): void
 {
     $bindParams = [$types];
@@ -86,13 +27,18 @@ try {
     }
 
     $description = trim((string)($input['descrizione'] ?? ''));
+    $description_en = trim((string)($input['descrizione_en'] ?? ''));
     $features = trim((string)($input['caratteristiche'] ?? ''));
+    $features_en = trim((string)($input['caratteristiche_en'] ?? ''));
 
-    // Accetta sia "rarità" sia "rarita", nel caso il JS mandi il campo senza accento.
     $rarity = trim((string)($input['rarità'] ?? $input['rarita'] ?? $input['rarity'] ?? ''));
+    $rarity_en = trim((string)($input['rarita_en'] ?? $input['rarità_en'] ?? $input['rarity_en'] ?? ''));
     $category = trim((string)($input['categoria'] ?? $input['category'] ?? ''));
+    $video_url = trim((string)($input['video_url'] ?? ''));
+    $pool_evento = isset($input['pool_evento']) ? (int)$input['pool_evento'] : 0;
+    $in_pool_standard = isset($input['in_pool_standard']) ? (int)$input['in_pool_standard'] : 0;
+    $ruolo = trim((string)($input['ruolo'] ?? ''));
 
-    // Qui ora puoi mettere solo il nome del file, tipo nome.jpg / nome.mp3.
     $imageValue = admin_normalize_media_file(
         $input['img_url'] ?? $input['image'] ?? '',
         ['jpg', 'jpeg', 'png', 'gif', 'webp'],
@@ -112,18 +58,29 @@ try {
 
     $map = [
         'description' => $description,
+        'description_en' => $description_en,
         'features' => $features,
+        'features_en' => $features_en,
         'image' => $imageValue,
         'rarity' => $rarity,
+        'rarity_en' => $rarity_en,
         'audio' => $audioValue,
         'category' => $category,
+        'video_url' => $video_url,
+        'pool_evento' => $pool_evento,
+        'in_pool_standard' => $in_pool_standard,
+        'ruolo' => $ruolo,
     ];
 
     foreach ($map as $key => $value) {
         if (!empty($cols[$key])) {
             $fields[] = admin_qcol($cols[$key]);
             $placeholders[] = '?';
-            $types .= 's';
+            if ($key === 'pool_evento' || $key === 'in_pool_standard') {
+                $types .= 'i';
+            } else {
+                $types .= 's';
+            }
             $params[] = $value;
         }
     }

@@ -401,12 +401,64 @@ function admin_character_columns(mysqli $mysqli): array
         'id' => 'id',
         'name' => admin_first_existing_column($mysqli, 'personaggi', ['nome', 'name']),
         'description' => admin_first_existing_column($mysqli, 'personaggi', ['descrizione', 'description', 'desc']),
+        'description_en' => admin_first_existing_column($mysqli, 'personaggi', ['descrizione_en', 'description_en']),
         'features' => admin_first_existing_column($mysqli, 'personaggi', ['caratteristiche', 'features', 'traits']),
+        'features_en' => admin_first_existing_column($mysqli, 'personaggi', ['caratteristiche_en', 'features_en']),
         'image' => admin_first_existing_column($mysqli, 'personaggi', ['img_url', 'immagine', 'image_url', 'img']),
         'rarity' => admin_first_existing_column($mysqli, 'personaggi', ['rarità', 'rarita', 'rarity']),
+        'rarity_en' => admin_first_existing_column($mysqli, 'personaggi', ['rarità_en', 'rarita_en', 'rarity_en']),
         'audio' => admin_first_existing_column($mysqli, 'personaggi', ['audio_url', 'audio']),
         'category' => admin_first_existing_column($mysqli, 'personaggi', ['categoria', 'category']),
+        'video_url' => admin_first_existing_column($mysqli, 'personaggi', ['video_url']),
+        'pool_evento' => admin_first_existing_column($mysqli, 'personaggi', ['pool_evento', 'pool_event']),
+        'in_pool_standard' => admin_first_existing_column($mysqli, 'personaggi', ['in_pool_standard', 'standard_pool']),
+        'ruolo' => admin_first_existing_column($mysqli, 'personaggi', ['ruolo', 'role']),
     ];
+}
+
+function admin_normalize_media_file($value, array $allowedExtensions, string $fieldLabel): string
+{
+    $value = trim((string)($value ?? ''));
+
+    if ($value === '') {
+        return '';
+    }
+
+    $value = str_replace("\0", '', $value);
+
+    // URL completo, se mai ti serve.
+    if (preg_match('~^https?://~i', $value)) {
+        if (!filter_var($value, FILTER_VALIDATE_URL)) {
+            admin_fail($fieldLabel . ' non valido.');
+        }
+
+        $path = parse_url($value, PHP_URL_PATH) ?: '';
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        if (!in_array($ext, $allowedExtensions, true)) {
+            admin_fail($fieldLabel . ' ha un formato non supportato.');
+        }
+
+        return $value;
+    }
+
+    // Blocca path pericolosi.
+    if (strpos($value, '..') !== false || preg_match('~^[a-z]+:~i', $value)) {
+        admin_fail($fieldLabel . ' non valido.');
+    }
+
+    // Permette nomi file e sottocartelle semplici.
+    if (!preg_match('~^[a-zA-Z0-9_\-./ ()]+$~', $value)) {
+        admin_fail($fieldLabel . ' contiene caratteri non validi.');
+    }
+
+    $ext = strtolower(pathinfo($value, PATHINFO_EXTENSION));
+
+    if (!in_array($ext, $allowedExtensions, true)) {
+        admin_fail($fieldLabel . ' ha un formato non supportato.');
+    }
+
+    return $value;
 }
 
 function admin_achievement_columns(mysqli $mysqli): array

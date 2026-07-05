@@ -181,6 +181,22 @@ body.admin-v2-body {
 .admin-field textarea { min-height: 8rem; resize: vertical; }
 .admin-field--full { grid-column: 1 / -1; }
 
+.admin-input-group {
+    display: flex;
+    gap: .5rem;
+    align-items: stretch;
+}
+.admin-input-group input {
+    flex: 1;
+}
+.admin-input-group .admin-btn {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+}
+
 .admin-detail-grid { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 1rem; }
 .admin-detail-side { border: 1px solid var(--admin-border); border-radius: 22px; padding: 1rem; background: rgba(255,255,255,.045); text-align: center; }
 .admin-detail-avatar { width: 116px; height: 116px; border-radius: 32px; object-fit: cover; margin-bottom: .8rem; }
