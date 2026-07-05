@@ -397,7 +397,7 @@
             $('#btnTogglePremium')?.addEventListener('click', async () => {
                 const targetPremium = Number($('#btnTogglePremium').dataset.premium);
                 const confirmMsg = targetPremium === 1
-                    ? "Vuoi attivare il Premium per questo utente? Verranno assegnati anche 20.000 soldi e il badge premium."
+                    ? "Vuoi attivare il Premium per questo utente? Verranno assegnati anche 25.000 soldi e il badge premium."
                     : "Vuoi rimuovere lo stato Premium per questo utente? Verrà rimosso anche il badge premium.";
                 
                 if (confirm(confirmMsg)) {

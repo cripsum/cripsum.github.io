@@ -102,7 +102,7 @@ try {
     $stmt->close();
 
     // 2. Aggiungi il bonus di 200k soldi per pullare
-    $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 20000 WHERE id = ?");
+    $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 25000 WHERE id = ?");
     $stmtSoldi->bind_param("i", $recipientId);
     $stmtSoldi->execute();
     $stmtSoldi->close();
@@ -183,8 +183,8 @@ try {
     echo json_encode([
         'ok' => true,
         'message' => $isGift
-            ? 'Regalo inviato con successo! Il tuo amico ha ricevuto 20.000 soldi e il Premium!'
-            : 'Premium attivato con successo! Hai ricevuto 20.000 soldi bonus!'
+            ? 'Regalo inviato con successo! Il tuo amico ha ricevuto 25.000 soldi e il Premium!'
+            : 'Premium attivato con successo! Hai ricevuto 25.000 soldi bonus!'
     ]);
 } catch (Exception $e) {
     $mysqli->rollback();

@@ -464,7 +464,7 @@ function getPremiumGiftEmailTemplate($recipientUsername, $senderUsername)
                                     <tr>
                                         <td style="vertical-align: top; width: 30px; font-size: 18px; padding-bottom: 15px;">🪙</td>
                                         <td style="color: #f8fafc; font-size: 14px; padding-bottom: 15px; line-height: 1.5;">
-                                            <strong style="color: #ffffff;">Bonus di 20.000 Soldi</strong><br>
+                                            <strong style="color: #ffffff;">Bonus di 25.000 Soldi</strong><br>
                                             <span style="color: #94a3b8;">Aggiunti istantaneamente al tuo bilancio per pullare nel Gacha dei personaggi!</span>
                                         </td>
                                     </tr>
@@ -945,7 +945,7 @@ function getUltimoAccesso($mysqli, $user_id)
 function getUnreadMessagesCount($mysqli, $userId)
 {
     $userId = (int)$userId;
-    
+
     // 1. Count unread traditional messages
     $stmt = $mysqli->prepare("
         SELECT COUNT(*) AS c 
@@ -1252,7 +1252,7 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "Sorpresa! **" . $senderUsername . "** ti ha regalato **Cripsum Premium**! 🎁\n\n" .
             "Tutti i vantaggi premium sono già stati sbloccati ed attivati sul tuo account:\n" .
             "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
-            "- **Bonus di 20.000 Godos**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
+            "- **Bonus di 25.000 Godos**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
             "- **Riscatto Lootbox**: Riscatta 500 Godos extra bonus ogni giorno nelle Lootbox.\n" .
             "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i Godos delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
             "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
@@ -1267,7 +1267,7 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "Surprise! **" . $senderUsername . "** has gifted you **Cripsum Premium**! 🎁\n\n" .
             "All premium perks have already been unlocked and activated on your account:\n" .
             "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
-            "- **20,000 Godos Bonus**: Added directly to your balance to pull in the gacha.\n" .
+            "- **25.000 Godos Bonus**: Added directly to your balance to pull in the gacha.\n" .
             "- **Lootbox Daily Claim**: Redeem 500 extra bonus Godos every day in your Lootbox.\n" .
             "- **Mission Boost**: Double Godos (x2) earned on all Daily & Weekly missions.\n" .
             "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
@@ -1285,7 +1285,7 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "Grazie mille per aver acquistato **Cripsum Premium**! Il tuo supporto ci aiuta a mantenere il sito attivo e a sviluppare nuove funzionalità.\n\n" .
             "Tutti i vantaggi premium sono già stati attivati sul tuo account:\n" .
             "- **Badge Premium (ID 5)**: Un badge esclusivo sul tuo profilo per mostrare a tutti il tuo supporto.\n" .
-            "- **Bonus di 20.000 Godos**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
+            "- **Bonus di 25.000 Godos**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
             "- **Riscatto Lootbox**: Riscatta 500 Godos extra bonus ogni giorno nelle Lootbox.\n" .
             "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i Godos delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
             "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
@@ -1300,7 +1300,7 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "Thank you so much for purchasing **Cripsum Premium**! Your support helps us keep the site running and develop new features.\n\n" .
             "All premium perks have already been activated on your account:\n" .
             "- **Premium Badge (ID 5)**: An exclusive badge on your profile to showcase your support.\n" .
-            "- **20,000 Godos Bonus**: Added directly to your balance to pull in the gacha.\n" .
+            "- **25.000 Godos Bonus**: Added directly to your balance to pull in the gacha.\n" .
             "- **Lootbox Daily Claim**: Redeem 500 extra bonus Godos every day in your Lootbox.\n" .
             "- **Mission Boost**: Double Godos (x2) earned on all Daily & Weekly missions.\n" .
             "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .

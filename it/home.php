@@ -179,7 +179,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <h3>Sblocca l'esperienza Cripsum™ definitiva</h3>
                     <p>Ottieni vantaggi esclusivi, raddoppia i tuoi Godos e supporta la community.</p>
                     <div class="promo-benefits">
-                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>20.000 Godos subito all'acquisto</span></div>
+                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>25.000 Godos subito all'acquisto</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Sblocco della personalizzazione premium nei profili</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Riscatto giornaliero di 500 Godos Lootbox</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Doppio boost (2x) sui Godos delle missioni</span></div>
@@ -209,12 +209,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 </div>
                 <div class="supporters-scroll-wrapper">
                     <div class="supporters-grid">
-                        <?php foreach ($supporters as $s): 
+                        <?php foreach ($supporters as $s):
                             $useDiscord = (int)($s['discord_use_display_name'] ?? 0) === 1;
                             $discord = trim((string)($s['discord_global_name'] ?? '')) ?: trim((string)($s['discord_username'] ?? ''));
                             $dispName = ($useDiscord && $discord !== '') ? $discord : (trim((string)($s['display_name'] ?? '')) ?: $s['username']);
                             $stamp = !empty($s['profile_updated_at']) ? strtotime((string)$s['profile_updated_at']) : time();
-                            
+
                             $suppColor = !empty($s['accent_color']) ? $s['accent_color'] : '#db2777';
                         ?>
                             <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>" style="--supporter-color: <?= htmlspecialchars($suppColor) ?>;">

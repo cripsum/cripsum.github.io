@@ -55,8 +55,8 @@ try {
 
         // Se abilitiamo il premium e l'utente non lo era
         if ($is_premium === 1 && (int)($target['is_premium'] ?? 0) !== 1) {
-            // Aggiungi 20.000 soldi
-            $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 20000 WHERE id = ?");
+            // Aggiungi 25.000 soldi
+            $stmtSoldi = $mysqli->prepare("UPDATE utenti SET soldi = soldi + 25000 WHERE id = ?");
             if ($stmtSoldi) {
                 $stmtSoldi->bind_param('i', $userId);
                 $stmtSoldi->execute();

@@ -214,7 +214,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
         <section class="form-card form-reveal">
             <div class="form-card__header">
                 <h1>Cripsum™ Premium</h1>
-                <p>Personalizza il tuo profilo con layout animati, musica e badge, ricevi subito 20.000 Godos, riscatta 500 Godos bonus ogni giorno nelle Lootbox e raddoppia (x2) i Godos di tutte le missioni daily e weekly!</p>
+                <p>Personalizza il tuo profilo con layout animati, musica e badge, ricevi subito 25.000 Godos, riscatta 500 Godos bonus ogni giorno nelle Lootbox e raddoppia (x2) i Godos di tutte le missioni daily e weekly!</p>
             </div>
 
             <?php if ($errorMsg): ?>
@@ -248,7 +248,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                                     <label for="purchaseGift" class="option-title">
                                         <i class="fa-solid fa-gift"></i> Regala ad un amico
                                     </label>
-                                    <span class="option-desc">Invia l'attivazione Premium e i 20.000 Godos a un altro utente della community.</span>
+                                    <span class="option-desc">Invia l'attivazione Premium e i 25.000 Godos a un altro utente della community.</span>
                                 </div>
                             </div>
 
@@ -300,7 +300,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                     </div>
                     <div class="summary-line">
                         <span>Godos inclusi</span>
-                        <strong style="color: #eab308;">20.000 Godos</strong>
+                        <strong style="color: #eab308;">25.000 Godos</strong>
                     </div>
                     <div class="summary-line">
                         <span>Riscatto Lootbox</span>

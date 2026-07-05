@@ -196,9 +196,17 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
                     <p><?php echo $isIt ? 'Restituisce lo stato Discord in formato compatibile con Lanyard.' : 'Returns Discord presence data in a Lanyard-compatible format.'; ?></p>
                     <div class="docs-table-wrap">
                         <table class="docs-table">
-                            <thead><tr><th><?php echo api_docs_h($docs['parameters']); ?></th><th><?php echo api_docs_h($docs['description']); ?></th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th><?php echo api_docs_h($docs['parameters']); ?></th>
+                                    <th><?php echo api_docs_h($docs['description']); ?></th>
+                                </tr>
+                            </thead>
                             <tbody>
-                                <tr><td><code>discordId</code></td><td><?php echo $isIt ? 'Snowflake Discord pubblico dell’utente.' : 'Public Discord snowflake for the user.'; ?></td></tr>
+                                <tr>
+                                    <td><code>discordId</code></td>
+                                    <td><?php echo $isIt ? 'Snowflake Discord pubblico dell’utente.' : 'Public Discord snowflake for the user.'; ?></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -235,9 +243,17 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
                     <p><?php echo $isIt ? 'Restituisce la top 10 pubblica per una metrica aggregata.' : 'Returns the public top 10 for an aggregate metric.'; ?></p>
                     <div class="docs-table-wrap">
                         <table class="docs-table">
-                            <thead><tr><th><?php echo api_docs_h($docs['parameters']); ?></th><th><?php echo api_docs_h($docs['values']); ?></th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th><?php echo api_docs_h($docs['parameters']); ?></th>
+                                    <th><?php echo api_docs_h($docs['values']); ?></th>
+                                </tr>
+                            </thead>
                             <tbody>
-                                <tr><td><code>type</code></td><td><?php echo api_docs_h(implode(', ', $leaderboardTypes)); ?></td></tr>
+                                <tr>
+                                    <td><code>type</code></td>
+                                    <td><?php echo api_docs_h(implode(', ', $leaderboardTypes)); ?></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -256,7 +272,7 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
   "type": "godos",
   "data": {
     "entries": [
-      { "position": 1, "username": "cripsum", "is_premium": true, "value": 20000 }
+      { "position": 1, "username": "cripsum", "is_premium": true, "value": 25000 }
     ]
   }
 }</pre>
@@ -316,9 +332,17 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
                     <p><?php echo $isIt ? 'Restituisce dati profilo solo se il profilo Cripsum è pubblico. Se l’account ha Discord collegato, include anche discord_connected e discord_id. Non permette lookup tramite Discord ID.' : 'Returns profile data only when the Cripsum profile is public. If the account has Discord connected, it also includes discord_connected and discord_id. It does not allow Discord ID lookups.'; ?></p>
                     <div class="docs-table-wrap">
                         <table class="docs-table">
-                            <thead><tr><th><?php echo api_docs_h($docs['parameters']); ?></th><th><?php echo api_docs_h($docs['description']); ?></th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th><?php echo api_docs_h($docs['parameters']); ?></th>
+                                    <th><?php echo api_docs_h($docs['description']); ?></th>
+                                </tr>
+                            </thead>
                             <tbody>
-                                <tr><td><code>username</code></td><td><?php echo $isIt ? 'Username o alias pubblico Cripsum.' : 'Cripsum public username or alias.'; ?></td></tr>
+                                <tr>
+                                    <td><code>username</code></td>
+                                    <td><?php echo $isIt ? 'Username o alias pubblico Cripsum.' : 'Cripsum public username or alias.'; ?></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -352,12 +376,29 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
                     <p><?php echo $isIt ? 'Gli errori usano status HTTP standard e payload JSON semplice.' : 'Errors use standard HTTP statuses and a simple JSON payload.'; ?></p>
                     <div class="docs-table-wrap">
                         <table class="docs-table">
-                            <thead><tr><th>Status</th><th><?php echo api_docs_h($docs['description']); ?></th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th><?php echo api_docs_h($docs['description']); ?></th>
+                                </tr>
+                            </thead>
                             <tbody>
-                                <tr><td><code>400</code></td><td><?php echo $isIt ? 'Parametro mancante o non valido.' : 'Missing or invalid parameter.'; ?></td></tr>
-                                <tr><td><code>404</code></td><td><?php echo $isIt ? 'Risorsa non trovata quando applicabile.' : 'Resource not found when applicable.'; ?></td></tr>
-                                <tr><td><code>502</code></td><td><?php echo $isIt ? 'Il servizio Cripsum interno non ha risposto correttamente.' : 'The internal Cripsum service did not respond correctly.'; ?></td></tr>
-                                <tr><td><code>503</code></td><td><?php echo $isIt ? 'API temporaneamente non configurata o non disponibile.' : 'API temporarily unavailable or not configured.'; ?></td></tr>
+                                <tr>
+                                    <td><code>400</code></td>
+                                    <td><?php echo $isIt ? 'Parametro mancante o non valido.' : 'Missing or invalid parameter.'; ?></td>
+                                </tr>
+                                <tr>
+                                    <td><code>404</code></td>
+                                    <td><?php echo $isIt ? 'Risorsa non trovata quando applicabile.' : 'Resource not found when applicable.'; ?></td>
+                                </tr>
+                                <tr>
+                                    <td><code>502</code></td>
+                                    <td><?php echo $isIt ? 'Il servizio Cripsum interno non ha risposto correttamente.' : 'The internal Cripsum service did not respond correctly.'; ?></td>
+                                </tr>
+                                <tr>
+                                    <td><code>503</code></td>
+                                    <td><?php echo $isIt ? 'API temporaneamente non configurata o non disponibile.' : 'API temporarily unavailable or not configured.'; ?></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
