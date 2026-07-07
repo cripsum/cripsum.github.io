@@ -158,6 +158,7 @@
     multiResults:     [],
     multiSkipping:    false,
     multiActionsReady:false,
+    multiActionsShownOnce:false,
     multiAbort:       false,  // FIX 1: salta al resoconto
     _covActions:      null,   // riferimento azioni card-over-video multi
     videoPlaying:     false,  // true mentre un video segreto/theone è in riproduzione
@@ -439,6 +440,8 @@
     state.isMulti       = true;
     state.multiResults  = [];
     state.multiSkipping = false;
+    state.multiActionsReady = false;
+    state.multiActionsShownOnce = false;
     state.isPulling     = true;
 
     stopAudio();
@@ -643,6 +646,7 @@
     state._covActions = null;
     state.multiAbort = false;
     state.multiActionsReady = false;
+    state.multiActionsShownOnce = false;
     showMultiSummary(pulls);
   }
 
@@ -1326,7 +1330,18 @@
     btn.style.visibility = hidden ? 'hidden' : '';
     btn.style.pointerEvents = hidden ? 'none' : '';
     btn.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+    btn.setAttribute('aria-disabled', hidden ? 'true' : 'false');
     btn.tabIndex = hidden ? -1 : 0;
+  }
+
+  function setButtonVisibleButDisabled(btn) {
+    if (!btn) return;
+    btn.style.display = '';
+    btn.style.visibility = '';
+    btn.style.pointerEvents = 'none';
+    btn.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-disabled', 'true');
+    btn.tabIndex = -1;
   }
 
   function setMultiActionButtonsPending() {
@@ -1335,12 +1350,18 @@
     const btnSkip = $('btn-multi-skip');
     if (btnNext && !btnNext.innerHTML.trim()) btnNext.innerHTML = t.btn_next_label;
     if (btnSkip && !btnSkip.innerHTML.trim()) btnSkip.innerHTML = t.btn_skip_inject;
-    setButtonHiddenButReserved(btnNext, true);
-    setButtonHiddenButReserved(btnSkip, true);
+    if (state.multiActionsShownOnce) {
+      setButtonVisibleButDisabled(btnNext);
+      setButtonVisibleButDisabled(btnSkip);
+    } else {
+      setButtonHiddenButReserved(btnNext, true);
+      setButtonHiddenButReserved(btnSkip, true);
+    }
   }
 
   function showMultiActionButtons(idx, total, isLast) {
     state.multiActionsReady = true;
+    state.multiActionsShownOnce = true;
     const btnNext = $('btn-multi-next');
     const btnSkip = $('btn-multi-skip');
     if (btnNext) {
@@ -1362,6 +1383,7 @@
       btn.style.visibility = '';
       btn.style.pointerEvents = '';
       btn.removeAttribute('aria-hidden');
+      btn.removeAttribute('aria-disabled');
       btn.removeAttribute('tabindex');
     });
   }
