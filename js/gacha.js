@@ -157,6 +157,7 @@
     isMulti:          false,
     multiResults:     [],
     multiSkipping:    false,
+    multiActionsReady:false,
     multiAbort:       false,  // FIX 1: salta al resoconto
     _covActions:      null,   // riferimento azioni card-over-video multi
     videoPlaying:     false,  // true mentre un video segreto/theone è in riproduzione
@@ -588,6 +589,7 @@
       const isNew     = pullData.is_new;
       const isLobotomy = getPulledCharacterId(pullData) === LOBOTOMY_CHARACTER_ID;
       const mustShow  = isNew || isSpecial || isLobotomy;
+      state.multiActionsReady = false;
 
       // Aggiorna counter
       const counter = $('multi-counter');
@@ -640,6 +642,7 @@
     document.getElementById('card-over-video-multi')?.remove();
     state._covActions = null;
     state.multiAbort = false;
+    state.multiActionsReady = false;
     showMultiSummary(pulls);
   }
 
@@ -1327,6 +1330,7 @@
   }
 
   function setMultiActionButtonsPending() {
+    if (state.multiActionsReady) return;
     const btnNext = $('btn-multi-next');
     const btnSkip = $('btn-multi-skip');
     if (btnNext && !btnNext.innerHTML.trim()) btnNext.innerHTML = t.btn_next_label;
@@ -1336,6 +1340,7 @@
   }
 
   function showMultiActionButtons(idx, total, isLast) {
+    state.multiActionsReady = true;
     const btnNext = $('btn-multi-next');
     const btnSkip = $('btn-multi-skip');
     if (btnNext) {
@@ -1349,6 +1354,7 @@
   }
 
   function hideMultiActionButtons() {
+    state.multiActionsReady = false;
     ['btn-multi-next', 'btn-multi-skip'].forEach((id) => {
       const btn = $(id);
       if (!btn) return;
