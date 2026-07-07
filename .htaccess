@@ -19,7 +19,7 @@ ErrorDocument 503 /maintenance.html
 RewriteCond %{REQUEST_URI} !^/maintenance\.html$ [NC]
 RewriteCond %{REQUEST_URI} !^/favicon\.ico$ [NC]
 RewriteCond %{REQUEST_URI} !^/(assets|css|js|img|audio|vid)/ [NC]
-RewriteCond %{REQUEST_URI} !^/(it|en)/(accedi|admin|google_login|google_callback)(\.php)?/?$ [NC]
+RewriteCond %{REQUEST_URI} !^/(it|en)/(accedi|admin|google_login|google_callback|animazione_personaggio)(\.php)?/?$ [NC]
 RewriteCond %{REQUEST_URI} !^/(auth|api/admin)/ [NC]
 RewriteCond %{REQUEST_URI} !^/api/(add_new_character_to_db|add_character_to_user|add_character_to_inventory|get_all_characters|get_character_from_id|get_character_from_nome|api_personaggi|api_get_characters_num)\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/logout\.php$ [NC]
