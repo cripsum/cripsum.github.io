@@ -602,16 +602,16 @@ body.lootbox-page {
     z-index: 8000;
     background: #fff;
     mix-blend-mode: normal;
-    animation: lobotomyFullscreenFlash 1.15s ease-out forwards;
+    animation: lobotomyFullscreenFlash 1.65s ease-out forwards;
 }
 @keyframes lobotomyFullscreenFlash {
     0% {
         opacity: 0;
     }
-    6% {
+    4% {
         opacity: 1;
     }
-    18% {
+    44% {
         opacity: 1;
     }
     100% {

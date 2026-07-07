@@ -162,6 +162,8 @@
     _videoAbortFn:    null,   // funzione per interrompere il video in corso
   };
 
+  const mediaPreloadCache = new Map();
+
   const volumeKey = 'cripsum.lootbox.volume';
   const muteKey = 'cripsum.lootbox.muted';
 
@@ -398,7 +400,8 @@
       const rarity = normalizeRarity(data.personaggio.rarità);
       state.canSkip = !data.is_new && !RARITY_NO_SKIP.has(rarity);
 
-      if (!RARITY_VIDEO.has(rarity)) playAudio(data.personaggio.audio_url);
+      preloadPullMedia([data]);
+      if (!RARITY_VIDEO.has(rarity)) playPullAudio(data);
 
       // #2 — Fast pull: se la rarità è skippabile salta animazione orb
       const orbWait = (state.isFastPull && state.canSkip) ? 0 : 900;
@@ -468,6 +471,7 @@
       state.multiResults = data.pulls;
 
       // Notice banner removed
+      preloadPullMedia(data.pulls);
 
       // FIX 4: animazione intro prima delle pull
       await showMultiIntro(data.pulls);
@@ -598,12 +602,12 @@
 
       // FIX 2: per pull normali (non mustShow) mostra card SUBITO senza orb
       if (!mustShow) {
-        if (!hasVideo) playAudio(pullData.personaggio.audio_url);
+        if (!hasVideo) playPullAudio(pullData);
         setRarityOnOverlay(rarity);
         await showCardInstant(pullData);
       } else {
         // Personaggio nuovo o rarità speciale: animazione completa
-        if (!hasVideo) playAudio(pullData.personaggio.audio_url);
+        if (!hasVideo) playPullAudio(pullData);
         showPhase('opening');
         setRarityOnOverlay('comune');
         await delay(700);
@@ -643,8 +647,8 @@
     const color  = RARITY_COLORS[rarity] ?? '#fff';
 
     cardImg.src                  = p.img_url ? `/img/${p.img_url}` : '/img/cassa.png';
-    cardImg.alt                  = escapeHtml(p.nome ?? '');
-    cardName.textContent         = escapeHtml(p.nome ?? '—');
+    cardImg.alt                  = characterName(p, '');
+    cardName.textContent         = characterName(p);
     cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
     cardRarityLabel.textContent  = rarityLabel(normalizeRarity(p.rarità ?? ''));
     cardBgGlow.style.background  = `radial-gradient(circle,${color}44 0%,transparent 70%)`;
@@ -660,7 +664,6 @@
     if (btnPullAgain) btnPullAgain.style.display = 'none';
 
     spawnParticles(color, rarity);
-    triggerLobotomyFlash(data);
     showPhase('card');
 
     // Animazione veloce: 150ms invece di 620ms
@@ -738,7 +741,10 @@
       videoEl.addEventListener('ended', onVideoDone, { once: true });
       videoEl.addEventListener('error', onVideoDone, { once: true });
       const pp = videoEl.play();
-      if (pp) pp.catch(() => { videoEl.muted = true; videoEl.play().catch(() => onVideoDone()); });
+      if (pp) pp.then(() => triggerLobotomyFlash(data)).catch(() => {
+        videoEl.muted = true;
+        videoEl.play().then(() => triggerLobotomyFlash(data)).catch(() => onVideoDone());
+      });
     });
   }
 
@@ -766,7 +772,7 @@
         <div class="gacha-card-bg-glow" style="background:radial-gradient(circle,${color}55 0%,transparent 70%)"></div>
         <div class="gacha-card-frame" style="border-color:${color}88;box-shadow:0 0 40px ${color}44">
           <div class="gacha-card-img-wrap">
-            <img src="${imgSrc}" alt="${escapeHtml(p.nome)}" draggable="false"
+            <img id="card-img" class="card-img-godo" src="${imgSrc}" alt="${escapeHtml(characterName(p, ''))}" draggable="false"
                  onerror="this.src='/img/cassa.png'"
                  style="width:100%;height:100%;object-fit:cover;object-position:top">
           </div>
@@ -778,14 +784,13 @@
         <div class="gacha-card-details">
           <div class="gacha-card-rarity-bar rarity-${rarity}"></div>
           <p class="gacha-card-rarity-label" style="color:${color}">${escapeHtml(rarityLabel(normalizeRarity(p.rarità)))}</p>
-          <h2 class="gacha-card-name">${escapeHtml(p.nome ?? '—')}</h2>
+          <h2 class="gacha-card-name">${escapeHtml(characterName(p))}</h2>
         </div>
       </div>
       <div class="cov-multi-actions" id="cov-actions"></div>
     `;
 
     spawnParticles(color, rarity);
-    triggerLobotomyFlash(data);
 
     // _covActions settato SUBITO — waitForMultiNext può iniettare i bottoni
     // non appena la card è visibile (non dopo l'idle di 620ms)
@@ -951,7 +956,7 @@
         <div class="gms-card gms-card--${ra}" style="--rc:${co};animation-delay:${idx * 55}ms">
           <div class="gms-card-frame">
             <img class="gms-card-img" src="${p.img_url ? '/img/'+p.img_url : '/img/cassa.png'}"
-                 alt="${escapeHtml(p.nome)}" loading="lazy" onerror="this.src='/img/cassa.png'">
+                 alt="${escapeHtml(characterName(p, ''))}" loading="lazy" onerror="this.src='/img/cassa.png'">
             <div class="gms-card-shine"></div>
             ${isTop ? '<div class="gms-card-glow"></div>' : ''}
             ${r.is_new ? '<span class="gms-badge gms-badge--new">NEW</span>' : ''}
@@ -959,7 +964,7 @@
           </div>
           <div class="gms-card-info">
             <span class="gms-card-rarity" style="color:${co}">${escapeHtml(rarityLabel(normalizeRarity(p.rarità)))}</span>
-            <span class="gms-card-name">${escapeHtml(p.nome)}</span>
+            <span class="gms-card-name">${escapeHtml(characterName(p, ''))}</span>
           </div>
         </div>`;
     }).join('');
@@ -1088,9 +1093,9 @@
       videoEl.addEventListener('error', done, { once: true });
 
       const pp = videoEl.play();
-      if (pp) pp.catch(() => {
+      if (pp) pp.then(() => triggerLobotomyFlash(data)).catch(() => {
         videoEl.muted = true;
-        videoEl.play().catch(() => done());
+        videoEl.play().then(() => triggerLobotomyFlash(data)).catch(() => done());
       });
     });
   }
@@ -1102,8 +1107,8 @@
     const color  = RARITY_COLORS[rarity] ?? '#fff';
 
     cardImg.src = p.img_url ? `/img/${p.img_url}` : '/img/cassa.png';
-    cardImg.alt = escapeHtml(p.nome ?? '');
-    cardName.textContent         = escapeHtml(p.nome ?? '—');
+    cardImg.alt = characterName(p, '');
+    cardName.textContent         = characterName(p);
     cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
     cardRarityLabel.textContent  = rarityLabel(normalizeRarity(p.rarità ?? ''));
     cardBgGlow.style.background  = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
@@ -1116,7 +1121,6 @@
 
     if (btnInventory) btnInventory.style.display = '';
     spawnParticles(color, rarity);
-    triggerLobotomyFlash(data);
 
     // #1 — Mostra card sovrapposta, video resta sotto
     // Il video continua in background, phase-video resta visibile
@@ -1195,8 +1199,8 @@
     const color  = RARITY_COLORS[rarity] ?? '#fff';
 
     cardImg.src = p.img_url ? `/img/${p.img_url}` : '/img/cassa.png';
-    cardImg.alt = escapeHtml(p.nome ?? '');
-    cardName.textContent         = escapeHtml(p.nome ?? '—');
+    cardImg.alt = characterName(p, '');
+    cardName.textContent         = characterName(p);
     cardRarityBar.className      = `gacha-card-rarity-bar rarity-${rarity}`;
     cardRarityLabel.textContent  = rarityLabel(normalizeRarity(p.rarità ?? ''));
     cardBgGlow.style.background  = `radial-gradient(circle,${color}55 0%,transparent 70%)`;
@@ -1228,7 +1232,6 @@
     if (state.canSkip) showSkipBtn();
 
     spawnParticles(color, rarity);
-    triggerLobotomyFlash(data);
     showPhase('card');
 
     gachaCard.classList.remove('is-revealed','is-idle');
@@ -1312,11 +1315,16 @@
 
   function triggerLobotomyFlash(data) {
     if (!gachaFlash || getPulledCharacterId(data) !== LOBOTOMY_CHARACTER_ID) return;
+    const p = data?.personaggio ?? data;
+    if (p && typeof p === 'object') {
+      if (p._lobotomyFlashPlayed) return;
+      p._lobotomyFlashPlayed = true;
+    }
 
     gachaFlash.classList.remove('is-lobotomy');
     void gachaFlash.offsetWidth;
     gachaFlash.classList.add('is-lobotomy');
-    setTimeout(() => gachaFlash.classList.remove('is-lobotomy'), 1300);
+    setTimeout(() => gachaFlash.classList.remove('is-lobotomy'), 1800);
   }
 
   /* ════════════════════════════════════════════════════
@@ -1424,7 +1432,8 @@
 
       const rarity = normalizeRarity(data.personaggio.rarità);
       state.canSkip = !data.is_new && !RARITY_NO_SKIP.has(rarity);
-      if (!RARITY_VIDEO.has(rarity)) playAudio(data.personaggio.audio_url);
+      preloadPullMedia([data]);
+      if (!RARITY_VIDEO.has(rarity)) playPullAudio(data);
 
       await delay(900);
       await revealPull(data);
@@ -1528,15 +1537,86 @@
     audioEl.pause(); audioEl.currentTime = 0; audioEl.src = '';
   }
   function playAudio(url) {
-    if (!url) return;
+    if (!url) return Promise.resolve(false);
     stopAudio();
     try {
       audioEl.src = url.startsWith('/') ? url : `/audio/${url}`;
       audioEl.currentTime = 0;
       audioEl.volume = globalVolume;
       audioEl.muted = isMuted;
-      audioEl.play().catch(() => {});
-    } catch(e) {}
+      const playPromise = audioEl.play();
+      return playPromise
+        ? playPromise.then(() => true).catch(() => false)
+        : Promise.resolve(true);
+    } catch(e) {
+      return Promise.resolve(false);
+    }
+  }
+  function playPullAudio(data) {
+    const p = data?.personaggio ?? data ?? {};
+    playAudio(p.audio_url).then((started) => {
+      if (started) triggerLobotomyFlash(data);
+    });
+  }
+  function mediaSrc(path, base) {
+    if (!path) return '';
+    return String(path).startsWith('/') ? String(path) : `${base}${path}`;
+  }
+  function rememberPreload(src, loader) {
+    if (!src || mediaPreloadCache.has(src)) return;
+    mediaPreloadCache.set(src, loader);
+    if (mediaPreloadCache.size > 40) {
+      const oldest = mediaPreloadCache.keys().next().value;
+      mediaPreloadCache.delete(oldest);
+    }
+  }
+  function preloadSecretVideo(p) {
+    const rarity = normalizeRarity(p?.rarità);
+    const videoSrc = mediaSrc(p?.video_url, '/vid/');
+    if (!videoSrc || !RARITY_VIDEO.has(rarity) || mediaPreloadCache.has(videoSrc)) return;
+
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'video';
+    link.href = videoSrc;
+    link.fetchPriority = 'high';
+    document.head.appendChild(link);
+
+    const video = document.createElement('video');
+    video.preload = 'auto';
+    video.muted = true;
+    video.playsInline = true;
+    video.src = videoSrc;
+    video.load();
+    rememberPreload(videoSrc, { link, video });
+  }
+  function preloadPullMedia(results) {
+    const pulls = results || [];
+
+    pulls.forEach((result) => {
+      const p = result?.personaggio ?? result ?? {};
+      preloadSecretVideo(p);
+    });
+
+    pulls.forEach((result) => {
+      const p = result?.personaggio ?? result ?? {};
+      const imgSrc = mediaSrc(p.img_url, '/img/');
+      if (imgSrc && !mediaPreloadCache.has(imgSrc)) {
+        const img = new Image();
+        img.src = imgSrc;
+        rememberPreload(imgSrc, img);
+      }
+
+      const rarity = normalizeRarity(p.rarità);
+      const audioSrc = mediaSrc(p.audio_url, '/audio/');
+      if (audioSrc && !RARITY_VIDEO.has(rarity) && !mediaPreloadCache.has(audioSrc)) {
+        const audio = new Audio();
+        audio.preload = 'auto';
+        audio.src = audioSrc;
+        audio.load();
+        rememberPreload(audioSrc, audio);
+      }
+    });
   }
 
   function initFloatingAudioBtn() {
@@ -1733,7 +1813,7 @@
         return`<div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid ${c};margin-bottom:6px">
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
-              <span style="font-weight:700;color:#fff;font-size:.9rem">${escapeHtml(p.nome??'?')}</span>
+              <span style="font-weight:700;color:#fff;font-size:.9rem">${escapeHtml(characterName(p, '?'))}</span>
               <span style="font-size:.7rem;color:${c};text-transform:uppercase;font-weight:600;letter-spacing:.07em">${escapeHtml(rarityLabel(normalizeRarity(p.rarità)))}</span>
               ${b50}${newBadge}
             </div>
@@ -1866,6 +1946,14 @@
   }
   function escapeHtml(s){
     return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }
+  function decodeHtmlEntities(s) {
+    const el = document.createElement('textarea');
+    el.innerHTML = String(s ?? '');
+    return el.value;
+  }
+  function characterName(p, fallback = '—') {
+    return decodeHtmlEntities(p?.nome ?? fallback);
   }
   function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
