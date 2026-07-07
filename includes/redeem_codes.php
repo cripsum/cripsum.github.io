@@ -150,7 +150,7 @@ function cripsum_redeem_codes(): array
             'tipo' => 'punti',
             'punti' => 2000,
             'descrizione' => ['it' => '+2000 godos', 'en' => '+2000 godos'],
-            'starts_at' => '2026-07-21 14:39:36',
+            'expires_at' => '2026-07-21 14:39:36',
             'active' => true,
         ],
         'torturacazzoepalle' => [
@@ -164,7 +164,7 @@ function cripsum_redeem_codes(): array
             'tipo' => 'punti',
             'punti' => 2069,
             'descrizione' => ['it' => '+2000 godos', 'en' => '+2000 godos'],
-            'starts_at' => '2026-07-21 14:39:36',
+            'expires_at' => '2026-07-21 14:39:36',
             'active' => true,
         ],
     ];
