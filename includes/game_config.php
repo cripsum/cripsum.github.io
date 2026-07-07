@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CRIPSUM GAME CONFIG
  * Contiene i moltiplicatori dei ruoli e la logica delle abilità passive/speciali.
@@ -11,7 +12,8 @@ if (!defined('CRIPSUM_GAME_CONFIG')) {
 /**
  * Moltiplicatori delle statistiche basati sui 10 ruoli di gioco.
  */
-function gd_role_multipliers(): array {
+function gd_role_multipliers(): array
+{
     return [
         'Tank'      => ['hp' => 1.45, 'atk' => 0.65, 'def' => 1.50, 'spd' => 0.70, 'crit_rate' => 5,  'crit_dmg' => 120],
         'Bruiser'   => ['hp' => 1.20, 'atk' => 1.00, 'def' => 1.10, 'spd' => 0.90, 'crit_rate' => 10, 'crit_dmg' => 135],
@@ -20,7 +22,7 @@ function gd_role_multipliers(): array {
         'Sub DPS'   => ['hp' => 1.00, 'atk' => 1.05, 'def' => 0.90, 'spd' => 1.10, 'crit_rate' => 15, 'crit_dmg' => 140],
         'Support'   => ['hp' => 1.10, 'atk' => 0.80, 'def' => 1.05, 'spd' => 1.15, 'crit_rate' => 8,  'crit_dmg' => 125],
         'Healer'    => ['hp' => 1.15, 'atk' => 0.70, 'def' => 0.95, 'spd' => 1.10, 'crit_rate' => 5,  'crit_dmg' => 120],
-        'Controller'=> ['hp' => 1.00, 'atk' => 0.85, 'def' => 0.95, 'spd' => 1.20, 'crit_rate' => 10, 'crit_dmg' => 130],
+        'Controller' => ['hp' => 1.00, 'atk' => 0.85, 'def' => 0.95, 'spd' => 1.20, 'crit_rate' => 10, 'crit_dmg' => 130],
         'Debuffer'  => ['hp' => 1.00, 'atk' => 0.95, 'def' => 0.95, 'spd' => 1.15, 'crit_rate' => 10, 'crit_dmg' => 130],
         'Buffer'    => ['hp' => 1.05, 'atk' => 0.75, 'def' => 1.00, 'spd' => 1.20, 'crit_rate' => 8,  'crit_dmg' => 125]
     ];
@@ -29,7 +31,8 @@ function gd_role_multipliers(): array {
 /**
  * Calcola le statistiche finali in base a rarità e ruolo.
  */
-function gd_calculate_character_stats(string $rarity, string $role): array {
+function gd_calculate_character_stats(string $rarity, string $role): array
+{
     $base = [
         'comune'      => ['hp' => 100, 'atk' => 30, 'def' => 20, 'spd' => 15],
         'raro'        => ['hp' => 120, 'atk' => 36, 'def' => 24, 'spd' => 17],
@@ -67,7 +70,8 @@ function gd_calculate_character_stats(string $rarity, string $role): array {
 /**
  * Ritorna ruolo, abilità passiva e speciale per un determinato personaggio.
  */
-function gd_get_character_config(int $pid, string $rarity, string $nome, string $role = 'DPS'): array {
+function gd_get_character_config(int $pid, string $rarity, string $nome, string $role = 'DPS'): array
+{
     $nomeLower = strtolower($nome);
     $rKey = strtolower(trim($rarity));
     if (strpos($rKey, 'limited') !== false || strpos($rKey, 'limitato') !== false) $rKey = 'secret_limited';
@@ -425,7 +429,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'ultimate_desc' => 'Applica uno Scudo pari al 50% degli HP max a tutti gli alleati, aumenta la loro Difesa del 50% per 3 turni e li rende Immuni per 2 turni.',
             'ultimate_effect' => ['type' => 'segreto_152_ultimate']
         ],
-        153 => [
+        1500 => [
             'role' => 'Bruiser',
             'passive_name' => 'OH POPPI',
             'passive_desc' => 'Aumenta il proprio Attacco del 5% per ogni 10% di HP persi. Sotto il 40% HP, ottiene immediatamente uno Scudo pari al 30% degli HP max (una volta per match).',
@@ -439,7 +443,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'ultimate_desc' => 'Sferra un colpo devastante da 300% ATK, aumenta il proprio Attacco del 40% per 3 turni e si cura del 40% degli HP max.',
             'ultimate_effect' => ['type' => 'poppy_ultimate']
         ],
-        154 => [
+        153 => [
             'role' => 'DPS',
             'passive_name' => 'snipe gol guscio verde',
             'passive_desc' => 'Gli attacchi base hanno il 50% di probabilità di rubare 1 Energia e applicare Veleno (10% HP a turno) per 2 turni.',
@@ -453,7 +457,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'ultimate_desc' => 'Infligge il 360% ATK come danno a bersaglio singolo. Se il colpo è critico, ricarica interamente la propria energia ed applica Congelamento al bersaglio per 1 turno.',
             'ultimate_effect' => ['type' => 'lacly_ultimate']
         ],
-        155 => [
+        154 => [
             'role' => 'DPS',
             'passive_name' => 'You Should... Now!',
             'passive_desc' => 'Aumenta il proprio Crit Rate del 25%. Quando realizza un colpo critico, infligge anche il 20% di danno puro aggiuntivo.',
@@ -509,57 +513,57 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
         case 'Tank':
             $pct = [15, 20, 25, 30, 40, 50][$tier];
             $sh = [25, 30, 35, 40, 55, 75][$tier];
-            
+
             $passive_name = 'Scudo Rigenerativo di ' . $nome;
             $passive_desc = "Inizia la battaglia con uno Scudo pari al {$pct}% dei suoi HP max.";
             $passive_effect = ['type' => 'shield_at_start', 'pct' => $pct];
-            
+
             $special_name = 'Bastione di ' . $nome;
             $special_desc = "Ottiene uno Scudo pari al {$sh}% dei suoi HP max e applica Provocazione per 2 turni.";
             $special_effect = ['type' => ($tier >= 4 ? 'taunt_self_heavy' : 'taunt_self'), 'pct' => $sh];
             $special_cooldown = 3;
             break;
-            
+
         case 'Bruiser':
             $pct = [3, 4, 5, 6, 7, 8][$tier];
             $dmg = [120, 135, 150, 165, 175, 190][$tier];
             $bleed = [10, 12, 15, 15, 15, 18][$tier];
             $dur = ($tier >= 4) ? 3 : 2;
-            
+
             $passive_name = 'Determinazione di ' . $nome;
             $passive_desc = "Aumenta il proprio Attacco del {$pct}% per ogni 10% di HP persi.";
             $passive_effect = ['type' => ($tier >= 4 ? 'atk_scale_lost_hp_heavy' : 'atk_scale_lost_hp'), 'pct' => $pct];
-            
+
             $special_name = 'Fendente di ' . $nome;
             $special_desc = "Infligge il {$dmg}% ATK come danno e applica Sanguinamento per {$dur} turni (perde il {$bleed}% degli HP max a turno).";
             $special_effect = ['type' => ($tier >= 4 ? 'apply_bleed_heavy' : 'apply_bleed'), 'dmg_pct' => $dmg, 'bleed_pct' => $bleed, 'duration' => $dur];
             break;
-            
+
         case 'DPS':
             $crit = [6, 8, 10, 12, 14, 16][$tier];
             $dmg = [150, 165, 180, 195, 205, 220][$tier];
             $energy = [1, 1, 1, 2, 2, 2][$tier];
-            
+
             $passive_name = 'Slancio Critico di ' . $nome;
             $passive_desc = "Aumenta il proprio Crit Rate del {$crit}% ogni volta che non mette a segno un colpo critico. Si resetta al verificarsi del critico.";
             $passive_effect = ['type' => ($tier >= 4 ? 'crit_ramp_on_non_crit_heavy' : 'crit_ramp_on_non_crit'), 'value' => $crit];
-            
+
             $special_name = 'Tempesta di Colpi di ' . $nome;
             $special_desc = "Infligge il {$dmg}% ATK come danno. Se il colpo è critico, ricarica immediatamente {$energy} Energia.";
             $special_effect = ['type' => ($tier >= 4 ? 'flurry_of_blows_heavy' : 'flurry_of_blows'), 'dmg_pct' => $dmg, 'energy' => $energy];
             $special_cost = 3;
             $special_cooldown = 3;
             break;
-            
+
         case 'Burst DPS':
             $cdmg = [25, 30, 35, 40, 50, 65][$tier];
             $dmg = [190, 205, 220, 235, 245, 260][$tier];
             $penalty = [30, 25, 20, 15, 10, 0][$tier];
-            
+
             $passive_name = 'Precisione Letale di ' . $nome;
             $passive_desc = "Aumenta passivamente il proprio Danno Critico del {$cdmg}%.";
             $passive_effect = ['type' => ($tier >= 4 ? 'passive_crit_dmg_buff_heavy' : 'passive_crit_dmg_buff'), 'value' => $cdmg];
-            
+
             $special_name = 'Colpo da Maestro di ' . $nome;
             $special_desc = ($penalty > 0)
                 ? "Infligge il {$dmg}% ATK come danno a bersaglio singolo, ma riduce la propria Difesa del {$penalty}% per 1 turno."
@@ -568,40 +572,40 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             $special_cost = 3;
             $special_cooldown = 3;
             break;
-            
+
         case 'Sub DPS':
             $dmg_bonus = [12, 16, 20, 25, 30, 35][$tier];
             $dmg = [120, 130, 140, 155, 165, 180][$tier];
             $spd_red = [15, 20, 25, 30, 30, 35][$tier];
-            
+
             $passive_name = 'Opportunismo di ' . $nome;
             $passive_desc = "Infligge il {$dmg_bonus}% di danni in più ai nemici che sono affetti da qualsiasi debuff o stato negativo.";
             $passive_effect = ['type' => ($tier >= 4 ? 'bonus_dmg_on_debuffed_heavy' : 'bonus_dmg_on_debuffed'), 'value' => $dmg_bonus];
-            
+
             $special_name = 'Impatto Rallentante di ' . $nome;
             $special_desc = "Infligge il {$dmg}% ATK come danno e riduce la Velocità del bersaglio del {$spd_red}% per 2 turni.";
             $special_effect = ['type' => ($tier >= 4 ? 'distracting_strike_heavy' : 'distracting_strike'), 'dmg_pct' => $dmg, 'speed_reduction' => $spd_red];
             break;
-            
+
         case 'Support':
             $pct = [8, 12, 15, 20, 25, 30][$tier];
             $sh = [15, 20, 25, 30, 35, 40][$tier];
-            
+
             $passive_name = 'Barriera Protettiva di ' . $nome;
             $passive_desc = "All'inizio del match, applica uno Scudo pari al {$pct}% dei suoi HP max a tutto il team.";
             $passive_effect = ['type' => 'shield_team_at_start', 'pct' => $pct];
-            
+
             $special_name = 'Fortezza Cristallina di ' . $nome;
             $special_desc = "Applica uno Scudo pari al {$sh}% degli HP max di questo personaggio a tutti i membri del team.";
             $special_effect = ['type' => ($tier >= 4 ? 'shield_all_allies_heavy' : 'shield_all_allies'), 'pct' => $sh];
             $special_cooldown = 3;
             break;
-            
+
         case 'Healer':
             $val = [2, 3, 4, 5, 20, 35][$tier];
             $heal = [30, 35, 40, 45, 50, 55][$tier];
             $regen = [10, 12, 15, 18, 20, 22][$tier];
-            
+
             if ($tier >= 4) {
                 $passive_name = 'Sinfonia del Destino di ' . $nome;
                 $passive_desc = "Quando un alleato va KO, lo risuscita immediatamente con il {$val}% dei suoi HP max (una volta per match).";
@@ -611,17 +615,17 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
                 $passive_desc = "All'inizio di ogni suo turno, cura tutti gli alleati attivi del {$val}% dei loro HP max.";
                 $passive_effect = ['type' => 'regen_all_allies', 'value' => $val];
             }
-            
+
             $special_name = 'Soffio Vitale di ' . $nome;
             $special_desc = "Rigenera il {$heal}% degli HP max del personaggio attivo e applica Rigenerazione del {$regen}% a turno per 2 turni.";
             $special_effect = ['type' => ($tier >= 4 ? 'heal_active_regen_heavy' : 'heal_active_regen'), 'heal_pct' => $heal, 'regen_pct' => $regen];
             break;
-            
+
         case 'Controller':
             $val = [8, 12, 15, 20, 25, 30][$tier];
             $dmg = [100, 110, 120, 135, 145, 160][$tier];
             $chance = [50, 65, 75, 85, 100, 100][$tier];
-            
+
             if ($tier >= 4) {
                 $passive_name = 'Presenza Eterea di ' . $nome;
                 $passive_desc = "Ha il {$val}% di probabilità di ottenere un turno extra dopo aver eseguito un'azione.";
@@ -631,7 +635,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
                 $passive_desc = "Gli attacchi base hanno il {$val}% di probabilità di Congelare il bersaglio per 1 turno.";
                 $passive_effect = ['type' => 'freeze_on_hit', 'chance' => $val];
             }
-            
+
             $special_name = 'Onda d\'Urto di ' . $nome;
             $special_desc = ($tier >= 4)
                 ? "Infligge il {$dmg}% ATK come danno, ruba fino a 2 Energia al bersaglio e lo Congela per 1 turno al 100%."
@@ -639,33 +643,33 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             $special_effect = ['type' => ($tier >= 4 ? 'dimensional_break_heavy' : 'stun_target'), 'dmg_pct' => $dmg, 'chance' => $chance];
             $special_cooldown = 3;
             break;
-            
+
         case 'Debuffer':
             $chance = [8, 12, 15, 100, 100, 100][$tier];
             $poison = [10, 10, 10, 12, 15, 15][$tier];
             $def_red = [20, 25, 30, 35, 40, 45][$tier];
-            
+
             $passive_name = 'Tossina di ' . $nome;
             $passive_desc = ($chance == 100)
                 ? "Gli attacchi base applicano sempre Veleno ({$poison}% HP) per 2 turni."
                 : "Gli attacchi base hanno il {$chance}% di probabilità di applicare Veleno ({$poison}% HP) per 2 turni.";
             $passive_effect = ['type' => ($tier >= 3 ? 'poison_on_hit_heavy' : 'poison_on_hit'), 'chance' => $chance, 'value' => $poison];
-            
+
             $special_name = 'Nebbia Corrosiva di ' . $nome;
             $special_desc = "Riduce la Difesa del bersaglio del {$def_red}% per 2 turni e applica Veleno per 3 turni ({$poison}% HP max a turno).";
             $special_effect = ['type' => ($tier >= 4 ? 'toxic_mist_heavy' : 'toxic_mist'), 'def_reduction' => $def_red, 'poison_value' => $poison];
             $special_cooldown = 3;
             break;
-            
+
         case 'Buffer':
             $val = [6, 8, 10, 12, 15, 15][$tier];
             $buff = [15, 20, 25, 30, 30, 35][$tier];
             $energy = [1, 1, 1, 1, 2, 2][$tier];
-            
+
             $passive_name = 'Presenza Ispiratrice di ' . $nome;
             $passive_desc = "Aumenta l'Attacco di tutti gli alleati del {$val}% finché questo personaggio è in campo.";
             $passive_effect = ['type' => ($tier >= 4 ? 'team_atk_buff_heavy' : 'team_atk_buff'), 'value' => $val];
-            
+
             $special_name = 'Canto di Battaglia di ' . $nome;
             $special_desc = ($tier >= 4)
                 ? "Cura tutto il team del 25% degli HP max, rimuove tutti i debuff, aumenta l'Attacco del {$buff}% e la Velocità del 25% per 2 turni, e fornisce {$energy} Energia."
@@ -673,7 +677,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             $special_effect = ['type' => ($tier >= 4 ? 'stellar_blessing_heavy' : 'battle_cry'), 'buff_value' => $buff, 'energy' => $energy];
             $special_cooldown = 3;
             break;
-            
+
         default:
             $passive_name = 'Abilità di ' . $nome;
             $passive_desc = 'Aumenta le capacità in battaglia.';
@@ -794,7 +798,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
                 'special' => 'Colpo Incontenibile'
             ]
         ];
-        
+
         if (isset($custom_speciali[$pid])) {
             $passive_name = $custom_speciali[$pid]['passive'];
             $special_name = $custom_speciali[$pid]['special'];
@@ -842,7 +846,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
                     'special' => 'Canto della Vittoria di ' . $nome
                 ]
             ];
-            
+
             if (isset($role_templates[$role])) {
                 $passive_name = $role_templates[$role]['passive'];
                 $special_name = $role_templates[$role]['special'];
