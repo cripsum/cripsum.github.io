@@ -665,6 +665,7 @@
     if (btnInventory) btnInventory.style.display = 'none'; // FIX 2: nascosto durante multi
     if (btnClose)     btnClose.style.display     = 'none'; // FIX 2
     if (btnPullAgain) btnPullAgain.style.display = 'none';
+    setMultiActionButtonsPending();
 
     spawnParticles(color, rarity);
     showPhase('card');
@@ -790,7 +791,10 @@
           <h2 class="gacha-card-name">${escapeHtml(characterName(p))}</h2>
         </div>
       </div>
-      <div class="cov-multi-actions" id="cov-actions"></div>
+      <div class="cov-multi-actions" id="cov-actions">
+        <button class="gacha-btn gacha-btn--primary" style="visibility:hidden;pointer-events:none" tabindex="-1" aria-hidden="true">${t.btn_next_label}</button>
+        <button class="gacha-btn gacha-btn--ghost" style="visibility:hidden;pointer-events:none" tabindex="-1" aria-hidden="true">${t.btn_skip_inject}</button>
+      </div>
     `;
 
     spawnParticles(color, rarity);
@@ -817,13 +821,7 @@
       const btnNext  = $('btn-multi-next');
       const btnSkip  = $('btn-multi-skip');
 
-      if (btnNext) {
-        btnNext.style.display = '';
-        btnNext.innerHTML = isLast
-          ? t.btn_summary
-          : t.btn_next(idx+1, total);
-      }
-      if (btnSkip) btnSkip.style.display = isLast ? 'none' : '';
+      showMultiActionButtons(idx, total, isLast);
       if (btnPullAgain) btnPullAgain.style.display = 'none';
       // FIX 2: nascondi chiudi e inventario durante multi
       if (btnClose)     btnClose.style.display     = 'none';
@@ -1215,20 +1213,18 @@
     else if (data.vinto_50_50 === 0) card50Loss.style.display = '';
 
     // Multi: mostra/nascondi bottoni giusti
-    const btnNext = $('btn-multi-next');
-    const btnSkip = $('btn-multi-skip');
     const counter = $('multi-counter');
     if (state.isMulti) {
       if (btnPullAgain) btnPullAgain.style.display = 'none';
       if (btnClose) btnClose.style.display = 'none';
       if (btnInventory) btnInventory.style.display = 'none';
+      setMultiActionButtonsPending();
       if (counter) counter.style.display = 'block';
     } else {
       if (btnPullAgain) btnPullAgain.style.display = '';
       if (btnClose) btnClose.style.display = '';
       if (btnInventory) btnInventory.style.display = '';
-      if (btnNext) btnNext.style.display = 'none';
-      if (btnSkip) btnSkip.style.display = 'none';
+      hideMultiActionButtons();
       if (counter) counter.style.display = 'none';
     }
 
@@ -1309,6 +1305,49 @@
     overlay.style.setProperty('--banner-accent',      color);
     overlay.style.setProperty('--banner-accent-glow', color + '55');
     glowBurst.classList.toggle('is-rainbow', rarity === 'speciale');
+  }
+
+  function setButtonHiddenButReserved(btn, hidden) {
+    if (!btn) return;
+    btn.style.display = '';
+    btn.style.visibility = hidden ? 'hidden' : '';
+    btn.style.pointerEvents = hidden ? 'none' : '';
+    btn.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+    btn.tabIndex = hidden ? -1 : 0;
+  }
+
+  function setMultiActionButtonsPending() {
+    const btnNext = $('btn-multi-next');
+    const btnSkip = $('btn-multi-skip');
+    if (btnNext && !btnNext.innerHTML.trim()) btnNext.innerHTML = t.btn_next_label;
+    if (btnSkip && !btnSkip.innerHTML.trim()) btnSkip.innerHTML = t.btn_skip_inject;
+    setButtonHiddenButReserved(btnNext, true);
+    setButtonHiddenButReserved(btnSkip, true);
+  }
+
+  function showMultiActionButtons(idx, total, isLast) {
+    const btnNext = $('btn-multi-next');
+    const btnSkip = $('btn-multi-skip');
+    if (btnNext) {
+      btnNext.innerHTML = isLast ? t.btn_summary : t.btn_next(idx + 1, total);
+    }
+    if (btnSkip) {
+      btnSkip.innerHTML = t.btn_skip_inject;
+    }
+    setButtonHiddenButReserved(btnNext, false);
+    setButtonHiddenButReserved(btnSkip, isLast);
+  }
+
+  function hideMultiActionButtons() {
+    ['btn-multi-next', 'btn-multi-skip'].forEach((id) => {
+      const btn = $(id);
+      if (!btn) return;
+      btn.style.display = 'none';
+      btn.style.visibility = '';
+      btn.style.pointerEvents = '';
+      btn.removeAttribute('aria-hidden');
+      btn.removeAttribute('tabindex');
+    });
   }
 
   function getPulledCharacterId(data) {
