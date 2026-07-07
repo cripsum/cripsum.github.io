@@ -1207,17 +1207,19 @@
     if      (data.vinto_50_50 === 1) card50Win.style.display  = '';
     else if (data.vinto_50_50 === 0) card50Loss.style.display = '';
 
-    if (btnInventory) btnInventory.style.display = '';
-
     // Multi: mostra/nascondi bottoni giusti
     const btnNext = $('btn-multi-next');
     const btnSkip = $('btn-multi-skip');
     const counter = $('multi-counter');
     if (state.isMulti) {
       if (btnPullAgain) btnPullAgain.style.display = 'none';
+      if (btnClose) btnClose.style.display = 'none';
+      if (btnInventory) btnInventory.style.display = 'none';
       if (counter) counter.style.display = 'block';
     } else {
       if (btnPullAgain) btnPullAgain.style.display = '';
+      if (btnClose) btnClose.style.display = '';
+      if (btnInventory) btnInventory.style.display = '';
       if (btnNext) btnNext.style.display = 'none';
       if (btnSkip) btnSkip.style.display = 'none';
       if (counter) counter.style.display = 'none';

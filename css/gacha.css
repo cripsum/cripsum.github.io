@@ -2028,6 +2028,7 @@ body.lootbox-page {
 }
 
 .gms-inner {
+    --gms-summary-card-w: clamp(84px, 12vw, 112px);
     width: 100%;
     max-width: 720px;
     display: flex;
@@ -2148,7 +2149,8 @@ body.lootbox-page {
 /* ── Cards grid ─────────────────────────────────── */
 .gms-cards {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, var(--gms-summary-card-w));
+    justify-content: center;
     gap: 10px;
     width: 100%;
 }
@@ -2156,11 +2158,11 @@ body.lootbox-page {
 @keyframes gmsCardIn {
     from {
         opacity: 0;
-        transform: translateY(16px) scale(0.9);
+        transform: translateY(16px);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
@@ -2168,8 +2170,11 @@ body.lootbox-page {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    width: var(--gms-summary-card-w);
+    min-width: var(--gms-summary-card-w);
+    max-width: var(--gms-summary-card-w);
     opacity: 0;
-    animation: gmsCardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: gmsCardIn 0.32s ease-out forwards;
     cursor: default;
 }
 
@@ -2188,7 +2193,7 @@ body.lootbox-page {
 }
 
 .gms-card:hover .gms-card-frame {
-    transform: translateY(-4px) scale(1.03);
+    transform: translateY(-4px);
 }
 
 /* Bordo colorato per rarità sul frame */
@@ -2340,8 +2345,10 @@ body.lootbox-page {
     .gacha-phase--summary {
         padding: 16px 12px calc(24px + var(--safe-bot, 0px));
     }
+    .gms-inner {
+        --gms-summary-card-w: clamp(56px, 17vw, 76px);
+    }
     .gms-cards {
-        grid-template-columns: repeat(5, 1fr);
         gap: 5px;
     }
     .gms-card-name {
@@ -2366,8 +2373,11 @@ body.lootbox-page {
 }
 
 @media (max-width: 380px) {
+    .gms-inner {
+        --gms-summary-card-w: clamp(58px, 20vw, 72px);
+    }
     .gms-cards {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, var(--gms-summary-card-w));
     }
 }
 
