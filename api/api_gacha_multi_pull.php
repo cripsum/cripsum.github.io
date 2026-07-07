@@ -209,11 +209,19 @@ function loadCharByIdM(mysqli $db, int $id): ?array
 $standardPool = loadStandardPoolM($mysqli);
 
 $forceRarity = null;
+$forceCharacterId = 0;
 $ruolo = $_SESSION['ruolo'] ?? 'utente';
 if (in_array($ruolo, ['admin', 'owner'], true)) {
     $fr = $input['force_rarity'] ?? null;
     $validRarities = ['comune', 'raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
     if ($fr && in_array($fr, $validRarities, true)) $forceRarity = $fr;
+    $forceCharacterId = max(0, (int)($input['force_character_id'] ?? 0));
+}
+$forcedCharacter = $forceCharacterId > 0 ? loadCharByIdM($mysqli, $forceCharacterId) : null;
+if ($forceCharacterId > 0 && !$forcedCharacter) {
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Personaggio forzato non trovato', 'code' => 'FORCED_CHARACTER_NOT_FOUND']);
+    exit();
 }
 
 $mysqli->begin_transaction();
@@ -280,6 +288,9 @@ try {
     for ($i = 0; $i < $quantity; $i++) {
         $pityCorrente = ($bannerType === 'standard') ? $pityStandard : $pityEvento;
         $rarità       = selectRarityM($bannerType, $pityCorrente, $forceRarity);
+        if ($forcedCharacter) {
+            $rarità = strtolower(trim((string)$forcedCharacter['rarità']));
+        }
         $isTopRarity  = in_array($rarità, ['segreto', 'theone'], true);
         $vinto50_50   = null;
         $personaggio  = null;
@@ -291,7 +302,10 @@ try {
             $pityEvento++;
         }
 
-        if ($bannerType === 'evento' && $isTopRarity) {
+        if ($forcedCharacter) {
+            $personaggio = $forcedCharacter;
+            if ($bannerType === 'evento' && $isTopRarity) $pityEvento = 0;
+        } elseif ($bannerType === 'evento' && $isTopRarity) {
             if ($garantito === 1) {
                 $personaggio = loadCharByIdM($mysqli, $rateupId);
                 $garantito   = 0;

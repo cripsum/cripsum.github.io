@@ -651,6 +651,11 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                                         <span><?= $label ?></span>
                                     </label>
                                 <?php endforeach; ?>
+                                <label class="lootbox-toggle-pill" for="forza-lobotomy">
+                                    <input class="form-check-input admin-force-character" type="checkbox"
+                                        id="forza-lobotomy" data-character-id="155">
+                                    <span>Mod sono Lobotomy</span>
+                                </label>
                             </div>
                         </section>
                     <?php endif; ?>
@@ -885,7 +890,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
         crossorigin="anonymous"></script>
     <script src="/js/unlockAchievement-it.js"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=39"></script>
+    <script src="/js/gacha.js?v=40"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────

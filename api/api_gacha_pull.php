@@ -355,6 +355,7 @@ try {
 
     // Admin override (solo owner/admin, lato server — non trust client)
     $adminOverride = [];
+    $forceCharacterId = 0;
     $ruolo = $_SESSION['ruolo'] ?? 'utente';
     if (in_array($ruolo, ['admin', 'owner'], true)) {
         // Parametro opzionale solo per admin: force_rarity
@@ -363,9 +364,17 @@ try {
         if ($forceRarity && in_array($forceRarity, $validRarities, true)) {
             $adminOverride['forza_rarità'] = $forceRarity;
         }
+        $forceCharacterId = max(0, (int)($input['force_character_id'] ?? 0));
     }
 
     $rarità = selectRarity($bannerType, $pityCorrente, $adminOverride);
+    $forcedPersonaggio = $forceCharacterId > 0 ? loadCharacterById($mysqli, $forceCharacterId) : null;
+    if ($forceCharacterId > 0 && !$forcedPersonaggio) {
+        throw new RuntimeException('Personaggio forzato non trovato.', 500);
+    }
+    if ($forcedPersonaggio) {
+        $rarità = strtolower(trim((string)$forcedPersonaggio['rarità']));
+    }
 
     // ── [4] Aggiorna pity ─────────────────────────────────────────────────────
     $isTopRarity = in_array($rarità, RARITY_TOP, true);
@@ -384,7 +393,12 @@ try {
     // ── [5] Selezione personaggio ─────────────────────────────────────────────
     $personaggio = null;
 
-    if ($bannerType === 'evento' && $isTopRarity) {
+    if ($forcedPersonaggio) {
+        $personaggio = $forcedPersonaggio;
+        if ($bannerType === 'evento' && $isTopRarity) {
+            $pityEvento = 0;
+        }
+    } elseif ($bannerType === 'evento' && $isTopRarity) {
         // ── GESTIONE 50/50 ────────────────────────────────────────────────────
         $rateupId = (int) $bannerData['id_personaggio_rateup'];
 

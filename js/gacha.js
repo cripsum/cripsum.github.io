@@ -150,6 +150,7 @@
     pityEvento:       window.GACHA_INIT?.pityEvento   ?? 0,
     garantito:        window.GACHA_INIT?.garantito     ?? false,
     adminForceRarity: null,
+    adminForceCharacterId: null,
     canSkip:          false,
     skipTimeout:      null,
     // Multi pull
@@ -373,6 +374,7 @@
 
     const payload = { banner_id: bannerId, quantity: 1 };
     if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
+    if (state.adminForceCharacterId) payload.force_character_id = state.adminForceCharacterId;
 
     try {
       const resp = await fetch(API_PULL, {
@@ -446,6 +448,7 @@
 
     const payload = { banner_id: bannerId, quantity: 10 };
     if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
+    if (state.adminForceCharacterId) payload.force_character_id = state.adminForceCharacterId;
 
     try {
       // UN SOLO FETCH — tutte e 10 le pull calcolate server-side
@@ -1410,6 +1413,7 @@
 
     const payload = { banner_id: state.activeBannerId, quantity: 1 };
     if (state.adminForceRarity) payload.force_rarity = state.adminForceRarity;
+    if (state.adminForceCharacterId) payload.force_character_id = state.adminForceCharacterId;
 
     try {
       const resp = await fetch(API_PULL, {
@@ -1735,6 +1739,20 @@
       cb.addEventListener('change', () => {
         $$('.admin-force-rarity').forEach(o => { if(o!==cb) o.checked=false; });
         state.adminForceRarity = cb.checked ? cb.dataset.rarity : null;
+        if (cb.checked) {
+          $$('.admin-force-character').forEach(o => { o.checked = false; });
+          state.adminForceCharacterId = null;
+        }
+      });
+    });
+    $$('.admin-force-character').forEach(cb => {
+      cb.addEventListener('change', () => {
+        $$('.admin-force-character').forEach(o => { if(o!==cb) o.checked=false; });
+        state.adminForceCharacterId = cb.checked ? Number(cb.dataset.characterId || 0) : null;
+        if (cb.checked) {
+          $$('.admin-force-rarity').forEach(o => { o.checked = false; });
+          state.adminForceRarity = null;
+        }
       });
     });
   }
