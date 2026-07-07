@@ -590,15 +590,18 @@ body.lootbox-page {
 
 /* Flash */
 .gacha-flash {
-    position: fixed;
+    position: absolute;
     inset: 0;
-    z-index: 80;
-    background: #fff;
+    z-index: 10;
     opacity: 0;
     pointer-events: none;
-    mix-blend-mode: normal;
+    transition: opacity 0.15s ease;
 }
 .gacha-flash.is-lobotomy {
+    position: fixed;
+    z-index: 8000;
+    background: #fff;
+    mix-blend-mode: normal;
     animation: lobotomyFullscreenFlash 1.15s ease-out forwards;
 }
 @keyframes lobotomyFullscreenFlash {

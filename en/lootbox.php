@@ -73,7 +73,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 <head>
     <?php include '../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.3">
-    <link rel="stylesheet" href="/css/gacha.css?v=21">
+    <link rel="stylesheet" href="/css/gacha.css?v=22">
     <meta name="theme-color" content="#080810">
     <title>Cripsum™ — Lootbox</title>
 </head>
