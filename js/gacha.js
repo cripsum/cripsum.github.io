@@ -123,6 +123,7 @@
   ══════════════════════════════════════════════════════ */
   const API_PULL = '/api/api_gacha_pull';
   const VIDEO_CARD_DELAY_MS = 15000; // ms dopo cui card appare sopra video (#1)
+  const LOBOTOMY_CHARACTER_ID = 155;
 
   const RARITY_VIDEO   = new Set(['segreto', 'theone']);
   const RARITY_NO_SKIP = new Set(['segreto', 'theone', 'speciale']); // non skippabili con F
@@ -181,6 +182,7 @@
   const glowBurst      = $('gacha-glow-burst');
   const overlayStars   = $('overlay-stars');
   const particlesLayer = $('gacha-particles');
+  const gachaFlash     = $('gacha-flash');
 
   const phaseOpening   = $('phase-opening');
   const phaseVideo     = $('phase-video');
@@ -577,7 +579,8 @@
       const rarity    = normalizeRarity(pullData.personaggio.rarità);
       const isSpecial = RARITY_NO_SKIP.has(rarity);
       const isNew     = pullData.is_new;
-      const mustShow  = isNew || isSpecial;
+      const isLobotomy = getPulledCharacterId(pullData) === LOBOTOMY_CHARACTER_ID;
+      const mustShow  = isNew || isSpecial || isLobotomy;
 
       // Aggiorna counter
       const counter = $('multi-counter');
@@ -657,6 +660,7 @@
     if (btnPullAgain) btnPullAgain.style.display = 'none';
 
     spawnParticles(color, rarity);
+    triggerLobotomyFlash(data);
     showPhase('card');
 
     // Animazione veloce: 150ms invece di 620ms
@@ -781,6 +785,7 @@
     `;
 
     spawnParticles(color, rarity);
+    triggerLobotomyFlash(data);
 
     // _covActions settato SUBITO — waitForMultiNext può iniettare i bottoni
     // non appena la card è visibile (non dopo l'idle di 620ms)
@@ -1111,6 +1116,7 @@
 
     if (btnInventory) btnInventory.style.display = '';
     spawnParticles(color, rarity);
+    triggerLobotomyFlash(data);
 
     // #1 — Mostra card sovrapposta, video resta sotto
     // Il video continua in background, phase-video resta visibile
@@ -1220,6 +1226,7 @@
     if (state.canSkip) showSkipBtn();
 
     spawnParticles(color, rarity);
+    triggerLobotomyFlash(data);
     showPhase('card');
 
     gachaCard.classList.remove('is-revealed','is-idle');
@@ -1294,6 +1301,20 @@
     overlay.style.setProperty('--banner-accent',      color);
     overlay.style.setProperty('--banner-accent-glow', color + '55');
     glowBurst.classList.toggle('is-rainbow', rarity === 'speciale');
+  }
+
+  function getPulledCharacterId(data) {
+    const p = data?.personaggio ?? data ?? {};
+    return Number(p.id ?? p.personaggio_id ?? p.character_id ?? p.id_personaggio ?? 0);
+  }
+
+  function triggerLobotomyFlash(data) {
+    if (!gachaFlash || getPulledCharacterId(data) !== LOBOTOMY_CHARACTER_ID) return;
+
+    gachaFlash.classList.remove('is-lobotomy');
+    void gachaFlash.offsetWidth;
+    gachaFlash.classList.add('is-lobotomy');
+    setTimeout(() => gachaFlash.classList.remove('is-lobotomy'), 1300);
   }
 
   /* ════════════════════════════════════════════════════
