@@ -674,6 +674,11 @@
     gachaCard.classList.remove('is-revealed','is-idle');
     await delay(20);
     gachaCard.classList.add('is-revealed');
+    if (state.isMulti) {
+      setTimeout(() => gachaCard.classList.add('is-idle'), 150);
+      await delay(20);
+      return;
+    }
     await delay(150);
     gachaCard.classList.add('is-idle');
   }
@@ -1236,6 +1241,11 @@
     gachaCard.classList.remove('is-revealed','is-idle');
     await delay(40);
     gachaCard.classList.add('is-revealed');
+    if (state.isMulti) {
+      setTimeout(() => gachaCard.classList.add('is-idle'), 620);
+      await delay(20);
+      return;
+    }
     await delay(620);
     gachaCard.classList.add('is-idle');
   }
