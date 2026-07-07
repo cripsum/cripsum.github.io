@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Cripsum is temporarily under maintenance while new characters are added.">
+    <title>Cripsum - Manutenzione</title>
+    <link rel="icon" href="/img/Susremaster.png" type="image/png">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #09090f;
+            --panel: rgba(19, 20, 31, 0.78);
+            --text: #f7f7fb;
+            --muted: #b8bac8;
+            --accent: #f5c542;
+            --accent-2: #62d0ff;
+            --border: rgba(255, 255, 255, 0.14);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(98, 208, 255, 0.18), transparent 34%),
+                radial-gradient(circle at 80% 10%, rgba(245, 197, 66, 0.18), transparent 30%),
+                linear-gradient(135deg, #09090f 0%, #11131e 52%, #07070b 100%);
+            color: var(--text);
+        }
+
+        main {
+            width: min(620px, 100%);
+            padding: 38px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: 0 22px 80px rgba(0, 0, 0, 0.42);
+            text-align: center;
+            backdrop-filter: blur(18px);
+        }
+
+        img {
+            width: 92px;
+            height: 92px;
+            object-fit: cover;
+            border-radius: 22px;
+            box-shadow: 0 0 0 1px var(--border), 0 18px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        p.kicker {
+            margin: 22px 0 10px;
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 4rem);
+            line-height: 1;
+            letter-spacing: 0;
+        }
+
+        p {
+            margin: 18px auto 0;
+            max-width: 460px;
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.65;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 28px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.06);
+            font-size: 0.95rem;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-2);
+            box-shadow: 0 0 18px var(--accent-2);
+        }
+
+        @media (max-width: 520px) {
+            main {
+                padding: 30px 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <img src="/img/Susremaster.png" alt="Cripsum">
+        <p class="kicker" data-i18n="kicker">Aggiornamento in corso</p>
+        <h1 data-i18n="title">Cripsum torna tra poco</h1>
+        <p data-i18n="message">Stiamo aggiungendo nuovi personaggi e sistemando qualche dettaglio. Riprova piu tardi: il sito riapre appena finiamo.</p>
+        <div class="status" aria-label="Stato manutenzione">
+            <span class="dot" aria-hidden="true"></span>
+            <span data-i18n="status">Modalita manutenzione attiva</span>
+        </div>
+    </main>
+    <script>
+        const translations = {
+            it: {
+                htmlLang: 'it',
+                pageTitle: 'Cripsum - Manutenzione',
+                metaDescription: 'Cripsum e temporaneamente in manutenzione mentre aggiungiamo nuovi personaggi.',
+                statusLabel: 'Stato manutenzione',
+                kicker: 'Aggiornamento in corso',
+                title: 'Cripsum torna tra poco',
+                message: 'Stiamo aggiungendo nuovi personaggi e sistemando qualche dettaglio. Riprova piu tardi: il sito riapre appena finiamo.',
+                status: 'Modalita manutenzione attiva'
+            },
+            en: {
+                htmlLang: 'en',
+                pageTitle: 'Cripsum - Maintenance',
+                metaDescription: 'Cripsum is temporarily under maintenance while new characters are added.',
+                statusLabel: 'Maintenance status',
+                kicker: 'Update in progress',
+                title: 'Cripsum will be back soon',
+                message: 'We are adding new characters and polishing a few details. Check back later: the site will reopen as soon as we are done.',
+                status: 'Maintenance mode active'
+            }
+        };
+
+        const pathLanguage = window.location.pathname.split('/').filter(Boolean)[0];
+        const browserLanguage = (navigator.language || '').toLowerCase();
+        const activeLanguage = pathLanguage === 'en' || (pathLanguage !== 'it' && browserLanguage.startsWith('en')) ? 'en' : 'it';
+        const copy = translations[activeLanguage];
+
+        document.documentElement.lang = copy.htmlLang;
+        document.title = copy.pageTitle;
+        document.querySelector('meta[name="description"]').setAttribute('content', copy.metaDescription);
+        document.querySelector('.status').setAttribute('aria-label', copy.statusLabel);
+
+        document.querySelectorAll('[data-i18n]').forEach((element) => {
+            const key = element.getAttribute('data-i18n');
+            element.textContent = copy[key];
+        });
+    </script>
+</body>
+</html>
