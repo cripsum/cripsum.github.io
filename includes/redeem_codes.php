@@ -24,11 +24,13 @@ function cripsum_redeem_codes(): array
             'tipo' => 'punti',
             'punti' => 67,
             'descrizione' => ['it' => '+67, aura', 'en' => '+67, aura'],
+            'active' => true,
         ],
         'godo' => [
             'tipo' => 'punti',
             'punti' => 1000,
             'descrizione' => ['it' => '+1000, tieni, prenditi sta multi', 'en' => '+1000, here, take these 10 pulls'],
+            'active' => true,
         ],
         'nauzterrone' => [
             'tipo' => 'punti',
@@ -39,11 +41,13 @@ function cripsum_redeem_codes(): array
             'tipo' => 'punti',
             'punti' => 3000,
             'descrizione' => ['it' => '+3000 punti per l\'aggiornamento!', 'en' => '+3000 points for the update!'],
+            'active' => false,
         ],
         'cripsumgift' => [
             'tipo' => 'punti',
             'punti' => 500,
             'descrizione' => ['it' => '5 pull uwu', 'en' => '5 pulls uwu'],
+            'active' => false,
         ],
         '5050loser' => [
             'tipo' => 'punti',
@@ -52,11 +56,13 @@ function cripsum_redeem_codes(): array
                 'it' => 'Ci dispiaceva per la tua sfiga, quindi beccati queste 50 pull.',
                 'en' => 'We felt bad for your terrible luck, so take these 50 pulls',
             ],
+            'active' => true,
         ],
         'sossio' => [
             'tipo' => 'punti',
             'punti' => 10067,
             'descrizione' => ['it' => 'SOSSIOHH Ecco 100 pull!', 'en' => 'SOSSIOHH Here are 100 pulls!'],
+            'active' => true,
         ],
         'tunggodisreal' => [
             'tipo' => 'punti',
@@ -64,6 +70,7 @@ function cripsum_redeem_codes(): array
             'descrizione' => [
                 'it' => 'Tung god ti ha fatto un regalino... Ecco 120 pull!',
                 'en' => 'Tung god made you a little gift... Here are 120 pulls!',
+                'active' => false,
             ],
         ],
         'sonsofsparda' => [
@@ -73,50 +80,57 @@ function cripsum_redeem_codes(): array
                 'it' => 'Dante e Vergil ti hanno regalato 50 pull!',
                 'en' => 'Dante and Vergil gifted you 50 pulls!',
             ],
+            'active' => false,
         ],
         'jackpot' => [
             'tipo' => 'punti',
             'punti' => 8000,
             'descrizione' => ['it' => 'Jackpot! Ecco 80 pull!', 'en' => 'Jackpot! Here are 80 pulls!'],
+            'active' => false,
         ],
         'godo2' => [
             'tipo' => 'punti',
             'punti' => 1000,
             'descrizione' => ['it' => '+1000, tieni, prenditi sta multi', 'en' => '+1000, here, take these 10 pulls'],
+            'active' => true,
         ],
         'update31' => [
             'tipo' => 'punti',
             'punti' => 3100,
             'descrizione' => ['it' => '+3000 punti per l\'aggiornamento!', 'en' => '+3000 points for the update!'],
+            'active' => false,
         ],
         'palestine' => [
             'tipo' => 'punti',
             'punti' => 3000,
             'descrizione' => ['it' => '+30 pull da parte di netanyahu', 'en' => '+30 pulls from netanyahu'],
+            'active' => false,
         ],
         'isekaiglzer' => [
             'tipo' => 'punti',
             'punti' => 1000,
             'descrizione' => ['it' => '+10 pull', 'en' => '+10 pulls'],
+            'active' => false,
         ],
         'sticazziminecraftdungeonplayerzestyahhh' => [
             'tipo' => 'punti',
             'punti' => 3000,
             'descrizione' => ['it' => '+30 pull', 'en' => '+30 pulls'],
+            'active' => false,
         ],
         'testscadenza' => [
             'tipo' => 'punti',
             'punti' => 100,
             'descrizione' => ['it' => 'ehm test baka', 'en' => 'ehm test baka'],
             'expires_at' => '2026-07-07 23:59:59',
-            'active' => true,
+            'active' => false,
         ],
         'testscaduto' => [
             'tipo' => 'punti',
             'punti' => 100,
             'descrizione' => ['it' => 'ehm test baka', 'en' => 'ehm test baka'],
             'expires_at' => '2026-07-03 23:59:59',
-            'active' => true,
+            'active' => false,
         ],
         'testscadenza2' => [
             'tipo' => 'punti',
@@ -124,6 +138,34 @@ function cripsum_redeem_codes(): array
             'descrizione' => ['it' => 'ehm test baka', 'en' => 'ehm test baka'],
             'expires_at' => '2026-07-07 23:59:59',
             'active' => false,
+        ],
+        'newlootboxupdate' => [
+            'tipo' => 'punti',
+            'punti' => 2000,
+            'descrizione' => ['it' => '+2000 godos', 'en' => '+2000 godos'],
+            'expires_at' => '2026-07-10 23:59:59',
+            'active' => true,
+        ],
+        'polyesterguy' => [
+            'tipo' => 'punti',
+            'punti' => 2000,
+            'descrizione' => ['it' => '+2000 godos', 'en' => '+2000 godos'],
+            'starts_at' => '2026-07-21 14:39:36',
+            'active' => true,
+        ],
+        'torturacazzoepalle' => [
+            'tipo' => 'punti',
+            'punti' => 2000,
+            'descrizione' => ['it' => '+2000 godos', 'en' => '+2000 godos'],
+            'expires_at' => '2026-07-21 14:39:36',
+            'active' => true,
+        ],
+        'kurumisburrata' => [
+            'tipo' => 'punti',
+            'punti' => 2069,
+            'descrizione' => ['it' => '+2000 godos', 'en' => '+2000 godos'],
+            'starts_at' => '2026-07-21 14:39:36',
+            'active' => true,
         ],
     ];
 }
