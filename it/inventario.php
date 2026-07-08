@@ -41,8 +41,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:url" content="<?php echo inventario_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=2.9.8">
-    <script src="/assets/inventario/inventario.js?v=3.1.1" defer></script>
+    <link rel="stylesheet" href="/assets/inventario/inventario.css?v=3.0.0">
+    <script src="/assets/inventario/inventario.js?v=3.2.0" defer></script>
 </head>
 
 <body class="inv-page">
@@ -130,6 +130,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <option value="owned">Posseduti</option>
                     <option value="missing">Mancanti</option>
                     <option value="duplicates">Duplicati</option>
+                    <option value="upgradable">Potenziabili</option>
                 </select>
 
                 <button type="button" class="inv-select-trigger" aria-haspopup="listbox" aria-expanded="false">
@@ -142,6 +143,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <button type="button" data-value="owned"><strong>Posseduti</strong></button>
                     <button type="button" data-value="missing"><strong>Mancanti</strong></button>
                     <button type="button" data-value="duplicates"><strong>Duplicati</strong></button>
+                    <button type="button" data-value="upgradable"><strong>Potenziabili</strong></button>
                 </div>
             </div>
 
@@ -169,6 +171,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             <button type="button" class="inv-btn inv-btn--soft" id="resetInventoryFilters">
                 <i class="fa-solid fa-rotate-left"></i>
                 <span>Reset</span>
+            </button>
+
+            <button type="button" class="inv-btn inv-btn--upgrade-all" id="upgradeAllCharacters" disabled>
+                <i class="fa-solid fa-angles-up"></i>
+                <span>Potenzia tutto</span>
             </button>
         </section>
 

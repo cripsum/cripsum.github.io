@@ -34,7 +34,14 @@
             no_passive:         'Nessun effetto passivo speciale.',
             default_special_desc: 'Un potente attacco speciale.',
             default_ultimate_desc: 'Una mossa finale devastante.',
-            cost_cost:          'Costo'
+            cost_cost:          'Costo',
+            upgrade_ready:      'Potenziabile',
+            upgrade_all:        'Potenzia tutto',
+            upgrade_all_count:  (n) => `Potenzia tutto (${n})`,
+            upgrade_all_none:   'Nessun personaggio potenziabile',
+            upgrade_all_running:'Potenziamento...',
+            upgrade_all_confirm:(n) => `Vuoi potenziare automaticamente tutti i personaggi potenziabili? Personaggi pronti: <strong>${n}</strong>.`,
+            upgrade_all_done:   (chars, levels) => `Potenziati ${chars} ${chars === 1 ? 'personaggio' : 'personaggi'} per ${levels} ${levels === 1 ? 'livello' : 'livelli'} totali.`
         },
         en: {
             date_locale:        'en-GB',
@@ -66,7 +73,14 @@
             no_passive:         'No special passive effect.',
             default_special_desc: 'A powerful special attack.',
             default_ultimate_desc: 'A devastating finishing move.',
-            cost_cost:          'Cost'
+            cost_cost:          'Cost',
+            upgrade_ready:      'Upgradeable',
+            upgrade_all:        'Upgrade all',
+            upgrade_all_count:  (n) => `Upgrade all (${n})`,
+            upgrade_all_none:   'No upgradeable characters',
+            upgrade_all_running:'Upgrading...',
+            upgrade_all_confirm:(n) => `Automatically upgrade every upgradeable character? Ready characters: <strong>${n}</strong>.`,
+            upgrade_all_done:   (chars, levels) => `Upgraded ${chars} ${chars === 1 ? 'character' : 'characters'} for ${levels} total ${levels === 1 ? 'level' : 'levels'}.`
         }
     }[lang];
 
@@ -77,7 +91,8 @@
         inventory: 'https://cripsum.com/api/api_get_inventario',
         characterCount: 'https://cripsum.com/api/api_get_characters_num',
         allCharacters: 'https://cripsum.com/api/get_all_characters',
-        openedBoxes: 'https://cripsum.com/api/get_casse_aperte'
+        openedBoxes: 'https://cripsum.com/api/get_casse_aperte',
+        upgradeAll: '/api/game/upgrade_all_characters.php'
     };
 
     const rarityOrder = ['comune', 'raro', 'epico', 'leggendario', 'speciale', 'segreto', 'segreto_limited', 'theone'];
@@ -86,6 +101,9 @@
         inventory: [],
         allCharacters: [],
         entries: [],
+        hasRenderedInventory: false,
+        isUpgradingAll: false,
+        activeModalCharacterId: null,
         filters: {
             search: localStorage.getItem('cripsum:inventory:search') || '',
             rarity: localStorage.getItem('cripsum:inventory:rarity') || 'all',
@@ -93,6 +111,9 @@
             sort: localStorage.getItem('cripsum:inventory:sort') || 'default'
         }
     };
+
+    let inventoryRenderFrame = 0;
+    let inventoryToastTimer = 0;
 
     const fallbackImage = '../img/boh.png';
 
@@ -277,11 +298,18 @@
     const getDisplayRarity = (entry) => isSecretLimited(entry) ? 'segreto_limited' : entry.rarity;
 
     const visibleBaseEntries = () => {
+        const foundGroups = new Set();
+
+        state.entries.forEach((entry) => {
+            if (entry.owned) {
+                foundGroups.add(getDisplayRarity(entry));
+            }
+        });
+
         return state.entries.filter((entry) => {
             const displayRarity = getDisplayRarity(entry);
-            const foundInGroup = state.entries.some((item) => getDisplayRarity(item) === displayRarity && item.owned);
 
-            if ((displayRarity === 'segreto' || displayRarity === 'segreto_limited' || displayRarity === 'theone') && !foundInGroup) {
+            if ((displayRarity === 'segreto' || displayRarity === 'segreto_limited' || displayRarity === 'theone') && !foundGroups.has(displayRarity)) {
                 return false;
             }
 
@@ -314,6 +342,10 @@
 
         if (state.filters.status === 'duplicates') {
             list = list.filter((entry) => entry.owned && entry.quantity > 1);
+        }
+
+        if (state.filters.status === 'upgradable') {
+            list = list.filter(isUpgradable);
         }
 
         if (query) {
@@ -363,6 +395,89 @@
         return groups;
     };
 
+    const getAvailableDuplicates = (entry) => Math.max(0, toInt(entry?.quantity) - 1);
+
+    const isUpgradable = (entry) => Boolean(
+        entry &&
+        entry.owned &&
+        toInt(entry.level, 1) < 6 &&
+        toInt(entry.required_next) > 0 &&
+        getAvailableDuplicates(entry) >= toInt(entry.required_next)
+    );
+
+    const getUpgradableEntries = () => state.entries.filter(isUpgradable);
+
+    const updateLocalEntryFromUpgrade = (payload) => {
+        if (!payload) return null;
+
+        const characterId = payload.character_id ?? payload.id;
+        const localEntry = state.entries.find((item) => String(item.id) === String(characterId));
+        if (!localEntry) return null;
+
+        localEntry.level = toInt(payload.level, localEntry.level);
+        localEntry.quantity = toInt(payload.quantity, localEntry.quantity);
+        localEntry.required_next = toInt(payload.required_next, localEntry.required_next);
+        if ('stats' in payload) localEntry.stats = payload.stats;
+        if ('stats_next' in payload) localEntry.stats_next = payload.stats_next;
+
+        const ownedRecord = state.inventory.find((item) => String(getId(item)) === String(characterId));
+        if (ownedRecord) {
+            ownedRecord.livello = localEntry.level;
+            ownedRecord.level = localEntry.level;
+            ownedRecord['quantità'] = localEntry.quantity;
+            ownedRecord.quantita = localEntry.quantity;
+            ownedRecord.quantity = localEntry.quantity;
+            ownedRecord.required_next = localEntry.required_next;
+            ownedRecord.stats = localEntry.stats;
+            ownedRecord.stats_next = localEntry.stats_next;
+        }
+
+        return localEntry;
+    };
+
+    const replaceInventoryCard = (entry) => {
+        const cardEl = document.querySelector(`.character-card[data-character-id="${entry.id}"]`);
+        if (!cardEl) return;
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(renderCard(entry), 'text/html');
+        const newCardEl = doc.body.firstElementChild;
+        if (!newCardEl) return;
+
+        newCardEl.classList.add('is-visible');
+        cardEl.replaceWith(newCardEl);
+    };
+
+    const refreshInventoryCache = () => {
+        localStorage.setItem('inventory', JSON.stringify(state.inventory));
+    };
+
+    const showInventoryToast = (message, isError = false) => {
+        let toast = $('#inventoryToast');
+
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'inventoryToast';
+            toast.className = 'inventory-toast';
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+            document.body.appendChild(toast);
+        }
+
+        toast.textContent = message;
+        toast.classList.toggle('is-error', isError);
+        toast.hidden = false;
+
+        window.requestAnimationFrame(() => toast.classList.add('is-visible'));
+        window.clearTimeout(inventoryToastTimer);
+        inventoryToastTimer = window.setTimeout(() => {
+            toast.classList.remove('is-visible');
+            window.setTimeout(() => {
+                toast.hidden = true;
+            }, 220);
+        }, isError ? 3400 : 2600);
+    };
+
     const renderStats = (openedBoxes, totalCharactersNum) => {
         const foundCharacters = state.inventory.length;
         const total = toInt(totalCharactersNum) || state.allCharacters.length;
@@ -389,14 +504,16 @@
 
     const renderCard = (entry) => {
         const isDuplicate = entry.quantity > 1;
+        const canUpgrade = isUpgradable(entry);
         const rarityLabel = t.rarity[entry.rarity] || entry.rarity;
         const image = resolveImage(entry.image, entry.owned);
         const date = entry.owned ? formatDate(entry.date) : '';
         const displayName = entry.owned ? entry.name : t.unknown;
 
         return `
-            <article class="character-card rarity-${escapeHtml(entry.rarity)}${isSecretLimited(entry) ? ' rarity-segreto_limited' : ''} ${entry.owned ? 'is-owned' : 'is-missing'} ${entry.owned && entry.level === 6 ? 'is-max-level' : ''}"
+            <article class="character-card rarity-${escapeHtml(entry.rarity)}${isSecretLimited(entry) ? ' rarity-segreto_limited' : ''} ${entry.owned ? 'is-owned' : 'is-missing'} ${entry.owned && entry.level === 6 ? 'is-max-level' : ''} ${canUpgrade ? 'is-upgradable' : ''}"
                      data-character-id="${entry.id}"
+                     data-upgradable="${canUpgrade ? '1' : '0'}"
                      ${entry.owned ? 'tabindex="0" role="button"' : ''}
                      aria-label="${entry.owned ? escapeHtml(t.open_character(entry.name)) : t.not_found}">
                 <div class="character-image-wrap">
@@ -410,6 +527,12 @@
                         ${entry.owned ? `x${entry.quantity}` : '?'}
                     </span>
                     ${entry.owned ? `<span class="character-level-badge">Lv. ${entry.level === 6 ? 'MAX' : entry.level}</span>` : ''}
+                    ${canUpgrade ? `
+                        <span class="character-upgrade-badge" title="${escapeHtml(t.upgrade_ready)}">
+                            <i class="fa-solid fa-angles-up"></i>
+                            <span>${escapeHtml(t.upgrade_ready)}</span>
+                        </span>
+                    ` : ''}
                 </div>
 
                 <div class="character-info">
@@ -429,13 +552,39 @@
         `;
     };
 
-    const renderInventory = () => {
+    const updateUpgradeAllButton = () => {
+        const btn = $('#upgradeAllCharacters');
+        if (!btn) return;
+
+        const count = getUpgradableEntries().length;
+        const label = btn.querySelector('span');
+        const icon = btn.querySelector('i');
+
+        btn.disabled = state.isUpgradingAll || count === 0;
+        btn.title = count > 0 ? t.upgrade_all_count(count) : t.upgrade_all_none;
+        btn.classList.toggle('has-upgrades', count > 0);
+
+        if (icon) {
+            icon.className = state.isUpgradingAll ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-angles-up';
+        }
+
+        if (label) {
+            label.textContent = state.isUpgradingAll
+                ? t.upgrade_all_running
+                : (count > 0 ? t.upgrade_all_count(count) : t.upgrade_all);
+        }
+    };
+
+    const renderInventory = (options = {}) => {
         const container = $('#inventario');
         const empty = $('#inventoryEmpty');
         const visibleCount = $('#visibleCount');
 
         if (!container) return;
 
+        const preserveScroll = Boolean(options.preserveScroll);
+        const previousScrollY = window.scrollY;
+        const shouldAnimate = options.animate === true || !state.hasRenderedInventory;
         const list = filteredEntries();
         const groups = groupByRarity(list);
         let html = '';
@@ -463,26 +612,20 @@
             visibleCount.textContent = t.results(renderedCount);
         }
 
-        $$('.character-card.is-owned', container).forEach((card, index) => {
-            window.setTimeout(() => card.classList.add('is-visible'), index * 24);
-
-            card.addEventListener('click', () => {
-                const entry = state.entries.find((item) => String(item.id) === String(card.dataset.characterId));
-                if (entry) openCharacterModal(entry);
-            });
-
-            card.addEventListener('keydown', (event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-
-                event.preventDefault();
-                const entry = state.entries.find((item) => String(item.id) === String(card.dataset.characterId));
-                if (entry) openCharacterModal(entry);
-            });
+        $$('.character-card', container).forEach((card, index) => {
+            if (shouldAnimate && index < 80) {
+                window.setTimeout(() => card.classList.add('is-visible'), index * (card.classList.contains('is-owned') ? 18 : 12));
+            } else {
+                card.classList.add('is-visible');
+            }
         });
 
-        $$('.character-card.is-missing', container).forEach((card, index) => {
-            window.setTimeout(() => card.classList.add('is-visible'), index * 18);
-        });
+        state.hasRenderedInventory = true;
+        updateUpgradeAllButton();
+
+        if (preserveScroll) {
+            window.requestAnimationFrame(() => window.scrollTo({ top: previousScrollY, left: 0, behavior: 'auto' }));
+        }
     };
 
     const confirmTexts = {
@@ -587,6 +730,8 @@
         const content = $('#characterModalContent');
         if (!modal || !content) return;
 
+        state.activeModalCharacterId = entry.id;
+
         const rarityLabel = t.rarity[entry.rarity] || entry.rarity;
         const image = resolveImage(entry.image, true);
         const traits = entry.traits
@@ -645,7 +790,7 @@
                         <button type="button" class="modal-tab-btn ${defaultTab === 'upgrade' ? 'active' : ''}" data-tab="upgrade" style="flex: 1; padding: 0.6rem; border: none; background: none; color: var(--inv-muted); font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; position: relative;">
                             <i class="fa-solid fa-angles-up"></i>
                             ${t.tab_upgrade}
-                            ${Math.max(0, entry.quantity - 1) >= entry.required_next && entry.level < 6 ? `
+                            ${isUpgradable(entry) ? `
                                 <span class="tab-ready-indicator" style="position: absolute; top: 6px; right: 12px; width: 8px; height: 8px; background: var(--inv-green); border-radius: 50%; box-shadow: 0 0 6px var(--inv-green);"></span>
                             ` : ''}
                         </button>
@@ -756,11 +901,11 @@
 
                             <div class="progression-upgrade-action">
                                 ${entry.level < 6 ? `
-                                    <button type="button" class="inv-btn inv-btn--upgrade" id="btnUpgradeCharacter" ${Math.max(0, entry.quantity - 1) < entry.required_next ? 'disabled' : ''}>
+                                    <button type="button" class="inv-btn inv-btn--upgrade" id="btnUpgradeCharacter" ${!isUpgradable(entry) ? 'disabled' : ''}>
                                         <i class="fa-solid fa-angles-up"></i>
                                         <span>Potenzia</span>
                                     </button>
-                                    ${Math.max(0, entry.quantity - 1) < entry.required_next ? `
+                                    ${!isUpgradable(entry) ? `
                                         <small class="progression-hint">Ti mancano ${entry.required_next - Math.max(0, entry.quantity - 1)} copie duplicate per sbloccare il prossimo livello.</small>
                                     ` : `
                                         <small class="progression-hint progression-hint--ready">Pronto per il potenziamento!</small>
@@ -855,35 +1000,11 @@
                                 });
                             }
 
-                            // Update local state entry
-                            const localEntry = state.entries.find(item => String(item.id) === String(entry.id));
-                            if (localEntry) {
-                                localEntry.level = data.level;
-                                localEntry.quantity = data.quantity;
-                                localEntry.required_next = data.required_next;
-                                localEntry.stats = data.stats;
-                                localEntry.stats_next = data.stats_next;
-                            }
+                            const localEntry = updateLocalEntryFromUpgrade(data);
+                            refreshInventoryCache();
 
-                            // Update only the card DOM in the grid
-                            const cardEl = document.querySelector(`.character-card[data-character-id="${entry.id}"]`);
-                            if (cardEl && localEntry) {
-                                const parser = new DOMParser();
-                                const doc = parser.parseFromString(renderCard(localEntry), 'text/html');
-                                const newCardEl = doc.body.firstElementChild;
-                                newCardEl.classList.add('is-visible');
-                                cardEl.replaceWith(newCardEl);
-                                
-                                newCardEl.addEventListener('click', () => {
-                                    openCharacterModal(localEntry);
-                                });
-                                newCardEl.addEventListener('keydown', (event) => {
-                                    if (event.key === 'Enter' || event.key === ' ') {
-                                        event.preventDefault();
-                                        openCharacterModal(localEntry);
-                                    }
-                                });
-                            }
+                            if (localEntry) replaceInventoryCard(localEntry);
+                            updateUpgradeAllButton();
                             
                             if (localEntry) {
                                 setTimeout(() => openCharacterModal(localEntry, 'upgrade'), 500);
@@ -891,11 +1012,11 @@
                                 closeCharacterModal();
                             }
                         } else {
-                            alert(data.message || 'Errore durante il potenziamento');
+                            showInventoryToast(data.message || 'Errore durante il potenziamento', true);
                             btnUpgrade.disabled = false;
                         }
                     } catch (e) {
-                        alert('Errore durante il potenziamento: ' + e.message);
+                        showInventoryToast('Errore durante il potenziamento: ' + e.message, true);
                         btnUpgrade.disabled = false;
                     }
                 });
@@ -912,6 +1033,98 @@
 
         modal.hidden = true;
         document.body.style.overflow = '';
+        state.activeModalCharacterId = null;
+    };
+
+    const bindInventoryEvents = () => {
+        const container = $('#inventario');
+        if (!container || container.dataset.bound === '1') return;
+
+        container.dataset.bound = '1';
+
+        container.addEventListener('click', (event) => {
+            const card = event.target.closest('.character-card.is-owned');
+            if (!card || !container.contains(card)) return;
+
+            const entry = state.entries.find((item) => String(item.id) === String(card.dataset.characterId));
+            if (entry) openCharacterModal(entry);
+        });
+
+        container.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+
+            const card = event.target.closest('.character-card.is-owned');
+            if (!card || !container.contains(card)) return;
+
+            event.preventDefault();
+            const entry = state.entries.find((item) => String(item.id) === String(card.dataset.characterId));
+            if (entry) openCharacterModal(entry);
+        });
+    };
+
+    const handleUpgradeAll = () => {
+        const readyEntries = getUpgradableEntries();
+        if (state.isUpgradingAll || readyEntries.length === 0) return;
+
+        showCustomConfirm(t.upgrade_all_confirm(readyEntries.length), async () => {
+            state.isUpgradingAll = true;
+            updateUpgradeAllButton();
+
+            try {
+                const res = await fetch(API.upgradeAll, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+
+                if (!data.ok) {
+                    showInventoryToast(data.message || 'Errore durante il potenziamento', true);
+                    return;
+                }
+
+                const updatedCharacters = Array.isArray(data.characters) ? data.characters : [];
+                updatedCharacters.forEach(updateLocalEntryFromUpgrade);
+                refreshInventoryCache();
+
+                if (Array.isArray(data.unlocked_achievements)) {
+                    data.unlocked_achievements.forEach((achId) => {
+                        if (typeof window.showAchievementPopup === 'function') {
+                            window.showAchievementPopup(achId);
+                        }
+                    });
+                }
+
+                renderInventory({ preserveScroll: true });
+
+                const activeEntry = state.entries.find((item) => String(item.id) === String(state.activeModalCharacterId));
+                if (activeEntry) {
+                    openCharacterModal(activeEntry, 'upgrade');
+                }
+
+                const upgradedCount = toInt(data.upgraded_count);
+                const levelsGained = toInt(data.levels_gained);
+                if (upgradedCount > 0) {
+                    showInventoryToast(t.upgrade_all_done(upgradedCount, levelsGained));
+                }
+            } catch (e) {
+                showInventoryToast('Errore durante il potenziamento: ' + e.message, true);
+            } finally {
+                state.isUpgradingAll = false;
+                updateUpgradeAllButton();
+            }
+        });
+    };
+
+    const scheduleInventoryRender = () => {
+        if (inventoryRenderFrame) {
+            window.cancelAnimationFrame(inventoryRenderFrame);
+        }
+
+        inventoryRenderFrame = window.requestAnimationFrame(() => {
+            inventoryRenderFrame = 0;
+            renderInventory({ preserveScroll: true });
+        });
     };
 
     const saveFilters = () => {
@@ -934,45 +1147,49 @@
         const status = $('#statusFilter');
         const sort = $('#inventorySort');
         const reset = $('#resetInventoryFilters');
+        const upgradeAll = $('#upgradeAllCharacters');
 
         syncControls();
 
         search?.addEventListener('input', () => {
             state.filters.search = search.value;
             saveFilters();
-            renderInventory();
+            scheduleInventoryRender();
         });
 
         rarity?.addEventListener('change', () => {
             state.filters.rarity = rarity.value;
             saveFilters();
-            renderInventory();
+            scheduleInventoryRender();
         });
 
         status?.addEventListener('change', () => {
             state.filters.status = status.value;
             saveFilters();
-            renderInventory();
+            scheduleInventoryRender();
         });
 
         sort?.addEventListener('change', () => {
             state.filters.sort = sort.value;
             saveFilters();
-            renderInventory();
+            scheduleInventoryRender();
         });
 
         reset?.addEventListener('click', () => {
             state.filters = {
                 search: '',
                 rarity: 'all',
-                status: 'owned',
+                status: 'all',
                 sort: 'default'
             };
 
             saveFilters();
             syncControls();
-            renderInventory();
+            renderInventory({ preserveScroll: true });
         });
+
+        upgradeAll?.addEventListener('click', handleUpgradeAll);
+        updateUpgradeAllButton();
     };
 
     const initModal = () => {
@@ -1104,6 +1321,7 @@
         initReveal();
         initControls();
         initModal();
+        bindInventoryEvents();
         loadInventory();
     });
 
