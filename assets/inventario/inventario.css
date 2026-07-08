@@ -2811,7 +2811,7 @@ body.inv-page .inventory-grid {
 
 body.inv-page .rarity-jump-nav {
     position: sticky;
-    top: 4.5rem;
+    top: 5.5rem;
     z-index: 70;
     display: flex;
     gap: 0.55rem;
@@ -3013,7 +3013,7 @@ body.inv-page .character-card.is-missing {
 
 @media (max-width: 1080px) {
     body.inv-page .rarity-jump-nav {
-        top: 4.5rem;
+        top: 5.5rem;
     }
 
     body.inv-page .rarity-section {
