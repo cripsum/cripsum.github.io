@@ -489,16 +489,57 @@
         animateNumber($('#completionRate'), completionRate, '%');
     };
 
+    const raritySectionId = (rarity) => `rarity-${String(rarity).replace(/[^a-z0-9_-]/gi, '-')}`;
+
     const renderRarityTitle = (rarity, entries) => {
         const baseEntries = visibleBaseEntries().filter((entry) => getDisplayRarity(entry) === rarity);
         const found = baseEntries.filter((entry) => entry.owned).length;
         const total = baseEntries.length;
+        const visibleFound = entries.filter((entry) => entry.owned).length;
+        const ready = entries.filter(isUpgradable).length;
+        const percent = total > 0 ? Math.round((found / total) * 100) : 0;
 
         return `
             <div class="rarity-title">
-                <strong>${escapeHtml(t.rarity[rarity] || rarity)}</strong>
-                <span>${found} / ${total}</span>
+                <div class="rarity-title__main">
+                    <strong>${escapeHtml(t.rarity[rarity] || rarity)}</strong>
+                    <div class="rarity-progress" aria-hidden="true">
+                        <span style="width: ${percent}%"></span>
+                    </div>
+                </div>
+                <div class="rarity-title__stats">
+                    <span>${found} / ${total}</span>
+                    ${visibleFound !== found ? `<span>${visibleFound} ${lang === 'en' ? 'visible' : 'visibili'}</span>` : ''}
+                    ${ready > 0 ? `<span class="rarity-title__ready"><i class="fa-solid fa-angles-up"></i>${ready}</span>` : ''}
+                </div>
             </div>
+        `;
+    };
+
+    const renderRarityNav = (groups) => {
+        let nav = '';
+
+        groups.forEach((items, rarity) => {
+            if (!items.length) return;
+
+            const found = items.filter((entry) => entry.owned).length;
+            const ready = items.filter(isUpgradable).length;
+
+            nav += `
+                <a class="rarity-jump-chip rarity-${escapeHtml(rarity)}" href="#${escapeHtml(raritySectionId(rarity))}">
+                    <span>${escapeHtml(t.rarity[rarity] || rarity)}</span>
+                    <strong>${found}/${items.length}</strong>
+                    ${ready > 0 ? `<em>${ready}</em>` : ''}
+                </a>
+            `;
+        });
+
+        if (!nav) return '';
+
+        return `
+            <nav class="rarity-jump-nav" aria-label="${lang === 'en' ? 'Rarity sections' : 'Sezioni rarità'}">
+                ${nav}
+            </nav>
         `;
     };
 
@@ -587,15 +628,15 @@
         const shouldAnimate = options.animate === true || !state.hasRenderedInventory;
         const list = filteredEntries();
         const groups = groupByRarity(list);
-        let html = '';
+        let sectionsHtml = '';
         let renderedCount = 0;
 
         groups.forEach((items, rarity) => {
             if (!items.length) return;
 
             renderedCount += items.length;
-            html += `
-                <section class="rarity-section rarity-${escapeHtml(rarity)}">
+            sectionsHtml += `
+                <section class="rarity-section rarity-${escapeHtml(rarity)}" id="${escapeHtml(raritySectionId(rarity))}">
                     ${renderRarityTitle(rarity, items)}
                     <div class="characters-grid">
                         ${items.map(renderCard).join('')}
@@ -604,7 +645,7 @@
             `;
         });
 
-        container.innerHTML = html;
+        container.innerHTML = renderedCount > 0 ? renderRarityNav(groups) + sectionsHtml : '';
         container.hidden = renderedCount === 0;
         empty.hidden = renderedCount !== 0;
 
