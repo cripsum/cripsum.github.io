@@ -2411,8 +2411,13 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
 }
 
 @keyframes readyPulse {
-    0% { opacity: 0.7; }
-    100% { opacity: 1; text-shadow: 0 0 6px rgba(52, 211, 153, 0.4); }
+    0% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 6px rgba(52, 211, 153, 0.4);
+    }
 }
 
 /* Animazione di Level Up per la modale */
@@ -2500,7 +2505,7 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
 }
 
 .modal-character__image::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
@@ -2515,8 +2520,12 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
 }
 
 @keyframes sweepLight {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .level-up-animating .modal-character__image img {
@@ -2524,13 +2533,27 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
 }
 
 @keyframes cardUpgradeShake {
-    0% { transform: scale(1); }
-    15% { transform: scale(0.92) rotate(-2deg); }
-    30% { transform: scale(1.08) rotate(2deg); }
-    45% { transform: scale(1.12) rotate(-2deg); }
-    60% { transform: scale(1.08) rotate(2deg); }
-    75% { transform: scale(1.03) rotate(-1deg); }
-    100% { transform: scale(1) rotate(0); }
+    0% {
+        transform: scale(1);
+    }
+    15% {
+        transform: scale(0.92) rotate(-2deg);
+    }
+    30% {
+        transform: scale(1.08) rotate(2deg);
+    }
+    45% {
+        transform: scale(1.12) rotate(-2deg);
+    }
+    60% {
+        transform: scale(1.08) rotate(2deg);
+    }
+    75% {
+        transform: scale(1.03) rotate(-1deg);
+    }
+    100% {
+        transform: scale(1) rotate(0);
+    }
 }
 
 /* --- POPUP DI CONFERMA PERSONALIZZATO --- */
@@ -2564,8 +2587,14 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
 }
 
 @keyframes pulseIcon {
-    0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(47, 107, 255, 0.3)); }
-    100% { transform: scale(1.08); filter: drop-shadow(0 0 15px rgba(47, 107, 255, 0.6)); }
+    0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px rgba(47, 107, 255, 0.3));
+    }
+    100% {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 15px rgba(47, 107, 255, 0.6));
+    }
 }
 
 .confirm-upgrade-content h3 {
@@ -2735,11 +2764,8 @@ body.inv-page .inv-hero {
     min-height: 14rem;
     align-items: flex-end;
     border-radius: 30px;
-    background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)),
-        radial-gradient(circle at 82% 18%, rgba(52, 211, 153, 0.2), transparent 24rem),
-        radial-gradient(circle at 6% 10%, rgba(47, 107, 255, 0.26), transparent 26rem),
-        rgba(8, 11, 22, 0.78);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)), radial-gradient(circle at 82% 18%, rgba(52, 211, 153, 0.2), transparent 24rem),
+        radial-gradient(circle at 6% 10%, rgba(47, 107, 255, 0.26), transparent 26rem), rgba(8, 11, 22, 0.78);
 }
 
 body.inv-page .inv-hero h1 {
@@ -2756,9 +2782,7 @@ body.inv-page .inv-stats article {
     min-height: 6.15rem;
     align-content: center;
     border-radius: 18px;
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
-        rgba(8, 11, 22, 0.78);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)), rgba(8, 11, 22, 0.78);
 }
 
 body.inv-page .inv-controls {
@@ -2766,9 +2790,7 @@ body.inv-page .inv-controls {
     top: 5.15rem;
     z-index: 80;
     border-radius: 22px;
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-        rgba(7, 10, 20, 0.88);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)), rgba(7, 10, 20, 0.88);
     box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34);
 }
 
@@ -2798,9 +2820,7 @@ body.inv-page .rarity-jump-nav {
     padding: 0.72rem;
     border: 1px solid var(--inv-border);
     border-radius: 20px;
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
-        rgba(7, 10, 20, 0.84);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)), rgba(7, 10, 20, 0.84);
     box-shadow: 0 16px 42px rgba(0, 0, 0, 0.28);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
@@ -2865,9 +2885,7 @@ body.inv-page .rarity-section {
     margin-top: 0;
     padding: 1.05rem;
     border-radius: 24px;
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.02)),
-        rgba(7, 10, 20, 0.78);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.02)), rgba(7, 10, 20, 0.78);
 }
 
 body.inv-page .rarity-title {
@@ -2942,9 +2960,7 @@ body.inv-page .character-card {
     grid-template-rows: auto 1fr;
     min-height: 17.25rem;
     border-radius: 18px;
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, 0.072), rgba(255, 255, 255, 0.022)),
-        rgba(6, 9, 18, 0.86);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.072), rgba(255, 255, 255, 0.022)), rgba(6, 9, 18, 0.86);
 }
 
 body.inv-page .character-image-wrap {
@@ -2993,9 +3009,7 @@ body.inv-page .character-upgrade-badge {
 }
 
 body.inv-page .character-card.is-missing {
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.014)),
-        rgba(5, 7, 14, 0.74);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.014)), rgba(5, 7, 14, 0.74);
 }
 
 @media (max-width: 1080px) {
@@ -3057,136 +3071,5 @@ body.inv-page .character-card.is-missing {
     body.inv-page .character-name {
         min-height: 0;
         font-size: 0.88rem;
-    }
-}
-
-/* --- INVENTARIO V3.3.1: fix sticky, spacing e scroll fluido --- */
-body.inv-page .inv-orb {
-    display: none;
-}
-
-body.inv-page .inv-shell {
-    padding-top: 5.9rem;
-}
-
-body.inv-page .inv-stats {
-    margin-top: 0.75rem !important;
-    margin-bottom: 0 !important;
-}
-
-body.inv-page .inv-controls {
-    position: sticky !important;
-    top: 4.35rem !important;
-    z-index: 6200 !important;
-    margin-top: 0.75rem !important;
-    padding: 0.72rem !important;
-    border-radius: 18px !important;
-    background: rgba(9, 12, 22, 0.96) !important;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-body.inv-page .rarity-jump-nav {
-    position: sticky !important;
-    top: 8.75rem !important;
-    z-index: 6100 !important;
-    margin-top: -0.55rem !important;
-    padding: 0.58rem !important;
-    border-radius: 0 0 18px 18px !important;
-    background: rgba(9, 12, 22, 0.96) !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-body.inv-page .rarity-section {
-    scroll-margin-top: 13.2rem;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28) !important;
-}
-
-body.inv-page .rarity-section::before {
-    filter: none !important;
-}
-
-body.inv-page .rarity-section.rarity-speciale,
-body.inv-page .rarity-section.rarity-segreto,
-body.inv-page .rarity-section.rarity-segreto_limited,
-body.inv-page .rarity-section.rarity-theone {
-    animation: none !important;
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3), 0 0 24px color-mix(in srgb, var(--rarity-color) 20%, transparent) !important;
-}
-
-body.inv-page .rarity-section.rarity-speciale::before,
-body.inv-page .rarity-section.rarity-segreto::before,
-body.inv-page .rarity-section.rarity-segreto_limited::before,
-body.inv-page .rarity-section.rarity-theone::before {
-    width: 100% !important;
-    transform: none !important;
-    animation: none !important;
-    will-change: auto !important;
-    opacity: 0.55 !important;
-}
-
-body.inv-page .rarity-section.rarity-speciale .characters-grid,
-body.inv-page .rarity-section.rarity-segreto .characters-grid,
-body.inv-page .rarity-section.rarity-segreto_limited .characters-grid,
-body.inv-page .rarity-section.rarity-theone .characters-grid,
-body.inv-page .rarity-section.rarity-speciale .rarity-title,
-body.inv-page .rarity-section.rarity-segreto .rarity-title,
-body.inv-page .rarity-section.rarity-segreto_limited .rarity-title,
-body.inv-page .rarity-section.rarity-theone .rarity-title {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-body.inv-page .character-card {
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24) !important;
-    transition: opacity 180ms ease, transform 160ms ease, border-color 160ms ease, background 160ms ease !important;
-}
-
-body.inv-page .character-card::before {
-    display: none !important;
-}
-
-body.inv-page .character-card:hover {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3) !important;
-}
-
-body.inv-page .character-count,
-body.inv-page .character-upgrade-badge,
-body.inv-page .character-level-badge {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-body.inv-page .modal-character.rarity-speciale .modal-character__image,
-body.inv-page .modal-character.rarity-speciale .character-badge--rarity,
-body.inv-page .modal-character.rarity-speciale .modal-character__actions .inv-btn--primary {
-    animation: none !important;
-}
-
-@media (max-width: 1080px) {
-    body.inv-page .rarity-jump-nav {
-        top: 11.6rem !important;
-        margin-top: 0.55rem !important;
-        border-radius: 18px !important;
-    }
-
-    body.inv-page .rarity-section {
-        scroll-margin-top: 16rem;
-    }
-}
-
-@media (max-width: 620px) {
-    body.inv-page .inv-shell {
-        padding-top: 5.15rem;
-    }
-
-    body.inv-page .inv-controls,
-    body.inv-page .rarity-jump-nav {
-        position: static !important;
-        margin-top: 0.65rem !important;
-        border-radius: 18px !important;
     }
 }
