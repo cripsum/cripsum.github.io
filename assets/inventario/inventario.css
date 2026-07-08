@@ -2172,7 +2172,7 @@ body.inv-page .rarity-section.rarity-segreto_limited .rarity-title strong::after
 }
 
 .inv-controls {
-    position: sticky !important;
+    position: relative !important;
     z-index: 6000 !important;
 }
 
@@ -2786,8 +2786,7 @@ body.inv-page .inv-stats article {
 }
 
 body.inv-page .inv-controls {
-    position: sticky;
-    top: 3.8rem;
+    position: relative;
     z-index: 6000;
     border-radius: 22px;
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)), rgba(7, 10, 20, 0.88);
@@ -2812,7 +2811,7 @@ body.inv-page .inventory-grid {
 
 body.inv-page .rarity-jump-nav {
     position: sticky;
-    top: 7.8rem;
+    top: 3.8rem;
     z-index: 70;
     display: flex;
     gap: 0.55rem;
@@ -3014,7 +3013,7 @@ body.inv-page .character-card.is-missing {
 
 @media (max-width: 1080px) {
     body.inv-page .rarity-jump-nav {
-        top: 11.4rem;
+        top: 3.8rem;
     }
 
     body.inv-page .rarity-section {
