@@ -74,7 +74,7 @@ const ChatAPI = {
 
     async getGifs(query = '', nextOffset = '') {
         let queryStr = `gifs.php?q=${encodeURIComponent(query)}`;
-        if (nextOffset) queryStr += `&offset=${encodeURIComponent(nextOffset)}`;
+        if (nextOffset) queryStr += `&page=${encodeURIComponent(nextOffset)}`;
         return this.call(queryStr);
     },
 

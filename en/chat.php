@@ -108,13 +108,13 @@ $myUserId = (int)$_SESSION['user_id'];
                     <div class="chat-gif-head" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
                         <div class="chat-gif-search" style="flex: 1; position: relative;">
                             <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 10px; color: var(--chat-text-muted);"></i>
-                            <input type="search" id="chatGifSearch" placeholder="Search GIFs on GIPHY..." maxlength="60" autocomplete="off" style="width: 100%; padding: 8px 12px 8px 30px; background: rgba(0,0,0,0.2); border: 1px solid var(--chat-border); border-radius: 8px; color: white;">
+                            <input type="search" id="chatGifSearch" placeholder="Search GIFs on KLIPY..." maxlength="60" autocomplete="off" style="width: 100%; padding: 8px 12px 8px 30px; background: rgba(0,0,0,0.2); border: 1px solid var(--chat-border); border-radius: 8px; color: white;">
                         </div>
                         <button type="button" class="chat-action-btn js-close-gifs" style="background:none; border:none; color:white;"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <div class="chat-gif-grid" id="chatGifGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; max-height: 180px; overflow-y: auto;"></div>
                     <button type="button" class="chat-gif-more js-more-gifs" hidden style="width: 100%; margin-top: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--chat-border); color: white; padding: 6px; border-radius: 6px;">Load more GIFs</button>
-                    <small class="chat-giphy-credit" style="display: block; text-align: right; font-size: 10px; color: var(--chat-text-muted); margin-top: 6px;">Powered by GIPHY</small>
+                    <small class="chat-klipy-credit" style="display: block; text-align: right; font-size: 10px; color: var(--chat-text-muted); margin-top: 6px;">Powered by KLIPY</small>
                 </div>
 
                 <!-- Emoji Strip -->
@@ -175,10 +175,10 @@ $myUserId = (int)$_SESSION['user_id'];
     <!-- Toast Notifications -->
     <div class="admin-toast" id="chatToast" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; transition: opacity 0.3s; pointer-events: none;"></div>
 
-    <script src="/assets/chat/chat-api.js?v=1.3" defer></script>
+    <script src="/assets/chat/chat-api.js?v=1.4-klipy" defer></script>
     <script src="/assets/chat/chat-state.js?v=1.2" defer></script>
-    <script src="/assets/chat/chat-ui.js?v=2.9" defer></script>
-    <script src="/assets/chat/chat.js?v=3.2" defer></script>
+    <script src="/assets/chat/chat-ui.js?v=3.0-klipy" defer></script>
+    <script src="/assets/chat/chat.js?v=3.3-klipy" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

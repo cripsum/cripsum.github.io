@@ -677,11 +677,16 @@ const ChatUI = {
         const grid = document.querySelector('#chatGifGrid');
         if (!grid) return;
         
-        const html = gifs.map(g => `
-            <div class="chat-gif-item" onclick="sendGifMessage('${g.url}', '${g.title || 'GIF'}')" style="cursor:pointer; overflow:hidden; border-radius:6px; height:80px; position:relative; background:rgba(0,0,0,0.1);">
-                <img src="${g.preview_url || g.url}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
-            </div>
-        `).join('');
+        const html = gifs.map(g => {
+            const payload = escapeHtml(JSON.stringify({ url: g.url, title: g.title || 'GIF' }));
+            const title = escapeHtml(g.title || 'GIF');
+            const preview = escapeHtml(g.preview_url || g.url);
+            return `
+                <button type="button" class="chat-gif-item" data-gif='${payload}' title="${title}" style="cursor:pointer; overflow:hidden; border:0; border-radius:6px; height:80px; position:relative; background:rgba(0,0,0,0.1); padding:0;">
+                    <img src="${preview}" alt="${title}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                </button>
+            `;
+        }).join('');
         
         if (append) {
             grid.innerHTML += html;

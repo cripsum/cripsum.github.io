@@ -917,7 +917,7 @@
         try {
             const params = new URLSearchParams();
             if (state.gifQuery) params.set('q', state.gifQuery);
-            if (append && state.gifNext) params.set('pos', state.gifNext);
+            if (append && state.gifNext) params.set('page', state.gifNext);
             const data = await api(`${cfg.endpoints.gifs}?${params.toString()}`);
             renderGifGrid(data.gifs || [], append);
             state.gifNext = data.next || '';

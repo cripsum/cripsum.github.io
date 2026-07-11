@@ -17,6 +17,9 @@ $mediaTitle = isset($input['media_title']) ? trim((string)$input['media_title'])
 if ($msgType === 'gif' && !$mediaUrl) {
     send_error("URL della GIF mancante.");
 }
+if ($msgType === 'gif' && !chat_is_allowed_gif_url($mediaUrl)) {
+    send_error("GIF non valida.", 422);
+}
 
 // --- GROUP CHAT ROUTING ---
 if ($chatId > 0) {

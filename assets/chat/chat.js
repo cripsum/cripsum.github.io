@@ -213,7 +213,7 @@
         // Cancel replies
         document.querySelector('#cancelReplyBtn')?.addEventListener('click', cancelReplyMode);
 
-        // --- GIPHY & EMOJIS COMPOSER EVENTS ---
+        // --- GIF & EMOJIS COMPOSER EVENTS ---
         document.querySelector('.js-toggle-emojis')?.addEventListener('click', () => {
             const strip = document.querySelector('#chatEmojiStrip');
             if (strip) strip.hidden = !strip.hidden;
@@ -252,6 +252,17 @@
 
         document.querySelector('.js-more-gifs')?.addEventListener('click', () => {
             loadMoreGifs();
+        });
+
+        document.querySelector('#chatGifGrid')?.addEventListener('click', (e) => {
+            const btn = e.target.closest('.chat-gif-item');
+            if (!btn?.dataset.gif) return;
+            try {
+                const gif = JSON.parse(btn.dataset.gif);
+                sendGifMessage(gif.url, gif.title || 'GIF');
+            } catch (err) {
+                ChatUI.showToast('GIF non valida.', true);
+            }
         });
 
         // --- FILE ATTACHMENTS & DRAG/DROP EVENTS ---
@@ -448,7 +459,7 @@
         }
     }
 
-    // --- GIPHY CALLS ---
+    // --- KLIPY GIF CALLS ---
     async function loadGifs(query) {
         currentGifQuery = query;
         nextGifOffset = '';
@@ -461,7 +472,7 @@
                 document.querySelector('.js-more-gifs').hidden = !nextGifOffset;
             }
         } catch (e) {
-            console.error("Giphy load error:", e);
+            console.error("Klipy load error:", e);
         }
     }
 
@@ -475,7 +486,7 @@
                 document.querySelector('.js-more-gifs').hidden = !nextGifOffset;
             }
         } catch (e) {
-            console.error("Giphy load more error:", e);
+            console.error("Klipy load more error:", e);
         }
     }
 

@@ -1030,7 +1030,7 @@ body {
     }
 }
 
-/* V2.2: GIPHY GIF, polish, reactions */
+/* V2.2: GIF picker, polish, reactions */
 .chat-panel,
 .chat-messages,
 .chat-message,
@@ -1279,7 +1279,8 @@ body {
 .chat-gif-more[hidden] {
     display: none !important;
 }
-.chat-giphy-credit {
+.chat-gif-credit,
+.chat-klipy-credit {
     display: block;
     margin-top: 0.45rem;
     color: var(--chat-muted-2);
@@ -1946,7 +1947,8 @@ body {
         border-radius: 12px;
     }
 
-    .chat-giphy-credit {
+    .chat-gif-credit,
+    .chat-klipy-credit {
         margin-top: 0.35rem;
         font-size: 0.6rem;
     }

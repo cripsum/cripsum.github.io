@@ -57,8 +57,8 @@ $initialMessages = $lineeGuidaChat === 1 ? chat_fetch_messages($mysqli, $userId,
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/chat-v2.css?v=3.0">
-    <script src="/js/chat-v2.js?v=3.4-premium-badges" defer></script>
+    <link rel="stylesheet" href="/css/chat-v2.css?v=3.1-klipy">
+    <script src="/js/chat-v2.js?v=3.5-klipy" defer></script>
     <title>Global Chat - Cripsum</title>
 </head>
 
@@ -163,13 +163,13 @@ $initialMessages = $lineeGuidaChat === 1 ? chat_fetch_messages($mysqli, $userId,
                         <div class="chat-gif-head">
                             <div class="chat-gif-search">
                                 <i class="fa-solid fa-magnifying-glass"></i>
-                                <input type="search" id="chatGifSearch" placeholder="Search GIFs on GIPHY..." maxlength="60" autocomplete="off">
+                                <input type="search" id="chatGifSearch" placeholder="Search GIFs on KLIPY..." maxlength="60" autocomplete="off">
                             </div>
                             <button type="button" class="chat-icon-button js-close-gifs" aria-label="Close GIFs"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                         <div class="chat-gif-grid" id="chatGifGrid"></div>
                         <button type="button" class="chat-gif-more js-more-gifs" hidden>Load more GIFs</button>
-                        <small class="chat-giphy-credit">Powered by GIPHY</small>
+                        <small class="chat-klipy-credit">Powered by KLIPY</small>
                     </div>
 
                     <div class="chat-emoji-strip" id="chatEmojiStrip" hidden>

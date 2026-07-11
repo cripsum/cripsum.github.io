@@ -281,11 +281,13 @@ function chat_is_allowed_gif_url(string $url): bool
 
     $host = strtolower((string)($parts['host'] ?? ''));
 
-    // GIPHY CDN principali. Tenor resta accettato per eventuali vecchi messaggi già salvati.
+    // CDN consentite per GIF esterne. Tenor/GIPHY restano accettati per vecchi messaggi già salvati.
     if ($host === 'media.tenor.com' || $host === 'tenor.com' || str_ends_with($host, '.tenor.com')) return true;
     if ($host === 'giphy.com' || $host === 'media.giphy.com' || $host === 'i.giphy.com') return true;
     if (preg_match('/^media[0-9]+\.giphy\.com$/', $host)) return true;
     if (str_ends_with($host, '.giphy.com')) return true;
+    if ($host === 'klipy.com' || $host === 'static.klipy.com' || $host === 'media.klipy.com' || $host === 'i.klipy.com') return true;
+    if (str_ends_with($host, '.klipy.com')) return true;
 
     return false;
 }

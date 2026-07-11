@@ -130,7 +130,7 @@ foreach ($tables as $name => $sql) {
 }
 
 // Alter tables to add columns
-echo "Altering table 'private_messages' to add GIPHY support...\n";
+echo "Altering table 'private_messages' to add GIF support...\n";
 try {
     $mysqli->query("ALTER TABLE `private_messages` ADD COLUMN `message_type` VARCHAR(50) NOT NULL DEFAULT 'text' AFTER `message`");
     $mysqli->query("ALTER TABLE `private_messages` ADD COLUMN `media_url` VARCHAR(255) DEFAULT NULL AFTER `message_type`");
