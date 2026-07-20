@@ -429,7 +429,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'ultimate_desc' => 'Applica uno Scudo pari al 50% degli HP max a tutti gli alleati, aumenta la loro Difesa del 50% per 3 turni e li rende Immuni per 2 turni.',
             'ultimate_effect' => ['type' => 'segreto_152_ultimate']
         ],
-        1500 => [
+        214 => [
             'role' => 'Bruiser',
             'passive_name' => 'OH POPPI',
             'passive_desc' => 'Aumenta il proprio Attacco del 5% per ogni 10% di HP persi. Sotto il 40% HP, ottiene immediatamente uno Scudo pari al 30% degli HP max (una volta per match).',
@@ -442,6 +442,20 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'ultimate_name' => 'Morso finale spaccabicchieri',
             'ultimate_desc' => 'Sferra un colpo devastante da 300% ATK, aumenta il proprio Attacco del 40% per 3 turni e si cura del 40% degli HP max.',
             'ultimate_effect' => ['type' => 'poppy_ultimate']
+        ],
+        215 => [
+            'role' => 'DPS',
+            'passive_name' => 'Potere della Rovina',
+            'passive_desc' => 'Aumenta il proprio Crit Rate del 20%. Quando mette a segno un colpo critico, infligge Rovina (Veleno 10% HP a turno) al bersaglio per 2 turni.',
+            'passive_effect' => ['type' => 'rias_passive'],
+            'special_name' => 'Estinzione di Gremory',
+            'special_desc' => 'Infligge il 240% ATK come danno a bersaglio singolo. Se il bersaglio subisce un debuff o stato negativo, infligge il 50% di danni aggiuntivi.',
+            'special_effect' => ['type' => 'rias_special'],
+            'special_cost' => 2,
+            'special_cooldown' => 2,
+            'ultimate_name' => 'Potere della Distruzione',
+            'ultimate_desc' => 'Scatena una sfera di energia distruttiva da 380% ATK a bersaglio singolo che ignora il 40% della Difesa nemica e dissolve tutti i suoi buff.',
+            'ultimate_effect' => ['type' => 'rias_ultimate']
         ],
         153 => [
             'role' => 'DPS',

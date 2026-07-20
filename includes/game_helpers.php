@@ -1328,6 +1328,11 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
             $crit_chance += 25;
         }
 
+        // Rias Gremory - Potere della Rovina (ID 215): +20% Crit Rate personale
+        if ((int)($actor['personaggio_id'] ?? 0) === 215) {
+            $crit_chance += 20;
+        }
+
         // Incentivo di Squadra (Buffer 149): +10% ATK a tutto il team
         $has_incentive = false;
         foreach ($team_cards as $tc) {
@@ -3025,6 +3030,54 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     }
                     break;
 
+                case 'rias_special':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        // Controlla se il bersaglio ha debuff o stati negativi
+                        $has_debuff = false;
+                        foreach ($t_effects as $eff) {
+                            if (in_array($eff['type'], ['poison', 'bleed', 'stun', 'freeze', 'debuff_atk', 'debuff_def', 'debuff_spd', 'silence'])) {
+                                $has_debuff = true;
+                                break;
+                            }
+                        }
+                        
+                        $base_dmg = $a_stats['attack'] * 2.40 * ($has_debuff ? 1.50 : 1.00);
+                        $def_reduction = $t_stats['defense'] * 0.45;
+                        $dmg = max(10, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                            $is_crit = true;
+                        }
+                        
+                        $msg .= "Usa Estinzione di Gremory su {$target_name} infliggendo {$dmg} danni" . ($has_debuff ? " (danno aumentato del 50% per presenza di debuff)!" : "!");
+                    }
+                    break;
+
+                case 'rias_ultimate':
+                    if ($target_immune) {
+                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
+                    } else {
+                        // Dissolve tutti i buff dal bersaglio
+                        $t_effects = array_filter($t_effects, function($eff) {
+                            return !in_array($eff['type'], ['buff_atk', 'buff_def', 'buff_spd', 'immunity', 'regen', 'counter']);
+                        });
+                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
+                        
+                        // Ignora il 40% della difesa
+                        $base_dmg = $a_stats['attack'] * 3.80;
+                        $def_reduction = ($t_stats['defense'] * 0.60) * 0.45;
+                        $dmg = max(10, (int)round($base_dmg - $def_reduction));
+                        if (random_int(1, 100) <= $crit_chance) {
+                            $dmg = (int)round($dmg * $crit_dmg_mult);
+                            $is_crit = true;
+                        }
+                        
+                        $msg .= "Scatena il Potere della Distruzione su {$target_name} dissolvendo tutti i suoi buff ed infliggendo {$dmg} danni!";
+                    }
+                    break;
+
                 default:
                     $base_dmg = $a_stats['attack'] * 1.65;
                     $def_reduction = $t_stats['defense'] * 0.35;
@@ -3219,8 +3272,8 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 }
             }
 
-            // Poppy (1500) - OH POPPI (Sotto il 40% HP, ottiene uno scudo di 30% HP max)
-            if ($hp > 0 && (int)($t['personaggio_id'] ?? 0) === 1500 && ((int)$t['max_hp'] > 0) && ($hp / (int)$t['max_hp']) < 0.40) {
+            // Poppy (214) - OH POPPI (Sotto il 40% HP, ottiene uno scudo di 30% HP max)
+            if ($hp > 0 && (int)($t['personaggio_id'] ?? 0) === 214 && ((int)$t['max_hp'] > 0) && ($hp / (int)$t['max_hp']) < 0.40) {
                 $used_poppy_shield = false;
                 foreach ($t_effects as $e) {
                     if ($e['type'] === 'poppy_shield_used') {
@@ -3307,6 +3360,13 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 $ko = $hp <= 0 ? 1 : 0;
                 $dmg_taken += $pure_dmg;
                 $msg .= " **[You Should... Now!]** Colpo critico! Low Tier God infligge {$pure_dmg} danni puri aggiuntivi!";
+            }
+
+            // Rias Gremory - Potere della Rovina (Colpo critico applica Veleno 10% per 2 turni)
+            if ($is_crit && (int)($actor['personaggio_id'] ?? 0) === 215 && $hp > 0 && !$target_immune) {
+                $t_effects[] = ['type' => 'poison', 'value' => 10, 'duration' => 2, 'name' => 'Rovina (Veleno 10%)'];
+                $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
+                $msg .= " **[Potere della Rovina]** Colpo critico! Rias applica Rovina (Veleno) a {$target_name}!";
             }
 
             $q = $m->prepare('UPDATE game_match_cards SET current_hp=?, shield=?, is_ko=?, is_active=IF(?=1,0,is_active), is_defending=0 WHERE id=?');
