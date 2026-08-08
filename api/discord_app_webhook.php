@@ -8,8 +8,26 @@ require_once __DIR__ . '/../includes/discord_notify.php';
 
 header('Content-Type: application/json');
 
-$signature = $_SERVER['HTTP_X_SIGNATURE_ED25519'] ?? '';
-$timestamp = $_SERVER['HTTP_X_SIGNATURE_TIMESTAMP'] ?? '';
+function getDiscordHeader(string $name): string {
+    $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+    if (!empty($_SERVER[$key])) {
+        return (string)$_SERVER[$key];
+    }
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+        if (is_array($headers)) {
+            foreach ($headers as $k => $v) {
+                if (strcasecmp((string)$k, $name) === 0) {
+                    return (string)$v;
+                }
+            }
+        }
+    }
+    return '';
+}
+
+$signature = getDiscordHeader('X-Signature-Ed25519');
+$timestamp = getDiscordHeader('X-Signature-Timestamp');
 $rawBody = file_get_contents('php://input');
 
 $publicKeyHex = trim((string)(defined('CRIPSUM_DISCORD_PUBLIC_KEY') ? CRIPSUM_DISCORD_PUBLIC_KEY : ''));
@@ -40,18 +58,21 @@ if ($publicKeyHex !== '' && function_exists('sodium_crypto_sign_verify_detached'
 }
 
 $payload = json_decode((string)$rawBody, true);
+
+// 1. Discord PING verification (Type 1)
+$type = is_array($payload) ? (int)($payload['type'] ?? 0) : 0;
+if ($type === 1 || (is_array($payload) && ($payload['type'] ?? '') === 'PING')) {
+    http_response_code(200);
+    echo json_encode(['type' => 1]);
+    exit;
+}
+
 if (!is_array($payload)) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid JSON payload']);
     exit;
 }
 
-// 1. Discord PING verification (Type 1)
-$type = (int)($payload['type'] ?? 0);
-if ($type === 1 || ($payload['type'] ?? '') === 'PING') {
-    echo json_encode(['type' => 1]);
-    exit;
-}
 
 // 2. Process Discord App Events
 $event = $payload['event'] ?? $payload['data'] ?? [];
