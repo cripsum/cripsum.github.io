@@ -8,7 +8,19 @@ require_once __DIR__ . '/../includes/discord_notify.php';
 
 header('Content-Type: application/json');
 
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+    http_response_code(200);
+    echo json_encode([
+        'ok' => true,
+        'service' => 'Cripsum Discord App Webhook Endpoint',
+        'status' => 'active',
+        'public_key_configured' => !empty(defined('CRIPSUM_DISCORD_PUBLIC_KEY') ? CRIPSUM_DISCORD_PUBLIC_KEY : '')
+    ]);
+    exit;
+}
+
 function getDiscordHeader(string $name): string {
+
     $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
     if (!empty($_SERVER[$key])) {
         return (string)$_SERVER[$key];
@@ -29,10 +41,19 @@ function getDiscordHeader(string $name): string {
 $signature = getDiscordHeader('X-Signature-Ed25519');
 $timestamp = getDiscordHeader('X-Signature-Timestamp');
 $rawBody = file_get_contents('php://input');
+$payload = json_decode((string)$rawBody, true);
+
+// 1. Respond to Discord PING verification (Type 1) immediately
+$type = is_array($payload) ? (int)($payload['type'] ?? 0) : 0;
+if ($type === 1 || (is_array($payload) && ($payload['type'] ?? '') === 'PING') || (is_string($rawBody) && strpos($rawBody, '"type":1') !== false)) {
+    http_response_code(200);
+    echo json_encode(['type' => 1]);
+    exit;
+}
 
 $publicKeyHex = trim((string)(defined('CRIPSUM_DISCORD_PUBLIC_KEY') ? CRIPSUM_DISCORD_PUBLIC_KEY : ''));
 
-// Validate Ed25519 Signature if Public Key is set and Sodium extension is available
+// Validate Ed25519 Signature for actual event payloads if Public Key is set and Sodium extension is available
 if ($publicKeyHex !== '' && function_exists('sodium_crypto_sign_verify_detached')) {
     if ($signature === '' || $timestamp === '' || $rawBody === false) {
         http_response_code(401);
@@ -57,21 +78,12 @@ if ($publicKeyHex !== '' && function_exists('sodium_crypto_sign_verify_detached'
     }
 }
 
-$payload = json_decode((string)$rawBody, true);
-
-// 1. Discord PING verification (Type 1)
-$type = is_array($payload) ? (int)($payload['type'] ?? 0) : 0;
-if ($type === 1 || (is_array($payload) && ($payload['type'] ?? '') === 'PING')) {
-    http_response_code(200);
-    echo json_encode(['type' => 1]);
-    exit;
-}
-
 if (!is_array($payload)) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid JSON payload']);
     exit;
 }
+
 
 
 // 2. Process Discord App Events
