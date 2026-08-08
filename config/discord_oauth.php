@@ -8,8 +8,4 @@ define('CRIPSUM_BOT_API_KEY', getenv('CRIPSUM_BOT_API_KEY') ?: 'cr_sec_bot_api_k
 define('CRIPSUM_BOT_ENDPOINT', getenv('CRIPSUM_BOT_ENDPOINT') ?: 'https://api.cripsum.com');
 define('CRIPSUM_DISCORD_SHITPOST_WEBHOOK', getenv('DISCORD_SHITPOST_WEBHOOK') ?: 'https://discord.com/api/webhooks/1521527301198581830/I8PyTYK8lFsg2yefZ4F33u7iTWvCaCdHGOMylHl4yFPTJhdiLyOu9Rxd8hLb0OGbymfV');
 define('CRIPSUM_DISCORD_RIMASTI_WEBHOOK', getenv('DISCORD_RIMASTI_WEBHOOK') ?: 'https://discord.com/api/webhooks/1521527301198581830/I8PyTYK8lFsg2yefZ4F33u7iTWvCaCdHGOMylHl4yFPTJhdiLyOu9Rxd8hLb0OGbymfV');
-define('CRIPSUM_DISCORD_PUBLIC_KEY', getenv('DISCORD_PUBLIC_KEY') ?: '');
-
-
-
-
+define('CRIPSUM_DISCORD_PUBLIC_KEY', getenv('DISCORD_PUBLIC_KEY') ?: '499c42eb2158e71fbb9ec02437aa4f93cd50841a957c8925d184b4b0a649f35d');
