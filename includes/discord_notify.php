@@ -100,7 +100,7 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
 }
 
 /**
- * Notifica su Discord per Log di Sicurezza e Staff (Canale #site-logs, ID: 1275495491068493890)
+ * Notifica su Discord per Log di Sicurezza e Staff (Canale #site-logs, ID: 1535798916656668782)
  */
 function notifyDiscordSiteLogs(string $type, string $title, string $description, array $fields = [], ?int $userId = null, ?string $discordId = null): bool
 {
