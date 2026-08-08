@@ -396,8 +396,19 @@
     function renderMatch(first=false){
         const m=state.match;
         if(!m)return;
-        $('#arenaRoomCode') && ($('#arenaRoomCode').textContent=m.room_code);
-        $('#roomCodeLabel') && ($('#roomCodeLabel').textContent=m.room_code);
+        if (m.room_code) {
+            $('#arenaRoomCode') && ($('#arenaRoomCode').textContent = m.room_code);
+            $('#roomCodeLabel') && ($('#roomCodeLabel').textContent = m.room_code);
+            document.title = `Cripsum™ Duel (Stanza #${m.room_code})`;
+            let metaPremidBtn = document.querySelector('meta[name="premid-button-url"]');
+            if (!metaPremidBtn) {
+                metaPremidBtn = document.createElement('meta');
+                metaPremidBtn.name = 'premid-button-url';
+                document.head.appendChild(metaPremidBtn);
+            }
+            metaPremidBtn.content = `https://cripsum.com/it/game/arena.php?room=${m.room_code}`;
+        }
+
         if(m.status==='waiting'){showOnly('#waitingPanel');return}
         if(m.status==='team_select'){showOnly('#teamPanel'); if(!state.inventory.length)loadInventory(); return}
 

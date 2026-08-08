@@ -173,7 +173,39 @@ const pageMap = {
     largeImageKey: "https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif"
   },
 
+  "/it/game": {
+    title: "Cripsum™ Duel",
+    state: "Nella Lobby dei Duelli",
+    imageText: "Cripsum™ Duel"
+  },
+  "/it/game/lobby": {
+    title: "Cripsum™ Duel",
+    state: "Nella Lobby dei Duelli",
+    imageText: "Cripsum™ Duel"
+  },
+  "/it/game/arena": {
+    title: "Cripsum™ Duel",
+    state: "In Duello ⚔️",
+    imageText: "Combattimento 1v1"
+  },
+  "/en/game": {
+    title: "Cripsum™ Duel",
+    state: "In Duel Lobby",
+    imageText: "Cripsum™ Duel"
+  },
+  "/en/game/lobby": {
+    title: "Cripsum™ Duel",
+    state: "In Duel Lobby",
+    imageText: "Cripsum™ Duel"
+  },
+  "/en/game/arena": {
+    title: "Cripsum™ Duel",
+    state: "In Duel ⚔️",
+    imageText: "1v1 Combat"
+  },
+
   "/bio": {
+
     title: "Bio page di Cripsum",
     state: "visualizzando la bio page di Cripsum™",
     imageText: "Profilo di Cripsum™"
@@ -523,17 +555,42 @@ async function updatePresence() {
     };
   }
 
+  // Detect active duel room for Discord Rich Presence Party & Invite Buttons
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomCode = urlParams.get('room') || urlParams.get('code') || window.currentDuelRoomCode || null;
+  if ((pathOnly.includes('/game/arena') || pathOnly.includes('/game/lobby') || pathOnly.includes('/game')) && roomCode) {
+    page = {
+      title: "Cripsum™ Duel",
+      state: `In Duello ⚔️ (Stanza #${roomCode})`,
+      details: "Scontro 1v1",
+      imageText: "Cripsum™ Duel",
+      partyId: `cripsum_duel_${roomCode}`,
+      partySize: [1, 2],
+      joinSecret: roomCode,
+      buttonLabel: "Entra nel Duello ⚔️",
+      buttonUrl: `https://cripsum.com/it/game/arena.php?room=${roomCode}`,
+      url: fullPath
+    };
+  }
+
   try {
     const payload = {
       title: page.title,
       state: page.state,
+      details: page.details || page.state,
       imageText: page.imageText,
       largeImageKey: page.largeImageKey,
       url: fullPath,
+      partyId: page.partyId || null,
+      partySize: page.partySize || null,
+      joinSecret: page.joinSecret || null,
+      buttonLabel: page.buttonLabel || null,
+      buttonUrl: page.buttonUrl || null,
       timestamp: Date.now()
     };
     
     console.log("Invio dati:", payload);
+
     ws.send(JSON.stringify(payload));
   } catch (error) {
     console.error("Errore nell'invio dei dati:", error);

@@ -20,7 +20,7 @@ if (!isLoggedIn()) {
     <title>Cripsum™ Duel - Lobby</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <script src="/assets/js/game.js?v=6.0" defer></script>
+    <script src="/assets/js/game.js?v=6.1" defer></script>
 </head>
 
 <body class="game-page" data-page="duel-lobby">
