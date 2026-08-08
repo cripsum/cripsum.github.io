@@ -98,3 +98,77 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
     
     return $status === 204 || $status === 200;
 }
+
+/**
+ * Notifica su Discord per Log di Sicurezza e Staff (Canale #site-logs, ID: 1275495491068493890)
+ */
+function notifyDiscordSiteLogs(string $type, string $title, string $description, array $fields = [], ?int $userId = null, ?string $discordId = null): bool
+{
+    $endpoint = defined('CRIPSUM_BOT_ENDPOINT') ? CRIPSUM_BOT_ENDPOINT . '/v1/logs' : 'https://api.cripsum.com/v1/logs';
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    $username = $_SESSION['username'] ?? null;
+
+    $payload = [
+        'type' => $type,
+        'title' => $title,
+        'description' => $description,
+        'user_id' => $userId ?? ($_SESSION['user_id'] ?? null),
+        'username' => $username,
+        'discord_id' => $discordId,
+        'ip' => $ip,
+        'fields' => $fields,
+    ];
+
+    $ch = curl_init($endpoint);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_TIMEOUT => 5,
+        CURLOPT_CONNECTTIMEOUT => 3,
+        CURLOPT_SSL_VERIFYPEER => true
+    ]);
+
+    $response = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    return ($status >= 200 && $status < 300);
+}
+
+/**
+ * Notifica su Discord per Candidature ricevute dal sito (Chi Siamo)
+ */
+function notifyDiscordCandidatura(array $data): bool
+{
+    $endpoint = defined('CRIPSUM_BOT_ENDPOINT') ? CRIPSUM_BOT_ENDPOINT . '/v1/candidature' : 'https://api.cripsum.com/v1/candidature';
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+
+    $payload = array_merge([
+        'ip' => $ip,
+        'user_id' => $_SESSION['user_id'] ?? null,
+        'discord_id' => $_SESSION['discord_id'] ?? null,
+    ], $data);
+
+    $ch = curl_init($endpoint);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_TIMEOUT => 6,
+        CURLOPT_CONNECTTIMEOUT => 3,
+        CURLOPT_SSL_VERIFYPEER => true
+    ]);
+
+    $response = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    return ($status >= 200 && $status < 300);
+}
+
+
+
+

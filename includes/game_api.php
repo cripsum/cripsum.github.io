@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/discord_notify.php';
+
 
 function gd_api_create_match(mysqli $mysqli): void {
     $uid = gd_require_login();
@@ -37,6 +39,8 @@ function gd_api_create_match(mysqli $mysqli): void {
 
     gd_ok(['match_id' => $id, 'room_code' => $code]);
 }
+
+
 function gd_api_find_match(mysqli $mysqli): void {
     $uid = gd_require_login();
     $mode = gd_mode((string)(gd_input()['mode'] ?? 'casual'));

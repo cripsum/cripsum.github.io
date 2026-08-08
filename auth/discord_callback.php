@@ -4,6 +4,8 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/profile_helpers.php';
 require_once __DIR__ . '/../config/discord_oauth.php';
+require_once __DIR__ . '/../includes/discord_notify.php';
+
 
 checkBan($mysqli);
 
@@ -90,7 +92,9 @@ try {
     $stmt->close();
 
     profile_record_activity($mysqli, $targetUserId, 'discord', 'Connected Discord');
+    notifyDiscordSiteLogs('discord_connect', 'Account Discord Collegato', "L'utente ha collegato con successo il suo account Discord **{$discordUsername}**.", [], $targetUserId, $discordId);
     $_SESSION['profile_flash_success'] = 'Discord connected.';
+
 } catch (Throwable $e) {
     $_SESSION['profile_flash_error'] = $e->getMessage();
 }

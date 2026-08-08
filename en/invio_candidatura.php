@@ -92,11 +92,28 @@ if ($pfp_uploaded) {
 
 $email_message .= "--{$boundary}--\r\n";
 
-if (mail($to, $subject, $email_message, $headers)) {
-    $_SESSION['result_candidatura'] = "Candidatura inviata con successo!";
+require_once '../includes/discord_notify.php';
+
+$sentMail = @mail($to, $subject, $email_message, $headers);
+$sentDiscord = notifyDiscordCandidatura([
+    'username' => $username_chisiamo,
+    'user_id' => $user_id,
+    'email' => $email_chisiamo,
+    'descrizione' => $descrizione_chisiamo,
+    'social_username' => $username_social,
+    'social_link' => $link_social,
+    'attachment' => $pfp_uploaded ? [
+        'base64' => $pfp_chisiamo,
+        'name' => 'pfp_candidatura.' . ($mime_type === 'image/png' ? 'png' : 'jpg')
+    ] : null
+]);
+
+if ($sentMail || $sentDiscord) {
+    $_SESSION['result_candidatura'] = "Application submitted successfully!";
 } else {
-    $_SESSION['result_candidatura'] = "Errore nell'invio della candidatura.";
+    $_SESSION['result_candidatura'] = "Error submitting application.";
 }
+
 
 header('Location: ' . $_SERVER['HTTP_REFERER']);
 exit();

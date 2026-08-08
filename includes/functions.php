@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../config/email_config.php';
 require_once __DIR__ . '/security_helpers.php';
 require_once __DIR__ . '/totp_helpers.php';
+require_once __DIR__ . '/discord_notify.php';
+
 
 function sendVerificationEmail($email, $username, $token)
 {
@@ -685,9 +687,15 @@ function registerUser($mysqli, $username, $email, $password)
     $insertStmt->bind_param("ssss", $username, $email, $passwordHash, $emailToken);
 
     if ($insertStmt->execute()) {
+        $newUserId = $insertStmt->insert_id;
         $insertStmt->close();
 
+        if (function_exists('notifyDiscordSiteLogs')) {
+            notifyDiscordSiteLogs('register', 'Nuova Registrazione Utente', "Un nuovo utente **{$username}** si è registrato sul sito!", [['name' => 'Email', 'value' => $email, 'inline' => true]], $newUserId);
+        }
+
         if (sendVerificationEmail($email, $username, $emailToken)) {
+
             return true;
         } else {
             return 'Registrazione completata ma errore nell\'invio dell\'email di verifica';

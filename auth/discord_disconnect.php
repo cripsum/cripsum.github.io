@@ -3,6 +3,8 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/profile_helpers.php';
+require_once __DIR__ . '/../includes/discord_notify.php';
+
 
 checkBan($mysqli);
 
@@ -30,7 +32,9 @@ $stmt->execute();
 $stmt->close();
 
 profile_record_activity($mysqli, $targetUserId, 'discord', 'Discord disconnected');
+notifyDiscordSiteLogs('discord_disconnect', 'Account Discord Scollegato', "L'utente ha scollegato il proprio account Discord.", [], $targetUserId);
 $_SESSION['profile_flash_success'] = 'Discord disconnected.';
+
 
 $redirect = '/edit-profile.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?user_id=' . $targetUserId : '');
 header('Location: ' . $redirect);
