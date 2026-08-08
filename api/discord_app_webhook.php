@@ -73,6 +73,15 @@ $signature = getDiscordHeader('X-Signature-Ed25519');
 $timestamp = getDiscordHeader('X-Signature-Timestamp');
 $rawBody = file_get_contents('php://input');
 $payload = json_decode((string)$rawBody, true);
+
+// 1. Respond to Discord PING verification (Type 1) immediately with 200 OK
+$type = is_array($payload) ? (int)($payload['type'] ?? 0) : 0;
+if ($type === 1 || (is_array($payload) && ($payload['type'] ?? '') === 'PING') || (is_string($rawBody) && strpos((string)$rawBody, '"type":1') !== false) || (is_string($rawBody) && strpos((string)$rawBody, '"type": 1') !== false)) {
+    http_response_code(200);
+    echo json_encode(['type' => 1]);
+    exit;
+}
+
 $publicKeyHex = trim((string)(defined('CRIPSUM_DISCORD_PUBLIC_KEY') ? CRIPSUM_DISCORD_PUBLIC_KEY : ''));
 
 // Validate Ed25519 signature if headers are present and public key is set
@@ -84,13 +93,6 @@ if ($publicKeyHex !== '' && $signature !== '' && $timestamp !== '') {
     }
 }
 
-// 1. Respond to Discord PING verification (Type 1) immediately with 200 OK
-$type = is_array($payload) ? (int)($payload['type'] ?? 0) : 0;
-if ($type === 1 || (is_array($payload) && ($payload['type'] ?? '') === 'PING') || (is_string($rawBody) && strpos($rawBody, '"type":1') !== false)) {
-    http_response_code(200);
-    echo json_encode(['type' => 1]);
-    exit;
-}
 
 
 if (!is_array($payload)) {
