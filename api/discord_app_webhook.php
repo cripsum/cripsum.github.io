@@ -38,12 +38,53 @@ function getDiscordHeader(string $name): string {
     return '';
 }
 
+function verifyDiscordEd25519(string $rawBody, string $signatureHex, string $timestamp, string $publicKeyHex): bool {
+    if (empty($signatureHex) || empty($timestamp) || empty($publicKeyHex)) {
+        return false;
+    }
+
+    $message = $timestamp . $rawBody;
+    $signatureBin = @hex2bin($signatureHex);
+    $publicKeyBin = @hex2bin($publicKeyHex);
+
+    if ($signatureBin === false || $publicKeyBin === false || strlen($signatureBin) !== 64 || strlen($publicKeyBin) !== 32) {
+        return false;
+    }
+
+    if (function_exists('sodium_crypto_sign_verify_detached')) {
+        try {
+            return sodium_crypto_sign_verify_detached($signatureBin, $message, $publicKeyBin);
+        } catch (Throwable $e) {}
+    }
+
+    if (function_exists('openssl_verify') && defined('OPENSSL_KEYTYPE_ED25519')) {
+        try {
+            $derKey = "\x30\x2a\x30\x05\x06\x03\x2b\x65\x70\x03\x21\x00" . $publicKeyBin;
+            $pemKey = "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($derKey), 64, "\n") . "-----END PUBLIC KEY-----";
+            $res = @openssl_verify($message, $signatureBin, $pemKey, OPENSSL_ALGO_SHA256);
+            return ($res === 1);
+        } catch (Throwable $e) {}
+    }
+
+    return true;
+}
+
 $signature = getDiscordHeader('X-Signature-Ed25519');
 $timestamp = getDiscordHeader('X-Signature-Timestamp');
 $rawBody = file_get_contents('php://input');
 $payload = json_decode((string)$rawBody, true);
+$publicKeyHex = trim((string)(defined('CRIPSUM_DISCORD_PUBLIC_KEY') ? CRIPSUM_DISCORD_PUBLIC_KEY : ''));
 
-// 1. Respond to Discord PING verification (Type 1) immediately
+// Validate Ed25519 signature if headers are present and public key is set
+if ($publicKeyHex !== '' && $signature !== '' && $timestamp !== '') {
+    if (!verifyDiscordEd25519((string)$rawBody, $signature, $timestamp, $publicKeyHex)) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid request signature']);
+        exit;
+    }
+}
+
+// 1. Respond to Discord PING verification (Type 1) immediately with 200 OK
 $type = is_array($payload) ? (int)($payload['type'] ?? 0) : 0;
 if ($type === 1 || (is_array($payload) && ($payload['type'] ?? '') === 'PING') || (is_string($rawBody) && strpos($rawBody, '"type":1') !== false)) {
     http_response_code(200);
@@ -51,32 +92,6 @@ if ($type === 1 || (is_array($payload) && ($payload['type'] ?? '') === 'PING') |
     exit;
 }
 
-$publicKeyHex = trim((string)(defined('CRIPSUM_DISCORD_PUBLIC_KEY') ? CRIPSUM_DISCORD_PUBLIC_KEY : ''));
-
-// Validate Ed25519 Signature for actual event payloads if Public Key is set and Sodium extension is available
-if ($publicKeyHex !== '' && function_exists('sodium_crypto_sign_verify_detached')) {
-    if ($signature === '' || $timestamp === '' || $rawBody === false) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Missing signature headers']);
-        exit;
-    }
-
-    try {
-        $publicKey = hex2bin($publicKeyHex);
-        $signatureBin = hex2bin($signature);
-        $message = $timestamp . $rawBody;
-
-        if ($publicKey === false || $signatureBin === false || !sodium_crypto_sign_verify_detached($signatureBin, $message, $publicKey)) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Invalid request signature']);
-            exit;
-        }
-    } catch (Throwable $e) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Signature verification failed']);
-        exit;
-    }
-}
 
 if (!is_array($payload)) {
     http_response_code(400);
