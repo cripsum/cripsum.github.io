@@ -1,5 +1,6 @@
 # Ignore secret Stripe credentials config
 config/stripe_config.php
 config/paypal_config.php
+config/discord_oauth.php
 secure/config.php
 presence-bot/
