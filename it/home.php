@@ -276,7 +276,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <?php if (!$isLoggedIn): ?>
             <section class="home-account home-reveal">
                 <div>
-                    <span class="home-kicker">Account</span>
                     <h2>Hai un account Cripsum™?</h2>
                     <p>Con l’account usi profilo, chat, lootbox e achievement.</p>
                 </div>
