@@ -37,8 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $update->bind_param("si", $hashed, $user_id);
 
         if ($update->execute()) {
+            auth_revoke_other_device_sessions($mysqli, (int)$user_id);
             unset($_SESSION['needs_password']);
-            $success = "Password impostata con successo! Ora puoi accedere sia tramite Google che con la tua email.";
+            $success = "Password impostata con successo! Gli altri dispositivi sono stati scollegati. Ora puoi accedere sia tramite Google che con la tua email.";
         } else {
             $error = "Errore durante l'aggiornamento.";
         }

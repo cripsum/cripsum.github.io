@@ -869,6 +869,9 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Dispositivo sconosciuto';
 
         if (!empty($password)) {
+            // Una modifica della password invalida tutte le sessioni tranne quella corrente.
+            auth_revoke_other_device_sessions($mysqli, (int)$userId);
+
             $titleIt = "Sicurezza: Password modificata";
             $titleEn = "Security: Password changed";
 

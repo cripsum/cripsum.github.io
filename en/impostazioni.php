@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = updateUserSettings($mysqli, $userId, $username, $email, $newPassword, $nsfw, $richpresence);
 
             if ($result === true) {
-                $success = 'Password successfully updated.';
+                $success = 'Password successfully updated. All other devices have been disconnected.';
             } else {
                 $error = is_string($result) ? $result : 'Error saving settings.';
             }

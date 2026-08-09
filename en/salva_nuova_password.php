@@ -19,10 +19,13 @@ if ($token && $nuova_password) {
 
         $stmt = $mysqli->prepare("UPDATE utenti SET password = ?, reset_token = NULL, token_scadenza = NULL WHERE id = ?");
         $stmt->bind_param("si", $hash, $id);
-        $stmt->execute();
-
-        $messaggio = "Password updated successfully.";
-        $success = true;
+        if ($stmt->execute()) {
+            auth_revoke_all_device_sessions($mysqli, (int)$id);
+            $messaggio = "Password updated successfully. All devices have been disconnected.";
+            $success = true;
+        } else {
+            $messaggio = "The password could not be updated.";
+        }
     } else {
         $messaggio = "Invalid or expired token.";
     }

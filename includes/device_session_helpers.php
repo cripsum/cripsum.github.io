@@ -293,6 +293,31 @@ function auth_revoke_other_device_sessions(mysqli $mysqli, int $userId): int
     return $count;
 }
 
+function auth_revoke_all_device_sessions(mysqli $mysqli, int $userId): int
+{
+    if ($userId <= 0 || !auth_device_sessions_available($mysqli)) {
+        return 0;
+    }
+
+    $stmt = $mysqli->prepare("
+        UPDATE user_sessions
+        SET revoked_at = NOW()
+        WHERE user_id = ?
+          AND revoked_at IS NULL
+    ");
+
+    if (!$stmt) {
+        return 0;
+    }
+
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $count = max(0, $stmt->affected_rows);
+    $stmt->close();
+
+    return $count;
+}
+
 function auth_revoke_current_device_session(mysqli $mysqli): void
 {
     $userId = (int)($_SESSION['user_id'] ?? 0);
