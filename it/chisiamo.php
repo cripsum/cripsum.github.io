@@ -11,7 +11,7 @@ checkBan($mysqli);
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Chi siamo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.2-original-cards-colors">
+    <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.3-reveal-fix">
     <style>
         @font-face {
             font-family: NotoColorEmojiLimited;
@@ -45,7 +45,7 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
     
 
-    <div class="main-container fadeup" style="padding-top: 7rem">
+    <div class="main-container" style="padding-top: 7rem">
         <section class="chisiamo-section" style="border-radius: 20px;">
             <h1 class="chisiamo-title">Il Nostro Team di Sviluppo</h1>
             <p class="chisiamo-subtitle">
@@ -339,21 +339,31 @@ checkBan($mysqli);
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const members = document.querySelectorAll('.team-member');
+            const revealMember = (member) => {
+                const finishReveal = (event) => {
+                    if (event.propertyName !== 'opacity') return;
+                    member.classList.add('reveal-complete');
+                    member.removeEventListener('transitionend', finishReveal);
+                };
+                member.addEventListener('transitionend', finishReveal);
+                member.classList.add('is-visible');
+            };
 
             if ('IntersectionObserver' in window) {
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
                         if (!entry.isIntersecting) return;
-                        entry.target.classList.add('is-visible');
+                        revealMember(entry.target);
                         observer.unobserve(entry.target);
                     });
                 }, {
-                    threshold: 0.1
+                    threshold: 0.08,
+                    rootMargin: '0px 0px -6% 0px'
                 });
 
                 members.forEach((member) => observer.observe(member));
             } else {
-                members.forEach((member) => member.classList.add('is-visible'));
+                members.forEach(revealMember);
             }
         });
     </script>
