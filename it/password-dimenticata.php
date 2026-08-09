@@ -30,7 +30,6 @@ $user_id = $_SESSION['user_id'] ?? null;
     <main class="form-shell form-shell--narrow">
         <section class="form-card form-reveal">
             <div class="form-card__header">
-                <span class="form-pill">Account</span>
                 <h1>Password dimenticata</h1>
                 <p>Inserisci la tua email. Ti mandiamo un link per reimpostare la password.</p>
             </div>

@@ -28,7 +28,6 @@ $lastUpdated = 'Giugno 2026';
 
     <main class="static-shell">
         <section class="static-hero static-reveal">
-            <span class="static-pill">Privacy</span>
             <h1>Informativa sulla Privacy</h1>
             <p>Come raccogliamo, utilizziamo e proteggiamo i tuoi dati su Cripsum™.</p>
             <div class="static-meta">

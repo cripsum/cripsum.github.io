@@ -362,7 +362,6 @@ $totalEdits = count($edits);
     <main class="edits-shell">
         <section class="edits-hero fadeup">
             <div class="edits-hero__text">
-                <span class="edits-pill">Edit gallery</span>
                 <h1>My Latest Edits</h1>
                 <p>A collection of my edits. Filter, search, and open what you want to see.</p>
 

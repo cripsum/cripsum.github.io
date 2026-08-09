@@ -34,7 +34,6 @@ $username = $_SESSION['username'] ?? '';
     <main class="static-shell">
         <section class="static-hero static-hero--split static-reveal">
             <div>
-                <span class="static-pill">Donazioni</span>
                 <h1>Supporta Cripsum™</h1>
                 <p>Le donazioni aiutano a mantenere il sito online e a portare avanti nuove funzioni. Sono completamente opzionali.</p>
 

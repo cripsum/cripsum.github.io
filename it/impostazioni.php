@@ -32,11 +32,33 @@ $richpresence = (int)($currentUser['richpresence'] ?? ($_SESSION['richpresence']
 $twofaStatus = auth_twofa_status($mysqli, $userId);
 $twofaSetupSecret = $_SESSION['twofa_setup_secret'] ?? null;
 
+if (!empty($_SESSION['profile_flash_success'])) {
+    $success = $_SESSION['profile_flash_success'];
+    unset($_SESSION['profile_flash_success']);
+}
+if (!empty($_SESSION['profile_flash_error'])) {
+    $error = $_SESSION['profile_flash_error'];
+    unset($_SESSION['profile_flash_error']);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string)($_POST['action'] ?? '');
 
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $error = 'Sessione scaduta. Riprova.';
+    } elseif ($action === 'update_discord_settings') {
+        $useAvatar = isset($_POST['discord_use_avatar']) ? 1 : 0;
+        $useDisplayName = isset($_POST['discord_use_display_name']) ? 1 : 0;
+        $stmt = $mysqli->prepare("UPDATE utenti SET discord_use_avatar = ?, discord_use_display_name = ?, profile_updated_at = NOW() WHERE id = ?");
+        if ($stmt) {
+            $stmt->bind_param('iii', $useAvatar, $useDisplayName, $userId);
+            if ($stmt->execute()) {
+                $success = 'Impostazioni Discord aggiornate con successo.';
+            } else {
+                $error = 'Errore durante l’aggiornamento.';
+            }
+            $stmt->close();
+        }
     } elseif ($action === 'update_profile') {
         $newUsername = strtolower(trim($_POST['username'] ?? ''));
         $newNsfw = isset($_POST['nsfw']) ? 1 : 0;
@@ -191,6 +213,27 @@ if ($twofaSetupSecret) {
     $otpauthUri = totp_otpauth_uri('Cripsum', $username ?: $email, $twofaSetupSecret);
     $qrUrl = totp_qr_url($otpauthUri, 220);
 }
+
+$discordConnected = !empty($currentUser['discord_id']) && !empty($currentUser['discord_username']);
+$discordId = (string)($currentUser['discord_id'] ?? '');
+$discordUsername = (string)($currentUser['discord_username'] ?? '');
+$discordGlobalName = (string)($currentUser['discord_global_name'] ?? '');
+$discordAvatar = (string)($currentUser['discord_avatar'] ?? '');
+$discordConnectedAt = $currentUser['discord_connected_at'] ?? null;
+$discordUseAvatar = (int)($currentUser['discord_use_avatar'] ?? 0);
+$discordUseDisplayName = (int)($currentUser['discord_use_display_name'] ?? 0);
+
+$discordAvatarUrl = null;
+if ($discordConnected && !empty($discordAvatar)) {
+    if (function_exists('profile_discord_avatar_url')) {
+        $discordAvatarUrl = profile_discord_avatar_url($discordId, $discordAvatar, 128);
+    } else {
+        $ext = (strpos($discordAvatar, 'a_') === 0) ? 'gif' : 'png';
+        $discordAvatarUrl = "https://cdn.discordapp.com/avatars/{$discordId}/{$discordAvatar}.{$ext}?size=128";
+    }
+}
+$discordDisplayName = trim($discordGlobalName) ?: trim($discordUsername);
+$connectDiscordUrl = '/auth/discord_connect.php?return_url=' . urlencode('/it/impostazioni#connections');
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -211,7 +254,6 @@ if ($twofaSetupSecret) {
         <header class="settings-hero auth-reveal">
             <img src="<?php echo auth_h($profilePic); ?>" alt="">
             <div>
-                <span class="auth-pill">Account</span>
                 <h1>Impostazioni</h1>
                 <p>Gestisci profilo, preferenze e sicurezza.</p>
             </div>
@@ -256,6 +298,10 @@ if ($twofaSetupSecret) {
                 <button class="settings-tab-btn" data-tab="twofa">
                     <i class="fa-solid fa-shield-halved"></i>
                     <span>Sicurezza 2FA</span>
+                </button>
+                <button class="settings-tab-btn" data-tab="connections">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>Connessioni</span>
                 </button>
             </aside>
 
@@ -500,6 +546,101 @@ if ($twofaSetupSecret) {
                                 </details>
                             <?php endif; ?>
                         <?php endif; ?>
+                    </article>
+                </div>
+
+                <!-- Tab: Connessioni -->
+                <div class="settings-tab-content" id="tab-connections">
+                    <article class="settings-panel auth-reveal">
+                        <div class="settings-panel__head">
+                            <h2>Account Collegati</h2>
+                            <p>Collega e gestisci l'integrazione con i tuoi account social e piattaforme esterne.</p>
+                        </div>
+
+                        <div class="connections-list" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <!-- Discord Connection Card -->
+                            <div class="connection-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+                                <div class="connection-card__header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div style="width: 48px; height: 48px; border-radius: 12px; background: #5865F2; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff;">
+                                            <i class="fa-brands fa-discord"></i>
+                                        </div>
+                                        <div>
+                                            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Discord</h3>
+                                            <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.7;">Sincronizza stato, avatar e dati con il tuo profilo Cripsum.</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="auth-badge <?php echo $discordConnected ? 'auth-badge--success' : 'auth-badge--muted'; ?>" style="padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; background: <?php echo $discordConnected ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.08)'; ?>; color: <?php echo $discordConnected ? '#4ade80' : 'rgba(255, 255, 255, 0.6)'; ?>; border: 1px solid <?php echo $discordConnected ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.12)'; ?>;">
+                                            <i class="fa-solid <?php echo $discordConnected ? 'fa-circle-check' : 'fa-circle'; ?>"></i>
+                                            <?php echo $discordConnected ? 'Collegato' : 'Non collegato'; ?>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <?php if ($discordConnected): ?>
+                                    <div class="connection-card__body" style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                                        <div style="display: flex; align-items: center; gap: 1rem;">
+                                            <?php if ($discordAvatarUrl): ?>
+                                                <img src="<?php echo auth_h($discordAvatarUrl); ?>" alt="Discord Avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                                            <?php else: ?>
+                                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #5865F2; display: flex; align-items: center; justify-content: center; color: #fff;">
+                                                    <i class="fa-brands fa-discord"></i>
+                                                </div>
+                                            <?php endif; ?>
+                                            <div>
+                                                <strong style="display: block; font-size: 1rem;"><?php echo auth_h($discordDisplayName); ?></strong>
+                                                <small style="display: block; opacity: 0.7; font-size: 0.85rem;">@<?php echo auth_h($discordUsername); ?> &bull; ID: <?php echo auth_h($discordId); ?></small>
+                                                <?php if ($discordConnectedAt): ?>
+                                                    <small style="display: block; opacity: 0.5; font-size: 0.78rem;">Collegato il <?php echo date('d/m/Y H:i', strtotime($discordConnectedAt)); ?></small>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <a href="<?php echo auth_h($connectDiscordUrl); ?>" class="auth-btn auth-btn--soft" style="width: auto; padding: 8px 16px; font-size: 0.85rem;">
+                                                <i class="fa-solid fa-arrows-rotate me-1"></i> Ricollega
+                                            </a>
+                                            <form method="POST" action="../auth/discord_disconnect.php" style="margin: 0;">
+                                                <?php echo csrf_field(); ?>
+                                                <input type="hidden" name="return_url" value="/it/impostazioni#connections">
+                                                <button type="submit" class="auth-btn auth-btn--danger" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" onclick="return confirm('Sei sicuro di voler scollegare l\'account Discord?');">
+                                                    <i class="fa-solid fa-link-slash me-1"></i> Scollega
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <form method="POST" action="#connections" class="auth-form" style="margin-top: 0.5rem;">
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="action" value="update_discord_settings">
+
+                                        <div class="settings-checks" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                            <label class="auth-check">
+                                                <input type="checkbox" name="discord_use_display_name" <?php echo $discordUseDisplayName ? 'checked' : ''; ?>>
+                                                <span>Usa il nome Discord come nome sul profilo</span>
+                                            </label>
+                                            <label class="auth-check">
+                                                <input type="checkbox" name="discord_use_avatar" <?php echo $discordUseAvatar ? 'checked' : ''; ?>>
+                                                <span>Usa l'avatar Discord sul tuo profilo</span>
+                                            </label>
+                                        </div>
+
+                                        <button class="auth-btn auth-btn--primary" type="submit" style="margin-top: 1rem; width: auto; padding: 8px 20px;">
+                                            <span>Salva Preferenze Discord</span>
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <div style="display: flex; flex-direction: column; gap: 1rem; align-items: flex-start;">
+                                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">Collegando il tuo account Discord potrai sincronizzare l'avatar, il nome utente e mostrare la tua presenza Discord direttamente sul tuo profilo Cripsum™.</p>
+                                        <a href="<?php echo auth_h($connectDiscordUrl); ?>" class="auth-btn auth-btn--primary" style="width: auto; padding: 10px 24px; background: #5865F2; border: none; display: inline-flex; align-items: center; gap: 10px;">
+                                            <i class="fa-brands fa-discord" style="font-size: 1.2rem;"></i>
+                                            <span>Collega Account Discord</span>
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </article>
                 </div>
             </div>

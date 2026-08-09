@@ -85,7 +85,6 @@ function msn_h(mixed $v): string
         ════════════════════════════════════════════════════ -->
         <section class="msn-hero msn-glass msn-reveal">
             <div class="msn-hero__copy">
-                <span class="msn-pill">Cripsum™</span>
                 <h1><?php echo msn_h($pageTitle); ?></h1>
                 <p><?php echo msn_h($heroDesc); ?></p>
             </div>

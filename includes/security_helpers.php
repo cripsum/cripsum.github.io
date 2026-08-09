@@ -306,6 +306,13 @@ function auth_select_user_columns(mysqli $mysqli): string
     $columns[] = auth_column_exists($mysqli, 'utenti', 'twofa_enabled_at') ? 'twofa_enabled_at' : 'NULL AS twofa_enabled_at';
     $columns[] = auth_column_exists($mysqli, 'utenti', 'is_premium') ? 'is_premium' : '0 AS is_premium';
     $columns[] = auth_column_exists($mysqli, 'utenti', 'banned_until') ? 'banned_until' : 'NULL AS banned_until';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'discord_id') ? 'discord_id' : 'NULL AS discord_id';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'discord_username') ? 'discord_username' : 'NULL AS discord_username';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'discord_global_name') ? 'discord_global_name' : 'NULL AS discord_global_name';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'discord_avatar') ? 'discord_avatar' : 'NULL AS discord_avatar';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'discord_use_avatar') ? 'discord_use_avatar' : '0 AS discord_use_avatar';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'discord_use_display_name') ? 'discord_use_display_name' : '0 AS discord_use_display_name';
+    $columns[] = auth_column_exists($mysqli, 'utenti', 'discord_connected_at') ? 'discord_connected_at' : 'NULL AS discord_connected_at';
 
     return implode(', ', $columns);
 }

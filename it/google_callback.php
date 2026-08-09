@@ -65,6 +65,19 @@ if ($row = $result->fetch_assoc()) {
         }
     }
 
+    if (!empty($row['password'])) {
+        $_SESSION['pending_google_confirm'] = [
+            'user_id' => (int)$row['id'],
+            'email' => $email,
+            'google_id' => $google_id,
+            'started_at' => time(),
+            'redirect' => $_SESSION['redirect_after_login'] ?? 'home'
+        ];
+        auth_record_login_attempt($mysqli, (int)$row['id'], $email, true, 'google_ok_password_pending');
+        header('Location: confirm-google-password');
+        exit();
+    }
+
     if (empty($row['google_id'])) {
         $update = $mysqli->prepare("UPDATE utenti SET google_id = ? WHERE id = ?");
         $update->bind_param("si", $google_id, $row['id']);

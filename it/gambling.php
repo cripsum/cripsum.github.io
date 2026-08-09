@@ -52,7 +52,6 @@ $username = $_SESSION['username'] ?? 'Utente';
 
         <section class="gambling-hero gambling-reveal">
             <div>
-                <span class="gambling-pill">Gambling</span>
                 <h1>Gambling Arcade</h1>
                 <p>Alimenta la tua gambling addiction in questo giochino da fichi</p>
 
@@ -215,7 +214,6 @@ $username = $_SESSION['username'] ?? 'Utente';
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
-            <span class="gambling-pill">Regole</span>
             <h2 id="rulesTitle">Come funziona</h2>
             <p>È un mini-gioco con crediti finti. Il saldo resta nel browser e può essere resettato.</p>
 

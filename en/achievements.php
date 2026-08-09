@@ -60,7 +60,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <main class="ach-shell">
         <section class="ach-hero ach-reveal">
             <div class="ach-hero__copy">
-                <span class="ach-pill">Cripsum™</span>
                 <h1>Achievements</h1>
                 <p>Keep track of your progress and see what you've unlocked.</p>
             </div>

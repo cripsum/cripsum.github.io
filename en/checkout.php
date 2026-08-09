@@ -40,7 +40,6 @@ $priceLabel = $isPremium ? '2.99 €' : null;
     <main class="form-shell form-shell--checkout">
         <section class="form-card form-reveal">
             <div class="form-card__header">
-                <span class="form-pill">Shop</span>
                 <h1>Checkout</h1>
                 <p>Enter your details to continue with your order.</p>
             </div>

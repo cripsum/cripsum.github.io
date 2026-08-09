@@ -30,7 +30,6 @@ $lastUpdated = 'Giugno 2026';
     <main class="static-shell">
         <section class="static-hero static-hero--split static-reveal">
             <div>
-                <span class="static-pill">Termini</span>
                 <h1>Termini e Condizioni</h1>
                 <p>Regolamento ufficiale e condizioni d'uso della piattaforma Cripsum™.</p>
                 <div class="static-meta">

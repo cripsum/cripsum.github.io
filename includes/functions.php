@@ -1217,6 +1217,53 @@ function claimMessageRewards($mysqli, $userId, $messageId)
     }
 }
 
+function sendSecurityNoticeEmail($email, $username, $subject, $contentIt, $contentEn)
+{
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'Cripsum';
+    $fromName = defined('FROM_NAME') ? FROM_NAME : 'Cripsum Security';
+    $fromEmail = defined('FROM_EMAIL') ? FROM_EMAIL : 'noreply@cripsum.com';
+
+    $bodyHtml = "
+    <!DOCTYPE html>
+    <html lang='it'>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>" . htmlspecialchars($subject, ENT_QUOTES, 'UTF-8') . "</title>
+        <style>
+            body { font-family: 'Poppins', Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0f172a; }
+            .container { background-color: #1e293b; border-radius: 12px; padding: 30px; border: 1px solid #334155; color: #f8fafc; }
+            .header { text-align: center; margin-bottom: 25px; font-size: 22px; font-weight: bold; color: #38bdf8; }
+            .content { font-size: 15px; color: #e2e8f0; line-height: 1.7; }
+            .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #334155; font-size: 12px; color: #94a3b8; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>" . htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8') . " - Sicurezza Account</div>
+            <div class='content'>" . nl2br(htmlspecialchars($contentIt, ENT_QUOTES, 'UTF-8')) . "</div>
+            <div class='footer'>
+                <p>Questa è un'email automatica di sicurezza inviata da " . htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8') . ".</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+
+    $headers = array();
+    $headers[] = 'MIME-Version: 1.0';
+    $headers[] = 'Content-type: text/html; charset=UTF-8';
+    $headers[] = 'From: ' . $fromName . ' <' . $fromEmail . '>';
+    $headers[] = 'Reply-To: ' . $fromEmail;
+    $headers[] = 'X-Mailer: PHP/' . phpversion();
+
+    return @mail($email, $subject, $bodyHtml, implode("\r\n", $headers));
+}
+
 function sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $contentIt, $contentEn, $category = 'security')
 {
     $senderId = null;
@@ -1242,6 +1289,21 @@ function sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $co
             $stmtRec->bind_param("ii", $messageId, $recipientId);
             $recOk = $stmtRec->execute();
             $stmtRec->close();
+
+            if ($category === 'security') {
+                $userStmt = $mysqli->prepare("SELECT email, username FROM utenti WHERE id = ? LIMIT 1");
+                if ($userStmt) {
+                    $userStmt->bind_param("i", $recipientId);
+                    $userStmt->execute();
+                    $uRes = $userStmt->get_result()->fetch_assoc();
+                    $userStmt->close();
+
+                    if (!empty($uRes['email'])) {
+                        sendSecurityNoticeEmail($uRes['email'], $uRes['username'] ?? '', $titleIt, $contentIt, $contentEn);
+                    }
+                }
+            }
+
             return $recOk;
         }
     }

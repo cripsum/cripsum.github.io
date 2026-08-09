@@ -103,8 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="auth-shell">
         <section class="auth-card auth-reveal">
             <div class="auth-card__side">
-                <span class="auth-pill">Cripsum™</span>
-                <h1>Crea account</h1>
+                <h1>Crea un account</h1>
                 <p>Unisciti alla community di Cripsum™ e accedi a tantissimi contenuti.</p>
             </div>
 

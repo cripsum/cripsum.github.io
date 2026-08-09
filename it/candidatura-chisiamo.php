@@ -45,7 +45,6 @@ unset($_SESSION['result_candidatura']);
     <main class="form-shell form-shell--medium">
         <section class="form-card form-reveal">
             <div class="form-card__header">
-                <span class="form-pill">Chi siamo</span>
                 <h1>Candidatura</h1>
                 <p>Manda i dati per apparire nella pagina Chi siamo.</p>
             </div>

@@ -54,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="auth-shell">
         <section class="auth-card auth-reveal">
             <div class="auth-card__side">
-                <span class="auth-pill">Cripsum™</span>
                 <h1>Accedi</h1>
                 <p>Entra nel tuo account e torna alle tue robe.</p>
             </div>

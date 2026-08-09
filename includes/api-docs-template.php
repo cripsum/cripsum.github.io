@@ -86,7 +86,6 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
     <main class="docs-page">
         <section class="docs-hero">
             <div>
-                <span class="docs-pill"><i class="fa-solid fa-code"></i><?php echo api_docs_h($docs['pill']); ?></span>
                 <h1><?php echo api_docs_h($docs['h1']); ?></h1>
                 <p><?php echo api_docs_h($docs['lead']); ?></p>
                 <div class="docs-actions">

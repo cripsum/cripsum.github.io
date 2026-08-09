@@ -27,7 +27,6 @@ $token = $_GET['token'] ?? '';
     <main class="form-shell form-shell--narrow">
         <section class="form-card form-reveal">
             <div class="form-card__header">
-                <span class="form-pill">Reset</span>
                 <h1>New password</h1>
                 <p>Choose a new password for your account.</p>
             </div>

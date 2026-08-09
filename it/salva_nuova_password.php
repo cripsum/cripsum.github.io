@@ -59,7 +59,6 @@ if ($token && $nuova_password) {
             </div>
 
             <div class="form-card__header" style="text-align:center;">
-                <span class="form-pill"><?php echo $success ? 'Fatto' : 'Attenzione'; ?></span>
                 <h1>Reset password</h1>
                 <p><?php echo htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8'); ?></p>
             </div>

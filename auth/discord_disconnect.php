@@ -36,6 +36,14 @@ notifyDiscordSiteLogs('discord_disconnect', 'Account Discord Scollegato', "L'ute
 $_SESSION['profile_flash_success'] = 'Discord disconnected.';
 
 
-$redirect = '/edit-profile.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?user_id=' . $targetUserId : '');
+$returnUrl = $_POST['return_url'] ?? $_GET['return_url'] ?? $_SERVER['HTTP_REFERER'] ?? '';
+if (!empty($returnUrl) && (strpos($returnUrl, '/') === 0 || strpos($returnUrl, 'http') === 0)) {
+    if ((strpos($returnUrl, 'impostazioni') !== false) && strpos($returnUrl, '#') === false) {
+        $returnUrl .= '#connections';
+    }
+    $redirect = $returnUrl;
+} else {
+    $redirect = '/edit-profile.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?user_id=' . $targetUserId : '');
+}
 header('Location: ' . $redirect);
 exit;

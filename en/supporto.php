@@ -278,7 +278,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <main class="static-shell">
         <section class="static-hero static-hero--split static-reveal">
             <div>
-                <span class="static-pill">Support</span>
                 <h1>Need help?</h1>
                 <p>Here you can find contacts and quick answers to common issues.</p>
 

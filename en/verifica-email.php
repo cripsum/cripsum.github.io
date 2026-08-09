@@ -76,7 +76,6 @@ if ($_POST && isset($_POST['resend_email'])) {
             </div>
 
             <div class="form-card__header" style="text-align:center;">
-                <span class="form-pill">Email</span>
                 <h1>Email Verification</h1>
                 <p><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></p>
             </div>

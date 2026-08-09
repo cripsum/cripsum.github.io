@@ -31,7 +31,6 @@ checkBan($mysqli);
     <main class="static-shell">
         <section class="static-hero static-hero--split static-reveal">
             <div>
-                <span class="static-pill">Chat Globale</span>
                 <h1>Linee guida</h1>
                 <p>Regole semplici per tenere la chat leggibile e usabile da tutti.</p>
                 <div class="static-actions">

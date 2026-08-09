@@ -308,7 +308,6 @@ $statCards = [
         <section class="bio-hero bio-card js-tilt-card js-reveal" aria-label="Profilo">
             <div class="bio-hero__topline">
                 <span class="bio-pill bio-pill--live"><span class="bio-dot"></span> live profile</span>
-                <span class="bio-pill">Cripsum™</span>
             </div>
 
             <div class="bio-avatar-wrap">

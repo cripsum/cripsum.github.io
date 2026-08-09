@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-card__header" style="text-align:center;">
-                <span class="form-pill">Reset</span>
                 <h1>Controlla la mail</h1>
                 <p><?php echo htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8'); ?></p>
             </div>

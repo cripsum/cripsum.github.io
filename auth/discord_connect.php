@@ -31,6 +31,11 @@ $state = bin2hex(random_bytes(32));
 $_SESSION['discord_oauth_state'] = $state;
 $_SESSION['discord_oauth_target_user_id'] = $targetUserId;
 
+$returnUrl = $_GET['return_url'] ?? $_SERVER['HTTP_REFERER'] ?? '';
+if (!empty($returnUrl) && (strpos($returnUrl, '/') === 0 || strpos($returnUrl, 'http') === 0)) {
+    $_SESSION['discord_oauth_return_url'] = $returnUrl;
+}
+
 $params = http_build_query([
     'client_id' => CRIPSUM_DISCORD_CLIENT_ID,
     'redirect_uri' => CRIPSUM_DISCORD_REDIRECT_URI,

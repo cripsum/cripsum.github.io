@@ -98,7 +98,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
         <section class="home-hero home-reveal">
             <div class="home-hero__copy">
-                <span class="home-pill">Cripsum™</span>
                 <h1>Benvenuto/a nel sito migliore del Congo.</h1>
                 <p>Editing, meme, lootbox, profili, achievements, post della community e tanti segreti, cosa aspetti a unirti?</p>
                 <p class="home-question">Hai più di 25 anni e possiedi un PC?</p>

@@ -99,6 +99,18 @@ try {
     $_SESSION['profile_flash_error'] = $e->getMessage();
 }
 
-$redirect = '/en/edit-profile.php' . (profile_is_staff() && $targetUserId !== (int)$_SESSION['user_id'] ? '?user_id=' . $targetUserId : '');
+$returnUrl = $_SESSION['discord_oauth_return_url'] ?? '';
+unset($_SESSION['discord_oauth_return_url']);
+
+if (!empty($returnUrl)) {
+    // Append hash #connections if redirecting to impostazioni and hash not present
+    if ((strpos($returnUrl, 'impostazioni') !== false) && strpos($returnUrl, '#') === false) {
+        $returnUrl .= '#connections';
+    }
+    $redirect = $returnUrl;
+} else {
+    $redirect = '/en/edit-profile.php' . (profile_is_staff() && $targetUserId !== (int)$_SESSION['user_id'] ? '?user_id=' . $targetUserId : '');
+}
+
 header('Location: ' . $redirect);
 exit;

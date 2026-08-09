@@ -69,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="form-shell form-shell--narrow">
         <section class="form-card form-reveal">
             <div class="form-card__header">
-                <span class="form-pill">2FA</span>
                 <h1>2FA Verification</h1>
                 <p>Enter the authentication app code or a backup code.</p>
             </div>
