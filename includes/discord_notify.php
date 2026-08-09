@@ -170,21 +170,30 @@ function notifyDiscordCandidatura(array $data): bool
 }
 
 /**
- * Notifica su Discord nel canale #website-support per le segnalazioni dal sito
+ * Notifica su Discord nel canale #website-support per le segnalazioni dal sito (Channel ID: 1521100942668206110)
  */
 function notifyDiscordSupportReport(string $reportType, array $data): bool
 {
-    $endpoint = defined('CRIPSUM_BOT_ENDPOINT') ? CRIPSUM_BOT_ENDPOINT . '/v1/support' : 'https://api.cripsum.com/v1/support';
+    $endpoint = defined('CRIPSUM_BOT_ENDPOINT') ? CRIPSUM_BOT_ENDPOINT . '/v1/logs' : 'https://api.cripsum.com/v1/logs';
     $webhookUrl = defined('CRIPSUM_DISCORD_SUPPORT_WEBHOOK') ? CRIPSUM_DISCORD_SUPPORT_WEBHOOK : getenv('DISCORD_SUPPORT_WEBHOOK');
 
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
     $reporterUserId = $_SESSION['user_id'] ?? null;
     $reporterUsername = $_SESSION['username'] ?? 'Utente';
 
+    $typeLabel = ucfirst($reportType);
+    if ($reportType === 'profile') $typeLabel = 'Profilo Utente';
+    elseif ($reportType === 'rimasto') $typeLabel = 'Top Rimasti';
+    elseif ($reportType === 'shitpost') $typeLabel = 'Shitpost';
+    elseif ($reportType === 'chat') $typeLabel = 'Messaggio Chat';
+
     $payload = [
-        'channel_id' => defined('CRIPSUM_DISCORD_SUPPORT_CHANNEL_ID') ? CRIPSUM_DISCORD_SUPPORT_CHANNEL_ID : '1521100942668206110',
+        'channel_id' => '1521100942668206110',
         'channel' => 'website-support',
-        'type' => $reportType,
+        'type' => 'support_report',
+        'report_type' => $reportType,
+        'title' => "🚨 Nuova Segnalazione ({$typeLabel})",
+        'description' => "Segnalazione inviata da @" . $reporterUsername . " (ID: " . ($reporterUserId ?? 'N/D') . ")",
         'reporter_id' => $reporterUserId,
         'reporter_username' => $reporterUsername,
         'target_id' => $data['target_id'] ?? null,
@@ -192,18 +201,29 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
         'target_url' => $data['target_url'] ?? null,
         'reason' => $data['reason'] ?? '',
         'detail' => $data['detail'] ?? '',
+        'fields' => [
+            'Tipo' => $typeLabel,
+            'Segnalato da' => "@{$reporterUsername} (ID: {$reporterUserId})",
+            'Motivo' => $data['reason'] ?: 'Non specificato',
+            'Dettagli' => $data['detail'] ?: 'Nessun dettaglio',
+            'Oggetto' => $data['target_name'] ?: 'N/D',
+            'URL' => $data['target_url'] ?: 'N/D'
+        ],
         'ip' => $ip,
         'created_at' => date('Y-m-d H:i:s'),
     ];
 
     $sent = false;
 
-    // Call bot endpoint /v1/support
+    // Call bot endpoint /v1/logs for channel 1521100942668206110 (#website-support)
     $ch = curl_init($endpoint);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'X-Bot-Api-Key: ' . (defined('CRIPSUM_BOT_API_KEY') ? CRIPSUM_BOT_API_KEY : '')
+        ],
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_TIMEOUT => 6,
         CURLOPT_CONNECTTIMEOUT => 3,
@@ -219,12 +239,6 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
 
     // Direct Discord Webhook if configured
     if (!empty($webhookUrl)) {
-        $typeLabel = ucfirst($reportType);
-        if ($reportType === 'profile') $typeLabel = 'Profilo Utente';
-        elseif ($reportType === 'rimasto') $typeLabel = 'Top Rimasti';
-        elseif ($reportType === 'shitpost') $typeLabel = 'Shitpost';
-        elseif ($reportType === 'chat') $typeLabel = 'Messaggio Chat';
-
         $embedFields = [
             ['name' => 'Tipo Segnalazione', 'value' => $typeLabel, 'inline' => true],
             ['name' => 'Segnalato da', 'value' => "@{$reporterUsername} (ID: {$reporterUserId})", 'inline' => true],
@@ -271,13 +285,6 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
             $sent = true;
         }
     }
-
-    notifyDiscordSiteLogs('report', "Segnalazione Support ({$reportType})", "Segnalazione inviata da @{$reporterUsername}", [
-        'Motivo' => $data['reason'] ?? '',
-        'Dettagli' => $data['detail'] ?? '',
-        'Oggetto' => $data['target_name'] ?? '',
-        'URL' => $data['target_url'] ?? '',
-    ], $reporterUserId);
 
     return $sent;
 }

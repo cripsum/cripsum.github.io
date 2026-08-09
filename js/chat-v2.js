@@ -873,22 +873,22 @@
                     <p style="margin:0 0 1rem 0; font-size:0.9rem; color:rgba(255,255,255,0.7);">Stai segnalando un messaggio di <strong class="chat-report-author"></strong>.</p>
                     <form id="chatReportForm" style="display:flex; flex-direction:column; gap:0.75rem;">
                         <input type="hidden" name="msg_id" value="">
-                        <div style="display:flex; flex-direction:column; gap:0.4rem;">
-                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
-                                <input type="radio" name="reason" value="Messaggio inappropriato / Nudità" checked>
-                                <span>Messaggio inappropriato / Spinto</span>
+                        <div style="display:flex; flex-direction:column; gap:0.45rem;">
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Messaggio inappropriato / Nudità" checked style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">Messaggio inappropriato / Spinto</span>
                             </label>
-                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
-                                <input type="radio" name="reason" value="Spam / Flooding">
-                                <span>Spam / Messaggi ripetitivi</span>
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Spam / Flooding" style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">Spam / Messaggi ripetitivi</span>
                             </label>
-                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
-                                <input type="radio" name="reason" value="Linguaggio d'odio / Bullismo">
-                                <span>Insulti / Bullismo / Odio</span>
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Linguaggio d'odio / Bullismo" style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">Insulti / Bullismo / Odio</span>
                             </label>
-                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
-                                <input type="radio" name="reason" value="Altro">
-                                <span>Altro motivo</span>
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Altro" style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">Altro motivo</span>
                             </label>
                         </div>
                         <div style="margin-top:0.5rem;">

@@ -602,30 +602,30 @@
                     </div>
                     <form id="cwReportForm" class="cw-form" style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.75rem;">
                         <input type="hidden" name="id" value="${Number(id)}">
-                        <div class="cw-field">
-                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
-                                <input type="radio" name="reason" value="Contenuto inappropriato" checked>
-                                <span>${lang === 'it' ? 'Contenuto inappropriato / Nudità' : 'Inappropriate content / Nudity'}</span>
+                        <div style="display:flex; flex-direction:column; gap:0.45rem;">
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Contenuto inappropriato" checked style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">${lang === 'it' ? 'Contenuto inappropriato / Nudità' : 'Inappropriate content / Nudity'}</span>
                             </label>
-                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
-                                <input type="radio" name="reason" value="Spam / Pubblicità non autorizzata">
-                                <span>${lang === 'it' ? 'Spam o pubblicità non autorizzata' : 'Spam or self-promotion'}</span>
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Spam / Pubblicità non autorizzata" style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">${lang === 'it' ? 'Spam o pubblicità non autorizzata' : 'Spam or self-promotion'}</span>
                             </label>
-                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
-                                <input type="radio" name="reason" value="Odio o molestie">
-                                <span>${lang === 'it' ? 'Linguaggio d\'odio / Molestie / Bullismo' : 'Hate speech / Harassment / Bullying'}</span>
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Odio o molestie" style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">${lang === 'it' ? 'Linguaggio d\'odio / Molestie / Bullismo' : 'Hate speech / Harassment / Bullying'}</span>
                             </label>
-                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
-                                <input type="radio" name="reason" value="Violazione del regolamento">
-                                <span>${lang === 'it' ? 'Violazione del regolamento del sito' : 'Community rules violation'}</span>
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Violazione del regolamento" style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">${lang === 'it' ? 'Violazione del regolamento del sito' : 'Community rules violation'}</span>
                             </label>
-                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
-                                <input type="radio" name="reason" value="Altro">
-                                <span>${lang === 'it' ? 'Altro motivo' : 'Other reason'}</span>
+                            <label style="display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.85rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.03); cursor:pointer;">
+                                <input type="radio" name="reason" value="Altro" style="width:16px !important; height:16px !important; min-height:16px !important; max-width:16px !important; margin:0 !important; flex-shrink:0 !important; cursor:pointer;">
+                                <span style="font-size:0.9rem; color:#fff;">${lang === 'it' ? 'Altro motivo' : 'Other reason'}</span>
                             </label>
                         </div>
-                        <div class="cw-field">
-                            <label>${lang === 'it' ? 'Dettagli aggiuntivi (opzionale)' : 'Additional details (optional)'}</label>
+                        <div class="cw-field" style="display:flex; flex-direction:column; gap:0.35rem;">
+                            <label style="font-size:0.85rem; color:rgba(255,255,255,0.8);">${lang === 'it' ? 'Dettagli aggiuntivi (opzionale)' : 'Additional details (optional)'}</label>
                             <textarea name="detail" rows="2" maxlength="500" placeholder="${lang === 'it' ? 'Descrivi brevemente il motivo...' : 'Briefly describe the issue...'}"></textarea>
                         </div>
                         <div class="cw-modal__footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
