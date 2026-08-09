@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/../../includes/discord_notify.php';
 
 try {
     cv2_check_csrf();
@@ -26,6 +27,14 @@ try {
     $stmt->bind_param('siis', $type, $id, $user['id'], $reason);
     $stmt->execute();
     $stmt->close();
+
+    $postUrl = "https://cripsum.com/it/" . ($type === 'rimasto' ? 'rimasti' : 'shitpost') . "?post=" . $id;
+    notifyDiscordSupportReport($type, [
+        'target_id' => $id,
+        'target_name' => ucfirst($type) . " #{$id}",
+        'target_url' => $postUrl,
+        'reason' => $reason
+    ]);
 
     cv2_ok(['message' => 'Segnalazione inviata.']);
 } catch (Throwable $e) {

@@ -23,10 +23,21 @@ $stmt->close();
 if (!$row || !empty($row['deleted_at'])) chat_json(['ok' => false, 'error' => 'Messaggio non trovato.'], 404);
 if ((int)$row['user_id'] === $userId) chat_json(['ok' => false, 'error' => 'Non puoi segnalare un tuo messaggio.'], 422);
 
+require_once __DIR__ . '/../../includes/discord_notify.php';
+
 $stmt = $mysqli->prepare('INSERT INTO chat_reports (message_id, reporter_id, reason, created_at) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE reason = VALUES(reason), status = "open", created_at = NOW()');
 if (!$stmt) chat_json(['ok' => false, 'error' => 'Tabella segnalazioni mancante. Esegui SQL.'], 500);
 $stmt->bind_param('iis', $messageId, $userId, $reason);
 $ok = $stmt->execute();
 $stmt->close();
+
+if ($ok) {
+    notifyDiscordSupportReport('chat', [
+        'target_id' => $messageId,
+        'target_name' => "Messaggio Chat #{$messageId}",
+        'target_url' => "https://cripsum.com/it/chat?message=" . $messageId,
+        'reason' => $reason
+    ]);
+}
 
 chat_json(['ok' => $ok, 'message' => 'Segnalazione inviata.']);

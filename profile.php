@@ -635,7 +635,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.10.1" defer></script>
+    <script src="/assets/js/profile.js?v=5.10.2" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {

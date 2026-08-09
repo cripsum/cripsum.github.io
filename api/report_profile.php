@@ -4,11 +4,17 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/admin/admin_helpers.php';
 
+require_once __DIR__ . '/../includes/discord_notify.php';
+
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isLoggedIn()) {
     http_response_code(401);
-    echo json_encode(['ok' => false, 'error' => 'Devi essere loggato per segnalare un profilo.']);
+    echo json_encode([
+        'ok' => false,
+        'error' => 'Devi essere loggato per segnalare un profilo.',
+        'redirect' => '/it/accedi'
+    ]);
     exit();
 }
 
@@ -75,6 +81,23 @@ $stmt = $mysqli->prepare("
 if ($stmt) {
     $stmt->bind_param('iiss', $reported_id, $reporter_id, $reason, $detail);
     if ($stmt->execute()) {
+        $repStmt = $mysqli->prepare("SELECT username FROM utenti WHERE id = ? LIMIT 1");
+        $reportedUsername = '';
+        if ($repStmt) {
+            $repStmt->bind_param('i', $reported_id);
+            $repStmt->execute();
+            $reportedUsername = $repStmt->get_result()->fetch_assoc()['username'] ?? "ID #{$reported_id}";
+            $repStmt->close();
+        }
+
+        notifyDiscordSupportReport('profile', [
+            'target_id' => $reported_id,
+            'target_name' => "@" . $reportedUsername,
+            'target_url' => "https://cripsum.com/u/" . rawurlencode($reportedUsername),
+            'reason' => $reason,
+            'detail' => $detail
+        ]);
+
         echo json_encode(['ok' => true, 'message' => 'Segnalazione inviata con successo.']);
     } else {
         http_response_code(500);

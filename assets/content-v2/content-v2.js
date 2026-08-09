@@ -519,6 +519,9 @@
     const requireLogin = () => {
         if (isLogged) return true;
         showToast(t.must_login, true);
+        setTimeout(() => {
+            window.location.href = `/${lang}/accedi`;
+        }, 500);
         return false;
     };
 

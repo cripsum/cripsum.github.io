@@ -69,7 +69,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=6.3">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=6.4">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
     <script src="/assets/home-v5/home.js?v=5.7" defer></script>
     <script src="/assets/news/news-popup.js?v=1.0" defer></script>

@@ -1614,6 +1614,12 @@
 
         reportTriggers.forEach(btn => {
             btn.addEventListener('click', (e) => {
+                const isIt = document.documentElement.lang === 'it';
+                const currentUserId = window.CRIPSUM_CURRENT_USER_ID || document.body.dataset.userId;
+                if (!currentUserId || currentUserId === '0') {
+                    window.location.href = isIt ? '/it/accedi' : '/en/accedi';
+                    return;
+                }
                 openOverlay(reportModal, btn);
             });
         });
@@ -1652,10 +1658,19 @@
                         detail: detail
                     })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = isIt ? '/it/accedi' : '/en/accedi';
+                        return null;
+                    }
+                    return res.json();
+                })
                 .then(data => {
+                    if (!data) return;
                     if (data.ok) {
                         showToast(isIt ? 'Segnalazione inviata con successo ai moderatori.' : 'Report submitted successfully to moderators.');
+                    } else if (data.redirect) {
+                        window.location.href = data.redirect;
                     } else {
                         showToast(data.error || (isIt ? 'Errore durante l\'invio.' : 'Error submitting report.'));
                     }
