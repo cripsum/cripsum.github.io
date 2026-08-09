@@ -182,6 +182,7 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
     $reporterUsername = $_SESSION['username'] ?? 'Utente';
 
     $payload = [
+        'channel_id' => defined('CRIPSUM_DISCORD_SUPPORT_CHANNEL_ID') ? CRIPSUM_DISCORD_SUPPORT_CHANNEL_ID : '1521100942668206110',
         'channel' => 'website-support',
         'type' => $reportType,
         'reporter_id' => $reporterUserId,

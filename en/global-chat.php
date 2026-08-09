@@ -58,7 +58,7 @@ $initialMessages = $lineeGuidaChat === 1 ? chat_fetch_messages($mysqli, $userId,
     <?php include '../includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/css/chat-v2.css?v=3.1-klipy">
-    <script src="/js/chat-v2.js?v=3.5-klipy" defer></script>
+    <script src="/js/chat-v2.js?v=3.6" defer></script>
     <title>Global Chat - Cripsum</title>
 </head>
 

@@ -579,22 +579,108 @@
         showToast(ok ? t.link_copied : t.copy_failed);
     };
 
-    const reportPost = async (id) => {
+    const reportPost = (id) => {
         if (!requireLogin()) return;
+        openReportModal(id);
+    };
 
-        const reason = prompt(t.report_prompt);
-        if (!reason) return;
+    const openReportModal = (id) => {
+        let modal = $('#cwReportModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'cwReportModal';
+            modal.className = 'cw-modal';
+            modal.setAttribute('aria-hidden', 'true');
+            modal.innerHTML = `
+                <div class="cw-modal__panel" role="dialog" aria-modal="true">
+                    <div class="cw-modal__head">
+                        <div>
+                            <strong>${t.report_prompt || 'Segnala contenuto'}</strong>
+                            <span>${lang === 'it' ? 'Seleziona il motivo della segnalazione.' : 'Select the reason for reporting this content.'}</span>
+                        </div>
+                        <button type="button" class="cw-icon-btn js-close-report-modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <form id="cwReportForm" class="cw-form" style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.75rem;">
+                        <input type="hidden" name="id" value="${Number(id)}">
+                        <div class="cw-field">
+                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
+                                <input type="radio" name="reason" value="Contenuto inappropriato" checked>
+                                <span>${lang === 'it' ? 'Contenuto inappropriato / Nudità' : 'Inappropriate content / Nudity'}</span>
+                            </label>
+                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
+                                <input type="radio" name="reason" value="Spam / Pubblicità non autorizzata">
+                                <span>${lang === 'it' ? 'Spam o pubblicità non autorizzata' : 'Spam or self-promotion'}</span>
+                            </label>
+                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
+                                <input type="radio" name="reason" value="Odio o molestie">
+                                <span>${lang === 'it' ? 'Linguaggio d\'odio / Molestie / Bullismo' : 'Hate speech / Harassment / Bullying'}</span>
+                            </label>
+                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
+                                <input type="radio" name="reason" value="Violazione del regolamento">
+                                <span>${lang === 'it' ? 'Violazione del regolamento del sito' : 'Community rules violation'}</span>
+                            </label>
+                            <label class="cw-radio-label" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; cursor:pointer;">
+                                <input type="radio" name="reason" value="Altro">
+                                <span>${lang === 'it' ? 'Altro motivo' : 'Other reason'}</span>
+                            </label>
+                        </div>
+                        <div class="cw-field">
+                            <label>${lang === 'it' ? 'Dettagli aggiuntivi (opzionale)' : 'Additional details (optional)'}</label>
+                            <textarea name="detail" rows="2" maxlength="500" placeholder="${lang === 'it' ? 'Descrivi brevemente il motivo...' : 'Briefly describe the issue...'}"></textarea>
+                        </div>
+                        <div class="cw-modal__footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
+                            <button type="button" class="cw-btn cw-btn--ghost js-close-report-modal">${t.btn_cancel || 'Annulla'}</button>
+                            <button type="submit" class="cw-btn cw-btn--primary">${lang === 'it' ? 'Invia Segnalazione' : 'Submit Report'}</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
 
-        try {
-            await api('report_post.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, id, reason }),
+            modal.addEventListener('click', (event) => {
+                if (event.target.id === 'cwReportModal') closeReportModal();
             });
-            showToast(t.report_sent);
-        } catch (error) {
-            showToast(error.message, true);
+        } else {
+            const hiddenId = modal.querySelector('input[name="id"]');
+            if (hiddenId) hiddenId.value = Number(id);
         }
+
+        const form = modal.querySelector('#cwReportForm');
+        if (form) {
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                const reasonRadio = form.querySelector('input[name="reason"]:checked');
+                const reasonVal = reasonRadio ? reasonRadio.value : 'Inappropriato';
+                const detailVal = form.querySelector('textarea[name="detail"]')?.value?.trim() || '';
+                const finalReason = detailVal ? `${reasonVal} - ${detailVal}` : reasonVal;
+
+                try {
+                    await api('report_post.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type, id, reason: finalReason, detail: detailVal }),
+                    });
+                    showToast(t.report_sent || (lang === 'it' ? 'Segnalazione inviata con successo.' : 'Report submitted.'));
+                    closeReportModal();
+                } catch (error) {
+                    showToast(error.message, true);
+                }
+            };
+        }
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+
+        modal.querySelectorAll('.js-close-report-modal').forEach((btn) => {
+            btn.onclick = closeReportModal;
+        });
+    };
+
+    const closeReportModal = () => {
+        const modal = $('#cwReportModal');
+        if (!modal) return;
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
     };
 
     const openEditModal = (id) => {

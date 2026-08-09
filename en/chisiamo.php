@@ -12,6 +12,8 @@ checkBan($mysqli);
     <title>Cripsum™ - About us</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.2-original-cards-colors">
+    <link rel="stylesheet" href="/assets/chisiamo/chisiamo.css?v=1.2">
+    <script src="/assets/chisiamo/chisiamo.js?v=1.2" defer></script>
     <style>
         @font-face {
             font-family: NotoColorEmojiLimited;
@@ -45,7 +47,7 @@ checkBan($mysqli);
     <?php include '../includes/navbar.php'; ?>
 
 
-    <div class="main-container fadeup" style="padding-top: 7rem">
+    <div class="main-container" style="padding-top: 7rem">
         <section class="chisiamo-section" style="border-radius: 20px;">
             <h1 class="chisiamo-title">Our Development Team</h1>
             <p class="chisiamo-subtitle">
@@ -326,8 +328,8 @@ checkBan($mysqli);
                 Send us your application and become part of the coolest squad of the century!
             </p>
             <a href="candidatura-chisiamo" class="join-email">
-                <i class="fa-solid fa-envelope me-2"></i>
-                click here to send your application
+                <i class="fa-solid fa-paper-plane me-2"></i>
+                <span>Click here to send your application</span>
             </a>
         </section>
     </div>
@@ -335,28 +337,6 @@ checkBan($mysqli);
     <?php include '../includes/scroll_indicator.php'; ?>
 
     <?php include '../includes/footer-en.php'; ?>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const members = document.querySelectorAll('.team-member');
-
-            if ('IntersectionObserver' in window) {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach((entry) => {
-                        if (!entry.isIntersecting) return;
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
-                    });
-                }, {
-                    threshold: 0.1
-                });
-
-                members.forEach((member) => observer.observe(member));
-            } else {
-                members.forEach((member) => member.classList.add('is-visible'));
-            }
-        });
-    </script>
 
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

@@ -1218,6 +1218,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 <body
     class="bio-v2-body public-profile-body profile-border-style-<?php echo profile_h($profile['profile_border_style'] ?? 'thin'); ?><?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? ' click-to-enter-active' : ''; ?>"
     data-logged-in="<?php echo $isLoggedIn ? '1' : '0'; ?>"
+    data-user-id="<?php echo (int)($_SESSION['user_id'] ?? 0); ?>"
+    data-current-user-id="<?php echo (int)($_SESSION['user_id'] ?? 0); ?>"
     data-csrf="<?php echo $socialCsrfToken; ?>"
     data-theme="<?php echo profile_h($theme); ?>"
     data-accent="<?php echo profile_h($accent); ?>"

@@ -1614,9 +1614,10 @@
 
         reportTriggers.forEach(btn => {
             btn.addEventListener('click', (e) => {
+                if (e) e.preventDefault();
                 const isIt = document.documentElement.lang === 'it';
-                const currentUserId = window.CRIPSUM_CURRENT_USER_ID || document.body.dataset.userId;
-                if (!currentUserId || currentUserId === '0') {
+                const isLoggedIn = document.body.dataset.loggedIn === '1' || parseInt(document.body.dataset.userId || '0', 10) > 0 || parseInt(window.CRIPSUM_CURRENT_USER_ID || '0', 10) > 0;
+                if (!isLoggedIn) {
                     window.location.href = isIt ? '/it/accedi' : '/en/accedi';
                     return;
                 }

@@ -842,14 +842,7 @@
             return;
         }
         if (action === 'report') {
-            const reason = prompt('Motivo della segnalazione?', 'Messaggio inappropriato');
-            if (reason === null) return;
-            try {
-                const data = await api(cfg.endpoints.report, { method: 'POST', body: JSON.stringify({ id: msg.id, reason, csrf: cfg.csrf }) });
-                showToast(data.message || 'Segnalazione inviata.');
-            } catch (error) {
-                showToast(error.message);
-            }
+            openChatReportModal(msg);
             return;
         }
         if (action === 'mute') {
@@ -863,6 +856,91 @@
             }
         }
     };
+
+    function openChatReportModal(msg) {
+        let modal = document.getElementById('chatReportModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'chatReportModal';
+            modal.className = 'chat-modal-overlay';
+            modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; z-index:99999; opacity:0; pointer-events:none; transition:opacity 0.2s ease;';
+            modal.innerHTML = `
+                <div class="chat-modal-card" style="background:#131924; border:1px solid rgba(255,255,255,0.12); border-radius:20px; width:min(90%, 460px); padding:1.5rem; color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.6); position:relative;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <h3 style="margin:0; font-size:1.2rem; font-weight:700;">🚨 Segnala Messaggio</h3>
+                        <button type="button" class="js-close-chat-report" style="background:none; border:none; color:#888; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <p style="margin:0 0 1rem 0; font-size:0.9rem; color:rgba(255,255,255,0.7);">Stai segnalando un messaggio di <strong class="chat-report-author"></strong>.</p>
+                    <form id="chatReportForm" style="display:flex; flex-direction:column; gap:0.75rem;">
+                        <input type="hidden" name="msg_id" value="">
+                        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                                <input type="radio" name="reason" value="Messaggio inappropriato / Nudità" checked>
+                                <span>Messaggio inappropriato / Spinto</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                                <input type="radio" name="reason" value="Spam / Flooding">
+                                <span>Spam / Messaggi ripetitivi</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                                <input type="radio" name="reason" value="Linguaggio d'odio / Bullismo">
+                                <span>Insulti / Bullismo / Odio</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                                <input type="radio" name="reason" value="Altro">
+                                <span>Altro motivo</span>
+                            </label>
+                        </div>
+                        <div style="margin-top:0.5rem;">
+                            <label style="display:block; font-size:0.85rem; margin-bottom:0.35rem; color:rgba(255,255,255,0.8);">Dettagli aggiuntivi (opzionale)</label>
+                            <textarea name="detail" rows="2" maxlength="300" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0.6rem; color:#fff; font-size:0.9rem; outline:none; resize:none;" placeholder="Spiega brevemente il motivo..."></textarea>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:0.6rem; margin-top:0.75rem;">
+                            <button type="button" class="js-close-chat-report" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:0.5rem 1rem; border-radius:10px; cursor:pointer; font-size:0.9rem;">Annulla</button>
+                            <button type="submit" style="background:linear-gradient(135deg, #e11d48, #be123c); border:none; color:#fff; padding:0.5rem 1.25rem; border-radius:10px; cursor:pointer; font-weight:600; font-size:0.9rem; box-shadow:0 4px 12px rgba(225,29,72,0.3);">Invia Segnalazione</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', (e) => {
+                if (e.target.id === 'chatReportModal') closeChatReportModal();
+            });
+        }
+
+        modal.querySelector('.chat-report-author').textContent = '@' + (msg.username || 'utente');
+        modal.querySelector('input[name="msg_id"]').value = msg.id;
+
+        const form = modal.querySelector('#chatReportForm');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const reasonRadio = form.querySelector('input[name="reason"]:checked');
+            const reasonVal = reasonRadio ? reasonRadio.value : 'Messaggio inappropriato';
+            const detailVal = form.querySelector('textarea[name="detail"]')?.value?.trim() || '';
+            const finalReason = detailVal ? `${reasonVal} - ${detailVal}` : reasonVal;
+
+            try {
+                const data = await api(cfg.endpoints.report, { method: 'POST', body: JSON.stringify({ id: msg.id, reason: finalReason, csrf: cfg.csrf }) });
+                showToast(data.message || 'Segnalazione inviata con successo al team di supporto.');
+                closeChatReportModal();
+            } catch (error) {
+                showToast(error.message);
+            }
+        };
+
+        modal.querySelectorAll('.js-close-chat-report').forEach(b => b.onclick = closeChatReportModal);
+
+        modal.style.opacity = '1';
+        modal.style.pointerEvents = 'auto';
+    }
+
+    function closeChatReportModal() {
+        const modal = document.getElementById('chatReportModal');
+        if (!modal) return;
+        modal.style.opacity = '0';
+        modal.style.pointerEvents = 'none';
+    }
 
     const runSearch = async () => {
         const value = (el.searchInput?.value || '').trim();
