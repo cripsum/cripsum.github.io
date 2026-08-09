@@ -11,8 +11,8 @@ checkBan($mysqli);
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - About us</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.3">
-    <link rel="stylesheet" href="/assets/chisiamo/chisiamo.css?v=1.3">
+    <link rel="stylesheet" href="/assets/chisiamo/chisiamo-colors.css?v=2.4">
+    <link rel="stylesheet" href="/assets/chisiamo/chisiamo.css?v=1.4">
     <script src="/assets/chisiamo/chisiamo.js?v=1.3" defer></script>
     <style>
         @font-face {
