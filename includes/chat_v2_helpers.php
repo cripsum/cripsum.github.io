@@ -36,7 +36,7 @@ function chat_require_login_json(mysqli $mysqli): array
     }
 
     $userId = chat_current_user_id();
-    $stmt = $mysqli->prepare('SELECT id, username, ruolo, isBannato FROM utenti WHERE id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT id, username, ruolo, isBannato, discord_id FROM utenti WHERE id = ? LIMIT 1');
     if (!$stmt) {
         chat_json(['ok' => false, 'error' => 'Errore server.'], 500);
     }

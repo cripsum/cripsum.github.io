@@ -100,7 +100,7 @@ function cv2_current_user(mysqli $mysqli): ?array
     $id = (int)($_SESSION['user_id'] ?? 0);
     if ($id <= 0) return null;
 
-    $stmt = $mysqli->prepare("SELECT id, username, ruolo, isBannato FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, ruolo, isBannato, discord_id FROM utenti WHERE id = ? LIMIT 1");
     if (!$stmt) return null;
 
     $stmt->bind_param('i', $id);

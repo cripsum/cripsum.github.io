@@ -8378,6 +8378,8 @@ body[data-theme="light"] .profile-search-item {
 }
 
 /* 5. Report Profile Modal Styling */
+
+/* Simplified profile report dialog */
 .profile-report-modal {
     position: fixed !important;
     inset: 0 !important;
@@ -8387,11 +8389,11 @@ body[data-theme="light"] .profile-search-item {
     width: 100vw !important;
     height: 100vh !important;
     height: 100dvh !important;
-    padding: clamp(0.75rem, 2.5vw, 1.5rem) !important;
+    padding: 1rem !important;
     visibility: hidden;
     pointer-events: none;
     overflow: hidden;
-    transition: visibility 0.24s step-end;
+    transition: visibility 0.18s step-end;
 }
 
 .profile-report-modal.is-visible {
@@ -8404,164 +8406,121 @@ body[data-theme="light"] .profile-search-item {
     position: absolute !important;
     inset: 0 !important;
     z-index: 0 !important;
-    background: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    transition: background-color 0.24s ease, backdrop-filter 0.24s ease, -webkit-backdrop-filter 0.24s ease;
+    background: rgba(3, 6, 15, 0);
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    transition: background-color 0.18s ease, backdrop-filter 0.18s ease, -webkit-backdrop-filter 0.18s ease;
 }
 
 .profile-report-modal.is-visible .profile-report-backdrop {
-    background: rgba(3, 6, 15, 0.78);
-    backdrop-filter: blur(12px) saturate(0.8);
-    -webkit-backdrop-filter: blur(12px) saturate(0.8);
+    background: rgba(3, 6, 15, 0.72);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
 }
 
 .profile-report-card {
     position: relative !important;
     z-index: 1 !important;
-    width: min(100%, 620px) !important;
-    max-height: min(92vh, 780px) !important;
-    max-height: min(92dvh, 780px) !important;
-    padding: clamp(1.15rem, 3vw, 1.75rem) !important;
-    border-radius: 26px !important;
+    width: min(100%, 460px) !important;
+    max-height: calc(100dvh - 2rem) !important;
+    padding: 1.4rem !important;
+    border-radius: 20px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 1.2rem !important;
+    gap: 1rem !important;
     color: #f8fafc;
-    background:
-        radial-gradient(110% 80% at 0% 0%, rgba(244, 63, 94, 0.15), transparent 48%),
-        linear-gradient(145deg, rgba(18, 24, 40, 0.99), rgba(8, 13, 27, 0.99)) !important;
+    background: rgba(12, 18, 32, 0.98) !important;
     border: 1px solid rgba(255, 255, 255, 0.11) !important;
-    box-shadow: 0 34px 90px rgba(0, 0, 0, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-    transform: translateY(18px) scale(0.975);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(12px) scale(0.98);
     opacity: 0;
-    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
-    scrollbar-color: rgba(251, 113, 133, 0.42) transparent;
+    scrollbar-color: rgba(251, 113, 133, 0.4) transparent;
+    transition: opacity 0.18s ease, transform 0.22s ease;
 }
 
 .profile-report-modal.is-visible .profile-report-card {
-    transform: translateY(0) scale(1);
+    transform: none;
     opacity: 1;
 }
 
 body[data-theme="light"] .profile-report-card {
     color: #172033;
-    background:
-        radial-gradient(110% 80% at 0% 0%, rgba(244, 63, 94, 0.08), transparent 48%),
-        #ffffff !important;
+    background: #fff !important;
     border-color: rgba(15, 23, 42, 0.12) !important;
-    box-shadow: 0 32px 80px rgba(15, 23, 42, 0.22), inset 0 1px 0 #ffffff !important;
-}
-
-.profile-report-card::-webkit-scrollbar {
-    width: 5px;
-}
-.profile-report-card::-webkit-scrollbar-track {
-    background: transparent;
-}
-.profile-report-card::-webkit-scrollbar-thumb {
-    background: rgba(251, 113, 133, 0.42);
-    border-radius: 99px;
+    box-shadow: 0 28px 70px rgba(15, 23, 42, 0.2) !important;
 }
 
 .profile-report-close {
     position: absolute !important;
     top: 1rem !important;
     right: 1rem !important;
-    background: rgba(255, 255, 255, 0.07) !important;
-    border: 1px solid rgba(255, 255, 255, 0.11) !important;
-    border-radius: 50% !important;
-    width: 2.35rem !important;
-    height: 2.35rem !important;
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    border-radius: 10px !important;
     display: inline-flex !important;
-    justify-content: center !important;
     align-items: center !important;
-    color: #cbd5e1 !important;
-    cursor: pointer !important;
-    font-size: 1rem !important;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    justify-content: center !important;
+    color: #94a3b8 !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
     padding: 0 !important;
+    cursor: pointer !important;
 }
 
 .profile-report-close:hover {
-    background: rgba(244, 63, 94, 0.16) !important;
-    border-color: rgba(251, 113, 133, 0.38) !important;
-    color: #fda4af !important;
-    transform: rotate(6deg) scale(1.04);
-}
-
-.profile-report-close:focus-visible,
-.profile-report-btn-cancel:focus-visible,
-.profile-report-btn-submit:focus-visible {
-    outline: 3px solid rgba(251, 113, 133, 0.36) !important;
-    outline-offset: 2px;
-}
-
-body[data-theme="light"] .profile-report-close {
-    background: rgba(0, 0, 0, 0.05) !important;
-    border-color: rgba(0, 0, 0, 0.1) !important;
-    color: #475569 !important;
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: none;
 }
 
 .profile-report-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.9rem;
-    padding-right: 2.75rem;
-}
-
-.profile-report-icon-badge {
-    flex: 0 0 auto;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 15px;
-    background: linear-gradient(145deg, rgba(244, 63, 94, 0.22), rgba(190, 24, 93, 0.1));
-    border: 1px solid rgba(251, 113, 133, 0.3);
-    color: #fb7185;
+    min-height: 2.8rem;
+    padding: 0 2.7rem 0 0;
     display: flex;
     align-items: center;
+    gap: 0.75rem;
+    text-align: left;
+}
+
+.profile-report-title-icon {
+    flex: 0 0 auto;
+    width: 2.55rem;
+    height: 2.55rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    font-size: 1.15rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 28px rgba(190, 24, 93, 0.14);
-}
-
-.profile-report-header-copy {
-    min-width: 0;
-}
-
-.profile-report-eyebrow {
-    display: block;
-    margin-bottom: 0.18rem;
     color: #fb7185;
-    font-size: 0.69rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    line-height: 1.3;
-    text-transform: uppercase;
+    background: rgba(244, 63, 94, 0.12);
+    font-size: 0.95rem;
 }
 
 .profile-report-header h3 {
     margin: 0;
-    font-size: clamp(1.3rem, 3vw, 1.55rem);
-    font-weight: 800;
     color: #f8fafc;
-    letter-spacing: -0.035em;
-    line-height: 1.15;
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.profile-report-header p {
+    margin: 0.18rem 0 0;
+    color: #94a3b8;
+    font-size: 0.76rem;
+    line-height: 1.35;
+}
+
+body[data-theme="light"] .profile-report-close {
+    color: #475569 !important;
+    background: #f8fafc !important;
+    border-color: rgba(15, 23, 42, 0.1) !important;
 }
 
 body[data-theme="light"] .profile-report-header h3 {
     color: #0f172a;
-}
-
-.profile-report-header p {
-    max-width: 48ch;
-    margin: 0.42rem 0 0;
-    font-size: 0.84rem;
-    color: #94a3b8;
-    line-height: 1.5;
 }
 
 body[data-theme="light"] .profile-report-header p {
@@ -8569,79 +8528,47 @@ body[data-theme="light"] .profile-report-header p {
 }
 
 .profile-report-user-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.72rem;
-    padding: 0.68rem 0.75rem;
-    background: rgba(255, 255, 255, 0.045);
-    border: 1px solid rgba(255, 255, 255, 0.085);
-    border-radius: 16px;
-    color: #e2e8f0;
-}
-
-.profile-report-user-icon {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 11px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #fda4af;
-    background: rgba(244, 63, 94, 0.12);
-}
-
-.profile-report-user-copy {
     min-width: 0;
     display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    line-height: 1.25;
-}
-
-.profile-report-user-copy small {
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.45rem;
+    padding: 0.58rem 0.72rem;
+    border-radius: 12px;
     color: #94a3b8;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    font-size: 0.78rem;
+    text-align: left;
 }
 
-.profile-report-user-copy strong {
+.profile-report-user-badge i {
+    color: #fb7185;
+    font-size: 0.72rem;
+}
+
+.profile-report-user-badge strong {
+    min-width: 0;
     overflow: hidden;
-    color: #f8fafc;
-    font-size: 0.92rem;
-    font-weight: 750;
+    color: #e2e8f0;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.profile-report-private-pill {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.34rem;
-    padding: 0.34rem 0.55rem;
-    border-radius: 999px;
-    color: #a5b4fc;
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(129, 140, 248, 0.18);
-    font-size: 0.68rem;
-    font-weight: 700;
-}
-
 body[data-theme="light"] .profile-report-user-badge {
+    color: #64748b;
     background: #f8fafc;
-    border-color: rgba(15, 23, 42, 0.1);
-    color: #334155;
+    border-color: rgba(15, 23, 42, 0.09);
 }
 
-body[data-theme="light"] .profile-report-user-copy strong { color: #172033; }
-body[data-theme="light"] .profile-report-user-copy small { color: #64748b; }
+body[data-theme="light"] .profile-report-user-badge strong {
+    color: #1e293b;
+}
 
 .profile-report-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.95rem;
 }
 
 .profile-report-reasons {
@@ -8652,36 +8579,35 @@ body[data-theme="light"] .profile-report-user-copy small { color: #64748b; }
 }
 
 .profile-report-reasons legend,
-.profile-report-detail-heading .detail-label {
+.profile-report-detail-group .detail-label {
+    display: block;
+    margin: 0 0 0.45rem;
     padding: 0;
-    color: #f1f5f9;
-    font-size: 0.88rem;
-    font-weight: 750;
-    line-height: 1.35;
+    color: #dbe3ef;
+    font-size: 0.78rem;
+    font-weight: 700;
 }
 
-.profile-report-field-hint {
-    margin: 0.15rem 0 0.65rem;
-    color: #8491a6;
-    font-size: 0.75rem;
-    line-height: 1.4;
+body[data-theme="light"] .profile-report-reasons legend,
+body[data-theme="light"] .profile-report-detail-group .detail-label {
+    color: #334155;
 }
 
 .profile-report-options {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.55rem;
+    gap: 0.5rem;
 }
 
-.profile-report-option {
+.profile-report-option,
+.profile-report-option:last-child {
     position: relative;
     display: block;
+    grid-column: auto;
     min-width: 0;
-    cursor: pointer;
     margin: 0;
+    cursor: pointer;
 }
-
-.profile-report-option:last-child { grid-column: 1 / -1; }
 
 .profile-report-option input[type="radio"] {
     position: absolute;
@@ -8695,128 +8621,50 @@ body[data-theme="light"] .profile-report-user-copy small { color: #64748b; }
     border: 0;
 }
 
-.profile-report-option .option-content {
-    position: relative;
-    min-height: 74px;
-    height: 100%;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+.profile-report-option > span {
+    min-height: 42px;
+    padding: 0.65rem 0.72rem;
+    border-radius: 11px;
+    display: flex;
     align-items: center;
-    gap: 0.65rem;
-    padding: 0.72rem;
-    border-radius: 15px;
-    color: #cbd5e1;
+    color: #aeb9ca;
     background: rgba(255, 255, 255, 0.035);
     border: 1px solid rgba(255, 255, 255, 0.075);
-    transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    font-size: 0.75rem;
+    font-weight: 650;
+    line-height: 1.25;
+    transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
 }
 
-.profile-report-option:hover .option-content {
-    transform: translateY(-1px);
+.profile-report-option:hover > span {
+    color: #e2e8f0;
     background: rgba(255, 255, 255, 0.055);
-    border-color: rgba(251, 113, 133, 0.24);
 }
 
-.profile-report-option input:focus-visible + .option-content {
-    outline: 3px solid rgba(251, 113, 133, 0.32);
+.profile-report-option input:checked + span {
+    color: #fff1f2;
+    background: rgba(244, 63, 94, 0.13);
+    border-color: rgba(251, 113, 133, 0.48);
+}
+
+.profile-report-option input:focus-visible + span,
+.profile-report-close:focus-visible,
+.profile-report-btn-cancel:focus-visible,
+.profile-report-btn-submit:focus-visible {
+    outline: 3px solid rgba(251, 113, 133, 0.3) !important;
     outline-offset: 2px;
 }
 
-.profile-report-option input:checked + .option-content {
-    color: #fff1f2;
-    background: linear-gradient(145deg, rgba(244, 63, 94, 0.16), rgba(190, 24, 93, 0.07));
-    border-color: rgba(251, 113, 133, 0.52);
-    box-shadow: inset 0 0 0 1px rgba(251, 113, 133, 0.08), 0 8px 24px rgba(190, 24, 93, 0.08);
-}
-
-.profile-report-option .option-icon {
-    width: 2.15rem;
-    height: 2.15rem;
-    border-radius: 11px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #94a3b8;
-    background: rgba(255, 255, 255, 0.055);
-    font-size: 0.82rem;
-    transition: color 0.18s ease, background-color 0.18s ease;
-}
-
-.profile-report-option input:checked + .option-content .option-icon {
-    color: #fda4af;
-    background: rgba(244, 63, 94, 0.14);
-}
-
-.profile-report-option .option-text {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.12rem;
-}
-
-.profile-report-option .option-text strong {
-    color: #e8edf5;
-    font-size: 0.78rem;
-    font-weight: 750;
-    line-height: 1.25;
-}
-
-.profile-report-option .option-text small {
-    color: #8491a6;
-    font-size: 0.67rem;
-    line-height: 1.3;
-}
-
-.profile-report-option .option-check {
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: transparent;
-    background: transparent;
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    font-size: 0.55rem;
-    transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
-}
-
-.profile-report-option input:checked + .option-content .option-check {
-    color: #ffffff;
-    background: #e11d48;
-    border-color: #fb7185;
-}
-
-body[data-theme="light"] .profile-report-reasons legend,
-body[data-theme="light"] .profile-report-detail-heading .detail-label { color: #172033; }
-body[data-theme="light"] .profile-report-field-hint { color: #64748b; }
-body[data-theme="light"] .profile-report-option .option-content {
-    color: #334155;
+body[data-theme="light"] .profile-report-option > span {
+    color: #475569;
     background: #f8fafc;
-    border-color: rgba(15, 23, 42, 0.1);
+    border-color: rgba(15, 23, 42, 0.09);
 }
-body[data-theme="light"] .profile-report-option:hover .option-content { background: #f1f5f9; }
-body[data-theme="light"] .profile-report-option input:checked + .option-content {
-    color: #881337;
+
+body[data-theme="light"] .profile-report-option input:checked + span {
+    color: #9f1239;
     background: #fff1f2;
-    border-color: rgba(225, 29, 72, 0.38);
-}
-body[data-theme="light"] .profile-report-option .option-icon { color: #64748b; background: #eef2f7; }
-body[data-theme="light"] .profile-report-option .option-text strong { color: #1e293b; }
-body[data-theme="light"] .profile-report-option .option-text small { color: #64748b; }
-
-.profile-report-detail-heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.45rem;
-}
-
-.profile-report-detail-heading > span {
-    color: #8491a6;
-    font-size: 0.7rem;
-    font-weight: 650;
+    border-color: rgba(225, 29, 72, 0.35);
 }
 
 .profile-report-textarea-wrap {
@@ -8826,102 +8674,87 @@ body[data-theme="light"] .profile-report-option .option-text small { color: #647
 .profile-report-detail-group textarea {
     display: block;
     width: 100%;
-    min-height: 92px;
-    padding: 0.78rem 0.85rem 1.6rem;
+    min-height: 88px;
+    padding: 0.72rem 0.78rem 1.45rem;
+    border-radius: 12px;
+    color: #eef2f7;
     background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.085);
-    border-radius: 15px;
-    color: #f1f5f9;
-    font: inherit;
-    font-size: 0.82rem;
-    line-height: 1.5;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: inherit;
+    font-size: 0.78rem;
+    line-height: 1.45;
     outline: none;
     resize: vertical;
-    transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .profile-report-detail-group textarea::placeholder {
-    color: #69768a;
+    color: #64748b;
 }
 
 body[data-theme="light"] .profile-report-detail-group textarea {
+    color: #172033;
     background: #f8fafc;
     border-color: rgba(15, 23, 42, 0.11);
-    color: #172033;
 }
 
 .profile-report-detail-group textarea:focus {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(251, 113, 133, 0.55);
-    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.12);
+    border-color: rgba(251, 113, 133, 0.5);
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
 }
-
-body[data-theme="light"] .profile-report-detail-group textarea:focus { background: #ffffff; }
 
 .profile-report-detail-group .detail-char-count {
     position: absolute;
-    right: 0.72rem;
-    bottom: 0.48rem;
-    color: #69768a;
-    font-size: 0.66rem;
-    font-variant-numeric: tabular-nums;
+    right: 0.65rem;
+    bottom: 0.4rem;
+    color: #64748b;
+    font-size: 0.63rem;
     pointer-events: none;
 }
 
-.profile-report-privacy-note {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: -0.15rem 0 0;
-    color: #8491a6;
-    font-size: 0.7rem;
-    line-height: 1.4;
-}
-
-.profile-report-privacy-note i { color: #818cf8; }
-
 .profile-report-actions {
     display: grid;
-    grid-template-columns: minmax(100px, 0.72fr) minmax(180px, 1.28fr);
-    gap: 0.65rem;
-    padding-top: 0.15rem;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 0.55rem;
 }
 
 .profile-report-btn-cancel,
 .profile-report-btn-submit {
-    min-height: 44px;
-    padding: 0.72rem 1rem;
-    border-radius: 13px;
+    min-height: 42px;
+    padding: 0.68rem 0.8rem;
+    border-radius: 11px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.48rem;
-    font: inherit;
-    font-size: 0.78rem;
-    font-weight: 750;
+    gap: 0.42rem;
+    font-family: inherit;
+    font-size: 0.76rem;
+    font-weight: 700;
     line-height: 1;
     cursor: pointer;
-    transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
 
 .profile-report-btn-cancel {
     color: #cbd5e1;
-    background: rgba(255, 255, 255, 0.045);
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .profile-report-btn-submit {
-    color: #ffffff;
-    background: linear-gradient(135deg, #f43f5e, #be123c);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 10px 24px rgba(190, 18, 60, 0.25);
+    color: #fff;
+    background: #e11d48;
+    border: 1px solid #f43f5e;
+    box-shadow: none;
 }
 
-.profile-report-btn-cancel:hover,
-.profile-report-btn-submit:hover:not(:disabled) { transform: translateY(-1px); }
-.profile-report-btn-cancel:hover { color: #f8fafc; background: rgba(255, 255, 255, 0.075); }
-.profile-report-btn-submit:hover:not(:disabled) { box-shadow: 0 14px 30px rgba(190, 18, 60, 0.34); }
-.profile-report-btn-submit:disabled { opacity: 0.62; cursor: wait; }
+.profile-report-btn-submit:hover:not(:disabled) {
+    box-shadow: none;
+    filter: brightness(1.08);
+}
+
+.profile-report-btn-submit:disabled {
+    opacity: 0.62;
+    cursor: wait;
+}
 
 body[data-theme="light"] .profile-report-btn-cancel {
     color: #475569;
@@ -8929,39 +8762,42 @@ body[data-theme="light"] .profile-report-btn-cancel {
     border-color: rgba(15, 23, 42, 0.11);
 }
 
-@media (max-width: 600px) {
-    .profile-report-modal { place-items: end center !important; padding: 0 !important; }
+@media (max-width: 520px) {
+    .profile-report-modal {
+        place-items: end center !important;
+        padding: 0 !important;
+    }
+
     .profile-report-card {
         width: 100% !important;
-        max-height: calc(100dvh - max(0.75rem, env(safe-area-inset-top))) !important;
+        max-height: calc(100dvh - max(0.6rem, env(safe-area-inset-top))) !important;
         padding: 1.15rem 1rem calc(1rem + env(safe-area-inset-bottom)) !important;
-        border-radius: 24px 24px 0 0 !important;
+        border-radius: 20px 20px 0 0 !important;
         border-right: 0 !important;
         border-bottom: 0 !important;
         border-left: 0 !important;
-        transform: translateY(28px);
     }
-    .profile-report-header { gap: 0.72rem; padding-right: 2.5rem; }
-    .profile-report-icon-badge { width: 2.65rem; height: 2.65rem; border-radius: 13px; }
-    .profile-report-header p { font-size: 0.78rem; }
-    .profile-report-options { grid-template-columns: 1fr; }
-    .profile-report-option .option-content { min-height: 64px; }
-    .profile-report-private-pill { font-size: 0; width: 2rem; height: 2rem; justify-content: center; padding: 0; }
-    .profile-report-private-pill i { font-size: 0.68rem; }
 }
 
-@media (max-width: 370px) {
-    .profile-report-actions { grid-template-columns: 1fr; }
-    .profile-report-btn-submit { grid-row: 1; }
-    .profile-report-btn-cancel { grid-row: 2; }
+@media (max-width: 350px) {
+    .profile-report-options,
+    .profile-report-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-report-btn-submit {
+        grid-row: 1;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .profile-report-card,
     .profile-report-backdrop,
-    .profile-report-option .option-content,
+    .profile-report-option > span,
     .profile-report-btn-cancel,
-    .profile-report-btn-submit { transition: none !important; }
+    .profile-report-btn-submit {
+        transition: none !important;
+    }
 }
 
 /* Responsive Overlays */

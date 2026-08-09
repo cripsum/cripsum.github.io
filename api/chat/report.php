@@ -37,7 +37,7 @@ $ok = $stmt->execute();
 $stmt->close();
 
 if ($ok) {
-    notifyDiscordSupportReport('chat', [
+    $discordSent = notifyDiscordSupportReport('chat', [
         'target_id' => $messageId,
         'target_name' => "Messaggio Chat #{$messageId}",
         'target_author' => $row['username'] ?? "ID #{$row['user_id']}",
@@ -45,8 +45,14 @@ if ($ok) {
         'target_url' => "https://cripsum.com/it/chat?message=" . $messageId,
         'reason' => $reason,
         'reporter_id' => $userId,
-        'reporter_username' => $user['username'] ?? null
+        'reporter_username' => $user['username'] ?? null,
+        'reporter_role' => $user['ruolo'] ?? null,
+        'reporter_discord_id' => $user['discord_id'] ?? null
     ]);
+
+    if (!$discordSent) {
+        chat_json(['ok' => false, 'error' => 'Segnalazione salvata, ma il supporto Discord non è raggiungibile.'], 502);
+    }
 }
 
 chat_json(['ok' => $ok, 'message' => 'Segnalazione inviata.']);

@@ -170,7 +170,8 @@ function notifyDiscordCandidatura(array $data): bool
 }
 
 /**
- * Notifica su Discord nel canale #website-support per le segnalazioni dal sito (Channel ID: 1521100942668206110)
+ * Invia le segnalazioni usando lo stesso relay dei ticket di supporto.
+ * L'endpoint /v1/tickets pubblica nel canale Discord #website-support.
  */
 function notifyDiscordSupportReport(string $reportType, array $data): bool
 {
@@ -182,151 +183,121 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
             : $value;
     };
 
+    $discordSafe = static function (string $value): string {
+        return str_replace(
+            ['@', "```"],
+            ['@' . "\u{200B}", "` ` `"],
+            $value
+        );
+    };
+
     $labels = [
         'profile' => 'Profilo utente',
         'rimasto' => 'Top Rimasti',
         'shitpost' => 'Shitpost',
         'chat' => 'Messaggio chat',
     ];
-    $typeLabel = $labels[$reportType] ?? ucfirst($limit($reportType, 40, 'Segnalazione'));
 
+    $typeLabel = $labels[$reportType] ?? ucfirst($limit($reportType, 40, 'Segnalazione'));
     $reporterUserId = (int)($data['reporter_id'] ?? ($_SESSION['user_id'] ?? 0));
     $reporterUsername = $limit($data['reporter_username'] ?? ($_SESSION['username'] ?? ''), 80, 'Utente sconosciuto');
+    $reporterRole = $limit($data['reporter_role'] ?? ($_SESSION['ruolo'] ?? ''), 40, 'Utente');
+    $reporterDiscordId = $limit($data['reporter_discord_id'] ?? ($_SESSION['discord_id'] ?? ''), 30, 'Non collegato');
+
     $targetId = (int)($data['target_id'] ?? 0);
-    $targetName = $limit($data['target_name'] ?? '', 220);
-    $targetAuthor = $limit($data['target_author'] ?? '', 80, '');
+    $targetName = $limit($data['target_name'] ?? '', 180);
+    $targetAuthor = $limit($data['target_author'] ?? '', 80, 'N/D');
     $targetAuthorId = (int)($data['target_author_id'] ?? 0);
-    $reason = $limit($data['reason'] ?? '', 900, 'Non specificato');
-    $detail = $limit($data['detail'] ?? '', 900, 'Nessun dettaglio aggiuntivo');
-    $contentSnippet = $limit($data['content_snippet'] ?? '', 900, 'Nessun testo disponibile');
+    $reason = $limit($data['reason'] ?? '', 500, 'Non specificato');
+    $detail = $limit($data['detail'] ?? '', 500, 'Nessun dettaglio aggiuntivo');
+    $contentSnippet = $limit($data['content_snippet'] ?? '', 500, 'Nessun testo disponibile');
     $targetUrl = filter_var((string)($data['target_url'] ?? ''), FILTER_VALIDATE_URL) ?: '';
     $mediaUrl = filter_var((string)($data['media_url'] ?? ''), FILTER_VALIDATE_URL) ?: '';
     $ip = $limit($_SERVER['REMOTE_ADDR'] ?? '', 64);
-    $createdAt = date('c');
 
-    $reporterValue = "@{$reporterUsername}" . ($reporterUserId > 0 ? " · ID sito `{$reporterUserId}`" : '');
-    $targetValue = $targetName . ($targetId > 0 ? "\nID contenuto/utente: `{$targetId}`" : '');
-    $authorValue = $targetAuthor !== ''
-        ? "@{$targetAuthor}" . ($targetAuthorId > 0 ? " · ID sito `{$targetAuthorId}`" : '')
-        : 'N/D';
+    $reportCode = 'RP-' . strtoupper(substr(hash(
+        'sha256',
+        $reportType . '|' . microtime(true) . '|' . mt_rand()
+    ), 0, 8));
 
-    $targetFieldLabel = $reportType === 'profile'
-        ? 'Profilo segnalato'
-        : ($reportType === 'chat' ? 'Messaggio segnalato' : 'Post segnalato');
-    $authorFieldLabel = $reportType === 'profile'
-        ? 'Username del profilo'
-        : ($reportType === 'chat' ? 'Autore del messaggio' : 'Autore del post');
-
-    $embedFields = [
-        ['name' => 'Tipo', 'value' => $typeLabel, 'inline' => true],
-        ['name' => 'Segnalato da', 'value' => $limit($reporterValue, 1024), 'inline' => true],
-        ['name' => $targetFieldLabel, 'value' => $limit($targetValue, 1024), 'inline' => false],
-        ['name' => $authorFieldLabel, 'value' => $limit($authorValue, 1024), 'inline' => true],
-        ['name' => 'Motivo', 'value' => $limit($reason, 1024), 'inline' => false],
+    $lines = [
+        "**Tipo:** {$typeLabel}",
+        "**Segnalato da:** `@{$reporterUsername}` · ID sito `" . ($reporterUserId ?: 'N/D') . "` · Ruolo `{$reporterRole}`",
+        "**Discord del segnalante:** `{$reporterDiscordId}`",
+        "**" . ($reportType === 'profile' ? 'Profilo segnalato' : ($reportType === 'chat' ? 'Messaggio segnalato' : 'Post segnalato')) . ":** {$targetName}",
+        "**ID segnalato:** `" . ($targetId ?: 'N/D') . "`",
+        "**" . ($reportType === 'profile' ? 'Username profilo' : 'Autore') . ":** `@{$targetAuthor}`" . ($targetAuthorId > 0 ? " · ID sito `{$targetAuthorId}`" : ''),
+        "**Motivo:** {$reason}",
+        "**Dettagli inseriti:** {$detail}",
     ];
 
     if ($reportType !== 'profile') {
-        $embedFields[] = ['name' => 'Contenuto del post', 'value' => $limit($contentSnippet, 1024), 'inline' => false];
+        $lines[] = "**Contenuto:** {$contentSnippet}";
     }
-    $embedFields[] = ['name' => 'Dettagli inseriti', 'value' => $limit($detail, 1024), 'inline' => false];
     if ($targetUrl !== '') {
-        $embedFields[] = ['name' => 'Link diretto', 'value' => "[Apri su Cripsum]({$targetUrl})", 'inline' => false];
+        $lines[] = "**Link diretto:** {$targetUrl}";
     }
 
-    $embed = [
-        'title' => "Nuova segnalazione · {$typeLabel}",
-        'description' => 'Tutti i dati raccolti dal modulo di segnalazione del sito.',
-        'color' => 15158332,
-        'fields' => $embedFields,
-        'footer' => ['text' => "Cripsum Website Support · IP {$ip}"],
-        'timestamp' => $createdAt,
+    $message = $discordSafe(implode("\n", $lines));
+    $message = $limit($message, 1900, 'Dati segnalazione non disponibili.');
+
+    $payload = [
+        // Campi nativi già usati da it/en/supporto.php.
+        'ticket_id' => $reportCode,
+        'username' => $reporterUsername,
+        'user_id' => $reporterUserId ?: 'N/A',
+        'role' => $reporterRole,
+        'contact' => 'Account Cripsum',
+        'discord_id' => $reporterDiscordId === 'Non collegato' ? '' : $reporterDiscordId,
+        'title' => $limit("Segnalazione {$typeLabel}: {$targetName}", 180),
+        'topic' => "Segnalazione · {$typeLabel}",
+        'message' => $message,
+        'attachment_url' => $mediaUrl !== '' ? $mediaUrl : null,
+        'ip' => $ip,
+
+        // Contesto strutturato aggiuntivo, utile al bot senza perdere dati.
+        'report_type' => $reportType,
+        'target_id' => $targetId ?: null,
+        'target_name' => $targetName,
+        'target_author' => $targetAuthor,
+        'target_author_id' => $targetAuthorId ?: null,
+        'reason' => $reason,
+        'detail' => $detail,
+        'content_snippet' => $contentSnippet,
+        'target_url' => $targetUrl !== '' ? $targetUrl : null,
     ];
-    if ($targetUrl !== '') $embed['url'] = $targetUrl;
-    if ($mediaUrl !== '' && $reportType !== 'profile') $embed['image'] = ['url' => $mediaUrl];
 
-    $discordPayload = [
-        'username' => 'Cripsum Website Support',
-        'allowed_mentions' => ['parse' => []],
-        'embeds' => [$embed],
-    ];
+    $endpointBase = defined('CRIPSUM_BOT_ENDPOINT')
+        ? rtrim((string)CRIPSUM_BOT_ENDPOINT, '/')
+        : 'https://api.cripsum.com';
+    $ch = curl_init($endpointBase . '/v1/tickets');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode(
+            $payload,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE
+        ),
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_CONNECTTIMEOUT => 3,
+        CURLOPT_TIMEOUT => 8,
+        CURLOPT_SSL_VERIFYPEER => true,
+    ]);
 
-    $webhookUrl = defined('CRIPSUM_DISCORD_SUPPORT_WEBHOOK')
-        ? trim((string)CRIPSUM_DISCORD_SUPPORT_WEBHOOK)
-        : trim((string)(getenv('DISCORD_SUPPORT_WEBHOOK') ?: ''));
+    $response = curl_exec($ch);
+    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
 
-    // A Discord webhook is tied to exactly one channel, so this cannot accidentally
-    // land in #site-logs. The webhook must belong to #website-support.
-    if ($webhookUrl !== '') {
-        $ch = curl_init($webhookUrl);
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_POSTFIELDS => json_encode($discordPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE),
-            CURLOPT_TIMEOUT => 8,
-            CURLOPT_CONNECTTIMEOUT => 4,
-            CURLOPT_SSL_VERIFYPEER => true,
-        ]);
-        $response = curl_exec($ch);
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
+    $decoded = is_string($response) ? json_decode($response, true) : null;
+    $sent = $status >= 200
+        && $status < 300
+        && (!is_array($decoded) || !array_key_exists('success', $decoded) || !empty($decoded['success']));
 
-        if ($status >= 200 && $status < 300) return true;
-        error_log('[Discord Website Support] Webhook failed (' . $status . '): ' . ($curlError ?: $limit($response, 300, 'empty response')));
-        return false;
+    if (!$sent) {
+        $responseText = is_string($response) ? $limit($response, 300, 'empty response') : 'empty response';
+        error_log('[Discord Website Support] Ticket relay failed (' . $status . '): ' . ($curlError ?: $responseText));
     }
 
-    // Optional dedicated bot relay. It must be a Website Support route; /v1/logs
-    // is deliberately not used because it always posts in #site-logs.
-    $supportEndpoint = defined('CRIPSUM_BOT_SUPPORT_ENDPOINT')
-        ? trim((string)CRIPSUM_BOT_SUPPORT_ENDPOINT)
-        : trim((string)(getenv('CRIPSUM_BOT_SUPPORT_ENDPOINT') ?: ''));
-    if ($supportEndpoint !== '') {
-        $relayPayload = [
-            'channel_id' => defined('CRIPSUM_DISCORD_SUPPORT_CHANNEL_ID') ? CRIPSUM_DISCORD_SUPPORT_CHANNEL_ID : '1521100942668206110',
-            'channel' => 'website-support',
-            'report_type' => $reportType,
-            'reporter_id' => $reporterUserId ?: null,
-            'reporter_username' => $reporterUsername,
-            'target_id' => $targetId ?: null,
-            'target_name' => $targetName,
-            'target_author' => $targetAuthor ?: null,
-            'target_author_id' => $targetAuthorId ?: null,
-            'reason' => $reason,
-            'detail' => $detail,
-            'content_snippet' => $contentSnippet,
-            'target_url' => $targetUrl ?: null,
-            'media_url' => $mediaUrl ?: null,
-            'ip' => $ip,
-            'created_at' => $createdAt,
-            'discord_payload' => $discordPayload,
-        ];
-
-        $ch = curl_init($supportEndpoint);
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'X-Bot-Api-Key: ' . (defined('CRIPSUM_BOT_API_KEY') ? CRIPSUM_BOT_API_KEY : ''),
-            ],
-            CURLOPT_POSTFIELDS => json_encode($relayPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE),
-            CURLOPT_TIMEOUT => 8,
-            CURLOPT_CONNECTTIMEOUT => 4,
-            CURLOPT_SSL_VERIFYPEER => true,
-        ]);
-        $response = curl_exec($ch);
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($status >= 200 && $status < 300) return true;
-        error_log('[Discord Website Support] Relay failed (' . $status . '): ' . ($curlError ?: $limit($response, 300, 'empty response')));
-        return false;
-    }
-
-    error_log('[Discord Website Support] Missing DISCORD_SUPPORT_WEBHOOK or CRIPSUM_BOT_SUPPORT_ENDPOINT configuration.');
-    return false;
+    return $sent;
 }
-

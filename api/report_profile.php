@@ -29,7 +29,7 @@ if (!is_array($input)) {
 $reported_id = (int)($input['reported_user_id'] ?? 0);
 $reason = trim((string)($input['reason'] ?? ''));
 $detail = mb_substr(trim((string)($input['detail'] ?? '')), 0, 500, 'UTF-8');
-$allowedReasons = ['spam', 'inappropriate', 'harassment', 'impersonation', 'other'];
+$allowedReasons = ['spam', 'inappropriate', 'harassment', 'other'];
 
 if ($reported_id <= 0) {
     http_response_code(400);
@@ -95,26 +95,28 @@ if ($stmt) {
         }
 
         $reporterUsername = $_SESSION['username'] ?? '';
-        if (empty($reporterUsername)) {
-            $rStmt = $mysqli->prepare("SELECT username FROM utenti WHERE id = ? LIMIT 1");
-            if ($rStmt) {
-                $rStmt->bind_param('i', $reporter_id);
-                $rStmt->execute();
-                $reporterUsername = $rStmt->get_result()->fetch_assoc()['username'] ?? "ID #{$reporter_id}";
-                $rStmt->close();
-            }
+        $reporterRole = $_SESSION['ruolo'] ?? '';
+        $reporterDiscordId = $_SESSION['discord_id'] ?? '';
+        $rStmt = $mysqli->prepare("SELECT username, ruolo, discord_id FROM utenti WHERE id = ? LIMIT 1");
+        if ($rStmt) {
+            $rStmt->bind_param('i', $reporter_id);
+            $rStmt->execute();
+            $reporterRow = $rStmt->get_result()->fetch_assoc() ?: [];
+            $reporterUsername = $reporterRow['username'] ?? ($reporterUsername ?: "ID #{$reporter_id}");
+            $reporterRole = $reporterRow['ruolo'] ?? $reporterRole;
+            $reporterDiscordId = $reporterRow['discord_id'] ?? $reporterDiscordId;
+            $rStmt->close();
         }
 
         $reasonMap = [
             'spam' => 'Spam / Pubblicità',
             'inappropriate' => 'Inappropriato / NSFW',
             'harassment' => 'Molestie / Bullismo',
-            'impersonation' => 'Furto d’identità / Impersonificazione',
             'other' => 'Altro motivo'
         ];
         $readableReason = $reasonMap[$reason] ?? $reason;
 
-        notifyDiscordSupportReport('profile', [
+        $discordSent = notifyDiscordSupportReport('profile', [
             'target_id' => $reported_id,
             'target_name' => $reportedDisplayName !== ''
                 ? "{$reportedDisplayName} (@{$reportedUsername})"
@@ -125,8 +127,17 @@ if ($stmt) {
             'reason' => $readableReason,
             'detail' => $detail,
             'reporter_id' => $reporter_id,
-            'reporter_username' => $reporterUsername
+            'reporter_username' => $reporterUsername,
+            'reporter_role' => $reporterRole,
+            'reporter_discord_id' => $reporterDiscordId
         ]);
+
+        if (!$discordSent) {
+            http_response_code(502);
+            echo json_encode(['ok' => false, 'error' => 'Segnalazione salvata, ma il supporto Discord non è raggiungibile.']);
+            $stmt->close();
+            exit();
+        }
 
         echo json_encode(['ok' => true, 'message' => 'Segnalazione inviata con successo.']);
     } else {
