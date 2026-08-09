@@ -28,12 +28,50 @@ try {
     $stmt->execute();
     $stmt->close();
 
+    $postTitle = '';
+    $postDesc = '';
+    $authorUsername = '';
+
+    if ($type === 'rimasto') {
+        $pStmt = $mysqli->prepare("
+            SELECT t.titolo, t.descrizione, u.username 
+            FROM toprimasti t 
+            LEFT JOIN utenti u ON t.id_utente = u.id 
+            WHERE t.id = ? LIMIT 1
+        ");
+    } else {
+        $pStmt = $mysqli->prepare("
+            SELECT s.titolo, s.descrizione, u.username 
+            FROM shitposts s 
+            LEFT JOIN utenti u ON s.id_utente = u.id 
+            WHERE s.id = ? LIMIT 1
+        ");
+    }
+
+    if ($pStmt) {
+        $pStmt->bind_param('i', $id);
+        $pStmt->execute();
+        $res = $pStmt->get_result();
+        if ($postRow = $res->fetch_assoc()) {
+            $postTitle = $postRow['titolo'] ?? '';
+            $postDesc = $postRow['descrizione'] ?? '';
+            $authorUsername = $postRow['username'] ?? '';
+        }
+        $pStmt->close();
+    }
+
     $postUrl = "https://cripsum.com/it/" . ($type === 'rimasto' ? 'rimasti' : 'shitpost') . "?post=" . $id;
+    $targetName = ucfirst($type) . " #{$id}" . ($postTitle ? " - \"{$postTitle}\"" : "");
+
     notifyDiscordSupportReport($type, [
         'target_id' => $id,
-        'target_name' => ucfirst($type) . " #{$id}",
+        'target_name' => $targetName,
+        'target_author' => $authorUsername,
+        'content_snippet' => $postDesc ?: $postTitle,
         'target_url' => $postUrl,
-        'reason' => $reason
+        'reason' => $reason,
+        'reporter_id' => $user['id'],
+        'reporter_username' => $user['username'] ?? null
     ]);
 
     cv2_ok(['message' => 'Segnalazione inviata.']);

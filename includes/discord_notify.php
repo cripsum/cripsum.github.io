@@ -178,8 +178,8 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
     $webhookUrl = defined('CRIPSUM_DISCORD_SUPPORT_WEBHOOK') ? CRIPSUM_DISCORD_SUPPORT_WEBHOOK : getenv('DISCORD_SUPPORT_WEBHOOK');
 
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-    $reporterUserId = $_SESSION['user_id'] ?? null;
-    $reporterUsername = $_SESSION['username'] ?? 'Utente';
+    $reporterUserId = $_SESSION['user_id'] ?? ($data['reporter_id'] ?? null);
+    $reporterUsername = $_SESSION['username'] ?? ($data['reporter_username'] ?? 'Utente Sconosciuto');
 
     $typeLabel = ucfirst($reportType);
     if ($reportType === 'profile') $typeLabel = 'Profilo Utente';
@@ -187,35 +187,54 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
     elseif ($reportType === 'shitpost') $typeLabel = 'Shitpost';
     elseif ($reportType === 'chat') $typeLabel = 'Messaggio Chat';
 
+    $targetName = $data['target_name'] ?? 'N/D';
+    $targetAuthor = $data['target_author'] ?? null;
+    $reason = $data['reason'] ?? 'Non specificato';
+    $detail = $data['detail'] ?? null;
+    $contentSnippet = $data['content_snippet'] ?? null;
+    $targetUrl = $data['target_url'] ?? 'N/D';
+
+    $fields = [
+        'Tipo Segnalazione' => $typeLabel,
+        'Segnalato da' => "@{$reporterUsername} (ID: " . ($reporterUserId ?? 'N/D') . ")",
+        'Oggetto / Utente Segnalato' => $targetName . ($targetAuthor ? " (Autore: @{$targetAuthor})" : ""),
+        'Motivo' => $reason
+    ];
+
+    if (!empty($contentSnippet)) {
+        $fields['Contenuto Segnalato'] = mb_strlen($contentSnippet) > 300 ? mb_substr($contentSnippet, 0, 297) . '...' : $contentSnippet;
+    }
+    if (!empty($detail)) {
+        $fields['Dettagli Aggiuntivi'] = $detail;
+    }
+    if (!empty($targetUrl) && $targetUrl !== 'N/D') {
+        $fields['Link'] = $targetUrl;
+    }
+
     $payload = [
         'channel_id' => '1521100942668206110',
         'channel' => 'website-support',
         'type' => 'support_report',
         'report_type' => $reportType,
         'title' => "🚨 Nuova Segnalazione ({$typeLabel})",
-        'description' => "Segnalazione inviata da @" . $reporterUsername . " (ID: " . ($reporterUserId ?? 'N/D') . ")",
+        'description' => "Segnalazione inviata nel canale #website-support",
         'reporter_id' => $reporterUserId,
         'reporter_username' => $reporterUsername,
         'target_id' => $data['target_id'] ?? null,
-        'target_name' => $data['target_name'] ?? null,
-        'target_url' => $data['target_url'] ?? null,
-        'reason' => $data['reason'] ?? '',
-        'detail' => $data['detail'] ?? '',
-        'fields' => [
-            'Tipo' => $typeLabel,
-            'Segnalato da' => "@{$reporterUsername} (ID: {$reporterUserId})",
-            'Motivo' => $data['reason'] ?: 'Non specificato',
-            'Dettagli' => $data['detail'] ?: 'Nessun dettaglio',
-            'Oggetto' => $data['target_name'] ?: 'N/D',
-            'URL' => $data['target_url'] ?: 'N/D'
-        ],
+        'target_name' => $targetName,
+        'target_author' => $targetAuthor,
+        'target_url' => $targetUrl,
+        'reason' => $reason,
+        'detail' => $detail,
+        'content_snippet' => $contentSnippet,
+        'fields' => $fields,
         'ip' => $ip,
         'created_at' => date('Y-m-d H:i:s'),
     ];
 
     $sent = false;
 
-    // Call bot endpoint /v1/logs for channel 1521100942668206110 (#website-support)
+    // Call bot endpoint for channel 1521100942668206110 (#website-support)
     $ch = curl_init($endpoint);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
@@ -240,27 +259,31 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
     // Direct Discord Webhook if configured
     if (!empty($webhookUrl)) {
         $embedFields = [
-            ['name' => 'Tipo Segnalazione', 'value' => $typeLabel, 'inline' => true],
-            ['name' => 'Segnalato da', 'value' => "@{$reporterUsername} (ID: {$reporterUserId})", 'inline' => true],
-            ['name' => 'Motivo', 'value' => $data['reason'] ?: 'Non specificato', 'inline' => false],
+            ['name' => '📌 Tipo', 'value' => $typeLabel, 'inline' => true],
+            ['name' => '👤 Segnalato da', 'value' => "@{$reporterUsername} (ID: " . ($reporterUserId ?? 'N/D') . ")", 'inline' => true],
+            ['name' => '🎯 Oggetto / Utente', 'value' => $targetName . ($targetAuthor ? " (@{$targetAuthor})" : ""), 'inline' => true],
+            ['name' => '📝 Motivo', 'value' => $reason, 'inline' => false],
         ];
 
-        if (!empty($data['detail'])) {
-            $embedFields[] = ['name' => 'Dettagli', 'value' => $data['detail'], 'inline' => false];
+        if (!empty($contentSnippet)) {
+            $snippetText = mb_strlen($contentSnippet) > 450 ? mb_substr($contentSnippet, 0, 447) . '...' : $contentSnippet;
+            $embedFields[] = ['name' => '💬 Contenuto', 'value' => "```\n" . str_replace('```', '` ` `', $snippetText) . "\n```", 'inline' => false];
         }
-        if (!empty($data['target_name'])) {
-            $embedFields[] = ['name' => 'Contenuto / Oggetto Segnalato', 'value' => $data['target_name'], 'inline' => true];
+
+        if (!empty($detail)) {
+            $embedFields[] = ['name' => '🔍 Dettagli Aggiuntivi', 'value' => $detail, 'inline' => false];
         }
-        if (!empty($data['target_url'])) {
-            $embedFields[] = ['name' => 'Link', 'value' => "[Apri Contenuto]({$data['target_url']})", 'inline' => true];
+
+        if (!empty($targetUrl) && $targetUrl !== 'N/D') {
+            $embedFields[] = ['name' => '🔗 Link Diretto', 'value' => "[Apri su Cripsum]({$targetUrl})", 'inline' => false];
         }
 
         $webhookPayload = [
-            'content' => "🚨 **Nuova Segnalazione nel canale website-support**",
+            'content' => "<@&1521100942668206110> 🚨 **Nuova Segnalazione Website Support**",
             'embeds' => [
                 [
-                    'title' => "Segnalazione: {$typeLabel}",
-                    'color' => 15158332,
+                    'title' => "🚨 Segnalazione: {$typeLabel}",
+                    'color' => 15158332, // Red
                     'fields' => $embedFields,
                     'footer' => ['text' => 'Cripsum Website Support • ' . date('d/m/Y H:i')]
                 ]

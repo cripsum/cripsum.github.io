@@ -1607,10 +1607,20 @@
 
         // Report Modal Event Listeners
         const reportTriggers = document.querySelectorAll('.js-open-report');
-        const closeReportBtn = reportModal?.querySelector('.js-close-report');
+        const closeReportBtns = reportModal?.querySelectorAll('.js-close-report');
         const reportBackdrop = reportModal?.querySelector('.profile-report-backdrop');
         const reportForm = document.getElementById('profileReportForm');
         const reportDetail = document.getElementById('profileReportDetail');
+        const charCountEl = document.getElementById('profileReportCharCount');
+        const submitBtn = document.getElementById('profileReportSubmitBtn');
+        const targetBadge = document.getElementById('profileReportTargetBadge');
+        const targetNameEl = document.getElementById('profileReportTargetName');
+
+        if (reportDetail && charCountEl) {
+            reportDetail.addEventListener('input', () => {
+                charCountEl.textContent = String(reportDetail.value.length);
+            });
+        }
 
         reportTriggers.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1621,12 +1631,34 @@
                     window.location.href = isIt ? '/it/accedi' : '/en/accedi';
                     return;
                 }
+
+                // Extract reported user ID & username from button datasets or page scope
+                const targetUserId = btn.dataset.userId || btn.dataset.reportedUserId || document.body.dataset.viewedUserId || window.CRIPSUM_VIEWED_USER_ID || '';
+                const targetUsername = btn.dataset.username || btn.dataset.reportedUsername || document.body.dataset.viewedUsername || window.CRIPSUM_VIEWED_USERNAME || '';
+
+                if (reportForm) {
+                    const reportedInput = reportForm.querySelector('input[name="reported_user_id"]');
+                    if (reportedInput && targetUserId) {
+                        reportedInput.value = targetUserId;
+                    }
+                }
+
+                if (targetBadge && targetNameEl) {
+                    if (targetUsername) {
+                        targetNameEl.textContent = '@' + targetUsername;
+                        targetBadge.style.display = 'flex';
+                    } else if (targetUserId) {
+                        targetNameEl.textContent = 'ID #' + targetUserId;
+                        targetBadge.style.display = 'flex';
+                    }
+                }
+
                 openOverlay(reportModal, btn);
             });
         });
 
-        if (closeReportBtn) {
-            closeReportBtn.addEventListener('click', () => closeOverlay(reportModal));
+        if (closeReportBtns) {
+            closeReportBtns.forEach(btn => btn.addEventListener('click', () => closeOverlay(reportModal)));
         }
         if (reportBackdrop) {
             reportBackdrop.addEventListener('click', () => closeOverlay(reportModal));
@@ -1644,8 +1676,16 @@
                 const isIt = document.documentElement.lang === 'it';
 
                 if (!reportedUserId) {
-                    showToast(isIt ? 'ID utente non trovato.' : 'User ID not found.');
+                    showToast(isIt ? 'ID utente da segnalare non trovato.' : 'User ID to report not found.');
                     return;
+                }
+
+                // Show loading state
+                let origBtnText = '';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    origBtnText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${isIt ? 'Invio in corso...' : 'Submitting...'}</span>`;
                 }
 
                 fetch('/api/report_profile.php', {
@@ -1669,7 +1709,10 @@
                 .then(data => {
                     if (!data) return;
                     if (data.ok) {
-                        showToast(isIt ? 'Segnalazione inviata con successo ai moderatori.' : 'Report submitted successfully to moderators.');
+                        showToast(isIt ? 'Segnalazione inviata con successo.' : 'Report submitted successfully.');
+                        reportForm.reset();
+                        if (charCountEl) charCountEl.textContent = '0';
+                        closeOverlay(reportModal);
                     } else if (data.redirect) {
                         window.location.href = data.redirect;
                     } else {
@@ -1678,11 +1721,13 @@
                 })
                 .catch(err => {
                     showToast(isIt ? 'Errore di connessione.' : 'Connection error.');
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = origBtnText;
+                    }
                 });
-                
-                // Reset form
-                reportForm.reset();
-                closeOverlay(reportModal);
             });
         }
 

@@ -12,7 +12,12 @@ if ($reason === '') $reason = 'Segnalazione utente';
 
 if ($messageId <= 0) chat_json(['ok' => false, 'error' => 'Messaggio non valido.'], 422);
 
-$stmt = $mysqli->prepare('SELECT user_id, deleted_at FROM messages WHERE id = ? LIMIT 1');
+$stmt = $mysqli->prepare('
+    SELECT m.user_id, m.message, m.deleted_at, u.username 
+    FROM messages m 
+    LEFT JOIN utenti u ON m.user_id = u.id 
+    WHERE m.id = ? LIMIT 1
+');
 if (!$stmt) chat_json(['ok' => false, 'error' => 'Errore server.'], 500);
 $stmt->bind_param('i', $messageId);
 $stmt->execute();
@@ -35,8 +40,12 @@ if ($ok) {
     notifyDiscordSupportReport('chat', [
         'target_id' => $messageId,
         'target_name' => "Messaggio Chat #{$messageId}",
+        'target_author' => $row['username'] ?? "ID #{$row['user_id']}",
+        'content_snippet' => $row['message'] ?? '',
         'target_url' => "https://cripsum.com/it/chat?message=" . $messageId,
-        'reason' => $reason
+        'reason' => $reason,
+        'reporter_id' => $userId,
+        'reporter_username' => $user['username'] ?? null
     ]);
 }
 

@@ -1348,7 +1348,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         <i class="fa-solid fa-share-nodes"></i>
                                         <span>Share Profile</span>
                                     </button>
-                                    <button class="profile-dropdown-item js-open-report" type="button">
+                                    <button class="profile-dropdown-item js-open-report" type="button" data-user-id="<?php echo (int)$profile['id']; ?>" data-username="<?php echo profile_h($profile['username']); ?>">
                                         <i class="fa-solid fa-flag"></i>
                                         <span>Report Profile</span>
                                     </button>

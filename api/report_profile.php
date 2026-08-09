@@ -90,12 +90,34 @@ if ($stmt) {
             $repStmt->close();
         }
 
+        $reporterUsername = $_SESSION['username'] ?? '';
+        if (empty($reporterUsername)) {
+            $rStmt = $mysqli->prepare("SELECT username FROM utenti WHERE id = ? LIMIT 1");
+            if ($rStmt) {
+                $rStmt->bind_param('i', $reporter_id);
+                $rStmt->execute();
+                $reporterUsername = $rStmt->get_result()->fetch_assoc()['username'] ?? "ID #{$reporter_id}";
+                $rStmt->close();
+            }
+        }
+
+        $reasonMap = [
+            'spam' => 'Spam / Pubblicità',
+            'inappropriate' => 'Inappropriato / NSFW',
+            'harassment' => 'Molestie / Bullismo',
+            'other' => 'Altro motivo'
+        ];
+        $readableReason = $reasonMap[$reason] ?? $reason;
+
         notifyDiscordSupportReport('profile', [
             'target_id' => $reported_id,
-            'target_name' => "@" . $reportedUsername,
+            'target_name' => "Profilo @" . $reportedUsername . " (ID: {$reported_id})",
+            'target_author' => $reportedUsername,
             'target_url' => "https://cripsum.com/u/" . rawurlencode($reportedUsername),
-            'reason' => $reason,
-            'detail' => $detail
+            'reason' => $readableReason,
+            'detail' => $detail,
+            'reporter_id' => $reporter_id,
+            'reporter_username' => $reporterUsername
         ]);
 
         echo json_encode(['ok' => true, 'message' => 'Segnalazione inviata con successo.']);

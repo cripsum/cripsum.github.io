@@ -370,7 +370,7 @@ $statCards = [
                             <i class="fa-solid fa-share-nodes"></i>
                             <span>Condividi Profilo</span>
                         </button>
-                        <button class="profile-dropdown-item js-open-report" type="button">
+                        <button class="profile-dropdown-item js-open-report" type="button" data-user-id="<?php echo (int)$user_cercato_id; ?>" data-username="<?php echo e($user['username']); ?>">
                             <i class="fa-solid fa-flag"></i>
                             <span>Segnala Profilo</span>
                         </button>

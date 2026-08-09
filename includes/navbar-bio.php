@@ -689,49 +689,101 @@ if ($isPublicProfilePage):
     </div>
 
     <!-- 3. Report Profile Modal -->
-    <div id="profileReportModal" class="profile-report-modal" style="position: fixed; inset: 0; z-index: 20000; display: grid; place-items: center; visibility: hidden; pointer-events: none;" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Segnala profilo' : 'Report profile'; ?>">
+    <div id="profileReportModal" class="profile-report-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Segnala profilo' : 'Report profile'; ?>">
         <div class="profile-report-backdrop"></div>
         <div class="profile-report-card">
-            <button class="js-close-report" type="button" aria-label="<?php echo ($lang === 'it') ? 'Chiudi' : 'Close'; ?>">&times;</button>
+            <button class="js-close-report profile-report-close" type="button" aria-label="<?php echo ($lang === 'it') ? 'Chiudi' : 'Close'; ?>">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
             <div class="profile-report-header">
-                <i class="fa-solid fa-flag text-danger" style="font-size: 1.8rem; margin-bottom: 0.5rem; display: inline-block;"></i>
+                <div class="profile-report-icon-badge">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
                 <h3><?php echo ($lang === 'it') ? 'Segnala Profilo' : 'Report Profile'; ?></h3>
-                <p><?php echo ($lang === 'it') ? 'Seleziona il motivo per cui desideri segnalare questo profilo.' : 'Select the reason why you want to report this profile.'; ?></p>
+                <p><?php echo ($lang === 'it') ? 'Aiutaci a mantenere la community sicura e rispettosa.' : 'Help us keep the community safe and respectful.'; ?></p>
             </div>
+
             <?php
             $viewed_user_id = 0;
+            $viewed_username = '';
             if (isset($profile['id'])) {
                 $viewed_user_id = (int)$profile['id'];
+                $viewed_username = $profile['username'] ?? '';
             } elseif (isset($user_cercato_id)) {
                 $viewed_user_id = (int)$user_cercato_id;
+                $viewed_username = $user_cercato ?? '';
             }
             ?>
+
+            <div id="profileReportTargetBadge" class="profile-report-user-badge" style="<?php echo ($viewed_username ? '' : 'display: none;'); ?>">
+                <i class="fa-solid fa-user"></i>
+                <span><?php echo ($lang === 'it') ? 'Stai segnalando:' : 'You are reporting:'; ?> <strong id="profileReportTargetName">@<?php echo htmlspecialchars($viewed_username); ?></strong></span>
+            </div>
+
             <form id="profileReportForm" class="profile-report-form">
                 <input type="hidden" name="reported_user_id" value="<?php echo $viewed_user_id; ?>">
+                
                 <div class="profile-report-options">
                     <label class="profile-report-option">
                         <input type="radio" name="report_reason" value="spam" checked>
-                        <span><?php echo ($lang === 'it') ? 'Spam / Pubblicità' : 'Spam / Advertising'; ?></span>
+                        <div class="option-content">
+                            <i class="fa-solid fa-bullhorn option-icon"></i>
+                            <div class="option-text">
+                                <strong><?php echo ($lang === 'it') ? 'Spam / Pubblicità' : 'Spam / Advertising'; ?></strong>
+                                <small><?php echo ($lang === 'it') ? 'Messaggi indesiderati o promoti aggressivi' : 'Unwanted messages or promotional spam'; ?></small>
+                            </div>
+                        </div>
                     </label>
+
                     <label class="profile-report-option">
                         <input type="radio" name="report_reason" value="inappropriate">
-                        <span><?php echo ($lang === 'it') ? 'Inappropriato / NSFW' : 'Inappropriate / NSFW'; ?></span>
+                        <div class="option-content">
+                            <i class="fa-solid fa-ban option-icon"></i>
+                            <div class="option-text">
+                                <strong><?php echo ($lang === 'it') ? 'Inappropriato / NSFW' : 'Inappropriate / NSFW'; ?></strong>
+                                <small><?php echo ($lang === 'it') ? 'Contenuti espliciti o offensivi' : 'Explicit or offensive content'; ?></small>
+                            </div>
+                        </div>
                     </label>
+
                     <label class="profile-report-option">
                         <input type="radio" name="report_reason" value="harassment">
-                        <span><?php echo ($lang === 'it') ? 'Molestie / Bullismo' : 'Harassment / Bullying'; ?></span>
+                        <div class="option-content">
+                            <i class="fa-solid fa-user-shield option-icon"></i>
+                            <div class="option-text">
+                                <strong><?php echo ($lang === 'it') ? 'Molestie / Bullismo' : 'Harassment / Bullying'; ?></strong>
+                                <small><?php echo ($lang === 'it') ? 'Comportamenti tossici, minacce o insulti' : 'Toxic behavior, threats or insult'; ?></small>
+                            </div>
+                        </div>
                     </label>
+
                     <label class="profile-report-option">
                         <input type="radio" name="report_reason" value="other">
-                        <span><?php echo ($lang === 'it') ? 'Altro motivo' : 'Other reason'; ?></span>
+                        <div class="option-content">
+                            <i class="fa-solid fa-circle-info option-icon"></i>
+                            <div class="option-text">
+                                <strong><?php echo ($lang === 'it') ? 'Altro motivo' : 'Other reason'; ?></strong>
+                                <small><?php echo ($lang === 'it') ? 'Qualsiasi altra violazione del regolamento' : 'Any other policy violation'; ?></small>
+                            </div>
+                        </div>
                     </label>
                 </div>
+
                 <div class="profile-report-detail-group">
-                    <textarea id="profileReportDetail" placeholder="<?php echo ($lang === 'it') ? 'Fornisci ulteriori dettagli (opzionale)...' : 'Provide further details (optional)...'; ?>" maxlength="200"></textarea>
+                    <label for="profileReportDetail" class="detail-label"><?php echo ($lang === 'it') ? 'Dettagli Aggiuntivi (opzionale)' : 'Additional Details (optional)'; ?></label>
+                    <textarea id="profileReportDetail" placeholder="<?php echo ($lang === 'it') ? 'Descrivi brevemente il problema...' : 'Briefly describe the issue...'; ?>" maxlength="200"></textarea>
+                    <div class="detail-char-count"><span id="profileReportCharCount">0</span>/200</div>
                 </div>
-                <button type="submit" class="bio-button bio-button--primary" style="width: 100%; margin-top: 0.8rem; border: none; color: #fff;">
-                    <?php echo ($lang === 'it') ? 'Invia Segnalazione' : 'Submit Report'; ?>
-                </button>
+
+                <div class="profile-report-actions">
+                    <button type="button" class="profile-report-btn-cancel js-close-report">
+                        <?php echo ($lang === 'it') ? 'Annulla' : 'Cancel'; ?>
+                    </button>
+                    <button type="submit" id="profileReportSubmitBtn" class="profile-report-btn-submit">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span><?php echo ($lang === 'it') ? 'Invia Segnalazione' : 'Submit Report'; ?></span>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
