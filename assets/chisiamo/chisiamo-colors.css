@@ -84,6 +84,12 @@ body .dropdown-menu button:hover {
 }
 
 .team-member {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 420ms ease, transform 420ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.team-member.is-visible {
     opacity: 1;
     transform: translateY(0);
 }

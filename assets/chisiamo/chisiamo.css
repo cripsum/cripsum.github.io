@@ -205,11 +205,11 @@ body.about-page {
     background: rgba(var(--about-accent-rgb), .13);
 }
 
-/* Original members layout - 2 per row */
+/* Original members layout */
 .team-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
 }
 
 .team-member {
@@ -220,9 +220,8 @@ body.about-page {
         rgba(255, 255, 255, .045);
     border: 1px solid var(--about-border);
     overflow: hidden;
-    opacity: 1;
     transform: translateY(0);
-    transition: transform var(--about-transition), border-color var(--about-transition), background var(--about-transition), box-shadow var(--about-transition);
+    transition: transform var(--about-transition), border-color var(--about-transition), background var(--about-transition), box-shadow var(--about-transition), opacity var(--about-transition);
 }
 
 .team-member:hover {
@@ -338,7 +337,106 @@ body.about-page {
 .team-empty span {
     color: var(--about-muted);
 }
-/* Navbar dropdown fix */
+.chisiamo-section {
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem);
+    text-align: center;
+    background: radial-gradient(120% 120% at 50% 0%, rgba(47, 107, 255, 0.12) 0%, rgba(139, 92, 246, 0.04) 50%, rgba(10, 14, 27, 0.8) 100%), var(--about-card, rgba(10, 14, 27, 0.72));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.chisiamo-title {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: #ffffff;
+}
+
+.chisiamo-subtitle {
+    width: min(760px, 100%);
+    margin: 1rem auto 0;
+    color: rgba(247, 248, 255, 0.72);
+    line-height: 1.6;
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    font-weight: 400;
+}
+
+.team-section {
+    margin-top: 1rem;
+    padding: 1rem;
+}
+
+.join-team-section {
+    margin-top: 1.5rem;
+    padding: clamp(2rem, 4vw, 3.2rem) clamp(1.5rem, 3vw, 2.5rem);
+    text-align: center;
+    background: radial-gradient(120% 120% at 50% 100%, rgba(139, 92, 246, 0.15) 0%, rgba(47, 107, 255, 0.05) 60%, rgba(10, 14, 27, 0.82) 100%), var(--about-card, rgba(10, 14, 27, 0.72));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.join-title {
+    margin: 0;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    color: #ffffff;
+}
+
+.join-description {
+    width: min(680px, 100%);
+    margin: 0.8rem auto 0;
+    color: rgba(247, 248, 255, 0.72);
+    line-height: 1.6;
+    font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+}
+
+.join-email {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3.2rem;
+    margin-top: 1.4rem;
+    padding: 0.8rem 1.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
+    box-shadow: 0 10px 28px rgba(124, 58, 237, 0.35);
+    font-weight: 600;
+    font-size: 0.98rem;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.join-email:hover {
+    transform: translateY(-2px) scale(1.02);
+    color: #ffffff;
+    box-shadow: 0 14px 36px rgba(124, 58, 237, 0.48);
+    background: linear-gradient(135deg, #2563eb 0%, #6d28d9 100%);
+}
+
+.about-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.about-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}/* Navbar dropdown fix */
 body.about-page .dropdown-menu {
     padding: .45rem;
     border: 1px solid rgba(255, 255, 255, .14) !important;
