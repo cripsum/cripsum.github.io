@@ -31,17 +31,18 @@ try {
     $postTitle = '';
     $postDesc = '';
     $authorUsername = '';
+    $authorUserId = 0;
 
     if ($type === 'rimasto') {
         $pStmt = $mysqli->prepare("
-            SELECT t.titolo, t.descrizione, u.username 
+            SELECT t.titolo, t.descrizione, t.id_utente AS author_user_id, u.username
             FROM toprimasti t 
             LEFT JOIN utenti u ON t.id_utente = u.id 
             WHERE t.id = ? LIMIT 1
         ");
     } else {
         $pStmt = $mysqli->prepare("
-            SELECT s.titolo, s.descrizione, u.username 
+            SELECT s.titolo, s.descrizione, s.id_utente AS author_user_id, u.username
             FROM shitposts s 
             LEFT JOIN utenti u ON s.id_utente = u.id 
             WHERE s.id = ? LIMIT 1
@@ -56,6 +57,7 @@ try {
             $postTitle = $postRow['titolo'] ?? '';
             $postDesc = $postRow['descrizione'] ?? '';
             $authorUsername = $postRow['username'] ?? '';
+            $authorUserId = (int)($postRow['author_user_id'] ?? 0);
         }
         $pStmt->close();
     }
@@ -67,8 +69,10 @@ try {
         'target_id' => $id,
         'target_name' => $targetName,
         'target_author' => $authorUsername,
+        'target_author_id' => $authorUserId,
         'content_snippet' => $postDesc ?: $postTitle,
         'target_url' => $postUrl,
+        'media_url' => "https://cripsum.com/api/content/get_media.php?id={$id}&type=" . rawurlencode($type),
         'reason' => $reason,
         'reporter_id' => $user['id'],
         'reporter_username' => $user['username'] ?? null

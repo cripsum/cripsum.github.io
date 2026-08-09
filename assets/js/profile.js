@@ -1668,7 +1668,7 @@
             reportForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const reasonEl = reportForm.querySelector('input[name="report_reason"]:checked');
-                const reason = reasonEl ? reasonEl.value : 'spam';
+                const reason = reasonEl ? reasonEl.value : '';
                 const detail = reportDetail ? reportDetail.value.trim() : '';
                 const reportedUserEl = reportForm.querySelector('input[name="reported_user_id"]');
                 const reportedUserId = reportedUserEl ? parseInt(reportedUserEl.value, 10) : 0;
@@ -1680,6 +1680,11 @@
                     return;
                 }
 
+                if (!reason) {
+                    showToast(isIt ? 'Seleziona il motivo della segnalazione.' : 'Select a reason for the report.');
+                    return;
+                }
+
                 // Show loading state
                 let origBtnText = '';
                 if (submitBtn) {
@@ -1687,6 +1692,7 @@
                     origBtnText = submitBtn.innerHTML;
                     submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${isIt ? 'Invio in corso...' : 'Submitting...'}</span>`;
                 }
+                reportForm.setAttribute('aria-busy', 'true');
 
                 fetch('/api/report_profile.php', {
                     method: 'POST',
@@ -1723,6 +1729,7 @@
                     showToast(isIt ? 'Errore di connessione.' : 'Connection error.');
                 })
                 .finally(() => {
+                    reportForm.removeAttribute('aria-busy');
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = origBtnText;

@@ -28,7 +28,8 @@ if (!is_array($input)) {
 
 $reported_id = (int)($input['reported_user_id'] ?? 0);
 $reason = trim((string)($input['reason'] ?? ''));
-$detail = trim((string)($input['detail'] ?? ''));
+$detail = mb_substr(trim((string)($input['detail'] ?? '')), 0, 500, 'UTF-8');
+$allowedReasons = ['spam', 'inappropriate', 'harassment', 'impersonation', 'other'];
 
 if ($reported_id <= 0) {
     http_response_code(400);
@@ -42,7 +43,7 @@ if ($reported_id === $reporter_id) {
     exit();
 }
 
-if ($reason === '') {
+if (!in_array($reason, $allowedReasons, true)) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => 'Seleziona un motivo per la segnalazione.']);
     exit();
@@ -81,12 +82,15 @@ $stmt = $mysqli->prepare("
 if ($stmt) {
     $stmt->bind_param('iiss', $reported_id, $reporter_id, $reason, $detail);
     if ($stmt->execute()) {
-        $repStmt = $mysqli->prepare("SELECT username FROM utenti WHERE id = ? LIMIT 1");
+        $repStmt = $mysqli->prepare("SELECT username, display_name FROM utenti WHERE id = ? LIMIT 1");
         $reportedUsername = '';
+        $reportedDisplayName = '';
         if ($repStmt) {
             $repStmt->bind_param('i', $reported_id);
             $repStmt->execute();
-            $reportedUsername = $repStmt->get_result()->fetch_assoc()['username'] ?? "ID #{$reported_id}";
+            $reportedRow = $repStmt->get_result()->fetch_assoc() ?: [];
+            $reportedUsername = $reportedRow['username'] ?? "ID #{$reported_id}";
+            $reportedDisplayName = trim((string)($reportedRow['display_name'] ?? ''));
             $repStmt->close();
         }
 
@@ -105,14 +109,18 @@ if ($stmt) {
             'spam' => 'Spam / Pubblicità',
             'inappropriate' => 'Inappropriato / NSFW',
             'harassment' => 'Molestie / Bullismo',
+            'impersonation' => 'Furto d’identità / Impersonificazione',
             'other' => 'Altro motivo'
         ];
         $readableReason = $reasonMap[$reason] ?? $reason;
 
         notifyDiscordSupportReport('profile', [
             'target_id' => $reported_id,
-            'target_name' => "Profilo @" . $reportedUsername . " (ID: {$reported_id})",
+            'target_name' => $reportedDisplayName !== ''
+                ? "{$reportedDisplayName} (@{$reportedUsername})"
+                : "@{$reportedUsername}",
             'target_author' => $reportedUsername,
+            'target_author_id' => $reported_id,
             'target_url' => "https://cripsum.com/u/" . rawurlencode($reportedUsername),
             'reason' => $readableReason,
             'detail' => $detail,

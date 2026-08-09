@@ -689,18 +689,21 @@ if ($isPublicProfilePage):
     </div>
 
     <!-- 3. Report Profile Modal -->
-    <div id="profileReportModal" class="profile-report-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php echo ($lang === 'it') ? 'Segnala profilo' : 'Report profile'; ?>">
+    <div id="profileReportModal" class="profile-report-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="profileReportTitle" aria-describedby="profileReportDescription">
         <div class="profile-report-backdrop"></div>
         <div class="profile-report-card">
             <button class="js-close-report profile-report-close" type="button" aria-label="<?php echo ($lang === 'it') ? 'Chiudi' : 'Close'; ?>">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="profile-report-header">
-                <div class="profile-report-icon-badge">
+                <div class="profile-report-icon-badge" aria-hidden="true">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
-                <h3><?php echo ($lang === 'it') ? 'Segnala Profilo' : 'Report Profile'; ?></h3>
-                <p><?php echo ($lang === 'it') ? 'Aiutaci a mantenere la community sicura e rispettosa.' : 'Help us keep the community safe and respectful.'; ?></p>
+                <div class="profile-report-header-copy">
+                    <span class="profile-report-eyebrow"><?php echo ($lang === 'it') ? 'Sicurezza della community' : 'Community safety'; ?></span>
+                    <h3 id="profileReportTitle"><?php echo ($lang === 'it') ? 'Segnala profilo' : 'Report profile'; ?></h3>
+                    <p id="profileReportDescription"><?php echo ($lang === 'it') ? 'Dicci cosa non va. Il team controllerà la segnalazione e il profilo interessato.' : 'Tell us what is wrong. Our team will review the report and the affected profile.'; ?></p>
+                </div>
             </div>
 
             <?php
@@ -716,64 +719,95 @@ if ($isPublicProfilePage):
             ?>
 
             <div id="profileReportTargetBadge" class="profile-report-user-badge" style="<?php echo ($viewed_username ? '' : 'display: none;'); ?>">
-                <i class="fa-solid fa-user"></i>
-                <span><?php echo ($lang === 'it') ? 'Stai segnalando:' : 'You are reporting:'; ?> <strong id="profileReportTargetName">@<?php echo htmlspecialchars($viewed_username); ?></strong></span>
+                <span class="profile-report-user-icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+                <span class="profile-report-user-copy">
+                    <small><?php echo ($lang === 'it') ? 'Profilo segnalato' : 'Reported profile'; ?></small>
+                    <strong id="profileReportTargetName">@<?php echo htmlspecialchars($viewed_username); ?></strong>
+                </span>
+                <span class="profile-report-private-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i><?php echo ($lang === 'it') ? 'Solo staff' : 'Staff only'; ?></span>
             </div>
 
             <form id="profileReportForm" class="profile-report-form">
                 <input type="hidden" name="reported_user_id" value="<?php echo $viewed_user_id; ?>">
-                
-                <div class="profile-report-options">
+
+                <fieldset class="profile-report-reasons">
+                    <legend><?php echo ($lang === 'it') ? 'Qual è il problema?' : 'What is the problem?'; ?></legend>
+                    <p class="profile-report-field-hint"><?php echo ($lang === 'it') ? 'Seleziona il motivo principale della segnalazione.' : 'Select the main reason for this report.'; ?></p>
+                    <div class="profile-report-options">
                     <label class="profile-report-option">
                         <input type="radio" name="report_reason" value="spam" checked>
                         <div class="option-content">
-                            <i class="fa-solid fa-bullhorn option-icon"></i>
+                            <span class="option-icon"><i class="fa-solid fa-bullhorn"></i></span>
                             <div class="option-text">
                                 <strong><?php echo ($lang === 'it') ? 'Spam / Pubblicità' : 'Spam / Advertising'; ?></strong>
-                                <small><?php echo ($lang === 'it') ? 'Messaggi indesiderati o promoti aggressivi' : 'Unwanted messages or promotional spam'; ?></small>
+                                <small><?php echo ($lang === 'it') ? 'Messaggi indesiderati o promozioni aggressive' : 'Unwanted messages or aggressive promotion'; ?></small>
                             </div>
+                            <span class="option-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
                         </div>
                     </label>
 
                     <label class="profile-report-option">
                         <input type="radio" name="report_reason" value="inappropriate">
                         <div class="option-content">
-                            <i class="fa-solid fa-ban option-icon"></i>
+                            <span class="option-icon"><i class="fa-solid fa-ban"></i></span>
                             <div class="option-text">
                                 <strong><?php echo ($lang === 'it') ? 'Inappropriato / NSFW' : 'Inappropriate / NSFW'; ?></strong>
                                 <small><?php echo ($lang === 'it') ? 'Contenuti espliciti o offensivi' : 'Explicit or offensive content'; ?></small>
                             </div>
+                            <span class="option-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
                         </div>
                     </label>
 
                     <label class="profile-report-option">
                         <input type="radio" name="report_reason" value="harassment">
                         <div class="option-content">
-                            <i class="fa-solid fa-user-shield option-icon"></i>
+                            <span class="option-icon"><i class="fa-solid fa-user-shield"></i></span>
                             <div class="option-text">
                                 <strong><?php echo ($lang === 'it') ? 'Molestie / Bullismo' : 'Harassment / Bullying'; ?></strong>
-                                <small><?php echo ($lang === 'it') ? 'Comportamenti tossici, minacce o insulti' : 'Toxic behavior, threats or insult'; ?></small>
+                                <small><?php echo ($lang === 'it') ? 'Comportamenti tossici, minacce o insulti' : 'Toxic behavior, threats or insults'; ?></small>
                             </div>
+                            <span class="option-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                        </div>
+                    </label>
+
+                    <label class="profile-report-option">
+                        <input type="radio" name="report_reason" value="impersonation">
+                        <div class="option-content">
+                            <span class="option-icon"><i class="fa-solid fa-user-secret"></i></span>
+                            <div class="option-text">
+                                <strong><?php echo ($lang === 'it') ? 'Furto d’identità' : 'Impersonation'; ?></strong>
+                                <small><?php echo ($lang === 'it') ? 'Il profilo finge di essere un’altra persona' : 'The profile pretends to be someone else'; ?></small>
+                            </div>
+                            <span class="option-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
                         </div>
                     </label>
 
                     <label class="profile-report-option">
                         <input type="radio" name="report_reason" value="other">
                         <div class="option-content">
-                            <i class="fa-solid fa-circle-info option-icon"></i>
+                            <span class="option-icon"><i class="fa-solid fa-ellipsis"></i></span>
                             <div class="option-text">
                                 <strong><?php echo ($lang === 'it') ? 'Altro motivo' : 'Other reason'; ?></strong>
                                 <small><?php echo ($lang === 'it') ? 'Qualsiasi altra violazione del regolamento' : 'Any other policy violation'; ?></small>
                             </div>
+                            <span class="option-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
                         </div>
                     </label>
-                </div>
+                    </div>
+                </fieldset>
 
                 <div class="profile-report-detail-group">
-                    <label for="profileReportDetail" class="detail-label"><?php echo ($lang === 'it') ? 'Dettagli Aggiuntivi (opzionale)' : 'Additional Details (optional)'; ?></label>
-                    <textarea id="profileReportDetail" placeholder="<?php echo ($lang === 'it') ? 'Descrivi brevemente il problema...' : 'Briefly describe the issue...'; ?>" maxlength="200"></textarea>
-                    <div class="detail-char-count"><span id="profileReportCharCount">0</span>/200</div>
+                    <div class="profile-report-detail-heading">
+                        <label for="profileReportDetail" class="detail-label"><?php echo ($lang === 'it') ? 'Aggiungi dettagli' : 'Add details'; ?></label>
+                        <span><?php echo ($lang === 'it') ? 'Opzionale' : 'Optional'; ?></span>
+                    </div>
+                    <div class="profile-report-textarea-wrap">
+                        <textarea id="profileReportDetail" name="detail" placeholder="<?php echo ($lang === 'it') ? 'Descrivi cosa è successo e dove possiamo verificarlo...' : 'Describe what happened and where we can verify it...'; ?>" maxlength="500"></textarea>
+                        <div class="detail-char-count" aria-live="polite"><span id="profileReportCharCount">0</span>/500</div>
+                    </div>
                 </div>
+
+                <p class="profile-report-privacy-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><?php echo ($lang === 'it') ? 'La tua identità e i dettagli saranno visibili soltanto allo staff.' : 'Your identity and details will only be visible to staff.'; ?></p>
 
                 <div class="profile-report-actions">
                     <button type="button" class="profile-report-btn-cancel js-close-report">
