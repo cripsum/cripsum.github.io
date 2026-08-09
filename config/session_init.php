@@ -37,7 +37,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (isset($_SESSION["user_id"]) && $_SESSION["user_id"] == 77) {
+if (!defined('CRIPSUM_SKIP_SPECIAL_SESSION_REDIRECT') && isset($_SESSION["user_id"]) && $_SESSION["user_id"] == 77) {
     header("Location: uwu");
     exit();
 }

@@ -423,6 +423,10 @@ function auth_complete_login(array $user, $mysqli = null)
     if (empty($user['password'])) {
         $_SESSION['needs_password'] = true;
     }
+
+    if (isset($mysqli) && $mysqli instanceof mysqli && function_exists('auth_register_device_session')) {
+        auth_register_device_session($mysqli, (int)$user['id']);
+    }
 }
 
 function auth_start_password_login(mysqli $mysqli, string $identifier, string $password): array
@@ -632,3 +636,5 @@ function auth_disable_2fa(mysqli $mysqli, int $userId): bool
 
     return $ok;
 }
+
+require_once __DIR__ . '/device_session_helpers.php';

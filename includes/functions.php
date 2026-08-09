@@ -660,9 +660,18 @@ function checkPermissions($mysqli, $requiredRole)
     }
 }
 
-function logoutUser()
+function logoutUser($database = null)
 {
-    session_destroy();
+    if ($database === null) {
+        global $mysqli;
+        $database = $mysqli ?? null;
+    }
+
+    if ($database instanceof mysqli) {
+        auth_revoke_current_device_session($database);
+    }
+
+    auth_destroy_local_session();
     header('Location: https://cripsum.com');
     exit();
 }

@@ -567,6 +567,201 @@ body.auth-page {
     border-color: rgba(251, 113, 133, .28);
 }
 
+/* Connected devices */
+.settings-panel__head--devices {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.settings-panel__head--devices > div {
+    min-width: 0;
+}
+
+.settings-panel__head--devices form {
+    flex: 0 0 auto;
+}
+
+.device-disconnect-all {
+    min-height: 2.7rem;
+    padding: .6rem .9rem;
+    font-size: .82rem;
+}
+
+.device-list {
+    display: grid;
+    gap: .85rem;
+}
+
+.device-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--auth-border);
+    border-radius: var(--auth-radius-lg);
+    background: rgba(255, 255, 255, .038);
+}
+
+.device-card.is-current {
+    border-color: rgba(52, 211, 153, .32);
+    background: linear-gradient(135deg, rgba(52, 211, 153, .09), rgba(255, 255, 255, .035));
+}
+
+.device-card__identity {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    min-width: 0;
+}
+
+.device-card__icon {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 17px;
+    color: #dbeafe;
+    background: rgba(var(--auth-accent-rgb), .15);
+    box-shadow: inset 0 0 0 1px rgba(var(--auth-accent-rgb), .2);
+    font-size: 1.2rem;
+}
+
+.device-card.is-current .device-card__icon {
+    color: #a7f3d0;
+    background: rgba(52, 211, 153, .14);
+    box-shadow: inset 0 0 0 1px rgba(52, 211, 153, .22);
+}
+
+.device-card__title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.device-card__title h3 {
+    margin: 0;
+    color: var(--auth-text);
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.device-current-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .25rem .5rem;
+    border: 1px solid rgba(52, 211, 153, .3);
+    border-radius: 999px;
+    color: #a7f3d0;
+    background: rgba(52, 211, 153, .11);
+    font-size: .7rem;
+    font-weight: 900;
+}
+
+.device-card__activity {
+    display: block;
+    margin-top: .25rem;
+    color: var(--auth-muted);
+    font-size: .78rem;
+}
+
+.device-card__details {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .55rem;
+    margin: 0;
+}
+
+.device-card__details > div {
+    min-width: 0;
+    padding: .65rem .7rem;
+    border-radius: 13px;
+    background: rgba(0, 0, 0, .15);
+}
+
+.device-card__details dt {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    margin-bottom: .25rem;
+    color: var(--auth-muted);
+    font-size: .7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.device-card__details dd {
+    margin: 0;
+    overflow: hidden;
+    color: var(--auth-text);
+    font-size: .82rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.device-card__action {
+    align-self: center;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.device-card__action .auth-btn {
+    min-height: 2.65rem;
+    padding: .55rem .9rem;
+    font-size: .8rem;
+}
+
+.device-security-note,
+.device-empty-state {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    margin: .9rem 0 0;
+    padding: .8rem;
+    border: 1px solid var(--auth-border);
+    border-radius: var(--auth-radius-md);
+    color: var(--auth-muted);
+    background: rgba(255, 255, 255, .035);
+    font-size: .82rem;
+}
+
+.device-security-note i,
+.device-empty-state > i {
+    color: #bfdbfe;
+}
+
+.device-empty-state {
+    margin-top: 0;
+    min-height: 5rem;
+}
+
+.device-empty-state strong,
+.device-empty-state span {
+    display: block;
+}
+
+.device-empty-state strong {
+    margin-bottom: .15rem;
+    color: var(--auth-text);
+}
+
+.device-empty-state--warning {
+    border-color: rgba(251, 191, 36, .3);
+    color: #fde68a;
+    background: rgba(251, 191, 36, .08);
+}
+
+.device-empty-state--warning > i {
+    color: #fbbf24;
+}
+
 /* Dropdown fix */
 body.auth-page .dropdown-menu {
     padding: .45rem;
@@ -652,6 +847,20 @@ body.auth-page .dropdown-menu button:hover {
     .twofa-setup {
         grid-template-columns: 1fr;
     }
+
+    .settings-panel__head--devices {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .settings-panel__head--devices form,
+    .device-disconnect-all {
+        width: 100%;
+    }
+
+    .device-card__details {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 620px) {
@@ -704,6 +913,28 @@ body.auth-page .dropdown-menu button:hover {
         height: auto;
         max-width: 220px;
         justify-self: center;
+    }
+
+    .device-card {
+        grid-template-columns: 1fr;
+    }
+
+    .device-card__identity {
+        align-items: flex-start;
+    }
+
+    .device-card__details {
+        grid-template-columns: 1fr;
+    }
+
+    .device-card__action {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .device-card__action,
+    .device-card__action .auth-btn {
+        width: 100%;
     }
 
     .auth-recaptcha {

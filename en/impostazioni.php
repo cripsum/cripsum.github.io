@@ -46,6 +46,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $error = 'Session expired. Please try again.';
+    } elseif ($action === 'revoke_device') {
+        $deviceSessionId = filter_input(INPUT_POST, 'device_session_id', FILTER_VALIDATE_INT);
+
+        if (!$deviceSessionId || !auth_revoke_device_session($mysqli, $userId, (int)$deviceSessionId)) {
+            $error = 'The device could not be disconnected. Refresh the page and try again.';
+        } else {
+            $success = 'Device disconnected successfully.';
+        }
+    } elseif ($action === 'revoke_other_devices') {
+        if (!auth_device_sessions_available($mysqli)) {
+            $error = 'Device management is not available yet.';
+        } else {
+            $revokedCount = auth_revoke_other_device_sessions($mysqli, $userId);
+            $success = $revokedCount === 0
+                ? 'There are no other devices to disconnect.'
+                : ($revokedCount === 1
+                    ? 'One device was disconnected.'
+                    : $revokedCount . ' devices were disconnected.');
+        }
     } elseif ($action === 'update_discord_settings') {
         $useAvatar = isset($_POST['discord_use_avatar']) ? 1 : 0;
         $useDisplayName = isset($_POST['discord_use_display_name']) ? 1 : 0;
@@ -97,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = updateUserSettings($mysqli, $userId, $username, $newEmail, '', $nsfw, $richpresence);
 
             if ($result === true) {
+                auth_revoke_current_device_session($mysqli);
                 session_destroy();
                 session_start();
                 $_SESSION['login_message'] = 'Email changed. Check the new inbox to verify your account.';
@@ -234,6 +254,9 @@ if ($discordConnected && !empty($discordAvatar)) {
 }
 $discordDisplayName = trim($discordGlobalName) ?: trim($discordUsername);
 $connectDiscordUrl = '/auth/discord_connect.php?return_url=' . urlencode('/en/impostazioni#connections');
+$deviceSessionsAvailable = auth_device_sessions_available($mysqli);
+$deviceSessions = $deviceSessionsAvailable ? auth_get_device_sessions($mysqli, $userId) : [];
+$settingsLanguage = 'en';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -242,7 +265,7 @@ $connectDiscordUrl = '/auth/discord_connect.php?return_url=' . urlencode('/en/im
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Account settings</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.3">
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.4">
     <script src="/assets/auth/auth.js?v=1.3" defer></script>
 </head>
 
@@ -298,6 +321,10 @@ $connectDiscordUrl = '/auth/discord_connect.php?return_url=' . urlencode('/en/im
                 <button class="settings-tab-btn" data-tab="twofa">
                     <i class="fa-solid fa-shield-halved"></i>
                     <span>2FA Security</span>
+                </button>
+                <button class="settings-tab-btn" data-tab="devices">
+                    <i class="fa-solid fa-laptop"></i>
+                    <span>Devices</span>
                 </button>
                 <button class="settings-tab-btn" data-tab="connections">
                     <i class="fa-brands fa-discord"></i>
@@ -547,6 +574,11 @@ $connectDiscordUrl = '/auth/discord_connect.php?return_url=' . urlencode('/en/im
                             <?php endif; ?>
                         <?php endif; ?>
                     </article>
+                </div>
+
+                <!-- Tab: Devices -->
+                <div class="settings-tab-content" id="tab-devices">
+                    <?php include '../includes/settings_devices.php'; ?>
                 </div>
 
                 <!-- Tab: Connections -->
