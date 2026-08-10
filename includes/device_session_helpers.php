@@ -15,6 +15,36 @@ function auth_device_token_hash(string $token): string
     return hash('sha256', $token);
 }
 
+function auth_device_key_supported(mysqli $mysqli): bool
+{
+    return auth_column_exists($mysqli, 'user_sessions', 'device_key_hash');
+}
+
+function auth_device_persistent_key(): string
+{
+    $params = session_get_cookie_params();
+    $secure = !empty($params['secure']);
+    $cookieName = $secure ? '__Host-cripsum_device' : 'cripsum_device_dev';
+    $token = (string)($_COOKIE[$cookieName] ?? '');
+
+    if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+        $token = bin2hex(random_bytes(32));
+        setcookie($cookieName, $token, [
+            'expires' => time() + 31536000,
+            'path' => '/',
+            'domain' => '',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+        $_COOKIE[$cookieName] = $token;
+    }
+
+    // This is only a stable browser label. It is not accepted as proof of
+    // authentication, and only its SHA-256 hash is stored in the database.
+    return hash('sha256', $token);
+}
+
 function auth_device_request_info(): array
 {
     $userAgent = substr((string)($_SERVER['HTTP_USER_AGENT'] ?? 'Dispositivo sconosciuto'), 0, 500);
@@ -239,28 +269,110 @@ function auth_register_device_session(mysqli $mysqli, int $userId): bool
     $info = auth_device_request_info();
     $expiresAt = date('Y-m-d H:i:s', time() + AUTH_DEVICE_SESSION_LIFETIME);
 
-    $stmt = $mysqli->prepare("
-        INSERT INTO user_sessions
-            (user_id, token_hash, device_name, device_type, browser, os, ip_address, user_agent, created_at, last_seen_at, expires_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)
-    ");
+    if (auth_device_key_supported($mysqli)) {
+        $deviceKeyHash = auth_device_persistent_key();
+        $legacyCleanup = $mysqli->prepare("
+            UPDATE user_sessions
+            SET revoked_at = NOW()
+            WHERE user_id = ?
+              AND device_key_hash IS NULL
+              AND device_name = ?
+              AND os = ?
+              AND ip_address = ?
+              AND revoked_at IS NULL
+        ");
+        if ($legacyCleanup) {
+            $legacyCleanup->bind_param(
+                'isss',
+                $userId,
+                $info['device_name'],
+                $info['os'],
+                $info['ip_address']
+            );
+            $legacyCleanup->execute();
+            $legacyCleanup->close();
+        }
+
+        $stmt = $mysqli->prepare("
+            INSERT INTO user_sessions
+                (user_id, token_hash, device_key_hash, device_name, device_type, browser, os, ip_address, user_agent, created_at, last_seen_at, expires_at, revoked_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, NULL)
+            ON DUPLICATE KEY UPDATE
+                token_hash = VALUES(token_hash),
+                device_name = VALUES(device_name),
+                device_type = VALUES(device_type),
+                browser = VALUES(browser),
+                os = VALUES(os),
+                ip_address = VALUES(ip_address),
+                user_agent = VALUES(user_agent),
+                created_at = NOW(),
+                last_seen_at = NOW(),
+                expires_at = VALUES(expires_at),
+                revoked_at = NULL
+        ");
+    } else {
+        // Compatibility fallback before the migration is applied: retire old
+        // rows matching the same device, operating system and IP before creating the new one.
+        $cleanup = $mysqli->prepare("
+            UPDATE user_sessions
+            SET revoked_at = NOW()
+            WHERE user_id = ?
+              AND device_name = ?
+              AND os = ?
+              AND ip_address = ?
+              AND revoked_at IS NULL
+        ");
+        if ($cleanup) {
+            $cleanup->bind_param(
+                'isss',
+                $userId,
+                $info['device_name'],
+                $info['os'],
+                $info['ip_address']
+            );
+            $cleanup->execute();
+            $cleanup->close();
+        }
+
+        $stmt = $mysqli->prepare("
+            INSERT INTO user_sessions
+                (user_id, token_hash, device_name, device_type, browser, os, ip_address, user_agent, created_at, last_seen_at, expires_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)
+        ");
+    }
 
     if (!$stmt) {
         return false;
     }
 
-    $stmt->bind_param(
-        'issssssss',
-        $userId,
-        $tokenHash,
-        $info['device_name'],
-        $info['device_type'],
-        $info['browser'],
-        $info['os'],
-        $info['ip_address'],
-        $info['user_agent'],
-        $expiresAt
-    );
+    if (isset($deviceKeyHash)) {
+        $stmt->bind_param(
+            'isssssssss',
+            $userId,
+            $tokenHash,
+            $deviceKeyHash,
+            $info['device_name'],
+            $info['device_type'],
+            $info['browser'],
+            $info['os'],
+            $info['ip_address'],
+            $info['user_agent'],
+            $expiresAt
+        );
+    } else {
+        $stmt->bind_param(
+            'issssssss',
+            $userId,
+            $tokenHash,
+            $info['device_name'],
+            $info['device_type'],
+            $info['browser'],
+            $info['os'],
+            $info['ip_address'],
+            $info['user_agent'],
+            $expiresAt
+        );
+    }
 
     $ok = $stmt->execute();
     $stmt->close();
@@ -377,15 +489,18 @@ function auth_get_device_sessions(mysqli $mysqli, int $userId): array
     $currentHash = !empty($_SESSION['auth_device_token'])
         ? auth_device_token_hash((string)$_SESSION['auth_device_token'])
         : '';
+    $deviceKeySelect = auth_device_key_supported($mysqli)
+        ? 'device_key_hash'
+        : 'NULL AS device_key_hash';
 
     $stmt = $mysqli->prepare("
-        SELECT id, token_hash, device_name, device_type, browser, os, ip_address,
+        SELECT id, token_hash, {$deviceKeySelect}, device_name, device_type, browser, os, ip_address,
                created_at, last_seen_at, expires_at
         FROM user_sessions
         WHERE user_id = ?
           AND revoked_at IS NULL
           AND expires_at > NOW()
-        ORDER BY (token_hash = ?) DESC, last_seen_at DESC
+        ORDER BY (token_hash = ?) DESC, (device_key_hash IS NOT NULL) DESC, last_seen_at DESC
     ");
 
     if (!$stmt) {
@@ -396,15 +511,52 @@ function auth_get_device_sessions(mysqli $mysqli, int $userId): array
     $stmt->execute();
     $result = $stmt->get_result();
     $sessions = [];
+    $seenDevices = [];
+    $seenLegacyFingerprints = [];
+    $duplicateIds = [];
 
     while ($row = $result->fetch_assoc()) {
         $row['id'] = (int)$row['id'];
         $row['is_current'] = $currentHash !== '' && hash_equals($currentHash, (string)$row['token_hash']);
-        unset($row['token_hash']);
+
+        $deviceKeyHash = trim((string)($row['device_key_hash'] ?? ''));
+        $legacyFingerprint = hash('sha256', implode('|', [
+            (string)($row['device_name'] ?? ''),
+            (string)($row['os'] ?? ''),
+            (string)($row['ip_address'] ?? ''),
+        ]));
+        $dedupeKey = $deviceKeyHash !== ''
+            ? 'device:' . $deviceKeyHash
+            : 'legacy:' . $legacyFingerprint;
+
+        if (isset($seenDevices[$dedupeKey]) || ($deviceKeyHash === '' && isset($seenLegacyFingerprints[$legacyFingerprint]))) {
+            $duplicateIds[] = $row['id'];
+            continue;
+        }
+        $seenDevices[$dedupeKey] = true;
+        $seenLegacyFingerprints[$legacyFingerprint] = true;
+
+        unset($row['token_hash'], $row['device_key_hash']);
         $sessions[] = $row;
     }
 
     $stmt->close();
+
+    if ($duplicateIds) {
+        $duplicateIdList = implode(',', array_map('intval', $duplicateIds));
+        $cleanup = $mysqli->prepare("
+            UPDATE user_sessions
+            SET revoked_at = NOW()
+            WHERE user_id = ?
+              AND revoked_at IS NULL
+              AND id IN ({$duplicateIdList})
+        ");
+        if ($cleanup) {
+            $cleanup->bind_param('i', $userId);
+            $cleanup->execute();
+            $cleanup->close();
+        }
+    }
 
     foreach ($sessions as &$session) {
         $session['location'] = auth_device_location_for_ip($mysqli, (string)($session['ip_address'] ?? ''));
