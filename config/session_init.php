@@ -5,9 +5,9 @@ ini_set('display_startup_errors', '0');
 ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
-const CRIPSUM_SESSION_IDLE_TIMEOUT = 7200;      // 2 hours without activity
-const CRIPSUM_SESSION_ABSOLUTE_TIMEOUT = 604800; // 7 days maximum
-const CRIPSUM_SESSION_ROTATION_INTERVAL = 900;  // rotate ID every 15 minutes
+const CRIPSUM_SESSION_IDLE_TIMEOUT = 7200;      
+const CRIPSUM_SESSION_ABSOLUTE_TIMEOUT = 604800; 
+const CRIPSUM_SESSION_ROTATION_INTERVAL = 900; 
 
 ini_set('session.gc_maxlifetime', (string)CRIPSUM_SESSION_ABSOLUTE_TIMEOUT);
 ini_set('session.cookie_lifetime', (string)CRIPSUM_SESSION_ABSOLUTE_TIMEOUT);
@@ -25,8 +25,6 @@ $isHttps = !$isLocalHost && (
     || strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https'
 );
 
-// The __Host- prefix is enforced by browsers: Secure, Path=/ and no Domain.
-// This prevents sibling subdomains from planting or receiving the session ID.
 $sessionName = $isHttps ? '__Host-cripsum_session' : 'cripsum_session_dev';
 session_name($sessionName);
 session_set_cookie_params([
@@ -38,8 +36,6 @@ session_set_cookie_params([
     'samesite' => 'Lax',
 ]);
 
-// Remove the retired domain-wide cookie. The new cookie name avoids ambiguous
-// duplicate cookies during migration.
 if ($isHttps && isset($_COOKIE['cripsum_session'])) {
     foreach (['', '.cripsum.com'] as $legacyDomain) {
         setcookie('cripsum_session', '', [
