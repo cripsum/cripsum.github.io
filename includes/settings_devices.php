@@ -11,8 +11,17 @@ $copy = $settingsLanguage === 'en'
         'browser' => 'Browser',
         'system' => 'System',
         'ip' => 'IP address',
+        'location' => 'Approximate location',
+        'location_note' => 'Estimated from the IP address; it is not GPS and may be inaccurate.',
+        'location_unavailable' => 'Location unavailable',
+        'local_network' => 'Local network',
+        'network' => 'Network',
         'first_access' => 'Signed in',
         'last_activity' => 'Last activity',
+        'active_now' => 'Active now',
+        'minutes_ago' => '%d min ago',
+        'hours_ago' => '%d hr ago',
+        'days_ago' => '%d days ago',
         'disconnect' => 'Disconnect',
         'disconnect_confirm' => 'Disconnect this device from your account?',
         'disconnect_others' => 'Disconnect all other devices',
@@ -29,8 +38,17 @@ $copy = $settingsLanguage === 'en'
         'browser' => 'Browser',
         'system' => 'Sistema',
         'ip' => 'Indirizzo IP',
+        'location' => 'Posizione approssimativa',
+        'location_note' => 'Stimata dall’indirizzo IP: non è GPS e potrebbe essere imprecisa.',
+        'location_unavailable' => 'Posizione non disponibile',
+        'local_network' => 'Rete locale',
+        'network' => 'Rete',
         'first_access' => 'Accesso effettuato',
         'last_activity' => 'Ultima attività',
+        'active_now' => 'Attivo ora',
+        'minutes_ago' => '%d min fa',
+        'hours_ago' => '%d h fa',
+        'days_ago' => '%d giorni fa',
         'disconnect' => 'Scollega',
         'disconnect_confirm' => 'Vuoi scollegare questo dispositivo dal tuo account?',
         'disconnect_others' => 'Scollega tutti gli altri dispositivi',
@@ -41,6 +59,58 @@ $copy = $settingsLanguage === 'en'
 $deviceSessionsAvailable = (bool)($deviceSessionsAvailable ?? false);
 $deviceSessions = is_array($deviceSessions ?? null) ? $deviceSessions : [];
 $otherDeviceCount = count(array_filter($deviceSessions, static fn(array $device): bool => empty($device['is_current'])));
+$dateFormat = $settingsLanguage === 'en' ? 'M j, Y H:i' : 'd/m/Y H:i';
+
+$formatActivity = static function (?string $value) use ($copy, $dateFormat): array {
+    $timestamp = $value ? strtotime($value) : false;
+    if ($timestamp === false) {
+        return ['relative' => '—', 'exact' => ''];
+    }
+
+    $elapsed = max(0, time() - $timestamp);
+    if ($elapsed < 120) {
+        $relative = $copy['active_now'];
+    } elseif ($elapsed < 3600) {
+        $relative = sprintf($copy['minutes_ago'], max(2, (int)floor($elapsed / 60)));
+    } elseif ($elapsed < 86400) {
+        $relative = sprintf($copy['hours_ago'], (int)floor($elapsed / 3600));
+    } elseif ($elapsed < 604800) {
+        $relative = sprintf($copy['days_ago'], (int)floor($elapsed / 86400));
+    } else {
+        $relative = date($dateFormat, $timestamp);
+    }
+
+    return ['relative' => $relative, 'exact' => date($dateFormat, $timestamp)];
+};
+
+$formatLocation = static function (?array $location) use ($copy): array {
+    if (!$location) {
+        return ['label' => $copy['location_unavailable'], 'flag' => '', 'network' => '—'];
+    }
+    if (!empty($location['is_local'])) {
+        return ['label' => $copy['local_network'], 'flag' => '', 'network' => '—'];
+    }
+
+    $parts = [];
+    foreach ([$location['city'] ?? '', $location['region'] ?? '', $location['country'] ?? ''] as $part) {
+        $part = trim((string)$part);
+        if ($part !== '' && !in_array(mb_strtolower($part), array_map('mb_strtolower', $parts), true)) {
+            $parts[] = $part;
+        }
+    }
+
+    $countryCode = strtoupper((string)($location['country_code'] ?? ''));
+    $flag = '';
+    if (preg_match('/^[A-Z]{2}$/', $countryCode) && function_exists('mb_chr')) {
+        $flag = mb_chr(127397 + ord($countryCode[0]), 'UTF-8') . mb_chr(127397 + ord($countryCode[1]), 'UTF-8');
+    }
+
+    return [
+        'label' => $parts ? implode(', ', $parts) : $copy['location_unavailable'],
+        'flag' => $flag,
+        'network' => trim((string)($location['network'] ?? '')) ?: '—',
+    ];
+};
 ?>
 <article class="settings-panel auth-reveal">
     <div class="settings-panel__head settings-panel__head--devices">
@@ -88,7 +158,8 @@ $otherDeviceCount = count(array_filter($deviceSessions, static fn(array $device)
                     ? 'fa-mobile-screen-button'
                     : ($deviceType === 'tablet' ? 'fa-tablet-screen-button' : 'fa-display');
                 $isCurrent = !empty($device['is_current']);
-                $dateFormat = $settingsLanguage === 'en' ? 'M j, Y H:i' : 'd/m/Y H:i';
+                $activity = $formatActivity($device['last_seen_at'] ?? null);
+                $location = $formatLocation(is_array($device['location'] ?? null) ? $device['location'] : null);
                 ?>
                 <section class="device-card<?php echo $isCurrent ? ' is-current' : ''; ?>">
                     <div class="device-card__identity">
@@ -107,8 +178,8 @@ $otherDeviceCount = count(array_filter($deviceSessions, static fn(array $device)
                             </div>
                             <span class="device-card__activity">
                                 <?php echo auth_h($copy['last_activity']); ?>:
-                                <time datetime="<?php echo auth_h($device['last_seen_at'] ?? ''); ?>">
-                                    <?php echo auth_h(date($dateFormat, strtotime((string)$device['last_seen_at']))); ?>
+                                <time datetime="<?php echo auth_h($device['last_seen_at'] ?? ''); ?>" title="<?php echo auth_h($activity['exact']); ?>">
+                                    <?php echo auth_h($activity['relative']); ?>
                                 </time>
                             </span>
                         </div>
@@ -125,7 +196,18 @@ $otherDeviceCount = count(array_filter($deviceSessions, static fn(array $device)
                         </div>
                         <div>
                             <dt><i class="fa-solid fa-network-wired"></i><?php echo auth_h($copy['ip']); ?></dt>
-                            <dd><?php echo auth_h($device['ip_address'] ?? '—'); ?></dd>
+                            <dd><code><?php echo auth_h($device['ip_address'] ?? '—'); ?></code></dd>
+                        </div>
+                        <div>
+                            <dt><i class="fa-solid fa-location-dot"></i><?php echo auth_h($copy['location']); ?></dt>
+                            <dd title="<?php echo auth_h($copy['location_note']); ?>">
+                                <?php if ($location['flag'] !== ''): ?><span aria-hidden="true"><?php echo auth_h($location['flag']); ?></span><?php endif; ?>
+                                <?php echo auth_h($location['label']); ?>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt><i class="fa-solid fa-tower-broadcast"></i><?php echo auth_h($copy['network']); ?></dt>
+                            <dd><?php echo auth_h($location['network']); ?></dd>
                         </div>
                         <div>
                             <dt><i class="fa-regular fa-calendar"></i><?php echo auth_h($copy['first_access']); ?></dt>
@@ -159,7 +241,7 @@ $otherDeviceCount = count(array_filter($deviceSessions, static fn(array $device)
 
         <p class="device-security-note">
             <i class="fa-solid fa-shield-halved"></i>
-            <span><?php echo auth_h($copy['security_note']); ?></span>
+            <span><?php echo auth_h($copy['security_note']); ?> <?php echo auth_h($copy['location_note']); ?></span>
         </p>
     <?php endif; ?>
 </article>

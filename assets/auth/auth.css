@@ -672,7 +672,7 @@ body.auth-page {
 .device-card__details {
     display: grid;
     grid-column: 1 / -1;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
     gap: .55rem;
     margin: 0;
 }
@@ -704,6 +704,12 @@ body.auth-page {
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.device-card__details code {
+    color: inherit;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .78rem;
 }
 
 .device-card__action {

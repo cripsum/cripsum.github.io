@@ -1,6 +1,9 @@
 <?php
 
 const AUTH_DEVICE_SESSION_LIFETIME = 604800;
+const AUTH_DEVICE_GEO_SUCCESS_TTL = 2592000; // 30 days
+const AUTH_DEVICE_GEO_FAILURE_TTL = 21600;   // retry failures after 6 hours
+const AUTH_DEVICE_GEO_LOOKUPS_PER_REQUEST = 3;
 
 function auth_device_sessions_available(mysqli $mysqli): bool
 {
@@ -70,6 +73,159 @@ function auth_device_request_info(): array
         'ip_address' => auth_client_ip(),
         'user_agent' => $userAgent,
     ];
+}
+
+function auth_device_location_cache_available(mysqli $mysqli): bool
+{
+    return auth_table_exists($mysqli, 'ip_geolocation_cache');
+}
+
+function auth_device_location_row(array $row): ?array
+{
+    if (empty($row['lookup_success'])) {
+        return null;
+    }
+
+    return [
+        'city' => (string)($row['city'] ?? ''),
+        'region' => (string)($row['region_name'] ?? ''),
+        'country' => (string)($row['country_name'] ?? ''),
+        'country_code' => strtoupper((string)($row['country_code'] ?? '')),
+        'timezone' => (string)($row['timezone_name'] ?? ''),
+        'network' => (string)($row['network_name'] ?? ''),
+        'is_local' => false,
+    ];
+}
+
+function auth_device_store_location_cache(mysqli $mysqli, string $ip, ?array $location): void
+{
+    $city = mb_substr(trim((string)($location['city'] ?? '')), 0, 100);
+    $region = mb_substr(trim((string)($location['region'] ?? '')), 0, 120);
+    $country = mb_substr(trim((string)($location['country'] ?? '')), 0, 120);
+    $countryCode = mb_substr(strtoupper(trim((string)($location['country_code'] ?? ''))), 0, 2);
+    $timezone = mb_substr(trim((string)($location['timezone'] ?? '')), 0, 80);
+    $network = mb_substr(trim((string)($location['network'] ?? '')), 0, 160);
+    $success = $location === null ? 0 : 1;
+
+    $stmt = $mysqli->prepare("
+        INSERT INTO ip_geolocation_cache
+            (ip_address, city, region_name, country_name, country_code, timezone_name, network_name, lookup_success, fetched_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        ON DUPLICATE KEY UPDATE
+            city = VALUES(city),
+            region_name = VALUES(region_name),
+            country_name = VALUES(country_name),
+            country_code = VALUES(country_code),
+            timezone_name = VALUES(timezone_name),
+            network_name = VALUES(network_name),
+            lookup_success = VALUES(lookup_success),
+            fetched_at = NOW()
+    ");
+
+    if (!$stmt) {
+        return;
+    }
+
+    $stmt->bind_param('sssssssi', $ip, $city, $region, $country, $countryCode, $timezone, $network, $success);
+    $stmt->execute();
+    $stmt->close();
+
+    $mysqli->query("DELETE FROM ip_geolocation_cache WHERE fetched_at < DATE_SUB(NOW(), INTERVAL 90 DAY) LIMIT 100");
+}
+
+function auth_device_location_for_ip(mysqli $mysqli, string $ip): ?array
+{
+    static $memo = [];
+    static $remoteLookups = 0;
+
+    $ip = trim($ip);
+    if (array_key_exists($ip, $memo)) {
+        return $memo[$ip];
+    }
+
+    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        return $memo[$ip] = null;
+    }
+
+    $isPublic = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+    if (!$isPublic) {
+        return $memo[$ip] = [
+            'city' => '',
+            'region' => '',
+            'country' => '',
+            'country_code' => '',
+            'timezone' => '',
+            'network' => '',
+            'is_local' => true,
+        ];
+    }
+
+    if (!auth_device_location_cache_available($mysqli)) {
+        return $memo[$ip] = null;
+    }
+
+    $cached = null;
+    $stmt = $mysqli->prepare("
+        SELECT city, region_name, country_name, country_code, timezone_name,
+               network_name, lookup_success, fetched_at
+        FROM ip_geolocation_cache
+        WHERE ip_address = ?
+        LIMIT 1
+    ");
+    if ($stmt) {
+        $stmt->bind_param('s', $ip);
+        $stmt->execute();
+        $cached = $stmt->get_result()->fetch_assoc() ?: null;
+        $stmt->close();
+    }
+
+    if ($cached) {
+        $age = time() - (int)strtotime((string)$cached['fetched_at']);
+        $ttl = !empty($cached['lookup_success']) ? AUTH_DEVICE_GEO_SUCCESS_TTL : AUTH_DEVICE_GEO_FAILURE_TTL;
+        if ($age >= 0 && $age < $ttl) {
+            return $memo[$ip] = auth_device_location_row($cached);
+        }
+    }
+
+    if ($remoteLookups >= AUTH_DEVICE_GEO_LOOKUPS_PER_REQUEST || !function_exists('curl_init')) {
+        return $memo[$ip] = auth_device_location_row($cached ?? []);
+    }
+    $remoteLookups++;
+
+    $curl = curl_init('https://ipwho.is/' . rawurlencode($ip));
+    curl_setopt_array($curl, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_CONNECTTIMEOUT => 2,
+        CURLOPT_TIMEOUT => 4,
+        CURLOPT_MAXREDIRS => 0,
+        CURLOPT_HTTPHEADER => ['Accept: application/json'],
+        CURLOPT_USERAGENT => 'Cripsum-Device-Security/1.0',
+    ]);
+    $body = curl_exec($curl);
+    $httpCode = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+
+    $payload = is_string($body) && strlen($body) <= 131072 ? json_decode($body, true) : null;
+    if ($httpCode !== 200 || !is_array($payload) || empty($payload['success'])) {
+        auth_device_store_location_cache($mysqli, $ip, null);
+        return $memo[$ip] = null;
+    }
+
+    $connection = is_array($payload['connection'] ?? null) ? $payload['connection'] : [];
+    $timezoneData = is_array($payload['timezone'] ?? null) ? $payload['timezone'] : [];
+    $location = [
+        'city' => (string)($payload['city'] ?? ''),
+        'region' => (string)($payload['region'] ?? ''),
+        'country' => (string)($payload['country'] ?? ''),
+        'country_code' => (string)($payload['country_code'] ?? ''),
+        'timezone' => (string)($timezoneData['id'] ?? ''),
+        'network' => (string)($connection['isp'] ?? ($connection['org'] ?? '')),
+        'is_local' => false,
+    ];
+
+    auth_device_store_location_cache($mysqli, $ip, $location);
+    return $memo[$ip] = $location;
 }
 
 function auth_register_device_session(mysqli $mysqli, int $userId): bool
@@ -178,10 +334,31 @@ function auth_sync_current_device_session(mysqli $mysqli): bool
     }
 
     if (time() - (int)($_SESSION['auth_device_last_sync'] ?? 0) >= 60) {
-        $update = $mysqli->prepare('UPDATE user_sessions SET last_seen_at = NOW() WHERE id = ? AND user_id = ?');
+        $info = auth_device_request_info();
+        $update = $mysqli->prepare("
+            UPDATE user_sessions
+            SET last_seen_at = NOW(),
+                device_name = ?,
+                device_type = ?,
+                browser = ?,
+                os = ?,
+                ip_address = ?,
+                user_agent = ?
+            WHERE id = ? AND user_id = ?
+        ");
         if ($update) {
             $sessionId = (int)$row['id'];
-            $update->bind_param('ii', $sessionId, $userId);
+            $update->bind_param(
+                'ssssssii',
+                $info['device_name'],
+                $info['device_type'],
+                $info['browser'],
+                $info['os'],
+                $info['ip_address'],
+                $info['user_agent'],
+                $sessionId,
+                $userId
+            );
             $update->execute();
             $update->close();
         }
@@ -228,6 +405,12 @@ function auth_get_device_sessions(mysqli $mysqli, int $userId): array
     }
 
     $stmt->close();
+
+    foreach ($sessions as &$session) {
+        $session['location'] = auth_device_location_for_ip($mysqli, (string)($session['ip_address'] ?? ''));
+    }
+    unset($session);
+
     return $sessions;
 }
 
