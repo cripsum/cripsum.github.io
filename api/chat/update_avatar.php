@@ -5,6 +5,11 @@
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../includes/group_chat_functions.php';
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    send_error('Metodo non consentito.', 405);
+}
+chat_verify_csrf($_POST);
+
 $chatId = isset($_POST['chat_id']) ? (int)$_POST['chat_id'] : 0;
 
 if (!$chatId) {
@@ -33,17 +38,18 @@ $finfo = finfo_open(FILEINFO_MIME_TYPE);
 $mimeType = finfo_file($finfo, $tempPath);
 finfo_close($finfo);
 
-if (!str_starts_with($mimeType, 'image/')) {
+$allowedMimes = [
+    'image/jpeg' => 'jpg',
+    'image/png' => 'png',
+    'image/webp' => 'webp',
+    'image/gif' => 'gif',
+];
+if (!isset($allowedMimes[$mimeType]) || @getimagesize($tempPath) === false) {
     send_error("Il file caricato non è un'immagine valida.");
 }
 
-$extension = pathinfo($originalName, PATHINFO_EXTENSION);
-$allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-if (!in_array(strtolower($extension), $allowedExtensions, true)) {
-    send_error("Estensione dell'immagine non consentita.");
-}
-
-$fileName = 'group_' . $chatId . '_' . time() . '_' . uniqid() . '.' . $extension;
+$extension = $allowedMimes[$mimeType];
+$fileName = 'group_' . $chatId . '_' . bin2hex(random_bytes(16)) . '.' . $extension;
 $uploadDir = __DIR__ . '/../../uploads/chat_avatars/';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
@@ -91,6 +97,7 @@ try {
 } catch (Throwable $e) {
     $mysqli->rollback();
     @unlink($destPath);
-    send_error($e->getMessage());
+    error_log('chat update_avatar failed: ' . $e->getMessage());
+    send_error('Impossibile aggiornare l\'avatar.', 500);
 }
 ?>

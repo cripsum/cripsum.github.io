@@ -1,12 +1,10 @@
 <?php
+require_once __DIR__ . '/../config/session_init.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
-
-ini_set('session.gc_maxlifetime', 604800);
-session_set_cookie_params(604800);
-session_start();
 
 require_once '../config/database.php';
 require_once '../includes/functions.php';

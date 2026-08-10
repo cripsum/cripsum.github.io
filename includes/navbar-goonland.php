@@ -192,7 +192,7 @@ if ($isLoggedIn) {
     <script>
         window.addEventListener('load', function() {
             var script = document.createElement('script');
-            script.src = '/js/unlockAchievement-it.js?v=2';
+            script.src = '/js/unlockAchievement-it.js?v=2.2';
             document.head.appendChild(script);
         });
     </script>

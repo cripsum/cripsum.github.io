@@ -6,10 +6,18 @@ require_once __DIR__ . '/../includes/profile_helpers.php';
 require_once __DIR__ . '/../includes/cursor_helpers.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, private');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    profile_json_response(['ok' => false, 'message' => 'Metodo non consentito.'], 405);
+}
 
 if (!isLoggedIn()) {
-    echo json_encode(['ok' => false, 'message' => 'Devi essere loggato per caricare file.']);
-    exit;
+    profile_json_response(['ok' => false, 'message' => 'Devi essere loggato per caricare file.'], 401);
+}
+
+if (!profile_validate_csrf($_POST['csrf_token'] ?? null)) {
+    profile_json_response(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.'], 419);
 }
 
 $userId = (int)$_SESSION['user_id'];
@@ -55,8 +63,7 @@ $allowedMimes = [
     'image/jpg' => 'jpg',
     'image/png' => 'png',
     'image/webp' => 'webp',
-    'image/gif' => 'gif',
-    'image/svg+xml' => 'svg'
+    'image/gif' => 'gif'
 ];
 
 $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -66,13 +73,7 @@ finfo_close($finfo);
 $origName = strtolower($file['name']);
 $origExt = pathinfo($origName, PATHINFO_EXTENSION);
 
-// SVG fallback check (sometimes mime comes out as text/plain or text/xml for SVGs depending on OS configuration)
 $ext = '';
-if ($mimeType === 'text/plain' || $mimeType === 'text/xml' || $mimeType === 'image/svg') {
-    if (str_ends_with($origName, '.svg')) {
-        $mimeType = 'image/svg+xml';
-    }
-}
 
 if ($purpose === 'cursor') {
     $allowedCursorMimes = [
@@ -113,7 +114,7 @@ if ($purpose === 'cursor') {
     }
 } else {
     if (!array_key_exists($mimeType, $allowedMimes)) {
-        echo json_encode(['ok' => false, 'message' => 'Formato file non supportato. Formati validi: JPG, PNG, WEBP, GIF, SVG. Mime rilevato: ' . $mimeType]);
+        echo json_encode(['ok' => false, 'message' => 'Formato file non supportato. Formati validi: JPG, PNG, WEBP, GIF.']);
         exit;
     }
     $ext = $allowedMimes[$mimeType];
@@ -181,4 +182,3 @@ if ($purpose === 'cursor') {
         echo json_encode(['ok' => false, 'message' => 'Impossibile salvare il file sul server.']);
     }
 }
-

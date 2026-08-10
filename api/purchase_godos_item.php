@@ -4,6 +4,13 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, private');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Metodo non consentito.']);
+    exit;
+}
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -15,6 +22,13 @@ $userId = (int)$_SESSION['user_id'];
 
 // Ricevi parametri POST
 $input = json_decode(file_get_contents('php://input'), true);
+$input = is_array($input) ? $input : [];
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['status' => 'error', 'message' => 'Sessione scaduta. Ricarica la pagina.']);
+    exit;
+}
 $itemId = isset($input['item_id']) ? (int)$input['item_id'] : 0;
 
 if ($itemId <= 0) {

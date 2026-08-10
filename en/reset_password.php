@@ -1,5 +1,9 @@
 <?php
-$token = $_GET['token'] ?? '';
+require_once '../config/session_init.php';
+header('Cache-Control: no-store, private');
+header('Referrer-Policy: no-referrer');
+$token = (string)($_GET['token'] ?? '');
+if (!preg_match('/^[a-f0-9]{64}$/', $token)) $token = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,12 +41,12 @@ $token = $_GET['token'] ?? '';
                 <label class="form-field">
                     <span>New password</span>
                     <div class="password-wrap" data-password-wrap>
-                        <input type="password" name="nuova_password" placeholder="New password" required autocomplete="new-password">
+                        <input type="password" name="nuova_password" placeholder="New password" required minlength="8" maxlength="128" autocomplete="new-password">
                         <button type="button" class="password-toggle" data-toggle-password aria-label="Show password">
                             <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
-                    <small>The password must be at least 8 characters long.</small>
+                    <small><?php echo auth_h(auth_password_policy_hint('en')); ?></small>
                 </label>
 
                 <div class="form-actions">

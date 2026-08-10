@@ -55,6 +55,17 @@ if (!isLoggedIn()) {
 
 $userId = (int) $_SESSION['user_id'];
 
+$rawInput = file_get_contents('php://input');
+$input    = !empty($rawInput) ? (json_decode($rawInput, true) ?? []) : [];
+if (empty($input)) $input = $_POST;
+
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['status' => 'error', 'message' => 'Sessione scaduta. Ricarica la pagina.', 'code' => 'CSRF_FAILED']);
+    exit();
+}
+
 $now = time();
 if (isset($_SESSION['gacha_multi_last_ts'])) {
     $elapsed = $now - (int)$_SESSION['gacha_multi_last_ts'];
@@ -69,10 +80,6 @@ if (isset($_SESSION['gacha_multi_last_ts'])) {
     }
 }
 $_SESSION['gacha_multi_last_ts'] = $now;
-
-$rawInput = file_get_contents('php://input');
-$input    = !empty($rawInput) ? (json_decode($rawInput, true) ?? []) : [];
-if (empty($input)) $input = $_POST;
 
 $rawBannerId = $input['banner_id'] ?? null;
 $quantity    = min(MULTI_MAX_QUANTITY, max(1, (int)($input['quantity'] ?? 10)));

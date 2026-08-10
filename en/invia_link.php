@@ -1,32 +1,46 @@
 <?php
+require_once '../config/session_init.php';
 require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+header('Cache-Control: no-store, private');
 
 $messaggio = "If the email is registered, you will receive a link to reset your password.";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
+    $email = mb_strtolower(trim((string)($_POST['email'] ?? '')), 'UTF-8');
 
-    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)
+        && !auth_rate_limited($mysqli, $email, 'password_reset_request', 3, 30)) {
         $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->store_result();
 
         if ($stmt->num_rows > 0) {
+            $stmt->bind_result($userId);
+            $stmt->fetch();
+            $stmt->close();
             $token = bin2hex(random_bytes(32));
+            $tokenHash = hash('sha256', $token);
             $scadenza = date("Y-m-d H:i:s", strtotime('+1 hour'));
 
             $stmt = $mysqli->prepare("UPDATE utenti SET reset_token = ?, token_scadenza = ? WHERE email = ?");
-            $stmt->bind_param("sss", $token, $scadenza, $email);
+            $stmt->bind_param("sss", $tokenHash, $scadenza, $email);
             $stmt->execute();
 
-            $link = "https://cripsum.com/en/reset_password.php?token=$token";
+            $link = "https://cripsum.com/en/reset_password.php?token=" . rawurlencode($token);
             $subject = "Password Reset Request";
             $message = "Please click the link below to reset your password:\n$link\n\nThis link will expire in 1 hour.";
             $headers = "From: no-reply@cripsum.com";
 
             mail($email, $subject, $message, $headers);
+        } else {
+            $stmt->close();
         }
+
+        auth_record_login_attempt($mysqli, isset($userId) ? (int)$userId : null, $email, false, 'password_reset_request');
+        auth_session_rate_fail($email, 'password_reset_request');
     }
 }
 ?>

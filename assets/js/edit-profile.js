@@ -2,7 +2,19 @@
     const form = document.getElementById('profileEditForm');
     if (!form) return;
     const targetUserId = form.querySelector('input[name="target_user_id"]')?.value || '';
+    const csrfToken = form.querySelector('input[name="csrf_token"]')?.value || '';
     const isEnglish = document.documentElement.lang === 'en' || window.location.pathname.includes('/en/');
+
+    // Remove drafts created by the retired localStorage implementation. They
+    // included the whole form (and therefore its then-current CSRF token).
+    try {
+        for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+            const key = localStorage.key(index);
+            if (key && key.startsWith('cripsum.profile.draft.')) {
+                localStorage.removeItem(key);
+            }
+        }
+    } catch (_) {}
 
     const $ = (selector, parent = document) => parent.querySelector(selector);
     const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
@@ -2876,6 +2888,7 @@
             const formData = new FormData();
             formData.append('preset_id', id);
             formData.append('target_user_id', targetUserId);
+            formData.append('csrf_token', csrfToken);
             const res = await fetch('/api/manage_presets.php?action=load', {
                 method: 'POST',
                 body: formData
@@ -2894,6 +2907,7 @@
             const formData = new FormData();
             formData.append('preset_id', id);
             formData.append('target_user_id', targetUserId);
+            formData.append('csrf_token', csrfToken);
             const res = await fetch('/api/manage_presets.php?action=duplicate', {
                 method: 'POST',
                 body: formData
@@ -2921,6 +2935,7 @@
             formData.append('preset_id', id);
             formData.append('preset_name', trimmed);
             formData.append('target_user_id', targetUserId);
+            formData.append('csrf_token', csrfToken);
             const res = await fetch('/api/manage_presets.php?action=rename', {
                 method: 'POST',
                 body: formData
@@ -2943,6 +2958,7 @@
             const formData = new FormData();
             formData.append('preset_id', id);
             formData.append('target_user_id', targetUserId);
+            formData.append('csrf_token', csrfToken);
             const res = await fetch('/api/manage_presets.php?action=delete', {
                 method: 'POST',
                 body: formData
@@ -3581,7 +3597,7 @@
         if (isCursor) {
             fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,.cur,.ani';
         } else {
-            fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,image/svg+xml';
+            fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
         }
         
         fileInput.addEventListener('change', () => {
@@ -3594,6 +3610,7 @@
             
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('csrf_token', csrfToken);
             if (isCursor) {
                 formData.append('purpose', 'cursor');
             }

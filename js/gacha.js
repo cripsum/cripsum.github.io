@@ -122,6 +122,7 @@
      CONFIG
   ══════════════════════════════════════════════════════ */
   const API_PULL = '/api/api_gacha_pull';
+  const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '';
   const VIDEO_CARD_DELAY_MS = 15000; // ms dopo cui card appare sopra video (#1)
   const LOBOTOMY_CHARACTER_ID = 155;
 
@@ -381,7 +382,7 @@
     try {
       const resp = await fetch(API_PULL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
         body: JSON.stringify(payload),
         credentials: 'same-origin',
       });
@@ -458,7 +459,7 @@
       // UN SOLO FETCH — tutte e 10 le pull calcolate server-side
       const resp = await fetch(API_MULTI, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
         body: JSON.stringify(payload),
         credentials: 'same-origin',
       });
@@ -1495,7 +1496,7 @@
     try {
       const resp = await fetch(API_PULL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
         body: JSON.stringify(payload),
         credentials: 'same-origin',
       });

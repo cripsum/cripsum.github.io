@@ -17,6 +17,7 @@ requireLogin();
 
 $userId = (int)$_SESSION['user_id'];
 $currentUser = getCurrentUser($mysqli);
+$csrfToken = csrf_token();
 
 $lang = 'en';
 $ogDescription = 'Cripsum™ Message Center. Check your notifications, reply to support tickets, and claim your rewards.';
@@ -254,6 +255,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
 
             const API_ENDPOINT = '/api/inbox.php';
             const isAdmin = <?php echo ($currentUser['ruolo'] === 'admin' || $currentUser['ruolo'] === 'owner') ? 'true' : 'false'; ?>;
+            const csrfToken = <?php echo json_encode($csrfToken); ?>;
             
             // Global caches loaded once to prevent the unread badge dropping to 0 bug
             let globalMessages = [];
@@ -806,6 +808,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                     const formData = new FormData();
                     formData.append('action', 'toggle_status');
                     formData.append('ticket_id', ticketId);
+                    formData.append('csrf_token', csrfToken);
                     
                     const response = await fetch('/api/tickets.php', {
                         method: 'POST',
@@ -1064,6 +1067,7 @@ $ogUrl = 'https://cripsum.com/en/inbox';
                         if (!messageText) return;
 
                         const formData = new FormData(form);
+                        formData.append('csrf_token', csrfToken);
                         
                         const submitBtn = form.querySelector('button[type="submit"]');
                         submitBtn.disabled = true;

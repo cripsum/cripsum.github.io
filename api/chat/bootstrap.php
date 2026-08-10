@@ -19,7 +19,18 @@ $userRole = $_SESSION['ruolo'] ?? 'utente';
 
 // Helper per leggere l'input JSON o POST
 function get_json_input() {
-    return json_decode(file_get_contents('php://input'), true) ?? $_POST;
+    static $input = null;
+    if (is_array($input)) return $input;
+
+    $decoded = json_decode(file_get_contents('php://input'), true);
+    $input = is_array($decoded) ? $decoded : $_POST;
+    return $input;
+}
+
+// All state-changing chat endpoints share this bootstrap. Enforcing CSRF here
+// avoids leaving a single legacy mutation route unprotected.
+if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'HEAD') {
+    chat_verify_csrf(get_json_input());
 }
 
 // Helper per inviare risposte di errore

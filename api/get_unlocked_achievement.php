@@ -1,11 +1,11 @@
-<?php  
-header("Access-Control-Allow-Origin: https://cripsum.com"); 
-header("Access-Control-Allow-Credentials: true");
-
+<?php
+require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-session_start();
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, private');
+header('X-CSRF-Token: ' . csrf_token());
 $user_id = $_SESSION['user_id'] ?? 0;
 
     $stmt = $mysqli->prepare("SELECT id, nome, descrizione, punti, img_url, data FROM achievement, utenti_achievement WHERE achievement.id = utenti_achievement.achievement_id AND utenti_achievement.utente_id = ?"); 
@@ -20,7 +20,6 @@ $user_id = $_SESSION['user_id'] ?? 0;
     
     $stmt->close();
     
-    header('Content-Type: application/json');
     echo json_encode($achievements);
 
 ?>

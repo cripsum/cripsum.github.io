@@ -1,43 +1,99 @@
 <?php
 date_default_timezone_set('Europe/Rome');
-ini_set('session.gc_maxlifetime', 604800);
-ini_set('session.cookie_lifetime', 604800);
-ini_set('session.gc_probability', 1);
-ini_set('session.gc_divisor', 1000);
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL);
 
-$cookie_domain = '.cripsum.com';
-$secure = true;
+const CRIPSUM_SESSION_IDLE_TIMEOUT = 7200;      // 2 hours without activity
+const CRIPSUM_SESSION_ABSOLUTE_TIMEOUT = 604800; // 7 days maximum
+const CRIPSUM_SESSION_ROTATION_INTERVAL = 900;  // rotate ID every 15 minutes
 
-$host = $_SERVER['HTTP_HOST'] ?? '';
-$host = explode(':', $host)[0];
+ini_set('session.gc_maxlifetime', (string)CRIPSUM_SESSION_ABSOLUTE_TIMEOUT);
+ini_set('session.cookie_lifetime', (string)CRIPSUM_SESSION_ABSOLUTE_TIMEOUT);
+ini_set('session.gc_probability', '1');
+ini_set('session.gc_divisor', '1000');
+ini_set('session.use_strict_mode', '1');
+ini_set('session.use_only_cookies', '1');
+ini_set('session.use_trans_sid', '0');
 
-if ($host === 'localhost' || $host === '127.0.0.1' || filter_var($host, FILTER_VALIDATE_IP)) {
-    $cookie_domain = '';
-    $secure = false;
-} else if (strpos($host, 'cripsum.com') === false) {
-    $cookie_domain = '.' . $host;
-    $secure = (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] == 1)) ||
-        (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
-} else {
-    $secure = (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] == 1)) ||
-        (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
-}
+$hostHeader = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? '')));
+$host = trim((string)preg_replace('/:\d+$/', '', $hostHeader), '[]');
+$isLocalHost = in_array($host, ['localhost', '127.0.0.1', '::1'], true);
+$isHttps = !$isLocalHost && (
+    (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
+    || strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https'
+);
 
+// The __Host- prefix is enforced by browsers: Secure, Path=/ and no Domain.
+// This prevents sibling subdomains from planting or receiving the session ID.
+$sessionName = $isHttps ? '__Host-cripsum_session' : 'cripsum_session_dev';
+session_name($sessionName);
 session_set_cookie_params([
-    'lifetime' => 604800,
+    'lifetime' => CRIPSUM_SESSION_ABSOLUTE_TIMEOUT,
     'path' => '/',
-    'domain' => $cookie_domain,
-    'secure' => $secure,
+    'domain' => '',
+    'secure' => $isHttps,
     'httponly' => true,
-    'samesite' => 'Lax'
+    'samesite' => 'Lax',
 ]);
 
+// Remove the retired domain-wide cookie. The new cookie name avoids ambiguous
+// duplicate cookies during migration.
+if ($isHttps && isset($_COOKIE['cripsum_session'])) {
+    foreach (['', '.cripsum.com'] as $legacyDomain) {
+        setcookie('cripsum_session', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'domain' => $legacyDomain,
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+    unset($_COOKIE['cripsum_session']);
+}
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_name('cripsum_session');
     session_start();
 }
 
-if (!defined('CRIPSUM_SKIP_SPECIAL_SESSION_REDIRECT') && isset($_SESSION["user_id"]) && $_SESSION["user_id"] == 77) {
-    header("Location: uwu");
+$sessionNow = time();
+$sessionCreatedAt = (int)($_SESSION['session_created_at'] ?? $sessionNow);
+$sessionLastActivity = (int)($_SESSION['session_last_activity'] ?? $sessionNow);
+$sessionExpired = !empty($_SESSION['user_id']) && (
+    ($sessionNow - $sessionLastActivity) > CRIPSUM_SESSION_IDLE_TIMEOUT
+    || ($sessionNow - $sessionCreatedAt) > CRIPSUM_SESSION_ABSOLUTE_TIMEOUT
+);
+
+if ($sessionExpired) {
+    $_SESSION = [];
+    setcookie($sessionName, '', [
+        'expires' => $sessionNow - 3600,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_destroy();
+    unset($_COOKIE[$sessionName]);
+    session_id('');
+    session_start();
+    $_SESSION['login_message'] = 'Sessione scaduta per sicurezza. Accedi di nuovo.';
+    $sessionCreatedAt = $sessionNow;
+}
+
+$_SESSION['session_created_at'] = $sessionCreatedAt;
+$_SESSION['session_last_activity'] = $sessionNow;
+
+$lastRotation = (int)($_SESSION['session_last_rotation'] ?? 0);
+if ($lastRotation === 0 || ($sessionNow - $lastRotation) >= CRIPSUM_SESSION_ROTATION_INTERVAL) {
+    session_regenerate_id(true);
+    $_SESSION['session_last_rotation'] = $sessionNow;
+}
+
+if (!defined('CRIPSUM_SKIP_SPECIAL_SESSION_REDIRECT') && isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === 77) {
+    header('Location: uwu');
     exit();
 }

@@ -8,14 +8,31 @@
 
         $t = [
             'it' => [
-                'achievement'        => 'unlockAchievement-it.js?v=2.1',
+                'achievement'        => 'unlockAchievement-it.js?v=2.2',
             ],
             'en' => [
-                'achievement'        => 'unlockAchievement-en.js?v=2.1',
+                'achievement'        => 'unlockAchievement-en.js?v=2.2',
             ],
         ][$lang];
 
         ?>
+
+        <?php if (function_exists('csrf_token')): ?>
+            <meta name="csrf-token" content="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+        <?php endif; ?>
+
+        <script>
+            // One-time cleanup for legacy profile drafts that serialized the
+            // whole form, including its CSRF field, into localStorage.
+            try {
+                for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+                    const key = localStorage.key(index);
+                    if (key && key.startsWith('cripsum.profile.draft.')) {
+                        localStorage.removeItem(key);
+                    }
+                }
+            } catch (_) {}
+        </script>
 
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
         <script>
@@ -49,6 +66,8 @@
         <link rel="stylesheet" href="/css/navbar-search.css?v=4.2" />
         <link rel="stylesheet" href="/css/animations.css" />
         <link rel="stylesheet" href="/css/achievement-style.css" />
+        <link rel="stylesheet" href="/assets/auth/password-strength.css?v=1.0" />
+        <script src="/assets/auth/password-strength.js?v=1.0" defer></script>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="/js/animations.js"></script>

@@ -33,10 +33,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $topic = trim($_POST['topic'] ?? '');
     $message = trim($_POST['message'] ?? '');
     $contact = trim($_POST['contact'] ?? '');
+    $allowedTopics = ['Segnalazione Bug', 'Problema Account', 'Segnalazione Utente', 'Altro'];
+    $rateIdentifier = $isLogged ? 'uid:' . (int)$userId : mb_strtolower($contact, 'UTF-8');
     
-    if (empty($title) || empty($topic) || empty($message)) {
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $error_message = 'The form session has expired. Reload the page and try again.';
+    } elseif (empty($title) || empty($topic) || empty($message)) {
         $error_message = 'Please fill out all required fields.';
+    } elseif (!in_array($topic, $allowedTopics, true)) {
+        $error_message = 'Invalid topic.';
+    } elseif (mb_strlen($title, 'UTF-8') > 200 || mb_strlen($contact, 'UTF-8') > 190 || mb_strlen($message, 'UTF-8') > 5000) {
+        $error_message = 'One or more fields exceed the allowed length.';
+    } elseif (auth_rate_limited($mysqli, $rateIdentifier, 'support_ticket', 5, 30)) {
+        $error_message = 'Too many requests. Please try again later.';
     } else {
+        auth_record_login_attempt($mysqli, $isLogged ? (int)$userId : null, $rateIdentifier, false, 'support_ticket');
+        auth_session_rate_fail($rateIdentifier, 'support_ticket');
+
         // Generate a unique ID for the ticket
         $ticketId = 'TK-' . strtoupper(bin2hex(random_bytes(3)));
         
@@ -46,16 +59,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $check = getimagesize($_FILES['attachment']['tmp_name']);
             if ($check !== false) {
                 if ($_FILES['attachment']['size'] <= 5 * 1024 * 1024) {
+                    $allowedImageMimes = [
+                        'image/jpeg' => 'jpg',
+                        'image/png' => 'png',
+                        'image/webp' => 'webp',
+                        'image/gif' => 'gif',
+                    ];
+                    $detectedMime = (string)($check['mime'] ?? '');
+                    if (!isset($allowedImageMimes[$detectedMime])) {
+                        $error_message = 'Unsupported image format.';
+                    }
                     $uploadDir = __DIR__ . '/../uploads/tickets/';
-                    if (!is_dir($uploadDir)) {
+                    if (empty($error_message) && !is_dir($uploadDir)) {
                         mkdir($uploadDir, 0755, true);
                     }
-                    $ext = pathinfo($_FILES['attachment']['name'], PATHINFO_EXTENSION);
-                    $fileName = uniqid('img_', true) . '.' . $ext;
+                    $ext = $allowedImageMimes[$detectedMime] ?? '';
+                    $fileName = 'img_' . bin2hex(random_bytes(16)) . '.' . $ext;
                     $targetFile = $uploadDir . $fileName;
-                    if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetFile)) {
+                    if (empty($error_message) && move_uploaded_file($_FILES['attachment']['tmp_name'], $targetFile)) {
                         $localAttachmentUrl = '/uploads/tickets/' . $fileName;
-                    } else {
+                    } elseif (empty($error_message)) {
                         $error_message = 'Unable to save the uploaded image on the server.';
                     }
                 } else {
@@ -321,11 +344,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 
                 <form action="" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.2rem;">
                     <input type="hidden" name="action" value="send_ticket">
+                    <?php echo csrf_field(); ?>
                     
                     <!-- Title Field -->
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                         <label for="title" style="font-weight: 600; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Report Title *</label>
-                        <input type="text" name="title" id="title" required placeholder="E.g. Profile loading error, Lootbox bug..." style="padding: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; font-family: inherit; font-size: 0.95rem;">
+                        <input type="text" name="title" id="title" required maxlength="200" placeholder="E.g. Profile loading error, Lootbox bug..." style="padding: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; font-family: inherit; font-size: 0.95rem;">
                     </div>
 
                     <!-- Custom Dropdown for Topic -->
@@ -351,14 +375,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <!-- Contact Field (Guests Only) -->
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label for="contact" style="font-weight: 600; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">How can we contact you? *</label>
-                            <input type="text" name="contact" id="contact" required placeholder="Enter your Email, Telegram @username or Discord" style="padding: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; font-family: inherit; font-size: 0.95rem;">
+                            <input type="text" name="contact" id="contact" required maxlength="190" placeholder="Enter your Email, Telegram @username or Discord" style="padding: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; font-family: inherit; font-size: 0.95rem;">
                         </div>
                     <?php endif; ?>
 
                     <!-- Message Field -->
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                         <label for="message" style="font-weight: 600; font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Message *</label>
-                        <textarea name="message" id="message" required rows="5" placeholder="Provide as much detail as possible about the issue..." style="padding: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; resize: vertical; font-family: inherit; line-height: 1.5; font-size: 0.95rem;"></textarea>
+                        <textarea name="message" id="message" required rows="5" maxlength="5000" placeholder="Provide as much detail as possible about the issue..." style="padding: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: white; outline: none; resize: vertical; font-family: inherit; line-height: 1.5; font-size: 0.95rem;"></textarea>
                     </div>
 
                     <!-- Image Attachment with Preview -->

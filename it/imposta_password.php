@@ -2,6 +2,7 @@
 // imposta_password.php
 require_once '../config/session_init.php';
 require_once '../config/database.php';
+require_once '../includes/functions.php';
 
 // Controlla se l'utente è loggato
 if (!isset($_SESSION['user_id'])) {
@@ -14,7 +15,7 @@ $error = '';
 $success = '';
 
 // Verifica se l'utente ha già una password
-$stmt = $mysqli->prepare("SELECT password FROM utenti WHERE id = ?");
+$stmt = $mysqli->prepare("SELECT password, username, email FROM utenti WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $row = $stmt->get_result()->fetch_assoc();
@@ -27,16 +28,24 @@ if (!empty($row['password'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newPassword = $_POST['password'] ?? '';
+    $securityIdentifier = 'user:' . (int)$user_id;
+    $passwordPolicyError = auth_password_policy_error($newPassword, (string)($row['username'] ?? ''), (string)($row['email'] ?? ''));
 
-    if (strlen($newPassword) < 8) {
-        $error = "La password deve avere almeno 8 caratteri.";
+    if (auth_rate_limited($mysqli, $securityIdentifier, 'password_set_failed', 5, 30)) {
+        $error = "Troppi tentativi. Riprova più tardi.";
+    } elseif (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $error = "Sessione scaduta. Ricarica la pagina.";
+    } elseif ($passwordPolicyError !== null) {
+        $error = auth_password_policy_message($passwordPolicyError, 'it');
+        auth_record_rate_failure($mysqli, (int)$user_id, $securityIdentifier, 'password_set_failed');
     } else {
-        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $hashed = auth_password_hash_secure($newPassword);
 
         $update = $mysqli->prepare("UPDATE utenti SET password = ? WHERE id = ?");
         $update->bind_param("si", $hashed, $user_id);
 
         if ($update->execute()) {
+            auth_record_login_attempt($mysqli, (int)$user_id, $securityIdentifier, true, 'password_set_ok');
             auth_revoke_other_device_sessions($mysqli, (int)$user_id);
             unset($_SESSION['needs_password']);
             $success = "Password impostata con successo! Gli altri dispositivi sono stati scollegati. Ora puoi accedere sia tramite Google che con la tua email.";
@@ -74,11 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" class="auth-form">
+                    <?php echo csrf_field(); ?>
                     <label class="auth-field">
                         <span>Nuova Password</span>
                         <div class="auth-password">
-                            <input type="password" name="password" required minlength="8" data-password-input>
+                            <input type="password" name="password" autocomplete="new-password" required minlength="8" maxlength="128" data-password-input>
                         </div>
+                        <small><?php echo auth_h(auth_password_policy_hint('it')); ?></small>
                     </label>
 
                     <button class="auth-btn auth-btn--primary" type="submit">

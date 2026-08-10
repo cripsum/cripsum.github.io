@@ -714,7 +714,10 @@
                     };
                     res = await fetch('/api/chat/presence.php', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': ChatAPI.csrfToken
+                        },
                         body: JSON.stringify(payload)
                     }).then(r => r.json());
                 }

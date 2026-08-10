@@ -5,6 +5,13 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/paypal_config.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, private');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['ok' => false, 'message' => 'Metodo non consentito.']);
+    exit;
+}
 
 if (!isLoggedIn()) {
     echo json_encode(['ok' => false, 'message' => 'Devi essere loggato.']);
@@ -12,6 +19,13 @@ if (!isLoggedIn()) {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
+$input = is_array($input) ? $input : [];
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.']);
+    exit;
+}
 $isGift = !empty($input['is_gift']);
 $giftTo = isset($input['recipient_username']) ? trim($input['recipient_username']) : '';
 
@@ -65,21 +79,12 @@ if (!$token) {
     exit;
 }
 
-// Se il token è mockato, restituiamo un ordine mockato per test veloci
-if (strpos($token, 'MOCK_TOKEN_') === 0) {
-    echo json_encode([
-        'ok' => true,
-        'id' => 'MOCK_ORDER_' . bin2hex(random_bytes(8)),
-        'mock' => true
-    ]);
-    exit;
-}
-
 $url = PAYPAL_MODE === 'live' ? 'https://api-m.paypal.com/v2/checkout/orders' : 'https://api-m.sandbox.paypal.com/v2/checkout/orders';
 
 $orderData = [
     'intent' => 'CAPTURE',
     'purchase_units' => [[
+        'custom_id' => $userId . ':' . $recipientId . ':' . ($isGift ? '1' : '0'),
         'amount' => [
             'currency_code' => PAYPAL_CURRENCY,
             'value' => PAYPAL_PRICE
@@ -109,10 +114,10 @@ if ($status === 201) {
         'id' => $resJson['id']
     ]);
 } else {
+    error_log('PayPal premium create order failed with HTTP ' . $status);
     echo json_encode([
         'ok' => false,
-        'message' => 'Errore durante la creazione dell\'ordine PayPal.',
-        'details' => json_decode($response, true)
+        'message' => 'Errore durante la creazione dell\'ordine PayPal.'
     ]);
 }
 
@@ -121,8 +126,8 @@ function getPayPalAccessToken() {
     $clientSecret = PAYPAL_CLIENT_SECRET;
     $mode = PAYPAL_MODE;
     
-    if ($clientId === 'placeholder_your_paypal_client_id' || $clientSecret === 'placeholder_your_paypal_client_secret') {
-        return 'MOCK_TOKEN_' . time();
+    if ($clientId === '' || $clientSecret === '') {
+        return null;
     }
     
     $url = $mode === 'live' ? 'https://api-m.paypal.com/v1/oauth2/token' : 'https://api-m.sandbox.paypal.com/v1/oauth2/token';
@@ -130,7 +135,8 @@ function getPayPalAccessToken() {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_USERPWD, $clientId . ":" . $clientSecret);

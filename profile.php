@@ -2411,7 +2411,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         </script>
     <?php endif; ?>
     <script src="/assets/social/social-api.js?v=1.5" defer></script>
-    <script src="/assets/social/user-card.js?v=2.8" defer></script>
+    <script src="/assets/social/user-card.js?v=2.9" defer></script>
 </body>
 
 </html>

@@ -17,6 +17,7 @@ requireLogin();
 
 $userId = (int)$_SESSION['user_id'];
 $currentUser = getCurrentUser($mysqli);
+$csrfToken = csrf_token();
 
 $lang = 'it';
 $ogDescription = 'Centro Messaggi di Cripsum™. Controlla le tue notifiche, rispondi ai ticket di supporto e riscatta i tuoi premi.';
@@ -254,6 +255,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
 
             const API_ENDPOINT = '/api/inbox.php';
             const isAdmin = <?php echo ($currentUser['ruolo'] === 'admin' || $currentUser['ruolo'] === 'owner') ? 'true' : 'false'; ?>;
+            const csrfToken = <?php echo json_encode($csrfToken); ?>;
             
             // Cache globali caricate una volta sola per evitare il bug dei contatori a 0
             let globalMessages = [];
@@ -815,6 +817,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                     const formData = new FormData();
                     formData.append('action', 'toggle_status');
                     formData.append('ticket_id', ticketId);
+                    formData.append('csrf_token', csrfToken);
                     
                     const response = await fetch('/api/tickets.php', {
                         method: 'POST',
@@ -1076,6 +1079,7 @@ $ogUrl = 'https://cripsum.com/it/inbox';
                         if (!messageText) return;
 
                         const formData = new FormData(form);
+                        formData.append('csrf_token', csrfToken);
                         
                         const submitBtn = form.querySelector('button[type="submit"]');
                         submitBtn.disabled = true;

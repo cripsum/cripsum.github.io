@@ -7,6 +7,11 @@ $contentType = strtolower((string)($_SERVER['CONTENT_TYPE'] ?? ''));
 $accept = strtolower((string)($_SERVER['HTTP_ACCEPT'] ?? ''));
 $isJsonRequest = strpos($contentType, 'application/json') !== false || strpos($accept, 'application/json') !== false;
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit;
+}
+
 $defaultReturn = (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') ? '/en/shop.php' : '/it/shop.php';
 $requestedReturn = (string)($_POST['return_to'] ?? $defaultReturn);
 $allowedReturns = ['/it/shop.php', '/en/shop.php'];
@@ -32,6 +37,16 @@ $userId = (int)$_SESSION['user_id'];
 // Supporta sia il controller JavaScript (JSON) sia il form HTML di fallback.
 $input = $isJsonRequest ? json_decode(file_get_contents('php://input'), true) : $_POST;
 $input = is_array($input) ? $input : [];
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    if ($isJsonRequest) {
+        http_response_code(419);
+        echo json_encode(['status' => 'error', 'message' => $lang === 'en' ? 'Session expired. Reload the page.' : 'Sessione scaduta. Ricarica la pagina.']);
+    } else {
+        header('Location: ' . $returnTo . '?conversion=expired');
+    }
+    exit;
+}
 $shardsToBuy = isset($input['shards']) ? (int)$input['shards'] : 0;
 
 if ($shardsToBuy <= 0) {

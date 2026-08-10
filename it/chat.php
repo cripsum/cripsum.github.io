@@ -178,7 +178,7 @@ if (!isLoggedIn()) {
     <script src="/assets/chat/chat-api.js?v=1.4-klipy" defer></script>
     <script src="/assets/chat/chat-state.js?v=1.2" defer></script>
     <script src="/assets/chat/chat-ui.js?v=3.0-klipy" defer></script>
-    <script src="/assets/chat/chat.js?v=3.3-klipy" defer></script>
+    <script src="/assets/chat/chat.js?v=3.4-klipy" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 

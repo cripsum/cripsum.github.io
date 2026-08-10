@@ -622,8 +622,8 @@ $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
 
                 const res = await fetch('/api/convert_godos_to_shards.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ shards: qty })
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+                    body: JSON.stringify({ shards: qty, csrf_token: document.querySelector('meta[name="csrf-token"]')?.content || '' })
                 });
                 const data = await res.json();
                 
@@ -685,6 +685,7 @@ $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
             </header>
             <form class="shop-conversion-form" id="godos-conversion-form" action="/api/convert_godos_to_shards.php" method="post">
                 <input type="hidden" name="return_to" value="/it/shop.php">
+                <?php echo csrf_field(); ?>
                 <div class="shop-conversion-amount"><img src="/img/godoshards.png" alt=""><strong id="slider-shards-val">10</strong><span>Godo Shards</span></div>
                 <div class="shop-conversion-slider">
                     <input type="range" class="form-range" id="godos-slider" name="shards" min="1" max="100" value="10">
@@ -764,7 +765,7 @@ $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
         </section>
     </div>
 
-    <script src="/assets/shop/shards-shop.js?v=1.4" defer></script>
+    <script src="/assets/shop/shards-shop.js?v=1.5" defer></script>
 </body>
 
 </html>

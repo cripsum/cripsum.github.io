@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/gacha_helpers.php';
@@ -17,6 +18,12 @@ try {
         gacha_json(['ok' => false, 'status' => 'error', 'message' => 'Devi essere loggato.'], 401);
     }
 
+    $input = gacha_read_input();
+    $csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+    if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+        gacha_json(['ok' => false, 'status' => 'error', 'message' => 'Sessione scaduta. Ricarica la pagina.'], 419);
+    }
+
     if (isset($mysqli) && $mysqli instanceof mysqli) {
         @$mysqli->set_charset('utf8mb4');
     }
@@ -31,7 +38,6 @@ try {
         ], 500);
     }
 
-    $input = gacha_read_input();
     $code = strtolower(trim((string)($input['code'] ?? $input['codice'] ?? '')));
 
     $codes = cripsum_redeem_codes();

@@ -4,6 +4,12 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/stripe_config.php';
 
+if (STRIPE_SECRET_KEY === '') {
+    error_log('Stripe shard checkout disabled: missing runtime credentials.');
+    http_response_code(503);
+    exit('Pagamento temporaneamente non disponibile.');
+}
+
 if (!isLoggedIn()) {
     $lang = 'it';
     if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
@@ -100,7 +106,7 @@ header('Content-Type: text/html; charset=utf-8');
     <div class="card">
         <h1>Errore di Connessione</h1>
         <p>Impossibile avviare la sessione di pagamento con Stripe per il pacchetto di Shards.</p>
-        <p>Verifica che la Secret Key sia corretta in <code>config/stripe_config.php</code>.</p>
+        <p>Verifica la configurazione sicura Stripe sul server.</p>
         <?php
         if ($response) {
             $errObj = json_decode($response, true);

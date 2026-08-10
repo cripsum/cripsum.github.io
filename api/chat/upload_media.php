@@ -5,6 +5,11 @@
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../includes/group_chat_functions.php';
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    send_error('Metodo non consentito.', 405);
+}
+chat_verify_csrf($_POST);
+
 $conversationId = isset($_POST['conversation_id']) ? (int)$_POST['conversation_id'] : 0;
 $chatId = isset($_POST['chat_id']) ? (int)$_POST['chat_id'] : 0;
 $replyToId = isset($_POST['reply_to_id']) ? (int)$_POST['reply_to_id'] : null;
@@ -37,8 +42,13 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
 
 $file = $_FILES['file'];
 $tempPath = $file['tmp_name'];
-$originalName = basename($file['name']);
-$fileSize = $file['size'];
+$originalName = mb_substr(basename((string)$file['name']), 0, 255, 'UTF-8');
+$originalName = preg_replace('/[\x00-\x1F\x7F]/u', '', $originalName) ?: 'allegato';
+$fileSize = (int)$file['size'];
+
+if ($fileSize <= 0 || !is_uploaded_file($tempPath)) {
+    send_error('File caricato non valido.');
+}
 
 // Validazione dimensione file
 $maxImageSize = 20 * 1024 * 1024; // 20MB per immagini, sticker e audio
@@ -49,17 +59,35 @@ $finfo = finfo_open(FILEINFO_MIME_TYPE);
 $mimeType = finfo_file($finfo, $tempPath);
 finfo_close($finfo);
 
+$allowedTypes = [
+    'image/jpeg' => ['ext' => 'jpg', 'type' => 'image'],
+    'image/png' => ['ext' => 'png', 'type' => 'image'],
+    'image/gif' => ['ext' => 'gif', 'type' => 'image'],
+    'image/webp' => ['ext' => 'webp', 'type' => 'image'],
+    'video/mp4' => ['ext' => 'mp4', 'type' => 'video'],
+    'video/webm' => ['ext' => 'webm', 'type' => 'video'],
+    'audio/mpeg' => ['ext' => 'mp3', 'type' => 'audio'],
+    'audio/ogg' => ['ext' => 'ogg', 'type' => 'audio'],
+    'audio/wav' => ['ext' => 'wav', 'type' => 'audio'],
+    'audio/x-wav' => ['ext' => 'wav', 'type' => 'audio'],
+    'application/pdf' => ['ext' => 'pdf', 'type' => 'file'],
+    'application/zip' => ['ext' => 'zip', 'type' => 'file'],
+    'text/plain' => ['ext' => 'txt', 'type' => 'file'],
+];
+
+if (!is_string($mimeType) || !isset($allowedTypes[$mimeType])) {
+    send_error('Tipo di file non consentito.');
+}
+
 // Mappatura tipo MIME a file_type ENUM
-$fileType = 'file';
-if (str_starts_with($mimeType, 'image/')) {
-    $fileType = 'image';
+$fileType = $allowedTypes[$mimeType]['type'];
+if ($fileType === 'image') {
+    if (@getimagesize($tempPath) === false) {
+        send_error('Il file non è un’immagine valida.');
+    }
     if (isset($_POST['is_sticker']) && (int)$_POST['is_sticker'] === 1) {
         $fileType = 'sticker';
     }
-} elseif (str_starts_with($mimeType, 'video/')) {
-    $fileType = 'video';
-} elseif (str_starts_with($mimeType, 'audio/')) {
-    $fileType = 'audio';
 }
 
 // Applica limiti di dimensione in base al tipo
@@ -69,16 +97,10 @@ if (($fileType === 'image' || $fileType === 'audio' || $fileType === 'sticker') 
     send_error("Il file supera la dimensione massima consentita (50MB).");
 }
 
-// Sanitizzazione del nome del file
-$extension = pathinfo($originalName, PATHINFO_EXTENSION);
-$dangerousExtensions = ['php', 'phtml', 'php3', 'php4', 'php5', 'phps', 'phar', 'exe', 'sh', 'bat', 'cmd', 'js', 'jar'];
-if (in_array(strtolower($extension), $dangerousExtensions, true)) {
-    send_error("Estensione del file non consentita per motivi di sicurezza.");
-}
-
-// Generiamo un nome unico ed evitiamo collisioni
-$safeName = preg_replace("/[^a-zA-Z0-9_\.-]/", "", pathinfo($originalName, PATHINFO_FILENAME));
-$fileName = time() . '_' . uniqid() . '_' . $safeName . '.' . $extension;
+// The stored extension comes only from the server-detected MIME type. The
+// original filename is metadata and is never used as a filesystem path.
+$extension = $allowedTypes[$mimeType]['ext'];
+$fileName = bin2hex(random_bytes(20)) . '.' . $extension;
 
 // Creazione directory di upload
 $uploadDir = __DIR__ . '/../../uploads/chat/' . date('Y/m/');
@@ -209,6 +231,7 @@ try {
     if (file_exists($destPath)) {
         unlink($destPath);
     }
-    send_error("Impossibile salvare l'allegato: " . $e->getMessage(), 500);
+    error_log('chat upload_media failed: ' . $e->getMessage());
+    send_error("Impossibile salvare l'allegato.", 500);
 }
 ?>

@@ -1,4 +1,5 @@
 <?php
+require __DIR__ . '/../includes/retired_endpoint.php';
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';

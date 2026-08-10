@@ -1,18 +1,37 @@
-<IfModule mod_security.c>
-SecFilterEngine Off
-SecFilterScanPOST Off
-</IfModule>
-
 php_value session.gc_maxlifetime 604800
 php_value session.cookie_lifetime 604800
 php_value session.gc_probability 1
 php_value session.gc_divisor 1000
-php_value session.name "cripsum_session"
+php_flag display_errors Off
+php_flag log_errors On
+php_flag expose_php Off
+php_value session.use_strict_mode 1
+php_value session.use_only_cookies 1
+php_value session.use_trans_sid 0
+php_value session.name "__Host-cripsum_session"
 php_value session.cookie_path "/"
+php_value session.cookie_secure 1
 php_value session.cookie_httponly 1
 php_value session.cookie_samesite "Lax"
 
 RewriteEngine On
+
+# Never expose application secrets, local diagnostics, or browser-executable
+# content uploaded by users.
+RewriteRule ^(?:config|secure|migrations)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:scratch)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:debug_chars|test_apply)\.php$ - [F,L,NC]
+RewriteRule ^api/(?:bot/migrate_[^/]+|chat/(?:create_group_chat_db|debug_chat|fix_chat_db|temp_debug|test_list|test_messages)|game/(?:check_db_name|check_prod_db|debug_actions)|social/(?:init_db|debug_friends|debug_profile))\.php$ - [F,L,NC]
+RewriteRule ^uploads/.*\.(?:php[0-9]?|phtml|phar|cgi|pl|py|sh|shtml|html?|xhtml|svg|xml|js|mjs|htaccess)(?:[./]|$) - [F,L,NC]
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), geolocation=(), microphone=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests"
+</IfModule>
 
 # Maintenance mode: comment/remove this block when the update is finished.
 # ErrorDocument 503 /maintenance.html

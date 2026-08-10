@@ -4,6 +4,11 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/stripe_config.php';
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit('Metodo non consentito.');
+}
+
 if (!isLoggedIn()) {
     $lang = 'it';
     if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
@@ -11,6 +16,17 @@ if (!isLoggedIn()) {
     }
     header("Location: /{$lang}/accedi");
     exit;
+}
+
+if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    http_response_code(419);
+    exit('Sessione scaduta. Ricarica la pagina.');
+}
+
+if (STRIPE_SECRET_KEY === '' || STRIPE_PRICE_ID === '') {
+    error_log('Stripe checkout disabled: missing runtime credentials.');
+    http_response_code(503);
+    exit('Pagamento temporaneamente non disponibile.');
 }
 
 $lang = 'it';
@@ -21,7 +37,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 $userId = (int)$_SESSION['user_id'];
 $recipientId = $userId;
 $isGift = false;
-$giftTo = isset($_REQUEST['gift_to']) ? trim($_REQUEST['gift_to']) : '';
+$giftTo = isset($_POST['gift_to']) ? trim((string)$_POST['gift_to']) : '';
 
 if (!empty($giftTo)) {
     $stmt = $mysqli->prepare("SELECT id, is_premium FROM utenti WHERE username = ? LIMIT 1");
@@ -120,7 +136,7 @@ header('Content-Type: text/html; charset=utf-8');
     <div class="card">
         <h1>Errore di Connessione</h1>
         <p>Impossibile avviare la sessione di pagamento con Stripe.</p>
-        <p>Verifica che le credenziali (Secret Key e Price ID) siano corrette in <code>config/stripe_config.php</code>.</p>
+        <p>Verifica la configurazione sicura Stripe sul server.</p>
         <?php
         if ($response) {
             $errObj = json_decode($response, true);

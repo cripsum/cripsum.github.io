@@ -55,10 +55,13 @@ $csrfToken = admin_csrf_token();
                 <button type="button" data-section="logs"><i class="fa-solid fa-clock-rotate-left"></i><span>Log</span></button>
             </nav>
 
-            <a class="admin-side-link" href="/api/admin/export_users_csv.php?csrf_token=<?php echo urlencode($csrfToken); ?>">
-                <i class="fa-solid fa-file-csv"></i>
-                <span>Esporta utenti CSV</span>
-            </a>
+            <form method="post" action="/api/admin/export_users_csv.php">
+                <input type="hidden" name="csrf_token" value="<?php echo admin_h($csrfToken); ?>">
+                <button type="submit" class="admin-side-link" style="width:100%; border:0; text-align:left;">
+                    <i class="fa-solid fa-file-csv"></i>
+                    <span>Esporta utenti CSV</span>
+                </button>
+            </form>
         </aside>
 
         <section class="admin-main">

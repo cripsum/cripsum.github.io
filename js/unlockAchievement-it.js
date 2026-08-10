@@ -16,7 +16,8 @@
     const state = {
         queue: [],
         showing: false,
-        hideTimer: null
+        hideTimer: null,
+        csrfToken: ''
     };
 
     function getCookie(name) {
@@ -80,6 +81,9 @@
             if (!response.ok) {
                 return fallback;
             }
+
+            const csrfToken = response.headers.get('X-CSRF-Token');
+            if (csrfToken) state.csrfToken = csrfToken;
 
             return await response.json();
         } catch (err) {
@@ -270,8 +274,15 @@
                 return false;
             }
 
-            const result = await fetch(`${API_BASE}/set_achievement?achievement_id=${encodeURIComponent(achievementId)}`, {
-                credentials: 'include'
+            const body = new URLSearchParams({
+                achievement_id: String(achievementId),
+                csrf_token: state.csrfToken
+            });
+            const result = await fetch(`${API_BASE}/set_achievement`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'X-CSRF-Token': state.csrfToken },
+                body
             });
 
             if (!result.ok) {

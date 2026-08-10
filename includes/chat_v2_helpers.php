@@ -80,8 +80,11 @@ function chat_csrf_token(): string
 
 function chat_verify_csrf(array $data): void
 {
-    $token = (string)($data['csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
-    if (empty($_SESSION['chat_csrf']) || !hash_equals((string)$_SESSION['chat_csrf'], $token)) {
+    $token = (string)($data['csrf'] ?? $data['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+    $validChatToken = !empty($_SESSION['chat_csrf'])
+        && hash_equals((string)$_SESSION['chat_csrf'], $token);
+    $validSiteToken = function_exists('csrf_validate') && csrf_validate($token);
+    if (!$validChatToken && !$validSiteToken) {
         chat_json(['ok' => false, 'error' => 'Token non valido. Ricarica la pagina.'], 419);
     }
 }

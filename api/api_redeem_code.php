@@ -6,6 +6,12 @@ require_once __DIR__ . '/../includes/redeem_codes.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Metodo non consentito.']);
+    exit;
+}
+
 if (empty($_SESSION['user_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Non autenticato.']);
     exit;
@@ -14,6 +20,13 @@ if (empty($_SESSION['user_id'])) {
 $userId = (int)$_SESSION['user_id'];
 
 $body   = json_decode(file_get_contents('php://input'), true);
+$body   = is_array($body) ? $body : [];
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($body['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['status' => 'error', 'message' => 'Sessione scaduta. Ricarica la pagina.']);
+    exit;
+}
 $codice = strtolower(trim($body['codice'] ?? ''));
 $lang   = ($body['lang'] ?? 'it') === 'en' ? 'en' : 'it';
 

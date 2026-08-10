@@ -82,6 +82,13 @@ if (empty($input)) {
     $input = $_POST;
 }
 
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['status' => 'error', 'message' => 'Sessione scaduta. Ricarica la pagina.', 'code' => 'CSRF_FAILED']);
+    exit();
+}
+
 $rawBannerId = $input['banner_id'] ?? null;
 $quantity    = (int) ($input['quantity'] ?? 1);
 

@@ -103,8 +103,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newEmail = trim($_POST['email'] ?? '');
         $currentPassword = $_POST['current_password'] ?? '';
         $hasPassword = !empty($currentUser['password']);
+        $securityIdentifier = 'user:' . $userId;
 
-        if ($newEmail === '') {
+        if (auth_rate_limited($mysqli, $securityIdentifier, 'email_change_failed', 5, 30)) {
+            $error = 'Too many attempts. Please try again later.';
+        } elseif ($newEmail === '') {
             $error = 'Email is required.';
         } elseif (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
             $error = 'Invalid email.';
@@ -112,10 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'The new email is the same as the current email.';
         } elseif ($hasPassword && !auth_verify_user_password($mysqli, $userId, $currentPassword)) {
             $error = 'Invalid current password.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'email_change_failed');
         } else {
             $result = updateUserSettings($mysqli, $userId, $username, $newEmail, '', $nsfw, $richpresence);
 
             if ($result === true) {
+                auth_record_login_attempt($mysqli, $userId, $securityIdentifier, true, 'email_change_ok');
                 auth_revoke_current_device_session($mysqli);
                 session_destroy();
                 session_start();
@@ -131,19 +136,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $confirmPassword = $_POST['confirm_password'] ?? '';
         $currentPassword = $_POST['current_password'] ?? '';
         $hasPassword = !empty($currentUser['password']);
+        $securityIdentifier = 'user:' . $userId;
+        $passwordPolicyError = auth_password_policy_error($newPassword, $username, $email);
 
-        if ($newPassword === '') {
+        if (auth_rate_limited($mysqli, $securityIdentifier, 'password_change_failed', 5, 30)) {
+            $error = 'Too many password change attempts. Please try again later.';
+        } elseif ($newPassword === '') {
             $error = 'New password is required.';
-        } elseif (strlen($newPassword) < 8) {
-            $error = 'The new password must be at least 8 characters long.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'password_change_failed');
+        } elseif ($passwordPolicyError !== null) {
+            $error = auth_password_policy_message($passwordPolicyError, 'en');
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'password_change_failed');
         } elseif ($newPassword !== $confirmPassword) {
             $error = 'The passwords do not match.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'password_change_failed');
         } elseif ($hasPassword && !auth_verify_user_password($mysqli, $userId, $currentPassword)) {
             $error = 'Invalid current password.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'password_change_failed');
         } else {
             $result = updateUserSettings($mysqli, $userId, $username, $email, $newPassword, $nsfw, $richpresence);
 
             if ($result === true) {
+                auth_record_login_attempt($mysqli, $userId, $securityIdentifier, true, 'password_change_ok');
                 $success = 'Password successfully updated. All other devices have been disconnected.';
             } else {
                 $error = is_string($result) ? $result : 'Error saving settings.';
@@ -162,13 +176,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'enable_2fa') {
         $code = trim($_POST['twofa_code'] ?? '');
         $twofaSetupSecret = $_SESSION['twofa_setup_secret'] ?? null;
+        $securityIdentifier = 'user:' . $userId;
 
-        if (!$twofaStatus['has_columns']) {
+        if (auth_rate_limited($mysqli, $securityIdentifier, 'enable_2fa_failed', 5, 30)) {
+            $error = 'Too many 2FA activation attempts. Try again later.';
+        } elseif (!$twofaStatus['has_columns']) {
             $error = 'Missing 2FA fields in the database.';
         } elseif (!$twofaSetupSecret) {
             $error = '2FA setup not started.';
         } elseif (!totp_verify($twofaSetupSecret, $code)) {
             $error = 'Invalid code.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'enable_2fa_failed');
         } else {
             $result = auth_enable_2fa($mysqli, $userId, $twofaSetupSecret);
 
@@ -185,13 +203,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'disable_2fa') {
         $currentPassword = $_POST['current_password'] ?? '';
         $code = trim($_POST['twofa_code'] ?? '');
+        $securityIdentifier = 'user:' . $userId;
 
-        if (!$twofaStatus['enabled']) {
+        if (auth_rate_limited($mysqli, $securityIdentifier, 'disable_2fa_failed', 5, 30)) {
+            $error = 'Too many 2FA deactivation attempts. Try again later.';
+        } elseif (!$twofaStatus['enabled']) {
             $error = '2FA is not enabled.';
         } elseif (!auth_verify_user_password($mysqli, $userId, $currentPassword)) {
             $error = 'Invalid current password.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'disable_2fa_failed');
         } elseif (!auth_verify_2fa_or_backup($mysqli, $userId, $code)) {
             $error = 'Invalid 2FA code.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'disable_2fa_failed');
         } elseif (auth_disable_2fa($mysqli, $userId)) {
             unset($_SESSION['twofa_setup_secret']);
             $twofaStatus = auth_twofa_status($mysqli, $userId);
@@ -202,13 +225,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'regenerate_backup_codes') {
         $currentPassword = $_POST['current_password'] ?? '';
         $code = trim($_POST['twofa_code'] ?? '');
+        $securityIdentifier = 'user:' . $userId;
 
-        if (!$twofaStatus['enabled']) {
+        if (auth_rate_limited($mysqli, $securityIdentifier, 'backup_codes_failed', 5, 30)) {
+            $error = 'Too many regeneration attempts. Try again later.';
+        } elseif (!$twofaStatus['enabled']) {
             $error = 'First, enable 2FA.';
         } elseif (!auth_verify_user_password($mysqli, $userId, $currentPassword)) {
             $error = 'Invalid current password.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'backup_codes_failed');
         } elseif (!auth_verify_2fa_or_backup($mysqli, $userId, $code)) {
             $error = 'Invalid 2FA code.';
+            auth_record_rate_failure($mysqli, $userId, $securityIdentifier, 'backup_codes_failed');
         } else {
             $backupCodesNew = auth_generate_backup_codes(8);
             if (auth_store_backup_codes($mysqli, $userId, $backupCodesNew)) {
@@ -433,17 +461,18 @@ $settingsLanguage = 'en';
                             <label class="auth-field">
                                 <span>New password</span>
                                 <div class="auth-password">
-                                    <input type="password" name="password" autocomplete="new-password" minlength="8" required data-password-input>
+                                    <input type="password" name="password" autocomplete="new-password" minlength="8" maxlength="128" required data-password-input>
                                     <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
                                 </div>
+                                <small><?php echo auth_h(auth_password_policy_hint('en')); ?></small>
                             </label>
 
                             <label class="auth-field">
                                 <span>Confirm new password</span>
                                 <div class="auth-password">
-                                    <input type="password" name="confirm_password" autocomplete="new-password" minlength="8" required data-password-input>
+                                    <input type="password" name="confirm_password" autocomplete="new-password" minlength="8" maxlength="128" required data-password-input>
                                     <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
                                         <i class="fa-solid fa-eye"></i>
                                     </button>

@@ -142,6 +142,12 @@ if ($method === 'GET') {
     exit();
 
 } elseif ($method === 'POST') {
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        http_response_code(419);
+        echo json_encode(['ok' => false, 'error' => 'Sessione scaduta. Ricarica la pagina.']);
+        exit();
+    }
+
     $action = $_POST['action'] ?? '';
 
     // AZIONE: Chiudi / Riapri Ticket
@@ -240,12 +246,23 @@ if ($method === 'GET') {
         $check = getimagesize($_FILES['attachment']['tmp_name']);
         if ($check !== false) {
             if ($_FILES['attachment']['size'] <= 5 * 1024 * 1024) {
+                $allowedImageMimes = [
+                    'image/jpeg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/webp' => 'webp',
+                    'image/gif' => 'gif',
+                ];
+                $detectedMime = (string)($check['mime'] ?? '');
+                if (!isset($allowedImageMimes[$detectedMime])) {
+                    echo json_encode(['ok' => false, 'error' => 'Formato immagine non supportato.']);
+                    exit();
+                }
                 $uploadDir = __DIR__ . '/../uploads/tickets/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
-                $ext = pathinfo($_FILES['attachment']['name'], PATHINFO_EXTENSION);
-                $fileName = uniqid('img_', true) . '.' . $ext;
+                $ext = $allowedImageMimes[$detectedMime];
+                $fileName = 'img_' . bin2hex(random_bytes(16)) . '.' . $ext;
                 $targetFile = $uploadDir . $fileName;
                 
                 if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetFile)) {

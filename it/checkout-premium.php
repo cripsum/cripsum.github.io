@@ -227,6 +227,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
             <div class="checkout-layout">
                 <div class="form-panel">
                     <form id="premiumCheckoutForm" action="/api/create_checkout_session.php" method="POST">
+                        <?php echo csrf_field(); ?>
                         <div class="form-section">
                             <h2>1. Destinatario dell'attivazione</h2>
 
@@ -522,11 +523,13 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                     return fetch('/api/create_paypal_order.php', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
+                                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
                             },
                             body: JSON.stringify({
                                 is_gift: purchaseGift.checked,
-                                recipient_username: purchaseGift.checked ? giftUsernameInput.value.trim() : ''
+                                recipient_username: purchaseGift.checked ? giftUsernameInput.value.trim() : '',
+                                csrf_token: document.querySelector('meta[name="csrf-token"]')?.content || ''
                             })
                         })
                         .then(function(res) {
@@ -545,12 +548,14 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                     return fetch('/api/capture_paypal_order.php', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
+                                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
                             },
                             body: JSON.stringify({
                                 orderID: data.orderID,
                                 is_gift: purchaseGift.checked,
-                                recipient_username: purchaseGift.checked ? giftUsernameInput.value.trim() : ''
+                                recipient_username: purchaseGift.checked ? giftUsernameInput.value.trim() : '',
+                                csrf_token: document.querySelector('meta[name="csrf-token"]')?.content || ''
                             })
                         })
                         .then(function(res) {
@@ -571,7 +576,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                 },
                 onError: function(err) {
                     console.error('PayPal Error:', err);
-                    alert('Si è verificato un errore con PayPal. Se il Client ID è placeholder, configurare le credenziali reali in paypal_config.php.');
+                    alert('Si è verificato un errore con PayPal. Verifica la configurazione sicura del server.');
                 }
             }).render('#paypal-button-container');
         });

@@ -28,6 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_POST['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['error' => 'Sessione scaduta. Ricarica la pagina.', 'code' => 'CSRF_FAILED']);
+    exit();
+}
+
 if (!isset($mysqli) || !($mysqli instanceof mysqli)) {
     http_response_code(500);
     echo json_encode(['error' => 'Database non disponibile']);

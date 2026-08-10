@@ -678,6 +678,11 @@ function logoutUser($database = null)
 
 function registerUser($mysqli, $username, $email, $password)
 {
+    $passwordPolicyError = auth_password_policy_error((string)$password, (string)$username, (string)$email);
+    if ($passwordPolicyError !== null) {
+        return auth_password_policy_message($passwordPolicyError, 'it');
+    }
+
     $checkStmt = $mysqli->prepare("SELECT id FROM utenti WHERE username = ? OR email = ?");
     $checkStmt->bind_param("ss", $username, $email);
     $checkStmt->execute();
@@ -687,7 +692,7 @@ function registerUser($mysqli, $username, $email, $password)
     }
     $checkStmt->close();
 
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    $passwordHash = auth_password_hash_secure((string)$password);
 
     $emailToken = bin2hex(random_bytes(32));
 
@@ -843,7 +848,11 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
 
 
     if (!empty($password)) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $passwordPolicyError = auth_password_policy_error((string)$password, (string)$username, (string)$email);
+        if ($passwordPolicyError !== null) {
+            return auth_password_policy_message($passwordPolicyError, 'it');
+        }
+        $hashedPassword = auth_password_hash_secure((string)$password);
         if ($emailChanged) {
             $emailToken = bin2hex(random_bytes(32));
             $stmt = $mysqli->prepare("UPDATE utenti SET username = ?, password = ?, nsfw = ?, richpresence = ?, email_verificata = 0, email_token = ?, email = ? WHERE id = ?");

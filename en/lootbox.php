@@ -841,7 +841,8 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 try {
                     premiumBtn.disabled = true;
                     const res = await fetch('/api/premium_daily_claim.php', {
-                        method: 'POST'
+                        method: 'POST',
+                        headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '' }
                     });
                     const data = await res.json();
                     if (data.success) {
@@ -888,9 +889,9 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
-    <script src="/js/unlockAchievement-it.js"></script>
+    <script src="/js/unlockAchievement-it.js?v=2.2"></script>
     <script src="/js/gacha-effects.js?v=5"></script>
-    <script src="/js/gacha.js?v=45"></script>
+    <script src="/js/gacha.js?v=46"></script>
 
     <script>
         // ── Cronologia banner corrente ────────────────────────────────────────
@@ -980,11 +981,13 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                 const resp = await fetch('/api/api_redeem_code', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
                     },
                     body: JSON.stringify({
                         codice,
-                        lang: location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it'
+                        lang: location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it',
+                        csrf_token: document.querySelector('meta[name="csrf-token"]')?.content || ''
                     }),
                     credentials: 'same-origin',
                 });

@@ -454,10 +454,14 @@
     
     window.sendGroupInviteFromCard = async function (chatId, inviteeId) {
         try {
+            const csrfToken = document.body.dataset.csrf || '';
             const res = await fetch('/api/chat/invite_user.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, invitee_id: inviteeId })
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({ chat_id: chatId, invitee_id: inviteeId, csrf_token: csrfToken })
             }).then(r => r.json());
             
             if (res.ok) {

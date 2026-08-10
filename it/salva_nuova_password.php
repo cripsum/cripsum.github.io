@@ -1,36 +1,74 @@
 <?php
+require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+
+header('Cache-Control: no-store, private');
+header('Referrer-Policy: no-referrer');
 
 $token = $_POST['token'] ?? '';
 $nuova_password = $_POST['nuova_password'] ?? '';
 $messaggio = '';
 $success = false;
 
-if ($token && $nuova_password) {
-    $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE reset_token = ? AND token_scadenza > NOW()");
-    $stmt->bind_param("s", $token);
-    $stmt->execute();
-    $result = $stmt->get_result();
+$resetIdentifier = 'reset:' . substr(hash('sha256', (string)$token), 0, 32);
+$passwordPolicyError = auth_password_policy_error((string)$nuova_password);
 
-    if ($row = $result->fetch_assoc()) {
-        $id = $row['id'];
-        $hash = password_hash($nuova_password, PASSWORD_DEFAULT);
-
-        $stmt = $mysqli->prepare("UPDATE utenti SET password = ?, reset_token = NULL, token_scadenza = NULL WHERE id = ?");
-        $stmt->bind_param("si", $hash, $id);
-        if ($stmt->execute()) {
-            auth_revoke_all_device_sessions($mysqli, (int)$id);
-            $messaggio = "Password aggiornata con successo. Tutti i dispositivi sono stati scollegati.";
-            $success = true;
-        } else {
-            $messaggio = "Non è stato possibile aggiornare la password.";
-        }
-    } else {
-        $messaggio = "Token non valido o scaduto.";
-    }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $messaggio = 'Metodo non consentito.';
+} elseif (auth_rate_limited($mysqli, $resetIdentifier, 'password_reset_submit_failed', 5, 30)) {
+    $messaggio = 'Troppi tentativi. Richiedi un nuovo link o riprova più tardi.';
+} elseif (!preg_match('/^[a-f0-9]{64}$/', (string)$token)) {
+    $messaggio = 'Token non valido o scaduto.';
+    auth_record_rate_failure($mysqli, null, $resetIdentifier, 'password_reset_submit_failed');
+} elseif ($passwordPolicyError !== null) {
+    $messaggio = auth_password_policy_message($passwordPolicyError, 'it');
+    auth_record_rate_failure($mysqli, null, $resetIdentifier, 'password_reset_submit_failed');
 } else {
-    $messaggio = "Richiesta non valida.";
+    $tokenHash = hash('sha256', (string)$token);
+    $stmt = $mysqli->prepare("SELECT id, username, email FROM utenti WHERE reset_token = ? AND token_scadenza > NOW()");
+    if (!$stmt) {
+        $messaggio = 'Non è stato possibile verificare il link.';
+    } else {
+        $stmt->bind_param("s", $tokenHash);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+    }
+
+    if (!empty($row)) {
+        $id = (int)$row['id'];
+        $contextPolicyError = auth_password_policy_error((string)$nuova_password, (string)($row['username'] ?? ''), (string)($row['email'] ?? ''));
+        if ($contextPolicyError !== null) {
+            $messaggio = auth_password_policy_message($contextPolicyError, 'it');
+            auth_record_rate_failure($mysqli, $id, $resetIdentifier, 'password_reset_submit_failed');
+        } else {
+            $hash = auth_password_hash_secure((string)$nuova_password);
+            $stmt = $mysqli->prepare("UPDATE utenti SET password = ?, reset_token = NULL, token_scadenza = NULL WHERE id = ? AND reset_token = ? AND token_scadenza > NOW()");
+
+            if ($stmt) {
+                $stmt->bind_param("sis", $hash, $id, $tokenHash);
+                $updated = $stmt->execute() && $stmt->affected_rows === 1;
+                $stmt->close();
+            } else {
+                $updated = false;
+            }
+
+            if ($updated) {
+                auth_revoke_all_device_sessions($mysqli, $id);
+                auth_record_login_attempt($mysqli, $id, $resetIdentifier, true, 'password_reset_submit_ok');
+                $messaggio = "Password aggiornata con successo. Tutti i dispositivi sono stati scollegati.";
+                $success = true;
+            } else {
+                $messaggio = "Non è stato possibile aggiornare la password.";
+                auth_record_rate_failure($mysqli, $id, $resetIdentifier, 'password_reset_submit_failed');
+            }
+        }
+    } elseif ($messaggio === '') {
+        $messaggio = "Token non valido o scaduto.";
+        auth_record_rate_failure($mysqli, null, $resetIdentifier, 'password_reset_submit_failed');
+    }
 }
 ?>
 <!DOCTYPE html>

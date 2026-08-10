@@ -114,6 +114,77 @@ function auth_is_valid_username(string $username): bool
     return true;
 }
 
+function auth_password_policy_error(string $password, string $username = '', string $email = ''): ?string
+{
+    $length = mb_strlen($password, 'UTF-8');
+    if ($length < 8) return 'min_length';
+    if ($length > 128) return 'max_length';
+
+    return null;
+}
+
+function auth_password_policy_message(?string $error, string $lang = 'it'): string
+{
+    $messages = [
+        'it' => [
+            'min_length' => 'Usa almeno 8 caratteri.',
+            'max_length' => 'La password non può superare 128 caratteri.',
+        ],
+        'en' => [
+            'min_length' => 'Use at least 8 characters.',
+            'max_length' => 'The password cannot exceed 128 characters.',
+        ],
+    ];
+    $language = $lang === 'en' ? 'en' : 'it';
+    return $messages[$language][$error ?? ''] ?? ($language === 'en'
+        ? 'Choose a stronger password.'
+        : 'Scegli una password più sicura.');
+}
+
+function auth_password_hash_secure(string $password): string
+{
+    if (defined('PASSWORD_ARGON2ID')) {
+        return password_hash($password, PASSWORD_ARGON2ID);
+    }
+
+    // bcrypt considers only the first 72 bytes. Pre-hashing avoids silently
+    // truncating long UTF-8 passwords on hosts where Argon2id is unavailable.
+    $preHash = base64_encode(hash('sha384', $password, true));
+    return '$cripsum-sha384$' . password_hash($preHash, PASSWORD_DEFAULT);
+}
+
+function auth_password_verify_secure(string $password, string $hash): bool
+{
+    $prefix = '$cripsum-sha384$';
+    if (str_starts_with($hash, $prefix)) {
+        $preHash = base64_encode(hash('sha384', $password, true));
+        return password_verify($preHash, substr($hash, strlen($prefix)));
+    }
+
+    return password_verify($password, $hash);
+}
+
+function auth_password_needs_rehash_secure(string $hash): bool
+{
+    if (defined('PASSWORD_ARGON2ID')) {
+        return password_needs_rehash($hash, PASSWORD_ARGON2ID);
+    }
+
+    $prefix = '$cripsum-sha384$';
+    if (!str_starts_with($hash, $prefix)) {
+        return true;
+    }
+
+    return password_needs_rehash(substr($hash, strlen($prefix)), PASSWORD_DEFAULT);
+}
+
+function auth_password_policy_hint(string $lang = 'it'): string
+{
+    return $lang === 'en'
+        ? 'Minimum 8 characters. The strength indicator is advisory and does not block your choice.'
+        : 'Minimo 8 caratteri. L’indicatore di sicurezza è solo informativo e non blocca la tua scelta.';
+}
+
 function auth_normalize_backup_code(string $code): string
 {
     return strtoupper(preg_replace('/[^A-Z0-9]/', '', $code));
@@ -286,6 +357,12 @@ function auth_session_rate_fail(string $identifier, string $reason): void
     $_SESSION[$key][] = time();
 }
 
+function auth_record_rate_failure(mysqli $mysqli, ?int $userId, string $identifier, string $reason): void
+{
+    auth_record_login_attempt($mysqli, $userId, $identifier, false, $reason);
+    auth_session_rate_fail($identifier, $reason);
+}
+
 function auth_select_user_columns(mysqli $mysqli): string
 {
     $columns = [
@@ -411,6 +488,11 @@ function auth_complete_login(array $user, $mysqli = null)
 
     session_regenerate_id(true);
 
+    $sessionNow = time();
+    $_SESSION['session_created_at'] = $sessionNow;
+    $_SESSION['session_last_activity'] = $sessionNow;
+    $_SESSION['session_last_rotation'] = $sessionNow;
+
     $_SESSION['user_id'] = (int)$user['id'];
     $_SESSION['username'] = $user['username'];
     $_SESSION['email'] = $user['email'];
@@ -437,7 +519,7 @@ function auth_start_password_login(mysqli $mysqli, string $identifier, string $p
         return ['ok' => false, 'message' => 'Inserisci email/username e password.'];
     }
 
-    if (auth_rate_limited($mysqli, $identifier, 'login_failed', 8, 15)) {
+    if (auth_rate_limited($mysqli, $identifier, 'login_failed', 5, 15)) {
         return ['ok' => false, 'message' => 'Troppi tentativi. Riprova tra qualche minuto.'];
     }
 
@@ -453,10 +535,21 @@ function auth_start_password_login(mysqli $mysqli, string $identifier, string $p
         ];
     }
 
-    if (!$user || !password_verify($password, $user['password'])) {
+    if (!$user || !auth_password_verify_secure($password, (string)$user['password'])) {
         auth_record_login_attempt($mysqli, $user['id'] ?? null, $identifier, false, 'login_failed');
         auth_session_rate_fail($identifier, 'login_failed');
         return ['ok' => false, 'message' => 'Credenziali non valide.'];
+    }
+
+    if (auth_password_needs_rehash_secure((string)$user['password'])) {
+        $newHash = auth_password_hash_secure($password);
+        $rehash = $mysqli->prepare('UPDATE utenti SET password = ? WHERE id = ? LIMIT 1');
+        if ($rehash) {
+            $rehashUserId = (int)$user['id'];
+            $rehash->bind_param('si', $newHash, $rehashUserId);
+            $rehash->execute();
+            $rehash->close();
+        }
     }
 
     if ((int)($user['email_verificata'] ?? 1) === 0) {
@@ -556,7 +649,7 @@ function auth_verify_user_password(mysqli $mysqli, int $userId, string $password
     $hash = $stmt->get_result()->fetch_assoc()['password'] ?? '';
     $stmt->close();
 
-    return is_string($hash) && $hash !== '' && password_verify($password, $hash);
+    return is_string($hash) && $hash !== '' && auth_password_verify_secure($password, $hash);
 }
 
 function auth_twofa_status(mysqli $mysqli, int $userId): array

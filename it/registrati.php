@@ -52,10 +52,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $repeatPassword = $_POST['repeatPassword'] ?? '';
     $acceptTerms = isset($_POST['acceptTerms']);
+    $registrationIdentifier = $email ?: $username;
+    $registrationRateLimited = auth_rate_limited($mysqli, $registrationIdentifier, 'register_attempt', 5, 30);
+
+    if (!$registrationRateLimited && csrf_validate($_POST['csrf_token'] ?? null)) {
+        auth_record_login_attempt($mysqli, null, $registrationIdentifier, false, 'register_attempt');
+        auth_session_rate_fail($registrationIdentifier, 'register_attempt');
+    }
 
     if (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $error = 'Sessione scaduta. Riprova.';
-    } elseif (auth_rate_limited($mysqli, $email ?: $username, 'register_failed', 5, 30)) {
+    } elseif ($registrationRateLimited) {
         $error = 'Troppi tentativi. Riprova tra qualche minuto.';
     } elseif ($username === '' || $email === '' || $password === '' || $repeatPassword === '') {
         $error = 'Compila tutti i campi.';
@@ -67,8 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Email non valida.';
     } elseif ($password !== $repeatPassword) {
         $error = 'Le password non coincidono.';
-    } elseif (strlen($password) < 8) {
-        $error = 'La password deve avere almeno 8 caratteri.';
+    } elseif (($passwordPolicyError = auth_password_policy_error($password, $username, $email)) !== null) {
+        $error = auth_password_policy_message($passwordPolicyError, 'it');
     } elseif (!auth_recaptcha_verify()) {
         $error = 'Verifica reCAPTCHA non riuscita.';
     } else {
@@ -138,17 +145,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="auth-field">
                         <span>Password</span>
                         <div class="auth-password">
-                            <input type="password" name="password" autocomplete="new-password" required minlength="8" data-password-input>
+                            <input type="password" name="password" autocomplete="new-password" required minlength="8" maxlength="128" data-password-input>
                             <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
+                        <small><?php echo auth_h(auth_password_policy_hint('it')); ?></small>
                     </label>
 
                     <label class="auth-field">
                         <span>Ripeti password</span>
                         <div class="auth-password">
-                            <input type="password" name="repeatPassword" autocomplete="new-password" required minlength="8" data-password-input>
+                            <input type="password" name="repeatPassword" autocomplete="new-password" required minlength="8" maxlength="128" data-password-input>
                             <button type="button" data-toggle-password aria-label="Mostra password" style="margin-top: -18px;">
                                 <i class="fa-solid fa-eye"></i>
                             </button>

@@ -6,6 +6,7 @@
     root.setAttribute('data-shop-controller-ready', '1');
 
     var lang = root.getAttribute('data-lang') === 'en' ? 'en' : 'it';
+    var csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
     var copy = lang === 'en' ? {
         paypalLoading: 'Loading PayPal…',
         paypalUnavailable: 'PayPal is temporarily unavailable. Card payment is still available.',
@@ -165,8 +166,8 @@
                     return fetchJson('/api/create_paypal_shard_order.php', {
                         method: 'POST',
                         credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify({ package_id: currentPackageId })
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrfToken },
+                        body: JSON.stringify({ package_id: currentPackageId, csrf_token: csrfToken })
                     }).then(function (data) {
                         if (!data.ok || !data.id) throw new Error(data.message || copy.paypalCreateError);
                         return data.id;
@@ -176,8 +177,8 @@
                     return fetchJson('/api/capture_paypal_shard_order.php', {
                         method: 'POST',
                         credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify({ orderID: data.orderID, package_id: currentPackageId })
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrfToken },
+                        body: JSON.stringify({ orderID: data.orderID, package_id: currentPackageId, csrf_token: csrfToken })
                     }).then(function (details) {
                         if (!details.ok) throw new Error(details.message || copy.paypalCaptureError);
                         window.location.assign('/' + lang + '/shop.php?payment=success&package_id=' + encodeURIComponent(currentPackageId));
@@ -331,8 +332,8 @@
             fetchJson('/api/purchase_godos_item.php', {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ item_id: parseInt(pendingPurchaseItemId, 10) })
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrfToken },
+                body: JSON.stringify({ item_id: parseInt(pendingPurchaseItemId, 10), csrf_token: csrfToken })
             }).then(function (data) {
                 if (data.status !== 'success') throw new Error(data.message);
 
@@ -468,8 +469,8 @@
             fetchJson(conversionForm.action, {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ shards: quantity })
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrfToken },
+                body: JSON.stringify({ shards: quantity, csrf_token: csrfToken })
             }).then(function (data) {
                 if (data.status !== 'success') throw new Error(data.message || copy.conversionError);
                 updateBalances(data);

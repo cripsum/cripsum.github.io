@@ -5,6 +5,13 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/paypal_config.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, private');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['ok' => false, 'message' => 'Metodo non consentito.']);
+    exit;
+}
 
 if (!isLoggedIn()) {
     echo json_encode(['ok' => false, 'message' => 'Devi essere loggato.']);
@@ -12,10 +19,17 @@ if (!isLoggedIn()) {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
+$input = is_array($input) ? $input : [];
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.']);
+    exit;
+}
 $orderId = isset($input['orderID']) ? trim($input['orderID']) : '';
 $packageId = isset($input['package_id']) ? trim($input['package_id']) : '';
 
-if (empty($orderId) || empty($packageId)) {
+if (!preg_match('/^[a-zA-Z0-9-]{6,64}$/', $orderId) || empty($packageId)) {
     echo json_encode(['ok' => false, 'message' => 'ID ordine o pacchetto mancante.']);
     exit;
 }
@@ -45,33 +59,41 @@ if (!$token) {
 }
 
 $paymentVerified = false;
+$url = PAYPAL_MODE === 'live'
+    ? "https://api-m.paypal.com/v2/checkout/orders/" . rawurlencode($orderId) . "/capture"
+    : "https://api-m.sandbox.paypal.com/v2/checkout/orders/" . rawurlencode($orderId) . "/capture";
 
-// Se è un ordine mockato, consideriamolo verificato per facilitare i test locali
-if (strpos($orderId, 'MOCK_ORDER_') === 0 || strpos($token, 'MOCK_TOKEN_') === 0) {
-    $paymentVerified = true;
-} else {
-    $url = PAYPAL_MODE === 'live'
-        ? "https://api-m.paypal.com/v2/checkout/orders/{$orderId}/capture"
-        : "https://api-m.sandbox.paypal.com/v2/checkout/orders/{$orderId}/capture";
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'Authorization: Bearer ' . $token
+]);
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $token
-    ]);
+$response = curl_exec($ch);
+$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
 
-    $response = curl_exec($ch);
-    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+if ($status === 200 || $status === 201) {
+    $resJson = json_decode($response, true);
+    $purchaseUnit = $resJson['purchase_units'][0] ?? [];
+    $capture = $purchaseUnit['payments']['captures'][0] ?? [];
+    $capturedAmount = number_format((float)($capture['amount']['value'] ?? -1), 2, '.', '');
+    $expectedAmount = number_format((float)$packages[$packageId]['price'], 2, '.', '');
+    $currency = strtoupper((string)($capture['amount']['currency_code'] ?? ''));
+    $customId = (string)($purchaseUnit['custom_id'] ?? '');
+    $expectedCustomId = $userId . ':' . $packageId;
 
-    if ($status === 200 || $status === 201) {
-        $resJson = json_decode($response, true);
-        if (($resJson['status'] ?? '') === 'COMPLETED') {
-            $paymentVerified = true;
-        }
+    if (($resJson['status'] ?? '') === 'COMPLETED'
+        && ($capture['status'] ?? '') === 'COMPLETED'
+        && hash_equals($expectedAmount, $capturedAmount)
+        && hash_equals(PAYPAL_CURRENCY, $currency)
+        && hash_equals($expectedCustomId, $customId)) {
+        $paymentVerified = true;
     }
 }
 
@@ -86,13 +108,20 @@ $baseShards = $package['shards'];
 // Attivazione nel database in transazione
 $mysqli->begin_transaction();
 try {
+    $stmtUserLock = $mysqli->prepare('SELECT id FROM utenti WHERE id = ? LIMIT 1 FOR UPDATE');
+    if (!$stmtUserLock) throw new RuntimeException('Blocco utente non disponibile.');
+    $stmtUserLock->bind_param('i', $userId);
+    if (!$stmtUserLock->execute()) throw new RuntimeException('Blocco utente non riuscito.');
+    $userExists = (bool)$stmtUserLock->get_result()->fetch_row();
+    $stmtUserLock->close();
+    if (!$userExists) throw new RuntimeException('Utente non trovato.');
+
     // 1. Check if first purchase bonus is used
     $stmtBonus = $mysqli->prepare("
         SELECT first_purchase_bonus_used 
         FROM first_purchase_bonuses 
         WHERE user_id = ? AND package_id = ? 
-        LIMIT 1
-        FOR UPDATE
+        LIMIT 1 FOR UPDATE
     ");
     $stmtBonus->bind_param('is', $userId, $packageId);
     $stmtBonus->execute();
@@ -135,7 +164,8 @@ try {
     ]);
 } catch (Exception $e) {
     $mysqli->rollback();
-    echo json_encode(['ok' => false, 'message' => 'Errore nel salvataggio dei dati: ' . $e->getMessage()]);
+    error_log('PayPal shard capture persistence failed: ' . $e->getMessage());
+    echo json_encode(['ok' => false, 'message' => 'Impossibile accreditare l\'acquisto. Contatta il supporto indicando l\'ID ordine.']);
 }
 exit;
 
@@ -145,8 +175,8 @@ function getPayPalAccessToken()
     $clientSecret = PAYPAL_CLIENT_SECRET;
     $mode = PAYPAL_MODE;
 
-    if ($clientId === 'placeholder_your_paypal_client_id' || $clientSecret === 'placeholder_your_paypal_client_secret') {
-        return 'MOCK_TOKEN_' . time();
+    if ($clientId === '' || $clientSecret === '') {
+        return null;
     }
 
     $url = $mode === 'live' ? 'https://api-m.paypal.com/v1/oauth2/token' : 'https://api-m.sandbox.paypal.com/v1/oauth2/token';
@@ -154,7 +184,8 @@ function getPayPalAccessToken()
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_USERPWD, $clientId . ":" . $clientSecret);
