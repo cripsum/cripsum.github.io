@@ -531,31 +531,37 @@
         return canvas;
     }
 
+    let isSimulatingInput = false;
     function simulateCanvasStartInput(canvas) {
-        if (!canvas) return;
+        if (!canvas || isSimulatingInput) return;
+        isSimulatingInput = true;
         try {
             const rect = canvas.getBoundingClientRect();
             const clientX = rect.left + rect.width / 2;
             const clientY = rect.top + rect.height / 2;
 
-            canvas.dispatchEvent(new PointerEvent('pointerdown', { clientX, clientY, bubbles: true, cancelable: true }));
-            canvas.dispatchEvent(new MouseEvent('mousedown', { clientX, clientY, bubbles: true, cancelable: true }));
-            canvas.dispatchEvent(new PointerEvent('pointerup', { clientX, clientY, bubbles: true, cancelable: true }));
-            canvas.dispatchEvent(new MouseEvent('mouseup', { clientX, clientY, bubbles: true, cancelable: true }));
-            canvas.dispatchEvent(new MouseEvent('click', { clientX, clientY, bubbles: true, cancelable: true }));
+            const opts = { clientX, clientY, bubbles: false, cancelable: true };
+            canvas.dispatchEvent(new PointerEvent('pointerdown', opts));
+            canvas.dispatchEvent(new MouseEvent('mousedown', opts));
+            canvas.dispatchEvent(new PointerEvent('pointerup', opts));
+            canvas.dispatchEvent(new MouseEvent('mouseup', opts));
+            canvas.dispatchEvent(new MouseEvent('click', opts));
 
             // Dispatch Space keydown and keyup directly to canvas
-            const spaceDown = new KeyboardEvent('keydown', { code: 'Space', key: ' ', keyCode: 32, which: 32, bubbles: true, cancelable: true });
-            const spaceUp = new KeyboardEvent('keyup', { code: 'Space', key: ' ', keyCode: 32, which: 32, bubbles: true, cancelable: true });
-            canvas.dispatchEvent(spaceDown);
-            canvas.dispatchEvent(spaceUp);
-        } catch (e) {}
+            const spaceOpts = { code: 'Space', key: ' ', keyCode: 32, which: 32, bubbles: false, cancelable: true };
+            canvas.dispatchEvent(new KeyboardEvent('keydown', spaceOpts));
+            canvas.dispatchEvent(new KeyboardEvent('keyup', spaceOpts));
+        } catch (e) {
+        } finally {
+            isSimulatingInput = false;
+        }
     }
 
     function initKeyRemapper() {
         const gameArea = document.getElementById('subwayGameArea');
         if (gameArea) {
-            gameArea.addEventListener('click', function() {
+            gameArea.addEventListener('click', function(e) {
+                if (!e.isTrusted || isSimulatingInput) return;
                 const canvas = ensureCanvasFocus();
                 if (!state.firstInputStarted) {
                     simulateCanvasStartInput(canvas);
@@ -568,6 +574,7 @@
         }
 
         window.addEventListener('keydown', function (e) {
+            if (!e.isTrusted || isSimulatingInput) return;
             const canvas = ensureCanvasFocus();
             highlightHUDKey(e.code, true);
 
@@ -590,7 +597,7 @@
                     key: remapped === 'ArrowUp' ? 'ArrowUp' : remapped === 'ArrowDown' ? 'ArrowDown' : remapped === 'ArrowLeft' ? 'ArrowLeft' : 'ArrowRight',
                     keyCode: keyCode,
                     which: keyCode,
-                    bubbles: true,
+                    bubbles: false,
                     cancelable: true
                 });
                 canvas.dispatchEvent(mappedEvent);
@@ -598,6 +605,7 @@
         }, true);
 
         window.addEventListener('keyup', function (e) {
+            if (!e.isTrusted || isSimulatingInput) return;
             const canvas = ensureCanvasFocus();
             highlightHUDKey(e.code, false);
 
@@ -609,7 +617,7 @@
                     key: remapped === 'ArrowUp' ? 'ArrowUp' : remapped === 'ArrowDown' ? 'ArrowDown' : remapped === 'ArrowLeft' ? 'ArrowLeft' : 'ArrowRight',
                     keyCode: keyCode,
                     which: keyCode,
-                    bubbles: true,
+                    bubbles: false,
                     cancelable: true
                 });
                 canvas.dispatchEvent(mappedEvent);
