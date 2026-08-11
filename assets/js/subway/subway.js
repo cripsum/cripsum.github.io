@@ -30,6 +30,10 @@
     }
 
     // Satisfy WASM framework and warning telemetry requirements
+    window._JS_PokiSDK_gameLoadingProgress = window._JS_PokiSDK_gameLoadingProgress || function() {};
+    window._JS_PokiSDK_gameLoadingFinished = window._JS_PokiSDK_gameLoadingFinished || function() {};
+    window._JS_PokiSDK_gameInteractive = window._JS_PokiSDK_gameInteractive || function() {};
+
     window.my4399UnityModule = function (r) {
         if (typeof window.UnityModule === "function") return window.UnityModule(r);
         if (typeof window.Module === "function") return window.Module(r);
@@ -42,6 +46,22 @@
     try {
         window.parent.showUnitywebNoSupport = window.parent.showUnitywebNoSupport || function (r) { console.warn(r); };
     } catch (e) {}
+
+    // WebGL Compatibility & Safe Parameter Access (tavvkkj e2 patch)
+    (function initWebGlCompatibility() {
+        if (window.__troUnityWebGlCompatibilityPatchInstalled) return;
+        function emptyInt32Array() { return new Int32Array(0); }
+        function patchContext(n) {
+            const r = n == null ? void 0 : n.prototype;
+            if (!r || r.__troUnityWebGlInternalformatPatch || typeof r.getInternalformatParameter !== "function") return;
+            r.getInternalformatParameter = function() { return emptyInt32Array(); };
+            r.__troUnityWebGlInternalformatPatch = true;
+        }
+        window.__troUnitySafeGetInternalformatParameter = function() { return emptyInt32Array(); };
+        if (typeof window.WebGL2RenderingContext !== 'undefined') patchContext(window.WebGL2RenderingContext);
+        if (typeof window.WebGLRenderingContext !== 'undefined') patchContext(window.WebGLRenderingContext);
+        window.__troUnityWebGlCompatibilityPatchInstalled = true;
+    })();
 
     // WASM table size mapping extracted directly from Subway Surfers builds telemetry
     const wasmTableSizes = [
@@ -106,9 +126,15 @@
             'function _JS_Eval_EvalJS($1){var $2=Pointer_stringify($1);try{if(typeof window!=="undefined"&&window.__blockUnityExternalEval&&window.__blockUnityExternalEval($2))return;eval($2)}catch($3){console.error($3)}}'
         );
 
-        // 3. Prevent Poki missing function aborts
+        // 3. Fix JS_PokiSDK_gameLoadingProgress abort (exact tavvkkj replacement)
         t = t.replace(
-            /function _JS_PokiSDK_[a-zA-Z0-9_]+\(\)\{err\("missing function: [^"]+"\);abort\(-1\)\}/g,
+            /function _JS_PokiSDK_gameLoadingProgress\(\)\{err\("missing function: JS_PokiSDK_gameLoadingProgress"\);abort\(-1\)\}/g,
+            'function _JS_PokiSDK_gameLoadingProgress(){if(typeof window!=="undefined"&&window.PokiSDK&&window.PokiSDK.gameLoadingProgress)window.PokiSDK.gameLoadingProgress.apply(window.PokiSDK,arguments)}'
+        );
+
+        // 4. Catch any other missing function aborts safely
+        t = t.replace(
+            /function (_JS_PokiSDK_[a-zA-Z0-9_]+)\(\)\{err\("missing function: [^"]+"\);abort\(-1\)\}/g,
             'function $1(){}'
         );
 
