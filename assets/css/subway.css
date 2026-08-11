@@ -21,6 +21,10 @@
     margin-top: 2rem;
 }
 
+.subway-grid[hidden] {
+    display: none !important;
+}
+
 .subway-map-card {
     position: relative;
     overflow: hidden;
@@ -31,6 +35,11 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
 }
 
 .subway-map-card:hover {
@@ -285,8 +294,7 @@ input:checked + .subway-slider:before {
 .subway-boot-splash.hidden {
     opacity: 0;
     visibility: hidden;
-    pointer-events: auto;
-    cursor: pointer;
+    pointer-events: none;
 }
 
 .subway-boot-panel {
@@ -561,6 +569,8 @@ body.subway-fullscreen-active .main-footer {
     resize: none;
     overflow: hidden;
     touch-action: none;
+    flex: none;
+    transform: none !important;
 }
 
 .subway-hud-widget.is-dragging {

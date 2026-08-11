@@ -18,7 +18,7 @@ if (!isLoggedIn()) {
     exit();
 }
 
-$ogDescription = 'Seleziona una mappa di Subway Surfers e apri il player Ashuni con timer No-Coin e impostazioni integrate.';
+$ogDescription = 'Gioca a Subway Surfers direttamente su Cripsum con mappe World Tour, timer No-Coin e controlli configurabili.';
 $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/subway'), '#');
 ?>
 <!DOCTYPE html>
@@ -38,8 +38,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=6.0">
-    <script src="/assets/js/subway/subway.js?v=6.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/subway.css?v=7.0">
+    <script src="/assets/js/subway/subway.js?v=7.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -54,9 +54,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <div id="subwayLobby">
             <section class="game-hero game-reveal" style="margin-bottom: 2rem;">
                 <div class="game-hero-copy">
-                    <span class="game-kicker"><i class="fa-solid fa-train"></i> Subway Surfers Hosted Challenge</span>
+                    <span class="game-kicker"><i class="fa-solid fa-train"></i> Subway Surfers Native Challenge</span>
                     <h1>Subway Portal</h1>
-                    <p>Scegli la tua mappa preferita: si aprirà il player Ashuni funzionante, con timer No-Coin, controlli e salvataggi gestiti direttamente dal provider.</p>
+                    <p>Scegli una World Tour: il gioco Unity viene caricato direttamente nel player Cripsum, con timer No-Coin e controlli configurabili.</p>
                     <div class="game-steps" aria-label="Passaggi della sfida">
                         <span><b>1</b> Scegli la città</span>
                         <span><b>2</b> Configura il player</span>
@@ -66,7 +66,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             </section>
 
             <!-- Custom Options & Key Binds Section -->
-            <div class="subway-settings-panel" hidden>
+            <div class="subway-settings-panel">
                 <section class="game-panel game-reveal">
                     <div class="game-panel-head">
                         <div>
@@ -137,11 +137,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <div class="game-panel-head">
                     <div>
                         <h2>Seleziona la Mappa</h2>
-                        <p>Scegli una città: il gioco si aprirà nella versione funzionante ospitata da Ashuni, con timer e impostazioni inclusi.</p>
+                        <p>Scegli una delle build verificate: resterai su Cripsum durante tutta la partita.</p>
                     </div>
                 </div>
                 
-                <div class="subway-grid">
+                <div class="subway-grid" hidden>
                     
                     <!-- builds-1 maps -->
                     <div class="subway-map-card" data-map="zurich">
