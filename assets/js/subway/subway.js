@@ -83,6 +83,70 @@
         return Promise.resolve(true);
     };
 
+    // WebAssembly Import Patcher (tavvkkj FL/Tp engine)
+    // Fulfills missing env function imports like _JS_Eval_ClearTimeout and ___syscall* dynamically
+    const dummyFn = () => 0;
+    const defaultEnvImports = {
+        _getpagesize: () => 65536,
+        ___syscall5: () => -1,
+        ___syscall6: () => 0,
+        ___syscall41: () => -1,
+        ___syscall54: () => -1,
+        ___syscall140: () => -1,
+        ___syscall145: () => 0,
+        ___syscall146: () => 0,
+        ___syscall197: () => 0,
+        ___syscall220: () => 0,
+        ___syscall221: () => -1,
+        _JS_Eval_ClearTimeout: e => { window.clearTimeout(e); },
+        _JS_Eval_ClearInterval: e => { window.clearInterval(e); },
+        _JS_Eval_SetInterval: (e, t) => window.setInterval(() => {
+            const m = window.Module || window.unityInstance;
+            if (e && m && typeof m.dynCall_v === "function") m.dynCall_v(e);
+        }, t || 0),
+        _JS_Eval_SetTimeout: (e, t) => window.setTimeout(() => {
+            const m = window.Module || window.unityInstance;
+            if (e && m && typeof m.dynCall_v === "function") m.dynCall_v(e);
+        }, t || 0),
+        _JS_SystemInfo_GetCanvasHeight: () => window.innerHeight,
+        _JS_SystemInfo_GetCanvasWidth: () => window.innerWidth,
+        _JS_SystemInfo_GetCurrentCanvasHeight: () => window.innerHeight,
+        _JS_SystemInfo_GetCurrentCanvasWidth: () => window.innerWidth
+    };
+
+    function patchImportObject(bufferOrModule, importObject) {
+        if (!importObject || typeof importObject !== "object") importObject = {};
+        if (!importObject.env || typeof importObject.env !== "object") importObject.env = {};
+        
+        const env = importObject.env;
+        
+        try {
+            const module = bufferOrModule instanceof WebAssembly.Module ? bufferOrModule : new WebAssembly.Module(bufferOrModule);
+            const imports = WebAssembly.Module.imports(module);
+            
+            for (const imp of imports) {
+                if (imp.module === "env" && imp.kind === "function" && typeof env[imp.name] !== "function") {
+                    if (defaultEnvImports[imp.name]) {
+                        env[imp.name] = defaultEnvImports[imp.name];
+                    } else if (/^___syscall\d+$/.test(imp.name) || imp.name.startsWith("_JS_")) {
+                        env[imp.name] = dummyFn;
+                    }
+                }
+            }
+        } catch (e) {}
+        
+        return importObject;
+    }
+
+    if (!window.__unityMissingImportPatchInstalled && window.WebAssembly && window.WebAssembly.instantiate) {
+        const origInstantiate = window.WebAssembly.instantiate;
+        window.WebAssembly.instantiate = function (bufferOrModule, importObject, ...args) {
+            const patchedImports = patchImportObject(bufferOrModule, importObject);
+            return origInstantiate.call(this, bufferOrModule, patchedImports, ...args);
+        };
+        window.__unityMissingImportPatchInstalled = true;
+    }
+
     // Satisfy WASM framework and warning telemetry requirements
     window._JS_PokiSDK_gameLoadingProgress = window._JS_PokiSDK_gameLoadingProgress || function() {};
     window._JS_PokiSDK_gameLoadingFinished = window._JS_PokiSDK_gameLoadingFinished || function() {};
