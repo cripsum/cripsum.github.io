@@ -15,6 +15,25 @@
         window.parent.showUnitywebNoSupport = window.parent.showUnitywebNoSupport || function (r) { console.warn(r); };
     } catch (e) {}
 
+    // Fix WASM table size mismatch between shared wasm code and framework.
+    // Different Subway Surfers builds declare different table sizes; when the
+    // framework creates a WebAssembly.Table smaller than what the WASM binary
+    // needs, instantiation fails with a LinkError. This patch ensures the
+    // table is always large enough.
+    const _OrigWasmTable = WebAssembly.Table;
+    WebAssembly.Table = function (descriptor) {
+        if (descriptor && typeof descriptor.initial === 'number') {
+            // Use at least 130000 to cover all known build variants
+            descriptor.initial = Math.max(descriptor.initial, 130000);
+            if (typeof descriptor.maximum === 'number') {
+                descriptor.maximum = Math.max(descriptor.maximum, descriptor.initial);
+            }
+        }
+        return new _OrigWasmTable(descriptor);
+    };
+    WebAssembly.Table.prototype = _OrigWasmTable.prototype;
+    try { Object.setPrototypeOf(WebAssembly.Table, _OrigWasmTable); } catch (e) {}
+
     // 1. Game State & Settings
     const state = {
         activeMap: null,
