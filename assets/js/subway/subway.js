@@ -17,19 +17,37 @@
         window.parent.showUnitywebNoSupport = window.parent.showUnitywebNoSupport || function (r) { console.warn(r); };
     } catch (e) {}
 
-    // Fix WASM table size mismatch between shared wasm code and framework.
-    // Different Subway Surfers builds declare different table sizes; when the
-    // framework creates a WebAssembly.Table smaller than what the WASM binary
-    // needs, instantiation fails with a LinkError. This patch ensures the
-    // table is always large enough.
+    // WASM table size mapping extracted directly from Subway Surfers builds telemetry
+    const wasmTableSizes = [
+        ["wasm_code_shared.unityweb", 126009],
+        ["newyork.wasm.code.unityweb", 126009],
+        ["wasm_code_shared_2.unityweb", 126009],
+        ["wasm_code_shared_3.unityweb", 125739],
+        ["berlin.wasm.code.unityweb", 126031],
+        ["houston.wasm.code.unityweb", 126031],
+        ["miami.wasm.code.unityweb", 108524],
+        ["winterholiday.wasm.code.unityweb", 126009],
+        ["zurich.wasm.code.4399.unityweb", 126009],
+        ["zurich.wasm.code.unityweb", 125739]
+    ];
+
+    function getExpectedTableSize(wasmUrl) {
+        if (!wasmUrl) return 0;
+        const cleanUrl = String(wasmUrl).split('?')[0].split('#')[0];
+        for (const [filename, size] of wasmTableSizes) {
+            if (cleanUrl.endsWith(filename)) {
+                return size;
+            }
+        }
+        return 0;
+    }
+
+    let activeTablePatchSize = 0;
     const _OrigWasmTable = WebAssembly.Table;
     WebAssembly.Table = function (descriptor) {
-        if (descriptor && typeof descriptor.initial === 'number') {
-            const targetInitial = Math.max(descriptor.initial, 130000);
-            if (typeof descriptor.maximum === 'number') {
-                descriptor.maximum = Math.max(descriptor.maximum, targetInitial);
-            }
-            descriptor.initial = targetInitial;
+        if (activeTablePatchSize && descriptor && typeof descriptor.initial === 'number') {
+            descriptor.initial = Math.max(descriptor.initial, activeTablePatchSize);
+            descriptor.maximum = descriptor.maximum === undefined ? activeTablePatchSize : Math.max(descriptor.maximum, activeTablePatchSize);
         }
         return new _OrigWasmTable(descriptor);
     };
@@ -382,6 +400,12 @@
             logToConsole(`Data: ${config.dataUrl}`);
             logToConsole(`WASM Code: ${config.wasmCodeUrl}`);
             logToConsole(`WASM Fw: ${config.wasmFrameworkUrl}`);
+
+            // Apply precise table size patch based on the WASM binary
+            activeTablePatchSize = getExpectedTableSize(config.wasmCodeUrl);
+            if (activeTablePatchSize) {
+                logToConsole(`WASM table size patch configurata a ${activeTablePatchSize} slot.`);
+            }
 
             // 4. Dynamically load dependencies
             updateBootProgress('Etapa 03 · Interface', 70, 'Caricamento script di avvio Unity...');
