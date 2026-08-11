@@ -3,6 +3,32 @@
 (function () {
     'use strict';
 
+    // -------------------------------------------------------------
+    // Tavvkkj & Ashuni Anti-Piracy / Poki Site-Lock Bypass Engine
+    // -------------------------------------------------------------
+    window.__blockUnityExternalEval = function (s) {
+        const u = String(s || "");
+        return (
+            u.includes("poki.com/sitelock") ||
+            u.includes("po.ki/sitelockredirect") ||
+            u.includes("games.poki.com/458768/crossyroad") ||
+            u.includes("aHR0cDovL3BvLmtpL3NpdGVsb2NrcmVkaXJlY3Q")
+        );
+    };
+
+    window.__blockUnityExternalOpenURL = function (s) {
+        return window.__blockUnityExternalEval(s);
+    };
+
+    if (!window.__unityOpenPatchInstalled && typeof window.open === "function") {
+        const origOpen = window.open;
+        window.open = function (u, ...d) {
+            if (window.__blockUnityExternalOpenURL && window.__blockUnityExternalOpenURL(u)) return null;
+            return origOpen.call(window, u, ...d);
+        };
+        window.__unityOpenPatchInstalled = true;
+    }
+
     // Satisfy WASM framework and warning telemetry requirements
     window.my4399UnityModule = function (r) {
         if (typeof window.UnityModule === "function") return window.UnityModule(r);
@@ -54,23 +80,83 @@
     WebAssembly.Table.prototype = _OrigWasmTable.prototype;
     try { Object.setPrototypeOf(WebAssembly.Table, _OrigWasmTable); } catch (e) {}
 
-    // Strip Poki anti-piracy domain-lock timer from WASM framework text
+    // Framework Patching Engine (Neutralizes Poki site-lock and missing functions)
     function patchWasmFramework(text) {
         if (!text || typeof text !== 'string') return text;
+        if (!text.includes("_JS_Eval_") && !text.includes("_JS_PokiSDK_") && !text.includes("_JS_SystemInfo_") && !text.includes("getInternalformatParameter")) {
+            return text;
+        }
+        
+        let t = text;
         
         // 1. Remove Poki Domain Lock timer
-        text = text.replace(
+        t = t.replace(
             /setTimeout\(function\(\)\{var e,i,n,t=unityMapSource\("bG9jYXRpb24"\)[\s\S]*?window\[t\]=unityMapSource\(e\[3\]\)\}\},2e3\),ENVIRONMENT_IS_WEB=/g,
             "setTimeout(function(){},2e3),ENVIRONMENT_IS_WEB="
         );
 
-        // 2. Prevent Poki missing function aborts
-        text = text.replace(
-            /function _JS_PokiSDK_[a-zA-Z0-9_]+\(\)\{err\("missing function: [^"]+"\);abort\(-1\)\}/g,
-            "function(){}"
+        // 2. Wrap OpenURL & EvalJS with sitelock blockers
+        t = t.replace(
+            /function _JS_Eval_OpenURL\(([^)]*)\)\{var ([^=]+)=Pointer_stringify\(\1\);location\.href=\2\}/g,
+            'function _JS_Eval_OpenURL($1){var $2=Pointer_stringify($1);if(typeof window!=="undefined"&&window.__blockUnityExternalOpenURL&&window.__blockUnityExternalOpenURL($2))return;location.href=$2}'
         );
 
-        return text;
+        t = t.replace(
+            /function _JS_Eval_EvalJS\(([^)]*)\)\{var ([^=]+)=Pointer_stringify\(\1\);try\{eval\(\2\)\}catch\(([^)]*)\)\{console\.error\(\3\)\}\}/g,
+            'function _JS_Eval_EvalJS($1){var $2=Pointer_stringify($1);try{if(typeof window!=="undefined"&&window.__blockUnityExternalEval&&window.__blockUnityExternalEval($2))return;eval($2)}catch($3){console.error($3)}}'
+        );
+
+        // 3. Prevent Poki missing function aborts
+        t = t.replace(
+            /function _JS_PokiSDK_[a-zA-Z0-9_]+\(\)\{err\("missing function: [^"]+"\);abort\(-1\)\}/g,
+            'function $1(){}'
+        );
+
+        return t;
+    }
+
+    function isWasmHeader(u8) {
+        return u8[0] === 0 && u8[1] === 97 && u8[2] === 115 && u8[3] === 109; // \0asm
+    }
+
+    function patchPart(part, isScriptOrText, decoder, encoder) {
+        if (typeof part === 'string') return patchWasmFramework(part);
+        if (!isScriptOrText) return part;
+        
+        const u8 = part instanceof ArrayBuffer 
+            ? new Uint8Array(part) 
+            : ArrayBuffer.isView(part) 
+                ? new Uint8Array(part.buffer, part.byteOffset, part.byteLength) 
+                : null;
+                
+        if (!u8 || u8.length < 64 || isWasmHeader(u8)) return part;
+        
+        try {
+            const decodedText = decoder.decode(u8);
+            const patchedText = patchWasmFramework(decodedText);
+            return patchedText === decodedText ? part : encoder.encode(patchedText);
+        } catch (e) {
+            return part;
+        }
+    }
+
+    // Intercept window.Blob creation so decompressed framework blobs are patched automatically
+    if (!window.__unityBlobPatchInstalled && window.Blob && window.TextDecoder && window.TextEncoder) {
+        const OrigBlob = window.Blob;
+        const decoder = new TextDecoder();
+        const encoder = new TextEncoder();
+        
+        function PatchedBlob(blobParts = [], options = {}) {
+            const mimeType = String((options && options.type) || "").toLowerCase();
+            const isScriptOrText = mimeType.includes("javascript") || mimeType.includes("text");
+            const patchedParts = Array.from(blobParts, part => patchPart(part, isScriptOrText, decoder, encoder));
+            return new OrigBlob(patchedParts, options);
+        }
+        
+        PatchedBlob.prototype = OrigBlob.prototype;
+        Object.setPrototypeOf(PatchedBlob, OrigBlob);
+        window.Blob = PatchedBlob;
+        window.__unityBlobPatchInstalled = true;
     }
 
     // 1. Game State & Settings
