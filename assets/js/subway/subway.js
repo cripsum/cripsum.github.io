@@ -54,6 +54,25 @@
     WebAssembly.Table.prototype = _OrigWasmTable.prototype;
     try { Object.setPrototypeOf(WebAssembly.Table, _OrigWasmTable); } catch (e) {}
 
+    // Strip Poki anti-piracy domain-lock timer from WASM framework text
+    function patchWasmFramework(text) {
+        if (!text || typeof text !== 'string') return text;
+        
+        // 1. Remove Poki Domain Lock timer
+        text = text.replace(
+            /setTimeout\(function\(\)\{var e,i,n,t=unityMapSource\("bG9jYXRpb24"\)[\s\S]*?window\[t\]=unityMapSource\(e\[3\]\)\}\},2e3\),ENVIRONMENT_IS_WEB=/g,
+            "setTimeout(function(){},2e3),ENVIRONMENT_IS_WEB="
+        );
+
+        // 2. Prevent Poki missing function aborts
+        text = text.replace(
+            /function _JS_PokiSDK_[a-zA-Z0-9_]+\(\)\{err\("missing function: [^"]+"\);abort\(-1\)\}/g,
+            "function(){}"
+        );
+
+        return text;
+    }
+
     // 1. Game State & Settings
     const state = {
         activeMap: null,
@@ -412,6 +431,27 @@
             await loadScript('/assets/js/subway/poki.js');
             await loadScript('/assets/js/subway/UnityLoader.js');
             logToConsole('Loader di Unity pronto in memoria.');
+            
+            // Hook loadCode to neutralize Poki's domain lock check
+            if (window.UnityLoader && window.UnityLoader.loadCode) {
+                const origLoadCode = window.UnityLoader.loadCode;
+                window.UnityLoader.loadCode = function (e, t, r, n) {
+                    try {
+                        if (typeof t === 'string') {
+                            t = patchWasmFramework(t);
+                        } else if (t instanceof Uint8Array || t instanceof ArrayBuffer) {
+                            const textDecoder = new TextDecoder();
+                            const decoded = textDecoder.decode(t);
+                            const patched = patchWasmFramework(decoded);
+                            t = new TextEncoder().encode(patched);
+                        }
+                    } catch (err) {
+                        console.warn('WASM framework patch warning:', err);
+                    }
+                    return origLoadCode.call(this, e, t, r, n);
+                };
+                logToConsole('Patch anti-domain-lock attiva.');
+            }
             
             // 5. Monkey-patch UnityLoader's progress update to handle cross-origin URLs
             // The original code does: r.target.responseURL.split("/Build/")[1].split("?")[0]
