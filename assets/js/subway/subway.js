@@ -3,6 +3,18 @@
 (function () {
     'use strict';
 
+    // Satisfy WASM framework and warning telemetry requirements
+    window.my4399UnityModule = function (r) {
+        if (typeof window.UnityModule === "function") return window.UnityModule(r);
+        if (typeof window.Module === "function") return window.Module(r);
+        throw new Error("Unity framework loaded, but UnityModule was not exposed.");
+    };
+    
+    window.showUnitywebNoSupport = window.showUnitywebNoSupport || function (r) { console.warn(r); };
+    try {
+        window.parent.showUnitywebNoSupport = window.parent.showUnitywebNoSupport || function (r) { console.warn(r); };
+    } catch (e) {}
+
     // 1. Game State & Settings
     const state = {
         activeMap: null,
@@ -310,7 +322,7 @@
         try {
             // 2. Fetch config JSON from raw GitHub
             updateBootProgress('Etapa 01 · Manifest', 15, 'Lettura dei file di configurazione...');
-            const configUrl = `https://raw.githubusercontent.com/tavvkkj/${state.activeRepo}/main/game-assets/builds/${mapSlug}/${mapSlug}.json`;
+            const configUrl = `https://raw.githubusercontent.com/tavvkkj/${state.activeRepo}/main/game-assets/builds/${mapSlug}/${mapSlug}.alt.json`;
             const response = await fetch(configUrl);
             if (!response.ok) throw new Error('Configurazione della mappa non trovata.');
             
