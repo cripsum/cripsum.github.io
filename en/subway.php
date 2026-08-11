@@ -245,12 +245,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         </div>
                     </div>
 
-                    <div class="subway-map-card" data-map="spacestation">
+                    <div class="subway-map-card" data-map="moscow">
                         <div class="subway-map-bg" style="background-image: url('https://raw.githubusercontent.com/tavvkkj/therealoness-builds-1/main/game-assets/crosspromo/embedded/ssblast_Image_ss_blast_xpromo_banner_key_art_512x512_02.png');"></div>
                         <div class="subway-map-content">
-                            <span class="subway-map-tag tier-3">Space</span>
-                            <h3>Space Station</h3>
-                            <p>An amazing anti-gravity run among stars and space debris.</p>
+                            <span class="subway-map-tag tier-3">Europe</span>
+                            <h3>Moscow</h3>
+                            <p>Dash among golden Kremlin domes and ornate metro stations.</p>
                         </div>
                     </div>
                     

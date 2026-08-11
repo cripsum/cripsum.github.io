@@ -98,8 +98,6 @@
         'monaco': 'therealoness-builds-3',
         'moscow': 'therealoness-builds-3',
         'rio': 'therealoness-builds-3',
-        'spacestation': 'therealoness-builds-3',
-        'transylvania': 'therealoness-builds-3',
         'venice': 'therealoness-builds-3',
         'winterholiday': 'therealoness-builds-3'
     };
