@@ -38,8 +38,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=2.5">
-    <script src="/assets/js/subway/subway.js?v=2.5" defer></script>
+    <link rel="stylesheet" href="/assets/css/subway.css?v=2.8">
+    <script src="/assets/js/subway/subway.js?v=2.8" defer></script>
 </head>
 
 <body class="game-page">
@@ -263,7 +263,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             <div class="subway-arena-wrapper">
                 
                 <!-- Game Exit button -->
-                <button class="game-btn game-btn-special" id="exitGameBtn" style="position: absolute; top: 15px; left: 15px; z-index: 60; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+                <button class="game-btn game-btn-special" id="exitGameBtn" style="position: absolute; top: 15px; left: 15px; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
                     <i class="fa-solid fa-arrow-left"></i> Torna alla selezione
                 </button>
 

@@ -531,10 +531,39 @@
         return canvas;
     }
 
+    function simulateCanvasStartInput(canvas) {
+        if (!canvas) return;
+        try {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = rect.left + rect.width / 2;
+            const clientY = rect.top + rect.height / 2;
+
+            canvas.dispatchEvent(new PointerEvent('pointerdown', { clientX, clientY, bubbles: true, cancelable: true }));
+            canvas.dispatchEvent(new MouseEvent('mousedown', { clientX, clientY, bubbles: true, cancelable: true }));
+            canvas.dispatchEvent(new PointerEvent('pointerup', { clientX, clientY, bubbles: true, cancelable: true }));
+            canvas.dispatchEvent(new MouseEvent('mouseup', { clientX, clientY, bubbles: true, cancelable: true }));
+            canvas.dispatchEvent(new MouseEvent('click', { clientX, clientY, bubbles: true, cancelable: true }));
+
+            // Dispatch Space keydown and keyup directly to canvas
+            const spaceDown = new KeyboardEvent('keydown', { code: 'Space', key: ' ', keyCode: 32, which: 32, bubbles: true, cancelable: true });
+            const spaceUp = new KeyboardEvent('keyup', { code: 'Space', key: ' ', keyCode: 32, which: 32, bubbles: true, cancelable: true });
+            canvas.dispatchEvent(spaceDown);
+            canvas.dispatchEvent(spaceUp);
+        } catch (e) {}
+    }
+
     function initKeyRemapper() {
         const gameArea = document.getElementById('subwayGameArea');
         if (gameArea) {
-            gameArea.addEventListener('click', ensureCanvasFocus);
+            gameArea.addEventListener('click', function() {
+                const canvas = ensureCanvasFocus();
+                if (!state.firstInputStarted) {
+                    simulateCanvasStartInput(canvas);
+                    if (state.noCoinChallenge) {
+                        triggerRunStart('click-start');
+                    }
+                }
+            });
             gameArea.addEventListener('pointerdown', ensureCanvasFocus);
         }
 
@@ -545,8 +574,11 @@
             // Movement / Start Keys list
             const isStartKey = ['Space', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyS', 'KeyA', 'KeyD'].includes(e.code);
 
-            if (isStartKey && !state.firstInputStarted && state.noCoinChallenge) {
-                triggerRunStart('keyboard-start');
+            if (isStartKey && !state.firstInputStarted) {
+                simulateCanvasStartInput(canvas);
+                if (state.noCoinChallenge) {
+                    triggerRunStart('keyboard-start');
+                }
             }
 
             // Remap custom key bindings to default keys
@@ -610,9 +642,10 @@
         resetBootProgress();
         logToConsole(`Inizializzazione portale per la mappa: ${mapSlug.toUpperCase()}...`);
         
-        // Disable lobby UI
+        // Disable lobby UI & enable fullscreen mode overlay
+        document.body.classList.add('subway-fullscreen-active');
         document.getElementById('subwayLobby').style.display = 'none';
-        document.getElementById('subwayGameArea').style.display = 'flex';
+        document.getElementById('subwayGameArea').style.display = 'block';
         resetChallenge();
 
         try {
@@ -808,6 +841,7 @@
     }
 
     function exitGame() {
+        document.body.classList.remove('subway-fullscreen-active');
         if (state.unityInstance) {
             state.unityInstance.Quit();
             state.unityInstance = null;

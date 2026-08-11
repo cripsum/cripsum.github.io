@@ -415,34 +415,51 @@ input:checked + .subway-slider:before {
     word-break: break-all;
 }
 
+/* Fullscreen Mode - Covers Navbar, Header, Footer & Viewport Completely */
+body.subway-fullscreen-active {
+    overflow: hidden !important;
+}
+
+body.subway-fullscreen-active header,
+body.subway-fullscreen-active nav,
+body.subway-fullscreen-active footer,
+body.subway-fullscreen-active .navbar,
+body.subway-fullscreen-active .site-header,
+body.subway-fullscreen-active .site-footer,
+body.subway-fullscreen-active .main-header,
+body.subway-fullscreen-active .main-footer {
+    display: none !important;
+}
+
 /* 4. Game Arena & Container */
 #subwayGameArea {
-    position: relative;
-    width: 100%;
-    height: calc(100vh - 80px);
-    margin: 0;
-    padding: 0;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    background: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
 }
 
 .subway-arena-wrapper {
     position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
 }
 
 .subway-game-container {
-    position: relative;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     border: none;
-    border-radius: var(--subway-radius-md);
-    overflow: hidden;
+    border-radius: 0;
     background: #000;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
 }
 
 .subway-game-container canvas {
@@ -455,7 +472,7 @@ input:checked + .subway-slider:before {
 /* 5. Draggable HUD Overlays */
 .subway-hud-widget {
     position: absolute;
-    z-index: 50;
+    z-index: 9050;
     padding: 1rem;
     border: 1px solid var(--game-border);
     border-radius: var(--subway-radius-sm);
@@ -465,6 +482,7 @@ input:checked + .subway-slider:before {
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
     color: var(--game-text);
     user-select: none;
+    box-sizing: border-box;
 }
 
 .subway-hud-widget .widget-handle {
@@ -490,11 +508,11 @@ input:checked + .subway-slider:before {
     opacity: 0.5;
 }
 
-/* Timer HUD Widget */
+/* Timer HUD Widget (Fixed Dimensions) */
 .subway-timer-widget {
-    top: 20px;
+    top: 65px;
     left: 20px;
-    min-width: 220px;
+    width: 240px;
 }
 
 .subway-timer-display {
@@ -506,11 +524,11 @@ input:checked + .subway-slider:before {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-/* Challenge Status Widget */
+/* Challenge Status Widget (Fixed Dimensions) */
 .subway-status-widget {
     top: 20px;
     right: 20px;
-    min-width: 180px;
+    width: 200px;
 }
 
 .subway-status-row {
@@ -546,11 +564,11 @@ input:checked + .subway-slider:before {
 .subway-status-badge.failed { background-color: var(--game-red); }
 .subway-status-badge.inactive { background-color: var(--game-muted2); }
 
-/* Keys Help Widget */
+/* Keys Help Widget (Fixed Dimensions) */
 .subway-keys-widget {
     bottom: 20px;
     left: 20px;
-    min-width: 160px;
+    width: 180px;
 }
 
 .subway-hud-keys-grid {
@@ -584,11 +602,16 @@ input:checked + .subway-slider:before {
     transform: scale(0.92);
 }
 
-/* Controls Config Popup */
+/* Controls Config Popup Button Widget (Fixed Dimensions) */
 .subway-settings-btn-widget {
     bottom: 20px;
     right: 20px;
-    padding: 0.5rem;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
 }
 
