@@ -517,63 +517,70 @@
     }
 
     // 5. Key Remapping Logic
+    function ensureCanvasFocus() {
+        const canvas = document.querySelector('#subwayGameContainer canvas') || document.querySelector('canvas');
+        if (canvas) {
+            if (canvas.getAttribute('tabindex') !== '1') {
+                canvas.setAttribute('tabindex', '1');
+                canvas.style.outline = 'none';
+            }
+            if (document.activeElement !== canvas) {
+                try { canvas.focus(); } catch (e) {}
+            }
+        }
+        return canvas;
+    }
+
     function initKeyRemapper() {
-        const canvasContainer = document.getElementById('subwayGameArea');
-        
+        const gameArea = document.getElementById('subwayGameArea');
+        if (gameArea) {
+            gameArea.addEventListener('click', ensureCanvasFocus);
+            gameArea.addEventListener('pointerdown', ensureCanvasFocus);
+        }
+
         window.addEventListener('keydown', function (e) {
-            // Highlight keys in the HUD cheatsheet
+            const canvas = ensureCanvasFocus();
             highlightHUDKey(e.code, true);
 
-            // Capture phase key mapping redirect
-            const targetCanvas = document.querySelector('#subwayGameArea canvas');
-            if (targetCanvas && document.activeElement === targetCanvas) {
-                // If it's a first movement key, auto start the timer as backup
-                if (!state.firstInputStarted && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyS','KeyA','KeyD'].includes(e.code)) {
-                    triggerRunStart('keyboard-start');
-                }
-                
-                // Remap custom key bindings to default keys
-                const remapped = state.keyMapping[e.code];
-                if (remapped) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    
-                    // Dispatch remapped key event to the canvas
-                    const keyCode = getKeyCodeForCode(remapped);
-                    const mappedEvent = new KeyboardEvent('keydown', {
-                        code: remapped,
-                        key: remapped,
-                        keyCode: keyCode,
-                        which: keyCode,
-                        bubbles: true,
-                        cancelable: true
-                    });
-                    targetCanvas.dispatchEvent(mappedEvent);
-                }
+            // Movement / Start Keys list
+            const isStartKey = ['Space', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyS', 'KeyA', 'KeyD'].includes(e.code);
+
+            if (isStartKey && !state.firstInputStarted && state.noCoinChallenge) {
+                triggerRunStart('keyboard-start');
             }
-        }, true); // Use capture phase
+
+            // Remap custom key bindings to default keys
+            const remapped = state.keyMapping[e.code];
+            if (remapped && canvas) {
+                const keyCode = getKeyCodeForCode(remapped);
+                const mappedEvent = new KeyboardEvent('keydown', {
+                    code: remapped,
+                    key: remapped === 'ArrowUp' ? 'ArrowUp' : remapped === 'ArrowDown' ? 'ArrowDown' : remapped === 'ArrowLeft' ? 'ArrowLeft' : 'ArrowRight',
+                    keyCode: keyCode,
+                    which: keyCode,
+                    bubbles: true,
+                    cancelable: true
+                });
+                canvas.dispatchEvent(mappedEvent);
+            }
+        }, true);
 
         window.addEventListener('keyup', function (e) {
+            const canvas = ensureCanvasFocus();
             highlightHUDKey(e.code, false);
 
-            const targetCanvas = document.querySelector('#subwayGameArea canvas');
-            if (targetCanvas && document.activeElement === targetCanvas) {
-                const remapped = state.keyMapping[e.code];
-                if (remapped) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    
-                    const keyCode = getKeyCodeForCode(remapped);
-                    const mappedEvent = new KeyboardEvent('keyup', {
-                        code: remapped,
-                        key: remapped,
-                        keyCode: keyCode,
-                        which: keyCode,
-                        bubbles: true,
-                        cancelable: true
-                    });
-                    targetCanvas.dispatchEvent(mappedEvent);
-                }
+            const remapped = state.keyMapping[e.code];
+            if (remapped && canvas) {
+                const keyCode = getKeyCodeForCode(remapped);
+                const mappedEvent = new KeyboardEvent('keyup', {
+                    code: remapped,
+                    key: remapped === 'ArrowUp' ? 'ArrowUp' : remapped === 'ArrowDown' ? 'ArrowDown' : remapped === 'ArrowLeft' ? 'ArrowLeft' : 'ArrowRight',
+                    keyCode: keyCode,
+                    which: keyCode,
+                    bubbles: true,
+                    cancelable: true
+                });
+                canvas.dispatchEvent(mappedEvent);
             }
         }, true);
     }
