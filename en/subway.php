@@ -38,8 +38,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=2.2">
-    <script src="/assets/js/subway/subway.js?v=2.2" defer></script>
+    <link rel="stylesheet" href="/assets/css/subway.css?v=2.3">
+    <script src="/assets/js/subway/subway.js?v=2.3" defer></script>
 </head>
 
 <body class="game-page">
@@ -263,8 +263,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
             <div class="subway-arena-wrapper">
                 
                 <!-- Game Exit button -->
-                <button class="game-btn game-btn-special" id="exitGameBtn" style="position: absolute; top: -50px; left: 0; z-index: 10;">
-                    <i class="fa-solid fa-arrow-left"></i> Select Map
+                <button class="game-btn game-btn-special" id="exitGameBtn" style="position: absolute; top: 15px; left: 15px; z-index: 60; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Selection
                 </button>
 
                 <!-- Floating Timer Widget (Draggable) -->

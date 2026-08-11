@@ -34,11 +34,34 @@
     window.pokiReady = window.pokiReady || true;
     window.pokiAdBlock = window.pokiAdBlock || false;
 
+    function sendUnityMessage(method, arg) {
+        const objName = window.__pokiUnityObjectName || window.PokiBridge?.gameObjectName || window.pokiBridge || "PokiUnitySDK";
+        const instance = state.unityInstance || window.unityInstance || window.__unityInstance || window.gameInstance;
+        if (!objName || !instance || typeof instance.SendMessage !== "function") return false;
+        try {
+            if (arg === undefined) {
+                instance.SendMessage(objName, method);
+            } else {
+                instance.SendMessage(objName, method, String(arg));
+            }
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function notifyPokiReady(attempt = 0) {
+        if (sendUnityMessage("ready")) return;
+        if (!window.__pokiUnityObjectName || attempt > 100) return;
+        setTimeout(() => notifyPokiReady(attempt + 1), 50);
+    }
+
     window.initPokiBridge = function (r) {
         window.__pokiUnityObjectName = r;
         window.PokiBridge = window.PokiBridge || {};
         window.PokiBridge.gameObjectName = r || "";
         window.pokiBridge = r;
+        notifyPokiReady();
         return window.PokiSDK;
     };
 
@@ -349,6 +372,9 @@
     }
 
     function analyzeAudioBuffer(buffer, action) {
+        // ONLY analyze played audio during active gameplay, NEVER on buffer decode at boot!
+        if (action !== 'play') return;
+        
         // Check for coin pickup sound
         if (matchesAudioTarget(buffer, audioTargets.coin)) {
             triggerCoinPickup('audio-hook');
@@ -675,6 +701,10 @@
                     }
                 });
                 state.unityInstance = instance;
+                window.unityInstance = instance;
+                window.gameInstance = instance;
+                window.__unityInstance = instance;
+                notifyPokiReady();
             } else if (window.createUnityInstance) {
                 const canvas = document.createElement('canvas');
                 canvas.id = 'subwayCanvas';
@@ -685,6 +715,10 @@
                     updateBootProgress('Etapa 04 · Portal', percent, `Caricamento memoria di gioco (${percent}%)`);
                 }).then(function (instance) {
                     state.unityInstance = instance;
+                    window.unityInstance = instance;
+                    window.gameInstance = instance;
+                    window.__unityInstance = instance;
+                    notifyPokiReady();
                     onUnityInstanceReady();
                 }).catch(function (err) { throw err; });
             } else {
