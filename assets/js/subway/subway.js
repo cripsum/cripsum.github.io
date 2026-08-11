@@ -29,6 +29,52 @@
         window.__unityOpenPatchInstalled = true;
     }
 
+    // Intercept XHR and Fetch for onlinesettings & save files to prevent C# FileUtil IOException
+    if (!window.__troOnlineSettingsXhrPatchInstalled) {
+        const origXhrOpen = XMLHttpRequest.prototype.open;
+        const origXhrSend = XMLHttpRequest.prototype.send;
+
+        XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+            this._url = String(url || "");
+            return origXhrOpen.call(this, method, url, ...rest);
+        };
+
+        XMLHttpRequest.prototype.send = function (body) {
+            if (this._url && (this._url.includes('onlinesettings') || this._url.includes('newonlinesettings'))) {
+                Object.defineProperty(this, 'status', { writable: true, value: 200 });
+                Object.defineProperty(this, 'statusText', { writable: true, value: 'OK' });
+                Object.defineProperty(this, 'responseText', { writable: true, value: '{"status":"ok","unlocked":true}' });
+                Object.defineProperty(this, 'response', { writable: true, value: '{"status":"ok","unlocked":true}' });
+                
+                setTimeout(() => {
+                    if (typeof this.onreadystatechange === 'function') {
+                        Object.defineProperty(this, 'readyState', { writable: true, value: 4 });
+                        this.onreadystatechange();
+                    }
+                    if (typeof this.onload === 'function') {
+                        this.onload();
+                    }
+                }, 10);
+                return;
+            }
+            return origXhrSend.call(this, body);
+        };
+
+        const origFetch = window.fetch;
+        window.fetch = function (input, init) {
+            const url = typeof input === 'string' ? input : (input && input.url) ? input.url : '';
+            if (url && (url.includes('onlinesettings') || url.includes('newonlinesettings'))) {
+                return Promise.resolve(new Response('{"status":"ok","unlocked":true}', {
+                    status: 200,
+                    statusText: 'OK',
+                    headers: { 'Content-Type': 'application/json' }
+                }));
+            }
+            return origFetch.call(this, input, init);
+        };
+        window.__troOnlineSettingsXhrPatchInstalled = true;
+    }
+
     // Poki Bridge & SDK Window Contract
     window.PokiBridge = window.PokiBridge || {};
     window.pokiReady = window.pokiReady || true;
