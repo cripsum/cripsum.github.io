@@ -318,45 +318,91 @@
         resetChallenge();
 
         try {
-            // 2. Build the config URL on raw GitHub
+            // 2. Fetch and patch the config JSON
             updateBootProgress('Etapa 01 · Manifest', 15, 'Lettura dei file di configurazione...');
-            const configUrl = `https://raw.githubusercontent.com/tavvkkj/${state.activeRepo}/main/game-assets/builds/${mapSlug}/${mapSlug}.alt.json`;
             
-            // Verify config exists before proceeding
-            const probe = await fetch(configUrl, { method: 'HEAD' });
-            if (!probe.ok) {
-                // Fallback: try default json
-                const fallbackUrl = `https://raw.githubusercontent.com/tavvkkj/${state.activeRepo}/main/game-assets/builds/${mapSlug}/${mapSlug}.json`;
-                const probe2 = await fetch(fallbackUrl, { method: 'HEAD' });
-                if (!probe2.ok) throw new Error('Configurazione della mappa non trovata.');
-                state.activeConfigUrl = fallbackUrl;
-            } else {
-                state.activeConfigUrl = configUrl;
+            let configUrl = `https://raw.githubusercontent.com/tavvkkj/${state.activeRepo}/main/game-assets/builds/${mapSlug}/${mapSlug}.alt.json`;
+            let response = await fetch(configUrl);
+            if (!response.ok) {
+                // Fallback to default json
+                configUrl = `https://raw.githubusercontent.com/tavvkkj/${state.activeRepo}/main/game-assets/builds/${mapSlug}/${mapSlug}.json`;
+                response = await fetch(configUrl);
+                if (!response.ok) throw new Error('Configurazione della mappa non trovata.');
             }
             
-            logToConsole(`Config URL: ${state.activeConfigUrl}`);
+            // Parse the JSON (handle BOM if present)
+            let rawText = await response.text();
+            rawText = rawText.replace(/^\uFEFF/, '');
+            const config = JSON.parse(rawText);
+            logToConsole('Configurazione ricevuta da GitHub. Risoluzione asset...');
             
-            updateBootProgress('Etapa 02 · Atmosfera', 45, 'Preparazione dei percorsi degli asset...');
+            // 3. Resolve ALL relative URLs to absolute raw GitHub URLs
+            const baseUrl = configUrl.substring(0, configUrl.lastIndexOf('/') + 1);
+            const resolveUrl = (relUrl) => {
+                if (!relUrl) return relUrl;
+                // Strip query params for resolution, re-add after
+                const qIdx = relUrl.indexOf('?');
+                const cleanUrl = qIdx >= 0 ? relUrl.substring(0, qIdx) : relUrl;
+                const query = qIdx >= 0 ? relUrl.substring(qIdx) : '';
+                if (/^(http|https|ftp|file):\/\//.test(cleanUrl)) return relUrl;
+                // Resolve relative paths like ../shared/wasm_framework.unityweb
+                const resolved = new URL(cleanUrl, configUrl).href;
+                return resolved + query;
+            };
+            
+            config.dataUrl = resolveUrl(config.dataUrl);
+            config.wasmCodeUrl = resolveUrl(config.wasmCodeUrl);
+            config.wasmFrameworkUrl = resolveUrl(config.wasmFrameworkUrl);
+            if (config.asmCodeUrl) config.asmCodeUrl = resolveUrl(config.asmCodeUrl);
+            if (config.asmFrameworkUrl) config.asmFrameworkUrl = resolveUrl(config.asmFrameworkUrl);
+            if (config.asmMemoryUrl) config.asmMemoryUrl = resolveUrl(config.asmMemoryUrl);
+            
+            updateBootProgress('Etapa 02 · Atmosfera', 45, 'Asset risolti in URL assoluti...');
+            logToConsole(`Data: ${config.dataUrl}`);
+            logToConsole(`WASM Code: ${config.wasmCodeUrl}`);
+            logToConsole(`WASM Fw: ${config.wasmFrameworkUrl}`);
 
-            // 3. Dynamically load dependencies
+            // 4. Dynamically load dependencies
             updateBootProgress('Etapa 03 · Interface', 70, 'Caricamento script di avvio Unity...');
             await loadScript('/assets/js/subway/poki.js');
             await loadScript('/assets/js/subway/UnityLoader.js');
             logToConsole('Loader di Unity pronto in memoria.');
             
-            // 4. Instantiate Unity WebGL
+            // 5. Monkey-patch UnityLoader's progress update to handle cross-origin URLs
+            // The original code does: r.target.responseURL.split("/Build/")[1].split("?")[0]
+            // which crashes when responseURL doesn't contain "/Build/"
+            if (window.UnityLoader && window.UnityLoader.Progress) {
+                const origUpdate = window.UnityLoader.Progress.update;
+                window.UnityLoader.Progress.update = function(e, t, r) {
+                    if (r && !r.lengthComputable && r.target && r.target.responseURL) {
+                        const url = r.target.responseURL;
+                        if (url.indexOf('/Build/') === -1) {
+                            // Fake a lengthComputable event so the original code
+                            // skips the split("/Build/") branch entirely
+                            const fakeEvent = {
+                                lengthComputable: true,
+                                loaded: r.loaded || 0,
+                                total: r.total || 0,
+                                target: r.target
+                            };
+                            return origUpdate.call(this, e, t, fakeEvent);
+                        }
+                    }
+                    return origUpdate.call(this, e, t, r);
+                };
+                logToConsole('Patch progress update applicata.');
+            }
+
+            // 6. Instantiate Unity WebGL
             updateBootProgress('Etapa 04 · Portal', 90, 'Caricamento del motore WebGL...');
             
-            // Prepare the container
             const gameContainer = document.getElementById('subwayGameContainer');
             gameContainer.innerHTML = '';
-            // UnityLoader.instantiate needs a string ID or a DOM element
-            // It will create its own canvas inside the container
             
-            // Override Poki commercialBreak logic to avoid loading errors
-            window.commercialBreak = function() {
-                return Promise.resolve();
-            };
+            window.commercialBreak = function() { return Promise.resolve(); };
+
+            // Store resolved wasmCodeUrl for locateFile override
+            const resolvedWasmCodeUrl = config.wasmCodeUrl;
 
             function onUnityInstanceReady() {
                 updateBootProgress('Portal Disponibile', 100, 'Fine sequenza di avvio.');
@@ -371,15 +417,37 @@
                 }, 800);
             }
 
-            if (window.createUnityInstance) {
-                // Unity 2020+ loader path (unlikely for these builds)
-                const resp = await fetch(state.activeConfigUrl);
-                const config = await resp.json();
-                // Resolve relative URLs
-                const base = new URL(state.activeConfigUrl);
-                for (const f of ["dataUrl", "wasmCodeUrl", "wasmFrameworkUrl"]) {
-                    if (config[f]) config[f] = new URL(config[f], base).href;
-                }
+            // Create a config blob URL with absolute URLs already resolved.
+            // This way resolveBuildUrl will see http:// and return the URL as-is.
+            const configBlobUrl = URL.createObjectURL(
+                new Blob([JSON.stringify(config)], { type: 'application/json' })
+            );
+
+            if (window.UnityLoader && window.UnityLoader.instantiate) {
+                logToConsole("Avvio UnityLoader.instantiate con URL patchati...");
+                
+                const instance = window.UnityLoader.instantiate("subwayGameContainer", configBlobUrl, {
+                    onProgress: function (gameInstance, progress) {
+                        const percent = Math.round(90 + (progress * 10));
+                        updateBootProgress('Etapa 04 · Portal', percent, `Caricamento memoria di gioco (${percent}%)`);
+                        if (progress >= 1.0) {
+                            state.unityInstance = gameInstance;
+                            onUnityInstanceReady();
+                        }
+                    },
+                    Module: {
+                        locateFile: function (filename) {
+                            // Override the hardcoded "Build/".concat(...) behavior
+                            // Emscripten calls this to find the .wasm binary
+                            if (filename === 'build.wasm' || filename.endsWith('.unityweb')) {
+                                return resolvedWasmCodeUrl;
+                            }
+                            return filename;
+                        }
+                    }
+                });
+                state.unityInstance = instance;
+            } else if (window.createUnityInstance) {
                 const canvas = document.createElement('canvas');
                 canvas.id = 'subwayCanvas';
                 gameContainer.appendChild(canvas);
@@ -390,25 +458,7 @@
                 }).then(function (instance) {
                     state.unityInstance = instance;
                     onUnityInstanceReady();
-                }).catch(function (err) {
-                    throw err;
-                });
-            } else if (window.UnityLoader && window.UnityLoader.instantiate) {
-                // Unity 2019 loader path - pass the raw URL directly so
-                // UnityLoader resolves relative asset paths from it
-                logToConsole("Utilizzo del motore UnityLoader.instantiate con URL diretto...");
-                
-                const instance = window.UnityLoader.instantiate("subwayGameContainer", state.activeConfigUrl, {
-                    onProgress: function (gameInstance, progress) {
-                        const percent = Math.round(90 + (progress * 10));
-                        updateBootProgress('Etapa 04 · Portal', percent, `Caricamento memoria di gioco (${percent}%)`);
-                        if (progress >= 1.0) {
-                            state.unityInstance = gameInstance;
-                            onUnityInstanceReady();
-                        }
-                    }
-                });
-                state.unityInstance = instance;
+                }).catch(function (err) { throw err; });
             } else {
                 throw new Error('Metodo di inizializzazione Unity non trovato.');
             }
