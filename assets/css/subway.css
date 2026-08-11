@@ -1,0 +1,617 @@
+/* Subway Surfers WebGL Mod - Style System */
+
+:root {
+    --subway-radius-sm: 12px;
+    --subway-radius-md: 20px;
+    --subway-radius-lg: 28px;
+    --subway-font: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* 1. Dashboard Layout & Selection */
+.subway-dashboard {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 7.2rem 1rem 3.6rem;
+}
+
+.subway-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.subway-map-card {
+    position: relative;
+    overflow: hidden;
+    height: 180px;
+    border: 1px solid var(--game-border);
+    border-radius: var(--subway-radius-md);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)), var(--game-card);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.subway-map-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: var(--game-accent2);
+    box-shadow: 0 16px 36px rgba(6, 182, 212, 0.25);
+}
+
+.subway-map-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.28;
+    filter: saturate(0.8) blur(1px);
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.subway-map-card:hover .subway-map-bg {
+    transform: scale(1.1);
+    opacity: 0.45;
+}
+
+.subway-map-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    background: linear-gradient(0deg, rgba(7, 10, 18, 0.95) 20%, transparent 80%);
+}
+
+.subway-map-content h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.5rem;
+    font-weight: 850;
+    color: var(--game-text);
+    letter-spacing: -0.04em;
+}
+
+.subway-map-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--game-muted);
+    line-height: 1.4;
+}
+
+.subway-map-tag {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: var(--game-accent);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+}
+
+.subway-map-tag.tier-2 {
+    background: var(--game-accent2);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+}
+
+.subway-map-tag.tier-3 {
+    background: var(--game-orange);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* 2. Settings & Options */
+.subway-settings-panel {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 992px) {
+    .subway-settings-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+.subway-option-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--game-border);
+}
+
+.subway-option-row:last-child {
+    border-bottom: none;
+}
+
+.subway-option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.subway-option-info strong {
+    font-size: 1rem;
+    color: var(--game-text);
+}
+
+.subway-option-info span {
+    font-size: 0.8rem;
+    color: var(--game-muted2);
+}
+
+/* Toggle Switch Styling */
+.subway-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.subway-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.subway-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--game-border);
+    transition: .3s;
+    border-radius: 34px;
+}
+
+.subway-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .subway-slider {
+    background-color: var(--game-accent2);
+}
+
+input:focus + .subway-slider {
+    box-shadow: 0 0 1px var(--game-accent2);
+}
+
+input:checked + .subway-slider:before {
+    transform: translateX(24px);
+}
+
+/* Hotkey Configuration */
+.subway-keybind-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.subway-keybind-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--game-border);
+    border-radius: var(--subway-radius-sm);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.subway-keybind-item label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--game-muted);
+}
+
+.subway-key-btn {
+    min-width: 60px;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--game-border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--game-text);
+    background: rgba(255, 255, 255, 0.05);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.subway-key-btn:hover {
+    border-color: var(--game-accent2);
+    background: rgba(6, 182, 212, 0.1);
+}
+
+.subway-key-btn.waiting {
+    border-color: var(--game-red);
+    background: rgba(239, 68, 68, 0.15);
+    animation: keyPulse 1s infinite alternate;
+}
+
+@keyframes keyPulse {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+
+/* 3. Boot Loading Splash Sequence */
+.subway-boot-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #04060d;
+    font-family: var(--subway-font);
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.subway-boot-splash.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.subway-boot-panel {
+    width: min(580px, calc(100% - 40px));
+    padding: 2rem;
+    border: 1px solid var(--game-border);
+    border-radius: var(--subway-radius-lg);
+    background: linear-gradient(180deg, rgba(13, 18, 32, 0.95), rgba(7, 10, 18, 0.98));
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+}
+
+.subway-boot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--game-border);
+}
+
+.subway-boot-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.subway-boot-logo {
+    font-size: 2.2rem;
+    color: var(--game-accent2);
+}
+
+.subway-boot-title {
+    display: flex;
+    flex-direction: column;
+}
+
+.subway-boot-title strong {
+    font-size: 1.3rem;
+    font-weight: 850;
+    color: var(--game-text);
+}
+
+.subway-boot-title small {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--game-muted2);
+}
+
+.subway-boot-session {
+    font-size: 0.8rem;
+    color: var(--game-green);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.subway-boot-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--game-green);
+    box-shadow: 0 0 10px var(--game-green);
+    animation: dotPulse 1.2s infinite alternate;
+}
+
+@keyframes dotPulse {
+    from { transform: scale(0.8); opacity: 0.5; }
+    to { transform: scale(1.2); opacity: 1; }
+}
+
+.subway-boot-narrative {
+    margin-bottom: 1.5rem;
+}
+
+.subway-boot-narrative h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--game-text);
+}
+
+.subway-boot-narrative p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--game-muted);
+    line-height: 1.5;
+}
+
+.subway-boot-progress-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.subway-boot-stage {
+    color: var(--game-accent2);
+    font-weight: 750;
+}
+
+.subway-boot-percent {
+    font-weight: 900;
+    color: var(--game-text);
+}
+
+.subway-boot-track-line {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.subway-boot-track-value {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--game-accent), var(--game-accent2));
+    box-shadow: 0 0 12px var(--game-accent2);
+    transition: width 0.3s ease;
+}
+
+.subway-boot-console {
+    height: 120px;
+    padding: 0.75rem;
+    border: 1px solid var(--game-border);
+    border-radius: var(--subway-radius-sm);
+    background: rgba(0, 0, 0, 0.4);
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #4ade80;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.subway-boot-console span {
+    line-height: 1.4;
+    word-break: break-all;
+}
+
+/* 4. Game Arena & Container */
+.subway-arena-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.subway-game-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--game-border);
+    border-radius: var(--subway-radius-md);
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+}
+
+.subway-game-container canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 5. Draggable HUD Overlays */
+.subway-hud-widget {
+    position: absolute;
+    z-index: 50;
+    padding: 1rem;
+    border: 1px solid var(--game-border);
+    border-radius: var(--subway-radius-sm);
+    background: rgba(9, 13, 24, 0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    color: var(--game-text);
+    user-select: none;
+}
+
+.subway-hud-widget .widget-handle {
+    cursor: move;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.subway-hud-widget .widget-handle strong {
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--game-muted2);
+}
+
+.subway-hud-widget .widget-handle i {
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
+
+/* Timer HUD Widget */
+.subway-timer-widget {
+    top: 20px;
+    left: 20px;
+    min-width: 220px;
+}
+
+.subway-timer-display {
+    font-family: monospace;
+    font-size: 2.2rem;
+    font-weight: 750;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Challenge Status Widget */
+.subway-status-widget {
+    top: 20px;
+    right: 20px;
+    min-width: 180px;
+}
+
+.subway-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.subway-status-row:last-child {
+    margin-bottom: 0;
+}
+
+.subway-status-row span {
+    font-size: 0.8rem;
+    color: var(--game-muted);
+}
+
+.subway-status-row strong {
+    font-size: 0.85rem;
+}
+
+.subway-status-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.subway-status-badge.active { background-color: var(--game-green); }
+.subway-status-badge.failed { background-color: var(--game-red); }
+.subway-status-badge.inactive { background-color: var(--game-muted2); }
+
+/* Keys Help Widget */
+.subway-keys-widget {
+    bottom: 20px;
+    left: 20px;
+    min-width: 160px;
+}
+
+.subway-hud-keys-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+    justify-items: center;
+}
+
+.subway-hud-key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--game-border);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--game-muted);
+    transition: all 0.15s ease;
+}
+
+.subway-hud-key.pressed {
+    border-color: var(--game-accent2);
+    background: var(--game-accent2);
+    color: #000;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    transform: scale(0.92);
+}
+
+/* Controls Config Popup */
+.subway-settings-btn-widget {
+    bottom: 20px;
+    right: 20px;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.subway-settings-btn-widget:hover {
+    border-color: var(--game-accent2);
+    color: var(--game-accent2);
+}
+
+.subway-settings-modal {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    background: rgba(5, 8, 18, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.subway-settings-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.subway-modal-box {
+    width: 360px;
+    padding: 1.5rem;
+    border: 1px solid var(--game-border);
+    border-radius: var(--subway-radius-md);
+    background: var(--game-card);
+}

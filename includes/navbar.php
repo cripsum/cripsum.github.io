@@ -25,6 +25,7 @@ $t = [
         'top_rimasti'  => 'Top rimasti',
         'games'        => 'Giochi',
         'duels'        => 'Duelli',
+        'subway'       => 'Subway Surfers',
         'shop'         => 'Shop',
         'store'        => 'Negozio',
         'gacha_shop'   => 'Shop Gacha',
@@ -55,6 +56,7 @@ $t = [
         'top_rimasti'  => 'Top braindeads',
         'games'        => 'Games',
         'duels'        => 'Duels',
+        'subway'       => 'Subway Surfers',
         'shop'         => 'Shop',
         'store'        => 'Store',
         'gacha_shop'   => 'Gacha Shop',
@@ -155,6 +157,7 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item " href="/<?= $lang ?>/gambling"><i class="fa-solid fa-dice me-2"></i>Gambling</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox"><i class="fa-solid fa-box-open me-2"></i>Lootbox</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/game/"><i class="fa-solid fa-gamepad me-2"></i><?= $t['duels'] ?></a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/subway"><i class="fa-solid fa-train me-2"></i><?= $t['subway'] ?></a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
