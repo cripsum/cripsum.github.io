@@ -29,6 +29,37 @@
         window.__unityOpenPatchInstalled = true;
     }
 
+    // Poki Bridge & SDK Window Contract
+    window.PokiBridge = window.PokiBridge || {};
+    window.pokiReady = window.pokiReady || true;
+    window.pokiAdBlock = window.pokiAdBlock || false;
+
+    window.initPokiBridge = function (r) {
+        window.__pokiUnityObjectName = r;
+        window.PokiBridge = window.PokiBridge || {};
+        window.PokiBridge.gameObjectName = r || "";
+        window.pokiBridge = r;
+        return window.PokiSDK;
+    };
+
+    window.commercialBreak = function () {
+        if (window.PokiSDK && typeof window.PokiSDK.commercialBreak === 'function') {
+            return Promise.resolve(window.PokiSDK.commercialBreak()).then(() => {
+                if (typeof window.PokiSDK.gameplayStart === 'function') window.PokiSDK.gameplayStart();
+            });
+        }
+        return Promise.resolve();
+    };
+
+    window.rewardedBreak = function () {
+        if (window.PokiSDK && typeof window.PokiSDK.rewardedBreak === 'function') {
+            return Promise.resolve(window.PokiSDK.rewardedBreak()).then(r => {
+                return r === true || (r && r.completed === true);
+            });
+        }
+        return Promise.resolve(true);
+    };
+
     // Satisfy WASM framework and warning telemetry requirements
     window._JS_PokiSDK_gameLoadingProgress = window._JS_PokiSDK_gameLoadingProgress || function() {};
     window._JS_PokiSDK_gameLoadingFinished = window._JS_PokiSDK_gameLoadingFinished || function() {};
