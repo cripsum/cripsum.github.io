@@ -354,21 +354,48 @@
                 return Promise.resolve();
             };
 
-            window.createUnityInstance(canvas, config, function (progress) {
-                const percent = Math.round(90 + (progress * 10));
-                updateBootProgress('Etapa 04 · Portal', percent, `Caricamento memoria di gioco (${percent}%)`);
-            }).then(function (instance) {
-                state.unityInstance = instance;
+            function onUnityInstanceReady() {
                 updateBootProgress('Portal Disponibile', 100, 'Fine sequenza di avvio.');
-                
                 setTimeout(() => {
                     bootSplash.classList.add('hidden');
-                    canvas.focus();
+                    const cv = document.querySelector('#subwayGameContainer canvas') || canvas;
+                    if (cv) cv.focus();
                     logToConsole('Gioco avviato con successo. Buona fortuna!');
                 }, 800);
-            }).catch(function (err) {
-                throw err;
-            });
+            }
+
+            // Create Blob URL for config object to pass to UnityLoader.instantiate
+            const configBlob = new Blob([JSON.stringify(config)], { type: 'application/json' });
+            const configBlobUrl = URL.createObjectURL(configBlob);
+
+            if (window.createUnityInstance) {
+                window.createUnityInstance(canvas, config, function (progress) {
+                    const percent = Math.round(90 + (progress * 10));
+                    updateBootProgress('Etapa 04 · Portal', percent, `Caricamento memoria di gioco (${percent}%)`);
+                }).then(function (instance) {
+                    state.unityInstance = instance;
+                    onUnityInstanceReady();
+                }).catch(function (err) {
+                    throw err;
+                });
+            } else if (window.UnityLoader && window.UnityLoader.instantiate) {
+                logToConsole("Utilizzo del motore di caricamento UnityLoader.instantiate...");
+                gameContainer.innerHTML = '';
+                
+                const instance = window.UnityLoader.instantiate(gameContainer, configBlobUrl, {
+                    onProgress: function (gameInstance, progress) {
+                        const percent = Math.round(90 + (progress * 10));
+                        updateBootProgress('Etapa 04 · Portal', percent, `Caricamento memoria di gioco (${percent}%)`);
+                        if (progress >= 1.0) {
+                            state.unityInstance = gameInstance;
+                            onUnityInstanceReady();
+                        }
+                    }
+                });
+                state.unityInstance = instance;
+            } else {
+                throw new Error('Metodo di inizializzazione Unity non trovato (createUnityInstance / UnityLoader.instantiate).');
+            }
 
         } catch (err) {
             console.error(err);
