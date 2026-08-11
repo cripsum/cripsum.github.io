@@ -24,6 +24,14 @@
     const storageKey = 'cripsum-subway-settings-v2';
     const defaultBindings = { jump: 'KeyW', duck: 'KeyS', left: 'KeyA', right: 'KeyD' };
     const unityCodes = { jump: 'ArrowUp', duck: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' };
+    const legacyKeys = {
+        ArrowUp: { key: 'ArrowUp', keyCode: 38 },
+        ArrowDown: { key: 'ArrowDown', keyCode: 40 },
+        ArrowLeft: { key: 'ArrowLeft', keyCode: 37 },
+        ArrowRight: { key: 'ArrowRight', keyCode: 39 },
+        Escape: { key: 'Escape', keyCode: 27 },
+        Space: { key: ' ', keyCode: 32 }
+    };
     const state = {
         loading: false,
         running: false,
@@ -199,16 +207,16 @@
             initWithVideoHB: resolved,
             commercialBreak: resolved,
             rewardedBreak: () => Promise.resolve(false),
-            customEvent() {},
+            customEvent(...values) { inspectGameEvent(values); },
             displayAd() {},
             destroyAd() {},
             gameLoadingStart() {},
             gameLoadingProgress() {},
             gameLoadingFinished() {},
             gameInteractive() {},
-            gameplayStart() {},
+            gameplayStart() { startTimer('gameplayStart'); },
             gameplayStop() {},
-            roundStart() {},
+            roundStart() { startTimer('roundStart'); },
             roundEnd() {},
             setDebug() {},
             happyTime() {},
@@ -285,15 +293,24 @@
         Object.defineProperty(Source.prototype, '__cripsumSubwayHooked', { value: true });
     }
 
+    function inspectGameEvent(values) {
+        let serialized = '';
+        try {
+            serialized = values.map(value => typeof value === 'string' ? value : JSON.stringify(value)).join(' ');
+        } catch (_) {
+            serialized = values.map(String).join(' ');
+        }
+        if (/\b(coin[_ -]?(collected|pickup)|collect(ed)?[_ -]?coin|pickup[_ -]?coin)\b/i.test(serialized)) {
+            failChallenge();
+        }
+    }
+
     function classifyAudio(buffer) {
         if (!buffer || !state.challenge) return;
         const duration = Number(buffer.duration || 0);
-        const length = Number(buffer.length || 0);
-        const looksLikeStart = (Math.abs(length - 167183) < 1200 || Math.abs(length - 166069) < 1200)
-            && Math.abs(duration - 3.465) < 0.12;
-        const looksLikeCoin = Math.abs(length - 27863) < 1100 && duration >= 0.50 && duration < 0.595;
-        const looksLikeJump = (Math.abs(length - 27863) < 1100 || Math.abs(length - 28675) < 1100)
-            && duration >= 0.595 && duration < 0.66;
+        const looksLikeStart = Math.abs(duration - 3.465) < 0.14;
+        const looksLikeCoin = duration >= 0.515 && duration < 0.595;
+        const looksLikeJump = duration >= 0.595 && duration < 0.67;
 
         if (looksLikeStart && !state.running) {
             startTimer('audio');
@@ -328,7 +345,8 @@
     }
 
     function startTimer(source) {
-        if (!state.challenge || state.running || state.failed) return;
+        if (!state.challenge || state.running) return;
+        if (state.failed || state.elapsed > 0) resetTimer();
         state.running = true;
         state.runArmed = false;
         state.startedAt = performance.now();
@@ -379,7 +397,10 @@
             if (nativeCodes.has(event.code)) return;
             event.preventDefault();
             if (action === 'jump') state.lastJumpInput = performance.now();
-            dispatchUnityKey(unityCodes[action], 'keydown');
+            if (!remapNativeKeyboardEvent(event, unityCodes[action])) {
+                event.stopImmediatePropagation();
+                dispatchUnityKey(unityCodes[action], 'keydown');
+            }
         }, true);
         window.addEventListener('keyup', event => {
             if (!state.activeMap) return;
@@ -389,15 +410,51 @@
             flashHudKey(action, false);
             if (nativeCodes.has(event.code)) return;
             event.preventDefault();
-            dispatchUnityKey(unityCodes[action], 'keyup');
+            if (!remapNativeKeyboardEvent(event, unityCodes[action])) {
+                event.stopImmediatePropagation();
+                dispatchUnityKey(unityCodes[action], 'keyup');
+            }
         }, true);
+    }
+
+    function remapNativeKeyboardEvent(event, code) {
+        const legacy = legacyKeys[code];
+        if (!legacy) return false;
+        try {
+            Object.defineProperties(event, {
+                key: { configurable: true, value: legacy.key },
+                code: { configurable: true, value: code },
+                keyCode: { configurable: true, value: legacy.keyCode },
+                which: { configurable: true, value: legacy.keyCode },
+                charCode: { configurable: true, value: 0 }
+            });
+            return event.code === code && event.keyCode === legacy.keyCode;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function createUnityKeyboardEvent(code, type) {
+        const legacy = legacyKeys[code] || { key: code, keyCode: 0 };
+        const event = new KeyboardEvent(type, {
+            code,
+            key: legacy.key,
+            bubbles: true,
+            cancelable: true
+        });
+        try {
+            Object.defineProperties(event, {
+                keyCode: { configurable: true, value: legacy.keyCode },
+                which: { configurable: true, value: legacy.keyCode },
+                charCode: { configurable: true, value: 0 }
+            });
+        } catch (_) { /* modern key/code fields still work */ }
+        return event;
     }
 
     function dispatchUnityKey(code, type, releaseAfter = false) {
         const target = dom.subwayGameContainer?.querySelector('canvas') || window;
-        const event = new KeyboardEvent(type, { code, key: code.replace('Arrow', ''), bubbles: true, cancelable: true });
-        target.dispatchEvent(event);
-        if (target !== window) window.dispatchEvent(new KeyboardEvent(type, { code, key: code.replace('Arrow', ''), bubbles: true }));
+        target.dispatchEvent(createUnityKeyboardEvent(code, type));
         if (releaseAfter) setTimeout(() => dispatchUnityKey(code, 'keyup'), 60);
     }
 
