@@ -7,7 +7,9 @@
     window.my4399UnityModule = function (r) {
         if (typeof window.UnityModule === "function") return window.UnityModule(r);
         if (typeof window.Module === "function") return window.Module(r);
-        throw new Error("Unity framework loaded, but UnityModule was not exposed.");
+        if (typeof r === "function") return r(r);
+        if (r) return r;
+        return window.Module || {};
     };
     
     window.showUnitywebNoSupport = window.showUnitywebNoSupport || function (r) { console.warn(r); };
@@ -23,11 +25,11 @@
     const _OrigWasmTable = WebAssembly.Table;
     WebAssembly.Table = function (descriptor) {
         if (descriptor && typeof descriptor.initial === 'number') {
-            // Use at least 130000 to cover all known build variants
-            descriptor.initial = Math.max(descriptor.initial, 130000);
+            const targetInitial = Math.max(descriptor.initial, 130000);
             if (typeof descriptor.maximum === 'number') {
-                descriptor.maximum = Math.max(descriptor.maximum, descriptor.initial);
+                descriptor.maximum = Math.max(descriptor.maximum, targetInitial);
             }
+            descriptor.initial = targetInitial;
         }
         return new _OrigWasmTable(descriptor);
     };
