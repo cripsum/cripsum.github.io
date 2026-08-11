@@ -38,8 +38,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     
     <!-- Custom styling & game engine logic -->
     <link rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=1.0">
-    <script src="/assets/js/subway/subway.js?v=1.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/subway.css?v=1.1">
+    <script src="/assets/js/subway/subway.js?v=1.1" defer></script>
 </head>
 
 <body class="game-page">
