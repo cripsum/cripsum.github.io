@@ -484,12 +484,19 @@ body.subway-fullscreen-active .main-footer {
 }
 
 .subway-game-container canvas {
-    width: min(100vw, 56.2962963vh) !important;
-    height: min(100vh, 177.6470588vw) !important;
-    aspect-ratio: 0.562962963;
-    flex: 0 0 auto;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    flex: 1 1 auto;
     display: block !important;
     outline: none;
+    object-fit: fill;
+    touch-action: none;
+    user-select: none;
+    contain: strict;
 }
 
 .subway-start-hint {
