@@ -29,52 +29,6 @@
         window.__unityOpenPatchInstalled = true;
     }
 
-    // Intercept XHR and Fetch for onlinesettings & save files to prevent C# FileUtil IOException
-    if (!window.__troOnlineSettingsXhrPatchInstalled) {
-        const origXhrOpen = XMLHttpRequest.prototype.open;
-        const origXhrSend = XMLHttpRequest.prototype.send;
-
-        XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-            this._url = String(url || "");
-            return origXhrOpen.call(this, method, url, ...rest);
-        };
-
-        XMLHttpRequest.prototype.send = function (body) {
-            if (this._url && (this._url.includes('onlinesettings') || this._url.includes('newonlinesettings'))) {
-                Object.defineProperty(this, 'status', { writable: true, value: 200 });
-                Object.defineProperty(this, 'statusText', { writable: true, value: 'OK' });
-                Object.defineProperty(this, 'responseText', { writable: true, value: '{"status":"ok","unlocked":true}' });
-                Object.defineProperty(this, 'response', { writable: true, value: '{"status":"ok","unlocked":true}' });
-                
-                setTimeout(() => {
-                    if (typeof this.onreadystatechange === 'function') {
-                        Object.defineProperty(this, 'readyState', { writable: true, value: 4 });
-                        this.onreadystatechange();
-                    }
-                    if (typeof this.onload === 'function') {
-                        this.onload();
-                    }
-                }, 10);
-                return;
-            }
-            return origXhrSend.call(this, body);
-        };
-
-        const origFetch = window.fetch;
-        window.fetch = function (input, init) {
-            const url = typeof input === 'string' ? input : (input && input.url) ? input.url : '';
-            if (url && (url.includes('onlinesettings') || url.includes('newonlinesettings'))) {
-                return Promise.resolve(new Response('{"status":"ok","unlocked":true}', {
-                    status: 200,
-                    statusText: 'OK',
-                    headers: { 'Content-Type': 'application/json' }
-                }));
-            }
-            return origFetch.call(this, input, init);
-        };
-        window.__troOnlineSettingsXhrPatchInstalled = true;
-    }
-
     // Poki Bridge & SDK Window Contract
     window.PokiBridge = window.PokiBridge || {};
     window.pokiReady = window.pokiReady || true;
@@ -129,68 +83,19 @@
         return Promise.resolve(true);
     };
 
-    // WebAssembly Import Patcher (tavvkkj FL/Tp engine)
-    // Fulfills missing env function imports like _JS_Eval_ClearTimeout and ___syscall* dynamically
-    const dummyFn = () => 0;
-    const defaultEnvImports = {
-        _getpagesize: () => 65536,
-        ___syscall5: () => -1,
-        ___syscall6: () => 0,
-        ___syscall41: () => -1,
-        ___syscall54: () => -1,
-        ___syscall140: () => -1,
-        ___syscall145: () => 0,
-        ___syscall146: () => 0,
-        ___syscall197: () => 0,
-        ___syscall220: () => 0,
-        ___syscall221: () => -1,
-        _JS_Eval_ClearTimeout: e => { window.clearTimeout(e); },
-        _JS_Eval_ClearInterval: e => { window.clearInterval(e); },
-        _JS_Eval_SetInterval: (e, t) => window.setInterval(() => {
-            const m = window.Module || window.unityInstance;
-            if (e && m && typeof m.dynCall_v === "function") m.dynCall_v(e);
-        }, t || 0),
-        _JS_Eval_SetTimeout: (e, t) => window.setTimeout(() => {
-            const m = window.Module || window.unityInstance;
-            if (e && m && typeof m.dynCall_v === "function") m.dynCall_v(e);
-        }, t || 0),
-        _JS_SystemInfo_GetCanvasHeight: () => window.innerHeight,
-        _JS_SystemInfo_GetCanvasWidth: () => window.innerWidth,
-        _JS_SystemInfo_GetCurrentCanvasHeight: () => window.innerHeight,
-        _JS_SystemInfo_GetCurrentCanvasWidth: () => window.innerWidth
-    };
-
-    function patchImportObject(bufferOrModule, importObject) {
-        if (!importObject || typeof importObject !== "object") importObject = {};
-        if (!importObject.env || typeof importObject.env !== "object") importObject.env = {};
-        
-        const env = importObject.env;
-        
-        try {
-            const module = bufferOrModule instanceof WebAssembly.Module ? bufferOrModule : new WebAssembly.Module(bufferOrModule);
-            const imports = WebAssembly.Module.imports(module);
-            
-            for (const imp of imports) {
-                if (imp.module === "env" && imp.kind === "function" && typeof env[imp.name] !== "function") {
-                    if (defaultEnvImports[imp.name]) {
-                        env[imp.name] = defaultEnvImports[imp.name];
-                    } else if (/^___syscall\d+$/.test(imp.name) || imp.name.startsWith("_JS_")) {
-                        env[imp.name] = dummyFn;
-                    }
-                }
-            }
-        } catch (e) {}
-        
-        return importObject;
-    }
-
-    if (!window.__unityMissingImportPatchInstalled && window.WebAssembly && window.WebAssembly.instantiate) {
-        const origInstantiate = window.WebAssembly.instantiate;
-        window.WebAssembly.instantiate = function (bufferOrModule, importObject, ...args) {
-            const patchedImports = patchImportObject(bufferOrModule, importObject);
-            return origInstantiate.call(this, bufferOrModule, patchedImports, ...args);
+    // GitHub serves .unityweb as application/octet-stream. Instantiate from an
+    // ArrayBuffer so Chromium does not reject compileStreaming on the MIME type.
+    if (!window.__unityStreamingFallbackInstalled
+        && window.WebAssembly
+        && typeof window.WebAssembly.instantiateStreaming === 'function') {
+        const nativeInstantiate = window.WebAssembly.instantiate;
+        window.WebAssembly.instantiateStreaming = function (response, importObject) {
+            return Promise.resolve(response).then(async resolvedResponse => {
+                const bytes = await resolvedResponse.arrayBuffer();
+                return nativeInstantiate.call(window.WebAssembly, bytes, importObject);
+            });
         };
-        window.__unityMissingImportPatchInstalled = true;
+        window.__unityStreamingFallbackInstalled = true;
     }
 
     // Satisfy WASM framework and warning telemetry requirements
@@ -256,105 +161,23 @@
     const _OrigWasmTable = WebAssembly.Table;
     WebAssembly.Table = function (descriptor) {
         if (activeTablePatchSize && descriptor && typeof descriptor.initial === 'number') {
-            descriptor.initial = Math.max(descriptor.initial, activeTablePatchSize);
-            descriptor.maximum = descriptor.maximum === undefined ? activeTablePatchSize : Math.max(descriptor.maximum, activeTablePatchSize);
+            descriptor = Object.assign({}, descriptor, {
+                initial: Math.max(descriptor.initial, activeTablePatchSize),
+                maximum: descriptor.maximum === undefined
+                    ? undefined
+                    : Math.max(descriptor.maximum, activeTablePatchSize)
+            });
         }
         return new _OrigWasmTable(descriptor);
     };
     WebAssembly.Table.prototype = _OrigWasmTable.prototype;
     try { Object.setPrototypeOf(WebAssembly.Table, _OrigWasmTable); } catch (e) {}
 
-    // Framework Patching Engine (Neutralizes Poki site-lock and missing functions)
-    function patchWasmFramework(text) {
-        if (!text || typeof text !== 'string') return text;
-        if (!text.includes("_JS_Eval_") && !text.includes("_JS_PokiSDK_") && !text.includes("_JS_SystemInfo_") && !text.includes("getInternalformatParameter")) {
-            return text;
-        }
-        
-        let t = text;
-        
-        // 1. Remove Poki Domain Lock timer
-        t = t.replace(
-            /setTimeout\(function\(\)\{var e,i,n,t=unityMapSource\("bG9jYXRpb24"\)[\s\S]*?window\[t\]=unityMapSource\(e\[3\]\)\}\},2e3\),ENVIRONMENT_IS_WEB=/g,
-            "setTimeout(function(){},2e3),ENVIRONMENT_IS_WEB="
-        );
-
-        // 2. Wrap OpenURL & EvalJS with sitelock blockers
-        t = t.replace(
-            /function _JS_Eval_OpenURL\(([^)]*)\)\{var ([^=]+)=Pointer_stringify\(\1\);location\.href=\2\}/g,
-            'function _JS_Eval_OpenURL($1){var $2=Pointer_stringify($1);if(typeof window!=="undefined"&&window.__blockUnityExternalOpenURL&&window.__blockUnityExternalOpenURL($2))return;location.href=$2}'
-        );
-
-        t = t.replace(
-            /function _JS_Eval_EvalJS\(([^)]*)\)\{var ([^=]+)=Pointer_stringify\(\1\);try\{eval\(\2\)\}catch\(([^)]*)\)\{console\.error\(\3\)\}\}/g,
-            'function _JS_Eval_EvalJS($1){var $2=Pointer_stringify($1);try{if(typeof window!=="undefined"&&window.__blockUnityExternalEval&&window.__blockUnityExternalEval($2))return;eval($2)}catch($3){console.error($3)}}'
-        );
-
-        // 3. Fix JS_PokiSDK_gameLoadingProgress abort (exact tavvkkj replacement)
-        t = t.replace(
-            /function _JS_PokiSDK_gameLoadingProgress\(\)\{err\("missing function: JS_PokiSDK_gameLoadingProgress"\);abort\(-1\)\}/g,
-            'function _JS_PokiSDK_gameLoadingProgress(){if(typeof window!=="undefined"&&window.PokiSDK&&window.PokiSDK.gameLoadingProgress)window.PokiSDK.gameLoadingProgress.apply(window.PokiSDK,arguments)}'
-        );
-
-        // 4. Catch any other missing function aborts safely
-        t = t.replace(
-            /function (_JS_PokiSDK_[a-zA-Z0-9_]+)\(\)\{err\("missing function: [^"]+"\);abort\(-1\)\}/g,
-            'function $1(){}'
-        );
-
-        return t;
-    }
-
-    function isWasmHeader(u8) {
-        return u8[0] === 0 && u8[1] === 97 && u8[2] === 115 && u8[3] === 109; // \0asm
-    }
-
-    function patchPart(part, isScriptOrText, decoder, encoder) {
-        if (typeof part === 'string') return patchWasmFramework(part);
-        if (!isScriptOrText) return part;
-        
-        const u8 = part instanceof ArrayBuffer 
-            ? new Uint8Array(part) 
-            : ArrayBuffer.isView(part) 
-                ? new Uint8Array(part.buffer, part.byteOffset, part.byteLength) 
-                : null;
-                
-        if (!u8 || u8.length < 64 || isWasmHeader(u8)) return part;
-        
-        try {
-            const decodedText = decoder.decode(u8);
-            const patchedText = patchWasmFramework(decodedText);
-            return patchedText === decodedText ? part : encoder.encode(patchedText);
-        } catch (e) {
-            return part;
-        }
-    }
-
-    // Intercept window.Blob creation so decompressed framework blobs are patched automatically
-    if (!window.__unityBlobPatchInstalled && window.Blob && window.TextDecoder && window.TextEncoder) {
-        const OrigBlob = window.Blob;
-        const decoder = new TextDecoder();
-        const encoder = new TextEncoder();
-        
-        function PatchedBlob(blobParts = [], options = {}) {
-            const mimeType = String((options && options.type) || "").toLowerCase();
-            const isScriptOrText = mimeType.includes("javascript") || mimeType.includes("text");
-            const patchedParts = Array.from(blobParts, part => patchPart(part, isScriptOrText, decoder, encoder));
-            return new OrigBlob(patchedParts, options);
-        }
-        
-        PatchedBlob.prototype = OrigBlob.prototype;
-        Object.setPrototypeOf(PatchedBlob, OrigBlob);
-        window.Blob = PatchedBlob;
-        window.__unityBlobPatchInstalled = true;
-    }
-
     // 1. Game State & Settings
     const state = {
         activeMap: null,
         activeRepo: null,
         unityInstance: null,
-        timerInterval: null,
         startTime: 0,
         elapsedTime: 0,
         isRunning: false,
@@ -362,6 +185,14 @@
         noCoinChallenge: true,
         autoPauseOnCoin: true,
         firstInputStarted: false,
+        unityReady: false,
+        gameplayStartedAt: 0,
+        lastAudioSignature: '',
+        lastAudioAt: 0,
+        lastJumpInputAt: 0,
+        configBlobUrl: null,
+        loadToken: 0,
+        loading: false,
         customKeys: {
             jump: 'KeyW',
             duck: 'KeyS',
@@ -436,31 +267,194 @@
         'winterholiday': 'therealoness-builds-3'
     };
 
+    const defaultPlayerPrefsBase64 = 'VW5pdHlQcmYAAAEAAAAQABlDbG91ZFNhdmVMYXN0VXNlZEtpbG9vVGFnABNIb3ZlcmJvYXJkaGFzU2NhbGVk/gEAAAAFU291bmT9AACAPxdhcHBsaWNhdGlvbkF1dGhlbnRpY2l0eQNzZXQ3c2F2ZWRhdGFfZmlsZW5vdGZvdW5kX29uY2UtRGF0YS5TYXZlLkludGVybmFsLkNsb3VkRGF0Yf4BAAAAN3NhdmVkYXRhX2ZpbGVub3Rmb3VuZF9vbmNlLURhdGEuU2F2ZS5JbnRlcm5hbC5Mb2NhbERhdGH+AQAAABJ1bml0eS5jbG91ZF91c2VyaWQgMjk5YTcwNGZlMWZkNTY2NGQ5OTc5M2JhNzVkZGZiNGMadW5pdHkucGxheWVyX3Nlc3Npb25fY291bnQBMRZ1bml0eS5wbGF5ZXJfc2Vzc2lvbmlkEzkwODQ1MTY0MTc1MDg3NjQ2Njc=';
+
+    function bytesToHex(bytes) {
+        return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    function getSaveScope(mapSlug) {
+        return `${window.location.origin}/__cripsum-subway-save__/${mapSlug}`;
+    }
+
+    function installSharedSaveHashPatch(mapSlug) {
+        const cryptography = window.UnityLoader && window.UnityLoader.Cryptography;
+        const currentMd5 = cryptography && cryptography.md5;
+        if (typeof currentMd5 !== 'function' || typeof TextEncoder !== 'function') return false;
+        if (currentMd5.__cripsumSavePatchInstalled) return true;
+
+        const nativeMd5 = currentMd5.__cripsumNativeMd5 || currentMd5;
+        const encoder = new TextEncoder();
+        const decoder = typeof TextDecoder === 'function' ? new TextDecoder() : null;
+        const encodedScope = encoder.encode(getSaveScope(mapSlug));
+
+        function shouldUseSharedSave(input) {
+            if (!decoder) return false;
+            const bytes = input instanceof ArrayBuffer
+                ? new Uint8Array(input)
+                : ArrayBuffer.isView(input)
+                    ? new Uint8Array(input.buffer, input.byteOffset, input.byteLength)
+                    : Array.isArray(input)
+                        ? new Uint8Array(input)
+                    : null;
+            if (!bytes || bytes.length === 0 || bytes.length > 2048) return false;
+
+            let value;
+            try { value = decoder.decode(bytes); } catch (error) { return false; }
+            if (!/^https?:\/\//i.test(value)) return false;
+
+            try {
+                const url = new URL(value);
+                const mapBuild = `/builds/${mapSlug}/`;
+                const currentPage = url.origin === window.location.origin;
+                return currentPage || url.pathname.includes(mapBuild);
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function patchedMd5(input) {
+            return nativeMd5(shouldUseSharedSave(input) ? encodedScope : input);
+        }
+
+        patchedMd5.module = currentMd5.module;
+        patchedMd5.__cripsumNativeMd5 = nativeMd5;
+        patchedMd5.__cripsumSavePatchInstalled = true;
+        cryptography.md5 = patchedMd5;
+        return true;
+    }
+
+    function openIdbfsDatabase() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('/idbfs', 21);
+            request.onupgradeneeded = () => {
+                const database = request.result;
+                const transaction = request.transaction;
+                const store = database.objectStoreNames.contains('FILE_DATA')
+                    ? transaction.objectStore('FILE_DATA')
+                    : database.createObjectStore('FILE_DATA');
+                if (!store.indexNames.contains('timestamp')) {
+                    store.createIndex('timestamp', 'timestamp', { unique: false });
+                }
+            };
+            request.onerror = () => reject(request.error || new Error('IndexedDB non disponibile.'));
+            request.onblocked = () => reject(new Error('IndexedDB occupato da un’altra scheda.'));
+            request.onsuccess = () => resolve(request.result);
+        });
+    }
+
+    function decodeBase64Bytes(value) {
+        const decoded = atob(value);
+        const bytes = new Uint8Array(decoded.length);
+        for (let index = 0; index < decoded.length; index += 1) {
+            bytes[index] = decoded.charCodeAt(index);
+        }
+        return bytes;
+    }
+
+    async function installDefaultSave(mapSlug, config) {
+        const cryptography = window.UnityLoader && window.UnityLoader.Cryptography;
+        const md5 = cryptography && (cryptography.md5.__cripsumNativeMd5 || cryptography.md5);
+        if (typeof md5 !== 'function' || !window.indexedDB) return false;
+
+        const currentPageUrl = `${window.location.origin}${window.location.pathname}`;
+        const pageDirectoryUrl = new URL('.', window.location.href).href;
+        const targetInputs = new Set([
+            getSaveScope(mapSlug),
+            currentPageUrl,
+            pageDirectoryUrl,
+            pageDirectoryUrl.replace(/\/$/, ''),
+            config && config.dataUrl,
+            config && config.dataUrl && config.dataUrl.slice(0, config.dataUrl.lastIndexOf('/') + 1)
+        ].filter(Boolean));
+        const saveRoots = Array.from(targetInputs, input => {
+            const saveHash = bytesToHex(md5(new TextEncoder().encode(input)));
+            return `/idbfs/${saveHash}`;
+        });
+        const slotNames = ['local', 'cloud', 'local_old', 'cloud_old'];
+        const response = await fetch('/assets/js/subway/runtime/default-save.bin', { cache: 'force-cache' });
+        if (!response.ok) throw new Error(`Save predefinito non disponibile (HTTP ${response.status}).`);
+        const saveBytes = new Uint8Array(await response.arrayBuffer());
+        const playerPrefs = decodeBase64Bytes(defaultPlayerPrefsBase64);
+        const database = await openIdbfsDatabase();
+
+        try {
+            await new Promise((resolve, reject) => {
+                const transaction = database.transaction('FILE_DATA', 'readwrite');
+                const store = transaction.objectStore('FILE_DATA');
+                const timestamp = Date.now();
+
+                for (const rootDirectory of saveRoots) {
+                    const saveDirectory = `${rootDirectory}/Save`;
+                    store.put({ mode: 16895, timestamp }, rootDirectory);
+                    store.put({ mode: 16895, timestamp }, saveDirectory);
+
+                    for (const slotName of slotNames) {
+                        const key = `${saveDirectory}/${slotName}`;
+                        const request = store.get(key);
+                        request.onsuccess = () => {
+                            if (!request.result) {
+                                store.put({ contents: saveBytes.slice(), mode: 33206, timestamp }, key);
+                            }
+                        };
+                    }
+
+                    const prefsKey = `${rootDirectory}/PlayerPrefs`;
+                    const prefsRequest = store.get(prefsKey);
+                    prefsRequest.onsuccess = () => {
+                        if (!prefsRequest.result) {
+                            store.put({ contents: playerPrefs.slice(), mode: 33206, timestamp }, prefsKey);
+                        }
+                    };
+                }
+
+                transaction.oncomplete = resolve;
+                transaction.onerror = () => reject(transaction.error || new Error('Scrittura save fallita.'));
+                transaction.onabort = () => reject(transaction.error || new Error('Scrittura save annullata.'));
+            });
+        } finally {
+            database.close();
+        }
+
+        logToConsole(`Profilo moddato pronto per ${mapSlug}.`);
+        return true;
+    }
+
     // 2. Audio Hooking (Web Audio API Interceptor)
     function initAudioHooks() {
-        const origDecodeAudioData = window.AudioContext.prototype.decodeAudioData;
-        window.AudioContext.prototype.decodeAudioData = function (arrayBuffer, successCallback, errorCallback) {
-            const promise = origDecodeAudioData.call(this, arrayBuffer, function (buffer) {
-                if (successCallback) successCallback(buffer);
-            }, errorCallback);
+        const sourcePrototype = window.AudioBufferSourceNode && window.AudioBufferSourceNode.prototype;
+        if (!sourcePrototype || sourcePrototype.__cripsumChallengeHookInstalled) return;
 
-            if (promise && typeof promise.then === 'function') {
-                promise.then(function (buffer) {
-                    analyzeAudioBuffer(buffer, 'decode');
-                });
-            }
-            return promise;
-        };
-
-        const origStart = window.AudioBufferSourceNode.prototype.start;
-        window.AudioBufferSourceNode.prototype.start = function (when, offset, duration) {
+        const origStart = sourcePrototype.start;
+        sourcePrototype.start = function (when, offset, duration) {
             if (this.buffer) {
                 analyzeAudioBuffer(this.buffer, 'play');
             }
             return origStart.apply(this, arguments);
         };
+        sourcePrototype.__cripsumChallengeHookInstalled = true;
         
         logToConsole("Iniettore AudioContext caricato. Intercettazione in ascolto...");
+    }
+
+    function installPokiHooks() {
+        const sdk = window.PokiSDK || {};
+        if (sdk.__cripsumHooksInstalled) return;
+        const callOriginal = (method, fallback) => {
+            const original = typeof sdk[method] === 'function' ? sdk[method].bind(sdk) : fallback;
+            sdk[method] = function (...args) {
+                if (method === 'gameplayStart' || method === 'roundStart') {
+                    triggerRunStart(`poki-${method}`);
+                }
+                return original ? original(...args) : undefined;
+            };
+        };
+
+        callOriginal('gameplayStart');
+        callOriginal('roundStart');
+        sdk.rewardedBreak = () => Promise.resolve(true);
+        Object.defineProperty(sdk, '__cripsumHooksInstalled', { value: true });
+        window.PokiSDK = sdk;
     }
 
     function matchesAudioTarget(buffer, target) {
@@ -485,9 +479,21 @@
         // ONLY analyze played audio during active gameplay, NEVER on buffer decode at boot!
         if (action !== 'play') return;
         
-        // Check for coin pickup sound
+        const now = performance.now();
+        const signature = `${buffer.length}:${Math.round(buffer.duration * 1000)}`;
+        if (state.lastAudioSignature === signature && now - state.lastAudioAt < 80) return;
+        state.lastAudioSignature = signature;
+        state.lastAudioAt = now;
+
+        // The coin and jump clips overlap in older builds. Ignore ambiguous
+        // samples immediately after a jump input and during the startup window.
         if (matchesAudioTarget(buffer, audioTargets.coin)) {
-            triggerCoinPickup('audio-hook');
+            const gameplayAge = now - state.gameplayStartedAt;
+            const jumpAge = now - state.lastJumpInputAt;
+            const ambiguousJumpClip = buffer.duration >= 0.585 && buffer.duration <= 0.605;
+            if (gameplayAge >= 1200 && !(ambiguousJumpClip && jumpAge >= 0 && jumpAge <= 70)) {
+                triggerCoinPickup('audio-hook');
+            }
         }
         // Check for run start sound
         else if (matchesAudioTarget(buffer, audioTargets.start)) {
@@ -516,8 +522,10 @@
         state.isRunning = true;
         state.isFailed = false;
         state.firstInputStarted = true;
+        state.gameplayStartedAt = performance.now();
         
         updateStatusHUD('RUNNING', 'var(--game-blue)');
+        setStartHintVisible(false);
         
         // Run animation loop
         function tick() {
@@ -528,7 +536,7 @@
         }
         requestAnimationFrame(tick);
         
-        logToConsole("Rilevato inizio corsa (Audio/Input). Timer avviato.");
+        logToConsole(`Rilevato inizio corsa (${source}). Timer avviato.`);
     }
 
     function triggerCoinPickup(source) {
@@ -541,14 +549,9 @@
         logToConsole(`SFIDA FALLITA: Rilevato ritiro moneta tramite [${source}]!`);
         
         if (state.autoPauseOnCoin && state.unityInstance) {
-            // Emulate escape key or pause call to Unity if possible
-            // Let's send a fake keydown Escape to the canvas to pause the game
-            const canvas = document.querySelector('canvas');
-            if (canvas) {
-                const escDown = new KeyboardEvent('keydown', { code: 'Escape', key: 'Escape', keyCode: 27, which: 27, bubbles: true });
-                canvas.dispatchEvent(escDown);
-                logToConsole("Richiesto autopausa al gioco.");
-            }
+            dispatchUnityKey('keydown', 'Escape');
+            dispatchUnityKey('keyup', 'Escape');
+            logToConsole("Richiesta autopausa inviata al gioco.");
         }
     }
 
@@ -557,122 +560,73 @@
         state.isFailed = false;
         state.elapsedTime = 0;
         state.firstInputStarted = false;
+        state.gameplayStartedAt = 0;
         updateTimerDisplay(0);
         updateStatusHUD('ACTIVE', 'var(--game-green)');
+        setStartHintVisible(true);
         logToConsole("Sfida resettata. Pronti per la prossima corsa.");
     }
 
     // 5. Key Remapping Logic
-    function ensureCanvasFocus() {
-        const canvas = document.querySelector('#subwayGameContainer canvas') || document.querySelector('canvas');
-        if (canvas) {
-            if (canvas.getAttribute('tabindex') !== '1') {
-                canvas.setAttribute('tabindex', '1');
-                canvas.style.outline = 'none';
-            }
-            if (document.activeElement !== canvas) {
-                try { canvas.focus(); } catch (e) {}
-            }
-        }
-        return canvas;
+    function isGameActive() {
+        const gameArea = document.getElementById('subwayGameArea');
+        return Boolean(gameArea && gameArea.style.display !== 'none' && state.unityReady);
     }
 
-    let isSimulatingInput = false;
-    function simulateCanvasStartInput(canvas) {
-        if (!canvas || isSimulatingInput) return;
-        isSimulatingInput = true;
-        try {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = rect.left + rect.width / 2;
-            const clientY = rect.top + rect.height / 2;
+    function dispatchUnityKey(type, code) {
+        const keyCode = getKeyCodeForCode(code);
+        const eventInit = {
+            code,
+            key: code === 'Space' ? ' ' : code,
+            keyCode,
+            which: keyCode,
+            bubbles: true,
+            cancelable: true
+        };
+        const unityEvent = new KeyboardEvent(type, eventInit);
+        Object.defineProperty(unityEvent, '__cripsumUnityForwarded', { value: true });
+        // Chromium treats these fields as legacy read-only values. Unity 2019
+        // still reads them, so expose the expected numeric values explicitly.
+        try { Object.defineProperty(unityEvent, 'keyCode', { value: keyCode }); } catch (error) {}
+        try { Object.defineProperty(unityEvent, 'which', { value: keyCode }); } catch (error) {}
+        try { Object.defineProperty(unityEvent, 'charCode', { value: type === 'keypress' ? keyCode : 0 }); } catch (error) {}
 
-            const opts = { clientX, clientY, bubbles: false, cancelable: true };
-            canvas.dispatchEvent(new PointerEvent('pointerdown', opts));
-            canvas.dispatchEvent(new MouseEvent('mousedown', opts));
-            canvas.dispatchEvent(new PointerEvent('pointerup', opts));
-            canvas.dispatchEvent(new MouseEvent('mouseup', opts));
-            canvas.dispatchEvent(new MouseEvent('click', opts));
-
-            // Dispatch Space keydown and keyup directly to canvas
-            const spaceOpts = { code: 'Space', key: ' ', keyCode: 32, which: 32, bubbles: false, cancelable: true };
-            canvas.dispatchEvent(new KeyboardEvent('keydown', spaceOpts));
-            canvas.dispatchEvent(new KeyboardEvent('keyup', spaceOpts));
-        } catch (e) {
-        } finally {
-            isSimulatingInput = false;
-        }
+        const canvas = document.querySelector('#subwayGameContainer canvas');
+        (canvas || document).dispatchEvent(unityEvent);
     }
 
     function initKeyRemapper() {
-        const gameArea = document.getElementById('subwayGameArea');
-        if (gameArea) {
-            gameArea.addEventListener('click', function(e) {
-                if (!e.isTrusted || isSimulatingInput) return;
-                const canvas = ensureCanvasFocus();
-                if (!state.firstInputStarted) {
-                    simulateCanvasStartInput(canvas);
-                    if (state.noCoinChallenge) {
-                        triggerRunStart('click-start');
-                    }
+        const forwardKey = function (event) {
+            if (event.__cripsumUnityForwarded || !isGameActive() || activeRemappingKey) return;
+            const type = event.type;
+            const mappedCode = event.code === 'Space' ? 'Space' : state.keyMapping[event.code];
+            if (!mappedCode || mappedCode === event.code && event.code !== 'Space') return;
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (type === 'keydown') {
+                highlightHUDKey(event.code, true);
+                if (event.code === state.customKeys.jump || event.code === 'Space') {
+                    state.lastJumpInputAt = performance.now();
                 }
-            });
-            gameArea.addEventListener('pointerdown', ensureCanvasFocus);
-        }
-
-        window.addEventListener('keydown', function (e) {
-            if (!e.isTrusted || isSimulatingInput) return;
-            const canvas = ensureCanvasFocus();
-            highlightHUDKey(e.code, true);
-
-            // Movement / Start Keys list
-            const isStartKey = ['Space', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyS', 'KeyA', 'KeyD'].includes(e.code);
-
-            if (isStartKey && !state.firstInputStarted) {
-                simulateCanvasStartInput(canvas);
-                if (state.noCoinChallenge) {
-                    triggerRunStart('keyboard-start');
-                }
+            } else {
+                highlightHUDKey(event.code, false);
             }
-
-            // Remap custom key bindings to default keys
-            const remapped = state.keyMapping[e.code];
-            if (remapped && canvas) {
-                const keyCode = getKeyCodeForCode(remapped);
-                const mappedEvent = new KeyboardEvent('keydown', {
-                    code: remapped,
-                    key: remapped === 'ArrowUp' ? 'ArrowUp' : remapped === 'ArrowDown' ? 'ArrowDown' : remapped === 'ArrowLeft' ? 'ArrowLeft' : 'ArrowRight',
-                    keyCode: keyCode,
-                    which: keyCode,
-                    bubbles: false,
-                    cancelable: true
-                });
-                canvas.dispatchEvent(mappedEvent);
+            dispatchUnityKey(type, mappedCode);
+            if (type === 'keydown' && mappedCode === 'Space') {
+                dispatchUnityKey('keypress', 'Space');
             }
-        }, true);
+        };
 
-        window.addEventListener('keyup', function (e) {
-            if (!e.isTrusted || isSimulatingInput) return;
-            const canvas = ensureCanvasFocus();
-            highlightHUDKey(e.code, false);
-
-            const remapped = state.keyMapping[e.code];
-            if (remapped && canvas) {
-                const keyCode = getKeyCodeForCode(remapped);
-                const mappedEvent = new KeyboardEvent('keyup', {
-                    code: remapped,
-                    key: remapped === 'ArrowUp' ? 'ArrowUp' : remapped === 'ArrowDown' ? 'ArrowDown' : remapped === 'ArrowLeft' ? 'ArrowLeft' : 'ArrowRight',
-                    keyCode: keyCode,
-                    which: keyCode,
-                    bubbles: false,
-                    cancelable: true
-                });
-                canvas.dispatchEvent(mappedEvent);
-            }
-        }, true);
+        window.addEventListener('keydown', forwardKey, true);
+        window.addEventListener('keyup', forwardKey, true);
     }
 
     function getKeyCodeForCode(code) {
         return {
+            'Space': 32,
+            'Enter': 13,
+            'Escape': 27,
             'ArrowUp': 38,
             'ArrowDown': 40,
             'ArrowLeft': 37,
@@ -682,8 +636,12 @@
 
     // 6. Loader & Boot Sequence
     async function loadMap(mapSlug) {
+        if (state.loading) return;
+        state.loading = true;
+        const loadToken = ++state.loadToken;
         state.activeMap = mapSlug;
         state.activeRepo = mapRepos[mapSlug];
+        state.unityReady = false;
         
         if (!state.activeRepo) {
             alert('Mappa non supportata!');
@@ -700,7 +658,9 @@
         document.body.classList.add('subway-fullscreen-active');
         document.getElementById('subwayLobby').style.display = 'none';
         document.getElementById('subwayGameArea').style.display = 'block';
+        document.getElementById('subwayGameArea').setAttribute('aria-busy', 'true');
         resetChallenge();
+        setStartHintVisible(false);
 
         try {
             // 2. Fetch and patch the config JSON
@@ -719,10 +679,12 @@
             let rawText = await response.text();
             rawText = rawText.replace(/^\uFEFF/, '');
             const config = JSON.parse(rawText);
+            if (!config.dataUrl || !config.wasmCodeUrl || !config.wasmFrameworkUrl) {
+                throw new Error('Il manifest Unity è incompleto.');
+            }
             logToConsole('Configurazione ricevuta da GitHub. Risoluzione asset...');
             
             // 3. Resolve ALL relative URLs to absolute raw GitHub URLs
-            const baseUrl = configUrl.substring(0, configUrl.lastIndexOf('/') + 1);
             const resolveUrl = (relUrl) => {
                 if (!relUrl) return relUrl;
                 // Strip query params for resolution, re-add after
@@ -738,14 +700,51 @@
             config.dataUrl = resolveUrl(config.dataUrl);
             config.wasmCodeUrl = resolveUrl(config.wasmCodeUrl);
             config.wasmFrameworkUrl = resolveUrl(config.wasmFrameworkUrl);
+            // UnityLoader 2019 only preloads WASM when the string literally
+            // ends in ".unityweb". Version queries in Bangkok/Moscow manifests
+            // make that check fail and leave Module.wasmBinary undefined.
+            try {
+                const wasmCodeAsset = new URL(config.wasmCodeUrl);
+                wasmCodeAsset.search = '';
+                wasmCodeAsset.hash = '';
+                config.wasmCodeUrl = wasmCodeAsset.href;
+            } catch (error) {}
             if (config.asmCodeUrl) config.asmCodeUrl = resolveUrl(config.asmCodeUrl);
             if (config.asmFrameworkUrl) config.asmFrameworkUrl = resolveUrl(config.asmFrameworkUrl);
             if (config.asmMemoryUrl) config.asmMemoryUrl = resolveUrl(config.asmMemoryUrl);
+            config.cacheControl = config.cacheControl || { default: 'immutable' };
+
+            // The public manifests point several maps at a generic shared
+            // framework that is not ABI-compatible with their WASM code. Keep
+            // the code/data pair untouched and select the matching Unity 2019
+            // framework family used by the original builds.
+            const frameworkByMap = {
+                zurich: '4399.z.js',
+                beijing: '4399.js',
+                cairo: '4399.js',
+                paris: '4399.js',
+                tokyo: '4399.js',
+                london: '4399.js',
+                mexico: 'subwaySurf14.08.js',
+                newyork: '4399.js',
+                berlin: '4399.sf.js',
+                buenosaires: '4399.js'
+            };
+            if (frameworkByMap[mapSlug]) {
+                config.wasmFrameworkUrl = new URL(
+                    `/assets/js/subway/runtime/${frameworkByMap[mapSlug]}`,
+                    window.location.href
+                ).href;
+                logToConsole(`Framework Unity compatibile selezionato per ${mapSlug}.`);
+            }
             
             updateBootProgress('Etapa 02 · Atmosfera', 45, 'Asset risolti in URL assoluti...');
             logToConsole(`Data: ${config.dataUrl}`);
             logToConsole(`WASM Code: ${config.wasmCodeUrl}`);
             logToConsole(`WASM Fw: ${config.wasmFrameworkUrl}`);
+
+            await validateUnityAssets(config);
+            if (loadToken !== state.loadToken) return;
 
             // Apply precise table size patch based on the WASM binary
             activeTablePatchSize = getExpectedTableSize(config.wasmCodeUrl);
@@ -756,29 +755,17 @@
             // 4. Dynamically load dependencies
             updateBootProgress('Etapa 03 · Interface', 70, 'Caricamento script di avvio Unity...');
             await loadScript('/assets/js/subway/poki.js');
+            installPokiHooks();
             await loadScript('/assets/js/subway/UnityLoader.js');
             logToConsole('Loader di Unity pronto in memoria.');
-            
-            // Hook loadCode to neutralize Poki's domain lock check
-            if (window.UnityLoader && window.UnityLoader.loadCode) {
-                const origLoadCode = window.UnityLoader.loadCode;
-                window.UnityLoader.loadCode = function (e, t, r, n) {
-                    try {
-                        if (typeof t === 'string') {
-                            t = patchWasmFramework(t);
-                        } else if (t instanceof Uint8Array || t instanceof ArrayBuffer) {
-                            const textDecoder = new TextDecoder();
-                            const decoded = textDecoder.decode(t);
-                            const patched = patchWasmFramework(decoded);
-                            t = new TextEncoder().encode(patched);
-                        }
-                    } catch (err) {
-                        console.warn('WASM framework patch warning:', err);
-                    }
-                    return origLoadCode.call(this, e, t, r, n);
-                };
-                logToConsole('Patch anti-domain-lock attiva.');
+            installSharedSaveHashPatch(mapSlug);
+            try {
+                await installDefaultSave(mapSlug, config);
+            } catch (saveError) {
+                console.warn('Installazione del profilo moddato non riuscita:', saveError);
+                logToConsole('Avviso: profilo moddato non installato; il gioco userà il save locale esistente.');
             }
+            if (loadToken !== state.loadToken) return;
             
             // 5. Monkey-patch UnityLoader's progress update to handle cross-origin URLs
             // The original code does: r.target.responseURL.split("/Build/")[1].split("?")[0]
@@ -786,16 +773,17 @@
             if (window.UnityLoader && window.UnityLoader.Progress) {
                 const origUpdate = window.UnityLoader.Progress.update;
                 window.UnityLoader.Progress.update = function(e, t, r) {
-                    if (r && !r.lengthComputable && r.target && r.target.responseURL) {
-                        const url = r.target.responseURL;
-                        if (url.indexOf('/Build/') === -1) {
+                    if (r && !r.lengthComputable) {
+                        const url = r.target && r.target.responseURL ? r.target.responseURL : '';
+                        if (!url || url.indexOf('/Build/') === -1) {
                             // Fake a lengthComputable event so the original code
                             // skips the split("/Build/") branch entirely
                             const fakeEvent = {
                                 lengthComputable: true,
                                 loaded: r.loaded || 0,
                                 total: r.total || 0,
-                                target: r.target
+                                target: r.target,
+                                type: r.type
                             };
                             return origUpdate.call(this, e, t, fakeEvent);
                         }
@@ -817,23 +805,30 @@
             const resolvedWasmCodeUrl = config.wasmCodeUrl;
 
             function onUnityInstanceReady() {
+                if (loadToken !== state.loadToken || state.unityReady) return;
+                state.unityReady = true;
+                state.loading = false;
+                document.getElementById('subwayGameArea').setAttribute('aria-busy', 'false');
                 updateBootProgress('Portal Disponibile', 100, 'Fine sequenza di avvio.');
                 setTimeout(() => {
                     bootSplash.classList.add('hidden');
                     const cv = document.querySelector('#subwayGameContainer canvas');
                     if (cv) {
-                        cv.focus();
-                        cv.addEventListener('click', () => cv.focus());
+                        cv.setAttribute('aria-label', `Subway Surfers - ${mapSlug}`);
+                        cv.setAttribute('tabindex', '0');
                     }
+                    setStartHintVisible(true);
                     logToConsole('Gioco avviato con successo. Buona fortuna!');
                 }, 800);
             }
 
             // Create a config blob URL with absolute URLs already resolved.
             // This way resolveBuildUrl will see http:// and return the URL as-is.
+            if (state.configBlobUrl) URL.revokeObjectURL(state.configBlobUrl);
             const configBlobUrl = URL.createObjectURL(
                 new Blob([JSON.stringify(config)], { type: 'application/json' })
             );
+            state.configBlobUrl = configBlobUrl;
 
             if (window.UnityLoader && window.UnityLoader.instantiate) {
                 logToConsole("Avvio UnityLoader.instantiate con URL patchati...");
@@ -842,16 +837,31 @@
                     onProgress: function (gameInstance, progress) {
                         const percent = Math.round(90 + (progress * 10));
                         updateBootProgress('Etapa 04 · Portal', percent, `Caricamento memoria di gioco (${percent}%)`);
-                        if (progress >= 1.0) {
-                            state.unityInstance = gameInstance;
-                            onUnityInstanceReady();
+                        if (progress >= 1.0) state.unityInstance = gameInstance;
+                    },
+                    onsuccess: function (unityModule) {
+                        if (unityModule && unityModule.unityInstance) {
+                            state.unityInstance = unityModule.unityInstance;
                         }
+                        onUnityInstanceReady();
+                    },
+                    onerror: function (message) {
+                        if (loadToken !== state.loadToken) return;
+                        state.loading = false;
+                        state.unityReady = false;
+                        document.getElementById('subwayGameArea').setAttribute('aria-busy', 'false');
+                        const errorMessage = typeof message === 'string'
+                            ? message
+                            : 'Unity non è riuscito ad avviarsi.';
+                        updateBootProgress('Errore di Avvio', 100, errorMessage);
+                        logToConsole(`ERRORE UNITY: ${errorMessage}`);
+                        console.error('Unity loader error:', message);
                     },
                     Module: {
                         locateFile: function (filename) {
                             // Override the hardcoded "Build/".concat(...) behavior
                             // Emscripten calls this to find the .wasm binary
-                            if (filename === 'build.wasm' || filename.endsWith('.unityweb')) {
+                            if (filename === 'build.wasm') {
                                 return resolvedWasmCodeUrl;
                             }
                             return filename;
@@ -884,6 +894,8 @@
             }
 
         } catch (err) {
+            if (loadToken !== state.loadToken) return;
+            state.loading = false;
             console.error(err);
             updateBootProgress('Errore di Avvio', 100, 'Impossibile completare la sequenza.');
             logToConsole(`ERRORE DI CARICAMENTO: ${err.message}`);
@@ -895,16 +907,49 @@
     }
 
     function exitGame() {
+        state.loadToken += 1;
+        state.unityReady = false;
+        state.loading = false;
         document.body.classList.remove('subway-fullscreen-active');
         if (state.unityInstance) {
-            state.unityInstance.Quit();
+            try {
+                const quitResult = state.unityInstance.Quit && state.unityInstance.Quit();
+                if (quitResult && typeof quitResult.catch === 'function') quitResult.catch(() => {});
+            } catch (e) {}
             state.unityInstance = null;
+        }
+        window.unityInstance = null;
+        window.gameInstance = null;
+        window.__unityInstance = null;
+        activeTablePatchSize = 0;
+        if (state.configBlobUrl) {
+            URL.revokeObjectURL(state.configBlobUrl);
+            state.configBlobUrl = null;
         }
         document.getElementById('subwayGameContainer').innerHTML = '';
         document.getElementById('subwayGameArea').style.display = 'none';
         document.getElementById('subwayLobby').style.display = 'block';
         resetBootProgress();
         resetChallenge();
+    }
+
+    async function validateUnityAssets(config) {
+        const entries = [
+            ['dati', config.dataUrl],
+            ['codice WASM', config.wasmCodeUrl],
+            ['framework', config.wasmFrameworkUrl]
+        ];
+
+        await Promise.all(entries.map(async ([label, url]) => {
+            let response;
+            try {
+                response = await fetch(url, { method: 'HEAD', cache: 'force-cache', credentials: 'omit' });
+            } catch (error) {
+                throw new Error(`Asset ${label} non raggiungibile.`);
+            }
+            if (!response.ok) throw new Error(`Asset ${label} non disponibile (HTTP ${response.status}).`);
+        }));
+        logToConsole('Manifest verificato: tutti gli asset della mappa sono disponibili.');
     }
 
     // Helper functions
@@ -934,54 +979,52 @@
     }
 
     function makeElementDraggable(elmnt, handle) {
-        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        
-        handle.onmousedown = dragMouseDown;
-        handle.ontouchstart = dragTouchStart;
+        let pointerId = null;
+        let offsetX = 0;
+        let offsetY = 0;
 
-        function dragMouseDown(e) {
-            e = e || window.event;
-            e.preventDefault();
-            // get the mouse cursor position at startup:
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            document.onmouseup = closeDragElement;
-            // call a function whenever the cursor moves:
-            document.onmousemove = elementDrag;
-        }
+        handle.addEventListener('pointerdown', function (event) {
+            if (event.button !== undefined && event.button !== 0) return;
+            event.preventDefault();
+            event.stopPropagation();
 
-        function dragTouchStart(e) {
-            if (e.touches.length === 1) {
-                pos3 = e.touches[0].clientX;
-                pos4 = e.touches[0].clientY;
-                document.ontouchend = closeDragElement;
-                document.ontouchmove = elementTouchDrag;
-            }
-        }
+            const rect = elmnt.getBoundingClientRect();
+            const parentRect = elmnt.offsetParent.getBoundingClientRect();
+            // Freeze both axes before removing right/bottom anchors. This keeps
+            // the widget dimensions stable throughout and after the drag.
+            elmnt.style.width = `${rect.width}px`;
+            elmnt.style.height = `${rect.height}px`;
+            elmnt.style.minWidth = `${rect.width}px`;
+            elmnt.style.maxWidth = `${rect.width}px`;
+            elmnt.style.minHeight = `${rect.height}px`;
+            elmnt.style.maxHeight = `${rect.height}px`;
+            elmnt.style.left = `${rect.left - parentRect.left}px`;
+            elmnt.style.top = `${rect.top - parentRect.top}px`;
+            elmnt.style.right = 'auto';
+            elmnt.style.bottom = 'auto';
 
-        function elementDrag(e) {
-            e = e || window.event;
-            e.preventDefault();
-            // calculate the new cursor position:
-            pos1 = pos3 - e.clientX;
-            pos2 = pos4 - e.clientY;
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            
-            // set the element's new position:
-            updatePosition(elmnt.offsetTop - pos2, elmnt.offsetLeft - pos1);
-        }
+            pointerId = event.pointerId;
+            offsetX = event.clientX - rect.left;
+            offsetY = event.clientY - rect.top;
+            handle.setPointerCapture(pointerId);
+            elmnt.classList.add('is-dragging');
+        });
 
-        function elementTouchDrag(e) {
-            if (e.touches.length === 1) {
-                pos1 = pos3 - e.touches[0].clientX;
-                pos2 = pos4 - e.touches[0].clientY;
-                pos3 = e.touches[0].clientX;
-                pos4 = e.touches[0].clientY;
-                
-                updatePosition(elmnt.offsetTop - pos2, elmnt.offsetLeft - pos1);
-            }
-        }
+        handle.addEventListener('pointermove', function (event) {
+            if (pointerId !== event.pointerId) return;
+            event.preventDefault();
+            const parentRect = elmnt.offsetParent.getBoundingClientRect();
+            updatePosition(event.clientY - parentRect.top - offsetY, event.clientX - parentRect.left - offsetX);
+        });
+
+        const stopDrag = function (event) {
+            if (pointerId !== event.pointerId) return;
+            try { handle.releasePointerCapture(pointerId); } catch (e) {}
+            pointerId = null;
+            elmnt.classList.remove('is-dragging');
+        };
+        handle.addEventListener('pointerup', stopDrag);
+        handle.addEventListener('pointercancel', stopDrag);
 
         function updatePosition(top, left) {
             // Containment boundaries (stay inside parent container)
@@ -998,13 +1041,6 @@
             elmnt.style.left = left + "px";
         }
 
-        function closeDragElement() {
-            // stop moving when button is released:
-            document.onmouseup = null;
-            document.onmousemove = null;
-            document.ontouchend = null;
-            document.ontouchmove = null;
-        }
     }
 
     // 8. Interface Update Helpers
@@ -1057,6 +1093,11 @@
         }
     }
 
+    function setStartHintVisible(visible) {
+        const hint = document.getElementById('subwayStartHint');
+        if (hint) hint.classList.toggle('is-visible', Boolean(visible && state.unityReady && !state.isRunning));
+    }
+
     function highlightHUDKey(code, isPressed) {
         // Find which custom binding matches this code
         let boundKey = null;
@@ -1094,11 +1135,10 @@
         
         // Render bind buttons
         for (const [key, code] of Object.entries(state.customKeys)) {
-            const btn = document.getElementById(`keybindBtn-${key}`);
-            if (btn) {
+            document.querySelectorAll(`[data-keybind="${key}"]`).forEach(btn => {
                 btn.textContent = cleanKeyCodeText(code);
                 btn.className = 'subway-key-btn';
-            }
+            });
         }
     }
 
@@ -1112,7 +1152,7 @@
         if (activeRemappingKey) return;
         
         activeRemappingKey = keyName;
-        const btn = document.getElementById(`keybindBtn-${keyName}`);
+        const btn = document.querySelector(`[data-keybind="${keyName}"]`);
         if (btn) {
             btn.textContent = 'Premere...';
             btn.classList.add('waiting');
@@ -1140,8 +1180,10 @@
             state.keyMapping[e.code] = targetMap;
             
             // Render binds
-            btn.textContent = cleanKeyCodeText(e.code);
-            btn.classList.remove('waiting');
+            document.querySelectorAll(`[data-keybind="${keyName}"]`).forEach(keyButton => {
+                keyButton.textContent = cleanKeyCodeText(e.code);
+                keyButton.classList.remove('waiting');
+            });
             
             // Remove listeners
             window.removeEventListener('keydown', handleKey, true);
@@ -1187,9 +1229,16 @@
         // Bind map card selection clicks
         const mapCards = document.querySelectorAll('.subway-map-card');
         mapCards.forEach(card => {
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
             card.addEventListener('click', function () {
                 const slug = this.dataset.map;
                 loadMap(slug);
+            });
+            card.addEventListener('keydown', function (event) {
+                if (event.code !== 'Enter' && event.code !== 'Space') return;
+                event.preventDefault();
+                loadMap(this.dataset.map);
             });
         });
 
@@ -1231,14 +1280,34 @@
             exitBtn.addEventListener('click', exitGame);
         }
 
+        const cancelLoadBtn = document.getElementById('cancelSubwayLoad');
+        if (cancelLoadBtn) cancelLoadBtn.addEventListener('click', exitGame);
+
+        const startHint = document.getElementById('subwayStartHint');
+        if (startHint) {
+            startHint.setAttribute('role', 'button');
+            startHint.setAttribute('tabindex', '0');
+            const activateGame = function () {
+                if (!isGameActive()) return;
+                dispatchUnityKey('keydown', 'Space');
+                dispatchUnityKey('keypress', 'Space');
+                setTimeout(() => dispatchUnityKey('keyup', 'Space'), 30);
+            };
+            startHint.addEventListener('click', activateGame);
+            startHint.addEventListener('keydown', function (event) {
+                if (event.code !== 'Enter' && event.code !== 'Space') return;
+                event.preventDefault();
+                activateGame();
+            });
+        }
+
         // Bind customization mapping buttons
         for (const key of ['jump', 'duck', 'left', 'right']) {
-            const btn = document.getElementById(`keybindBtn-${key}`);
-            if (btn) {
+            document.querySelectorAll(`[data-keybind="${key}"]`).forEach(btn => {
                 btn.addEventListener('click', function () {
                     startRemap(key);
                 });
-            }
+            });
         }
     });
 

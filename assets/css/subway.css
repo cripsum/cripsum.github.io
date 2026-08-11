@@ -255,7 +255,7 @@ input:checked + .subway-slider:before {
 .subway-boot-splash {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 1000000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -266,10 +266,27 @@ input:checked + .subway-slider:before {
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
+.subway-boot-cancel {
+    min-height: 34px;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 9px;
+    color: var(--game-muted);
+    background: rgba(255, 255, 255, 0.05);
+    font: 700 0.75rem/1 var(--subway-font);
+    cursor: pointer;
+}
+
+.subway-boot-cancel:hover {
+    border-color: var(--game-red);
+    color: #fff;
+}
+
 .subway-boot-splash.hidden {
     opacity: 0;
     visibility: hidden;
-    pointer-events: none;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 .subway-boot-panel {
@@ -460,13 +477,64 @@ body.subway-fullscreen-active .main-footer {
     border: none;
     border-radius: 0;
     background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
 }
 
 .subway-game-container canvas {
-    width: 100% !important;
-    height: 100% !important;
+    width: min(100vw, 56.2962963vh) !important;
+    height: min(100vh, 177.6470588vw) !important;
+    aspect-ratio: 0.562962963;
+    flex: 0 0 auto;
     display: block !important;
-    object-fit: contain;
+    outline: none;
+}
+
+.subway-start-hint {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    max-width: min(520px, calc(100vw - 470px));
+    padding: 0.6rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    color: #fff;
+    background: rgba(7, 10, 18, 0.88);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(14px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(-50%, -8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+
+.subway-start-hint.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
+.subway-start-hint kbd {
+    flex: 0 0 auto;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-bottom-width: 3px;
+    border-radius: 7px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    font: 900 0.72rem/1 var(--subway-font);
+}
+
+.subway-start-hint span {
+    font-size: 0.76rem;
+    line-height: 1.3;
 }
 
 /* 5. Draggable HUD Overlays */
@@ -483,6 +551,14 @@ body.subway-fullscreen-active .main-footer {
     color: var(--game-text);
     user-select: none;
     box-sizing: border-box;
+    resize: none;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.subway-hud-widget.is-dragging {
+    cursor: grabbing;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.66);
 }
 
 .subway-hud-widget .widget-handle {
@@ -513,6 +589,8 @@ body.subway-fullscreen-active .main-footer {
     top: 65px;
     left: 20px;
     width: 240px;
+    min-width: 240px;
+    max-width: 240px;
 }
 
 .subway-timer-display {
@@ -529,6 +607,8 @@ body.subway-fullscreen-active .main-footer {
     top: 20px;
     right: 20px;
     width: 200px;
+    min-width: 200px;
+    max-width: 200px;
 }
 
 .subway-status-row {
@@ -569,6 +649,8 @@ body.subway-fullscreen-active .main-footer {
     bottom: 20px;
     left: 20px;
     width: 180px;
+    min-width: 180px;
+    max-width: 180px;
 }
 
 .subway-hud-keys-grid {
@@ -608,6 +690,10 @@ body.subway-fullscreen-active .main-footer {
     right: 20px;
     width: 48px;
     height: 48px;
+    min-width: 48px;
+    max-width: 48px;
+    min-height: 48px;
+    max-height: 48px;
     padding: 0;
     display: flex;
     align-items: center;
@@ -623,7 +709,7 @@ body.subway-fullscreen-active .main-footer {
 .subway-settings-modal {
     position: absolute;
     inset: 0;
-    z-index: 100;
+    z-index: 10000;
     background: rgba(5, 8, 18, 0.95);
     display: flex;
     align-items: center;
@@ -632,6 +718,23 @@ body.subway-fullscreen-active .main-footer {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+@media (max-width: 760px) {
+    .subway-start-hint {
+        top: 72px;
+        max-width: calc(100vw - 32px);
+    }
+
+    .subway-timer-widget {
+        top: 126px;
+        left: 12px;
+    }
+
+    .subway-status-widget {
+        top: 126px;
+        right: 12px;
+    }
 }
 
 .subway-settings-modal.show {

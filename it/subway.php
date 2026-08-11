@@ -38,8 +38,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=3.0">
-    <script src="/assets/js/subway/subway.js?v=3.0" defer></script>
+    <link rel="stylesheet" href="/assets/css/subway.css?v=4.0">
+    <script src="/assets/js/subway/subway.js?v=4.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -110,22 +110,22 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         
                         <div class="subway-keybind-item">
                             <label>Salta / Jump</label>
-                            <button class="subway-key-btn" id="keybindBtn-jump">W</button>
+                            <button class="subway-key-btn" data-keybind="jump">W</button>
                         </div>
                         
                         <div class="subway-keybind-item">
                             <label>Scivola / Roll</label>
-                            <button class="subway-key-btn" id="keybindBtn-duck">S</button>
+                            <button class="subway-key-btn" data-keybind="duck">S</button>
                         </div>
                         
                         <div class="subway-keybind-item">
                             <label>Sposta Sinistra</label>
-                            <button class="subway-key-btn" id="keybindBtn-left">A</button>
+                            <button class="subway-key-btn" data-keybind="left">A</button>
                         </div>
                         
                         <div class="subway-keybind-item">
                             <label>Sposta Destra</label>
-                            <button class="subway-key-btn" id="keybindBtn-right">D</button>
+                            <button class="subway-key-btn" data-keybind="right">D</button>
                         </div>
                         
                     </div>
@@ -267,6 +267,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <i class="fa-solid fa-arrow-left"></i> Torna alla selezione
                 </button>
 
+                <div class="subway-start-hint" id="subwayStartHint" aria-live="polite">
+                    <kbd>SPAZIO</kbd>
+                    <span>Avvia la corsa nel gioco. Il timer partirà quando la run inizia davvero.</span>
+                </div>
+
                 <!-- Floating Timer Widget (Draggable) -->
                 <div class="subway-hud-widget subway-timer-widget" id="hudWidgetTimer">
                     <div class="widget-handle">
@@ -328,19 +333,19 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         <div class="subway-keybind-list">
                             <div class="subway-keybind-item">
                                 <label>Salta (Jump)</label>
-                                <button class="subway-key-btn" id="keybindBtn-jump">W</button>
+                                <button class="subway-key-btn" data-keybind="jump">W</button>
                             </div>
                             <div class="subway-keybind-item">
                                 <label>Scivola (Roll)</label>
-                                <button class="subway-key-btn" id="keybindBtn-duck">S</button>
+                                <button class="subway-key-btn" data-keybind="duck">S</button>
                             </div>
                             <div class="subway-keybind-item">
                                 <label>Sposta Sinistra</label>
-                                <button class="subway-key-btn" id="keybindBtn-left">A</button>
+                                <button class="subway-key-btn" data-keybind="left">A</button>
                             </div>
                             <div class="subway-keybind-item">
                                 <label>Sposta Destra</label>
-                                <button class="subway-key-btn" id="keybindBtn-right">D</button>
+                                <button class="subway-key-btn" data-keybind="right">D</button>
                             </div>
                         </div>
 
@@ -370,6 +375,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <i class="subway-boot-pulse-dot"></i>
                     <span>Booting</span>
                 </div>
+                <button class="subway-boot-cancel" id="cancelSubwayLoad" type="button">Annulla</button>
             </header>
 
             <div class="subway-boot-content">
