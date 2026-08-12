@@ -279,6 +279,71 @@
         Object.defineProperty(window.WebAssembly, '__cripsumMimeFallback', { value: true });
     }
 
+    (function installWebGLPreserveBuffer() {
+        if (HTMLCanvasElement.prototype.__cripsumPreserveHooked) return;
+        const originalGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function (type, attributes) {
+            if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
+                attributes = Object.assign({}, attributes || {}, { preserveDrawingBuffer: true });
+            }
+            return originalGetContext.call(this, type, attributes);
+        };
+        Object.defineProperty(HTMLCanvasElement.prototype, '__cripsumPreserveHooked', { value: true });
+    })();
+
+    let offscreenCanvas = null;
+    let offscreenCtx = null;
+    let baselineGoldCount = -1;
+
+    function initVisualDetector() {
+        if (!offscreenCanvas) {
+            offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = 160;
+            offscreenCanvas.height = 60;
+            offscreenCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
+        }
+        baselineGoldCount = -1;
+    }
+
+    function checkVisualCoinPickup() {
+        if (!state.running || !state.challenge || !offscreenCtx) return;
+        const webglCanvas = dom.subwayGameContainer?.querySelector('canvas');
+        if (!webglCanvas || webglCanvas.width === 0 || webglCanvas.height === 0) return;
+
+        try {
+            const sw = Math.floor(webglCanvas.width * 0.32);
+            const sh = Math.floor(webglCanvas.height * 0.18);
+            const sx = webglCanvas.width - sw;
+            const sy = 0;
+
+            offscreenCtx.drawImage(webglCanvas, sx, sy, sw, sh, 0, 0, 160, 60);
+            const imgData = offscreenCtx.getImageData(0, 0, 160, 60);
+            const data = imgData.data;
+
+            let goldCount = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                if (r > 190 && g > 145 && b < 110 && (r - b) > 85) {
+                    goldCount++;
+                }
+            }
+
+            if (baselineGoldCount < 0) {
+                if (state.elapsed > 400) {
+                    baselineGoldCount = goldCount;
+                }
+                return;
+            }
+
+            const diff = goldCount - baselineGoldCount;
+            if (diff > 18 || (baselineGoldCount > 5 && diff > 10)) {
+                failChallenge();
+            }
+        } catch (_) { /* ignore security sandbox restrictions */ }
+    }
+
     function filterKnownUnityNoise() {
         if (console.__cripsumSubwayFiltered) return;
         const ignored = [
@@ -290,9 +355,6 @@
             const original = console[method].bind(console);
             console[method] = (...args) => {
                 const message = args.map(String).join(' ');
-                if (state.running && /\b(coin|coins|collect|collected|pickup|score|reward|item|gold)\b/i.test(message)) {
-                    failChallenge();
-                }
                 if (!ignored.some(fragment => message.includes(fragment))) original(...args);
             };
         });
@@ -309,35 +371,6 @@
             };
             Object.defineProperty(Source.prototype, '__cripsumSubwayHooked', { value: true });
         }
-
-        const Context = window.AudioContext || window.webkitAudioContext;
-        if (Context && !Context.prototype.__cripsumSubwayHooked) {
-            const originalCreateBufferSource = Context.prototype.createBufferSource;
-            Context.prototype.createBufferSource = function (...args) {
-                const node = originalCreateBufferSource.apply(this, args);
-                const originalNodeStart = node.start;
-                node.start = function (...startArgs) {
-                    try { classifyAudio(this.buffer); } catch (_) {}
-                    return originalNodeStart.apply(this, startArgs);
-                };
-                return node;
-            };
-            Object.defineProperty(Context.prototype, '__cripsumSubwayHooked', { value: true });
-        }
-
-        const MediaPlay = window.HTMLMediaElement?.prototype?.play;
-        if (MediaPlay && !window.HTMLMediaElement.prototype.__cripsumSubwayHooked) {
-            window.HTMLMediaElement.prototype.play = function (...args) {
-                if (state.running) {
-                    try {
-                        const dur = Number(this.duration || 0);
-                        if (dur > 0.05 && dur < 5.0) failChallenge();
-                    } catch (_) {}
-                }
-                return MediaPlay.apply(this, args);
-            };
-            Object.defineProperty(window.HTMLMediaElement.prototype, '__cripsumSubwayHooked', { value: true });
-        }
     }
 
     function inspectGameEvent(values) {
@@ -346,30 +379,19 @@
     }
 
     function classifyAudio(buffer) {
-        if (!state.challenge) return;
+        if (!state.challenge || !state.running) return;
+        const duration = Number(buffer?.duration || 0);
+        if (duration <= 0.02 || duration > 5.0) return;
+
         const now = performance.now();
         const isRecentJump = (now - (state.lastJumpInput || 0)) < 350;
         const isRecentRoll = (now - (state.lastRollInput || 0)) < 350;
 
-        const duration = Number(buffer?.duration || 0);
-
-        const looksLikeStart = duration > 0 && Math.abs(duration - 3.465) < 0.35;
-        if (looksLikeStart && !state.running) {
-            startTimer('audio');
-            return;
-        }
-
-        if (!state.running) return;
-
-        if (duration > 5.0) return;
-
-        const looksLikeJumpSound = duration > 0 && Math.abs(duration - 0.63) < 0.10;
-        const looksLikeRollSound = duration > 0 && Math.abs(duration - 0.45) < 0.08;
+        const looksLikeJumpSound = Math.abs(duration - 0.63) < 0.10;
+        const looksLikeRollSound = Math.abs(duration - 0.45) < 0.08;
 
         if (looksLikeJumpSound && isRecentJump) return;
         if (looksLikeRollSound && isRecentRoll) return;
-
-        failChallenge();
     }
 
     function setChallengeStatus(kind) {
@@ -410,8 +432,8 @@
     function startTimer(source) {
         if (!state.challenge) return;
         resetTimer();
+        initVisualDetector();
         state.running = true;
-        state.runArmed = false;
         state.startedAt = performance.now();
         setChallengeStatus('running');
         dom.subwayStartHint?.classList.remove('is-visible');
@@ -423,7 +445,10 @@
         if (!state.running) return;
         state.elapsed = now - state.startedAt;
         renderTimerDisplay(state.elapsed);
-        state.timerFrame = requestAnimationFrame(updateTimer);
+        checkVisualCoinPickup();
+        if (state.running) {
+            state.timerFrame = requestAnimationFrame(updateTimer);
+        }
     }
 
     function formatTime(milliseconds) {
@@ -448,7 +473,6 @@
     function bindGameInput() {
         const nativeCodes = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
         const nativeActions = { ArrowUp: 'jump', ArrowDown: 'duck', ArrowLeft: 'left', ArrowRight: 'right' };
-        const triggerKeys = new Set(['Space', 'KeyW', 'KeyS', 'KeyA', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 
         window.addEventListener('keydown', event => {
             if (!state.activeMap || event.repeat || event.target?.closest?.('.subway-settings-modal')) return;
@@ -463,10 +487,10 @@
             if (action === 'jump') state.lastJumpInput = performance.now();
             if (action === 'duck') state.lastRollInput = performance.now();
 
-            if (triggerKeys.has(event.code) || action) {
-                if (!state.running && state.challenge) {
-                    startTimer('input');
-                }
+            if (event.code === 'Space') {
+                startTimer('space');
+            } else if (action && !state.running && !state.failed && state.elapsed === 0 && state.challenge) {
+                startTimer('input');
             }
 
             if (!action) return;
