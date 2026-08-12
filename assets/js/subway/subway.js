@@ -296,11 +296,11 @@
     function inspectGameEvent(values) {
         let serialized = '';
         try {
-            serialized = values.map(value => typeof value === 'string' ? value : JSON.stringify(value)).join(' ');
+            serialized = values.map(value => typeof value === 'object' ? JSON.stringify(value) : String(value)).join(' ');
         } catch (_) {
             serialized = values.map(String).join(' ');
         }
-        if (/\b(coin[_ -]?(collected|pickup)|collect(ed)?[_ -]?coin|pickup[_ -]?coin)\b/i.test(serialized)) {
+        if (/\bcoin(s)?\b/i.test(serialized) || /\bcollect(ed)?\b/i.test(serialized) || /\bpickup\b/i.test(serialized)) {
             failChallenge();
         }
     }
@@ -309,14 +309,14 @@
         if (!buffer || !state.challenge) return;
         const duration = Number(buffer.duration || 0);
         const looksLikeStart = Math.abs(duration - 3.465) < 0.14;
-        const looksLikeCoin = duration >= 0.515 && duration < 0.595;
+        const looksLikeCoin = duration >= 0.12 && duration < 0.595;
         const looksLikeJump = duration >= 0.595 && duration < 0.67;
 
         if (looksLikeStart && !state.running) {
             startTimer('audio');
         } else if (looksLikeJump) {
             state.lastJumpInput = performance.now();
-        } else if (looksLikeCoin && state.running && performance.now() - state.lastJumpInput > 170) {
+        } else if (looksLikeCoin && state.running) {
             failChallenge();
         }
     }
@@ -333,6 +333,18 @@
         dom.subwayStatusBadge.textContent = labels[kind] || kind;
     }
 
+    function renderTimerDisplay(milliseconds) {
+        if (!dom.subwayTimerDisplay) return;
+        const total = Math.max(0, Math.floor(milliseconds));
+        const minutes = Math.floor(total / 60000);
+        const seconds = Math.floor((total % 60000) / 1000);
+        const ms = total % 1000;
+        const mmStr = String(minutes).padStart(2, '0');
+        const ssStr = String(seconds).padStart(2, '0');
+        const msStr = String(ms).padStart(3, '0');
+        dom.subwayTimerDisplay.innerHTML = `${mmStr}:${ssStr}<span class="subway-ms">.${msStr}</span>`;
+    }
+
     function resetTimer() {
         cancelAnimationFrame(state.timerFrame);
         state.running = false;
@@ -340,13 +352,13 @@
         state.runArmed = false;
         state.startedAt = 0;
         state.elapsed = 0;
-        if (dom.subwayTimerDisplay) dom.subwayTimerDisplay.textContent = '00:00.000';
+        renderTimerDisplay(0);
         setChallengeStatus(state.challenge ? 'ready' : 'inactive');
     }
 
     function startTimer(source) {
-        if (!state.challenge || state.running) return;
-        if (state.failed || state.elapsed > 0) resetTimer();
+        if (!state.challenge) return;
+        resetTimer();
         state.running = true;
         state.runArmed = false;
         state.startedAt = performance.now();
@@ -359,7 +371,7 @@
     function updateTimer(now = performance.now()) {
         if (!state.running) return;
         state.elapsed = now - state.startedAt;
-        if (dom.subwayTimerDisplay) dom.subwayTimerDisplay.textContent = formatTime(state.elapsed);
+        renderTimerDisplay(state.elapsed);
         state.timerFrame = requestAnimationFrame(updateTimer);
     }
 
@@ -377,7 +389,7 @@
         state.running = false;
         state.failed = true;
         cancelAnimationFrame(state.timerFrame);
-        if (dom.subwayTimerDisplay) dom.subwayTimerDisplay.textContent = formatTime(state.elapsed);
+        renderTimerDisplay(state.elapsed);
         setChallengeStatus('failed');
         if (state.autoPause) dispatchUnityKey('Escape', 'keydown', true);
     }
@@ -385,15 +397,25 @@
     function bindGameInput() {
         const nativeCodes = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
         const nativeActions = { ArrowUp: 'jump', ArrowDown: 'duck', ArrowLeft: 'left', ArrowRight: 'right' };
+        const triggerKeys = new Set(['Space', 'KeyW', 'KeyS', 'KeyA', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+
         window.addEventListener('keydown', event => {
             if (!state.activeMap || event.repeat || event.target?.closest?.('.subway-settings-modal')) return;
-            if (event.code === 'Space') state.runArmed = true;
 
             const action = nativeActions[event.code]
                 || Object.keys(state.bindings).find(key => state.bindings[key] === event.code);
+
+            if (action) {
+                flashHudKey(action, true);
+            }
+
+            if (triggerKeys.has(event.code) || action) {
+                if (!state.running && state.challenge) {
+                    startTimer('input');
+                }
+            }
+
             if (!action) return;
-            flashHudKey(action, true);
-            if (state.runArmed && !state.running && !state.failed) startTimer('input');
             if (nativeCodes.has(event.code)) return;
             event.preventDefault();
             if (action === 'jump') state.lastJumpInput = performance.now();

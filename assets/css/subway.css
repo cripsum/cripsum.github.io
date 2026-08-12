@@ -605,19 +605,30 @@ body.subway-fullscreen-active .main-footer {
 .subway-timer-widget {
     top: 65px;
     left: 20px;
-    width: 240px;
-    min-width: 240px;
-    max-width: 240px;
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
 }
 
 .subway-timer-display {
-    font-family: monospace;
-    font-size: 2.2rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+    font-size: 2.1rem;
     font-weight: 750;
     text-align: center;
     color: #fff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
 }
+
+.subway-timer-display .subway-ms {
+    font-size: 0.75em;
+    opacity: 0.9;
+    color: #ffd700;
+    margin-left: 1px;
+}
+
 
 /* Challenge Status Widget (Fixed Dimensions) */
 .subway-status-widget {
