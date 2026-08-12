@@ -45,7 +45,8 @@
         bindings: Object.assign({}, defaultBindings),
         challenge: true,
         autoPause: true,
-        lastJumpInput: 0
+        lastJumpInput: 0,
+        lastRollInput: 0
     };
 
     const dom = {};
@@ -202,11 +203,17 @@
 
     function createPokiCompatibilityLayer() {
         const resolved = () => Promise.resolve();
-        window.PokiSDK = Object.assign(window.PokiSDK || {}, {
+        const pokiHandler = {
             init: resolved,
             initWithVideoHB: resolved,
-            commercialBreak: resolved,
-            rewardedBreak: () => Promise.resolve(false),
+            commercialBreak: () => {
+                if (state.running) failChallenge();
+                return resolved();
+            },
+            rewardedBreak: () => {
+                if (state.running) failChallenge();
+                return Promise.resolve(false);
+            },
             customEvent(...values) { inspectGameEvent(values); },
             displayAd() {},
             destroyAd() {},
@@ -215,28 +222,35 @@
             gameLoadingFinished() {},
             gameInteractive() {},
             gameplayStart() { startTimer('gameplayStart'); },
-            gameplayStop() {},
+            gameplayStop() { if (state.running) failChallenge(); },
             roundStart() { startTimer('roundStart'); },
-            roundEnd() {},
+            roundEnd() { if (state.running) failChallenge(); },
             setDebug() {},
-            happyTime() {},
+            happyTime(...values) { inspectGameEvent(values); },
             setPlayerAge() {},
             togglePlayerAdvertisingConsent() {},
             toggleNonPersonalized() {},
             setConsentString() {},
             logError() {}
-        });
+        };
+        window.PokiSDK = Object.assign(window.PokiSDK || {}, pokiHandler);
         window.pokiReady = true;
         window.pokiAdBlock = false;
         window.initPokiBridge = bridgeName => {
             window.pokiBridge = bridgeName;
             if (window.unityGame?.SendMessage) window.unityGame.SendMessage(bridgeName, 'ready');
-            window.commercialBreak = () => window.PokiSDK.commercialBreak().then(() => {
-                window.unityGame?.SendMessage?.(bridgeName, 'commercialBreakCompleted');
-            });
-            window.rewardedBreak = () => window.PokiSDK.rewardedBreak().then(rewarded => {
-                window.unityGame?.SendMessage?.(bridgeName, 'rewardedBreakCompleted', String(rewarded));
-            });
+            window.commercialBreak = () => {
+                if (state.running) failChallenge();
+                return window.PokiSDK.commercialBreak().then(() => {
+                    window.unityGame?.SendMessage?.(bridgeName, 'commercialBreakCompleted');
+                });
+            };
+            window.rewardedBreak = () => {
+                if (state.running) failChallenge();
+                return window.PokiSDK.rewardedBreak().then(rewarded => {
+                    window.unityGame?.SendMessage?.(bridgeName, 'rewardedBreakCompleted', String(rewarded));
+                });
+            };
         };
     }
 
@@ -284,23 +298,39 @@
 
     function installAudioDetector() {
         const Source = window.AudioBufferSourceNode;
-        if (!Source || Source.prototype.__cripsumSubwayHooked) return;
-        const originalStart = Source.prototype.start;
-        Source.prototype.start = function (...args) {
-            try { classifyAudio(this.buffer); } catch (_) { /* game audio must never break */ }
-            return originalStart.apply(this, args);
-        };
-        Object.defineProperty(Source.prototype, '__cripsumSubwayHooked', { value: true });
+        if (Source && !Source.prototype.__cripsumSubwayHooked) {
+            const originalStart = Source.prototype.start;
+            Source.prototype.start = function (...args) {
+                try { classifyAudio(this.buffer); } catch (_) { /* game audio must never break */ }
+                return originalStart.apply(this, args);
+            };
+            Object.defineProperty(Source.prototype, '__cripsumSubwayHooked', { value: true });
+        }
+
+        const MediaPlay = window.HTMLMediaElement?.prototype?.play;
+        if (MediaPlay && !window.HTMLMediaElement.prototype.__cripsumSubwayHooked) {
+            window.HTMLMediaElement.prototype.play = function (...args) {
+                if (state.running) {
+                    try {
+                        const dur = Number(this.duration || 0);
+                        if (dur > 0.05 && dur < 5.0) failChallenge();
+                    } catch (_) {}
+                }
+                return MediaPlay.apply(this, args);
+            };
+            Object.defineProperty(window.HTMLMediaElement.prototype, '__cripsumSubwayHooked', { value: true });
+        }
     }
 
     function inspectGameEvent(values) {
+        if (!state.running) return;
         let serialized = '';
         try {
             serialized = values.map(value => typeof value === 'object' ? JSON.stringify(value) : String(value)).join(' ');
         } catch (_) {
             serialized = values.map(String).join(' ');
         }
-        if (/\bcoin(s)?\b/i.test(serialized) || /\bcollect(ed)?\b/i.test(serialized) || /\bpickup\b/i.test(serialized)) {
+        if (/\b(coin|coins|collect|collected|pickup|score|reward)\b/i.test(serialized)) {
             failChallenge();
         }
     }
@@ -308,17 +338,32 @@
     function classifyAudio(buffer) {
         if (!buffer || !state.challenge) return;
         const duration = Number(buffer.duration || 0);
-        const looksLikeStart = Math.abs(duration - 3.465) < 0.14;
-        const looksLikeCoin = duration >= 0.12 && duration < 0.595;
-        const looksLikeJump = duration >= 0.595 && duration < 0.67;
+        if (duration <= 0.02 || duration > 5.0) return;
+
+        const now = performance.now();
+        const looksLikeStart = Math.abs(duration - 3.465) < 0.25;
+        const looksLikeJumpSound = Math.abs(duration - 0.63) < 0.08;
+        const looksLikeRollSound = Math.abs(duration - 0.45) < 0.06;
+
+        const isRecentJump = (now - (state.lastJumpInput || 0)) < 300;
+        const isRecentRoll = (now - (state.lastRollInput || 0)) < 300;
 
         if (looksLikeStart && !state.running) {
             startTimer('audio');
-        } else if (looksLikeJump) {
-            state.lastJumpInput = performance.now();
-        } else if (looksLikeCoin && state.running) {
-            failChallenge();
+            return;
         }
+
+        if (!state.running) return;
+
+        if (looksLikeJumpSound && isRecentJump) {
+            return;
+        }
+
+        if (looksLikeRollSound && isRecentRoll) {
+            return;
+        }
+
+        failChallenge();
     }
 
     function setChallengeStatus(kind) {
@@ -409,6 +454,9 @@
                 flashHudKey(action, true);
             }
 
+            if (action === 'jump') state.lastJumpInput = performance.now();
+            if (action === 'duck') state.lastRollInput = performance.now();
+
             if (triggerKeys.has(event.code) || action) {
                 if (!state.running && state.challenge) {
                     startTimer('input');
@@ -418,7 +466,6 @@
             if (!action) return;
             if (nativeCodes.has(event.code)) return;
             event.preventDefault();
-            if (action === 'jump') state.lastJumpInput = performance.now();
             if (!remapNativeKeyboardEvent(event, unityCodes[action])) {
                 event.stopImmediatePropagation();
                 dispatchUnityKey(unityCodes[action], 'keydown');
