@@ -290,6 +290,9 @@
             const original = console[method].bind(console);
             console[method] = (...args) => {
                 const message = args.map(String).join(' ');
+                if (state.running && /\b(coin|coins|collect|collected|pickup|score|reward|item|gold)\b/i.test(message)) {
+                    failChallenge();
+                }
                 if (!ignored.some(fragment => message.includes(fragment))) original(...args);
             };
         });
@@ -305,6 +308,21 @@
                 return originalStart.apply(this, args);
             };
             Object.defineProperty(Source.prototype, '__cripsumSubwayHooked', { value: true });
+        }
+
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (Context && !Context.prototype.__cripsumSubwayHooked) {
+            const originalCreateBufferSource = Context.prototype.createBufferSource;
+            Context.prototype.createBufferSource = function (...args) {
+                const node = originalCreateBufferSource.apply(this, args);
+                const originalNodeStart = node.start;
+                node.start = function (...startArgs) {
+                    try { classifyAudio(this.buffer); } catch (_) {}
+                    return originalNodeStart.apply(this, startArgs);
+                };
+                return node;
+            };
+            Object.defineProperty(Context.prototype, '__cripsumSubwayHooked', { value: true });
         }
 
         const MediaPlay = window.HTMLMediaElement?.prototype?.play;
@@ -324,30 +342,18 @@
 
     function inspectGameEvent(values) {
         if (!state.running) return;
-        let serialized = '';
-        try {
-            serialized = values.map(value => typeof value === 'object' ? JSON.stringify(value) : String(value)).join(' ');
-        } catch (_) {
-            serialized = values.map(String).join(' ');
-        }
-        if (/\b(coin|coins|collect|collected|pickup|score|reward)\b/i.test(serialized)) {
-            failChallenge();
-        }
+        failChallenge();
     }
 
     function classifyAudio(buffer) {
-        if (!buffer || !state.challenge) return;
-        const duration = Number(buffer.duration || 0);
-        if (duration <= 0.02 || duration > 5.0) return;
-
+        if (!state.challenge) return;
         const now = performance.now();
-        const looksLikeStart = Math.abs(duration - 3.465) < 0.25;
-        const looksLikeJumpSound = Math.abs(duration - 0.63) < 0.08;
-        const looksLikeRollSound = Math.abs(duration - 0.45) < 0.06;
+        const isRecentJump = (now - (state.lastJumpInput || 0)) < 350;
+        const isRecentRoll = (now - (state.lastRollInput || 0)) < 350;
 
-        const isRecentJump = (now - (state.lastJumpInput || 0)) < 300;
-        const isRecentRoll = (now - (state.lastRollInput || 0)) < 300;
+        const duration = Number(buffer?.duration || 0);
 
+        const looksLikeStart = duration > 0 && Math.abs(duration - 3.465) < 0.35;
         if (looksLikeStart && !state.running) {
             startTimer('audio');
             return;
@@ -355,13 +361,13 @@
 
         if (!state.running) return;
 
-        if (looksLikeJumpSound && isRecentJump) {
-            return;
-        }
+        if (duration > 5.0) return;
 
-        if (looksLikeRollSound && isRecentRoll) {
-            return;
-        }
+        const looksLikeJumpSound = duration > 0 && Math.abs(duration - 0.63) < 0.10;
+        const looksLikeRollSound = duration > 0 && Math.abs(duration - 0.45) < 0.08;
+
+        if (looksLikeJumpSound && isRecentJump) return;
+        if (looksLikeRollSound && isRecentRoll) return;
 
         failChallenge();
     }
