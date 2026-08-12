@@ -279,71 +279,6 @@
         Object.defineProperty(window.WebAssembly, '__cripsumMimeFallback', { value: true });
     }
 
-    (function installWebGLPreserveBuffer() {
-        if (HTMLCanvasElement.prototype.__cripsumPreserveHooked) return;
-        const originalGetContext = HTMLCanvasElement.prototype.getContext;
-        HTMLCanvasElement.prototype.getContext = function (type, attributes) {
-            if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
-                attributes = Object.assign({}, attributes || {}, { preserveDrawingBuffer: true });
-            }
-            return originalGetContext.call(this, type, attributes);
-        };
-        Object.defineProperty(HTMLCanvasElement.prototype, '__cripsumPreserveHooked', { value: true });
-    })();
-
-    let offscreenCanvas = null;
-    let offscreenCtx = null;
-    let baselineGoldCount = -1;
-
-    function initVisualDetector() {
-        if (!offscreenCanvas) {
-            offscreenCanvas = document.createElement('canvas');
-            offscreenCanvas.width = 160;
-            offscreenCanvas.height = 60;
-            offscreenCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
-        }
-        baselineGoldCount = -1;
-    }
-
-    function checkVisualCoinPickup() {
-        if (!state.running || !state.challenge || !offscreenCtx) return;
-        const webglCanvas = dom.subwayGameContainer?.querySelector('canvas');
-        if (!webglCanvas || webglCanvas.width === 0 || webglCanvas.height === 0) return;
-
-        try {
-            const sw = Math.floor(webglCanvas.width * 0.32);
-            const sh = Math.floor(webglCanvas.height * 0.18);
-            const sx = webglCanvas.width - sw;
-            const sy = 0;
-
-            offscreenCtx.drawImage(webglCanvas, sx, sy, sw, sh, 0, 0, 160, 60);
-            const imgData = offscreenCtx.getImageData(0, 0, 160, 60);
-            const data = imgData.data;
-
-            let goldCount = 0;
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                if (r > 190 && g > 145 && b < 110 && (r - b) > 85) {
-                    goldCount++;
-                }
-            }
-
-            if (baselineGoldCount < 0) {
-                if (state.elapsed > 400) {
-                    baselineGoldCount = goldCount;
-                }
-                return;
-            }
-
-            const diff = goldCount - baselineGoldCount;
-            if (diff > 18 || (baselineGoldCount > 5 && diff > 10)) {
-                failChallenge();
-            }
-        } catch (_) { /* ignore security sandbox restrictions */ }
-    }
-
     function filterKnownUnityNoise() {
         if (console.__cripsumSubwayFiltered) return;
         const ignored = [
@@ -375,23 +310,48 @@
 
     function inspectGameEvent(values) {
         if (!state.running) return;
-        failChallenge();
+        let serialized = '';
+        try {
+            serialized = values.map(value => typeof value === 'object' ? JSON.stringify(value) : String(value)).join(' ');
+        } catch (_) {
+            serialized = values.map(String).join(' ');
+        }
+        if (/\b(coin|coins|collect|collected|pickup|score|reward|stat)\b/i.test(serialized)) {
+            failChallenge('poki_event');
+        }
     }
 
     function classifyAudio(buffer) {
-        if (!state.challenge || !state.running) return;
-        const duration = Number(buffer?.duration || 0);
-        if (duration <= 0.02 || duration > 5.0) return;
+        if (!state.challenge || !buffer) return;
+        const duration = Number(buffer.duration || 0);
+        if (duration <= 0.05 || duration > 5.0) return;
 
         const now = performance.now();
-        const isRecentJump = (now - (state.lastJumpInput || 0)) < 350;
-        const isRecentRoll = (now - (state.lastRollInput || 0)) < 350;
+        const looksLikeStart = Math.abs(duration - 3.465) < 0.35;
 
-        const looksLikeJumpSound = Math.abs(duration - 0.63) < 0.10;
-        const looksLikeRollSound = Math.abs(duration - 0.45) < 0.08;
+        // Run start whistle / music (~3.465s)
+        if (looksLikeStart && !state.running) {
+            startTimer('audio');
+            return;
+        }
 
+        if (!state.running) return;
+
+        // Ignore jump sfx (~0.63s) when Jump key was pressed recently (< 400ms)
+        const isRecentJump = (now - (state.lastJumpInput || 0)) < 400;
+        const looksLikeJumpSound = Math.abs(duration - 0.63) < 0.12;
         if (looksLikeJumpSound && isRecentJump) return;
+
+        // Ignore roll sfx (~0.45s) when Roll key was pressed recently (< 400ms)
+        const isRecentRoll = (now - (state.lastRollInput || 0)) < 400;
+        const looksLikeRollSound = Math.abs(duration - 0.45) < 0.10;
         if (looksLikeRollSound && isRecentRoll) return;
+
+        // Coin pickup audio in Subway Surfers is between 0.18s and 0.40s
+        const looksLikeCoinSound = duration >= 0.18 && duration <= 0.40;
+        if (looksLikeCoinSound) {
+            failChallenge('coin_audio');
+        }
     }
 
     function setChallengeStatus(kind) {
@@ -432,7 +392,6 @@
     function startTimer(source) {
         if (!state.challenge) return;
         resetTimer();
-        initVisualDetector();
         state.running = true;
         state.startedAt = performance.now();
         setChallengeStatus('running');
@@ -445,10 +404,7 @@
         if (!state.running) return;
         state.elapsed = now - state.startedAt;
         renderTimerDisplay(state.elapsed);
-        checkVisualCoinPickup();
-        if (state.running) {
-            state.timerFrame = requestAnimationFrame(updateTimer);
-        }
+        state.timerFrame = requestAnimationFrame(updateTimer);
     }
 
     function formatTime(milliseconds) {
@@ -459,7 +415,7 @@
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
     }
 
-    function failChallenge() {
+    function failChallenge(reason = 'coin') {
         if (!state.running || state.failed) return;
         state.elapsed = performance.now() - state.startedAt;
         state.running = false;
@@ -467,12 +423,23 @@
         cancelAnimationFrame(state.timerFrame);
         renderTimerDisplay(state.elapsed);
         setChallengeStatus('failed');
-        if (state.autoPause) dispatchUnityKey('Escape', 'keydown', true);
+        bootLog(t(`Sfida fallita (${reason})`, `Challenge failed (${reason})`));
+        if (state.autoPause) {
+            dispatchUnityKey('Escape', 'keydown', true);
+        }
     }
 
     function bindGameInput() {
         const nativeCodes = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
         const nativeActions = { ArrowUp: 'jump', ArrowDown: 'duck', ArrowLeft: 'left', ArrowRight: 'right' };
+
+        document.getElementById('manualFailBtn')?.addEventListener('click', () => {
+            if (state.running) {
+                failChallenge('manual');
+            } else {
+                resetTimer();
+            }
+        });
 
         window.addEventListener('keydown', event => {
             if (!state.activeMap || event.repeat || event.target?.closest?.('.subway-settings-modal')) return;
@@ -487,8 +454,20 @@
             if (action === 'jump') state.lastJumpInput = performance.now();
             if (action === 'duck') state.lastRollInput = performance.now();
 
+            // 'R' key manually flags coin fail if running, or resets timer if stopped
+            if (event.code === 'KeyR') {
+                if (state.running) {
+                    failChallenge('manual_hotkey');
+                } else {
+                    resetTimer();
+                }
+                return;
+            }
+
             if (event.code === 'Space') {
-                startTimer('space');
+                if (!state.running) {
+                    startTimer('space');
+                }
             } else if (action && !state.running && !state.failed && state.elapsed === 0 && state.challenge) {
                 startTimer('input');
             }

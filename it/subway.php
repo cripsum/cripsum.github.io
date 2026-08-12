@@ -38,8 +38,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=7.5">
-    <script src="/assets/js/subway/subway.js?v=7.5" defer></script>
+    <link rel="stylesheet" href="/assets/css/subway.css?v=7.6">
+    <script src="/assets/js/subway/subway.js?v=7.6" defer></script>
 </head>
 
 <body class="game-page">
@@ -295,6 +295,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         <span>Stato:</span>
                         <span class="subway-status-badge active" id="subwayStatusBadge">Active</span>
                     </div>
+                    <button class="subway-manual-fail-btn" id="manualFailBtn" type="button" style="margin-top: 0.5rem; width: 100%; font-size: 0.72rem; padding: 4px 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 8px; cursor: pointer; transition: background 0.2s;"><i class="fa-solid fa-flag"></i> Moneta / Reset (R)</button>
                 </div>
 
                 <!-- Floating Keys HUD (Draggable) -->
