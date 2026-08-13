@@ -178,7 +178,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 <div class="game-panel-head">
                     <div>
                         <h2>Select Map</h2>
-                        <p>Choose one of the verified builds and stay on Cripsum for the entire game.</p>
                     </div>
                     <button type="button" class="game-btn game-btn-soft subway-map-settings-btn" id="openSubwaySettings">
                         <i class="fa-solid fa-sliders"></i>
@@ -311,11 +310,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 <button class="game-btn game-btn-special" id="exitGameBtn" style="position: absolute; top: 15px; left: 15px; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
                     <i class="fa-solid fa-arrow-left"></i> Back to Selection
                 </button>
-
-                <div class="subway-start-hint" id="subwayStartHint" aria-live="polite">
-                    <kbd>SPACE</kbd>
-                    <span>Start the run in game. The timer begins only when gameplay actually starts.</span>
-                </div>
 
                 <!-- Floating Timer Widget (Draggable) -->
                 <div class="subway-hud-widget subway-timer-widget" id="hudWidgetTimer">
