@@ -299,35 +299,37 @@
     }
 
     function applyOverlayTheme() {
-        const widgets = {
-            timer: document.getElementById('hudWidgetTimer'),
-            fps: document.getElementById('hudWidgetFps'),
-            keys: document.getElementById('hudWidgetKeys'),
-            settings: document.getElementById('hudWidgetSettingsBtn')
+        const widgetMap = {
+            timer: document.querySelectorAll('#hudWidgetTimer, [data-preview-widget="timer"]'),
+            fps: document.querySelectorAll('#hudWidgetFps, [data-preview-widget="fps"]'),
+            keys: document.querySelectorAll('#hudWidgetKeys, [data-preview-widget="keys"]'),
+            settings: document.querySelectorAll('#hudWidgetSettingsBtn, [data-preview-widget="settings"]')
         };
 
-        Object.entries(widgets).forEach(([widgetKey, widget]) => {
-            if (!widget) return;
+        Object.entries(widgetMap).forEach(([widgetKey, widgets]) => {
             const cfg = state.overlayTheme[widgetKey] || defaultOverlayTheme[widgetKey];
-            widget.style.setProperty('--subway-overlay-bg-rgb', hexToRgb(cfg.bg));
-            widget.style.setProperty('--subway-overlay-opacity', String(cfg.bgOpacity / 100));
-            widget.style.setProperty('--subway-overlay-text', normalizeHexColor(cfg.textColor, '#ffffff'));
-            widget.style.setProperty('--subway-overlay-accent', normalizeHexColor(cfg.borderColor, '#06b6d4'));
-            widget.style.setProperty('--subway-overlay-accent-rgb', hexToRgb(cfg.borderColor));
-            widget.style.setProperty('--subway-overlay-border-opacity', String(cfg.borderOpacity / 100));
-            widget.style.setProperty('--subway-overlay-blur', `${cfg.blur}px`);
-            widget.classList.toggle('hide-header', state.overlayTheme.showHeaders === false);
+            widgets.forEach(widget => {
+                if (!widget) return;
+                widget.style.setProperty('--subway-overlay-bg-rgb', hexToRgb(cfg.bg));
+                widget.style.setProperty('--subway-overlay-opacity', String(cfg.bgOpacity / 100));
+                widget.style.setProperty('--subway-overlay-text', normalizeHexColor(cfg.textColor, '#ffffff'));
+                widget.style.setProperty('--subway-overlay-accent', normalizeHexColor(cfg.borderColor, '#06b6d4'));
+                widget.style.setProperty('--subway-overlay-accent-rgb', hexToRgb(cfg.borderColor));
+                widget.style.setProperty('--subway-overlay-border-opacity', String(cfg.borderOpacity / 100));
+                widget.style.setProperty('--subway-overlay-blur', `${cfg.blur}px`);
+                widget.classList.toggle('hide-header', state.overlayTheme.showHeaders === false);
 
-            if (widgetKey === 'keys') {
-                widget.style.setProperty('--subway-key-bg-rgb', hexToRgb(cfg.keyBg));
-                widget.style.setProperty('--subway-key-bg-opacity', String(cfg.keyBgOpacity / 100));
-                widget.style.setProperty('--subway-key-hover', normalizeHexColor(cfg.keyHover, '#06b6d4'));
-                widget.style.setProperty('--subway-key-hover-rgb', hexToRgb(cfg.keyHover));
-                widget.style.setProperty('--subway-key-text', normalizeHexColor(cfg.keyText, '#ffffff'));
-                widget.style.setProperty('--subway-key-border-rgb', hexToRgb(cfg.keyBorderColor));
-                widget.style.setProperty('--subway-key-border-opacity', String(cfg.keyBorderOpacity / 100));
-                widget.classList.toggle('hide-boost', state.overlayTheme.showBoost === false);
-            }
+                if (widgetKey === 'keys') {
+                    widget.style.setProperty('--subway-key-bg-rgb', hexToRgb(cfg.keyBg));
+                    widget.style.setProperty('--subway-key-bg-opacity', String(cfg.keyBgOpacity / 100));
+                    widget.style.setProperty('--subway-key-hover', normalizeHexColor(cfg.keyHover, '#06b6d4'));
+                    widget.style.setProperty('--subway-key-hover-rgb', hexToRgb(cfg.keyHover));
+                    widget.style.setProperty('--subway-key-text', normalizeHexColor(cfg.keyText, '#ffffff'));
+                    widget.style.setProperty('--subway-key-border-rgb', hexToRgb(cfg.keyBorderColor));
+                    widget.style.setProperty('--subway-key-border-opacity', String(cfg.keyBorderOpacity / 100));
+                    widget.classList.toggle('hide-boost', state.overlayTheme.showBoost === false);
+                }
+            });
         });
     }
 
@@ -394,6 +396,18 @@
                 syncSettingsUi();
                 applyFrameTiming();
                 saveSettings();
+            });
+        });
+
+        document.querySelectorAll('[data-overlay-tab]').forEach(tabBtn => {
+            tabBtn.addEventListener('click', () => {
+                const targetPane = tabBtn.dataset.overlayTab;
+                const container = tabBtn.closest('.subway-overlay-customization, .subway-modal-box') || document;
+                container.querySelectorAll('[data-overlay-tab]').forEach(btn => btn.classList.remove('active'));
+                container.querySelectorAll('[data-overlay-pane]').forEach(pane => pane.classList.remove('active'));
+                
+                container.querySelectorAll(`[data-overlay-tab="${targetPane}"]`).forEach(btn => btn.classList.add('active'));
+                container.querySelectorAll(`[data-overlay-pane="${targetPane}"]`).forEach(pane => pane.classList.add('active'));
             });
         });
 

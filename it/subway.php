@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=9.5">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=9.8">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=9.5" defer></script>
+    <script src="/assets/js/subway/subway.js?v=9.8" defer></script>
 </head>
 
 <body class="game-page">
@@ -154,133 +154,208 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <div class="game-panel-head">
                         <div>
                             <h2>Aspetto Overlay</h2>
-                            <p>Personalizza ogni pannello; colori e trasparenza vengono salvati automaticamente.</p>
+                            <p>Personalizza ogni pannello con anteprima in tempo reale. Le modifiche si salvano automaticamente.</p>
                         </div>
                     </div>
-                    <div class="subway-widget-config-card">
-                        <div class="subway-widget-card-title"><i class="fa-solid fa-sliders"></i> Layout Generale</div>
-                        <div class="subway-option-row">
-                            <div class="subway-option-info">
-                                <strong>Mostra riga Boost (B)</strong>
-                                <span>Mostra il tasto B per il boost sotto il WASD.</span>
+
+                    <!-- Live Preview Stage -->
+                    <div class="subway-preview-stage">
+                        <!-- Timer Preview -->
+                        <div class="subway-hud-widget subway-timer-widget subway-preview-widget" data-preview-widget="timer">
+                            <div class="widget-handle">
+                                <strong>TIMER</strong>
+                                <i class="fa-solid fa-arrows-up-down-left-right"></i>
                             </div>
-                            <label class="subway-switch">
-                                <input type="checkbox" data-overlay-toggle="showBoost">
-                                <span class="subway-slider"></span>
-                            </label>
+                            <div class="subway-timer-display">00:00<span class="subway-ms">.000</span></div>
                         </div>
-                        <div class="subway-option-row">
-                            <div class="subway-option-info">
-                                <strong>Mostra intestazioni overlay</strong>
-                                <span>Mostra la barra di trascinamento e i titoli degli overlay.</span>
+
+                        <!-- FPS Preview -->
+                        <div class="subway-hud-widget subway-fps-widget subway-preview-widget" data-preview-widget="fps">
+                            <div class="widget-handle">
+                                <strong>VSYNC / FPS</strong>
+                                <i class="fa-solid fa-arrows-up-down-left-right"></i>
                             </div>
-                            <label class="subway-switch">
-                                <input type="checkbox" data-overlay-toggle="showHeaders" checked>
-                                <span class="subway-slider"></span>
-                            </label>
+                            <div class="subway-fps-readout">
+                                <strong>144</strong><span>FPS</span>
+                            </div>
+                            <div class="subway-vsync-state"><i class="fa-solid fa-circle"></i> VSync Attivo</div>
                         </div>
+
+                        <!-- WASD Keys Preview -->
+                        <div class="subway-hud-widget subway-keys-widget subway-preview-widget" data-preview-widget="keys">
+                            <div class="widget-handle">
+                                <strong>WASD</strong>
+                                <i class="fa-solid fa-arrows-up-down-left-right"></i>
+                            </div>
+                            <div class="subway-hud-keys-grid">
+                                <span></span>
+                                <div class="subway-hud-key">W</div>
+                                <span></span>
+
+                                <div class="subway-hud-key">A</div>
+                                <div class="subway-hud-key">S</div>
+                                <div class="subway-hud-key">D</div>
+                            </div>
+                            <div class="subway-hud-boost-row">
+                                <span>BOOST</span>
+                                <div class="subway-hud-key">B</div>
+                            </div>
+                        </div>
+
+                        <!-- Settings Button Preview -->
+                        <button class="subway-hud-widget subway-settings-btn-widget subway-preview-widget" data-preview-widget="settings" type="button" aria-label="Impostazioni">
+                            <i class="fa-solid fa-gear"></i>
+                        </button>
                     </div>
 
-                    <div class="subway-widget-config-card">
-                        <div class="subway-widget-card-title"><i class="fa-solid fa-stopwatch"></i> Overlay Timer</div>
-                        <div class="subway-theme-grid">
-                            <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
-                            <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
-                            <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
-                        </div>
-                        <label class="subway-opacity-setting">
-                            <span>Opacità sfondo <output data-widget-output>88%</output></span>
-                            <input type="range" min="0" max="100" step="1" value="88" data-widget="timer" data-widget-prop="bgOpacity">
-                        </label>
-                        <label class="subway-opacity-setting">
-                            <span>Opacità bordo <output data-widget-output>68%</output></span>
-                            <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
-                        </label>
-                        <label class="subway-opacity-setting">
-                            <span>Effetto Blur <output data-widget-output>16px</output></span>
-                            <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
-                        </label>
+                    <!-- Overlay Tabs Navigation -->
+                    <div class="subway-overlay-tabs">
+                        <button type="button" class="subway-tab-btn active" data-overlay-tab="timer"><i class="fa-solid fa-stopwatch"></i> Timer</button>
+                        <button type="button" class="subway-tab-btn" data-overlay-tab="fps"><i class="fa-solid fa-gauge-high"></i> FPS</button>
+                        <button type="button" class="subway-tab-btn" data-overlay-tab="keys"><i class="fa-solid fa-keyboard"></i> Controlli WASD</button>
+                        <button type="button" class="subway-tab-btn" data-overlay-tab="settings"><i class="fa-solid fa-gear"></i> Pulsante Impostazioni</button>
+                        <button type="button" class="subway-tab-btn" data-overlay-tab="layout"><i class="fa-solid fa-sliders"></i> Layout Generali</button>
                     </div>
 
-                    <div class="subway-widget-config-card">
-                        <div class="subway-widget-card-title"><i class="fa-solid fa-gauge-high"></i> Overlay FPS / VSync</div>
-                        <div class="subway-theme-grid">
-                            <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="fps" data-widget-prop="bg"></label>
-                            <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="fps" data-widget-prop="textColor"></label>
-                            <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="fps" data-widget-prop="borderColor"></label>
-                        </div>
-                        <label class="subway-opacity-setting">
-                            <span>Opacità sfondo <output data-widget-output>88%</output></span>
-                            <input type="range" min="0" max="100" step="1" value="88" data-widget="fps" data-widget-prop="bgOpacity">
-                        </label>
-                        <label class="subway-opacity-setting">
-                            <span>Opacità bordo <output data-widget-output>68%</output></span>
-                            <input type="range" min="0" max="100" step="1" value="68" data-widget="fps" data-widget-prop="borderOpacity">
-                        </label>
-                        <label class="subway-opacity-setting">
-                            <span>Effetto Blur <output data-widget-output>16px</output></span>
-                            <input type="range" min="0" max="30" step="1" value="16" data-widget="fps" data-widget-prop="blur">
-                        </label>
-                    </div>
-
-                    <div class="subway-widget-config-card">
-                        <div class="subway-widget-card-title"><i class="fa-solid fa-keyboard"></i> Overlay Controlli (WASD)</div>
-                        <div class="subway-theme-grid">
-                            <label class="subway-color-setting"><span>Sfondo Box</span><input type="color" value="#090d18" data-widget="keys" data-widget-prop="bg"></label>
-                            <label class="subway-color-setting"><span>Testo Box</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="textColor"></label>
-                            <label class="subway-color-setting"><span>Bordo Box</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="borderColor"></label>
-                        </div>
-                        <label class="subway-opacity-setting">
-                            <span>Opacità sfondo box <output data-widget-output>88%</output></span>
-                            <input type="range" min="0" max="100" step="1" value="88" data-widget="keys" data-widget-prop="bgOpacity">
-                        </label>
-                        <label class="subway-opacity-setting">
-                            <span>Opacità bordo box <output data-widget-output>68%</output></span>
-                            <input type="range" min="0" max="100" step="1" value="68" data-widget="keys" data-widget-prop="borderOpacity">
-                        </label>
-                        <label class="subway-opacity-setting">
-                            <span>Effetto Blur box <output data-widget-output>16px</output></span>
-                            <input type="range" min="0" max="30" step="1" value="16" data-widget="keys" data-widget-prop="blur">
-                        </label>
-
-                        <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-                            <h5 style="margin: 0 0 0.8rem 0; color: #fff; font-size: 0.85rem;"><i class="fa-solid fa-square-full"></i> Stile Tasti WASD Interni</h5>
+                    <!-- Tab Pane: Timer -->
+                    <div class="subway-tab-pane active" data-overlay-pane="timer">
+                        <div class="subway-widget-config-card">
+                            <div class="subway-widget-card-title"><i class="fa-solid fa-stopwatch"></i> Overlay Timer</div>
                             <div class="subway-theme-grid">
-                                <label class="subway-color-setting"><span>Sfondo Tasti</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="keyBg"></label>
-                                <label class="subway-color-setting"><span>Hover / Attivo</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="keyHover"></label>
-                                <label class="subway-color-setting"><span>Testo Tasti</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="keyText"></label>
-                                <label class="subway-color-setting"><span>Bordo Tasti</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="keyBorderColor"></label>
+                                <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
+                                <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
+                                <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
                             </div>
                             <label class="subway-opacity-setting">
-                                <span>Opacità sfondo tasti <output data-widget-output>7%</output></span>
-                                <input type="range" min="0" max="100" step="1" value="7" data-widget="keys" data-widget-prop="keyBgOpacity">
+                                <span>Opacità sfondo <output data-widget-output>88%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="88" data-widget="timer" data-widget-prop="bgOpacity">
                             </label>
                             <label class="subway-opacity-setting">
-                                <span>Opacità bordo tasti <output data-widget-output>40%</output></span>
-                                <input type="range" min="0" max="100" step="1" value="40" data-widget="keys" data-widget-prop="keyBorderOpacity">
+                                <span>Opacità bordo <output data-widget-output>68%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Effetto Blur <output data-widget-output>16px</output></span>
+                                <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
                             </label>
                         </div>
                     </div>
 
-                    <div class="subway-widget-config-card">
-                        <div class="subway-widget-card-title"><i class="fa-solid fa-gear"></i> Pulsante Impostazioni Overlay</div>
-                        <div class="subway-theme-grid">
-                            <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="settings" data-widget-prop="bg"></label>
-                            <label class="subway-color-setting"><span>Icona</span><input type="color" value="#ffffff" data-widget="settings" data-widget-prop="textColor"></label>
-                            <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="settings" data-widget-prop="borderColor"></label>
+                    <!-- Tab Pane: FPS -->
+                    <div class="subway-tab-pane" data-overlay-pane="fps">
+                        <div class="subway-widget-config-card">
+                            <div class="subway-widget-card-title"><i class="fa-solid fa-gauge-high"></i> Overlay FPS / VSync</div>
+                            <div class="subway-theme-grid">
+                                <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="fps" data-widget-prop="bg"></label>
+                                <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="fps" data-widget-prop="textColor"></label>
+                                <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="fps" data-widget-prop="borderColor"></label>
+                            </div>
+                            <label class="subway-opacity-setting">
+                                <span>Opacità sfondo <output data-widget-output>88%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="88" data-widget="fps" data-widget-prop="bgOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Opacità bordo <output data-widget-output>68%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="68" data-widget="fps" data-widget-prop="borderOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Effetto Blur <output data-widget-output>16px</output></span>
+                                <input type="range" min="0" max="30" step="1" value="16" data-widget="fps" data-widget-prop="blur">
+                            </label>
                         </div>
-                        <label class="subway-opacity-setting">
-                            <span>Opacità sfondo <output data-widget-output>88%</output></span>
-                            <input type="range" min="0" max="100" step="1" value="88" data-widget="settings" data-widget-prop="bgOpacity">
-                        </label>
-                        <label class="subway-opacity-setting">
-                            <span>Opacità bordo <output data-widget-output>68%</output></span>
-                            <input type="range" min="0" max="100" step="1" value="68" data-widget="settings" data-widget-prop="borderOpacity">
-                        </label>
-                        <label class="subway-opacity-setting">
-                            <span>Effetto Blur <output data-widget-output>16px</output></span>
-                            <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
-                        </label>
+                    </div>
+
+                    <!-- Tab Pane: WASD Keys -->
+                    <div class="subway-tab-pane" data-overlay-pane="keys">
+                        <div class="subway-widget-config-card">
+                            <div class="subway-widget-card-title"><i class="fa-solid fa-keyboard"></i> Overlay Controlli (WASD)</div>
+                            <div class="subway-theme-grid">
+                                <label class="subway-color-setting"><span>Sfondo Box</span><input type="color" value="#090d18" data-widget="keys" data-widget-prop="bg"></label>
+                                <label class="subway-color-setting"><span>Testo Box</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="textColor"></label>
+                                <label class="subway-color-setting"><span>Bordo Box</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="borderColor"></label>
+                            </div>
+                            <label class="subway-opacity-setting">
+                                <span>Opacità sfondo box <output data-widget-output>88%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="88" data-widget="keys" data-widget-prop="bgOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Opacità bordo box <output data-widget-output>68%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="68" data-widget="keys" data-widget-prop="borderOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Effetto Blur box <output data-widget-output>16px</output></span>
+                                <input type="range" min="0" max="30" step="1" value="16" data-widget="keys" data-widget-prop="blur">
+                            </label>
+
+                            <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                                <h5 style="margin: 0 0 0.8rem 0; color: #fff; font-size: 0.85rem;"><i class="fa-solid fa-square-full"></i> Stile Tasti WASD Interni</h5>
+                                <div class="subway-theme-grid">
+                                    <label class="subway-color-setting"><span>Sfondo Tasti</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="keyBg"></label>
+                                    <label class="subway-color-setting"><span>Hover / Attivo</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="keyHover"></label>
+                                    <label class="subway-color-setting"><span>Testo Tasti</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="keyText"></label>
+                                    <label class="subway-color-setting"><span>Bordo Tasti</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="keyBorderColor"></label>
+                                </div>
+                                <label class="subway-opacity-setting">
+                                    <span>Opacità sfondo tasti <output data-widget-output>7%</output></span>
+                                    <input type="range" min="0" max="100" step="1" value="7" data-widget="keys" data-widget-prop="keyBgOpacity">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Opacità bordo tasti <output data-widget-output>40%</output></span>
+                                    <input type="range" min="0" max="100" step="1" value="40" data-widget="keys" data-widget-prop="keyBorderOpacity">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane: Settings Button -->
+                    <div class="subway-tab-pane" data-overlay-pane="settings">
+                        <div class="subway-widget-config-card">
+                            <div class="subway-widget-card-title"><i class="fa-solid fa-gear"></i> Pulsante Impostazioni Overlay</div>
+                            <div class="subway-theme-grid">
+                                <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="settings" data-widget-prop="bg"></label>
+                                <label class="subway-color-setting"><span>Icona</span><input type="color" value="#ffffff" data-widget="settings" data-widget-prop="textColor"></label>
+                                <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="settings" data-widget-prop="borderColor"></label>
+                            </div>
+                            <label class="subway-opacity-setting">
+                                <span>Opacità sfondo <output data-widget-output>88%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="88" data-widget="settings" data-widget-prop="bgOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Opacità bordo <output data-widget-output>68%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="68" data-widget="settings" data-widget-prop="borderOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Effetto Blur <output data-widget-output>16px</output></span>
+                                <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane: Layout -->
+                    <div class="subway-tab-pane" data-overlay-pane="layout">
+                        <div class="subway-widget-config-card">
+                            <div class="subway-widget-card-title"><i class="fa-solid fa-sliders"></i> Layout Generale</div>
+                            <div class="subway-option-row">
+                                <div class="subway-option-info">
+                                    <strong>Mostra riga Boost (B)</strong>
+                                    <span>Mostra il tasto B per il boost sotto il WASD.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-overlay-toggle="showBoost">
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                            <div class="subway-option-row">
+                                <div class="subway-option-info">
+                                    <strong>Mostra intestazioni overlay</strong>
+                                    <span>Mostra la barra di trascinamento e i titoli degli overlay.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-overlay-toggle="showHeaders" checked>
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
                     <button type="button" class="subway-theme-reset" data-reset-overlay-theme style="margin-top: 1.2rem;">Ripristina impostazioni predefinite</button>
@@ -536,130 +611,154 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         <div class="subway-modal-section">
                             <h4>Aspetto Overlay</h4>
                             
-                            <div class="subway-widget-config-card">
-                                <div class="subway-widget-card-title"><i class="fa-solid fa-sliders"></i> Layout Generale</div>
-                                <div class="subway-option-row">
-                                    <div class="subway-option-info">
-                                        <strong>Mostra riga Boost (B)</strong>
-                                        <span>Mostra il tasto B per il boost sotto il WASD.</span>
-                                    </div>
-                                    <label class="subway-switch">
-                                        <input type="checkbox" data-overlay-toggle="showBoost">
-                                        <span class="subway-slider"></span>
-                                    </label>
-                                </div>
-                                <div class="subway-option-row">
-                                    <div class="subway-option-info">
-                                        <strong>Mostra intestazioni overlay</strong>
-                                        <span>Mostra la barra di trascinamento e i titoli degli overlay.</span>
-                                    </div>
-                                    <label class="subway-switch">
-                                        <input type="checkbox" data-overlay-toggle="showHeaders" checked>
-                                        <span class="subway-slider"></span>
-                                    </label>
-                                </div>
+                            <!-- Modal Overlay Tabs Navigation -->
+                            <div class="subway-overlay-tabs">
+                                <button type="button" class="subway-tab-btn active" data-overlay-tab="timer"><i class="fa-solid fa-stopwatch"></i> Timer</button>
+                                <button type="button" class="subway-tab-btn" data-overlay-tab="fps"><i class="fa-solid fa-gauge-high"></i> FPS</button>
+                                <button type="button" class="subway-tab-btn" data-overlay-tab="keys"><i class="fa-solid fa-keyboard"></i> Controlli WASD</button>
+                                <button type="button" class="subway-tab-btn" data-overlay-tab="settings"><i class="fa-solid fa-gear"></i> Impostazioni</button>
+                                <button type="button" class="subway-tab-btn" data-overlay-tab="layout"><i class="fa-solid fa-sliders"></i> Layout</button>
                             </div>
 
-                            <div class="subway-widget-config-card">
-                                <div class="subway-widget-card-title"><i class="fa-solid fa-stopwatch"></i> Overlay Timer</div>
-                                <div class="subway-theme-grid">
-                                    <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
-                                    <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
-                                    <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
-                                </div>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità sfondo <output data-widget-output>88%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="88" data-widget="timer" data-widget-prop="bgOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità bordo <output data-widget-output>68%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                    <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
-                                </label>
-                            </div>
-
-                            <div class="subway-widget-config-card">
-                                <div class="subway-widget-card-title"><i class="fa-solid fa-gauge-high"></i> Overlay FPS / VSync</div>
-                                <div class="subway-theme-grid">
-                                    <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="fps" data-widget-prop="bg"></label>
-                                    <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="fps" data-widget-prop="textColor"></label>
-                                    <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="fps" data-widget-prop="borderColor"></label>
-                                </div>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità sfondo <output data-widget-output>88%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="88" data-widget="fps" data-widget-prop="bgOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità bordo <output data-widget-output>68%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="68" data-widget="fps" data-widget-prop="borderOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                    <input type="range" min="0" max="30" step="1" value="16" data-widget="fps" data-widget-prop="blur">
-                                </label>
-                            </div>
-
-                            <div class="subway-widget-config-card">
-                                <div class="subway-widget-card-title"><i class="fa-solid fa-keyboard"></i> Overlay Controlli (WASD)</div>
-                                <div class="subway-theme-grid">
-                                    <label class="subway-color-setting"><span>Sfondo Box</span><input type="color" value="#090d18" data-widget="keys" data-widget-prop="bg"></label>
-                                    <label class="subway-color-setting"><span>Testo Box</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="textColor"></label>
-                                    <label class="subway-color-setting"><span>Bordo Box</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="borderColor"></label>
-                                </div>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità sfondo box <output data-widget-output>88%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="88" data-widget="keys" data-widget-prop="bgOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità bordo box <output data-widget-output>68%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="68" data-widget="keys" data-widget-prop="borderOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Effetto Blur box <output data-widget-output>16px</output></span>
-                                    <input type="range" min="0" max="30" step="1" value="16" data-widget="keys" data-widget-prop="blur">
-                                </label>
-
-                                <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-                                    <h5 style="margin: 0 0 0.8rem 0; color: #fff; font-size: 0.85rem;"><i class="fa-solid fa-square-full"></i> Stile Tasti WASD Interni</h5>
+                            <!-- Modal Tab Pane: Timer -->
+                            <div class="subway-tab-pane active" data-overlay-pane="timer">
+                                <div class="subway-widget-config-card">
+                                    <div class="subway-widget-card-title"><i class="fa-solid fa-stopwatch"></i> Overlay Timer</div>
                                     <div class="subway-theme-grid">
-                                        <label class="subway-color-setting"><span>Sfondo Tasti</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="keyBg"></label>
-                                        <label class="subway-color-setting"><span>Hover / Attivo</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="keyHover"></label>
-                                        <label class="subway-color-setting"><span>Testo Tasti</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="keyText"></label>
-                                        <label class="subway-color-setting"><span>Bordo Tasti</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="keyBorderColor"></label>
+                                        <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
+                                        <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
+                                        <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
                                     </div>
                                     <label class="subway-opacity-setting">
-                                        <span>Opacità sfondo tasti <output data-widget-output>7%</output></span>
-                                        <input type="range" min="0" max="100" step="1" value="7" data-widget="keys" data-widget-prop="keyBgOpacity">
+                                        <span>Opacità sfondo <output data-widget-output>88%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="88" data-widget="timer" data-widget-prop="bgOpacity">
                                     </label>
                                     <label class="subway-opacity-setting">
-                                        <span>Opacità bordo tasti <output data-widget-output>40%</output></span>
-                                        <input type="range" min="0" max="100" step="1" value="40" data-widget="keys" data-widget-prop="keyBorderOpacity">
+                                        <span>Opacità bordo <output data-widget-output>68%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Effetto Blur <output data-widget-output>16px</output></span>
+                                        <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="subway-widget-config-card">
-                                <div class="subway-widget-card-title"><i class="fa-solid fa-gear"></i> Pulsante Impostazioni Overlay</div>
-                                <div class="subway-theme-grid">
-                                    <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="settings" data-widget-prop="bg"></label>
-                                    <label class="subway-color-setting"><span>Icona</span><input type="color" value="#ffffff" data-widget="settings" data-widget-prop="textColor"></label>
-                                    <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="settings" data-widget-prop="borderColor"></label>
+                            <!-- Modal Tab Pane: FPS -->
+                            <div class="subway-tab-pane" data-overlay-pane="fps">
+                                <div class="subway-widget-config-card">
+                                    <div class="subway-widget-card-title"><i class="fa-solid fa-gauge-high"></i> Overlay FPS / VSync</div>
+                                    <div class="subway-theme-grid">
+                                        <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="fps" data-widget-prop="bg"></label>
+                                        <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="fps" data-widget-prop="textColor"></label>
+                                        <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="fps" data-widget-prop="borderColor"></label>
+                                    </div>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità sfondo <output data-widget-output>88%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="88" data-widget="fps" data-widget-prop="bgOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità bordo <output data-widget-output>68%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="68" data-widget="fps" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Effetto Blur <output data-widget-output>16px</output></span>
+                                        <input type="range" min="0" max="30" step="1" value="16" data-widget="fps" data-widget-prop="blur">
+                                    </label>
                                 </div>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità sfondo <output data-widget-output>88%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="88" data-widget="settings" data-widget-prop="bgOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità bordo <output data-widget-output>68%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="68" data-widget="settings" data-widget-prop="borderOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                    <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
-                                </label>
+                            </div>
+
+                            <!-- Modal Tab Pane: WASD Keys -->
+                            <div class="subway-tab-pane" data-overlay-pane="keys">
+                                <div class="subway-widget-config-card">
+                                    <div class="subway-widget-card-title"><i class="fa-solid fa-keyboard"></i> Overlay Controlli (WASD)</div>
+                                    <div class="subway-theme-grid">
+                                        <label class="subway-color-setting"><span>Sfondo Box</span><input type="color" value="#090d18" data-widget="keys" data-widget-prop="bg"></label>
+                                        <label class="subway-color-setting"><span>Testo Box</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="textColor"></label>
+                                        <label class="subway-color-setting"><span>Bordo Box</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="borderColor"></label>
+                                    </div>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità sfondo box <output data-widget-output>88%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="88" data-widget="keys" data-widget-prop="bgOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità bordo box <output data-widget-output>68%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="68" data-widget="keys" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Effetto Blur box <output data-widget-output>16px</output></span>
+                                        <input type="range" min="0" max="30" step="1" value="16" data-widget="keys" data-widget-prop="blur">
+                                    </label>
+
+                                    <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                                        <h5 style="margin: 0 0 0.8rem 0; color: #fff; font-size: 0.85rem;"><i class="fa-solid fa-square-full"></i> Stile Tasti WASD Interni</h5>
+                                        <div class="subway-theme-grid">
+                                            <label class="subway-color-setting"><span>Sfondo Tasti</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="keyBg"></label>
+                                            <label class="subway-color-setting"><span>Hover / Attivo</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="keyHover"></label>
+                                            <label class="subway-color-setting"><span>Testo Tasti</span><input type="color" value="#ffffff" data-widget="keys" data-widget-prop="keyText"></label>
+                                            <label class="subway-color-setting"><span>Bordo Tasti</span><input type="color" value="#06b6d4" data-widget="keys" data-widget-prop="keyBorderColor"></label>
+                                        </div>
+                                        <label class="subway-opacity-setting">
+                                            <span>Opacità sfondo tasti <output data-widget-output>7%</output></span>
+                                            <input type="range" min="0" max="100" step="1" value="7" data-widget="keys" data-widget-prop="keyBgOpacity">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Opacità bordo tasti <output data-widget-output>40%</output></span>
+                                            <input type="range" min="0" max="100" step="1" value="40" data-widget="keys" data-widget-prop="keyBorderOpacity">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal Tab Pane: Settings Button -->
+                            <div class="subway-tab-pane" data-overlay-pane="settings">
+                                <div class="subway-widget-config-card">
+                                    <div class="subway-widget-card-title"><i class="fa-solid fa-gear"></i> Pulsante Impostazioni Overlay</div>
+                                    <div class="subway-theme-grid">
+                                        <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="settings" data-widget-prop="bg"></label>
+                                        <label class="subway-color-setting"><span>Icona</span><input type="color" value="#ffffff" data-widget="settings" data-widget-prop="textColor"></label>
+                                        <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="settings" data-widget-prop="borderColor"></label>
+                                    </div>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità sfondo <output data-widget-output>88%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="88" data-widget="settings" data-widget-prop="bgOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità bordo <output data-widget-output>68%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="68" data-widget="settings" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Effetto Blur <output data-widget-output>16px</output></span>
+                                        <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Modal Tab Pane: Layout -->
+                            <div class="subway-tab-pane" data-overlay-pane="layout">
+                                <div class="subway-widget-config-card">
+                                    <div class="subway-widget-card-title"><i class="fa-solid fa-sliders"></i> Layout Generale</div>
+                                    <div class="subway-option-row">
+                                        <div class="subway-option-info">
+                                            <strong>Mostra riga Boost (B)</strong>
+                                            <span>Mostra il tasto B per il boost sotto il WASD.</span>
+                                        </div>
+                                        <label class="subway-switch">
+                                            <input type="checkbox" data-overlay-toggle="showBoost">
+                                            <span class="subway-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="subway-option-row">
+                                        <div class="subway-option-info">
+                                            <strong>Mostra intestazioni overlay</strong>
+                                            <span>Mostra la barra di trascinamento e i titoli degli overlay.</span>
+                                        </div>
+                                        <label class="subway-switch">
+                                            <input type="checkbox" data-overlay-toggle="showHeaders" checked>
+                                            <span class="subway-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
 
                             <button type="button" class="subway-theme-reset" data-reset-overlay-theme style="margin-top: 1.2rem;">Ripristina impostazioni predefinite</button>
