@@ -343,7 +343,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         <div class="subway-hud-key" id="hudKey-right">D</div>
                     </div>
                     <div class="subway-hud-boost-row">
-                        <span>RED BOOST</span>
+                        <span>BOOST</span>
                         <div class="subway-hud-key" id="hudKey-boost">B</div>
                     </div>
                 </div>
