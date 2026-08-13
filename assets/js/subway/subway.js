@@ -22,6 +22,10 @@
     ];
 
     const storageKey = 'cripsum-subway-settings-v2';
+    // Exact AudioClip lengths from this Unity build. Broad duration ranges are
+    // unsafe here: dodge, roll, power-down and UI sounds are all very short.
+    const runStartAudioDuration = 3.464580535888672;
+    const coinAudioDuration = 0.5619954466819763;
     const defaultBindings = { jump: 'KeyW', duck: 'KeyS', left: 'KeyA', right: 'KeyD' };
     const unityCodes = { jump: 'ArrowUp', duck: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' };
     const legacyKeys = {
@@ -44,9 +48,7 @@
         activeMap: null,
         bindings: Object.assign({}, defaultBindings),
         challenge: true,
-        autoPause: true,
-        lastJumpInput: 0,
-        lastRollInput: 0
+        autoPause: true
     };
 
     const dom = {};
@@ -206,15 +208,9 @@
         const pokiHandler = {
             init: resolved,
             initWithVideoHB: resolved,
-            commercialBreak: () => {
-                if (state.running) failChallenge();
-                return resolved();
-            },
-            rewardedBreak: () => {
-                if (state.running) failChallenge();
-                return Promise.resolve(false);
-            },
-            customEvent(...values) { inspectGameEvent(values); },
+            commercialBreak: resolved,
+            rewardedBreak: () => Promise.resolve(false),
+            customEvent() {},
             displayAd() {},
             destroyAd() {},
             gameLoadingStart() {},
@@ -222,11 +218,11 @@
             gameLoadingFinished() {},
             gameInteractive() {},
             gameplayStart() { startTimer('gameplayStart'); },
-            gameplayStop() { if (state.running) failChallenge(); },
+            gameplayStop() {},
             roundStart() { startTimer('roundStart'); },
-            roundEnd() { if (state.running) failChallenge(); },
+            roundEnd() {},
             setDebug() {},
-            happyTime(...values) { inspectGameEvent(values); },
+            happyTime() {},
             setPlayerAge() {},
             togglePlayerAdvertisingConsent() {},
             toggleNonPersonalized() {},
@@ -240,13 +236,11 @@
             window.pokiBridge = bridgeName;
             if (window.unityGame?.SendMessage) window.unityGame.SendMessage(bridgeName, 'ready');
             window.commercialBreak = () => {
-                if (state.running) failChallenge();
                 return window.PokiSDK.commercialBreak().then(() => {
                     window.unityGame?.SendMessage?.(bridgeName, 'commercialBreakCompleted');
                 });
             };
             window.rewardedBreak = () => {
-                if (state.running) failChallenge();
                 return window.PokiSDK.rewardedBreak().then(rewarded => {
                     window.unityGame?.SendMessage?.(bridgeName, 'rewardedBreakCompleted', String(rewarded));
                 });
@@ -306,30 +300,35 @@
             };
             Object.defineProperty(Source.prototype, '__cripsumSubwayHooked', { value: true });
         }
-    }
 
-    function inspectGameEvent(values) {
-        if (!state.running) return;
-        let serialized = '';
-        try {
-            serialized = values.map(value => typeof value === 'object' ? JSON.stringify(value) : String(value)).join(' ');
-        } catch (_) {
-            serialized = values.map(String).join(' ');
-        }
-        if (/\b(coin|coins|collect|collected|pickup|score|reward|stat)\b/i.test(serialized)) {
-            failChallenge('poki_event');
+        // Some WebKit/Unity combinations do not route source instances through
+        // the public AudioBufferSourceNode prototype. Hook their factory too.
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (Context && !Context.prototype.__cripsumSubwayFactoryHooked) {
+            const originalCreateBufferSource = Context.prototype.createBufferSource;
+            Context.prototype.createBufferSource = function (...args) {
+                const source = originalCreateBufferSource.apply(this, args);
+                if (!source.__cripsumSubwayInstanceHooked) {
+                    const originalStart = source.start;
+                    source.start = function (...startArgs) {
+                        try { classifyAudio(this.buffer); } catch (_) { /* game audio must never break */ }
+                        return originalStart.apply(this, startArgs);
+                    };
+                    Object.defineProperty(source, '__cripsumSubwayInstanceHooked', { value: true });
+                }
+                return source;
+            };
+            Object.defineProperty(Context.prototype, '__cripsumSubwayFactoryHooked', { value: true });
         }
     }
 
     function classifyAudio(buffer) {
         if (!state.challenge || !buffer) return;
         const duration = Number(buffer.duration || 0);
-        if (duration <= 0.05 || duration > 5.0) return;
+        if (!Number.isFinite(duration)) return;
 
-        const now = performance.now();
-        const looksLikeStart = Math.abs(duration - 3.465) < 0.35;
-
-        // Run start whistle / music (~3.465s)
+        // The run-start clip is unique in the shipped AudioClip table.
+        const looksLikeStart = Math.abs(duration - runStartAudioDuration) <= 0.02;
         if (looksLikeStart && !state.running) {
             startTimer('audio');
             return;
@@ -337,18 +336,10 @@
 
         if (!state.running) return;
 
-        // Ignore jump sfx (~0.63s) when Jump key was pressed recently (< 400ms)
-        const isRecentJump = (now - (state.lastJumpInput || 0)) < 400;
-        const looksLikeJumpSound = Math.abs(duration - 0.63) < 0.12;
-        if (looksLikeJumpSound && isRecentJump) return;
-
-        // Ignore roll sfx (~0.45s) when Roll key was pressed recently (< 400ms)
-        const isRecentRoll = (now - (state.lastRollInput || 0)) < 400;
-        const looksLikeRollSound = Math.abs(duration - 0.45) < 0.10;
-        if (looksLikeRollSound && isRecentRoll) return;
-
-        // Coin pickup audio in Subway Surfers is between 0.18s and 0.40s
-        const looksLikeCoinSound = duration >= 0.18 && duration <= 0.40;
+        // Hr_coin is a mono 0.561995s clip. The tight fingerprint deliberately
+        // excludes jump (0.597s), roll (0.353s), dodge (0.209s) and UI sounds.
+        const looksLikeCoinSound = buffer.numberOfChannels === 1
+            && Math.abs(duration - coinAudioDuration) <= 0.006;
         if (looksLikeCoinSound) {
             failChallenge('coin_audio');
         }
@@ -391,6 +382,9 @@
 
     function startTimer(source) {
         if (!state.challenge) return;
+        // Unity can emit gameplayStart and roundStart for the same run. Do not
+        // reset an already-running timer when the second notification arrives.
+        if (state.running) return;
         resetTimer();
         state.running = true;
         state.startedAt = performance.now();
@@ -429,6 +423,24 @@
         }
     }
 
+    function applyModProfile() {
+        const sendMessage = state.unity?.SendMessage;
+        if (typeof sendMessage !== 'function') return;
+
+        // These are the build's own debug switches. They go through Unity's
+        // normal inventory managers, so they work across all included IL2CPP
+        // versions without writing arbitrary WebAssembly memory.
+        [
+            'ToggleDisplayAllChars',
+            'ToggleAllChars',
+            'ToggleDisplayAllBoards',
+            'ToggleAllBoards',
+            'ToggleFreePurchases',
+            'GiveFullUpgrades'
+        ].forEach(method => sendMessage.call(state.unity, 'DebugSettingsPopup', method));
+        bootLog(t('Profilo mod attivo: contenuti, acquisti e potenziamenti sbloccati', 'Mod profile active: content, purchases and upgrades unlocked'));
+    }
+
     function bindGameInput() {
         const nativeCodes = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
         const nativeActions = { ArrowUp: 'jump', ArrowDown: 'duck', ArrowLeft: 'left', ArrowRight: 'right' };
@@ -450,9 +462,6 @@
             if (action) {
                 flashHudKey(action, true);
             }
-
-            if (action === 'jump') state.lastJumpInput = performance.now();
-            if (action === 'duck') state.lastRollInput = performance.now();
 
             // 'R' key manually flags coin fail if running, or resets timer if stopped
             if (event.code === 'KeyR') {
@@ -618,6 +627,7 @@
             if (map.bootstrap) {
                 bootLog(t('Caricamento del modulo di compatibilità...', 'Loading the compatibility module...'));
                 await loadScript(packageUrl(map, map.bootstrap));
+                installAudioDetector();
             }
             await loadScript(packageUrl(map, map.loader));
             if (!window.UnityLoader?.instantiate) throw new Error('UnityLoader non inizializzato');
@@ -659,6 +669,10 @@
         state.loading = false;
         setBootProgress(1, t('Gioco pronto', 'Game ready'), t('Clicca o premi SPAZIO nel gioco per iniziare.', 'Click or press SPACE in the game to begin.'));
         bootLog(t('Canvas WebGL attivo', 'WebGL canvas active'));
+        installAudioDetector();
+        // onRuntimeInitialized fires before the first Unity scene has finished
+        // constructing its save managers. Apply after the scene has settled.
+        setTimeout(applyModProfile, 8000);
         setTimeout(() => {
             dom.subwayBootSplash?.classList.add('hidden');
             dom.subwayStartHint?.classList.add('is-visible');
