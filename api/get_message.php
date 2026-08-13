@@ -10,7 +10,7 @@ require_once __DIR__ . '/../config/chat_config.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/chat_functions.php';
 
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 
 // Pulisci il buffer di output
 if (ob_get_level()) {

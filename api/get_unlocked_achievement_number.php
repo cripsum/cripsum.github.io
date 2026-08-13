@@ -5,7 +5,7 @@ header("Access-Control-Allow-Credentials: true");
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 $user_id = $_SESSION['user_id'] ?? 0;
 
 $stmt = $mysqli->prepare("SELECT COUNT(*) as count FROM achievement, utenti_achievement WHERE achievement.id = utenti_achievement.achievement_id AND utenti_achievement.utente_id = ?"); 

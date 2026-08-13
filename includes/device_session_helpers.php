@@ -1,6 +1,6 @@
 <?php
 
-const AUTH_DEVICE_SESSION_LIFETIME = 604800;
+const AUTH_DEVICE_SESSION_LIFETIME = 1209600; // 2 settimane (14 giorni)
 const AUTH_DEVICE_GEO_SUCCESS_TTL = 2592000; // 30 days
 const AUTH_DEVICE_GEO_FAILURE_TTL = 21600;   // retry failures after 6 hours
 const AUTH_DEVICE_GEO_LOOKUPS_PER_REQUEST = 3;
@@ -450,6 +450,7 @@ function auth_sync_current_device_session(mysqli $mysqli): bool
         $update = $mysqli->prepare("
             UPDATE user_sessions
             SET last_seen_at = NOW(),
+                expires_at = DATE_ADD(NOW(), INTERVAL 14 DAY),
                 device_name = ?,
                 device_type = ?,
                 browser = ?,

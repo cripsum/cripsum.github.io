@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/game_config.php';
 require_once __DIR__ . '/../includes/game_helpers.php';
 
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 $user_id = $_SESSION['user_id'] ?? 0;
 
     $stmt = $mysqli->prepare("SELECT id, nome, descrizione, rarità, categoria, img_url, audio_url, caratteristiche, data, quantità, livello, descrizione_en, caratteristiche_en FROM personaggi, utenti_personaggi WHERE personaggi.id = utenti_personaggi.personaggio_id AND utenti_personaggi.utente_id = ?"); 

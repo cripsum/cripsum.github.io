@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 
     $stmt = $mysqli->prepare("SELECT * FROM achievement"); 
     $stmt->execute();

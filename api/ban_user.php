@@ -1,6 +1,6 @@
 <?php
 require __DIR__ . '/../includes/retired_endpoint.php';
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 

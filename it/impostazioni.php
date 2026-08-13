@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 auth_record_login_attempt($mysqli, $userId, $securityIdentifier, true, 'email_change_ok');
                 auth_revoke_current_device_session($mysqli);
                 session_destroy();
-                session_start();
+                require_once __DIR__ . '/../config/session_init.php';
                 $_SESSION['login_message'] = 'Email modificata. Controlla la nuova casella per verificare l’account.';
                 header('Location: accedi');
                 exit();

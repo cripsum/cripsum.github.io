@@ -2,6 +2,7 @@
 date_default_timezone_set('Europe/Rome');
 
 
+require_once __DIR__ . '/session_init.php';
 require_once __DIR__ . '/../secure/config.php';
 
 

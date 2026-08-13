@@ -429,7 +429,7 @@ function gd_api_send_reaction(mysqli $mysqli): void {
 
     // Cooldown di 0.5s basato su sessione microtime
     if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+        require_once __DIR__ . '/../config/session_init.php';
     }
     $now = microtime(true);
     if (isset($_SESSION['last_reaction_time']) && ($now - $_SESSION['last_reaction_time']) < 0.5) {

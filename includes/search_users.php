@@ -9,7 +9,7 @@
  * Restituisce un JSON array di utenti corrispondenti (max 6).
  */
 
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php'; // Adatta il path alla tua connessione $mysqli
 
 header('Content-Type: application/json; charset=utf-8');

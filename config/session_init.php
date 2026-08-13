@@ -5,9 +5,7 @@ ini_set('display_startup_errors', '0');
 ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
-const CRIPSUM_SESSION_IDLE_TIMEOUT = 7200;      
-const CRIPSUM_SESSION_ABSOLUTE_TIMEOUT = 604800; 
-const CRIPSUM_SESSION_ROTATION_INTERVAL = 900; 
+const CRIPSUM_SESSION_ABSOLUTE_TIMEOUT = 1209600; // 2 settimane (14 giorni)
 
 ini_set('session.gc_maxlifetime', (string)CRIPSUM_SESSION_ABSOLUTE_TIMEOUT);
 ini_set('session.cookie_lifetime', (string)CRIPSUM_SESSION_ABSOLUTE_TIMEOUT);
@@ -56,10 +54,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $sessionNow = time();
 $sessionCreatedAt = (int)($_SESSION['session_created_at'] ?? $sessionNow);
-$sessionLastActivity = (int)($_SESSION['session_last_activity'] ?? $sessionNow);
 $sessionExpired = !empty($_SESSION['user_id']) && (
-    ($sessionNow - $sessionLastActivity) > CRIPSUM_SESSION_IDLE_TIMEOUT
-    || ($sessionNow - $sessionCreatedAt) > CRIPSUM_SESSION_ABSOLUTE_TIMEOUT
+    ($sessionNow - $sessionCreatedAt) > CRIPSUM_SESSION_ABSOLUTE_TIMEOUT
 );
 
 if ($sessionExpired) {
@@ -76,18 +72,12 @@ if ($sessionExpired) {
     unset($_COOKIE[$sessionName]);
     session_id('');
     session_start();
-    $_SESSION['login_message'] = 'Sessione scaduta per sicurezza. Accedi di nuovo.';
+    $_SESSION['login_message'] = 'Sessione scaduta dopo 2 settimane. Accedi di nuovo.';
     $sessionCreatedAt = $sessionNow;
 }
 
 $_SESSION['session_created_at'] = $sessionCreatedAt;
 $_SESSION['session_last_activity'] = $sessionNow;
-
-$lastRotation = (int)($_SESSION['session_last_rotation'] ?? 0);
-if ($lastRotation === 0 || ($sessionNow - $lastRotation) >= CRIPSUM_SESSION_ROTATION_INTERVAL) {
-    session_regenerate_id(true);
-    $_SESSION['session_last_rotation'] = $sessionNow;
-}
 
 if (!defined('CRIPSUM_SKIP_SPECIAL_SESSION_REDIRECT') && isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === 77) {
     header('Location: uwu');

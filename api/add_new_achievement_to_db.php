@@ -3,7 +3,7 @@ require __DIR__ . '/../includes/retired_endpoint.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 
 // Controlla se admin (modifica come serve)
 if (!isLoggedIn() || (!isAdmin() && !isOwner())) {

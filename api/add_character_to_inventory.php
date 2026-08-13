@@ -3,7 +3,7 @@ require __DIR__ . '/../includes/retired_endpoint.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-session_start();
+require_once __DIR__ . '/../config/session_init.php';
 $user_id = $_SESSION['user_id'] ?? 0;
 date_default_timezone_set('Europe/Rome');
 

@@ -1,5 +1,5 @@
-php_value session.gc_maxlifetime 604800
-php_value session.cookie_lifetime 604800
+php_value session.gc_maxlifetime 1209600
+php_value session.cookie_lifetime 1209600
 php_value session.gc_probability 1
 php_value session.gc_divisor 1000
 php_flag display_errors Off
