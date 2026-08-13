@@ -38,7 +38,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=8.1">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=8.2">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
     <script src="/assets/js/subway/subway.js?v=8.4" defer></script>
 </head>
@@ -65,16 +65,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     </div>
                 </div>
             </section>
-
-            <div class="subway-home-settings-launch game-reveal">
-                <div>
-                    <strong><i class="fa-solid fa-sliders"></i> Impostazioni gioco</strong>
-                    <small>Challenge, controlli, prestazioni e overlay</small>
-                </div>
-                <button type="button" class="game-btn game-btn-special" id="openSubwaySettings">
-                    <i class="fa-solid fa-gear"></i> Apri
-                </button>
-            </div>
 
             <!-- Custom Options & Key Binds Section -->
             <div class="subway-settings-panel" hidden aria-hidden="true">
@@ -203,6 +193,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         <h2>Seleziona la Mappa</h2>
                         <p>Scegli una delle build verificate: resterai su Cripsum durante tutta la partita.</p>
                     </div>
+                    <button type="button" class="game-btn game-btn-soft subway-map-settings-btn" id="openSubwaySettings">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Impostazioni</span>
+                    </button>
                 </div>
                 
                 <div class="subway-grid" hidden>

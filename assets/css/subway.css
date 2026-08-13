@@ -128,43 +128,25 @@
     display: none !important;
 }
 
-.subway-home-settings-launch {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: 1rem;
-    padding: 0.75rem 0.9rem;
-    border: 1px solid var(--game-border);
-    border-radius: var(--subway-radius-sm);
-    background: rgba(255, 255, 255, 0.025);
+.subway-map-settings-btn {
+    flex: 0 0 auto;
+    min-height: 2.65rem;
+    padding: 0.65rem 0.9rem;
+    border-color: rgba(124, 58, 237, 0.36);
+    color: #ded6ff;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.16), rgba(6, 182, 212, 0.08));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+    white-space: nowrap;
 }
 
-.subway-home-settings-launch > div {
-    display: flex;
-    flex-direction: column;
-    gap: 0.18rem;
-}
-
-.subway-home-settings-launch strong {
-    color: var(--game-text);
-    font-size: 0.9rem;
-}
-
-.subway-home-settings-launch strong i {
-    margin-right: 0.35rem;
+.subway-map-settings-btn i {
     color: var(--game-accent2);
 }
 
-.subway-home-settings-launch small {
-    color: var(--game-muted2);
-    font-size: 0.72rem;
-}
-
-.subway-home-settings-launch .game-btn {
-    min-height: 38px;
-    padding: 0.55rem 0.85rem;
-    white-space: nowrap;
+.subway-map-settings-btn:hover {
+    border-color: rgba(6, 182, 212, 0.58);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.24), rgba(6, 182, 212, 0.14));
+    box-shadow: 0 12px 32px rgba(6, 182, 212, 0.12);
 }
 
 @media (max-width: 992px) {
@@ -1047,12 +1029,8 @@ body.subway-fullscreen-active .main-footer {
 }
 
 @media (max-width: 620px) {
-    .subway-home-settings-launch {
-        align-items: flex-start;
-    }
-
-    .subway-home-settings-launch small {
-        display: none;
+    .subway-map-settings-btn {
+        width: 100%;
     }
 
     .subway-modal-box > .subway-keybind-list {
