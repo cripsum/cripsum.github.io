@@ -218,9 +218,9 @@
             gameLoadingFinished() {},
             gameInteractive() {},
             gameplayStart() { startTimer('gameplayStart'); },
-            gameplayStop() {},
+            gameplayStop() { finishTimer('gameplayStop'); },
             roundStart() { startTimer('roundStart'); },
-            roundEnd() {},
+            roundEnd() { finishTimer('roundEnd'); },
             setDebug() {},
             happyTime() {},
             setPlayerAge() {},
@@ -351,6 +351,7 @@
             ready: t('Pronta', 'Ready'),
             running: t('In corsa', 'Running'),
             failed: t('Moneta!', 'Coin!'),
+            ended: t('Terminata', 'Finished'),
             inactive: t('Disattiva', 'Inactive')
         };
         dom.subwayStatusBadge.className = `subway-status-badge ${kind === 'running' || kind === 'ready' ? 'active' : kind}`;
@@ -401,6 +402,16 @@
         state.timerFrame = requestAnimationFrame(updateTimer);
     }
 
+    function finishTimer(source) {
+        if (!state.running || state.failed) return;
+        state.elapsed = performance.now() - state.startedAt;
+        state.running = false;
+        cancelAnimationFrame(state.timerFrame);
+        renderTimerDisplay(state.elapsed);
+        setChallengeStatus(state.challenge ? 'ended' : 'inactive');
+        bootLog(t(`Run terminata (${source})`, `Run finished (${source})`));
+    }
+
     function formatTime(milliseconds) {
         const total = Math.max(0, Math.floor(milliseconds));
         const minutes = Math.floor(total / 60000);
@@ -421,24 +432,6 @@
         if (state.autoPause) {
             dispatchUnityKey('Escape', 'keydown', true);
         }
-    }
-
-    function applyModProfile() {
-        const sendMessage = state.unity?.SendMessage;
-        if (typeof sendMessage !== 'function') return;
-
-        // These are the build's own debug switches. They go through Unity's
-        // normal inventory managers, so they work across all included IL2CPP
-        // versions without writing arbitrary WebAssembly memory.
-        [
-            'ToggleDisplayAllChars',
-            'ToggleAllChars',
-            'ToggleDisplayAllBoards',
-            'ToggleAllBoards',
-            'ToggleFreePurchases',
-            'GiveFullUpgrades'
-        ].forEach(method => sendMessage.call(state.unity, 'DebugSettingsPopup', method));
-        bootLog(t('Profilo mod attivo: contenuti, acquisti e potenziamenti sbloccati', 'Mod profile active: content, purchases and upgrades unlocked'));
     }
 
     function bindGameInput() {
@@ -632,6 +625,14 @@
             await loadScript(packageUrl(map, map.loader));
             if (!window.UnityLoader?.instantiate) throw new Error('UnityLoader non inizializzato');
 
+            if (!window.CripsumSubwayProfile) throw new Error('Profilo Subway non disponibile');
+            const preparedProfile = await window.CripsumSubwayProfile.prepare();
+            if (!preparedProfile.ok) throw new Error('Impossibile preparare il profilo Subway');
+            bootLog(t(
+                `Profilo completo preparato (${preparedProfile.files} file)`,
+                `Complete profile prepared (${preparedProfile.files} files)`
+            ));
+
             document.body.classList.add('subway-fullscreen-active');
             dom.subwayLobby.style.display = 'none';
             dom.subwayGameArea.style.display = 'block';
@@ -652,6 +653,12 @@
                         );
                     },
                     Module: {
+                        preRun: [function () {
+                            const injected = window.CripsumSubwayProfile?.injectIntoUnityFS(
+                                window.unityGame?.Module || state.unity?.Module
+                            );
+                            if (!injected) console.warn('[Subway Portal] Profilo completo non iniettato nel filesystem Unity');
+                        }],
                         onRuntimeInitialized() { onUnityReady(); }
                     }
                 }
@@ -670,9 +677,6 @@
         setBootProgress(1, t('Gioco pronto', 'Game ready'), t('Clicca o premi SPAZIO nel gioco per iniziare.', 'Click or press SPACE in the game to begin.'));
         bootLog(t('Canvas WebGL attivo', 'WebGL canvas active'));
         installAudioDetector();
-        // onRuntimeInitialized fires before the first Unity scene has finished
-        // constructing its save managers. Apply after the scene has settled.
-        setTimeout(applyModProfile, 8000);
         setTimeout(() => {
             dom.subwayBootSplash?.classList.add('hidden');
             dom.subwayStartHint?.classList.add('is-visible');
