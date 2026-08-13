@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=7.9">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=8.0">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=8.1" defer></script>
+    <script src="/assets/js/subway/subway.js?v=8.3" defer></script>
 </head>
 
 <body class="game-page">
@@ -108,6 +108,22 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                 <span class="subway-slider"></span>
                             </label>
                         </div>
+
+                        <div class="subway-option-row">
+                            <div class="subway-option-info">
+                                <strong>VSync adattivo</strong>
+                                <span>Sincronizza il gioco con gli Hz reali del monitor, anche oltre 144 Hz.</span>
+                            </div>
+                            <label class="subway-switch">
+                                <input type="checkbox" data-setting="vsync" checked>
+                                <span class="subway-slider"></span>
+                            </label>
+                        </div>
+
+                        <label class="subway-fps-limit-setting" data-fps-control>
+                            <span><strong>Limite FPS</strong><small>Usato quando il VSync è disattivato.</small></span>
+                            <input type="number" min="30" max="500" step="1" value="144" data-fps-limit>
+                        </label>
                         
                     </div>
                 </section>
@@ -320,7 +336,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <div class="subway-fps-readout">
                         <strong id="subwayFpsValue">--</strong><span>FPS</span>
                     </div>
-                    <div class="subway-vsync-state"><i class="fa-solid fa-circle"></i> VSync attivo</div>
                 </div>
 
                 <!-- Floating Keys HUD (Draggable) -->
@@ -390,6 +405,20 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     <span class="subway-slider"></span>
                                 </label>
                             </div>
+                            <div class="subway-option-row subway-modal-timing-row">
+                                <div class="subway-option-info">
+                                    <strong>VSync adattivo</strong>
+                                    <span>Segue automaticamente gli Hz del monitor.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-setting="vsync" checked>
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                            <label class="subway-fps-limit-setting" data-fps-control>
+                                <span><strong>Limite FPS</strong><small>Disponibile con VSync disattivato.</small></span>
+                                <input type="number" min="30" max="500" step="1" value="144" data-fps-limit>
+                            </label>
                         </div>
 
                         <div class="subway-modal-section">

@@ -22,10 +22,12 @@
     ];
 
     const storageKey = 'cripsum-subway-settings-v2';
-    // Exact AudioClip lengths from this Unity build. Broad duration ranges are
-    // unsafe here: dodge, roll, power-down and UI sounds are all very short.
-    const runStartAudioDuration = 3.464580535888672;
-    const coinAudioDuration = 0.5619954466819763;
+    // Unity stores the source length, while WebAudio sees the AAC-decoded
+    // length including codec padding. Keep both exact fingerprints: broad
+    // ranges would confuse the coin with the nearby jump sound.
+    const runStartAudioDurations = [3.464580535888672, 3.482971];
+    const coinAudioDurations = [0.5619954466819763, 0.580476];
+    const coinDecodedFrames = new Set([24784, 25599, 25600]);
     const defaultBindings = { jump: 'KeyW', duck: 'KeyS', left: 'KeyA', right: 'KeyD', boost: 'KeyB' };
     const defaultOverlayTheme = {
         timer: '#090d18',
@@ -61,6 +63,8 @@
         challenge: true,
         autoPause: true,
         blockSpace: false,
+        vsync: true,
+        fpsLimit: 144,
         fpsFrame: 0,
         fpsLastSample: 0,
         fpsFrames: 0
@@ -97,11 +101,15 @@
             state.challenge = saved.challenge !== false;
             state.autoPause = saved.autoPause !== false;
             state.blockSpace = saved.blockSpace === true;
+            state.vsync = saved.vsync !== false;
+            state.fpsLimit = Math.min(500, Math.max(30, Number(saved.fpsLimit) || 144));
         } catch (_) {
             state.bindings = Object.assign({}, defaultBindings);
             state.overlayPositions = {};
             state.overlayTheme = Object.assign({}, defaultOverlayTheme);
             state.blockSpace = false;
+            state.vsync = true;
+            state.fpsLimit = 144;
         }
     }
 
@@ -112,7 +120,9 @@
             overlayTheme: state.overlayTheme,
             challenge: state.challenge,
             autoPause: state.autoPause,
-            blockSpace: state.blockSpace
+            blockSpace: state.blockSpace,
+            vsync: state.vsync,
+            fpsLimit: state.fpsLimit
         }));
     }
 
@@ -199,6 +209,14 @@
         document.querySelectorAll('[data-setting="blockSpace"]').forEach(input => {
             input.checked = state.blockSpace;
         });
+        document.querySelectorAll('[data-setting="vsync"]').forEach(input => {
+            input.checked = state.vsync;
+        });
+        document.querySelectorAll('[data-fps-limit]').forEach(input => {
+            input.value = String(state.fpsLimit);
+            input.disabled = state.vsync;
+            input.closest('[data-fps-control]')?.classList.toggle('is-disabled', state.vsync);
+        });
         document.querySelectorAll('[data-overlay-color]').forEach(input => {
             const key = input.dataset.overlayColor;
             input.value = normalizeHexColor(state.overlayTheme[key], defaultOverlayTheme[key]);
@@ -228,6 +246,27 @@
         });
     }
 
+    function frameTimingSettings() {
+        return state.vsync
+            ? { mode: 1, value: 1 }
+            : { mode: 0, value: 1000 / state.fpsLimit };
+    }
+
+    function applyFrameTiming() {
+        const timing = frameTimingSettings();
+        const modules = [state.unity?.Module, window.unityGame?.Module, window.Module]
+            .filter((module, index, list) => module && list.indexOf(module) === index);
+        modules.forEach(module => {
+            module.mainLoopTimingMode = timing.mode;
+            module.mainLoopTimingValue = timing.value;
+            try {
+                if (typeof module.setMainLoopTiming === 'function') {
+                    module.setMainLoopTiming(timing.mode, timing.value);
+                }
+            } catch (_) { /* the launch configuration still applies on next run */ }
+        });
+    }
+
     function bindSettings() {
         if (dom.toggleNoCoinChallenge) {
             dom.toggleNoCoinChallenge.checked = state.challenge;
@@ -249,6 +288,34 @@
             input.addEventListener('change', () => {
                 state.blockSpace = input.checked;
                 syncSettingsUi();
+                saveSettings();
+            });
+        });
+
+        document.querySelectorAll('[data-setting="vsync"]').forEach(input => {
+            input.addEventListener('change', () => {
+                state.vsync = input.checked;
+                syncSettingsUi();
+                applyFrameTiming();
+                saveSettings();
+            });
+        });
+
+        document.querySelectorAll('[data-fps-limit]').forEach(input => {
+            input.addEventListener('input', () => {
+                const requestedLimit = Number(input.value);
+                if (!Number.isFinite(requestedLimit) || requestedLimit < 30 || requestedLimit > 500) return;
+                state.fpsLimit = Math.round(requestedLimit);
+                document.querySelectorAll('[data-fps-limit]').forEach(other => {
+                    if (other !== input) other.value = String(state.fpsLimit);
+                });
+                applyFrameTiming();
+                saveSettings();
+            });
+            input.addEventListener('change', () => {
+                state.fpsLimit = Math.round(Math.min(500, Math.max(30, Number(input.value) || 144)));
+                syncSettingsUi();
+                applyFrameTiming();
                 saveSettings();
             });
         });
@@ -440,7 +507,7 @@
         if (!Number.isFinite(duration)) return;
 
         // The run-start clip is unique in the shipped AudioClip table.
-        const looksLikeStart = Math.abs(duration - runStartAudioDuration) <= 0.02;
+        const looksLikeStart = runStartAudioDurations.some(target => Math.abs(duration - target) <= 0.006);
         if (looksLikeStart && !state.running) {
             startTimer('audio');
             return;
@@ -448,10 +515,15 @@
 
         if (!state.running) return;
 
-        // Hr_coin is a mono 0.561995s clip. The tight fingerprint deliberately
-        // excludes jump (0.597s), roll (0.353s), dodge (0.209s) and UI sounds.
-        const looksLikeCoinSound = buffer.numberOfChannels === 1
-            && Math.abs(duration - coinAudioDuration) <= 0.006;
+        // Hr_coin decodes to 25,599 frames / 0.580476s in every verified map.
+        // Some browsers remove AAC padding and expose the original 0.561995s,
+        // so both representations are supported without widening into jump.
+        const sampleRate = Number(buffer.sampleRate || 0);
+        const sampleFrames = Number(buffer.length || 0);
+        const looksLikeCoinSound = buffer.numberOfChannels === 1 && (
+            coinAudioDurations.some(target => Math.abs(duration - target) <= 0.004)
+            || (Math.abs(sampleRate - 44100) <= 1 && coinDecodedFrames.has(sampleFrames))
+        );
         if (looksLikeCoinSound) {
             failChallenge('coin_audio');
         }
@@ -682,7 +754,9 @@
         const sendMessage = state.unity?.SendMessage;
         if (typeof sendMessage !== 'function') return;
         try {
-            sendMessage.call(state.unity, '0PowerupHelper', 'OnScoreBoostActivated');
+            // Powerup slot 1 is the Score Booster. OnScoreBoostActivated is an
+            // event taking an int and cannot be invoked directly via SendMessage.
+            sendMessage.call(state.unity, '0PowerupHelper', 'SlideinPowerupClicked', 1);
             bootLog(t('Score Booster attivato', 'Score Booster activated'));
         } catch (error) {
             console.warn('[Subway Portal] Impossibile attivare lo Score Booster', error);
@@ -864,8 +938,8 @@
                         );
                     },
                     Module: {
-                        mainLoopTimingMode: 1,
-                        mainLoopTimingValue: 1,
+                        mainLoopTimingMode: frameTimingSettings().mode,
+                        mainLoopTimingValue: frameTimingSettings().value,
                         preRun: [function () {
                             const injected = window.CripsumSubwayProfile?.injectIntoUnityFS(
                                 window.unityGame?.Module || state.unity?.Module
@@ -889,7 +963,10 @@
         state.loading = false;
         setBootProgress(1, t('Gioco pronto', 'Game ready'), t('Clicca o premi SPAZIO nel gioco per iniziare.', 'Click or press SPACE in the game to begin.'));
         bootLog(t('Canvas WebGL attivo', 'WebGL canvas active'));
-        bootLog(t('VSync attivo (requestAnimationFrame)', 'VSync enabled (requestAnimationFrame)'));
+        bootLog(state.vsync
+            ? t('VSync adattivo al refresh del monitor', 'VSync matched to monitor refresh')
+            : t(`Limite FPS attivo: ${state.fpsLimit}`, `FPS limit enabled: ${state.fpsLimit}`));
+        applyFrameTiming();
         installAudioDetector();
         setTimeout(() => {
             dom.subwayBootSplash?.classList.add('hidden');

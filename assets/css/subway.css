@@ -184,13 +184,85 @@
 }
 
 .subway-color-setting input[type="color"] {
-    width: 42px;
-    height: 32px;
-    padding: 2px;
-    border: 1px solid var(--game-border);
-    border-radius: 7px;
-    background: transparent;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    padding: 0;
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
     cursor: pointer;
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.subway-color-setting input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 3px;
+}
+
+.subway-color-setting input[type="color"]::-webkit-color-swatch {
+    border: 0;
+    border-radius: 50%;
+}
+
+.subway-color-setting input[type="color"]::-moz-color-swatch {
+    border: 3px solid transparent;
+    border-radius: 50%;
+}
+
+.subway-color-setting input[type="color"]:focus-visible {
+    outline: 2px solid var(--game-accent2);
+    outline-offset: 3px;
+}
+
+.subway-fps-limit-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border-top: 1px solid var(--game-border);
+    transition: opacity 0.2s ease;
+}
+
+.subway-fps-limit-setting > span {
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+}
+
+.subway-fps-limit-setting strong {
+    color: var(--game-text);
+    font-size: 0.92rem;
+}
+
+.subway-fps-limit-setting small {
+    color: var(--game-muted2);
+    font-size: 0.76rem;
+}
+
+.subway-fps-limit-setting input {
+    width: 88px;
+    min-height: 40px;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--game-border);
+    border-radius: 9px;
+    color: var(--game-text);
+    background: rgba(255, 255, 255, 0.06);
+    font: 900 0.88rem/1 var(--subway-font);
+    text-align: center;
+}
+
+.subway-fps-limit-setting input:focus {
+    border-color: var(--game-accent2);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.14);
+}
+
+.subway-fps-limit-setting.is-disabled {
+    opacity: 0.46;
 }
 
 .subway-opacity-setting {
@@ -914,6 +986,17 @@ body.subway-fullscreen-active .main-footer {
 .subway-modal-section .subway-option-row {
     padding: 0;
     border: 0;
+}
+
+.subway-modal-section .subway-modal-timing-row {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--game-border);
+}
+
+.subway-modal-section .subway-fps-limit-setting {
+    margin-top: 0.85rem;
+    padding: 0.85rem 0 0;
 }
 
 @media (max-width: 620px) {
