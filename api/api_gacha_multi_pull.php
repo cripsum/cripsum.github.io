@@ -27,16 +27,16 @@ defined('PITY_STANDARD_HARD') || define('PITY_STANDARD_HARD', 90);
 defined('PITY_EVENTO_SOFT')   || define('PITY_EVENTO_SOFT',   65);
 defined('PITY_EVENTO_HARD')   || define('PITY_EVENTO_HARD',   80);
 
-defined('MULTI_RATE_LIMIT_S') || define('MULTI_RATE_LIMIT_S', 5);   
+defined('MULTI_RATE_LIMIT_S') || define('MULTI_RATE_LIMIT_S', 5);
 defined('MULTI_MAX_QUANTITY') || define('MULTI_MAX_QUANTITY', 10);
 
 defined('BASE_WEIGHTS_M') || define('BASE_WEIGHTS_M', [
-    'comune'      => 51.00,
+    'comune'      => 50.00,
     'raro'        => 28.00,
     'epico'       => 13.00,
     'leggendario' =>  5.999,
     'speciale'    =>  1.80,
-    'segreto'     =>  0.20,
+    'segreto'     =>  1.20,
     'theone'      =>  0.001,
 ]);
 
