@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=7.6">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=7.9">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=7.9" defer></script>
+    <script src="/assets/js/subway/subway.js?v=8.1" defer></script>
 </head>
 
 <body class="game-page">
@@ -97,6 +97,17 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <span class="subway-slider"></span>
                             </label>
                         </div>
+
+                        <div class="subway-option-row">
+                            <div class="subway-option-info">
+                                <strong>Block SPACE</strong>
+                                <span>Stops SPACE from reaching the game, preventing accidental hoverboard activation.</span>
+                            </div>
+                            <label class="subway-switch">
+                                <input type="checkbox" data-setting="blockSpace">
+                                <span class="subway-slider"></span>
+                            </label>
+                        </div>
                         
                     </div>
                 </section>
@@ -128,8 +139,34 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             <label>Move Right</label>
                             <button class="subway-key-btn" data-keybind="right">D</button>
                         </div>
+                        <div class="subway-keybind-item">
+                            <label>Start Score Booster</label>
+                            <button class="subway-key-btn" data-keybind="boost">B</button>
+                        </div>
                         
                     </div>
+                </section>
+
+                <section class="game-panel game-reveal subway-overlay-customization">
+                    <div class="game-panel-head">
+                        <div>
+                            <h2>Overlay Appearance</h2>
+                            <p>Customize every panel; colors and transparency are saved automatically.</p>
+                        </div>
+                    </div>
+                    <div class="subway-theme-grid" style="margin-top: 1.2rem;">
+                        <label class="subway-color-setting"><span>Timer</span><input type="color" value="#090d18" data-overlay-color="timer"></label>
+                        <label class="subway-color-setting"><span>FPS / VSync</span><input type="color" value="#090d18" data-overlay-color="fps"></label>
+                        <label class="subway-color-setting"><span>Controls</span><input type="color" value="#090d18" data-overlay-color="keys"></label>
+                        <label class="subway-color-setting"><span>Settings button</span><input type="color" value="#090d18" data-overlay-color="settings"></label>
+                        <label class="subway-color-setting"><span>Text</span><input type="color" value="#ffffff" data-overlay-color="text"></label>
+                        <label class="subway-color-setting"><span>Accent</span><input type="color" value="#06b6d4" data-overlay-color="accent"></label>
+                    </div>
+                    <label class="subway-opacity-setting">
+                        <span>Background opacity <output data-overlay-opacity-value>88%</output></span>
+                        <input type="range" min="35" max="100" step="1" value="88" data-overlay-opacity>
+                    </label>
+                    <button type="button" class="subway-theme-reset" data-reset-overlay-theme>Reset default colors</button>
                 </section>
             </div>
 
@@ -275,36 +312,19 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
                 <!-- Floating Timer Widget (Draggable) -->
                 <div class="subway-hud-widget subway-timer-widget" id="hudWidgetTimer">
-                    <div class="widget-handle">
-                        <strong><i class="fa-solid fa-stopwatch"></i> Run Timer</strong>
-                        <i class="fa-solid fa-arrows-up-down-left-right"></i>
-                    </div>
                     <div class="subway-timer-display" id="subwayTimerDisplay">00:00.000</div>
                 </div>
 
-                <!-- Floating Challenge Status Widget (Draggable) -->
-                <div class="subway-hud-widget subway-status-widget" id="hudWidgetStatus">
-                    <div class="widget-handle">
-                        <strong><i class="fa-solid fa-shield-halved"></i> Challenge HUD</strong>
-                        <i class="fa-solid fa-arrows-up-down-left-right"></i>
+                <!-- Floating FPS / VSync Widget (Draggable) -->
+                <div class="subway-hud-widget subway-fps-widget" id="hudWidgetFps">
+                    <div class="subway-fps-readout">
+                        <strong id="subwayFpsValue">--</strong><span>FPS</span>
                     </div>
-                    <div class="subway-status-row">
-                        <span>Mode:</span>
-                        <strong>No-Coin</strong>
-                    </div>
-                    <div class="subway-status-row">
-                        <span>Status:</span>
-                        <span class="subway-status-badge active" id="subwayStatusBadge">Active</span>
-                    </div>
-                    <button class="subway-manual-fail-btn" id="manualFailBtn" type="button" style="margin-top: 0.5rem; width: 100%; font-size: 0.72rem; padding: 4px 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 8px; cursor: pointer; transition: background 0.2s;"><i class="fa-solid fa-flag"></i> Coin / Reset (R)</button>
+                    <div class="subway-vsync-state"><i class="fa-solid fa-circle"></i> VSync enabled</div>
                 </div>
 
                 <!-- Floating Keys HUD (Draggable) -->
                 <div class="subway-hud-widget subway-keys-widget" id="hudWidgetKeys">
-                    <div class="widget-handle">
-                        <strong><i class="fa-solid fa-keyboard"></i> Controls</strong>
-                        <i class="fa-solid fa-arrows-up-down-left-right"></i>
-                    </div>
                     <div class="subway-hud-keys-grid">
                         <span></span>
                         <div class="subway-hud-key" id="hudKey-jump">W</div>
@@ -313,6 +333,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         <div class="subway-hud-key" id="hudKey-left">A</div>
                         <div class="subway-hud-key" id="hudKey-duck">S</div>
                         <div class="subway-hud-key" id="hudKey-right">D</div>
+                    </div>
+                    <div class="subway-hud-boost-row">
+                        <span>BOOST</span>
+                        <div class="subway-hud-key" id="hudKey-boost">B</div>
                     </div>
                 </div>
 
@@ -329,8 +353,8 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 <!-- Controls Config Modal inside game frame -->
                 <div class="subway-settings-modal" id="subwaySettingsModal">
                     <div class="subway-modal-box">
-                        <h3 style="margin-top: 0; color: #fff;"><i class="fa-solid fa-gear"></i> Remap Keys</h3>
-                        <p style="font-size: 0.8rem; color: var(--game-muted); margin-bottom: 1.2rem;">Click a bind button, then press any key on your keyboard to map it.</p>
+                        <h3 style="margin-top: 0; color: #fff;"><i class="fa-solid fa-gear"></i> Game Settings</h3>
+                        <p style="font-size: 0.8rem; color: var(--game-muted); margin-bottom: 1.2rem;">Keys, hoverboard protection and overlay appearance are saved automatically.</p>
                         
                         <div class="subway-keybind-list">
                             <div class="subway-keybind-item">
@@ -349,6 +373,40 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <label>Move Right</label>
                                 <button class="subway-key-btn" data-keybind="right">D</button>
                             </div>
+                            <div class="subway-keybind-item">
+                                <label>Start Score Booster</label>
+                                <button class="subway-key-btn" data-keybind="boost">B</button>
+                            </div>
+                        </div>
+
+                        <div class="subway-modal-section">
+                            <div class="subway-option-row">
+                                <div class="subway-option-info">
+                                    <strong>Block SPACE</strong>
+                                    <span>Prevents accidental hoverboard activation.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-setting="blockSpace">
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="subway-modal-section">
+                            <h4>Overlay Appearance</h4>
+                            <div class="subway-theme-grid">
+                                <label class="subway-color-setting"><span>Timer</span><input type="color" value="#090d18" data-overlay-color="timer"></label>
+                                <label class="subway-color-setting"><span>FPS / VSync</span><input type="color" value="#090d18" data-overlay-color="fps"></label>
+                                <label class="subway-color-setting"><span>Controls</span><input type="color" value="#090d18" data-overlay-color="keys"></label>
+                                <label class="subway-color-setting"><span>Settings button</span><input type="color" value="#090d18" data-overlay-color="settings"></label>
+                                <label class="subway-color-setting"><span>Text</span><input type="color" value="#ffffff" data-overlay-color="text"></label>
+                                <label class="subway-color-setting"><span>Accent</span><input type="color" value="#06b6d4" data-overlay-color="accent"></label>
+                            </div>
+                            <label class="subway-opacity-setting">
+                                <span>Background opacity <output data-overlay-opacity-value>88%</output></span>
+                                <input type="range" min="35" max="100" step="1" value="88" data-overlay-opacity>
+                            </label>
+                            <button type="button" class="subway-theme-reset" data-reset-overlay-theme>Reset default colors</button>
                         </div>
 
                         <button class="game-btn game-btn-main" id="closeSettingsModal" style="width: 100%; margin-top: 1.5rem; min-height: 2.5rem;">

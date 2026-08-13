@@ -26,7 +26,16 @@
     // unsafe here: dodge, roll, power-down and UI sounds are all very short.
     const runStartAudioDuration = 3.464580535888672;
     const coinAudioDuration = 0.5619954466819763;
-    const defaultBindings = { jump: 'KeyW', duck: 'KeyS', left: 'KeyA', right: 'KeyD' };
+    const defaultBindings = { jump: 'KeyW', duck: 'KeyS', left: 'KeyA', right: 'KeyD', boost: 'KeyB' };
+    const defaultOverlayTheme = {
+        timer: '#090d18',
+        fps: '#090d18',
+        keys: '#090d18',
+        settings: '#090d18',
+        text: '#ffffff',
+        accent: '#06b6d4',
+        opacity: 88
+    };
     const unityCodes = { jump: 'ArrowUp', duck: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' };
     const legacyKeys = {
         ArrowUp: { key: 'ArrowUp', keyCode: 38 },
@@ -47,8 +56,14 @@
         unity: null,
         activeMap: null,
         bindings: Object.assign({}, defaultBindings),
+        overlayPositions: {},
+        overlayTheme: Object.assign({}, defaultOverlayTheme),
         challenge: true,
-        autoPause: true
+        autoPause: true,
+        blockSpace: false,
+        fpsFrame: 0,
+        fpsLastSample: 0,
+        fpsFrames: 0
     };
 
     const dom = {};
@@ -61,7 +76,7 @@
             'subwayPortal', 'subwayLobby', 'subwayGameArea', 'subwayGameContainer',
             'subwayBootSplash', 'subwayBootStage', 'subwayBootStatus', 'subwayBootPercent',
             'subwayBootTrackValue', 'subwayBootConsole', 'cancelSubwayLoad', 'exitGameBtn',
-            'subwayTimerDisplay', 'subwayStatusBadge', 'subwayStartHint',
+            'subwayTimerDisplay', 'subwayStatusBadge', 'subwayStartHint', 'subwayFpsValue',
             'toggleNoCoinChallenge', 'toggleAutoPause', 'subwaySettingsModal',
             'hudWidgetSettingsBtn', 'closeSettingsModal'
         ].forEach(id => { dom[id] = document.getElementById(id); });
@@ -71,18 +86,33 @@
         try {
             const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
             state.bindings = Object.assign({}, defaultBindings, saved.bindings || {});
+            state.overlayPositions = saved.overlayPositions && typeof saved.overlayPositions === 'object'
+                ? saved.overlayPositions
+                : {};
+            state.overlayTheme = Object.assign({}, defaultOverlayTheme, saved.overlayTheme || {});
+            ['timer', 'fps', 'keys', 'settings', 'text', 'accent'].forEach(key => {
+                state.overlayTheme[key] = normalizeHexColor(state.overlayTheme[key], defaultOverlayTheme[key]);
+            });
+            state.overlayTheme.opacity = Math.min(100, Math.max(35, Number(state.overlayTheme.opacity) || defaultOverlayTheme.opacity));
             state.challenge = saved.challenge !== false;
             state.autoPause = saved.autoPause !== false;
+            state.blockSpace = saved.blockSpace === true;
         } catch (_) {
             state.bindings = Object.assign({}, defaultBindings);
+            state.overlayPositions = {};
+            state.overlayTheme = Object.assign({}, defaultOverlayTheme);
+            state.blockSpace = false;
         }
     }
 
     function saveSettings() {
         localStorage.setItem(storageKey, JSON.stringify({
             bindings: state.bindings,
+            overlayPositions: state.overlayPositions,
+            overlayTheme: state.overlayTheme,
             challenge: state.challenge,
-            autoPause: state.autoPause
+            autoPause: state.autoPause,
+            blockSpace: state.blockSpace
         }));
     }
 
@@ -155,6 +185,49 @@
             .replace('Space', t('SPAZIO', 'SPACE'));
     }
 
+    function normalizeHexColor(value, fallback) {
+        const color = String(value || '').trim().toLowerCase();
+        return /^#[0-9a-f]{6}$/.test(color) ? color : fallback;
+    }
+
+    function hexToRgb(value) {
+        const color = normalizeHexColor(value, '#090d18');
+        return `${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}`;
+    }
+
+    function syncSettingsUi() {
+        document.querySelectorAll('[data-setting="blockSpace"]').forEach(input => {
+            input.checked = state.blockSpace;
+        });
+        document.querySelectorAll('[data-overlay-color]').forEach(input => {
+            const key = input.dataset.overlayColor;
+            input.value = normalizeHexColor(state.overlayTheme[key], defaultOverlayTheme[key]);
+        });
+        document.querySelectorAll('[data-overlay-opacity]').forEach(input => {
+            input.value = String(state.overlayTheme.opacity);
+        });
+        document.querySelectorAll('[data-overlay-opacity-value]').forEach(output => {
+            output.textContent = `${state.overlayTheme.opacity}%`;
+        });
+    }
+
+    function applyOverlayTheme() {
+        const widgets = {
+            timer: document.getElementById('hudWidgetTimer'),
+            fps: document.getElementById('hudWidgetFps'),
+            keys: document.getElementById('hudWidgetKeys'),
+            settings: document.getElementById('hudWidgetSettingsBtn')
+        };
+        Object.entries(widgets).forEach(([key, widget]) => {
+            if (!widget) return;
+            widget.style.setProperty('--subway-overlay-bg-rgb', hexToRgb(state.overlayTheme[key]));
+            widget.style.setProperty('--subway-overlay-text', normalizeHexColor(state.overlayTheme.text, defaultOverlayTheme.text));
+            widget.style.setProperty('--subway-overlay-accent', normalizeHexColor(state.overlayTheme.accent, defaultOverlayTheme.accent));
+            widget.style.setProperty('--subway-overlay-accent-rgb', hexToRgb(state.overlayTheme.accent));
+            widget.style.setProperty('--subway-overlay-opacity', String(state.overlayTheme.opacity / 100));
+        });
+    }
+
     function bindSettings() {
         if (dom.toggleNoCoinChallenge) {
             dom.toggleNoCoinChallenge.checked = state.challenge;
@@ -171,6 +244,45 @@
                 saveSettings();
             });
         }
+
+        document.querySelectorAll('[data-setting="blockSpace"]').forEach(input => {
+            input.addEventListener('change', () => {
+                state.blockSpace = input.checked;
+                syncSettingsUi();
+                saveSettings();
+            });
+        });
+
+        document.querySelectorAll('[data-overlay-color]').forEach(input => {
+            input.addEventListener('input', () => {
+                const key = input.dataset.overlayColor;
+                state.overlayTheme[key] = normalizeHexColor(input.value, defaultOverlayTheme[key]);
+                syncSettingsUi();
+                applyOverlayTheme();
+                saveSettings();
+            });
+        });
+
+        document.querySelectorAll('[data-overlay-opacity]').forEach(input => {
+            input.addEventListener('input', () => {
+                state.overlayTheme.opacity = Math.min(100, Math.max(35, Number(input.value) || defaultOverlayTheme.opacity));
+                syncSettingsUi();
+                applyOverlayTheme();
+                saveSettings();
+            });
+        });
+
+        document.querySelectorAll('[data-reset-overlay-theme]').forEach(button => {
+            button.addEventListener('click', () => {
+                state.overlayTheme = Object.assign({}, defaultOverlayTheme);
+                syncSettingsUi();
+                applyOverlayTheme();
+                saveSettings();
+            });
+        });
+
+        syncSettingsUi();
+        applyOverlayTheme();
 
         let waitingButton = null;
         document.querySelectorAll('[data-keybind]').forEach(button => {
@@ -447,13 +559,28 @@
         });
 
         window.addEventListener('keydown', event => {
-            if (!state.activeMap || event.repeat || event.target?.closest?.('.subway-settings-modal')) return;
+            if (!state.activeMap) return;
+
+            if (state.blockSpace && event.code === 'Space') {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+            }
+
+            if (event.repeat || event.target?.closest?.('.subway-settings-modal')) return;
 
             const action = nativeActions[event.code]
                 || Object.keys(state.bindings).find(key => state.bindings[key] === event.code);
 
             if (action) {
                 flashHudKey(action, true);
+            }
+
+            if (action === 'boost') {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                activateStartBoost();
+                return;
             }
 
             // 'R' key manually flags coin fail if running, or resets timer if stopped
@@ -484,10 +611,19 @@
         }, true);
         window.addEventListener('keyup', event => {
             if (!state.activeMap) return;
+            if (state.blockSpace && event.code === 'Space') {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+            }
             const action = nativeActions[event.code]
                 || Object.keys(state.bindings).find(key => state.bindings[key] === event.code);
             if (!action) return;
             flashHudKey(action, false);
+            if (action === 'boost') {
+                event.preventDefault();
+                return;
+            }
             if (nativeCodes.has(event.code)) return;
             event.preventDefault();
             if (!remapNativeKeyboardEvent(event, unityCodes[action])) {
@@ -542,10 +678,55 @@
         document.getElementById(`hudKey-${action}`)?.classList.toggle('pressed', pressed);
     }
 
+    function activateStartBoost() {
+        const sendMessage = state.unity?.SendMessage;
+        if (typeof sendMessage !== 'function') return;
+        try {
+            sendMessage.call(state.unity, '0PowerupHelper', 'OnScoreBoostActivated');
+            bootLog(t('Score Booster attivato', 'Score Booster activated'));
+        } catch (error) {
+            console.warn('[Subway Portal] Impossibile attivare lo Score Booster', error);
+        }
+    }
+
+    function getOverlayBounds(widget) {
+        const parent = widget.offsetParent || document.documentElement;
+        const parentRect = parent.getBoundingClientRect();
+        return {
+            parentRect,
+            maxX: Math.max(0, parent.clientWidth - widget.offsetWidth),
+            maxY: Math.max(0, parent.clientHeight - widget.offsetHeight)
+        };
+    }
+
+    function saveOverlayPosition(widget) {
+        if (!widget.id) return;
+        const { parentRect, maxX, maxY } = getOverlayBounds(widget);
+        const rect = widget.getBoundingClientRect();
+        state.overlayPositions[widget.id] = {
+            x: maxX ? Math.min(1, Math.max(0, (rect.left - parentRect.left) / maxX)) : 0,
+            y: maxY ? Math.min(1, Math.max(0, (rect.top - parentRect.top) / maxY)) : 0
+        };
+        saveSettings();
+    }
+
+    function restoreOverlayPositions() {
+        document.querySelectorAll('.subway-hud-widget').forEach(widget => {
+            const saved = state.overlayPositions[widget.id];
+            if (!saved || !Number.isFinite(saved.x) || !Number.isFinite(saved.y)) return;
+            const { maxX, maxY } = getOverlayBounds(widget);
+            widget.style.left = `${Math.round(Math.min(1, Math.max(0, saved.x)) * maxX)}px`;
+            widget.style.top = `${Math.round(Math.min(1, Math.max(0, saved.y)) * maxY)}px`;
+            widget.style.right = 'auto';
+            widget.style.bottom = 'auto';
+        });
+    }
+
     function bindDraggableWidgets() {
         document.querySelectorAll('.subway-hud-widget').forEach(widget => {
             const handle = widget.querySelector('.widget-handle') || widget;
             let drag = null;
+            let savePositionTimer = 0;
             handle.addEventListener('pointerdown', event => {
                 if (event.button !== 0) return;
                 const rect = widget.getBoundingClientRect();
@@ -558,20 +739,48 @@
                 handle.setPointerCapture(event.pointerId);
                 event.preventDefault();
             });
-            handle.addEventListener('pointermove', event => {
+            const moveDrag = event => {
                 if (!drag) return;
                 const maxX = Math.max(0, window.innerWidth - widget.offsetWidth);
                 const maxY = Math.max(0, window.innerHeight - widget.offsetHeight);
                 widget.style.left = `${Math.min(maxX, Math.max(0, drag.left + event.clientX - drag.x))}px`;
                 widget.style.top = `${Math.min(maxY, Math.max(0, drag.top + event.clientY - drag.y))}px`;
-            });
+                clearTimeout(savePositionTimer);
+                savePositionTimer = setTimeout(() => saveOverlayPosition(widget), 120);
+            };
+            handle.addEventListener('pointermove', moveDrag);
+            window.addEventListener('pointermove', moveDrag, true);
             const endDrag = () => {
+                if (drag) {
+                    clearTimeout(savePositionTimer);
+                    saveOverlayPosition(widget);
+                }
                 drag = null;
                 widget.classList.remove('is-dragging');
             };
             handle.addEventListener('pointerup', endDrag);
             handle.addEventListener('pointercancel', endDrag);
+            window.addEventListener('pointerup', endDrag, true);
         });
+        window.addEventListener('resize', restoreOverlayPositions);
+    }
+
+    function startFpsMonitor() {
+        if (state.fpsFrame) return;
+        state.fpsLastSample = performance.now();
+        state.fpsFrames = 0;
+        const sample = now => {
+            state.fpsFrames += 1;
+            const elapsed = now - state.fpsLastSample;
+            if (elapsed >= 500) {
+                const fps = Math.round(state.fpsFrames * 1000 / elapsed);
+                if (dom.subwayFpsValue) dom.subwayFpsValue.textContent = String(fps);
+                state.fpsFrames = 0;
+                state.fpsLastSample = now;
+            }
+            state.fpsFrame = requestAnimationFrame(sample);
+        };
+        state.fpsFrame = requestAnimationFrame(sample);
     }
 
     function setBootProgress(progress, stage, status) {
@@ -636,6 +845,8 @@
             document.body.classList.add('subway-fullscreen-active');
             dom.subwayLobby.style.display = 'none';
             dom.subwayGameArea.style.display = 'block';
+            requestAnimationFrame(restoreOverlayPositions);
+            startFpsMonitor();
             dom.subwayGameContainer.replaceChildren();
             bootLog(t('Runtime pronto; download degli asset...', 'Runtime ready; downloading assets...'));
 
@@ -653,6 +864,8 @@
                         );
                     },
                     Module: {
+                        mainLoopTimingMode: 1,
+                        mainLoopTimingValue: 1,
                         preRun: [function () {
                             const injected = window.CripsumSubwayProfile?.injectIntoUnityFS(
                                 window.unityGame?.Module || state.unity?.Module
@@ -676,6 +889,7 @@
         state.loading = false;
         setBootProgress(1, t('Gioco pronto', 'Game ready'), t('Clicca o premi SPAZIO nel gioco per iniziare.', 'Click or press SPACE in the game to begin.'));
         bootLog(t('Canvas WebGL attivo', 'WebGL canvas active'));
+        bootLog(t('VSync attivo (requestAnimationFrame)', 'VSync enabled (requestAnimationFrame)'));
         installAudioDetector();
         setTimeout(() => {
             dom.subwayBootSplash?.classList.add('hidden');

@@ -158,6 +158,88 @@
     color: var(--game-muted2);
 }
 
+.subway-overlay-customization {
+    grid-column: 1 / -1;
+}
+
+.subway-theme-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.subway-color-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 48px;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--game-border);
+    border-radius: var(--subway-radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+    color: var(--game-muted);
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.subway-color-setting input[type="color"] {
+    width: 42px;
+    height: 32px;
+    padding: 2px;
+    border: 1px solid var(--game-border);
+    border-radius: 7px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.subway-opacity-setting {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-top: 1rem;
+    color: var(--game-muted);
+    font-size: 0.84rem;
+    font-weight: 800;
+}
+
+.subway-opacity-setting span {
+    display: flex;
+    justify-content: space-between;
+}
+
+.subway-opacity-setting output {
+    color: var(--game-accent2);
+    font-variant-numeric: tabular-nums;
+}
+
+.subway-opacity-setting input[type="range"] {
+    width: 100%;
+    accent-color: var(--game-accent2);
+}
+
+.subway-theme-reset {
+    margin-top: 1rem;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--game-border);
+    border-radius: 8px;
+    color: var(--game-muted);
+    background: rgba(255, 255, 255, 0.04);
+    font: 800 0.78rem/1 var(--subway-font);
+    cursor: pointer;
+}
+
+.subway-theme-reset:hover {
+    border-color: var(--game-accent2);
+    color: var(--game-text);
+}
+
+@media (max-width: 760px) {
+    .subway-theme-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Toggle Switch Styling */
 .subway-switch {
     position: relative;
@@ -557,13 +639,13 @@ body.subway-fullscreen-active .main-footer {
     position: absolute;
     z-index: 9050;
     padding: 1rem;
-    border: 1px solid var(--game-border);
+    border: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.68);
     border-radius: var(--subway-radius-sm);
-    background: rgba(9, 13, 24, 0.88);
+    background: rgba(var(--subway-overlay-bg-rgb, 9, 13, 24), var(--subway-overlay-opacity, 0.88));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-    color: var(--game-text);
+    color: var(--subway-overlay-text, #fff);
     user-select: none;
     box-sizing: border-box;
     resize: none;
@@ -578,6 +660,12 @@ body.subway-fullscreen-active .main-footer {
     box-shadow: 0 16px 42px rgba(0, 0, 0, 0.66);
 }
 
+.subway-timer-widget,
+.subway-fps-widget,
+.subway-keys-widget {
+    cursor: move;
+}
+
 .subway-hud-widget .widget-handle {
     cursor: move;
     display: flex;
@@ -585,7 +673,7 @@ body.subway-fullscreen-active .main-footer {
     justify-content: space-between;
     margin-bottom: 0.75rem;
     padding-bottom: 0.35rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.25);
 }
 
 .subway-hud-widget .widget-handle strong {
@@ -593,7 +681,8 @@ body.subway-fullscreen-active .main-footer {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--game-muted2);
+    color: var(--subway-overlay-text, #fff);
+    opacity: 0.72;
 }
 
 .subway-hud-widget .widget-handle i {
@@ -615,7 +704,7 @@ body.subway-fullscreen-active .main-footer {
     font-size: 2.1rem;
     font-weight: 750;
     text-align: center;
-    color: #fff;
+    color: var(--subway-overlay-text, #fff);
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
@@ -625,52 +714,62 @@ body.subway-fullscreen-active .main-footer {
 .subway-timer-display .subway-ms {
     font-size: 0.75em;
     opacity: 0.9;
-    color: #ffd700;
+    color: var(--subway-overlay-accent, #06b6d4);
     margin-left: 1px;
 }
 
 
-/* Challenge Status Widget (Fixed Dimensions) */
-.subway-status-widget {
+/* FPS / VSync Widget (Fixed Dimensions) */
+.subway-fps-widget {
     top: 20px;
     right: 20px;
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
+    width: 160px;
+    min-width: 160px;
+    max-width: 160px;
 }
 
-.subway-status-row {
+.subway-fps-readout {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
+    justify-content: center;
+    gap: 0.45rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
 }
 
-.subway-status-row:last-child {
-    margin-bottom: 0;
+.subway-fps-readout strong {
+    min-width: 2ch;
+    font-size: 1.8rem;
+    line-height: 1;
+    text-align: right;
+    color: var(--subway-overlay-text, #fff);
 }
 
-.subway-status-row span {
-    font-size: 0.8rem;
-    color: var(--game-muted);
+.subway-fps-readout span {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--subway-overlay-text, #fff);
+    opacity: 0.72;
 }
 
-.subway-status-row strong {
-    font-size: 0.85rem;
-}
-
-.subway-status-badge {
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.65rem;
+.subway-vsync-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.25);
+    font-size: 0.67rem;
     font-weight: 900;
     text-transform: uppercase;
-    color: #fff;
+    letter-spacing: 0.05em;
+    color: var(--subway-overlay-accent, #06b6d4);
 }
 
-.subway-status-badge.active { background-color: var(--game-green); }
-.subway-status-badge.failed { background-color: var(--game-red); }
-.subway-status-badge.inactive { background-color: var(--game-muted2); }
+.subway-vsync-state i {
+    font-size: 0.45rem;
+}
 
 /* Keys Help Widget (Fixed Dimensions) */
 .subway-keys-widget {
@@ -694,22 +793,38 @@ body.subway-fullscreen-active .main-footer {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border: 1px solid var(--game-border);
+    border: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.4);
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.05);
     font-size: 0.75rem;
     font-weight: 900;
     text-transform: uppercase;
-    color: var(--game-muted);
+    color: var(--subway-overlay-text, #fff);
     transition: all 0.15s ease;
 }
 
 .subway-hud-key.pressed {
-    border-color: var(--game-accent2);
-    background: var(--game-accent2);
+    border-color: var(--subway-overlay-accent, #06b6d4);
+    background: var(--subway-overlay-accent, #06b6d4);
     color: #000;
-    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    box-shadow: 0 0 10px rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.5);
     transform: scale(0.92);
+}
+
+.subway-hud-boost-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.25);
+}
+
+.subway-hud-boost-row span {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: var(--subway-overlay-text, #fff);
+    opacity: 0.72;
 }
 
 /* Controls Config Popup Button Widget (Fixed Dimensions) */
@@ -730,8 +845,8 @@ body.subway-fullscreen-active .main-footer {
 }
 
 .subway-settings-btn-widget:hover {
-    border-color: var(--game-accent2);
-    color: var(--game-accent2);
+    border-color: var(--subway-overlay-accent, #06b6d4);
+    color: var(--subway-overlay-accent, #06b6d4);
 }
 
 .subway-settings-modal {
@@ -759,7 +874,7 @@ body.subway-fullscreen-active .main-footer {
         left: 12px;
     }
 
-    .subway-status-widget {
+    .subway-fps-widget {
         top: 126px;
         right: 12px;
     }
@@ -771,9 +886,38 @@ body.subway-fullscreen-active .main-footer {
 }
 
 .subway-modal-box {
-    width: 360px;
+    width: min(720px, calc(100vw - 32px));
+    max-height: calc(100% - 32px);
+    overflow-y: auto;
     padding: 1.5rem;
     border: 1px solid var(--game-border);
     border-radius: var(--subway-radius-md);
     background: var(--game-card);
+}
+
+.subway-modal-box > .subway-keybind-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.subway-modal-section {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--game-border);
+}
+
+.subway-modal-section h4 {
+    margin: 0 0 0.85rem;
+    color: var(--game-text);
+}
+
+.subway-modal-section .subway-option-row {
+    padding: 0;
+    border: 0;
+}
+
+@media (max-width: 620px) {
+    .subway-modal-box > .subway-keybind-list {
+        grid-template-columns: 1fr;
+    }
 }
