@@ -82,7 +82,7 @@
             'subwayBootTrackValue', 'subwayBootConsole', 'cancelSubwayLoad', 'exitGameBtn',
             'subwayTimerDisplay', 'subwayStatusBadge', 'subwayStartHint', 'subwayFpsValue',
             'toggleNoCoinChallenge', 'toggleAutoPause', 'subwaySettingsModal',
-            'hudWidgetSettingsBtn', 'closeSettingsModal'
+            'hudWidgetSettingsBtn', 'openSubwaySettings', 'closeSettingsModal'
         ].forEach(id => { dom[id] = document.getElementById(id); });
     }
 
@@ -372,9 +372,11 @@
             updateBindingUi();
         }, true);
 
+        const openSettingsModal = () => dom.subwaySettingsModal?.classList.add('show');
+        dom.openSubwaySettings?.addEventListener('click', openSettingsModal);
         dom.hudWidgetSettingsBtn?.addEventListener('click', event => {
             if (event.defaultPrevented) return;
-            dom.subwaySettingsModal?.classList.add('show');
+            openSettingsModal();
         });
         dom.closeSettingsModal?.addEventListener('click', () => dom.subwaySettingsModal?.classList.remove('show'));
         dom.subwaySettingsModal?.addEventListener('click', event => {
@@ -997,6 +999,9 @@
 
     function initialize() {
         cacheDom();
+        if (dom.subwaySettingsModal && dom.subwaySettingsModal.parentElement !== document.body) {
+            document.body.appendChild(dom.subwaySettingsModal);
+        }
         loadSettings();
         buildMapGrid();
         bindSettings();

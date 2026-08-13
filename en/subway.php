@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=8.0">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=8.1">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=8.3" defer></script>
+    <script src="/assets/js/subway/subway.js?v=8.4" defer></script>
 </head>
 
 <body class="game-page">
@@ -66,8 +66,18 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 </div>
             </section>
 
+            <div class="subway-home-settings-launch game-reveal">
+                <div>
+                    <strong><i class="fa-solid fa-sliders"></i> Game Settings</strong>
+                    <small>Challenge, controls, performance and overlays</small>
+                </div>
+                <button type="button" class="game-btn game-btn-special" id="openSubwaySettings">
+                    <i class="fa-solid fa-gear"></i> Open
+                </button>
+            </div>
+
             <!-- Custom Options & Key Binds Section -->
-            <div class="subway-settings-panel">
+            <div class="subway-settings-panel" hidden aria-hidden="true">
                 <section class="game-panel game-reveal">
                     <div class="game-panel-head">
                         <div>
@@ -82,7 +92,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <span>Starts the timer on movement keypress and automatically stops on first collected coin sound or signal.</span>
                             </div>
                             <label class="subway-switch">
-                                <input type="checkbox" id="toggleNoCoinChallenge" checked>
+                                <input type="checkbox" checked tabindex="-1">
                                 <span class="subway-slider"></span>
                             </label>
                         </div>
@@ -93,7 +103,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <span>Sends a pause request (ESC) to the game when you pick up a coin, freezing your run.</span>
                             </div>
                             <label class="subway-switch">
-                                <input type="checkbox" id="toggleAutoPause" checked>
+                                <input type="checkbox" checked tabindex="-1">
                                 <span class="subway-slider"></span>
                             </label>
                         </div>
@@ -370,6 +380,29 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                     <div class="subway-modal-box">
                         <h3 style="margin-top: 0; color: #fff;"><i class="fa-solid fa-gear"></i> Game Settings</h3>
                         <p style="font-size: 0.8rem; color: var(--game-muted); margin-bottom: 1.2rem;">Keys, hoverboard protection and overlay appearance are saved automatically.</p>
+
+                        <div class="subway-modal-section subway-modal-section-first">
+                            <div class="subway-option-row">
+                                <div class="subway-option-info">
+                                    <strong>No-Coin Challenge</strong>
+                                    <span>Starts the timer with the run and stops it on the first coin.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" id="toggleNoCoinChallenge" checked>
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                            <div class="subway-option-row subway-modal-timing-row">
+                                <div class="subway-option-info">
+                                    <strong>Auto-Pause on Coin</strong>
+                                    <span>Pauses the game when the challenge ends.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" id="toggleAutoPause" checked>
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                        </div>
                         
                         <div class="subway-keybind-list">
                             <div class="subway-keybind-item">
