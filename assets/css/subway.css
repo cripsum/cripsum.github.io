@@ -894,23 +894,30 @@ body.subway-fullscreen-active .main-footer {
     justify-content: center;
     width: 40px;
     height: 40px;
-    border: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), var(--subway-overlay-border-opacity, 0.4));
+    border: 1px solid rgba(var(--subway-key-border-rgb, var(--subway-overlay-accent-rgb, 6, 182, 212)), var(--subway-key-border-opacity, var(--subway-overlay-border-opacity, 0.4)));
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(var(--subway-key-bg-rgb, 255, 255, 255), var(--subway-key-bg-opacity, 0.07));
     font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', system-ui, monospace;
     font-size: 0.95rem;
     font-weight: 800;
     text-transform: uppercase;
-    color: var(--subway-overlay-text, #fff);
+    color: var(--subway-key-text, var(--subway-overlay-text, #fff));
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 2px 6px rgba(0, 0, 0, calc(var(--subway-overlay-opacity, 0.88) * 0.3));
-    transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.subway-hud-key:hover {
+    border-color: var(--subway-key-hover, var(--subway-overlay-accent, #06b6d4));
+    background: rgba(var(--subway-key-hover-rgb, 6, 182, 212), 0.25);
+    color: var(--subway-key-text, #fff);
+    box-shadow: 0 0 12px rgba(var(--subway-key-hover-rgb, 6, 182, 212), 0.45);
 }
 
 .subway-hud-key.pressed {
-    border-color: var(--subway-overlay-accent, #06b6d4);
-    background: var(--subway-overlay-accent, #06b6d4);
+    border-color: var(--subway-key-hover, var(--subway-overlay-accent, #06b6d4));
+    background: var(--subway-key-hover, var(--subway-overlay-accent, #06b6d4));
     color: #000;
-    box-shadow: 0 0 14px rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.75);
+    box-shadow: 0 0 16px rgba(var(--subway-key-hover-rgb, 6, 182, 212), 0.8);
     transform: scale(0.92);
 }
 

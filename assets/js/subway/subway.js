@@ -29,16 +29,27 @@
     const coinAudioDurations = [0.5619954466819763, 0.580476];
     const coinDecodedFrames = new Set([24784, 25599, 25600]);
     const defaultBindings = { jump: 'KeyW', duck: 'KeyS', left: 'KeyA', right: 'KeyD', boost: 'KeyB' };
-    const defaultOverlayTheme = {
-        timer: '#090d18',
-        fps: '#090d18',
-        keys: '#090d18',
-        settings: '#090d18',
-        text: '#ffffff',
-        accent: '#06b6d4',
-        opacity: 88,
+    const defaultWidgetConfig = () => ({
+        bg: '#090d18',
+        bgOpacity: 88,
+        textColor: '#ffffff',
+        borderColor: '#06b6d4',
         borderOpacity: 68,
-        blur: 16,
+        blur: 16
+    });
+
+    const defaultOverlayTheme = {
+        timer: defaultWidgetConfig(),
+        fps: defaultWidgetConfig(),
+        keys: Object.assign(defaultWidgetConfig(), {
+            keyBg: '#ffffff',
+            keyBgOpacity: 7,
+            keyHover: '#06b6d4',
+            keyText: '#ffffff',
+            keyBorderColor: '#06b6d4',
+            keyBorderOpacity: 40
+        }),
+        settings: defaultWidgetConfig(),
         showBoost: false,
         showHeaders: true
     };
@@ -63,7 +74,7 @@
         activeMap: null,
         bindings: Object.assign({}, defaultBindings),
         overlayPositions: {},
-        overlayTheme: Object.assign({}, defaultOverlayTheme),
+        overlayTheme: JSON.parse(JSON.stringify(defaultOverlayTheme)),
         challenge: true,
         blockSpace: false,
         vsync: true,
@@ -96,21 +107,52 @@
             state.overlayPositions = saved.overlayPositions && typeof saved.overlayPositions === 'object'
                 ? saved.overlayPositions
                 : {};
-            state.overlayTheme = Object.assign({}, defaultOverlayTheme, saved.overlayTheme || {});
-            ['timer', 'fps', 'keys', 'settings', 'text', 'accent'].forEach(key => {
-                state.overlayTheme[key] = normalizeHexColor(state.overlayTheme[key], defaultOverlayTheme[key]);
-            });
-            const op = Number(state.overlayTheme.opacity);
-            state.overlayTheme.opacity = Math.min(100, Math.max(0, Number.isFinite(op) ? op : defaultOverlayTheme.opacity));
+            
+            if (saved.overlayTheme && typeof saved.overlayTheme === 'object') {
+                const raw = saved.overlayTheme;
+                const widgetKeys = ['timer', 'fps', 'keys', 'settings'];
+                widgetKeys.forEach(wKey => {
+                    const fallback = defaultOverlayTheme[wKey];
+                    let current = raw[wKey];
+                    if (typeof current === 'string') {
+                        current = {
+                            bg: normalizeHexColor(current, fallback.bg),
+                            bgOpacity: Math.min(100, Math.max(0, Number(raw.opacity) || fallback.bgOpacity)),
+                            textColor: normalizeHexColor(raw.text, fallback.textColor),
+                            borderColor: normalizeHexColor(raw.accent, fallback.borderColor),
+                            borderOpacity: Math.min(100, Math.max(0, Number(raw.borderOpacity) || fallback.borderOpacity)),
+                            blur: Math.min(30, Math.max(0, Number(raw.blur) || fallback.blur))
+                        };
+                    } else if (!current || typeof current !== 'object') {
+                        current = Object.assign({}, fallback);
+                    } else {
+                        current = Object.assign({}, fallback, current);
+                    }
 
-            const bOp = Number(state.overlayTheme.borderOpacity);
-            state.overlayTheme.borderOpacity = Math.min(100, Math.max(0, Number.isFinite(bOp) ? bOp : defaultOverlayTheme.borderOpacity));
+                    current.bg = normalizeHexColor(current.bg, fallback.bg);
+                    current.bgOpacity = Math.min(100, Math.max(0, Number.isFinite(Number(current.bgOpacity)) ? Number(current.bgOpacity) : fallback.bgOpacity));
+                    current.textColor = normalizeHexColor(current.textColor, fallback.textColor);
+                    current.borderColor = normalizeHexColor(current.borderColor, fallback.borderColor);
+                    current.borderOpacity = Math.min(100, Math.max(0, Number.isFinite(Number(current.borderOpacity)) ? Number(current.borderOpacity) : fallback.borderOpacity));
+                    current.blur = Math.min(30, Math.max(0, Number.isFinite(Number(current.blur)) ? Number(current.blur) : fallback.blur));
 
-            const blurVal = Number(state.overlayTheme.blur);
-            state.overlayTheme.blur = Math.min(30, Math.max(0, Number.isFinite(blurVal) ? blurVal : defaultOverlayTheme.blur));
+                    if (wKey === 'keys') {
+                        current.keyBg = normalizeHexColor(current.keyBg, fallback.keyBg);
+                        current.keyBgOpacity = Math.min(100, Math.max(0, Number.isFinite(Number(current.keyBgOpacity)) ? Number(current.keyBgOpacity) : fallback.keyBgOpacity));
+                        current.keyHover = normalizeHexColor(current.keyHover, fallback.keyHover);
+                        current.keyText = normalizeHexColor(current.keyText, fallback.keyText);
+                        current.keyBorderColor = normalizeHexColor(current.keyBorderColor, fallback.keyBorderColor);
+                        current.keyBorderOpacity = Math.min(100, Math.max(0, Number.isFinite(Number(current.keyBorderOpacity)) ? Number(current.keyBorderOpacity) : fallback.keyBorderOpacity));
+                    }
 
-            state.overlayTheme.showBoost = state.overlayTheme.showBoost === true;
-            state.overlayTheme.showHeaders = state.overlayTheme.showHeaders !== false;
+                    state.overlayTheme[wKey] = current;
+                });
+
+                state.overlayTheme.showBoost = raw.showBoost === true;
+                state.overlayTheme.showHeaders = raw.showHeaders !== false;
+            } else {
+                state.overlayTheme = JSON.parse(JSON.stringify(defaultOverlayTheme));
+            }
 
             state.challenge = saved.challenge !== false;
             state.blockSpace = saved.blockSpace === true;
@@ -119,7 +161,7 @@
         } catch (_) {
             state.bindings = Object.assign({}, defaultBindings);
             state.overlayPositions = {};
-            state.overlayTheme = Object.assign({}, defaultOverlayTheme);
+            state.overlayTheme = JSON.parse(JSON.stringify(defaultOverlayTheme));
             state.blockSpace = false;
             state.vsync = true;
             state.fpsLimit = 144;
@@ -229,28 +271,25 @@
             input.disabled = state.vsync;
             input.closest('[data-fps-control]')?.classList.toggle('is-disabled', state.vsync);
         });
-        document.querySelectorAll('[data-overlay-color]').forEach(input => {
-            const key = input.dataset.overlayColor;
-            input.value = normalizeHexColor(state.overlayTheme[key], defaultOverlayTheme[key]);
+
+        document.querySelectorAll('[data-widget][data-widget-prop]').forEach(input => {
+            const wKey = input.dataset.widget;
+            const prop = input.dataset.widgetProp;
+            const cfg = state.overlayTheme[wKey];
+            if (!cfg || cfg[prop] === undefined) return;
+
+            if (input.type === 'color') {
+                input.value = normalizeHexColor(cfg[prop], '#000000');
+            } else if (input.type === 'range') {
+                input.value = String(cfg[prop]);
+                const output = input.parentElement?.querySelector('[data-widget-output]');
+                if (output) {
+                    const unit = prop === 'blur' ? 'px' : '%';
+                    output.textContent = `${cfg[prop]}${unit}`;
+                }
+            }
         });
-        document.querySelectorAll('[data-overlay-opacity]').forEach(input => {
-            input.value = String(state.overlayTheme.opacity);
-        });
-        document.querySelectorAll('[data-overlay-opacity-value]').forEach(output => {
-            output.textContent = `${state.overlayTheme.opacity}%`;
-        });
-        document.querySelectorAll('[data-overlay-border-opacity]').forEach(input => {
-            input.value = String(state.overlayTheme.borderOpacity);
-        });
-        document.querySelectorAll('[data-overlay-border-opacity-value]').forEach(output => {
-            output.textContent = `${state.overlayTheme.borderOpacity}%`;
-        });
-        document.querySelectorAll('[data-overlay-blur]').forEach(input => {
-            input.value = String(state.overlayTheme.blur);
-        });
-        document.querySelectorAll('[data-overlay-blur-value]').forEach(output => {
-            output.textContent = `${state.overlayTheme.blur}px`;
-        });
+
         document.querySelectorAll('[data-overlay-toggle="showBoost"]').forEach(input => {
             input.checked = state.overlayTheme.showBoost === true;
         });
@@ -266,24 +305,30 @@
             keys: document.getElementById('hudWidgetKeys'),
             settings: document.getElementById('hudWidgetSettingsBtn')
         };
-        const borderOp = String(state.overlayTheme.borderOpacity / 100);
-        const blurPx = `${state.overlayTheme.blur}px`;
 
-        Object.entries(widgets).forEach(([key, widget]) => {
+        Object.entries(widgets).forEach(([widgetKey, widget]) => {
             if (!widget) return;
-            widget.style.setProperty('--subway-overlay-bg-rgb', hexToRgb(state.overlayTheme[key]));
-            widget.style.setProperty('--subway-overlay-text', normalizeHexColor(state.overlayTheme.text, defaultOverlayTheme.text));
-            widget.style.setProperty('--subway-overlay-accent', normalizeHexColor(state.overlayTheme.accent, defaultOverlayTheme.accent));
-            widget.style.setProperty('--subway-overlay-accent-rgb', hexToRgb(state.overlayTheme.accent));
-            widget.style.setProperty('--subway-overlay-opacity', String(state.overlayTheme.opacity / 100));
-            widget.style.setProperty('--subway-overlay-border-opacity', borderOp);
-            widget.style.setProperty('--subway-overlay-blur', blurPx);
+            const cfg = state.overlayTheme[widgetKey] || defaultOverlayTheme[widgetKey];
+            widget.style.setProperty('--subway-overlay-bg-rgb', hexToRgb(cfg.bg));
+            widget.style.setProperty('--subway-overlay-opacity', String(cfg.bgOpacity / 100));
+            widget.style.setProperty('--subway-overlay-text', normalizeHexColor(cfg.textColor, '#ffffff'));
+            widget.style.setProperty('--subway-overlay-accent', normalizeHexColor(cfg.borderColor, '#06b6d4'));
+            widget.style.setProperty('--subway-overlay-accent-rgb', hexToRgb(cfg.borderColor));
+            widget.style.setProperty('--subway-overlay-border-opacity', String(cfg.borderOpacity / 100));
+            widget.style.setProperty('--subway-overlay-blur', `${cfg.blur}px`);
             widget.classList.toggle('hide-header', state.overlayTheme.showHeaders === false);
-        });
 
-        if (widgets.keys) {
-            widgets.keys.classList.toggle('hide-boost', state.overlayTheme.showBoost === false);
-        }
+            if (widgetKey === 'keys') {
+                widget.style.setProperty('--subway-key-bg-rgb', hexToRgb(cfg.keyBg));
+                widget.style.setProperty('--subway-key-bg-opacity', String(cfg.keyBgOpacity / 100));
+                widget.style.setProperty('--subway-key-hover', normalizeHexColor(cfg.keyHover, '#06b6d4'));
+                widget.style.setProperty('--subway-key-hover-rgb', hexToRgb(cfg.keyHover));
+                widget.style.setProperty('--subway-key-text', normalizeHexColor(cfg.keyText, '#ffffff'));
+                widget.style.setProperty('--subway-key-border-rgb', hexToRgb(cfg.keyBorderColor));
+                widget.style.setProperty('--subway-key-border-opacity', String(cfg.keyBorderOpacity / 100));
+                widget.classList.toggle('hide-boost', state.overlayTheme.showBoost === false);
+            }
+        });
     }
 
     function frameTimingSettings() {
@@ -352,44 +397,24 @@
             });
         });
 
-        document.querySelectorAll('[data-overlay-color]').forEach(input => {
-            input.addEventListener('input', () => {
-                const key = input.dataset.overlayColor;
-                state.overlayTheme[key] = normalizeHexColor(input.value, defaultOverlayTheme[key]);
+        document.querySelectorAll('[data-widget][data-widget-prop]').forEach(input => {
+            const wKey = input.dataset.widget;
+            const prop = input.dataset.widgetProp;
+            const handler = () => {
+                if (!state.overlayTheme[wKey]) return;
+                if (input.type === 'color') {
+                    state.overlayTheme[wKey][prop] = normalizeHexColor(input.value, '#000000');
+                } else if (input.type === 'range') {
+                    const val = Number(input.value);
+                    const max = prop === 'blur' ? 30 : 100;
+                    state.overlayTheme[wKey][prop] = Math.min(max, Math.max(0, Number.isFinite(val) ? val : 0));
+                }
                 syncSettingsUi();
                 applyOverlayTheme();
                 saveSettings();
-            });
-        });
-
-        document.querySelectorAll('[data-overlay-opacity]').forEach(input => {
-            input.addEventListener('input', () => {
-                const val = Number(input.value);
-                state.overlayTheme.opacity = Math.min(100, Math.max(0, Number.isFinite(val) ? val : defaultOverlayTheme.opacity));
-                syncSettingsUi();
-                applyOverlayTheme();
-                saveSettings();
-            });
-        });
-
-        document.querySelectorAll('[data-overlay-border-opacity]').forEach(input => {
-            input.addEventListener('input', () => {
-                const val = Number(input.value);
-                state.overlayTheme.borderOpacity = Math.min(100, Math.max(0, Number.isFinite(val) ? val : defaultOverlayTheme.borderOpacity));
-                syncSettingsUi();
-                applyOverlayTheme();
-                saveSettings();
-            });
-        });
-
-        document.querySelectorAll('[data-overlay-blur]').forEach(input => {
-            input.addEventListener('input', () => {
-                const val = Number(input.value);
-                state.overlayTheme.blur = Math.min(30, Math.max(0, Number.isFinite(val) ? val : defaultOverlayTheme.blur));
-                syncSettingsUi();
-                applyOverlayTheme();
-                saveSettings();
-            });
+            };
+            input.addEventListener('input', handler);
+            input.addEventListener('change', handler);
         });
 
         document.querySelectorAll('[data-overlay-toggle="showBoost"]').forEach(input => {
@@ -412,7 +437,7 @@
 
         document.querySelectorAll('[data-reset-overlay-theme]').forEach(button => {
             button.addEventListener('click', () => {
-                state.overlayTheme = Object.assign({}, defaultOverlayTheme);
+                state.overlayTheme = JSON.parse(JSON.stringify(defaultOverlayTheme));
                 syncSettingsUi();
                 applyOverlayTheme();
                 saveSettings();
