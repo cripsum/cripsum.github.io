@@ -61,7 +61,6 @@
         overlayPositions: {},
         overlayTheme: Object.assign({}, defaultOverlayTheme),
         challenge: true,
-        autoPause: true,
         blockSpace: false,
         vsync: true,
         fpsLimit: 144,
@@ -81,7 +80,7 @@
             'subwayBootSplash', 'subwayBootStage', 'subwayBootStatus', 'subwayBootPercent',
             'subwayBootTrackValue', 'subwayBootConsole', 'cancelSubwayLoad', 'exitGameBtn',
             'subwayTimerDisplay', 'subwayStatusBadge', 'subwayStartHint', 'subwayFpsValue',
-            'toggleNoCoinChallenge', 'toggleAutoPause', 'subwaySettingsModal',
+            'toggleNoCoinChallenge', 'subwaySettingsModal',
             'hudWidgetSettingsBtn', 'openSubwaySettings', 'closeSettingsModal'
         ].forEach(id => { dom[id] = document.getElementById(id); });
     }
@@ -99,7 +98,6 @@
             });
             state.overlayTheme.opacity = Math.min(100, Math.max(35, Number(state.overlayTheme.opacity) || defaultOverlayTheme.opacity));
             state.challenge = saved.challenge !== false;
-            state.autoPause = saved.autoPause !== false;
             state.blockSpace = saved.blockSpace === true;
             state.vsync = saved.vsync !== false;
             state.fpsLimit = Math.min(500, Math.max(30, Number(saved.fpsLimit) || 144));
@@ -119,7 +117,6 @@
             overlayPositions: state.overlayPositions,
             overlayTheme: state.overlayTheme,
             challenge: state.challenge,
-            autoPause: state.autoPause,
             blockSpace: state.blockSpace,
             vsync: state.vsync,
             fpsLimit: state.fpsLimit
@@ -276,14 +273,6 @@
                 setChallengeStatus(state.challenge ? 'ready' : 'inactive');
             });
         }
-        if (dom.toggleAutoPause) {
-            dom.toggleAutoPause.checked = state.autoPause;
-            dom.toggleAutoPause.addEventListener('change', () => {
-                state.autoPause = dom.toggleAutoPause.checked;
-                saveSettings();
-            });
-        }
-
         document.querySelectorAll('[data-setting="blockSpace"]').forEach(input => {
             input.addEventListener('change', () => {
                 state.blockSpace = input.checked;
@@ -615,9 +604,6 @@
         renderTimerDisplay(state.elapsed);
         setChallengeStatus('failed');
         bootLog(t(`Sfida fallita (${reason})`, `Challenge failed (${reason})`));
-        if (state.autoPause) {
-            dispatchUnityKey('Escape', 'keydown', true);
-        }
     }
 
     function bindGameInput() {
@@ -756,12 +742,12 @@
         const sendMessage = state.unity?.SendMessage;
         if (typeof sendMessage !== 'function') return;
         try {
-            // Powerup slot 1 is the Score Booster. OnScoreBoostActivated is an
-            // event taking an int and cannot be invoked directly via SendMessage.
-            sendMessage.call(state.unity, '0PowerupHelper', 'SlideinPowerupClicked', 1);
-            bootLog(t('Score Booster attivato', 'Score Booster activated'));
+            // The lower red rocket is powerup slot 2 (Headstart). Slot 1 is the
+            // blue Score Booster shown above it.
+            sendMessage.call(state.unity, '0PowerupHelper', 'SlideinPowerupClicked', 2);
+            bootLog(t('Boost rosso attivato', 'Red boost activated'));
         } catch (error) {
-            console.warn('[Subway Portal] Impossibile attivare lo Score Booster', error);
+            console.warn('[Subway Portal] Impossibile attivare il boost rosso', error);
         }
     }
 

@@ -40,7 +40,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
     <link rel="stylesheet" href="/assets/css/subway.css?v=8.2">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=8.4" defer></script>
+    <script src="/assets/js/subway/subway.js?v=8.5" defer></script>
 </head>
 
 <body class="game-page">
@@ -87,17 +87,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             </label>
                         </div>
                         
-                        <div class="subway-option-row">
-                            <div class="subway-option-info">
-                                <strong>Auto-Pause on Coin</strong>
-                                <span>Sends a pause request (ESC) to the game when you pick up a coin, freezing your run.</span>
-                            </div>
-                            <label class="subway-switch">
-                                <input type="checkbox" checked tabindex="-1">
-                                <span class="subway-slider"></span>
-                            </label>
-                        </div>
-
                         <div class="subway-option-row">
                             <div class="subway-option-info">
                                 <strong>Block SPACE</strong>
@@ -156,7 +145,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             <button class="subway-key-btn" data-keybind="right">D</button>
                         </div>
                         <div class="subway-keybind-item">
-                            <label>Start Score Booster</label>
+                            <label>Start Red Boost</label>
                             <button class="subway-key-btn" data-keybind="boost">B</button>
                         </div>
                         
@@ -354,7 +343,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         <div class="subway-hud-key" id="hudKey-right">D</div>
                     </div>
                     <div class="subway-hud-boost-row">
-                        <span>BOOST</span>
+                        <span>RED BOOST</span>
                         <div class="subway-hud-key" id="hudKey-boost">B</div>
                     </div>
                 </div>
@@ -386,16 +375,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                     <span class="subway-slider"></span>
                                 </label>
                             </div>
-                            <div class="subway-option-row subway-modal-timing-row">
-                                <div class="subway-option-info">
-                                    <strong>Auto-Pause on Coin</strong>
-                                    <span>Pauses the game when the challenge ends.</span>
-                                </div>
-                                <label class="subway-switch">
-                                    <input type="checkbox" id="toggleAutoPause" checked>
-                                    <span class="subway-slider"></span>
-                                </label>
-                            </div>
                         </div>
                         
                         <div class="subway-keybind-list">
@@ -416,7 +395,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <button class="subway-key-btn" data-keybind="right">D</button>
                             </div>
                             <div class="subway-keybind-item">
-                                <label>Start Score Booster</label>
+                                <label>Start Red Boost</label>
                                 <button class="subway-key-btn" data-keybind="boost">B</button>
                             </div>
                         </div>
