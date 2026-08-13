@@ -938,6 +938,8 @@ body.subway-fullscreen-active .main-footer {
     display: flex;
     align-items: center;
     justify-content: center;
+    appearance: none;
+    font: inherit;
     cursor: pointer;
 }
 
@@ -949,7 +951,7 @@ body.subway-fullscreen-active .main-footer {
 .subway-settings-modal {
     position: fixed;
     inset: 0;
-    z-index: 100000;
+    z-index: 1000001;
     background: rgba(5, 8, 18, 0.95);
     display: flex;
     align-items: center;

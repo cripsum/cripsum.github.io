@@ -38,7 +38,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=8.2">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=8.3">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
     <script src="/assets/js/subway/subway.js?v=8.6" defer></script>
 </head>
@@ -349,9 +349,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 </div>
 
                 <!-- Floating Setup button (Draggable button) -->
-                <div class="subway-hud-widget subway-settings-btn-widget" id="hudWidgetSettingsBtn">
+                <button class="subway-hud-widget subway-settings-btn-widget" id="hudWidgetSettingsBtn" type="button" aria-label="Open game settings">
                     <i class="fa-solid fa-gear"></i>
-                </div>
+                </button>
 
                 <!-- The WebGL Canvas host -->
                 <div class="subway-game-container" id="subwayGameContainer">
