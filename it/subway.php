@@ -167,9 +167,37 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     </div>
                     <label class="subway-opacity-setting">
                         <span>Opacità sfondo <output data-overlay-opacity-value>88%</output></span>
-                        <input type="range" min="35" max="100" step="1" value="88" data-overlay-opacity>
+                        <input type="range" min="0" max="100" step="1" value="88" data-overlay-opacity>
                     </label>
-                    <button type="button" class="subway-theme-reset" data-reset-overlay-theme>Ripristina colori predefiniti</button>
+                    <label class="subway-opacity-setting">
+                        <span>Opacità bordi <output data-overlay-border-opacity-value>68%</output></span>
+                        <input type="range" min="0" max="100" step="1" value="68" data-overlay-border-opacity>
+                    </label>
+                    <label class="subway-opacity-setting">
+                        <span>Effetto Blur <output data-overlay-blur-value>16px</output></span>
+                        <input type="range" min="0" max="30" step="1" value="16" data-overlay-blur>
+                    </label>
+                    <div class="subway-option-row" style="margin-top: 0.8rem;">
+                        <div class="subway-option-info">
+                            <strong>Mostra riga Boost (B)</strong>
+                            <span>Mostra il tasto B per il boost sotto il WASD.</span>
+                        </div>
+                        <label class="subway-switch">
+                            <input type="checkbox" data-overlay-toggle="showBoost">
+                            <span class="subway-slider"></span>
+                        </label>
+                    </div>
+                    <div class="subway-option-row">
+                        <div class="subway-option-info">
+                            <strong>Mostra intestazioni overlay</strong>
+                            <span>Mostra la barra di trascinamento e i titoli degli overlay.</span>
+                        </div>
+                        <label class="subway-switch">
+                            <input type="checkbox" data-overlay-toggle="showHeaders" checked>
+                            <span class="subway-slider"></span>
+                        </label>
+                    </div>
+                    <button type="button" class="subway-theme-reset" data-reset-overlay-theme style="margin-top: 1rem;">Ripristina impostazioni overlay</button>
                 </section>
             </div>
 
@@ -431,9 +459,37 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             </div>
                             <label class="subway-opacity-setting">
                                 <span>Opacità sfondo <output data-overlay-opacity-value>88%</output></span>
-                                <input type="range" min="35" max="100" step="1" value="88" data-overlay-opacity>
+                                <input type="range" min="0" max="100" step="1" value="88" data-overlay-opacity>
                             </label>
-                            <button type="button" class="subway-theme-reset" data-reset-overlay-theme>Ripristina colori predefiniti</button>
+                            <label class="subway-opacity-setting">
+                                <span>Opacità bordi <output data-overlay-border-opacity-value>68%</output></span>
+                                <input type="range" min="0" max="100" step="1" value="68" data-overlay-border-opacity>
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Effetto Blur <output data-overlay-blur-value>16px</output></span>
+                                <input type="range" min="0" max="30" step="1" value="16" data-overlay-blur>
+                            </label>
+                            <div class="subway-option-row" style="margin-top: 0.8rem;">
+                                <div class="subway-option-info">
+                                    <strong>Mostra riga Boost (B)</strong>
+                                    <span>Mostra il tasto B per il boost sotto il WASD.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-overlay-toggle="showBoost">
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                            <div class="subway-option-row">
+                                <div class="subway-option-info">
+                                    <strong>Mostra intestazioni overlay</strong>
+                                    <span>Mostra la barra di trascinamento e i titoli degli overlay.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-overlay-toggle="showHeaders" checked>
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                            <button type="button" class="subway-theme-reset" data-reset-overlay-theme style="margin-top: 1rem;">Ripristina impostazioni overlay</button>
                         </div>
 
                         <button class="game-btn game-btn-main" id="closeSettingsModal" style="width: 100%; margin-top: 1.5rem; min-height: 2.5rem;">

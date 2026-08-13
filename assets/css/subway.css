@@ -735,13 +735,13 @@ body.subway-fullscreen-active .main-footer {
 .subway-hud-widget {
     position: absolute;
     z-index: 9050;
-    padding: 1rem;
-    border: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.68);
+    padding: 0.85rem;
+    border: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), var(--subway-overlay-border-opacity, 0.68));
     border-radius: var(--subway-radius-sm);
     background: rgba(var(--subway-overlay-bg-rgb, 9, 13, 24), var(--subway-overlay-opacity, 0.88));
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(var(--subway-overlay-blur, 16px));
+    -webkit-backdrop-filter: blur(var(--subway-overlay-blur, 16px));
+    box-shadow: 0 12px 32px rgba(0, 0, 0, calc(var(--subway-overlay-opacity, 0.88) * 0.5));
     color: var(--subway-overlay-text, #fff);
     user-select: none;
     box-sizing: border-box;
@@ -763,6 +763,10 @@ body.subway-fullscreen-active .main-footer {
     cursor: move;
 }
 
+.subway-hud-widget.hide-header .widget-handle {
+    display: none !important;
+}
+
 .subway-hud-widget .widget-handle {
     cursor: move;
     display: flex;
@@ -770,7 +774,7 @@ body.subway-fullscreen-active .main-footer {
     justify-content: space-between;
     margin-bottom: 0.75rem;
     padding-bottom: 0.35rem;
-    border-bottom: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.25);
+    border-bottom: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), calc(var(--subway-overlay-border-opacity, 0.68) * 0.37));
 }
 
 .subway-hud-widget .widget-handle strong {
@@ -856,7 +860,7 @@ body.subway-fullscreen-active .main-footer {
     gap: 0.4rem;
     margin-top: 0.65rem;
     padding-top: 0.5rem;
-    border-top: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.25);
+    border-top: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), calc(var(--subway-overlay-border-opacity, 0.68) * 0.37));
     font-size: 0.67rem;
     font-weight: 900;
     text-transform: uppercase;
@@ -872,15 +876,15 @@ body.subway-fullscreen-active .main-footer {
 .subway-keys-widget {
     bottom: 20px;
     left: 20px;
-    width: 180px;
-    min-width: 180px;
-    max-width: 180px;
+    width: 190px;
+    min-width: 190px;
+    max-width: 190px;
 }
 
 .subway-hud-keys-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.35rem;
+    gap: 0.4rem;
     justify-items: center;
 }
 
@@ -888,23 +892,25 @@ body.subway-fullscreen-active .main-footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.4);
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    font-size: 0.75rem;
-    font-weight: 900;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), var(--subway-overlay-border-opacity, 0.4));
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.07);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', system-ui, monospace;
+    font-size: 0.95rem;
+    font-weight: 800;
     text-transform: uppercase;
     color: var(--subway-overlay-text, #fff);
-    transition: all 0.15s ease;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 2px 6px rgba(0, 0, 0, calc(var(--subway-overlay-opacity, 0.88) * 0.3));
+    transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .subway-hud-key.pressed {
     border-color: var(--subway-overlay-accent, #06b6d4);
     background: var(--subway-overlay-accent, #06b6d4);
     color: #000;
-    box-shadow: 0 0 10px rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.5);
+    box-shadow: 0 0 14px rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.75);
     transform: scale(0.92);
 }
 
@@ -914,7 +920,18 @@ body.subway-fullscreen-active .main-footer {
     justify-content: space-between;
     margin-top: 0.65rem;
     padding-top: 0.65rem;
-    border-top: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), 0.25);
+    border-top: 1px solid rgba(var(--subway-overlay-accent-rgb, 6, 182, 212), calc(var(--subway-overlay-border-opacity, 0.68) * 0.37));
+}
+
+.subway-keys-widget.hide-boost .subway-hud-boost-row {
+    display: none !important;
+}
+
+.subway-hud-boost-row span {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: var(--subway-overlay-text, #fff);
+    opacity: 0.72;
 }
 
 .subway-hud-boost-row span {
