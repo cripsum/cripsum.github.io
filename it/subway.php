@@ -35,7 +35,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta property="og:description" content="<?= htmlspecialchars($ogDescription) ?>">
     <meta property="og:image" content="https://cripsum.com/img/Susremaster.png">
     <meta property="og:url" content="<?= htmlspecialchars($ogUrl) ?>">
-    
+
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
     <link rel="stylesheet" href="/assets/css/subway.css?v=8.3">
@@ -45,19 +45,17 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
 <body class="game-page">
     <?php include '../includes/navbar.php'; ?>
-    
+
     <div class="game-bg" aria-hidden="true"><span></span><span></span></div>
 
     <!-- Main Subway Surfers Container -->
     <main class="subway-dashboard" id="subwayPortal">
-        
+
         <!-- STATE 1: Map Selector Lobby & Settings Dashboard -->
         <div id="subwayLobby">
             <section class="game-hero game-reveal" style="margin-bottom: 2rem;">
                 <div class="game-hero-copy">
-                    <span class="game-kicker"><i class="fa-solid fa-train"></i> Subway Surfers Native Challenge</span>
-                    <h1>Subway Portal</h1>
-                    <p>Scegli una World Tour: il gioco Unity viene caricato direttamente nel player Cripsum, con timer No-Coin e controlli configurabili.</p>
+                    <h1>Subway Surfers</h1>
                     <div class="game-steps" aria-label="Passaggi della sfida">
                         <span><b>1</b> Scegli la città</span>
                         <span><b>2</b> Configura il player</span>
@@ -75,7 +73,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         </div>
                     </div>
                     <div class="game-action-list" style="margin-top: 1rem;">
-                        
+
                         <div class="subway-option-row">
                             <div class="subway-option-info">
                                 <strong>No-Coin Challenge</strong>
@@ -86,7 +84,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                 <span class="subway-slider"></span>
                             </label>
                         </div>
-                        
+
                         <div class="subway-option-row">
                             <div class="subway-option-info">
                                 <strong>Blocca SPAZIO</strong>
@@ -113,7 +111,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             <span><strong>Limite FPS</strong><small>Usato quando il VSync è disattivato.</small></span>
                             <input type="number" min="30" max="500" step="1" value="144" data-fps-limit>
                         </label>
-                        
+
                     </div>
                 </section>
 
@@ -124,22 +122,22 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         </div>
                     </div>
                     <div class="subway-keybind-list" style="margin-top: 1.2rem;">
-                        
+
                         <div class="subway-keybind-item">
                             <label>Salta / Jump</label>
                             <button class="subway-key-btn" data-keybind="jump">W</button>
                         </div>
-                        
+
                         <div class="subway-keybind-item">
                             <label>Scivola / Roll</label>
                             <button class="subway-key-btn" data-keybind="duck">S</button>
                         </div>
-                        
+
                         <div class="subway-keybind-item">
                             <label>Sposta Sinistra</label>
                             <button class="subway-key-btn" data-keybind="left">A</button>
                         </div>
-                        
+
                         <div class="subway-keybind-item">
                             <label>Sposta Destra</label>
                             <button class="subway-key-btn" data-keybind="right">D</button>
@@ -148,7 +146,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             <label>Boost rosso iniziale</label>
                             <button class="subway-key-btn" data-keybind="boost">B</button>
                         </div>
-                        
+
                     </div>
                 </section>
 
@@ -187,9 +185,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         <span>Impostazioni</span>
                     </button>
                 </div>
-                
+
                 <div class="subway-grid" hidden>
-                    
+
                     <!-- builds-1 maps -->
                     <div class="subway-map-card" data-map="zurich">
                         <div class="subway-map-bg" style="background-image: url('https://raw.githubusercontent.com/tavvkkj/therealoness-builds-1/main/game-assets/crosspromo/embedded/ssblast_Image_ss_blast_xpromo_banner_key_art_512x512_02.png');"></div>
@@ -300,7 +298,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             <p>Sfreccia tra le cupole dorate del Cremlino e le stazioni della metro.</p>
                         </div>
                     </div>
-                    
+
                 </div>
             </section>
         </div>
@@ -308,7 +306,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
         <!-- STATE 2: The Game Screen Arena with draggable overlays -->
         <div id="subwayGameArea" style="display: none;">
             <div class="subway-arena-wrapper">
-                
+
                 <!-- Game Exit button -->
                 <button class="game-btn game-btn-special" id="exitGameBtn" style="position: absolute; top: 15px; left: 15px; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
                     <i class="fa-solid fa-arrow-left"></i> Torna alla selezione
@@ -337,7 +335,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         <span></span>
                         <div class="subway-hud-key" id="hudKey-jump">W</div>
                         <span></span>
-                        
+
                         <div class="subway-hud-key" id="hudKey-left">A</div>
                         <div class="subway-hud-key" id="hudKey-duck">S</div>
                         <div class="subway-hud-key" id="hudKey-right">D</div>
@@ -376,7 +374,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                 </label>
                             </div>
                         </div>
-                        
+
                         <div class="subway-keybind-list">
                             <div class="subway-keybind-item">
                                 <label>Salta (Jump)</label>
@@ -478,12 +476,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <h1 id="subwayBootStage">Preparazione Portale</h1>
                     <p id="subwayBootStatus">Avvio dei moduli di aggancio audio e log...</p>
                 </section>
-                
+
                 <div class="subway-boot-progress-section">
                     <span class="subway-boot-stage">NUCLEO IN CORSO</span>
                     <span class="subway-boot-percent"><strong id="subwayBootPercent">0</strong>%</span>
                 </div>
-                
+
                 <div class="subway-boot-track-line">
                     <div class="subway-boot-track-value" id="subwayBootTrackValue"></div>
                 </div>
