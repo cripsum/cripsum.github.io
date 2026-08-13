@@ -135,11 +135,62 @@
         });
     };
 
+    const initDiscordDisconnect = () => {
+        $$('[data-discord-disconnect-form]').forEach((form) => {
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const confirmation = form.dataset.confirm;
+                if (confirmation && !window.confirm(confirmation)) return;
+
+                const button = form.querySelector('button[type="submit"]');
+                const originalButtonHtml = button?.innerHTML;
+
+                if (button) {
+                    button.disabled = true;
+                    button.classList.add('is-loading');
+                    button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+                }
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const data = await response.json().catch(() => ({}));
+
+                    if (!response.ok || !data.ok) {
+                        throw new Error(data.message || form.dataset.error || 'Unable to disconnect Discord.');
+                    }
+
+                    if (window.location.hash !== '#connections') {
+                        history.replaceState(null, '', '#connections');
+                    }
+                    window.location.reload();
+                } catch (error) {
+                    window.alert(error.message || form.dataset.error || 'Unable to disconnect Discord.');
+
+                    if (button) {
+                        button.disabled = false;
+                        button.classList.remove('is-loading');
+                        button.innerHTML = originalButtonHtml;
+                    }
+                }
+            });
+        });
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         initPasswordToggles();
         initLoadingForms();
         initReveal();
         initDropdownFallback();
         initSettingsTabs();
+        initDiscordDisconnect();
     });
 })();

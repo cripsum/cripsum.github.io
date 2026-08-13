@@ -294,7 +294,7 @@ $settingsLanguage = 'it';
     <title>Cripsum™ - Impostazioni</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/auth/auth.css?v=1.4">
-    <script src="/assets/auth/auth.js?v=1.3" defer></script>
+    <script src="/assets/auth/auth.js?v=1.4" defer></script>
 </head>
 
 <body class="auth-page settings-page">
@@ -662,10 +662,10 @@ $settingsLanguage = 'it';
                                             <a href="<?php echo auth_h($connectDiscordUrl); ?>" class="auth-btn auth-btn--soft" style="width: auto; padding: 8px 16px; font-size: 0.85rem;">
                                                 <i class="fa-solid fa-arrows-rotate me-1"></i> Ricollega
                                             </a>
-                                            <form method="POST" action="../auth/discord_disconnect.php" style="margin: 0;">
+                                            <form method="POST" action="../auth/discord_disconnect.php" style="margin: 0;" data-discord-disconnect-form data-confirm="Sei sicuro di voler scollegare l'account Discord?" data-error="Non è stato possibile scollegare Discord. Riprova.">
                                                 <?php echo csrf_field(); ?>
                                                 <input type="hidden" name="return_url" value="/it/impostazioni#connections">
-                                                <button type="submit" class="auth-btn auth-btn--danger" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" onclick="return confirm('Sei sicuro di voler scollegare l\'account Discord?');">
+                                                <button type="submit" class="auth-btn auth-btn--danger" style="width: auto; padding: 8px 16px; font-size: 0.85rem;">
                                                     <i class="fa-solid fa-link-slash me-1"></i> Scollega
                                                 </button>
                                             </form>
