@@ -788,38 +788,61 @@
         document.querySelectorAll('.subway-hud-widget').forEach(widget => {
             const handle = widget.querySelector('.widget-handle') || widget;
             let drag = null;
+            let suppressClick = false;
             let savePositionTimer = 0;
             handle.addEventListener('pointerdown', event => {
                 if (event.button !== 0) return;
                 const rect = widget.getBoundingClientRect();
-                drag = { x: event.clientX, y: event.clientY, left: rect.left, top: rect.top };
-                widget.style.left = `${rect.left}px`;
-                widget.style.top = `${rect.top}px`;
-                widget.style.right = 'auto';
-                widget.style.bottom = 'auto';
-                widget.classList.add('is-dragging');
+                drag = {
+                    pointerId: event.pointerId,
+                    x: event.clientX,
+                    y: event.clientY,
+                    left: rect.left,
+                    top: rect.top,
+                    started: false
+                };
                 handle.setPointerCapture(event.pointerId);
-                event.preventDefault();
             });
             const moveDrag = event => {
-                if (!drag) return;
+                if (!drag || event.pointerId !== drag.pointerId) return;
+                const deltaX = event.clientX - drag.x;
+                const deltaY = event.clientY - drag.y;
+                if (!drag.started) {
+                    if (Math.hypot(deltaX, deltaY) < 7) return;
+                    drag.started = true;
+                    widget.style.left = `${drag.left}px`;
+                    widget.style.top = `${drag.top}px`;
+                    widget.style.right = 'auto';
+                    widget.style.bottom = 'auto';
+                    widget.classList.add('is-dragging');
+                }
                 const maxX = Math.max(0, window.innerWidth - widget.offsetWidth);
                 const maxY = Math.max(0, window.innerHeight - widget.offsetHeight);
-                widget.style.left = `${Math.min(maxX, Math.max(0, drag.left + event.clientX - drag.x))}px`;
-                widget.style.top = `${Math.min(maxY, Math.max(0, drag.top + event.clientY - drag.y))}px`;
+                widget.style.left = `${Math.min(maxX, Math.max(0, drag.left + deltaX))}px`;
+                widget.style.top = `${Math.min(maxY, Math.max(0, drag.top + deltaY))}px`;
                 clearTimeout(savePositionTimer);
                 savePositionTimer = setTimeout(() => saveOverlayPosition(widget), 120);
+                event.preventDefault();
             };
             handle.addEventListener('pointermove', moveDrag);
             window.addEventListener('pointermove', moveDrag, true);
-            const endDrag = () => {
-                if (drag) {
+            const endDrag = event => {
+                if (!drag || (event.pointerId !== undefined && event.pointerId !== drag.pointerId)) return;
+                if (drag.started) {
                     clearTimeout(savePositionTimer);
                     saveOverlayPosition(widget);
+                    suppressClick = true;
+                    window.setTimeout(() => { suppressClick = false; }, 500);
                 }
                 drag = null;
                 widget.classList.remove('is-dragging');
             };
+            handle.addEventListener('click', event => {
+                if (!suppressClick) return;
+                suppressClick = false;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }, true);
             handle.addEventListener('pointerup', endDrag);
             handle.addEventListener('pointercancel', endDrag);
             window.addEventListener('pointerup', endDrag, true);

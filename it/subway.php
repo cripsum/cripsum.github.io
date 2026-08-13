@@ -40,7 +40,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
     <link rel="stylesheet" href="/assets/css/subway.css?v=8.2">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=8.5" defer></script>
+    <script src="/assets/js/subway/subway.js?v=8.6" defer></script>
 </head>
 
 <body class="game-page">
