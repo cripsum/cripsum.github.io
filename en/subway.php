@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=11.0">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=13.0">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=11.0" defer></script>
+    <script src="/assets/js/subway/subway.js?v=13.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -162,6 +162,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                     <div class="subway-preview-stage">
                         <!-- Timer Preview -->
                         <div class="subway-hud-widget subway-timer-widget subway-preview-widget" data-preview-widget="timer">
+                            <div class="subway-timer-banner-bg"></div>
                             <div class="widget-handle">
                                 <strong>TIMER</strong>
                                 <i class="fa-solid fa-arrows-up-down-left-right"></i>
@@ -243,8 +244,31 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
                             </label>
 
+                            <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
+                                <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Text Drop Shadow</h5>
+                                <div class="subway-theme-grid">
+                                    <label class="subway-color-setting"><span>Shadow Color</span><input type="color" value="#000000" data-widget="timer" data-widget-prop="shadowColor"></label>
+                                </div>
+                                <label class="subway-opacity-setting">
+                                    <span>Shadow Opacity <output data-widget-output>50%</output></span>
+                                    <input type="range" min="0" max="100" step="1" value="50" data-widget="timer" data-widget-prop="shadowOpacity">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Shadow Blur <output data-widget-output>8px</output></span>
+                                    <input type="range" min="0" max="30" step="1" value="8" data-widget="timer" data-widget-prop="shadowBlur">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset X <output data-widget-output>0px</output></span>
+                                    <input type="range" min="-20" max="20" step="1" value="0" data-widget="timer" data-widget-prop="shadowX">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset Y <output data-widget-output>2px</output></span>
+                                    <input type="range" min="-20" max="20" step="1" value="2" data-widget="timer" data-widget-prop="shadowY">
+                                </label>
+                            </div>
+
                             <div class="subway-img-setting">
-                                <h5><i class="fa-solid fa-image"></i> Timer Custom Background Banner Image</h5>
+                                <h5><i class="fa-solid fa-image"></i> Timer Custom Background Banner Editor</h5>
                                 <div class="subway-img-input-row">
                                     <input type="text" placeholder="Image URL (e.g. https://...)" data-widget="timer" data-widget-prop="bgImage">
                                     <label class="subway-img-btn">
@@ -255,9 +279,26 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
+                                <div class="subway-img-preview-thumb" data-timer-bg-preview>No custom banner image set</div>
                                 <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
-                                    <span>Banner Image Opacity <output data-widget-output>100%</output></span>
+                                    <span>Banner Opacity <output data-widget-output>100%</output></span>
                                     <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Image Scale / Zoom <output data-widget-output>100%</output></span>
+                                    <input type="range" min="50" max="300" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Rotation <output data-widget-output>0°</output></span>
+                                    <input type="range" min="0" max="360" step="1" value="0" data-widget="timer" data-widget-prop="bgImageRotate">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset X <output data-widget-output>0px</output></span>
+                                    <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset Y <output data-widget-output>0px</output></span>
+                                    <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
                                 </label>
                             </div>
                         </div>
@@ -288,6 +329,29 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <span>Blur effect <output data-widget-output>16px</output></span>
                                 <input type="range" min="0" max="30" step="1" value="16" data-widget="fps" data-widget-prop="blur">
                             </label>
+
+                            <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
+                                <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Text Drop Shadow</h5>
+                                <div class="subway-theme-grid">
+                                    <label class="subway-color-setting"><span>Shadow Color</span><input type="color" value="#000000" data-widget="fps" data-widget-prop="shadowColor"></label>
+                                </div>
+                                <label class="subway-opacity-setting">
+                                    <span>Shadow Opacity <output data-widget-output>50%</output></span>
+                                    <input type="range" min="0" max="100" step="1" value="50" data-widget="fps" data-widget-prop="shadowOpacity">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Shadow Blur <output data-widget-output>8px</output></span>
+                                    <input type="range" min="0" max="30" step="1" value="8" data-widget="fps" data-widget-prop="shadowBlur">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset X <output data-widget-output>0px</output></span>
+                                    <input type="range" min="-20" max="20" step="1" value="0" data-widget="fps" data-widget-prop="shadowX">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset Y <output data-widget-output>2px</output></span>
+                                    <input type="range" min="-20" max="20" step="1" value="2" data-widget="fps" data-widget-prop="shadowY">
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -316,6 +380,29 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <span>Box blur effect <output data-widget-output>16px</output></span>
                                 <input type="range" min="0" max="30" step="1" value="16" data-widget="keys" data-widget-prop="blur">
                             </label>
+
+                            <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
+                                <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Text Drop Shadow</h5>
+                                <div class="subway-theme-grid">
+                                    <label class="subway-color-setting"><span>Shadow Color</span><input type="color" value="#000000" data-widget="keys" data-widget-prop="shadowColor"></label>
+                                </div>
+                                <label class="subway-opacity-setting">
+                                    <span>Shadow Opacity <output data-widget-output>50%</output></span>
+                                    <input type="range" min="0" max="100" step="1" value="50" data-widget="keys" data-widget-prop="shadowOpacity">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Shadow Blur <output data-widget-output>8px</output></span>
+                                    <input type="range" min="0" max="30" step="1" value="8" data-widget="keys" data-widget-prop="shadowBlur">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset X <output data-widget-output>0px</output></span>
+                                    <input type="range" min="-20" max="20" step="1" value="0" data-widget="keys" data-widget-prop="shadowX">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset Y <output data-widget-output>2px</output></span>
+                                    <input type="range" min="-20" max="20" step="1" value="2" data-widget="keys" data-widget-prop="shadowY">
+                                </label>
+                            </div>
 
                             <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
                                 <h5 style="margin: 0 0 0.8rem 0; color: #fff; font-size: 0.85rem;"><i class="fa-solid fa-square-full"></i> Inner WASD Keys Style</h5>
@@ -362,6 +449,29 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <span>Blur effect <output data-widget-output>16px</output></span>
                                 <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
                             </label>
+
+                            <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
+                                <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Icon Shadow</h5>
+                                <div class="subway-theme-grid">
+                                    <label class="subway-color-setting"><span>Shadow Color</span><input type="color" value="#000000" data-widget="settings" data-widget-prop="shadowColor"></label>
+                                </div>
+                                <label class="subway-opacity-setting">
+                                    <span>Shadow Opacity <output data-widget-output>50%</output></span>
+                                    <input type="range" min="0" max="100" step="1" value="50" data-widget="settings" data-widget-prop="shadowOpacity">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Shadow Blur <output data-widget-output>8px</output></span>
+                                    <input type="range" min="0" max="30" step="1" value="8" data-widget="settings" data-widget-prop="shadowBlur">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset X <output data-widget-output>0px</output></span>
+                                    <input type="range" min="-20" max="20" step="1" value="0" data-widget="settings" data-widget-prop="shadowX">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Offset Y <output data-widget-output>2px</output></span>
+                                    <input type="range" min="-20" max="20" step="1" value="2" data-widget="settings" data-widget-prop="shadowY">
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -536,6 +646,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
                 <!-- Floating Timer Widget (Draggable) -->
                 <div class="subway-hud-widget subway-timer-widget" id="hudWidgetTimer">
+                    <div class="subway-timer-banner-bg"></div>
                     <div class="subway-timer-display" id="subwayTimerDisplay">00:00.000</div>
                 </div>
 
@@ -680,8 +791,31 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                         <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
                                     </label>
 
+                                    <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
+                                        <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Text Drop Shadow</h5>
+                                        <div class="subway-theme-grid">
+                                            <label class="subway-color-setting"><span>Shadow Color</span><input type="color" value="#000000" data-widget="timer" data-widget-prop="shadowColor"></label>
+                                        </div>
+                                        <label class="subway-opacity-setting">
+                                            <span>Shadow Opacity <output data-widget-output>50%</output></span>
+                                            <input type="range" min="0" max="100" step="1" value="50" data-widget="timer" data-widget-prop="shadowOpacity">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Shadow Blur <output data-widget-output>8px</output></span>
+                                            <input type="range" min="0" max="30" step="1" value="8" data-widget="timer" data-widget-prop="shadowBlur">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset X <output data-widget-output>0px</output></span>
+                                            <input type="range" min="-20" max="20" step="1" value="0" data-widget="timer" data-widget-prop="shadowX">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset Y <output data-widget-output>2px</output></span>
+                                            <input type="range" min="-20" max="20" step="1" value="2" data-widget="timer" data-widget-prop="shadowY">
+                                        </label>
+                                    </div>
+
                                     <div class="subway-img-setting">
-                                        <h5><i class="fa-solid fa-image"></i> Timer Custom Background Banner Image</h5>
+                                        <h5><i class="fa-solid fa-image"></i> Timer Custom Background Banner Editor</h5>
                                         <div class="subway-img-input-row">
                                             <input type="text" placeholder="Image URL (e.g. https://...)" data-widget="timer" data-widget-prop="bgImage">
                                             <label class="subway-img-btn">
@@ -692,9 +826,26 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </div>
+                                        <div class="subway-img-preview-thumb" data-timer-bg-preview>No custom banner image set</div>
                                         <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
-                                            <span>Banner Image Opacity <output data-widget-output>100%</output></span>
+                                            <span>Banner Opacity <output data-widget-output>100%</output></span>
                                             <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Image Scale / Zoom <output data-widget-output>100%</output></span>
+                                            <input type="range" min="50" max="300" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Rotation <output data-widget-output>0°</output></span>
+                                            <input type="range" min="0" max="360" step="1" value="0" data-widget="timer" data-widget-prop="bgImageRotate">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset X <output data-widget-output>0px</output></span>
+                                            <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset Y <output data-widget-output>0px</output></span>
+                                            <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
                                         </label>
                                     </div>
                                 </div>
@@ -725,6 +876,29 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                         <span>Blur effect <output data-widget-output>16px</output></span>
                                         <input type="range" min="0" max="30" step="1" value="16" data-widget="fps" data-widget-prop="blur">
                                     </label>
+
+                                    <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
+                                        <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Text Drop Shadow</h5>
+                                        <div class="subway-theme-grid">
+                                            <label class="subway-color-setting"><span>Shadow Color</span><input type="color" value="#000000" data-widget="fps" data-widget-prop="shadowColor"></label>
+                                        </div>
+                                        <label class="subway-opacity-setting">
+                                            <span>Shadow Opacity <output data-widget-output>50%</output></span>
+                                            <input type="range" min="0" max="100" step="1" value="50" data-widget="fps" data-widget-prop="shadowOpacity">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Shadow Blur <output data-widget-output>8px</output></span>
+                                            <input type="range" min="0" max="30" step="1" value="8" data-widget="fps" data-widget-prop="shadowBlur">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset X <output data-widget-output>0px</output></span>
+                                            <input type="range" min="-20" max="20" step="1" value="0" data-widget="fps" data-widget-prop="shadowX">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset Y <output data-widget-output>2px</output></span>
+                                            <input type="range" min="-20" max="20" step="1" value="2" data-widget="fps" data-widget-prop="shadowY">
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
@@ -753,6 +927,29 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                         <span>Box blur effect <output data-widget-output>16px</output></span>
                                         <input type="range" min="0" max="30" step="1" value="16" data-widget="keys" data-widget-prop="blur">
                                     </label>
+
+                                    <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
+                                        <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Text Drop Shadow</h5>
+                                        <div class="subway-theme-grid">
+                                            <label class="subway-color-setting"><span>Shadow Color</span><input type="color" value="#000000" data-widget="keys" data-widget-prop="shadowColor"></label>
+                                        </div>
+                                        <label class="subway-opacity-setting">
+                                            <span>Shadow Opacity <output data-widget-output>50%</output></span>
+                                            <input type="range" min="0" max="100" step="1" value="50" data-widget="keys" data-widget-prop="shadowOpacity">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Shadow Blur <output data-widget-output>8px</output></span>
+                                            <input type="range" min="0" max="30" step="1" value="8" data-widget="keys" data-widget-prop="shadowBlur">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset X <output data-widget-output>0px</output></span>
+                                            <input type="range" min="-20" max="20" step="1" value="0" data-widget="keys" data-widget-prop="shadowX">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset Y <output data-widget-output>2px</output></span>
+                                            <input type="range" min="-20" max="20" step="1" value="2" data-widget="keys" data-widget-prop="shadowY">
+                                        </label>
+                                    </div>
 
                                     <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
                                         <h5 style="margin: 0 0 0.8rem 0; color: #fff; font-size: 0.85rem;"><i class="fa-solid fa-square-full"></i> Inner WASD Keys Style</h5>
@@ -799,6 +996,29 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                         <span>Blur effect <output data-widget-output>16px</output></span>
                                         <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
                                     </label>
+
+                                    <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
+                                        <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Icon Shadow</h5>
+                                        <div class="subway-theme-grid">
+                                            <label class="subway-color-setting"><span>Shadow Color</span><input type="color" value="#000000" data-widget="settings" data-widget-prop="shadowColor"></label>
+                                        </div>
+                                        <label class="subway-opacity-setting">
+                                            <span>Shadow Opacity <output data-widget-output>50%</output></span>
+                                            <input type="range" min="0" max="100" step="1" value="50" data-widget="settings" data-widget-prop="shadowOpacity">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Shadow Blur <output data-widget-output>8px</output></span>
+                                            <input type="range" min="0" max="30" step="1" value="8" data-widget="settings" data-widget-prop="shadowBlur">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset X <output data-widget-output>0px</output></span>
+                                            <input type="range" min="-20" max="20" step="1" value="0" data-widget="settings" data-widget-prop="shadowX">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Offset Y <output data-widget-output>2px</output></span>
+                                            <input type="range" min="-20" max="20" step="1" value="2" data-widget="settings" data-widget-prop="shadowY">
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 

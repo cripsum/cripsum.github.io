@@ -36,13 +36,22 @@
         borderColor: '#06b6d4',
         borderOpacity: 68,
         blur: 16,
-        borderRadius: 12
+        borderRadius: 12,
+        shadowColor: '#000000',
+        shadowOpacity: 50,
+        shadowBlur: 8,
+        shadowX: 0,
+        shadowY: 2
     });
 
     const defaultOverlayTheme = {
         timer: Object.assign(defaultWidgetConfig(), {
             bgImage: '',
-            bgImageOpacity: 100
+            bgImageOpacity: 100,
+            bgImageScale: 100,
+            bgImageRotate: 0,
+            bgImagePosX: 0,
+            bgImagePosY: 0
         }),
         fps: defaultWidgetConfig(),
         keys: Object.assign(defaultWidgetConfig(), {
@@ -288,11 +297,29 @@
                 input.value = String(cfg[prop]);
                 const output = input.parentElement?.querySelector('[data-widget-output]');
                 if (output) {
-                    const unit = (prop === 'blur' || prop === 'borderRadius') ? 'px' : '%';
+                    let unit = '%';
+                    if (prop === 'blur' || prop === 'borderRadius' || prop === 'shadowBlur' || prop === 'shadowX' || prop === 'shadowY' || prop === 'bgImagePosX' || prop === 'bgImagePosY') {
+                        unit = 'px';
+                    } else if (prop === 'bgImageRotate') {
+                        unit = '°';
+                    }
                     output.textContent = `${cfg[prop]}${unit}`;
                 }
             } else if (input.type === 'text') {
-                input.value = String(cfg[prop] || '');
+                if (document.activeElement !== input) {
+                    input.value = String(cfg[prop] || '');
+                }
+            }
+        });
+
+        document.querySelectorAll('[data-timer-bg-preview]').forEach(thumb => {
+            const rawUrl = String(state.overlayTheme.timer?.bgImage || '').trim();
+            if (rawUrl) {
+                thumb.style.backgroundImage = `url(${JSON.stringify(rawUrl)})`;
+                thumb.textContent = '';
+            } else {
+                thumb.style.backgroundImage = 'none';
+                thumb.textContent = isItalian() ? 'Nessuna immagine impostata' : 'No custom banner image set';
             }
         });
 
@@ -324,12 +351,37 @@
                 widget.style.setProperty('--subway-overlay-border-opacity', String(cfg.borderOpacity / 100));
                 widget.style.setProperty('--subway-overlay-blur', `${cfg.blur}px`);
                 widget.style.setProperty('--subway-overlay-border-radius', `${cfg.borderRadius ?? 12}px`);
+                
+                // Text Drop Shadow
+                widget.style.setProperty('--subway-overlay-shadow-color-rgb', hexToRgb(cfg.shadowColor || '#000000'));
+                widget.style.setProperty('--subway-overlay-shadow-opacity', String((cfg.shadowOpacity ?? 50) / 100));
+                widget.style.setProperty('--subway-overlay-shadow-blur', `${cfg.shadowBlur ?? 8}px`);
+                widget.style.setProperty('--subway-overlay-shadow-x', `${cfg.shadowX ?? 0}px`);
+                widget.style.setProperty('--subway-overlay-shadow-y', `${cfg.shadowY ?? 2}px`);
+
                 widget.classList.toggle('hide-header', state.overlayTheme.showHeaders === false);
 
                 if (widgetKey === 'timer') {
-                    const bgImgUrl = cfg.bgImage ? `url("${cfg.bgImage}")` : 'none';
+                    const rawUrl = String(cfg.bgImage || '').trim();
+                    const bgImgUrl = rawUrl ? `url(${JSON.stringify(rawUrl)})` : 'none';
+                    const scaleVal = (cfg.bgImageScale ?? 100) / 100;
+                    const rotVal = `${cfg.bgImageRotate ?? 0}deg`;
+                    const posX = `${cfg.bgImagePosX ?? 0}px`;
+                    const posY = `${cfg.bgImagePosY ?? 0}px`;
+
                     widget.style.setProperty('--subway-timer-bg-image', bgImgUrl);
                     widget.style.setProperty('--subway-timer-bg-image-opacity', String((cfg.bgImageOpacity ?? 100) / 100));
+                    widget.style.setProperty('--subway-timer-bg-scale', String(scaleVal));
+                    widget.style.setProperty('--subway-timer-bg-rotate', rotVal);
+                    widget.style.setProperty('--subway-timer-bg-pos-x', posX);
+                    widget.style.setProperty('--subway-timer-bg-pos-y', posY);
+                    
+                    const innerBg = widget.querySelector('.subway-timer-banner-bg');
+                    if (innerBg) {
+                        innerBg.style.backgroundImage = bgImgUrl;
+                        innerBg.style.opacity = String((cfg.bgImageOpacity ?? 100) / 100);
+                        innerBg.style.transform = `translate(${posX}, ${posY}) scale(${scaleVal}) rotate(${rotVal})`;
+                    }
                 }
 
                 if (widgetKey === 'keys') {
@@ -433,8 +485,17 @@
                     state.overlayTheme[wKey][prop] = normalizeHexColor(input.value, '#000000');
                 } else if (input.type === 'range') {
                     const val = Number(input.value);
-                    const max = prop === 'blur' ? 30 : (prop === 'borderRadius' ? 50 : 100);
-                    state.overlayTheme[wKey][prop] = Math.min(max, Math.max(0, Number.isFinite(val) ? val : 0));
+                    let min = 0;
+                    let max = 100;
+                    if (prop === 'blur') max = 30;
+                    else if (prop === 'borderRadius') max = 50;
+                    else if (prop === 'shadowBlur') max = 30;
+                    else if (prop === 'shadowX' || prop === 'shadowY') { min = -20; max = 20; }
+                    else if (prop === 'bgImageScale') { min = 50; max = 300; }
+                    else if (prop === 'bgImageRotate') { min = 0; max = 360; }
+                    else if (prop === 'bgImagePosX' || prop === 'bgImagePosY') { min = -100; max = 100; }
+
+                    state.overlayTheme[wKey][prop] = Math.min(max, Math.max(min, Number.isFinite(val) ? val : min));
                 } else if (input.type === 'text') {
                     state.overlayTheme[wKey][prop] = String(input.value || '').trim();
                 }
