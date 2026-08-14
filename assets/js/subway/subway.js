@@ -56,7 +56,8 @@
             timerFontSize: 33,
             timerTextPosX: 0,
             timerTextPosY: 0,
-            timerWidth: 250
+            timerWidth: 250,
+            timerHeight: 90
         }),
         fps: defaultWidgetConfig(),
         keys: Object.assign(defaultWidgetConfig(), {
@@ -432,8 +433,9 @@
                     widget.style.setProperty('--subway-timer-text-x', `${cfg.timerTextPosX ?? 0}px`);
                     widget.style.setProperty('--subway-timer-text-y', `${cfg.timerTextPosY ?? 0}px`);
 
-                    // Timer widget width
+                    // Timer widget dimensions
                     widget.style.setProperty('--subway-timer-width', `${cfg.timerWidth ?? 250}px`);
+                    widget.style.setProperty('--subway-timer-height', `${cfg.timerHeight ?? 90}px`);
                     
                     const innerBg = widget.querySelector('.subway-timer-banner-bg');
                     if (innerBg) {
@@ -1052,7 +1054,8 @@
     }
 
     function restoreOverlayPositions() {
-        document.querySelectorAll('.subway-hud-widget').forEach(widget => {
+        document.querySelectorAll('.subway-hud-widget:not(.subway-preview-widget)').forEach(widget => {
+            if (!widget.id) return;
             const saved = state.overlayPositions[widget.id];
             if (!saved || !Number.isFinite(saved.x) || !Number.isFinite(saved.y)) return;
             const { maxX, maxY } = getOverlayBounds(widget);
@@ -1064,68 +1067,84 @@
     }
 
     function bindDraggableWidgets() {
-        document.querySelectorAll('.subway-hud-widget').forEach(widget => {
+        document.querySelectorAll('.subway-hud-widget:not(.subway-preview-widget)').forEach(widget => {
             const handle = widget.querySelector('.widget-handle') || widget;
             let drag = null;
             let suppressClick = false;
             let savePositionTimer = 0;
+
             handle.addEventListener('pointerdown', event => {
                 if (event.button !== 0) return;
+                const parent = widget.offsetParent || document.body;
+                const parentRect = parent.getBoundingClientRect();
                 const rect = widget.getBoundingClientRect();
                 drag = {
                     pointerId: event.pointerId,
-                    x: event.clientX,
-                    y: event.clientY,
-                    left: rect.left,
-                    top: rect.top,
+                    startX: event.clientX,
+                    startY: event.clientY,
+                    startLeft: rect.left - parentRect.left,
+                    startTop: rect.top - parentRect.top,
                     started: false
                 };
-                handle.setPointerCapture(event.pointerId);
+                try {
+                    handle.setPointerCapture(event.pointerId);
+                } catch (e) {}
             });
-            const moveDrag = event => {
+
+            handle.addEventListener('pointermove', event => {
                 if (!drag || event.pointerId !== drag.pointerId) return;
-                const deltaX = event.clientX - drag.x;
-                const deltaY = event.clientY - drag.y;
+                const deltaX = event.clientX - drag.startX;
+                const deltaY = event.clientY - drag.startY;
+
                 if (!drag.started) {
-                    if (Math.hypot(deltaX, deltaY) < 7) return;
+                    if (Math.hypot(deltaX, deltaY) < 4) return;
                     drag.started = true;
-                    widget.style.left = `${drag.left}px`;
-                    widget.style.top = `${drag.top}px`;
                     widget.style.right = 'auto';
                     widget.style.bottom = 'auto';
                     widget.classList.add('is-dragging');
                 }
-                const maxX = Math.max(0, window.innerWidth - widget.offsetWidth);
-                const maxY = Math.max(0, window.innerHeight - widget.offsetHeight);
-                widget.style.left = `${Math.min(maxX, Math.max(0, drag.left + deltaX))}px`;
-                widget.style.top = `${Math.min(maxY, Math.max(0, drag.top + deltaY))}px`;
+
+                const { maxX, maxY } = getOverlayBounds(widget);
+                const nextX = Math.min(maxX, Math.max(0, Math.round(drag.startLeft + deltaX)));
+                const nextY = Math.min(maxY, Math.max(0, Math.round(drag.startTop + deltaY)));
+                widget.style.left = `${nextX}px`;
+                widget.style.top = `${nextY}px`;
+
                 clearTimeout(savePositionTimer);
-                savePositionTimer = setTimeout(() => saveOverlayPosition(widget), 120);
+                savePositionTimer = setTimeout(() => saveOverlayPosition(widget), 100);
                 event.preventDefault();
-            };
-            handle.addEventListener('pointermove', moveDrag);
-            window.addEventListener('pointermove', moveDrag, true);
-            const endDrag = event => {
+            });
+
+            const onPointerEnd = event => {
                 if (!drag || (event.pointerId !== undefined && event.pointerId !== drag.pointerId)) return;
+                try {
+                    if (handle.hasPointerCapture(event.pointerId)) {
+                        handle.releasePointerCapture(event.pointerId);
+                    }
+                } catch (e) {}
+
                 if (drag.started) {
                     clearTimeout(savePositionTimer);
                     saveOverlayPosition(widget);
                     suppressClick = true;
-                    window.setTimeout(() => { suppressClick = false; }, 500);
+                    window.setTimeout(() => { suppressClick = false; }, 350);
                 }
+
                 drag = null;
                 widget.classList.remove('is-dragging');
             };
+
+            handle.addEventListener('pointerup', onPointerEnd);
+            handle.addEventListener('pointercancel', onPointerEnd);
+
             handle.addEventListener('click', event => {
                 if (!suppressClick) return;
                 suppressClick = false;
                 event.preventDefault();
                 event.stopImmediatePropagation();
             }, true);
-            handle.addEventListener('pointerup', endDrag);
-            handle.addEventListener('pointercancel', endDrag);
-            window.addEventListener('pointerup', endDrag, true);
         });
+
         window.addEventListener('resize', restoreOverlayPositions);
     }
 

@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=14.0">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=14.1">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=14.0" defer></script>
+    <script src="/assets/js/subway/subway.js?v=14.1" defer></script>
 </head>
 
 <body class="game-page">
@@ -267,7 +267,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Larghezza Timer <output data-widget-output>250px</output></span>
-                                        <input type="range" min="100" max="600" step="1" value="250" data-widget="timer" data-widget-prop="timerWidth">
+                                        <input type="range" min="50" max="800" step="1" value="250" data-widget="timer" data-widget-prop="timerWidth">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Altezza Timer <output data-widget-output>90px</output></span>
+                                        <input type="range" min="30" max="400" step="1" value="90" data-widget="timer" data-widget-prop="timerHeight">
                                     </label>
                                 </div>
                             </details>
@@ -854,7 +858,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                             </label>
                                             <label class="subway-opacity-setting">
                                                 <span>Larghezza Timer <output data-widget-output>250px</output></span>
-                                                <input type="range" min="100" max="600" step="1" value="250" data-widget="timer" data-widget-prop="timerWidth">
+                                                <input type="range" min="50" max="800" step="1" value="250" data-widget="timer" data-widget-prop="timerWidth">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Altezza Timer <output data-widget-output>90px</output></span>
+                                                <input type="range" min="30" max="400" step="1" value="90" data-widget="timer" data-widget-prop="timerHeight">
                                             </label>
                                         </div>
                                     </details>

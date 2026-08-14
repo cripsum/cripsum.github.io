@@ -271,9 +271,6 @@
     right: auto !important;
     bottom: auto !important;
     transform: none !important;
-    width: auto;
-    min-width: auto;
-    max-width: 100%;
 }
 
 .subway-theme-grid {
@@ -951,8 +948,15 @@ body.subway-fullscreen-active .main-footer {
     width: var(--subway-timer-width, 250px);
     min-width: var(--subway-timer-width, 250px);
     max-width: var(--subway-timer-width, 250px);
+    height: var(--subway-timer-height, 90px);
+    min-height: var(--subway-timer-height, 90px);
+    max-height: var(--subway-timer-height, 90px);
     position: absolute;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .subway-timer-banner-bg {
@@ -1080,7 +1084,11 @@ body.subway-fullscreen-active .main-footer {
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.5px;
     transform: translate(var(--subway-timer-text-x, 0px), var(--subway-timer-text-y, 0px));
-    padding: var(--subway-timer-text-padding, 0);
+    flex: 0 0 auto;
+    line-height: 1.1;
+    overflow: visible;
+    user-select: none;
+    pointer-events: none;
 }
 
 .subway-timer-display .subway-ms {
