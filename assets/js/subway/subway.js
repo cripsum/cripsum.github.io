@@ -272,6 +272,20 @@
         return `${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}`;
     }
 
+    function formatCssUrl(raw) {
+        let url = String(raw || '').trim();
+        if (!url) return 'none';
+        if (url.startsWith('url(') && url.endsWith(')')) {
+            url = url.slice(4, -1).trim();
+            if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
+                url = url.slice(1, -1).trim();
+            }
+        }
+        if (!url) return 'none';
+        const cleanUrl = url.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        return `url("${cleanUrl}")`;
+    }
+
     function syncSettingsUi() {
         document.querySelectorAll('[data-setting="blockSpace"]').forEach(input => {
             input.checked = state.blockSpace;
@@ -315,7 +329,7 @@
         document.querySelectorAll('[data-timer-bg-preview]').forEach(thumb => {
             const rawUrl = String(state.overlayTheme.timer?.bgImage || '').trim();
             if (rawUrl) {
-                thumb.style.backgroundImage = `url(${JSON.stringify(rawUrl)})`;
+                thumb.style.backgroundImage = formatCssUrl(rawUrl);
                 thumb.textContent = '';
             } else {
                 thumb.style.backgroundImage = 'none';
@@ -363,7 +377,7 @@
 
                 if (widgetKey === 'timer') {
                     const rawUrl = String(cfg.bgImage || '').trim();
-                    const bgImgUrl = rawUrl ? `url(${JSON.stringify(rawUrl)})` : 'none';
+                    const bgImgUrl = formatCssUrl(rawUrl);
                     const scaleVal = (cfg.bgImageScale ?? 100) / 100;
                     const rotVal = `${cfg.bgImageRotate ?? 0}deg`;
                     const posX = `${cfg.bgImagePosX ?? 0}px`;
