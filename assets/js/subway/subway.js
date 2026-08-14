@@ -35,11 +35,15 @@
         textColor: '#ffffff',
         borderColor: '#06b6d4',
         borderOpacity: 68,
-        blur: 16
+        blur: 16,
+        borderRadius: 12
     });
 
     const defaultOverlayTheme = {
-        timer: defaultWidgetConfig(),
+        timer: Object.assign(defaultWidgetConfig(), {
+            bgImage: '',
+            bgImageOpacity: 100
+        }),
         fps: defaultWidgetConfig(),
         keys: Object.assign(defaultWidgetConfig(), {
             keyBg: '#ffffff',
@@ -284,9 +288,11 @@
                 input.value = String(cfg[prop]);
                 const output = input.parentElement?.querySelector('[data-widget-output]');
                 if (output) {
-                    const unit = prop === 'blur' ? 'px' : '%';
+                    const unit = (prop === 'blur' || prop === 'borderRadius') ? 'px' : '%';
                     output.textContent = `${cfg[prop]}${unit}`;
                 }
+            } else if (input.type === 'text') {
+                input.value = String(cfg[prop] || '');
             }
         });
 
@@ -317,7 +323,14 @@
                 widget.style.setProperty('--subway-overlay-accent-rgb', hexToRgb(cfg.borderColor));
                 widget.style.setProperty('--subway-overlay-border-opacity', String(cfg.borderOpacity / 100));
                 widget.style.setProperty('--subway-overlay-blur', `${cfg.blur}px`);
+                widget.style.setProperty('--subway-overlay-border-radius', `${cfg.borderRadius ?? 12}px`);
                 widget.classList.toggle('hide-header', state.overlayTheme.showHeaders === false);
+
+                if (widgetKey === 'timer') {
+                    const bgImgUrl = cfg.bgImage ? `url("${cfg.bgImage}")` : 'none';
+                    widget.style.setProperty('--subway-timer-bg-image', bgImgUrl);
+                    widget.style.setProperty('--subway-timer-bg-image-opacity', String((cfg.bgImageOpacity ?? 100) / 100));
+                }
 
                 if (widgetKey === 'keys') {
                     widget.style.setProperty('--subway-key-bg-rgb', hexToRgb(cfg.keyBg));
@@ -420,8 +433,10 @@
                     state.overlayTheme[wKey][prop] = normalizeHexColor(input.value, '#000000');
                 } else if (input.type === 'range') {
                     const val = Number(input.value);
-                    const max = prop === 'blur' ? 30 : 100;
+                    const max = prop === 'blur' ? 30 : (prop === 'borderRadius' ? 50 : 100);
                     state.overlayTheme[wKey][prop] = Math.min(max, Math.max(0, Number.isFinite(val) ? val : 0));
+                } else if (input.type === 'text') {
+                    state.overlayTheme[wKey][prop] = String(input.value || '').trim();
                 }
                 syncSettingsUi();
                 applyOverlayTheme();
@@ -429,6 +444,33 @@
             };
             input.addEventListener('input', handler);
             input.addEventListener('change', handler);
+        });
+
+        document.querySelectorAll('[data-timer-bg-file]').forEach(fileInput => {
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dataUrl = e.target?.result;
+                    if (typeof dataUrl === 'string') {
+                        state.overlayTheme.timer.bgImage = dataUrl;
+                        syncSettingsUi();
+                        applyOverlayTheme();
+                        saveSettings();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        document.querySelectorAll('[data-timer-bg-remove]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.overlayTheme.timer.bgImage = '';
+                syncSettingsUi();
+                applyOverlayTheme();
+                saveSettings();
+            });
         });
 
         document.querySelectorAll('[data-overlay-toggle="showBoost"]').forEach(input => {

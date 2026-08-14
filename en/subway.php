@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=10.0">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=11.0">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=10.0" defer></script>
+    <script src="/assets/js/subway/subway.js?v=11.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -235,9 +235,31 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
                             </label>
                             <label class="subway-opacity-setting">
+                                <span>Border radius <output data-widget-output>12px</output></span>
+                                <input type="range" min="0" max="50" step="1" value="12" data-widget="timer" data-widget-prop="borderRadius">
+                            </label>
+                            <label class="subway-opacity-setting">
                                 <span>Blur effect <output data-widget-output>16px</output></span>
                                 <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
                             </label>
+
+                            <div class="subway-img-setting">
+                                <h5><i class="fa-solid fa-image"></i> Timer Custom Background Banner Image</h5>
+                                <div class="subway-img-input-row">
+                                    <input type="text" placeholder="Image URL (e.g. https://...)" data-widget="timer" data-widget-prop="bgImage">
+                                    <label class="subway-img-btn">
+                                        <i class="fa-solid fa-upload"></i> Upload...
+                                        <input type="file" accept="image/*" data-timer-bg-file style="display:none;">
+                                    </label>
+                                    <button type="button" class="subway-img-btn subway-img-btn-remove" data-timer-bg-remove title="Remove image">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                                <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
+                                    <span>Banner Image Opacity <output data-widget-output>100%</output></span>
+                                    <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -257,6 +279,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             <label class="subway-opacity-setting">
                                 <span>Border opacity <output data-widget-output>68%</output></span>
                                 <input type="range" min="0" max="100" step="1" value="68" data-widget="fps" data-widget-prop="borderOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Border radius <output data-widget-output>12px</output></span>
+                                <input type="range" min="0" max="50" step="1" value="12" data-widget="fps" data-widget-prop="borderRadius">
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Blur effect <output data-widget-output>16px</output></span>
@@ -281,6 +307,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             <label class="subway-opacity-setting">
                                 <span>Box border opacity <output data-widget-output>68%</output></span>
                                 <input type="range" min="0" max="100" step="1" value="68" data-widget="keys" data-widget-prop="borderOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Box border radius <output data-widget-output>12px</output></span>
+                                <input type="range" min="0" max="50" step="1" value="12" data-widget="keys" data-widget-prop="borderRadius">
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Box blur effect <output data-widget-output>16px</output></span>
@@ -323,6 +353,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             <label class="subway-opacity-setting">
                                 <span>Border opacity <output data-widget-output>68%</output></span>
                                 <input type="range" min="0" max="100" step="1" value="68" data-widget="settings" data-widget-prop="borderOpacity">
+                            </label>
+                            <label class="subway-opacity-setting">
+                                <span>Border radius <output data-widget-output>12px</output></span>
+                                <input type="range" min="0" max="50" step="1" value="12" data-widget="settings" data-widget-prop="borderRadius">
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Blur effect <output data-widget-output>16px</output></span>
@@ -638,9 +672,31 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                         <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
                                     </label>
                                     <label class="subway-opacity-setting">
+                                        <span>Border radius <output data-widget-output>12px</output></span>
+                                        <input type="range" min="0" max="50" step="1" value="12" data-widget="timer" data-widget-prop="borderRadius">
+                                    </label>
+                                    <label class="subway-opacity-setting">
                                         <span>Blur effect <output data-widget-output>16px</output></span>
                                         <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
                                     </label>
+
+                                    <div class="subway-img-setting">
+                                        <h5><i class="fa-solid fa-image"></i> Timer Custom Background Banner Image</h5>
+                                        <div class="subway-img-input-row">
+                                            <input type="text" placeholder="Image URL (e.g. https://...)" data-widget="timer" data-widget-prop="bgImage">
+                                            <label class="subway-img-btn">
+                                                <i class="fa-solid fa-upload"></i> Upload...
+                                                <input type="file" accept="image/*" data-timer-bg-file style="display:none;">
+                                            </label>
+                                            <button type="button" class="subway-img-btn subway-img-btn-remove" data-timer-bg-remove title="Remove image">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
+                                            <span>Banner Image Opacity <output data-widget-output>100%</output></span>
+                                            <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
@@ -660,6 +716,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                     <label class="subway-opacity-setting">
                                         <span>Border opacity <output data-widget-output>68%</output></span>
                                         <input type="range" min="0" max="100" step="1" value="68" data-widget="fps" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Border radius <output data-widget-output>12px</output></span>
+                                        <input type="range" min="0" max="50" step="1" value="12" data-widget="fps" data-widget-prop="borderRadius">
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Blur effect <output data-widget-output>16px</output></span>
@@ -684,6 +744,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                     <label class="subway-opacity-setting">
                                         <span>Box border opacity <output data-widget-output>68%</output></span>
                                         <input type="range" min="0" max="100" step="1" value="68" data-widget="keys" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Box border radius <output data-widget-output>12px</output></span>
+                                        <input type="range" min="0" max="50" step="1" value="12" data-widget="keys" data-widget-prop="borderRadius">
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Box blur effect <output data-widget-output>16px</output></span>
@@ -726,6 +790,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                     <label class="subway-opacity-setting">
                                         <span>Border opacity <output data-widget-output>68%</output></span>
                                         <input type="range" min="0" max="100" step="1" value="68" data-widget="settings" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Border radius <output data-widget-output>12px</output></span>
+                                        <input type="range" min="0" max="50" step="1" value="12" data-widget="settings" data-widget-prop="borderRadius">
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Blur effect <output data-widget-output>16px</output></span>
