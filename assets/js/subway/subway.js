@@ -48,6 +48,7 @@
         timer: Object.assign(defaultWidgetConfig(), {
             bgImage: '',
             bgImageOpacity: 100,
+            bgFit: 'cover',
             bgImageScale: 100,
             bgImageRotate: 0,
             bgImagePosX: 0,
@@ -323,13 +324,34 @@
                 if (document.activeElement !== input) {
                     input.value = String(cfg[prop] || '');
                 }
+            } else if (input.tagName === 'SELECT') {
+                input.value = String(cfg[prop] || 'cover');
             }
         });
 
         document.querySelectorAll('[data-timer-bg-preview]').forEach(thumb => {
             const rawUrl = String(state.overlayTheme.timer?.bgImage || '').trim();
             if (rawUrl) {
-                thumb.style.backgroundImage = formatCssUrl(rawUrl);
+                const bgImgUrl = formatCssUrl(rawUrl);
+                const cfg = state.overlayTheme.timer || {};
+                const fitMode = cfg.bgFit || 'cover';
+                let bgSizeVal = 'cover';
+                if (fitMode === 'contain') {
+                    bgSizeVal = 'contain';
+                } else if (fitMode === 'custom') {
+                    const scale = cfg.bgImageScale ?? 100;
+                    bgSizeVal = `${scale}% auto`;
+                } else {
+                    const scale = cfg.bgImageScale ?? 100;
+                    bgSizeVal = scale === 100 ? 'cover' : `${scale}% auto`;
+                }
+                const posX = cfg.bgImagePosX ?? 0;
+                const posY = cfg.bgImagePosY ?? 0;
+                const bgPosVal = `calc(50% + ${posX}px) calc(50% + ${posY}px)`;
+
+                thumb.style.backgroundImage = bgImgUrl;
+                thumb.style.backgroundSize = bgSizeVal;
+                thumb.style.backgroundPosition = bgPosVal;
                 thumb.textContent = '';
             } else {
                 thumb.style.backgroundImage = 'none';
@@ -378,23 +400,36 @@
                 if (widgetKey === 'timer') {
                     const rawUrl = String(cfg.bgImage || '').trim();
                     const bgImgUrl = formatCssUrl(rawUrl);
-                    const scaleVal = (cfg.bgImageScale ?? 100) / 100;
+                    const fitMode = cfg.bgFit || 'cover';
+                    let bgSizeVal = 'cover';
+                    if (fitMode === 'contain') {
+                        bgSizeVal = 'contain';
+                    } else if (fitMode === 'custom') {
+                        const scale = cfg.bgImageScale ?? 100;
+                        bgSizeVal = `${scale}% auto`;
+                    } else {
+                        const scale = cfg.bgImageScale ?? 100;
+                        bgSizeVal = scale === 100 ? 'cover' : `${scale}% auto`;
+                    }
+
+                    const posX = cfg.bgImagePosX ?? 0;
+                    const posY = cfg.bgImagePosY ?? 0;
+                    const bgPosVal = `calc(50% + ${posX}px) calc(50% + ${posY}px)`;
                     const rotVal = `${cfg.bgImageRotate ?? 0}deg`;
-                    const posX = `${cfg.bgImagePosX ?? 0}px`;
-                    const posY = `${cfg.bgImagePosY ?? 0}px`;
 
                     widget.style.setProperty('--subway-timer-bg-image', bgImgUrl);
                     widget.style.setProperty('--subway-timer-bg-image-opacity', String((cfg.bgImageOpacity ?? 100) / 100));
-                    widget.style.setProperty('--subway-timer-bg-scale', String(scaleVal));
+                    widget.style.setProperty('--subway-timer-bg-size', bgSizeVal);
+                    widget.style.setProperty('--subway-timer-bg-pos', bgPosVal);
                     widget.style.setProperty('--subway-timer-bg-rotate', rotVal);
-                    widget.style.setProperty('--subway-timer-bg-pos-x', posX);
-                    widget.style.setProperty('--subway-timer-bg-pos-y', posY);
                     
                     const innerBg = widget.querySelector('.subway-timer-banner-bg');
                     if (innerBg) {
                         innerBg.style.backgroundImage = bgImgUrl;
                         innerBg.style.opacity = String((cfg.bgImageOpacity ?? 100) / 100);
-                        innerBg.style.transform = `translate(${posX}, ${posY}) scale(${scaleVal}) rotate(${rotVal})`;
+                        innerBg.style.backgroundSize = bgSizeVal;
+                        innerBg.style.backgroundPosition = bgPosVal;
+                        innerBg.style.transform = `rotate(${rotVal})`;
                     }
                 }
 
@@ -505,13 +540,15 @@
                     else if (prop === 'borderRadius') max = 50;
                     else if (prop === 'shadowBlur') max = 30;
                     else if (prop === 'shadowX' || prop === 'shadowY') { min = -20; max = 20; }
-                    else if (prop === 'bgImageScale') { min = 50; max = 300; }
+                    else if (prop === 'bgImageScale') { min = 20; max = 500; }
                     else if (prop === 'bgImageRotate') { min = 0; max = 360; }
-                    else if (prop === 'bgImagePosX' || prop === 'bgImagePosY') { min = -250; max = 250; }
+                    else if (prop === 'bgImagePosX' || prop === 'bgImagePosY') { min = -500; max = 500; }
 
                     state.overlayTheme[wKey][prop] = Math.min(max, Math.max(min, Number.isFinite(val) ? val : min));
                 } else if (input.type === 'text') {
                     state.overlayTheme[wKey][prop] = String(input.value || '').trim();
+                } else if (input.tagName === 'SELECT') {
+                    state.overlayTheme[wKey][prop] = String(input.value);
                 }
                 syncSettingsUi();
                 applyOverlayTheme();

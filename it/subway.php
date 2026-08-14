@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=13.3">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=13.4">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=13.3" defer></script>
+    <script src="/assets/js/subway/subway.js?v=13.4" defer></script>
 </head>
 
 <body class="game-page">
@@ -280,25 +280,35 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     </button>
                                 </div>
                                 <div class="subway-img-preview-thumb" data-timer-bg-preview>Nessuna immagine impostata</div>
+
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem; align-items: center;">
+                                    <span style="font-size: 0.78rem; color: #fff; font-weight: 700;">Modalità Taglio:</span>
+                                    <select data-widget="timer" data-widget-prop="bgFit" style="flex: 1; height: 34px; border-radius: 8px; background: rgba(0,0,0,0.35); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0 0.5rem; font-size: 0.78rem; outline: none;">
+                                        <option value="cover">Copri (Riempie tutto il banner)</option>
+                                        <option value="contain">Contieni (Mostra foto intera non tagliata)</option>
+                                        <option value="custom">Personalizzato (Zoom &amp; Spostamento)</option>
+                                    </select>
+                                </div>
+
                                 <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
                                     <span>Opacità Banner <output data-widget-output>100%</output></span>
                                     <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Scala / Zoom Immagine <output data-widget-output>100%</output></span>
-                                    <input type="range" min="50" max="300" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
+                                    <input type="range" min="20" max="500" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Spostamento X <output data-widget-output>0px</output></span>
+                                    <input type="range" min="-500" max="500" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
+                                </label>
+                                <label class="subway-opacity-setting">
+                                    <span>Spostamento Y <output data-widget-output>0px</output></span>
+                                    <input type="range" min="-500" max="500" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Rotazione <output data-widget-output>0°</output></span>
                                     <input type="range" min="0" max="360" step="1" value="0" data-widget="timer" data-widget-prop="bgImageRotate">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Spostamento X <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-250" max="250" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Spostamento Y <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-250" max="250" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
                                 </label>
                             </div>
                         </div>
@@ -827,25 +837,35 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                             </button>
                                         </div>
                                         <div class="subway-img-preview-thumb" data-timer-bg-preview>Nessuna immagine impostata</div>
+
+                                        <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem; align-items: center;">
+                                            <span style="font-size: 0.78rem; color: #fff; font-weight: 700;">Modalità Taglio:</span>
+                                            <select data-widget="timer" data-widget-prop="bgFit" style="flex: 1; height: 34px; border-radius: 8px; background: rgba(0,0,0,0.35); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0 0.5rem; font-size: 0.78rem; outline: none;">
+                                                <option value="cover">Copri (Riempie tutto il banner)</option>
+                                                <option value="contain">Contieni (Mostra foto intera non tagliata)</option>
+                                                <option value="custom">Personalizzato (Zoom &amp; Spostamento)</option>
+                                            </select>
+                                        </div>
+
                                         <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
                                             <span>Opacità Banner <output data-widget-output>100%</output></span>
                                             <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Scala / Zoom Immagine <output data-widget-output>100%</output></span>
-                                            <input type="range" min="50" max="300" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
+                                            <input type="range" min="20" max="500" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Spostamento X <output data-widget-output>0px</output></span>
+                                            <input type="range" min="-500" max="500" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
+                                        </label>
+                                        <label class="subway-opacity-setting">
+                                            <span>Spostamento Y <output data-widget-output>0px</output></span>
+                                            <input type="range" min="-500" max="500" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Rotazione <output data-widget-output>0°</output></span>
                                             <input type="range" min="0" max="360" step="1" value="0" data-widget="timer" data-widget-prop="bgImageRotate">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Spostamento X <output data-widget-output>0px</output></span>
-                                            <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Spostamento Y <output data-widget-output>0px</output></span>
-                                            <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
                                         </label>
                                     </div>
                                 </div>
