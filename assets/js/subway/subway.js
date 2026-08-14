@@ -1408,6 +1408,19 @@
             dom.subwayGameContainer.replaceChildren();
             bootLog(t('Runtime pronto; download degli asset...', 'Runtime ready; downloading assets...'));
 
+            const moduleConfig = {
+                mainLoopTimingMode: frameTimingSettings().mode,
+                mainLoopTimingValue: frameTimingSettings().value,
+                preRun: [function () {
+                    const mod = this || window.Module || state.unity?.Module || window.unityGame?.Module;
+                    const injected = window.CripsumSubwayProfile?.injectIntoUnityFS(mod);
+                    if (injected) {
+                        console.log('[Subway Portal] Profilo completo iniettato nel filesystem Unity');
+                    }
+                }],
+                onRuntimeInitialized() { onUnityReady(); }
+            };
+
             state.unity = window.UnityLoader.instantiate(
                 'subwayGameContainer',
                 packageUrl(map, map.build),
@@ -1421,17 +1434,7 @@
                                 : t('Inizializzazione della scena...', 'Initializing the scene...')
                         );
                     },
-                    Module: {
-                        mainLoopTimingMode: frameTimingSettings().mode,
-                        mainLoopTimingValue: frameTimingSettings().value,
-                        preRun: [function () {
-                            const injected = window.CripsumSubwayProfile?.injectIntoUnityFS(
-                                window.unityGame?.Module || state.unity?.Module
-                            );
-                            if (!injected) console.warn('[Subway Portal] Profilo completo non iniettato nel filesystem Unity');
-                        }],
-                        onRuntimeInitialized() { onUnityReady(); }
-                    }
+                    Module: moduleConfig
                 }
             );
             window.unityGame = state.unity;
@@ -1445,6 +1448,11 @@
         if (readyHandled) return;
         readyHandled = true;
         state.loading = false;
+        try {
+            window.CripsumSubwayProfile?.injectIntoUnityFS(
+                state.unity?.Module || window.unityGame?.Module || window.Module
+            );
+        } catch (_) {}
         setBootProgress(1, t('Gioco pronto', 'Game ready'), t('Clicca o premi SPAZIO nel gioco per iniziare.', 'Click or press SPACE in the game to begin.'));
         bootLog(t('Canvas WebGL attivo', 'WebGL canvas active'));
         bootLog(state.vsync
