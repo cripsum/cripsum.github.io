@@ -237,7 +237,7 @@
     }
 
     function buildMapGrid() {
-        const grid = dom.subwayLobby && dom.subwayLobby.querySelector('.subway-grid');
+        const grid = (dom.subwayLobby && dom.subwayLobby.querySelector('.subway-grid')) || document.querySelector('.subway-grid');
         if (!grid) return;
         grid.replaceChildren(...maps.map(createCard));
         grid.hidden = false;

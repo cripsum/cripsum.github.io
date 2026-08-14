@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=13.0">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=13.1">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=13.0" defer></script>
+    <script src="/assets/js/subway/subway.js?v=13.1" defer></script>
 </head>
 
 <body class="game-page">
@@ -472,14 +472,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     <input type="range" min="-20" max="20" step="1" value="2" data-widget="settings" data-widget-prop="shadowY">
                                 </label>
                             </div>
-                        </div>
-                    </div>
-                                <input type="range" min="0" max="50" step="1" value="12" data-widget="settings" data-widget-prop="borderRadius">
-                            </label>
-                            <label class="subway-opacity-setting">
-                                <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
-                            </label>
                         </div>
                     </div>
 
