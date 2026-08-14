@@ -1083,7 +1083,8 @@ body.subway-fullscreen-active .main-footer {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.5px;
-    transform: translate(var(--subway-timer-text-x, 0px), var(--subway-timer-text-y, 0px));
+    transform: translate(var(--subway-timer-text-x, 0px), var(--subway-timer-text-y, 0px)) scale(var(--subway-timer-text-scale-x, 1), var(--subway-timer-text-scale-y, 1));
+    transform-origin: center center;
     flex: 0 0 auto;
     line-height: 1.1;
     overflow: visible;

@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=14.1">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=14.2">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=14.1" defer></script>
+    <script src="/assets/js/subway/subway.js?v=14.2" defer></script>
 </head>
 
 <body class="game-page">
@@ -254,8 +254,16 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <summary><i class="fa-solid fa-text-height"></i> Text & Timer Size</summary>
                                 <div class="subway-settings-group-body">
                                     <label class="subway-opacity-setting">
-                                        <span>Font Size <output data-widget-output>33px</output></span>
+                                        <span>Font Size / Scale <output data-widget-output>33px</output></span>
                                         <input type="range" min="10" max="120" step="1" value="33" data-widget="timer" data-widget-prop="timerFontSize">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Text Width <output data-widget-output>100%</output></span>
+                                        <input type="range" min="10" max="400" step="1" value="100" data-widget="timer" data-widget-prop="timerTextScaleX">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Text Height <output data-widget-output>100%</output></span>
+                                        <input type="range" min="10" max="400" step="1" value="100" data-widget="timer" data-widget-prop="timerTextScaleY">
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Text Position X <output data-widget-output>0px</output></span>
@@ -845,8 +853,16 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                         <summary><i class="fa-solid fa-text-height"></i> Text & Timer Size</summary>
                                         <div class="subway-settings-group-body">
                                             <label class="subway-opacity-setting">
-                                                <span>Font Size <output data-widget-output>33px</output></span>
+                                                <span>Font Size / Scale <output data-widget-output>33px</output></span>
                                                 <input type="range" min="10" max="120" step="1" value="33" data-widget="timer" data-widget-prop="timerFontSize">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Text Width <output data-widget-output>100%</output></span>
+                                                <input type="range" min="10" max="400" step="1" value="100" data-widget="timer" data-widget-prop="timerTextScaleX">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Text Height <output data-widget-output>100%</output></span>
+                                                <input type="range" min="10" max="400" step="1" value="100" data-widget="timer" data-widget-prop="timerTextScaleY">
                                             </label>
                                             <label class="subway-opacity-setting">
                                                 <span>Text Position X <output data-widget-output>0px</output></span>

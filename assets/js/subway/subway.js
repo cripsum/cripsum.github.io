@@ -54,6 +54,8 @@
             bgImagePosX: 0,
             bgImagePosY: 0,
             timerFontSize: 33,
+            timerTextScaleX: 100,
+            timerTextScaleY: 100,
             timerTextPosX: 0,
             timerTextPosY: 0,
             timerWidth: 250,
@@ -318,7 +320,7 @@
                 const output = input.parentElement?.querySelector('[data-widget-output]');
                 if (output) {
                     let unit = '%';
-                    if (prop === 'blur' || prop === 'borderRadius' || prop === 'shadowBlur' || prop === 'shadowX' || prop === 'shadowY' || prop === 'bgImagePosX' || prop === 'bgImagePosY') {
+                    if (prop === 'blur' || prop === 'borderRadius' || prop === 'shadowBlur' || prop === 'shadowX' || prop === 'shadowY' || prop === 'bgImagePosX' || prop === 'bgImagePosY' || prop === 'timerFontSize' || prop === 'timerTextPosX' || prop === 'timerTextPosY' || prop === 'timerWidth' || prop === 'timerHeight') {
                         unit = 'px';
                     } else if (prop === 'bgImageRotate') {
                         unit = '°';
@@ -353,14 +355,17 @@
                 const posX = cfg.bgImagePosX ?? 0;
                 const posY = cfg.bgImagePosY ?? 0;
                 const bgPosVal = `calc(50% + ${posX}px) calc(50% + ${posY}px)`;
+                const rotVal = `${cfg.bgImageRotate ?? 0}deg`;
 
                 thumb.style.backgroundImage = bgImgUrl;
                 thumb.style.backgroundSize = bgSizeVal;
                 thumb.style.backgroundPosition = bgPosVal;
+                thumb.style.transform = `rotate(${rotVal})`;
                 thumb.textContent = '';
             } else {
                 thumb.style.backgroundImage = 'none';
-                thumb.textContent = isItalian() ? 'Nessuna immagine impostata' : 'No custom banner image set';
+                thumb.style.transform = 'none';
+                thumb.textContent = t('Nessuna immagine impostata', 'No custom banner image set');
             }
         });
 
@@ -373,28 +378,31 @@
     }
 
     function applyOverlayTheme() {
-        const widgetMap = {
-            timer: document.querySelectorAll('#hudWidgetTimer, [data-preview-widget="timer"]'),
-            fps: document.querySelectorAll('#hudWidgetFps, [data-preview-widget="fps"]'),
-            keys: document.querySelectorAll('#hudWidgetKeys, [data-preview-widget="keys"]'),
-            settings: document.querySelectorAll('#hudWidgetSettingsBtn, [data-preview-widget="settings"]')
-        };
+        ['timer', 'fps', 'keys', 'settings'].forEach(widgetKey => {
+            const cfg = state.overlayTheme[widgetKey];
+            if (!cfg) return;
 
-        Object.entries(widgetMap).forEach(([widgetKey, widgets]) => {
-            const cfg = state.overlayTheme[widgetKey] || defaultOverlayTheme[widgetKey];
-            widgets.forEach(widget => {
+            document.querySelectorAll(`[id^="hudWidget"], [data-preview-widget="${widgetKey}"]`).forEach(widget => {
                 if (!widget) return;
-                widget.style.setProperty('--subway-overlay-bg-rgb', hexToRgb(cfg.bg));
-                widget.style.setProperty('--subway-overlay-opacity', String(cfg.bgOpacity / 100));
-                widget.style.setProperty('--subway-overlay-text', normalizeHexColor(cfg.textColor, '#ffffff'));
-                widget.style.setProperty('--subway-overlay-accent', normalizeHexColor(cfg.borderColor, '#06b6d4'));
-                widget.style.setProperty('--subway-overlay-accent-rgb', hexToRgb(cfg.borderColor));
-                widget.style.setProperty('--subway-overlay-border-opacity', String(cfg.borderOpacity / 100));
-                widget.style.setProperty('--subway-overlay-blur', `${cfg.blur}px`);
+                const isTarget = widgetKey === 'timer' ? widget.classList.contains('subway-timer-widget')
+                    : widgetKey === 'fps' ? widget.classList.contains('subway-fps-widget')
+                    : widgetKey === 'keys' ? widget.classList.contains('subway-keys-widget')
+                    : widget.classList.contains('subway-settings-btn-widget');
+                if (!isTarget) return;
+
+                const bgRgb = hexToRgb(cfg.bg || '#090d18');
+                const borderRgb = hexToRgb(cfg.borderColor || '#06b6d4');
+                const shadowRgb = hexToRgb(cfg.shadowColor || '#000000');
+
+                widget.style.setProperty('--subway-overlay-bg-rgb', bgRgb);
+                widget.style.setProperty('--subway-overlay-opacity', String((cfg.bgOpacity ?? 88) / 100));
+                widget.style.setProperty('--subway-overlay-text', cfg.textColor || '#ffffff');
+                widget.style.setProperty('--subway-overlay-accent-rgb', borderRgb);
+                widget.style.setProperty('--subway-overlay-border-opacity', String((cfg.borderOpacity ?? 68) / 100));
                 widget.style.setProperty('--subway-overlay-border-radius', `${cfg.borderRadius ?? 12}px`);
-                
-                // Text Drop Shadow
-                widget.style.setProperty('--subway-overlay-shadow-color-rgb', hexToRgb(cfg.shadowColor || '#000000'));
+                widget.style.setProperty('--subway-overlay-blur', `${cfg.blur ?? 16}px`);
+
+                widget.style.setProperty('--subway-overlay-shadow-color-rgb', shadowRgb);
                 widget.style.setProperty('--subway-overlay-shadow-opacity', String((cfg.shadowOpacity ?? 50) / 100));
                 widget.style.setProperty('--subway-overlay-shadow-blur', `${cfg.shadowBlur ?? 8}px`);
                 widget.style.setProperty('--subway-overlay-shadow-x', `${cfg.shadowX ?? 0}px`);
@@ -428,8 +436,12 @@
                     widget.style.setProperty('--subway-timer-bg-pos', bgPosVal);
                     widget.style.setProperty('--subway-timer-bg-rotate', rotVal);
 
-                    // Timer text size & position
+                    // Timer text size, scale & position
+                    const textScaleX = (cfg.timerTextScaleX ?? 100) / 100;
+                    const textScaleY = (cfg.timerTextScaleY ?? 100) / 100;
                     widget.style.setProperty('--subway-timer-font-size', `${cfg.timerFontSize ?? 33}px`);
+                    widget.style.setProperty('--subway-timer-text-scale-x', String(textScaleX));
+                    widget.style.setProperty('--subway-timer-text-scale-y', String(textScaleY));
                     widget.style.setProperty('--subway-timer-text-x', `${cfg.timerTextPosX ?? 0}px`);
                     widget.style.setProperty('--subway-timer-text-y', `${cfg.timerTextPosY ?? 0}px`);
 
