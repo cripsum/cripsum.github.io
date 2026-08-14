@@ -271,6 +271,9 @@
     right: auto !important;
     bottom: auto !important;
     transform: none !important;
+    width: auto;
+    min-width: auto;
+    max-width: 100%;
 }
 
 .subway-theme-grid {
@@ -420,6 +423,65 @@
 .subway-theme-reset:hover {
     border-color: var(--game-accent2);
     color: var(--game-text);
+}
+
+/* Collapsible Settings Sections */
+.subway-settings-group {
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    margin-top: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    overflow: hidden;
+}
+
+.subway-settings-group + .subway-settings-group {
+    margin-top: 0.5rem;
+}
+
+.subway-settings-group > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #fff;
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+.subway-settings-group > summary::-webkit-details-marker { display: none; }
+
+.subway-settings-group > summary::before {
+    content: '\f105';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.7rem;
+    opacity: 0.5;
+    transition: transform 0.2s ease;
+    flex: 0 0 14px;
+    text-align: center;
+}
+
+.subway-settings-group[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.subway-settings-group > summary:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.subway-settings-group > summary i.fa-solid {
+    font-size: 0.78rem;
+    opacity: 0.6;
+    width: 16px;
+    text-align: center;
+}
+
+.subway-settings-group .subway-settings-group-body {
+    padding: 0 0.85rem 0.85rem;
 }
 
 @media (max-width: 760px) {
@@ -882,13 +944,13 @@ body.subway-fullscreen-active .main-footer {
     opacity: 0.5;
 }
 
-/* Timer HUD Widget (Fixed Dimensions & Custom Banner Support) */
+/* Timer HUD Widget (Dynamic Dimensions & Custom Banner Support) */
 .subway-timer-widget {
     top: 65px;
     left: 20px;
-    width: 250px;
-    min-width: 250px;
-    max-width: 250px;
+    width: var(--subway-timer-width, 250px);
+    min-width: var(--subway-timer-width, 250px);
+    max-width: var(--subway-timer-width, 250px);
     position: absolute;
     overflow: hidden;
 }
@@ -1009,7 +1071,7 @@ body.subway-fullscreen-active .main-footer {
 
 .subway-timer-display {
     font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
-    font-size: 2.1rem;
+    font-size: var(--subway-timer-font-size, 2.1rem);
     font-weight: 750;
     text-align: center;
     color: var(--subway-overlay-text, #fff);
@@ -1017,6 +1079,8 @@ body.subway-fullscreen-active .main-footer {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.5px;
+    transform: translate(var(--subway-timer-text-x, 0px), var(--subway-timer-text-y, 0px));
+    padding: var(--subway-timer-text-padding, 0);
 }
 
 .subway-timer-display .subway-ms {

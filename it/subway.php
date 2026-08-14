@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=13.4">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=14.0">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=13.4" defer></script>
+    <script src="/assets/js/subway/subway.js?v=14.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -222,95 +222,125 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <div class="subway-tab-pane active" data-overlay-pane="timer">
                         <div class="subway-widget-config-card">
                             <div class="subway-widget-card-title"><i class="fa-solid fa-stopwatch"></i> Overlay Timer</div>
-                            <div class="subway-theme-grid">
-                                <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
-                                <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
-                                <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
-                            </div>
-                            <label class="subway-opacity-setting">
-                                <span>Opacità sfondo <output data-widget-output>88%</output></span>
-                                <input type="range" min="0" max="100" step="1" value="88" data-widget="timer" data-widget-prop="bgOpacity">
-                            </label>
-                            <label class="subway-opacity-setting">
-                                <span>Opacità bordo <output data-widget-output>68%</output></span>
-                                <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
-                            </label>
-                            <label class="subway-opacity-setting">
-                                <span>Raggio bordi <output data-widget-output>12px</output></span>
-                                <input type="range" min="0" max="50" step="1" value="12" data-widget="timer" data-widget-prop="borderRadius">
-                            </label>
-                            <label class="subway-opacity-setting">
-                                <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
-                            </label>
 
-                            <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
-                                <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Ombra Testo</h5>
-                                <div class="subway-theme-grid">
-                                    <label class="subway-color-setting"><span>Colore Ombra</span><input type="color" value="#000000" data-widget="timer" data-widget-prop="shadowColor"></label>
-                                </div>
-                                <label class="subway-opacity-setting">
-                                    <span>Opacità Ombra <output data-widget-output>50%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="50" data-widget="timer" data-widget-prop="shadowOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Sfumatura Blur <output data-widget-output>8px</output></span>
-                                    <input type="range" min="0" max="30" step="1" value="8" data-widget="timer" data-widget-prop="shadowBlur">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Spostamento Orizzontale (X) <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-20" max="20" step="1" value="0" data-widget="timer" data-widget-prop="shadowX">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Spostamento Verticale (Y) <output data-widget-output>2px</output></span>
-                                    <input type="range" min="-20" max="20" step="1" value="2" data-widget="timer" data-widget-prop="shadowY">
-                                </label>
-                            </div>
-
-                            <div class="subway-img-setting">
-                                <h5><i class="fa-solid fa-image"></i> Editor Immagine Sfondo Banner</h5>
-                                <div class="subway-img-input-row">
-                                    <input type="text" placeholder="URL immagine (es. https://...)" data-widget="timer" data-widget-prop="bgImage">
-                                    <label class="subway-img-btn">
-                                        <i class="fa-solid fa-upload"></i> Carica...
-                                        <input type="file" accept="image/*" data-timer-bg-file style="display:none;">
+                            <details class="subway-settings-group" open>
+                                <summary><i class="fa-solid fa-palette"></i> Colori & Sfondo</summary>
+                                <div class="subway-settings-group-body">
+                                    <div class="subway-theme-grid">
+                                        <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
+                                        <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
+                                        <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
+                                    </div>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità sfondo <output data-widget-output>88%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="88" data-widget="timer" data-widget-prop="bgOpacity">
                                     </label>
-                                    <button type="button" class="subway-img-btn subway-img-btn-remove" data-timer-bg-remove title="Rimuovi immagine">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità bordo <output data-widget-output>68%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Raggio bordi <output data-widget-output>12px</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="12" data-widget="timer" data-widget-prop="borderRadius">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Effetto Blur <output data-widget-output>16px</output></span>
+                                        <input type="range" min="0" max="60" step="1" value="16" data-widget="timer" data-widget-prop="blur">
+                                    </label>
                                 </div>
-                                <div class="subway-img-preview-thumb" data-timer-bg-preview>Nessuna immagine impostata</div>
+                            </details>
 
-                                <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem; align-items: center;">
-                                    <span style="font-size: 0.78rem; color: #fff; font-weight: 700;">Modalità Taglio:</span>
-                                    <select data-widget="timer" data-widget-prop="bgFit" style="flex: 1; height: 34px; border-radius: 8px; background: rgba(0,0,0,0.35); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0 0.5rem; font-size: 0.78rem; outline: none;">
-                                        <option value="cover">Copri (Riempie tutto il banner)</option>
-                                        <option value="contain">Contieni (Mostra foto intera non tagliata)</option>
-                                        <option value="custom">Personalizzato (Zoom &amp; Spostamento)</option>
-                                    </select>
+                            <details class="subway-settings-group">
+                                <summary><i class="fa-solid fa-text-height"></i> Testo & Dimensioni Timer</summary>
+                                <div class="subway-settings-group-body">
+                                    <label class="subway-opacity-setting">
+                                        <span>Dimensione Testo <output data-widget-output>33px</output></span>
+                                        <input type="range" min="10" max="120" step="1" value="33" data-widget="timer" data-widget-prop="timerFontSize">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Posizione Testo X <output data-widget-output>0px</output></span>
+                                        <input type="range" min="-200" max="200" step="1" value="0" data-widget="timer" data-widget-prop="timerTextPosX">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Posizione Testo Y <output data-widget-output>0px</output></span>
+                                        <input type="range" min="-200" max="200" step="1" value="0" data-widget="timer" data-widget-prop="timerTextPosY">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Larghezza Timer <output data-widget-output>250px</output></span>
+                                        <input type="range" min="100" max="600" step="1" value="250" data-widget="timer" data-widget-prop="timerWidth">
+                                    </label>
                                 </div>
+                            </details>
 
-                                <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
-                                    <span>Opacità Banner <output data-widget-output>100%</output></span>
-                                    <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Scala / Zoom Immagine <output data-widget-output>100%</output></span>
-                                    <input type="range" min="20" max="500" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Spostamento X <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-500" max="500" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Spostamento Y <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-500" max="500" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
-                                </label>
-                                <label class="subway-opacity-setting">
-                                    <span>Rotazione <output data-widget-output>0°</output></span>
-                                    <input type="range" min="0" max="360" step="1" value="0" data-widget="timer" data-widget-prop="bgImageRotate">
-                                </label>
-                            </div>
+                            <details class="subway-settings-group">
+                                <summary><i class="fa-solid fa-moon"></i> Ombra Testo</summary>
+                                <div class="subway-settings-group-body">
+                                    <div class="subway-theme-grid">
+                                        <label class="subway-color-setting"><span>Colore Ombra</span><input type="color" value="#000000" data-widget="timer" data-widget-prop="shadowColor"></label>
+                                    </div>
+                                    <label class="subway-opacity-setting">
+                                        <span>Opacità Ombra <output data-widget-output>50%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="50" data-widget="timer" data-widget-prop="shadowOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Sfumatura Blur <output data-widget-output>8px</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="8" data-widget="timer" data-widget-prop="shadowBlur">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Spostamento X <output data-widget-output>0px</output></span>
+                                        <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="shadowX">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Spostamento Y <output data-widget-output>2px</output></span>
+                                        <input type="range" min="-100" max="100" step="1" value="2" data-widget="timer" data-widget-prop="shadowY">
+                                    </label>
+                                </div>
+                            </details>
+
+                            <details class="subway-settings-group">
+                                <summary><i class="fa-solid fa-image"></i> Immagine Banner</summary>
+                                <div class="subway-settings-group-body">
+                                    <div class="subway-img-input-row">
+                                        <input type="text" placeholder="URL immagine (es. https://...)" data-widget="timer" data-widget-prop="bgImage">
+                                        <label class="subway-img-btn">
+                                            <i class="fa-solid fa-upload"></i> Carica...
+                                            <input type="file" accept="image/*" data-timer-bg-file style="display:none;">
+                                        </label>
+                                        <button type="button" class="subway-img-btn subway-img-btn-remove" data-timer-bg-remove title="Rimuovi immagine">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div class="subway-img-preview-thumb" data-timer-bg-preview>Nessuna immagine impostata</div>
+                                    <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem; align-items: center;">
+                                        <span style="font-size: 0.78rem; color: #fff; font-weight: 700;">Modalità Taglio:</span>
+                                        <select data-widget="timer" data-widget-prop="bgFit" style="flex: 1; height: 34px; border-radius: 8px; background: rgba(0,0,0,0.35); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0 0.5rem; font-size: 0.78rem; outline: none;">
+                                            <option value="cover">Copri (Riempie tutto)</option>
+                                            <option value="contain">Contieni (Foto intera)</option>
+                                            <option value="custom">Personalizzato</option>
+                                        </select>
+                                    </div>
+                                    <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
+                                        <span>Opacità Banner <output data-widget-output>100%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Scala / Zoom <output data-widget-output>100%</output></span>
+                                        <input type="range" min="1" max="1000" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Spostamento X <output data-widget-output>0px</output></span>
+                                        <input type="range" min="-2000" max="2000" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Spostamento Y <output data-widget-output>0px</output></span>
+                                        <input type="range" min="-2000" max="2000" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Rotazione <output data-widget-output>0°</output></span>
+                                        <input type="range" min="0" max="360" step="1" value="0" data-widget="timer" data-widget-prop="bgImageRotate">
+                                    </label>
+                                </div>
+                            </details>
                         </div>
                     </div>
 
@@ -333,11 +363,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Raggio bordi <output data-widget-output>12px</output></span>
-                                <input type="range" min="0" max="50" step="1" value="12" data-widget="fps" data-widget-prop="borderRadius">
+                                <input type="range" min="0" max="100" step="1" value="12" data-widget="fps" data-widget-prop="borderRadius">
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                <input type="range" min="0" max="30" step="1" value="16" data-widget="fps" data-widget-prop="blur">
+                                <input type="range" min="0" max="60" step="1" value="16" data-widget="fps" data-widget-prop="blur">
                             </label>
 
                             <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
@@ -351,15 +381,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Sfumatura Blur <output data-widget-output>8px</output></span>
-                                    <input type="range" min="0" max="30" step="1" value="8" data-widget="fps" data-widget-prop="shadowBlur">
+                                    <input type="range" min="0" max="100" step="1" value="8" data-widget="fps" data-widget-prop="shadowBlur">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Spostamento Orizzontale (X) <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-20" max="20" step="1" value="0" data-widget="fps" data-widget-prop="shadowX">
+                                    <input type="range" min="-100" max="100" step="1" value="0" data-widget="fps" data-widget-prop="shadowX">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Spostamento Verticale (Y) <output data-widget-output>2px</output></span>
-                                    <input type="range" min="-20" max="20" step="1" value="2" data-widget="fps" data-widget-prop="shadowY">
+                                    <input type="range" min="-100" max="100" step="1" value="2" data-widget="fps" data-widget-prop="shadowY">
                                 </label>
                             </div>
                         </div>
@@ -384,11 +414,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Raggio bordi box <output data-widget-output>12px</output></span>
-                                <input type="range" min="0" max="50" step="1" value="12" data-widget="keys" data-widget-prop="borderRadius">
+                                <input type="range" min="0" max="100" step="1" value="12" data-widget="keys" data-widget-prop="borderRadius">
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Effetto Blur box <output data-widget-output>16px</output></span>
-                                <input type="range" min="0" max="30" step="1" value="16" data-widget="keys" data-widget-prop="blur">
+                                <input type="range" min="0" max="60" step="1" value="16" data-widget="keys" data-widget-prop="blur">
                             </label>
 
                             <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
@@ -402,15 +432,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Sfumatura Blur <output data-widget-output>8px</output></span>
-                                    <input type="range" min="0" max="30" step="1" value="8" data-widget="keys" data-widget-prop="shadowBlur">
+                                    <input type="range" min="0" max="100" step="1" value="8" data-widget="keys" data-widget-prop="shadowBlur">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Spostamento Orizzontale (X) <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-20" max="20" step="1" value="0" data-widget="keys" data-widget-prop="shadowX">
+                                    <input type="range" min="-100" max="100" step="1" value="0" data-widget="keys" data-widget-prop="shadowX">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Spostamento Verticale (Y) <output data-widget-output>2px</output></span>
-                                    <input type="range" min="-20" max="20" step="1" value="2" data-widget="keys" data-widget-prop="shadowY">
+                                    <input type="range" min="-100" max="100" step="1" value="2" data-widget="keys" data-widget-prop="shadowY">
                                 </label>
                             </div>
 
@@ -453,11 +483,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Raggio bordi <output data-widget-output>12px</output></span>
-                                <input type="range" min="0" max="50" step="1" value="12" data-widget="settings" data-widget-prop="borderRadius">
+                                <input type="range" min="0" max="100" step="1" value="12" data-widget="settings" data-widget-prop="borderRadius">
                             </label>
                             <label class="subway-opacity-setting">
                                 <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
+                                <input type="range" min="0" max="60" step="1" value="16" data-widget="settings" data-widget-prop="blur">
                             </label>
 
                             <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
@@ -471,15 +501,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Sfumatura Blur <output data-widget-output>8px</output></span>
-                                    <input type="range" min="0" max="30" step="1" value="8" data-widget="settings" data-widget-prop="shadowBlur">
+                                    <input type="range" min="0" max="100" step="1" value="8" data-widget="settings" data-widget-prop="shadowBlur">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Spostamento Orizzontale (X) <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-20" max="20" step="1" value="0" data-widget="settings" data-widget-prop="shadowX">
+                                    <input type="range" min="-100" max="100" step="1" value="0" data-widget="settings" data-widget-prop="shadowX">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Spostamento Verticale (Y) <output data-widget-output>2px</output></span>
-                                    <input type="range" min="-20" max="20" step="1" value="2" data-widget="settings" data-widget-prop="shadowY">
+                                    <input type="range" min="-100" max="100" step="1" value="2" data-widget="settings" data-widget-prop="shadowY">
                                 </label>
                             </div>
                         </div>
@@ -779,95 +809,125 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             <div class="subway-tab-pane active" data-overlay-pane="timer">
                                 <div class="subway-widget-config-card">
                                     <div class="subway-widget-card-title"><i class="fa-solid fa-stopwatch"></i> Overlay Timer</div>
-                                    <div class="subway-theme-grid">
-                                        <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
-                                        <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
-                                        <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
-                                    </div>
-                                    <label class="subway-opacity-setting">
-                                        <span>Opacità sfondo <output data-widget-output>88%</output></span>
-                                        <input type="range" min="0" max="100" step="1" value="88" data-widget="timer" data-widget-prop="bgOpacity">
-                                    </label>
-                                    <label class="subway-opacity-setting">
-                                        <span>Opacità bordo <output data-widget-output>68%</output></span>
-                                        <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
-                                    </label>
-                                    <label class="subway-opacity-setting">
-                                        <span>Raggio bordi <output data-widget-output>12px</output></span>
-                                        <input type="range" min="0" max="50" step="1" value="12" data-widget="timer" data-widget-prop="borderRadius">
-                                    </label>
-                                    <label class="subway-opacity-setting">
-                                        <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                        <input type="range" min="0" max="30" step="1" value="16" data-widget="timer" data-widget-prop="blur">
-                                    </label>
 
-                                    <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
-                                        <h5 style="margin: 0 0 0.5rem 0; color: #fff; font-size: 0.82rem;"><i class="fa-solid fa-moon"></i> Ombra Testo</h5>
-                                        <div class="subway-theme-grid">
-                                            <label class="subway-color-setting"><span>Colore Ombra</span><input type="color" value="#000000" data-widget="timer" data-widget-prop="shadowColor"></label>
-                                        </div>
-                                        <label class="subway-opacity-setting">
-                                            <span>Opacità Ombra <output data-widget-output>50%</output></span>
-                                            <input type="range" min="0" max="100" step="1" value="50" data-widget="timer" data-widget-prop="shadowOpacity">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Sfumatura Blur <output data-widget-output>8px</output></span>
-                                            <input type="range" min="0" max="30" step="1" value="8" data-widget="timer" data-widget-prop="shadowBlur">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Spostamento Orizzontale (X) <output data-widget-output>0px</output></span>
-                                            <input type="range" min="-20" max="20" step="1" value="0" data-widget="timer" data-widget-prop="shadowX">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Spostamento Verticale (Y) <output data-widget-output>2px</output></span>
-                                            <input type="range" min="-20" max="20" step="1" value="2" data-widget="timer" data-widget-prop="shadowY">
-                                        </label>
-                                    </div>
-
-                                    <div class="subway-img-setting">
-                                        <h5><i class="fa-solid fa-image"></i> Editor Immagine Sfondo Banner</h5>
-                                        <div class="subway-img-input-row">
-                                            <input type="text" placeholder="URL immagine (es. https://...)" data-widget="timer" data-widget-prop="bgImage">
-                                            <label class="subway-img-btn">
-                                                <i class="fa-solid fa-upload"></i> Carica...
-                                                <input type="file" accept="image/*" data-timer-bg-file style="display:none;">
+                                    <details class="subway-settings-group" open>
+                                        <summary><i class="fa-solid fa-palette"></i> Colori & Sfondo</summary>
+                                        <div class="subway-settings-group-body">
+                                            <div class="subway-theme-grid">
+                                                <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
+                                                <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
+                                                <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
+                                            </div>
+                                            <label class="subway-opacity-setting">
+                                                <span>Opacità sfondo <output data-widget-output>88%</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="88" data-widget="timer" data-widget-prop="bgOpacity">
                                             </label>
-                                            <button type="button" class="subway-img-btn subway-img-btn-remove" data-timer-bg-remove title="Rimuovi immagine">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
+                                            <label class="subway-opacity-setting">
+                                                <span>Opacità bordo <output data-widget-output>68%</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="68" data-widget="timer" data-widget-prop="borderOpacity">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Raggio bordi <output data-widget-output>12px</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="12" data-widget="timer" data-widget-prop="borderRadius">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Effetto Blur <output data-widget-output>16px</output></span>
+                                                <input type="range" min="0" max="60" step="1" value="16" data-widget="timer" data-widget-prop="blur">
+                                            </label>
                                         </div>
-                                        <div class="subway-img-preview-thumb" data-timer-bg-preview>Nessuna immagine impostata</div>
+                                    </details>
 
-                                        <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem; align-items: center;">
-                                            <span style="font-size: 0.78rem; color: #fff; font-weight: 700;">Modalità Taglio:</span>
-                                            <select data-widget="timer" data-widget-prop="bgFit" style="flex: 1; height: 34px; border-radius: 8px; background: rgba(0,0,0,0.35); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0 0.5rem; font-size: 0.78rem; outline: none;">
-                                                <option value="cover">Copri (Riempie tutto il banner)</option>
-                                                <option value="contain">Contieni (Mostra foto intera non tagliata)</option>
-                                                <option value="custom">Personalizzato (Zoom &amp; Spostamento)</option>
-                                            </select>
+                                    <details class="subway-settings-group">
+                                        <summary><i class="fa-solid fa-text-height"></i> Testo & Dimensioni Timer</summary>
+                                        <div class="subway-settings-group-body">
+                                            <label class="subway-opacity-setting">
+                                                <span>Dimensione Testo <output data-widget-output>33px</output></span>
+                                                <input type="range" min="10" max="120" step="1" value="33" data-widget="timer" data-widget-prop="timerFontSize">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Posizione Testo X <output data-widget-output>0px</output></span>
+                                                <input type="range" min="-200" max="200" step="1" value="0" data-widget="timer" data-widget-prop="timerTextPosX">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Posizione Testo Y <output data-widget-output>0px</output></span>
+                                                <input type="range" min="-200" max="200" step="1" value="0" data-widget="timer" data-widget-prop="timerTextPosY">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Larghezza Timer <output data-widget-output>250px</output></span>
+                                                <input type="range" min="100" max="600" step="1" value="250" data-widget="timer" data-widget-prop="timerWidth">
+                                            </label>
                                         </div>
+                                    </details>
 
-                                        <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
-                                            <span>Opacità Banner <output data-widget-output>100%</output></span>
-                                            <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Scala / Zoom Immagine <output data-widget-output>100%</output></span>
-                                            <input type="range" min="20" max="500" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Spostamento X <output data-widget-output>0px</output></span>
-                                            <input type="range" min="-500" max="500" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Spostamento Y <output data-widget-output>0px</output></span>
-                                            <input type="range" min="-500" max="500" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
-                                        </label>
-                                        <label class="subway-opacity-setting">
-                                            <span>Rotazione <output data-widget-output>0°</output></span>
-                                            <input type="range" min="0" max="360" step="1" value="0" data-widget="timer" data-widget-prop="bgImageRotate">
-                                        </label>
-                                    </div>
+                                    <details class="subway-settings-group">
+                                        <summary><i class="fa-solid fa-moon"></i> Ombra Testo</summary>
+                                        <div class="subway-settings-group-body">
+                                            <div class="subway-theme-grid">
+                                                <label class="subway-color-setting"><span>Colore Ombra</span><input type="color" value="#000000" data-widget="timer" data-widget-prop="shadowColor"></label>
+                                            </div>
+                                            <label class="subway-opacity-setting">
+                                                <span>Opacità Ombra <output data-widget-output>50%</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="50" data-widget="timer" data-widget-prop="shadowOpacity">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Sfumatura Blur <output data-widget-output>8px</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="8" data-widget="timer" data-widget-prop="shadowBlur">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Spostamento X <output data-widget-output>0px</output></span>
+                                                <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="shadowX">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Spostamento Y <output data-widget-output>2px</output></span>
+                                                <input type="range" min="-100" max="100" step="1" value="2" data-widget="timer" data-widget-prop="shadowY">
+                                            </label>
+                                        </div>
+                                    </details>
+
+                                    <details class="subway-settings-group">
+                                        <summary><i class="fa-solid fa-image"></i> Immagine Banner</summary>
+                                        <div class="subway-settings-group-body">
+                                            <div class="subway-img-input-row">
+                                                <input type="text" placeholder="URL immagine (es. https://...)" data-widget="timer" data-widget-prop="bgImage">
+                                                <label class="subway-img-btn">
+                                                    <i class="fa-solid fa-upload"></i> Carica...
+                                                    <input type="file" accept="image/*" data-timer-bg-file style="display:none;">
+                                                </label>
+                                                <button type="button" class="subway-img-btn subway-img-btn-remove" data-timer-bg-remove title="Rimuovi immagine">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </div>
+                                            <div class="subway-img-preview-thumb" data-timer-bg-preview>Nessuna immagine impostata</div>
+                                            <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem; align-items: center;">
+                                                <span style="font-size: 0.78rem; color: #fff; font-weight: 700;">Modalità Taglio:</span>
+                                                <select data-widget="timer" data-widget-prop="bgFit" style="flex: 1; height: 34px; border-radius: 8px; background: rgba(0,0,0,0.35); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0 0.5rem; font-size: 0.78rem; outline: none;">
+                                                    <option value="cover">Copri (Riempie tutto)</option>
+                                                    <option value="contain">Contieni (Foto intera)</option>
+                                                    <option value="custom">Personalizzato</option>
+                                                </select>
+                                            </div>
+                                            <label class="subway-opacity-setting" style="margin-top: 0.5rem;">
+                                                <span>Opacità Banner <output data-widget-output>100%</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="100" data-widget="timer" data-widget-prop="bgImageOpacity">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Scala / Zoom <output data-widget-output>100%</output></span>
+                                                <input type="range" min="1" max="1000" step="1" value="100" data-widget="timer" data-widget-prop="bgImageScale">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Spostamento X <output data-widget-output>0px</output></span>
+                                                <input type="range" min="-2000" max="2000" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Spostamento Y <output data-widget-output>0px</output></span>
+                                                <input type="range" min="-2000" max="2000" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Rotazione <output data-widget-output>0°</output></span>
+                                                <input type="range" min="0" max="360" step="1" value="0" data-widget="timer" data-widget-prop="bgImageRotate">
+                                            </label>
+                                        </div>
+                                    </details>
                                 </div>
                             </div>
 
@@ -890,11 +950,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Raggio bordi <output data-widget-output>12px</output></span>
-                                        <input type="range" min="0" max="50" step="1" value="12" data-widget="fps" data-widget-prop="borderRadius">
+                                        <input type="range" min="0" max="100" step="1" value="12" data-widget="fps" data-widget-prop="borderRadius">
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                        <input type="range" min="0" max="30" step="1" value="16" data-widget="fps" data-widget-prop="blur">
+                                        <input type="range" min="0" max="60" step="1" value="16" data-widget="fps" data-widget-prop="blur">
                                     </label>
 
                                     <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
@@ -908,15 +968,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Sfumatura Blur <output data-widget-output>8px</output></span>
-                                            <input type="range" min="0" max="30" step="1" value="8" data-widget="fps" data-widget-prop="shadowBlur">
+                                            <input type="range" min="0" max="100" step="1" value="8" data-widget="fps" data-widget-prop="shadowBlur">
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Spostamento Orizzontale (X) <output data-widget-output>0px</output></span>
-                                            <input type="range" min="-20" max="20" step="1" value="0" data-widget="fps" data-widget-prop="shadowX">
+                                            <input type="range" min="-100" max="100" step="1" value="0" data-widget="fps" data-widget-prop="shadowX">
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Spostamento Verticale (Y) <output data-widget-output>2px</output></span>
-                                            <input type="range" min="-20" max="20" step="1" value="2" data-widget="fps" data-widget-prop="shadowY">
+                                            <input type="range" min="-100" max="100" step="1" value="2" data-widget="fps" data-widget-prop="shadowY">
                                         </label>
                                     </div>
                                 </div>
@@ -941,11 +1001,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Raggio bordi box <output data-widget-output>12px</output></span>
-                                        <input type="range" min="0" max="50" step="1" value="12" data-widget="keys" data-widget-prop="borderRadius">
+                                        <input type="range" min="0" max="100" step="1" value="12" data-widget="keys" data-widget-prop="borderRadius">
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Effetto Blur box <output data-widget-output>16px</output></span>
-                                        <input type="range" min="0" max="30" step="1" value="16" data-widget="keys" data-widget-prop="blur">
+                                        <input type="range" min="0" max="60" step="1" value="16" data-widget="keys" data-widget-prop="blur">
                                     </label>
 
                                     <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
@@ -959,15 +1019,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Sfumatura Blur <output data-widget-output>8px</output></span>
-                                            <input type="range" min="0" max="30" step="1" value="8" data-widget="keys" data-widget-prop="shadowBlur">
+                                            <input type="range" min="0" max="100" step="1" value="8" data-widget="keys" data-widget-prop="shadowBlur">
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Spostamento Orizzontale (X) <output data-widget-output>0px</output></span>
-                                            <input type="range" min="-20" max="20" step="1" value="0" data-widget="keys" data-widget-prop="shadowX">
+                                            <input type="range" min="-100" max="100" step="1" value="0" data-widget="keys" data-widget-prop="shadowX">
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Spostamento Verticale (Y) <output data-widget-output>2px</output></span>
-                                            <input type="range" min="-20" max="20" step="1" value="2" data-widget="keys" data-widget-prop="shadowY">
+                                            <input type="range" min="-100" max="100" step="1" value="2" data-widget="keys" data-widget-prop="shadowY">
                                         </label>
                                     </div>
 
@@ -1010,11 +1070,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Raggio bordi <output data-widget-output>12px</output></span>
-                                        <input type="range" min="0" max="50" step="1" value="12" data-widget="settings" data-widget-prop="borderRadius">
+                                        <input type="range" min="0" max="100" step="1" value="12" data-widget="settings" data-widget-prop="borderRadius">
                                     </label>
                                     <label class="subway-opacity-setting">
                                         <span>Effetto Blur <output data-widget-output>16px</output></span>
-                                        <input type="range" min="0" max="30" step="1" value="16" data-widget="settings" data-widget-prop="blur">
+                                        <input type="range" min="0" max="60" step="1" value="16" data-widget="settings" data-widget-prop="blur">
                                     </label>
 
                                     <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));">
@@ -1028,15 +1088,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Sfumatura Blur <output data-widget-output>8px</output></span>
-                                            <input type="range" min="0" max="30" step="1" value="8" data-widget="settings" data-widget-prop="shadowBlur">
+                                            <input type="range" min="0" max="100" step="1" value="8" data-widget="settings" data-widget-prop="shadowBlur">
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Spostamento Orizzontale (X) <output data-widget-output>0px</output></span>
-                                            <input type="range" min="-20" max="20" step="1" value="0" data-widget="settings" data-widget-prop="shadowX">
+                                            <input type="range" min="-100" max="100" step="1" value="0" data-widget="settings" data-widget-prop="shadowX">
                                         </label>
                                         <label class="subway-opacity-setting">
                                             <span>Spostamento Verticale (Y) <output data-widget-output>2px</output></span>
-                                            <input type="range" min="-20" max="20" step="1" value="2" data-widget="settings" data-widget-prop="shadowY">
+                                            <input type="range" min="-100" max="100" step="1" value="2" data-widget="settings" data-widget-prop="shadowY">
                                         </label>
                                     </div>
                                 </div>

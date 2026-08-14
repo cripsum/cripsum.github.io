@@ -52,7 +52,11 @@
             bgImageScale: 100,
             bgImageRotate: 0,
             bgImagePosX: 0,
-            bgImagePosY: 0
+            bgImagePosY: 0,
+            timerFontSize: 33,
+            timerTextPosX: 0,
+            timerTextPosY: 0,
+            timerWidth: 250
         }),
         fps: defaultWidgetConfig(),
         keys: Object.assign(defaultWidgetConfig(), {
@@ -422,6 +426,14 @@
                     widget.style.setProperty('--subway-timer-bg-size', bgSizeVal);
                     widget.style.setProperty('--subway-timer-bg-pos', bgPosVal);
                     widget.style.setProperty('--subway-timer-bg-rotate', rotVal);
+
+                    // Timer text size & position
+                    widget.style.setProperty('--subway-timer-font-size', `${cfg.timerFontSize ?? 33}px`);
+                    widget.style.setProperty('--subway-timer-text-x', `${cfg.timerTextPosX ?? 0}px`);
+                    widget.style.setProperty('--subway-timer-text-y', `${cfg.timerTextPosY ?? 0}px`);
+
+                    // Timer widget width
+                    widget.style.setProperty('--subway-timer-width', `${cfg.timerWidth ?? 250}px`);
                     
                     const innerBg = widget.querySelector('.subway-timer-banner-bg');
                     if (innerBg) {
@@ -534,17 +546,9 @@
                     state.overlayTheme[wKey][prop] = normalizeHexColor(input.value, '#000000');
                 } else if (input.type === 'range') {
                     const val = Number(input.value);
-                    let min = 0;
-                    let max = 100;
-                    if (prop === 'blur') max = 30;
-                    else if (prop === 'borderRadius') max = 50;
-                    else if (prop === 'shadowBlur') max = 30;
-                    else if (prop === 'shadowX' || prop === 'shadowY') { min = -20; max = 20; }
-                    else if (prop === 'bgImageScale') { min = 20; max = 500; }
-                    else if (prop === 'bgImageRotate') { min = 0; max = 360; }
-                    else if (prop === 'bgImagePosX' || prop === 'bgImagePosY') { min = -500; max = 500; }
-
-                    state.overlayTheme[wKey][prop] = Math.min(max, Math.max(min, Number.isFinite(val) ? val : min));
+                    const min = input.hasAttribute('min') ? parseFloat(input.min) : -Infinity;
+                    const max = input.hasAttribute('max') ? parseFloat(input.max) : Infinity;
+                    state.overlayTheme[wKey][prop] = Math.min(max, Math.max(min, Number.isFinite(val) ? val : 0));
                 } else if (input.type === 'text') {
                     state.overlayTheme[wKey][prop] = String(input.value || '').trim();
                 } else if (input.tagName === 'SELECT') {
