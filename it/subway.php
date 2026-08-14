@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=14.2">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=14.3">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=14.2" defer></script>
+    <script src="/assets/js/subway/subway.js?v=14.3" defer></script>
 </head>
 
 <body class="game-page">
@@ -229,6 +229,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     <div class="subway-theme-grid">
                                         <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
                                         <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
+                                        <label class="subway-color-setting"><span>Accento</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="accentColor"></label>
                                         <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
                                     </div>
                                     <label class="subway-opacity-setting">
@@ -828,6 +829,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                             <div class="subway-theme-grid">
                                                 <label class="subway-color-setting"><span>Sfondo</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
                                                 <label class="subway-color-setting"><span>Testo</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
+                                                <label class="subway-color-setting"><span>Accento</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="accentColor"></label>
                                                 <label class="subway-color-setting"><span>Bordo</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
                                             </div>
                                             <label class="subway-opacity-setting">

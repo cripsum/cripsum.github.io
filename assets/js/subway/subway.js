@@ -33,6 +33,7 @@
         bg: '#090d18',
         bgOpacity: 88,
         textColor: '#ffffff',
+        accentColor: '#06b6d4',
         borderColor: '#06b6d4',
         borderOpacity: 68,
         blur: 16,
@@ -392,11 +393,13 @@
 
                 const bgRgb = hexToRgb(cfg.bg || '#090d18');
                 const borderRgb = hexToRgb(cfg.borderColor || '#06b6d4');
+                const accentHex = cfg.accentColor || cfg.borderColor || '#06b6d4';
                 const shadowRgb = hexToRgb(cfg.shadowColor || '#000000');
 
                 widget.style.setProperty('--subway-overlay-bg-rgb', bgRgb);
                 widget.style.setProperty('--subway-overlay-opacity', String((cfg.bgOpacity ?? 88) / 100));
                 widget.style.setProperty('--subway-overlay-text', cfg.textColor || '#ffffff');
+                widget.style.setProperty('--subway-overlay-accent', accentHex);
                 widget.style.setProperty('--subway-overlay-accent-rgb', borderRgb);
                 widget.style.setProperty('--subway-overlay-border-opacity', String((cfg.borderOpacity ?? 68) / 100));
                 widget.style.setProperty('--subway-overlay-border-radius', `${cfg.borderRadius ?? 12}px`);

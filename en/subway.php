@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=14.2">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=14.3">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=14.2" defer></script>
+    <script src="/assets/js/subway/subway.js?v=14.3" defer></script>
 </head>
 
 <body class="game-page">
@@ -229,6 +229,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                     <div class="subway-theme-grid">
                                         <label class="subway-color-setting"><span>Background</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
                                         <label class="subway-color-setting"><span>Text</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
+                                        <label class="subway-color-setting"><span>Accent</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="accentColor"></label>
                                         <label class="subway-color-setting"><span>Border</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
                                     </div>
                                     <label class="subway-opacity-setting">
@@ -828,6 +829,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                             <div class="subway-theme-grid">
                                                 <label class="subway-color-setting"><span>Background</span><input type="color" value="#090d18" data-widget="timer" data-widget-prop="bg"></label>
                                                 <label class="subway-color-setting"><span>Text</span><input type="color" value="#ffffff" data-widget="timer" data-widget-prop="textColor"></label>
+                                                <label class="subway-color-setting"><span>Accent</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="accentColor"></label>
                                                 <label class="subway-color-setting"><span>Border</span><input type="color" value="#06b6d4" data-widget="timer" data-widget-prop="borderColor"></label>
                                             </div>
                                             <label class="subway-opacity-setting">
