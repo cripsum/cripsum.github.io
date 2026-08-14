@@ -507,7 +507,7 @@
                     else if (prop === 'shadowX' || prop === 'shadowY') { min = -20; max = 20; }
                     else if (prop === 'bgImageScale') { min = 50; max = 300; }
                     else if (prop === 'bgImageRotate') { min = 0; max = 360; }
-                    else if (prop === 'bgImagePosX' || prop === 'bgImagePosY') { min = -100; max = 100; }
+                    else if (prop === 'bgImagePosX' || prop === 'bgImagePosY') { min = -250; max = 250; }
 
                     state.overlayTheme[wKey][prop] = Math.min(max, Math.max(min, Number.isFinite(val) ? val : min));
                 } else if (input.type === 'text') {

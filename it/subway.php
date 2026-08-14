@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=13.2">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=13.3">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=13.2" defer></script>
+    <script src="/assets/js/subway/subway.js?v=13.3" defer></script>
 </head>
 
 <body class="game-page">
@@ -294,11 +294,11 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Spostamento X <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
+                                    <input type="range" min="-250" max="250" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosX">
                                 </label>
                                 <label class="subway-opacity-setting">
                                     <span>Spostamento Y <output data-widget-output>0px</output></span>
-                                    <input type="range" min="-100" max="100" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
+                                    <input type="range" min="-250" max="250" step="1" value="0" data-widget="timer" data-widget-prop="bgImagePosY">
                                 </label>
                             </div>
                         </div>
