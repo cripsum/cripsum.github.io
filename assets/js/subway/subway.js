@@ -71,6 +71,7 @@
             keyBorderColor: '#06b6d4',
             keyBorderOpacity: 40
         }),
+        audio: defaultWidgetConfig(),
         settings: defaultWidgetConfig(),
         showBoost: false,
         showHeaders: true
@@ -97,6 +98,8 @@
         bindings: Object.assign({}, defaultBindings),
         overlayPositions: {},
         overlayTheme: JSON.parse(JSON.stringify(defaultOverlayTheme)),
+        audioVolume: 0.8,
+        audioMuted: false,
         challenge: true,
         blockSpace: false,
         vsync: true,
@@ -132,7 +135,7 @@
             
             if (saved.overlayTheme && typeof saved.overlayTheme === 'object') {
                 const raw = saved.overlayTheme;
-                const widgetKeys = ['timer', 'fps', 'keys', 'settings'];
+                const widgetKeys = ['timer', 'fps', 'keys', 'audio', 'settings'];
                 widgetKeys.forEach(wKey => {
                     const fallback = defaultOverlayTheme[wKey];
                     let current = raw[wKey];
@@ -176,6 +179,10 @@
                 state.overlayTheme = JSON.parse(JSON.stringify(defaultOverlayTheme));
             }
 
+            const { vol, muted } = getSavedAudioState();
+            state.audioVolume = vol;
+            state.audioMuted = muted;
+
             state.challenge = saved.challenge !== false;
             state.blockSpace = saved.blockSpace === true;
             state.vsync = saved.vsync !== false;
@@ -184,6 +191,9 @@
             state.bindings = Object.assign({}, defaultBindings);
             state.overlayPositions = {};
             state.overlayTheme = JSON.parse(JSON.stringify(defaultOverlayTheme));
+            const { vol, muted } = getSavedAudioState();
+            state.audioVolume = vol;
+            state.audioMuted = muted;
             state.blockSpace = false;
             state.vsync = true;
             state.fpsLimit = 144;
@@ -379,7 +389,7 @@
     }
 
     function applyOverlayTheme() {
-        ['timer', 'fps', 'keys', 'settings'].forEach(widgetKey => {
+        ['timer', 'fps', 'keys', 'audio', 'settings'].forEach(widgetKey => {
             const cfg = state.overlayTheme[widgetKey];
             if (!cfg) return;
 
@@ -388,6 +398,7 @@
                 const isTarget = widgetKey === 'timer' ? widget.classList.contains('subway-timer-widget')
                     : widgetKey === 'fps' ? widget.classList.contains('subway-fps-widget')
                     : widgetKey === 'keys' ? widget.classList.contains('subway-keys-widget')
+                    : widgetKey === 'audio' ? widget.classList.contains('subway-audio-widget')
                     : widget.classList.contains('subway-settings-btn-widget');
                 if (!isTarget) return;
 
@@ -754,6 +765,155 @@
             };
         });
         Object.defineProperty(console, '__cripsumSubwayFiltered', { value: true });
+    }
+
+    const activeMasterGains = new Set();
+    const VOLUME_STORAGE_KEY = 'cripsum.subway.volume';
+    const MUTE_STORAGE_KEY = 'cripsum.subway.muted';
+
+    function getSavedAudioState() {
+        let vol = 0.8;
+        let muted = false;
+        try {
+            const rawVol = localStorage.getItem(VOLUME_STORAGE_KEY);
+            if (rawVol !== null) vol = Math.max(0, Math.min(1, Number(rawVol)));
+            const rawMute = localStorage.getItem(MUTE_STORAGE_KEY);
+            if (rawMute !== null) muted = rawMute === 'true';
+        } catch (_) {}
+        return { vol, muted };
+    }
+
+    function applyAudioVolume(vol, muted) {
+        if (typeof vol === 'number') state.audioVolume = Math.max(0, Math.min(1, vol));
+        if (typeof muted === 'boolean') state.audioMuted = muted;
+
+        const effectiveVol = state.audioMuted ? 0 : state.audioVolume;
+
+        activeMasterGains.forEach(gainNode => {
+            try {
+                if (gainNode.context && gainNode.context.state !== 'closed') {
+                    gainNode.gain.setValueAtTime(effectiveVol, gainNode.context.currentTime);
+                }
+            } catch (_) {}
+        });
+
+        document.querySelectorAll('audio, video').forEach(el => {
+            try {
+                el.volume = state.audioVolume;
+                el.muted = state.audioMuted;
+            } catch (_) {}
+        });
+
+        updateAudioWidgetsUi();
+    }
+
+    function updateAudioWidgetsUi() {
+        const isMuted = state.audioMuted || state.audioVolume === 0;
+        const iconClass = isMuted
+            ? 'fa-solid fa-volume-xmark'
+            : state.audioVolume < 0.5
+                ? 'fa-solid fa-volume-low'
+                : 'fa-solid fa-volume-high';
+
+        document.querySelectorAll('.subway-audio-widget').forEach(widget => {
+            const icon = widget.querySelector('.subway-audio-btn i');
+            if (icon) icon.className = iconClass;
+            const slider = widget.querySelector('.subway-audio-slider');
+            if (slider && document.activeElement !== slider) {
+                slider.value = String(state.audioMuted ? 0 : state.audioVolume);
+            }
+        });
+    }
+
+    function bindAudioWidgets() {
+        document.querySelectorAll('.subway-audio-widget').forEach(widget => {
+            if (widget.__audioBound) return;
+            widget.__audioBound = true;
+
+            const btn = widget.querySelector('.subway-audio-btn');
+            const slider = widget.querySelector('.subway-audio-slider');
+
+            widget.addEventListener('mouseenter', () => widget.classList.add('show-slider'));
+            widget.addEventListener('mouseleave', () => {
+                if (document.activeElement !== slider) widget.classList.remove('show-slider');
+            });
+
+            if (btn) {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const newMuted = !state.audioMuted;
+                    let newVol = state.audioVolume;
+                    if (!newMuted && newVol === 0) newVol = 0.8;
+                    try {
+                        localStorage.setItem(MUTE_STORAGE_KEY, String(newMuted));
+                        localStorage.setItem(VOLUME_STORAGE_KEY, String(newVol));
+                    } catch (_) {}
+                    applyAudioVolume(newVol, newMuted);
+                });
+            }
+
+            if (slider) {
+                slider.addEventListener('pointerdown', e => e.stopPropagation());
+                slider.addEventListener('mousedown', e => e.stopPropagation());
+                slider.addEventListener('touchstart', e => e.stopPropagation());
+
+                slider.addEventListener('focus', () => widget.classList.add('show-slider'));
+                slider.addEventListener('blur', () => widget.classList.remove('show-slider'));
+
+                slider.addEventListener('input', () => {
+                    const val = Number(slider.value);
+                    const newMuted = val === 0;
+                    try {
+                        localStorage.setItem(VOLUME_STORAGE_KEY, String(val));
+                        localStorage.setItem(MUTE_STORAGE_KEY, String(newMuted));
+                    } catch (_) {}
+                    applyAudioVolume(val, newMuted);
+                });
+            }
+        });
+
+        if (!document.__subwayAudioDismissBound) {
+            document.__subwayAudioDismissBound = true;
+            document.addEventListener('pointerdown', e => {
+                document.querySelectorAll('.subway-audio-widget').forEach(w => {
+                    if (!w.contains(e.target)) w.classList.remove('show-slider');
+                });
+            });
+        }
+    }
+
+    function installAudioMasterVolume() {
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (!Context || Context.prototype.__cripsumMasterVolumeHooked) return;
+
+        function getContextMasterGain(ctx) {
+            if (!ctx.__cripsumMasterGain) {
+                const gain = ctx.createGain();
+                const effectiveVol = state.audioMuted ? 0 : state.audioVolume;
+                gain.gain.value = effectiveVol;
+                
+                const nativeConnect = AudioNode.prototype.__nativeConnect || AudioNode.prototype.connect;
+                nativeConnect.call(gain, ctx.destination);
+                ctx.__cripsumMasterGain = gain;
+                activeMasterGains.add(gain);
+            }
+            return ctx.__cripsumMasterGain;
+        }
+
+        const nativeConnect = AudioNode.prototype.connect;
+        AudioNode.prototype.__nativeConnect = nativeConnect;
+
+        AudioNode.prototype.connect = function (target, ...args) {
+            if (target && this.context && target === this.context.destination) {
+                const masterGain = getContextMasterGain(this.context);
+                if (this !== masterGain) {
+                    return nativeConnect.call(this, masterGain, ...args);
+                }
+            }
+            return nativeConnect.call(this, target, ...args);
+        };
+
+        Context.prototype.__cripsumMasterVolumeHooked = true;
     }
 
     function installAudioDetector() {
@@ -1334,7 +1494,10 @@
         filterKnownUnityNoise();
         installWasmMimeFallback();
         createPokiCompatibilityLayer();
+        installAudioMasterVolume();
         installAudioDetector();
+        bindAudioWidgets();
+        applyAudioVolume(state.audioVolume, state.audioMuted);
         dom.cancelSubwayLoad?.addEventListener('click', returnToLobby);
         dom.exitGameBtn?.addEventListener('click', returnToLobby);
     }

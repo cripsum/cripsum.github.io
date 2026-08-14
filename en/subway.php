@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=14.3">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=15.0">
     <script src="/assets/js/subway/subway-profile.js?v=1.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=14.3" defer></script>
+    <script src="/assets/js/subway/subway.js?v=15.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -203,6 +203,16 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             </div>
                         </div>
 
+                        <!-- Audio Button Preview -->
+                        <div class="subway-hud-widget subway-audio-widget subway-preview-widget" data-preview-widget="audio">
+                            <button class="subway-audio-btn" type="button" aria-label="Mute / Unmute audio">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                            <div class="subway-audio-slider-wrap">
+                                <input type="range" class="subway-audio-slider" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+                            </div>
+                        </div>
+
                         <!-- Settings Button Preview -->
                         <button class="subway-hud-widget subway-settings-btn-widget subway-preview-widget" data-preview-widget="settings" type="button" aria-label="Settings">
                             <i class="fa-solid fa-gear"></i>
@@ -214,6 +224,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         <button type="button" class="subway-tab-btn active" data-overlay-tab="timer"><i class="fa-solid fa-stopwatch"></i> Timer</button>
                         <button type="button" class="subway-tab-btn" data-overlay-tab="fps"><i class="fa-solid fa-gauge-high"></i> FPS</button>
                         <button type="button" class="subway-tab-btn" data-overlay-tab="keys"><i class="fa-solid fa-keyboard"></i> WASD Controls</button>
+                        <button type="button" class="subway-tab-btn" data-overlay-tab="audio"><i class="fa-solid fa-volume-high"></i> Audio</button>
                         <button type="button" class="subway-tab-btn" data-overlay-tab="settings"><i class="fa-solid fa-gear"></i> Settings Button</button>
                         <button type="button" class="subway-tab-btn" data-overlay-tab="layout"><i class="fa-solid fa-sliders"></i> General Layout</button>
                     </div>
@@ -477,6 +488,66 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         </div>
                     </div>
 
+                    <!-- Tab Pane: Audio / Volume -->
+                    <div class="subway-tab-pane" data-overlay-pane="audio">
+                        <div class="subway-widget-config-card">
+                            <div class="subway-widget-card-title"><i class="fa-solid fa-volume-high"></i> Audio / Volume Overlay</div>
+
+                            <details class="subway-settings-group" open>
+                                <summary><i class="fa-solid fa-palette"></i> Colors & Background</summary>
+                                <div class="subway-settings-group-body">
+                                    <div class="subway-theme-grid">
+                                        <label class="subway-color-setting"><span>Background</span><input type="color" value="#090d18" data-widget="audio" data-widget-prop="bg"></label>
+                                        <label class="subway-color-setting"><span>Icon</span><input type="color" value="#ffffff" data-widget="audio" data-widget-prop="textColor"></label>
+                                        <label class="subway-color-setting"><span>Accent</span><input type="color" value="#06b6d4" data-widget="audio" data-widget-prop="accentColor"></label>
+                                        <label class="subway-color-setting"><span>Border</span><input type="color" value="#06b6d4" data-widget="audio" data-widget-prop="borderColor"></label>
+                                    </div>
+                                    <label class="subway-opacity-setting">
+                                        <span>Background opacity <output data-widget-output>88%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="88" data-widget="audio" data-widget-prop="bgOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Border opacity <output data-widget-output>68%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="68" data-widget="audio" data-widget-prop="borderOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Border radius <output data-widget-output>12px</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="12" data-widget="audio" data-widget-prop="borderRadius">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Blur effect <output data-widget-output>16px</output></span>
+                                        <input type="range" min="0" max="60" step="1" value="16" data-widget="audio" data-widget-prop="blur">
+                                    </label>
+                                </div>
+                            </details>
+
+                            <details class="subway-settings-group">
+                                <summary><i class="fa-solid fa-moon"></i> Shadow</summary>
+                                <div class="subway-settings-group-body">
+                                    <div class="subway-theme-grid">
+                                        <label class="subway-color-setting"><span>Shadow color</span><input type="color" value="#000000" data-widget="audio" data-widget-prop="shadowColor"></label>
+                                    </div>
+                                    <label class="subway-opacity-setting">
+                                        <span>Shadow opacity <output data-widget-output>50%</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="50" data-widget="audio" data-widget-prop="shadowOpacity">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Shadow blur <output data-widget-output>8px</output></span>
+                                        <input type="range" min="0" max="100" step="1" value="8" data-widget="audio" data-widget-prop="shadowBlur">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Offset X <output data-widget-output>0px</output></span>
+                                        <input type="range" min="-100" max="100" step="1" value="0" data-widget="audio" data-widget-prop="shadowX">
+                                    </label>
+                                    <label class="subway-opacity-setting">
+                                        <span>Offset Y <output data-widget-output>2px</output></span>
+                                        <input type="range" min="-100" max="100" step="1" value="2" data-widget="audio" data-widget-prop="shadowY">
+                                    </label>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
                     <!-- Tab Pane: Settings Button -->
                     <div class="subway-tab-pane" data-overlay-pane="settings">
                         <div class="subway-widget-config-card">
@@ -727,6 +798,16 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                     </div>
                 </div>
 
+                <!-- Floating Audio / Volume Widget (Draggable) -->
+                <div class="subway-hud-widget subway-audio-widget" id="hudWidgetAudio">
+                    <button class="subway-audio-btn" type="button" aria-label="Mute / Unmute audio">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <div class="subway-audio-slider-wrap">
+                        <input type="range" class="subway-audio-slider" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+                    </div>
+                </div>
+
                 <!-- Floating Setup button (Draggable button) -->
                 <button class="subway-hud-widget subway-settings-btn-widget" id="hudWidgetSettingsBtn" type="button" aria-label="Open game settings">
                     <i class="fa-solid fa-gear"></i>
@@ -814,6 +895,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <button type="button" class="subway-tab-btn active" data-overlay-tab="timer"><i class="fa-solid fa-stopwatch"></i> Timer</button>
                                 <button type="button" class="subway-tab-btn" data-overlay-tab="fps"><i class="fa-solid fa-gauge-high"></i> FPS</button>
                                 <button type="button" class="subway-tab-btn" data-overlay-tab="keys"><i class="fa-solid fa-keyboard"></i> WASD Controls</button>
+                                <button type="button" class="subway-tab-btn" data-overlay-tab="audio"><i class="fa-solid fa-volume-high"></i> Audio</button>
                                 <button type="button" class="subway-tab-btn" data-overlay-tab="settings"><i class="fa-solid fa-gear"></i> Settings</button>
                                 <button type="button" class="subway-tab-btn" data-overlay-tab="layout"><i class="fa-solid fa-sliders"></i> Layout</button>
                             </div>
@@ -1074,6 +1156,66 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                             <input type="range" min="0" max="100" step="1" value="40" data-widget="keys" data-widget-prop="keyBorderOpacity">
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal Tab Pane: Audio / Volume -->
+                            <div class="subway-tab-pane" data-overlay-pane="audio">
+                                <div class="subway-widget-config-card">
+                                    <div class="subway-widget-card-title"><i class="fa-solid fa-volume-high"></i> Audio / Volume Overlay</div>
+
+                                    <details class="subway-settings-group" open>
+                                        <summary><i class="fa-solid fa-palette"></i> Colors & Background</summary>
+                                        <div class="subway-settings-group-body">
+                                            <div class="subway-theme-grid">
+                                                <label class="subway-color-setting"><span>Background</span><input type="color" value="#090d18" data-widget="audio" data-widget-prop="bg"></label>
+                                                <label class="subway-color-setting"><span>Icon</span><input type="color" value="#ffffff" data-widget="audio" data-widget-prop="textColor"></label>
+                                                <label class="subway-color-setting"><span>Accent</span><input type="color" value="#06b6d4" data-widget="audio" data-widget-prop="accentColor"></label>
+                                                <label class="subway-color-setting"><span>Border</span><input type="color" value="#06b6d4" data-widget="audio" data-widget-prop="borderColor"></label>
+                                            </div>
+                                            <label class="subway-opacity-setting">
+                                                <span>Background opacity <output data-widget-output>88%</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="88" data-widget="audio" data-widget-prop="bgOpacity">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Border opacity <output data-widget-output>68%</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="68" data-widget="audio" data-widget-prop="borderOpacity">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Border radius <output data-widget-output>12px</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="12" data-widget="audio" data-widget-prop="borderRadius">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Blur effect <output data-widget-output>16px</output></span>
+                                                <input type="range" min="0" max="60" step="1" value="16" data-widget="audio" data-widget-prop="blur">
+                                            </label>
+                                        </div>
+                                    </details>
+
+                                    <details class="subway-settings-group">
+                                        <summary><i class="fa-solid fa-moon"></i> Shadow</summary>
+                                        <div class="subway-settings-group-body">
+                                            <div class="subway-theme-grid">
+                                                <label class="subway-color-setting"><span>Shadow color</span><input type="color" value="#000000" data-widget="audio" data-widget-prop="shadowColor"></label>
+                                            </div>
+                                            <label class="subway-opacity-setting">
+                                                <span>Shadow opacity <output data-widget-output>50%</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="50" data-widget="audio" data-widget-prop="shadowOpacity">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Shadow blur <output data-widget-output>8px</output></span>
+                                                <input type="range" min="0" max="100" step="1" value="8" data-widget="audio" data-widget-prop="shadowBlur">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Offset X <output data-widget-output>0px</output></span>
+                                                <input type="range" min="-100" max="100" step="1" value="0" data-widget="audio" data-widget-prop="shadowX">
+                                            </label>
+                                            <label class="subway-opacity-setting">
+                                                <span>Offset Y <output data-widget-output>2px</output></span>
+                                                <input type="range" min="-100" max="100" step="1" value="2" data-widget="audio" data-widget-prop="shadowY">
+                                            </label>
+                                        </div>
+                                    </details>
                                 </div>
                             </div>
 

@@ -1254,6 +1254,114 @@ body.subway-fullscreen-active .main-footer {
     color: var(--subway-overlay-accent, #06b6d4);
 }
 
+/* Audio / Volume Overlay Widget (Floating & Expandable) */
+.subway-audio-widget {
+    bottom: 20px;
+    left: 20px;
+    height: 48px;
+    min-height: 48px;
+    max-height: 48px;
+    padding: 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+    gap: 0;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.subway-audio-btn {
+    background: transparent;
+    border: none;
+    color: var(--subway-overlay-text, #fff);
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    transition: transform 0.2s ease, color 0.2s ease;
+    border-radius: 8px;
+    user-select: none;
+}
+
+.subway-audio-btn:hover {
+    color: var(--subway-overlay-accent, #06b6d4);
+    transform: scale(1.08);
+}
+
+.subway-audio-btn:active {
+    transform: scale(0.92);
+}
+
+.subway-audio-slider-wrap {
+    width: 0;
+    overflow: hidden;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, margin 0.35s ease;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+}
+
+@media (hover: hover) {
+    .subway-audio-widget:hover .subway-audio-slider-wrap,
+    .subway-audio-widget.show-slider .subway-audio-slider-wrap {
+        width: 85px;
+        opacity: 1;
+        margin-left: 0.45rem;
+        margin-right: 0.25rem;
+    }
+}
+
+.subway-audio-widget.show-slider .subway-audio-slider-wrap {
+    width: 85px;
+    opacity: 1;
+    margin-left: 0.45rem;
+    margin-right: 0.25rem;
+}
+
+.subway-audio-slider {
+    width: 80px;
+    height: 5px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+.subway-audio-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--subway-overlay-accent, #06b6d4);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.subway-audio-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+.subway-audio-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: var(--subway-overlay-accent, #06b6d4);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
 .subway-settings-modal {
     position: fixed;
     inset: 0;
