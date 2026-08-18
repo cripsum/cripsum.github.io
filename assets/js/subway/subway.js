@@ -1129,22 +1129,18 @@
         cancelAutoBoost();
         if (!state.autoBoost) return;
 
-        bootLog(t('Auto Boost (3x) programmato a 3s dall\'avvio...', 'Auto Boost (3x) scheduled at 3s from start...'));
+        bootLog(t('Auto Boost (3x) programmato a 1.5s dall\'avvio...', 'Auto Boost (3x) scheduled at 1.5s from start...'));
 
-        // The Headstart rocket in Subway Surfers appears on screen ~2.5-3.0s into the run.
-        // Trigger 3x starting at 3000ms with 350ms spacing, plus backup ticks.
-        const delays = [3000, 3350, 3700, 4050, 4400];
-        let boostCount = 0;
+        // The Headstart icon in Subway Surfers appears around 1.4s - 1.8s.
+        // We trigger every 280ms starting from 1400ms to immediately catch all 3 uses as early as possible.
+        const delays = [1400, 1680, 1960, 2240, 2520, 2800, 3100, 3400];
 
         delays.forEach(delay => {
             const timeoutId = setTimeout(() => {
-                if (state.running && !state.failed && !state.ended && !state.isPaused) {
-                    const ok = activateStartBoost();
-                    if (ok) {
-                        boostCount++;
-                        flashHudKey('boost', true);
-                        setTimeout(() => flashHudKey('boost', false), 150);
-                    }
+                if (!state.failed && !state.ended && !state.isPaused) {
+                    activateStartBoost();
+                    flashHudKey('boost', true);
+                    setTimeout(() => flashHudKey('boost', false), 120);
                 }
             }, delay);
             autoBoostTimeouts.push(timeoutId);
@@ -1507,29 +1503,67 @@
         document.getElementById(`hudKey-${action}`)?.classList.toggle('pressed', pressed);
     }
 
-    function activateStartBoost() {
-        const unity = state.unity || window.unityGame || window.unityInstance || window.gameInstance;
-        const fn = (typeof unity?.SendMessage === 'function') ? unity.SendMessage
-            : (typeof window.unityGame?.SendMessage === 'function') ? window.unityGame.SendMessage
-            : (typeof window.Module?.SendMessage === 'function') ? window.Module.SendMessage
-            : (typeof window.SendMessage === 'function') ? window.SendMessage
-            : null;
+    function simulateCanvasClickAt(normX, normY) {
+        const canvas = dom.subwayGameContainer?.querySelector('canvas');
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
 
-        if (!fn) {
-            console.warn('[Subway Portal] Unity SendMessage non disponibile');
-            return false;
-        }
+        const clientX = rect.left + rect.width * normX;
+        const clientY = rect.top + rect.height * normY;
+
+        const eventProps = {
+            clientX,
+            clientY,
+            screenX: clientX,
+            screenY: clientY,
+            pageX: clientX + window.scrollX,
+            pageY: clientY + window.scrollY,
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            button: 0,
+            buttons: 1,
+            pointerId: 1,
+            pointerType: 'mouse',
+            isPrimary: true
+        };
 
         try {
-            // The lower red rocket is powerup slot 2 (Headstart). Slot 1 is the
-            // blue Score Booster shown above it.
-            fn.call(unity || window.unityGame || window.Module, '0PowerupHelper', 'SlideinPowerupClicked', 2);
-            bootLog(t('Boost rosso attivato (Headstart)', 'Red boost activated (Headstart)'));
-            return true;
-        } catch (error) {
-            console.warn('[Subway Portal] Impossibile attivare il boost rosso', error);
-            return false;
+            canvas.dispatchEvent(new PointerEvent('pointerdown', eventProps));
+            canvas.dispatchEvent(new MouseEvent('mousedown', eventProps));
+            setTimeout(() => {
+                const upProps = Object.assign({}, eventProps, { buttons: 0 });
+                canvas.dispatchEvent(new PointerEvent('pointerup', upProps));
+                canvas.dispatchEvent(new MouseEvent('mouseup', upProps));
+                canvas.dispatchEvent(new MouseEvent('click', upProps));
+            }, 30);
+        } catch (_) {
+            canvas.dispatchEvent(new MouseEvent('click', eventProps));
         }
+    }
+
+    function activateStartBoost() {
+        const unity = state.unity || window.unityGame || window.unityInstance || window.gameInstance;
+        const targets = [unity, window.unityGame, window.unityInstance, window.Module, window];
+
+        for (const target of targets) {
+            if (target && typeof target.SendMessage === 'function') {
+                try {
+                    // The lower red rocket is powerup slot 2 (Headstart).
+                    target.SendMessage('0PowerupHelper', 'SlideinPowerupClicked', 2);
+                    target.SendMessage('0PowerupHelper', 'SlideinPowerupClicked', '2');
+                    target.SendMessage('PowerupHelper', 'SlideinPowerupClicked', 2);
+                } catch (_) {}
+            }
+        }
+
+        // Also simulate canvas click on the lower-left Headstart rocket position (~12% X, ~80% Y)
+        simulateCanvasClickAt(0.12, 0.80);
+        simulateCanvasClickAt(0.14, 0.82);
+
+        bootLog(t('Boost rosso attivato (Headstart)', 'Red boost activated (Headstart)'));
+        return true;
     }
 
     function getOverlayBounds(widget) {
