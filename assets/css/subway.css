@@ -1575,7 +1575,7 @@ body.subway-fullscreen-active .main-footer {
 }
 
 .subway-lb-pos {
-    width: 60px;
+    width: 70px;
     text-align: center;
 }
 
@@ -1583,37 +1583,88 @@ body.subway-fullscreen-active .main-footer {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.35rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
     font-weight: 800;
-    font-size: 0.9rem;
-    min-width: 2rem;
-    height: 2rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.06);
+    font-size: 0.88rem;
+    min-width: 2.2rem;
+    height: 2.2rem;
+    padding: 0 0.55rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--game-muted, #94a3b8);
 }
 
 .subway-lb-badge.rank-gold {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #fff;
-    box-shadow: 0 0 14px rgba(245, 158, 11, 0.55);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.22));
+    border: 1px solid rgba(245, 158, 11, 0.65);
+    color: #fbbf24;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.subway-lb-badge.rank-gold i {
+    color: #f59e0b;
+    font-size: 0.82rem;
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8));
 }
 
 .subway-lb-badge.rank-silver {
-    background: linear-gradient(135deg, #94a3b8, #64748b);
-    color: #fff;
-    box-shadow: 0 0 14px rgba(148, 163, 184, 0.45);
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.25), rgba(100, 116, 139, 0.22));
+    border: 1px solid rgba(148, 163, 184, 0.55);
+    color: #f1f5f9;
+    box-shadow: 0 0 16px rgba(148, 163, 184, 0.25);
+}
+
+.subway-lb-badge.rank-silver i {
+    color: #cbd5e1;
+    font-size: 0.82rem;
+    filter: drop-shadow(0 0 4px rgba(203, 213, 225, 0.6));
 }
 
 .subway-lb-badge.rank-bronze {
-    background: linear-gradient(135deg, #b45309, #78350f);
-    color: #fff;
-    box-shadow: 0 0 14px rgba(180, 83, 9, 0.45);
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.18));
+    border: 1px solid rgba(217, 119, 6, 0.5);
+    color: #fdba74;
+    box-shadow: 0 0 16px rgba(217, 119, 6, 0.2);
+}
+
+.subway-lb-badge.rank-bronze i {
+    color: #f97316;
+    font-size: 0.82rem;
+    filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.6));
 }
 
 .subway-lb-user-wrap {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+}
+
+.subway-lb-user-link {
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s ease, opacity 0.15s ease;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 0.25rem 0.4rem;
+    margin: -0.25rem -0.4rem;
+}
+
+.subway-lb-user-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.subway-lb-user-link:hover .subway-lb-names strong {
+    color: #38bdf8;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.subway-lb-user-link:hover .subway-lb-avatar {
+    transform: scale(1.08);
+    border-color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
 .subway-lb-avatar {
@@ -1624,6 +1675,7 @@ body.subway-fullscreen-active .main-footer {
     border: 2px solid rgba(255, 255, 255, 0.15);
     background: #0d1220;
     flex-shrink: 0;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .subway-lb-names {

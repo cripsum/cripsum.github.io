@@ -1310,32 +1310,33 @@
                 const tr = document.createElement('tr');
                 tr.className = `subway-lb-row rank-${item.rank}`;
 
-                const rankClass = item.rank === 1 ? 'rank-gold'
-                    : item.rank === 2 ? 'rank-silver'
-                    : item.rank === 3 ? 'rank-bronze' : '';
-                const rankIcon = item.rank === 1 ? '🥇'
-                    : item.rank === 2 ? '🥈'
-                    : item.rank === 3 ? '🥉'
-                    : `#${item.rank}`;
+                let rankHtml = `<span class="subway-lb-badge">${item.rank}</span>`;
+                if (item.rank === 1) {
+                    rankHtml = `<span class="subway-lb-badge rank-gold"><i class="fa-solid fa-crown"></i> 1</span>`;
+                } else if (item.rank === 2) {
+                    rankHtml = `<span class="subway-lb-badge rank-silver"><i class="fa-solid fa-medal"></i> 2</span>`;
+                } else if (item.rank === 3) {
+                    rankHtml = `<span class="subway-lb-badge rank-bronze"><i class="fa-solid fa-medal"></i> 3</span>`;
+                }
 
                 const mapObj = maps.find(m => m.slug === item.map_slug);
                 const mapName = mapObj ? mapObj.name : (item.map_slug || 'London');
 
                 const timeFormatted = formatTime(item.best_time_ms);
                 const isPremiumBadge = item.is_premium
-                    ? '<span class="subway-lb-premium" title="Cripsum Premium">★</span>'
+                    ? `<span class="subway-lb-premium" title="${t('Account Premium', 'Premium Account')}"><i class="fa-solid fa-star"></i></span>`
                     : '';
-
+                const profileUrl = `/u/${encodeURIComponent(item.username)}`;
                 tr.innerHTML = `
-                    <td class="subway-lb-pos"><span class="subway-lb-badge ${rankClass}">${rankIcon}</span></td>
+                    <td class="subway-lb-pos">${rankHtml}</td>
                     <td class="subway-lb-user">
-                        <div class="subway-lb-user-wrap">
+                        <a href="${profileUrl}" class="subway-lb-user-link subway-lb-user-wrap" title="${item.display_name} (@${item.username})">
                             <img class="subway-lb-avatar" src="${item.avatar_url}" alt="${item.display_name}" loading="lazy" onerror="this.src='/img/abdul.jpg'">
                             <div class="subway-lb-names">
                                 <strong>${item.display_name} ${isPremiumBadge}</strong>
                                 <small>@${item.username}</small>
                             </div>
-                        </div>
+                        </a>
                     </td>
                     <td class="subway-lb-time"><code>${timeFormatted}</code></td>
                     <td class="subway-lb-map"><span class="subway-map-pill">${mapName}</span></td>

@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=16.0">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=17.0">
     <script src="/assets/js/subway/subway-profile.js?v=2.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=16.0" defer></script>
+    <script src="/assets/js/subway/subway.js?v=17.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -783,7 +783,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 <div class="game-panel-head">
                     <div class="subway-lb-header-info">
                         <h2><i class="fa-solid fa-trophy" style="color: #f59e0b; margin-right: 0.5rem;"></i> No-Coin Challenge Leaderboard</h2>
-                        <p>The best survival times without picking up coins saved in the Cripsum™ database.</p>
+                        <p>World record survival times in the No-Coin Challenge. Dodge every coin and claim the #1 spot!</p>
                     </div>
                     <button type="button" class="game-btn game-btn-soft" id="subwayLeaderboardRefresh" aria-label="Refresh Leaderboard">
                         <i class="fa-solid fa-rotate"></i>
