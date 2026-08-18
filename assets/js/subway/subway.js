@@ -1067,6 +1067,7 @@
 
     function resetTimer() {
         cancelAnimationFrame(state.timerFrame);
+        cancelAutoBoost();
         state.running = false;
         state.isPaused = false;
         state.failed = false;
@@ -1115,15 +1116,38 @@
         updateTimer();
     }
 
+    let autoBoostTimeouts = [];
+
+    function cancelAutoBoost() {
+        if (autoBoostTimeouts.length > 0) {
+            autoBoostTimeouts.forEach(id => clearTimeout(id));
+            autoBoostTimeouts = [];
+        }
+    }
+
     function triggerAutoBoost() {
+        cancelAutoBoost();
         if (!state.autoBoost) return;
-        bootLog(t('Auto Boost (3x) in esecuzione...', 'Auto Boost (3x) executing...'));
-        [120, 320, 580].forEach(delay => {
-            setTimeout(() => {
-                if (state.running && !state.failed) {
-                    activateStartBoost();
+
+        bootLog(t('Auto Boost (3x) programmato a 3s dall\'avvio...', 'Auto Boost (3x) scheduled at 3s from start...'));
+
+        // The Headstart rocket in Subway Surfers appears on screen ~2.5-3.0s into the run.
+        // Trigger 3x starting at 3000ms with 350ms spacing, plus backup ticks.
+        const delays = [3000, 3350, 3700, 4050, 4400];
+        let boostCount = 0;
+
+        delays.forEach(delay => {
+            const timeoutId = setTimeout(() => {
+                if (state.running && !state.failed && !state.ended && !state.isPaused) {
+                    const ok = activateStartBoost();
+                    if (ok) {
+                        boostCount++;
+                        flashHudKey('boost', true);
+                        setTimeout(() => flashHudKey('boost', false), 150);
+                    }
                 }
             }, delay);
+            autoBoostTimeouts.push(timeoutId);
         });
     }
 
@@ -1145,6 +1169,7 @@
 
     function pauseTimer(source) {
         if (!state.running || state.failed || state.ended) return;
+        cancelAutoBoost();
         state.accumulatedTime = getRunningElapsed();
         state.elapsed = state.accumulatedTime;
         state.running = false;
@@ -1164,6 +1189,7 @@
 
     function finishTimer(source) {
         if ((!state.running && !state.isPaused) || state.failed || state.ended) return;
+        cancelAutoBoost();
         if (state.running) {
             state.accumulatedTime = getRunningElapsed();
         }
@@ -1183,6 +1209,7 @@
 
     function failChallenge(reason = 'coin') {
         if ((!state.running && !state.isPaused) || state.failed) return;
+        cancelAutoBoost();
         if (state.running) {
             state.accumulatedTime = getRunningElapsed();
         }
@@ -1481,15 +1508,27 @@
     }
 
     function activateStartBoost() {
-        const sendMessage = state.unity?.SendMessage;
-        if (typeof sendMessage !== 'function') return;
+        const unity = state.unity || window.unityGame || window.unityInstance || window.gameInstance;
+        const fn = (typeof unity?.SendMessage === 'function') ? unity.SendMessage
+            : (typeof window.unityGame?.SendMessage === 'function') ? window.unityGame.SendMessage
+            : (typeof window.Module?.SendMessage === 'function') ? window.Module.SendMessage
+            : (typeof window.SendMessage === 'function') ? window.SendMessage
+            : null;
+
+        if (!fn) {
+            console.warn('[Subway Portal] Unity SendMessage non disponibile');
+            return false;
+        }
+
         try {
             // The lower red rocket is powerup slot 2 (Headstart). Slot 1 is the
             // blue Score Booster shown above it.
-            sendMessage.call(state.unity, '0PowerupHelper', 'SlideinPowerupClicked', 2);
-            bootLog(t('Boost rosso attivato', 'Red boost activated'));
+            fn.call(unity || window.unityGame || window.Module, '0PowerupHelper', 'SlideinPowerupClicked', 2);
+            bootLog(t('Boost rosso attivato (Headstart)', 'Red boost activated (Headstart)'));
+            return true;
         } catch (error) {
             console.warn('[Subway Portal] Impossibile attivare il boost rosso', error);
+            return false;
         }
     }
 
