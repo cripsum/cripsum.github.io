@@ -32,6 +32,10 @@
         const lang = document.documentElement.lang?.toLowerCase().startsWith('en') ? 'en' : 'it';
         const labels = translations[lang];
         const inputs = Array.from(document.querySelectorAll('input[type="password"]')).filter((input) => {
+            if (input.dataset.noStrength !== undefined) return false;
+            const autocomplete = (input.getAttribute('autocomplete') || '').toLowerCase();
+            if (autocomplete === 'current-password') return false;
+
             const name = (input.name || '').toLowerCase();
             return name === 'password' || name === 'nuova_password';
         });

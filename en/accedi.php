@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="auth-field">
                         <span>Password</span>
                         <div class="auth-password">
-                            <input type="password" name="password" autocomplete="current-password" required data-password-input>
+                            <input type="password" name="password" autocomplete="current-password" required data-password-input data-no-strength>
                             <button type="button" data-toggle-password aria-label="Show password" style="margin-top: -18px;">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
