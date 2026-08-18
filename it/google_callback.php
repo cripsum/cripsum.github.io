@@ -117,6 +117,7 @@ if ($row = $result->fetch_assoc()) {
     $insert->execute();
 
     $new_user_id = $insert->insert_id;
+    $insert->close();
     $user_data = [
         'id' => $new_user_id,
         'username' => $username,
@@ -129,6 +130,13 @@ if ($row = $result->fetch_assoc()) {
     ];
     auth_complete_login($user_data, $mysqli);
     auth_record_login_attempt($mysqli, $new_user_id, $email, true, 'google_register_ok');
+
+    if (function_exists('notifyDiscordSiteLogs')) {
+        notifyDiscordSiteLogs('register', 'Nuova Registrazione Utente', "Un nuovo utente **{$username}** si è registrato sul sito!", [
+            ['name' => 'Email', 'value' => $email, 'inline' => true],
+            ['name' => 'Metodo', 'value' => 'Google', 'inline' => true]
+        ], $new_user_id);
+    }
 }
 
 $redirect = $_SESSION['redirect_after_login'] ?? 'home';
