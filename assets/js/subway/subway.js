@@ -88,11 +88,18 @@
     const state = {
         loading: false,
         running: false,
+        isPaused: false,
         failed: false,
+        ended: false,
         runArmed: false,
-        startedAt: 0,
+        startTime: 0,
+        accumulatedTime: 0,
         elapsed: 0,
         timerFrame: 0,
+        scoreSubmittedForRun: false,
+        userBestTimeMs: 0,
+        runToken: '',
+        autoBoost: false,
         unity: null,
         activeMap: null,
         bindings: Object.assign({}, defaultBindings),
@@ -121,7 +128,10 @@
             'subwayBootTrackValue', 'subwayBootConsole', 'cancelSubwayLoad', 'exitGameBtn',
             'subwayTimerDisplay', 'subwayStatusBadge', 'subwayStartHint', 'subwayFpsValue',
             'toggleNoCoinChallenge', 'subwaySettingsModal',
-            'hudWidgetSettingsBtn', 'openSubwaySettings', 'closeSettingsModal'
+            'hudWidgetSettingsBtn', 'openSubwaySettings', 'closeSettingsModal',
+            'subwayPersonalBestCard', 'subwayPersonalBestTime', 'subwayPersonalBestRank',
+            'subwayPersonalBestMap', 'subwayLeaderboardTable', 'subwayLeaderboardBody',
+            'subwayLeaderboardEmpty', 'subwayLeaderboardRefresh'
         ].forEach(id => { dom[id] = document.getElementById(id); });
     }
 
@@ -185,6 +195,7 @@
 
             state.challenge = saved.challenge !== false;
             state.blockSpace = saved.blockSpace === true;
+            state.autoBoost = saved.autoBoost === true;
             state.vsync = saved.vsync !== false;
             state.fpsLimit = Math.min(500, Math.max(30, Number(saved.fpsLimit) || 144));
         } catch (_) {
@@ -195,6 +206,7 @@
             state.audioVolume = vol;
             state.audioMuted = muted;
             state.blockSpace = false;
+            state.autoBoost = false;
             state.vsync = true;
             state.fpsLimit = 144;
         }
@@ -207,6 +219,7 @@
             overlayTheme: state.overlayTheme,
             challenge: state.challenge,
             blockSpace: state.blockSpace,
+            autoBoost: state.autoBoost,
             vsync: state.vsync,
             fpsLimit: state.fpsLimit
         }));
@@ -308,6 +321,9 @@
     function syncSettingsUi() {
         document.querySelectorAll('[data-setting="blockSpace"]').forEach(input => {
             input.checked = state.blockSpace;
+        });
+        document.querySelectorAll('[data-setting="autoBoost"]').forEach(input => {
+            input.checked = state.autoBoost;
         });
         document.querySelectorAll('[data-setting="vsync"]').forEach(input => {
             input.checked = state.vsync;
@@ -525,6 +541,14 @@
             });
         });
 
+        document.querySelectorAll('[data-setting="autoBoost"]').forEach(input => {
+            input.addEventListener('change', () => {
+                state.autoBoost = input.checked;
+                syncSettingsUi();
+                saveSettings();
+            });
+        });
+
         document.querySelectorAll('[data-setting="vsync"]').forEach(input => {
             input.addEventListener('change', () => {
                 state.vsync = input.checked;
@@ -695,8 +719,8 @@
             gameLoadingFinished() {},
             gameInteractive() {},
             gameplayStart() { startTimer('gameplayStart'); },
-            gameplayStop() { finishTimer('gameplayStop'); },
-            roundStart() { startTimer('roundStart'); },
+            gameplayStop() { pauseTimer('gameplayStop'); },
+            roundStart() { startNewRound('roundStart'); },
             roundEnd() { finishTimer('roundEnd'); },
             setDebug() {},
             happyTime() {},
@@ -955,12 +979,12 @@
 
         // The run-start clip is unique in the shipped AudioClip table.
         const looksLikeStart = runStartAudioDurations.some(target => Math.abs(duration - target) <= 0.006);
-        if (looksLikeStart && !state.running) {
-            startTimer('audio');
+        if (looksLikeStart && (!state.running || state.failed || state.ended)) {
+            startNewRound('audio');
             return;
         }
 
-        if (!state.running) return;
+        if (!state.running && !state.isPaused) return;
 
         // Hr_coin decodes to 25,599 frames / 0.580476s in every verified map.
         // Some browsers remove AAC padding and expose the original 0.561995s,
@@ -981,85 +1005,346 @@
         const labels = {
             ready: t('Pronta', 'Ready'),
             running: t('In corsa', 'Running'),
+            paused: t('In pausa', 'Paused'),
             failed: t('Moneta!', 'Coin!'),
             ended: t('Terminata', 'Finished'),
             inactive: t('Disattiva', 'Inactive')
         };
-        dom.subwayStatusBadge.className = `subway-status-badge ${kind === 'running' || kind === 'ready' ? 'active' : kind}`;
+        dom.subwayStatusBadge.className = `subway-status-badge ${kind === 'running' || kind === 'ready' || kind === 'paused' ? 'active ' + kind : kind}`;
         dom.subwayStatusBadge.textContent = labels[kind] || kind;
+    }
+
+    function formatTimeParts(milliseconds) {
+        const total = Math.max(0, Math.floor(milliseconds));
+        const ms = total % 1000;
+        const totalSeconds = Math.floor(total / 1000);
+        const seconds = totalSeconds % 60;
+        const totalMinutes = Math.floor(totalSeconds / 60);
+        const minutes = totalMinutes % 60;
+        const totalHours = Math.floor(totalMinutes / 60);
+        const hours = totalHours % 24;
+        const days = Math.floor(totalHours / 24);
+
+        const ssStr = String(seconds).padStart(2, '0');
+        const mmStr = String(minutes).padStart(2, '0');
+        const hhStr = String(hours).padStart(2, '0');
+        const msStr = String(ms).padStart(3, '0');
+
+        let mainStr = '';
+        if (days > 0) {
+            mainStr = `${days}d ${hhStr}:${mmStr}:${ssStr}`;
+        } else if (hours > 0) {
+            mainStr = `${hhStr}:${mmStr}:${ssStr}`;
+        } else {
+            mainStr = `${mmStr}:${ssStr}`;
+        }
+
+        return {
+            mainStr,
+            msStr,
+            fullText: `${mainStr}.${msStr}`,
+            days,
+            hours,
+            minutes,
+            seconds,
+            ms
+        };
     }
 
     function renderTimerDisplay(milliseconds) {
         if (!dom.subwayTimerDisplay) return;
-        const total = Math.max(0, Math.floor(milliseconds));
-        const minutes = Math.floor(total / 60000);
-        const seconds = Math.floor((total % 60000) / 1000);
-        const ms = total % 1000;
-        const mmStr = String(minutes).padStart(2, '0');
-        const ssStr = String(seconds).padStart(2, '0');
-        const msStr = String(ms).padStart(3, '0');
-        dom.subwayTimerDisplay.innerHTML = `${mmStr}:${ssStr}<span class="subway-ms">.${msStr}</span>`;
+        const { mainStr, msStr } = formatTimeParts(milliseconds);
+        dom.subwayTimerDisplay.innerHTML = `${mainStr}<span class="subway-ms">.${msStr}</span>`;
+    }
+
+    function formatTime(milliseconds) {
+        return formatTimeParts(milliseconds).fullText;
+    }
+
+    function getRunningElapsed(now = performance.now()) {
+        return state.accumulatedTime + (state.running ? Math.max(0, now - state.startTime) : 0);
     }
 
     function resetTimer() {
         cancelAnimationFrame(state.timerFrame);
         state.running = false;
+        state.isPaused = false;
         state.failed = false;
+        state.ended = false;
         state.runArmed = false;
-        state.startedAt = 0;
+        state.startTime = 0;
+        state.accumulatedTime = 0;
         state.elapsed = 0;
+        state.scoreSubmittedForRun = false;
         renderTimerDisplay(0);
         setChallengeStatus(state.challenge ? 'ready' : 'inactive');
     }
 
+    function startNewRound(source) {
+        resetTimer();
+        startTimer(source);
+    }
+
     function startTimer(source) {
         if (!state.challenge) return;
-        // Unity can emit gameplayStart and roundStart for the same run. Do not
-        // reset an already-running timer when the second notification arrives.
         if (state.running) return;
+
+        // If previously paused and not finished, resume seamlessly from accumulated time!
+        if (state.isPaused && !state.failed && !state.ended) {
+            state.running = true;
+            state.isPaused = false;
+            state.startTime = performance.now();
+            setChallengeStatus('running');
+            dom.subwayStartHint?.classList.remove('is-visible');
+            bootLog(t(`Run ripresa (${source})`, `Run resumed (${source})`));
+            updateTimer();
+            return;
+        }
+
+        // Starting a fresh run
         resetTimer();
         state.running = true;
-        state.startedAt = performance.now();
+        state.isPaused = false;
+        state.startTime = performance.now();
+        state.accumulatedTime = 0;
         setChallengeStatus('running');
         dom.subwayStartHint?.classList.remove('is-visible');
-        bootLog(t(`Run rilevata (${source})`, `Run detected (${source})`));
+        bootLog(t(`Run avviata (${source})`, `Run started (${source})`));
+        requestRunSession();
+        triggerAutoBoost();
         updateTimer();
+    }
+
+    function triggerAutoBoost() {
+        if (!state.autoBoost) return;
+        bootLog(t('Auto Boost (3x) in esecuzione...', 'Auto Boost (3x) executing...'));
+        [120, 320, 580].forEach(delay => {
+            setTimeout(() => {
+                if (state.running && !state.failed) {
+                    activateStartBoost();
+                }
+            }, delay);
+        });
+    }
+
+    async function requestRunSession() {
+        state.runToken = '';
+        try {
+            const mapSlug = state.activeMap?.slug || 'london';
+            const response = await fetch('/api/subway/start_run.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ map_slug: mapSlug })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                state.runToken = data.run_token;
+            }
+        } catch (_) {}
+    }
+
+    function pauseTimer(source) {
+        if (!state.running || state.failed || state.ended) return;
+        state.accumulatedTime = getRunningElapsed();
+        state.elapsed = state.accumulatedTime;
+        state.running = false;
+        state.isPaused = true;
+        cancelAnimationFrame(state.timerFrame);
+        renderTimerDisplay(state.elapsed);
+        setChallengeStatus('paused');
+        bootLog(t(`Pausa (${source})`, `Paused (${source})`));
     }
 
     function updateTimer(now = performance.now()) {
         if (!state.running) return;
-        state.elapsed = now - state.startedAt;
+        state.elapsed = getRunningElapsed(now);
         renderTimerDisplay(state.elapsed);
         state.timerFrame = requestAnimationFrame(updateTimer);
     }
 
     function finishTimer(source) {
-        if (!state.running || state.failed) return;
-        state.elapsed = performance.now() - state.startedAt;
+        if ((!state.running && !state.isPaused) || state.failed || state.ended) return;
+        if (state.running) {
+            state.accumulatedTime = getRunningElapsed();
+        }
+        state.elapsed = state.accumulatedTime;
         state.running = false;
+        state.isPaused = false;
+        state.ended = true;
         cancelAnimationFrame(state.timerFrame);
         renderTimerDisplay(state.elapsed);
         setChallengeStatus(state.challenge ? 'ended' : 'inactive');
         bootLog(t(`Run terminata (${source})`, `Run finished (${source})`));
-    }
-
-    function formatTime(milliseconds) {
-        const total = Math.max(0, Math.floor(milliseconds));
-        const minutes = Math.floor(total / 60000);
-        const seconds = Math.floor((total % 60000) / 1000);
-        const ms = total % 1000;
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
+        if (state.challenge && state.elapsed > 0 && !state.scoreSubmittedForRun) {
+            state.scoreSubmittedForRun = true;
+            submitScoreToLeaderboard(state.elapsed);
+        }
     }
 
     function failChallenge(reason = 'coin') {
-        if (!state.running || state.failed) return;
-        state.elapsed = performance.now() - state.startedAt;
+        if ((!state.running && !state.isPaused) || state.failed) return;
+        if (state.running) {
+            state.accumulatedTime = getRunningElapsed();
+        }
+        state.elapsed = state.accumulatedTime;
         state.running = false;
+        state.isPaused = false;
         state.failed = true;
+        state.ended = true;
         cancelAnimationFrame(state.timerFrame);
         renderTimerDisplay(state.elapsed);
         setChallengeStatus('failed');
         bootLog(t(`Sfida fallita (${reason})`, `Challenge failed (${reason})`));
+        if (state.challenge && state.elapsed > 0 && !state.scoreSubmittedForRun) {
+            state.scoreSubmittedForRun = true;
+            submitScoreToLeaderboard(state.elapsed);
+        }
+    }
+
+    async function submitScoreToLeaderboard(timeMs) {
+        if (!timeMs || timeMs <= 0) return;
+        try {
+            const mapSlug = state.activeMap?.slug || 'london';
+            const response = await fetch('/api/subway/save_score.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    time_ms: Math.floor(timeMs),
+                    map_slug: mapSlug,
+                    run_token: state.runToken || ''
+                })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                if (data.is_new_best) {
+                    showScoreToast(timeMs, true, data.rank);
+                    state.userBestTimeMs = data.best_time_ms;
+                }
+                fetchLeaderboard();
+            }
+        } catch (err) {
+            console.warn('[Subway Leaderboard] Impossibile salvare il punteggio', err);
+        }
+    }
+
+    function showScoreToast(timeMs, isNewBest, rank) {
+        const existing = document.getElementById('subwayScoreToast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'subwayScoreToast';
+        toast.className = 'subway-score-toast';
+        const formatted = formatTime(timeMs);
+        const rankText = rank ? ` (Rank #${rank})` : '';
+
+        toast.innerHTML = `
+            <div class="subway-toast-icon"><i class="fa-solid fa-trophy"></i></div>
+            <div class="subway-toast-content">
+                <strong>${isNewBest ? t('Nuovo Record Personale! 🎉', 'New Personal Best! 🎉') : t('Run Completata', 'Run Finished')}</strong>
+                <span>${formatted}${rankText}</span>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 5000);
+    }
+
+    async function fetchLeaderboard() {
+        try {
+            const response = await fetch('/api/subway/get_leaderboard.php');
+            const result = await response.json();
+            if (result.status === 'success') {
+                renderLeaderboard(result.data || [], result.user_record);
+            }
+        } catch (err) {
+            console.warn('[Subway Leaderboard] Impossibile caricare la classifica', err);
+        }
+    }
+
+    function renderLeaderboard(list, userRecord) {
+        // Update personal best card if elements exist
+        if (dom.subwayPersonalBestCard) {
+            if (userRecord && userRecord.has_record && userRecord.best_time_ms > 0) {
+                state.userBestTimeMs = userRecord.best_time_ms;
+                if (dom.subwayPersonalBestTime) {
+                    dom.subwayPersonalBestTime.textContent = formatTime(userRecord.best_time_ms);
+                }
+                if (dom.subwayPersonalBestRank) {
+                    dom.subwayPersonalBestRank.textContent = `#${userRecord.rank}`;
+                }
+                if (dom.subwayPersonalBestMap) {
+                    const foundMap = maps.find(m => m.slug === userRecord.map_slug);
+                    dom.subwayPersonalBestMap.textContent = foundMap ? foundMap.name : userRecord.map_slug;
+                }
+                dom.subwayPersonalBestCard.hidden = false;
+            } else {
+                if (dom.subwayPersonalBestTime) {
+                    dom.subwayPersonalBestTime.textContent = '--:--.---';
+                }
+                if (dom.subwayPersonalBestRank) {
+                    dom.subwayPersonalBestRank.textContent = '-';
+                }
+                if (dom.subwayPersonalBestMap) {
+                    dom.subwayPersonalBestMap.textContent = '-';
+                }
+            }
+        }
+
+        // Render table rows
+        if (dom.subwayLeaderboardBody) {
+            if (!list || list.length === 0) {
+                dom.subwayLeaderboardBody.innerHTML = '';
+                if (dom.subwayLeaderboardEmpty) dom.subwayLeaderboardEmpty.hidden = false;
+                if (dom.subwayLeaderboardTable) dom.subwayLeaderboardTable.hidden = true;
+                return;
+            }
+
+            if (dom.subwayLeaderboardEmpty) dom.subwayLeaderboardEmpty.hidden = true;
+            if (dom.subwayLeaderboardTable) dom.subwayLeaderboardTable.hidden = false;
+
+            const fragment = document.createDocumentFragment();
+            list.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = `subway-lb-row rank-${item.rank}`;
+
+                const rankClass = item.rank === 1 ? 'rank-gold'
+                    : item.rank === 2 ? 'rank-silver'
+                    : item.rank === 3 ? 'rank-bronze' : '';
+                const rankIcon = item.rank === 1 ? '🥇'
+                    : item.rank === 2 ? '🥈'
+                    : item.rank === 3 ? '🥉'
+                    : `#${item.rank}`;
+
+                const mapObj = maps.find(m => m.slug === item.map_slug);
+                const mapName = mapObj ? mapObj.name : (item.map_slug || 'London');
+
+                const timeFormatted = formatTime(item.best_time_ms);
+                const isPremiumBadge = item.is_premium
+                    ? '<span class="subway-lb-premium" title="Cripsum Premium">★</span>'
+                    : '';
+
+                tr.innerHTML = `
+                    <td class="subway-lb-pos"><span class="subway-lb-badge ${rankClass}">${rankIcon}</span></td>
+                    <td class="subway-lb-user">
+                        <div class="subway-lb-user-wrap">
+                            <img class="subway-lb-avatar" src="${item.avatar_url}" alt="${item.display_name}" loading="lazy" onerror="this.src='/img/abdul.jpg'">
+                            <div class="subway-lb-names">
+                                <strong>${item.display_name} ${isPremiumBadge}</strong>
+                                <small>@${item.username}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="subway-lb-time"><code>${timeFormatted}</code></td>
+                    <td class="subway-lb-map"><span class="subway-map-pill">${mapName}</span></td>
+                `;
+                fragment.appendChild(tr);
+            });
+
+            dom.subwayLeaderboardBody.replaceChildren(fragment);
+        }
     }
 
     function bindGameInput() {
@@ -1110,10 +1395,10 @@
             }
 
             if (event.code === 'Space') {
-                if (!state.running) {
+                if (!state.running && !state.isPaused) {
                     startTimer('space');
                 }
-            } else if (action && !state.running && !state.failed && state.elapsed === 0 && state.challenge) {
+            } else if (action && !state.running && !state.failed && !state.isPaused && state.accumulatedTime === 0 && state.challenge) {
                 startTimer('input');
             }
 
@@ -1506,6 +1791,14 @@
         installAudioDetector();
         bindAudioWidgets();
         applyAudioVolume(state.audioVolume, state.audioMuted);
+        fetchLeaderboard();
+        dom.subwayLeaderboardRefresh?.addEventListener('click', () => {
+            const icon = dom.subwayLeaderboardRefresh.querySelector('i');
+            if (icon) icon.classList.add('fa-spin');
+            fetchLeaderboard().finally(() => {
+                setTimeout(() => { if (icon) icon.classList.remove('fa-spin'); }, 500);
+            });
+        });
         dom.cancelSubwayLoad?.addEventListener('click', returnToLobby);
         dom.exitGameBtn?.addEventListener('click', returnToLobby);
     }

@@ -1457,3 +1457,290 @@ body.subway-fullscreen-active .main-footer {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================================================
+   Leaderboard & Personal Best Styles
+   ========================================================================== */
+
+.subway-personal-best-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 1.1rem 1.4rem;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.15));
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    min-width: 240px;
+}
+
+.subway-pb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #38bdf8;
+    margin-bottom: 0.3rem;
+}
+
+.subway-pb-time {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+    line-height: 1.2;
+}
+
+.subway-pb-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.78rem;
+    color: var(--game-muted, #94a3b8);
+    margin-top: 0.35rem;
+}
+
+.subway-pb-meta strong {
+    color: #fff;
+}
+
+.subway-leaderboard-panel .game-panel-head {
+    align-items: flex-start;
+}
+
+.subway-lb-header-info h2 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.subway-lb-header-info p {
+    margin: 0.35rem 0 0;
+    font-size: 0.85rem;
+    color: var(--game-muted, #94a3b8);
+}
+
+.subway-leaderboard-wrapper {
+    margin-top: 1.25rem;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.subway-leaderboard-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.subway-lb-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+}
+
+.subway-lb-table th {
+    padding: 0.85rem 1.1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--game-muted, #94a3b8);
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));
+}
+
+.subway-lb-table td {
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.subway-lb-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.subway-lb-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.subway-lb-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.subway-lb-pos {
+    width: 60px;
+    text-align: center;
+}
+
+.subway-lb-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.9rem;
+    min-width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--game-muted, #94a3b8);
+}
+
+.subway-lb-badge.rank-gold {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.55);
+}
+
+.subway-lb-badge.rank-silver {
+    background: linear-gradient(135deg, #94a3b8, #64748b);
+    color: #fff;
+    box-shadow: 0 0 14px rgba(148, 163, 184, 0.45);
+}
+
+.subway-lb-badge.rank-bronze {
+    background: linear-gradient(135deg, #b45309, #78350f);
+    color: #fff;
+    box-shadow: 0 0 14px rgba(180, 83, 9, 0.45);
+}
+
+.subway-lb-user-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.subway-lb-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    background: #0d1220;
+    flex-shrink: 0;
+}
+
+.subway-lb-names {
+    display: flex;
+    flex-direction: column;
+}
+
+.subway-lb-names strong {
+    color: #fff;
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.subway-lb-names small {
+    color: var(--game-muted2, #64748b);
+    font-size: 0.76rem;
+}
+
+.subway-lb-premium {
+    color: #f59e0b;
+    font-size: 0.85rem;
+    text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.subway-lb-time code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+    font-size: 1.05rem;
+    font-weight: 750;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 0.25rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.subway-map-pill {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--game-muted, #94a3b8);
+}
+
+.subway-leaderboard-empty {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--game-muted, #94a3b8);
+}
+
+.subway-leaderboard-empty p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Toast notification for new records */
+.subway-score-toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1rem 1.4rem;
+    background: rgba(13, 18, 32, 0.94);
+    border: 1px solid #06b6d4;
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(6, 182, 212, 0.35);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #fff;
+    transform: translateY(-40px) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.subway-score-toast.show {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.subway-toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #06b6d4, #7c3aed);
+    font-size: 1.3rem;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
+    flex-shrink: 0;
+}
+
+.subway-toast-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.subway-toast-content strong {
+    font-size: 0.95rem;
+    color: #fff;
+}
+
+.subway-toast-content span {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+    font-size: 0.88rem;
+    color: #38bdf8;
+    margin-top: 0.15rem;
+}
+

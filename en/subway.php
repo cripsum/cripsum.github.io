@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=15.1">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=16.0">
     <script src="/assets/js/subway/subway-profile.js?v=2.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=15.1" defer></script>
+    <script src="/assets/js/subway/subway.js?v=16.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -60,6 +60,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         <span><b>1</b> Select City</span>
                         <span><b>2</b> Configure Player</span>
                         <span><b>3</b> Avoid Coins</span>
+                    </div>
+                </div>
+                <!-- Personal Best Hero Card -->
+                <div class="subway-personal-best-card" id="subwayPersonalBestCard" hidden>
+                    <div class="subway-pb-badge"><i class="fa-solid fa-trophy"></i> Your No-Coin Record</div>
+                    <div class="subway-pb-time" id="subwayPersonalBestTime">--:--.---</div>
+                    <div class="subway-pb-meta">
+                        <span>Rank: <strong id="subwayPersonalBestRank">-</strong></span>
+                        <span>City: <strong id="subwayPersonalBestMap">-</strong></span>
                     </div>
                 </div>
             </section>
@@ -92,6 +101,17 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             </div>
                             <label class="subway-switch">
                                 <input type="checkbox" data-setting="blockSpace">
+                                <span class="subway-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="subway-option-row">
+                            <div class="subway-option-info">
+                                <strong>Auto Boost (3x)</strong>
+                                <span>Automatically activates the red rocket boost (Headstart) 3 times at the start of every run.</span>
+                            </div>
+                            <label class="subway-switch">
+                                <input type="checkbox" data-setting="autoBoost">
                                 <span class="subway-slider"></span>
                             </label>
                         </div>
@@ -757,6 +777,42 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
                 </div>
             </section>
+
+            <!-- No-Coin Challenge Leaderboard -->
+            <section class="game-panel game-reveal subway-leaderboard-panel" style="margin-top: 2rem;">
+                <div class="game-panel-head">
+                    <div class="subway-lb-header-info">
+                        <h2><i class="fa-solid fa-trophy" style="color: #f59e0b; margin-right: 0.5rem;"></i> No-Coin Challenge Leaderboard</h2>
+                        <p>The best survival times without picking up coins saved in the Cripsum™ database.</p>
+                    </div>
+                    <button type="button" class="game-btn game-btn-soft" id="subwayLeaderboardRefresh" aria-label="Refresh Leaderboard">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+
+                <div class="subway-leaderboard-wrapper">
+                    <div class="subway-leaderboard-empty" id="subwayLeaderboardEmpty" hidden>
+                        <i class="fa-solid fa-stopwatch" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.8rem;"></i>
+                        <p>No records registered yet. Play a run to claim the #1 spot on the leaderboard!</p>
+                    </div>
+                    <div class="subway-leaderboard-table-responsive" id="subwayLeaderboardTable">
+                        <table class="subway-lb-table">
+                            <thead>
+                                <tr>
+                                    <th class="th-pos">#</th>
+                                    <th class="th-user">Player</th>
+                                    <th class="th-time">Best Time</th>
+                                    <th class="th-map">City</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subwayLeaderboardBody">
+                                <!-- Populated dynamically by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <!-- STATE 2: The Game Screen Arena with draggable overlays -->
@@ -868,6 +924,16 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 </div>
                                 <label class="subway-switch">
                                     <input type="checkbox" data-setting="blockSpace">
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                            <div class="subway-option-row">
+                                <div class="subway-option-info">
+                                    <strong>Auto Boost (3x)</strong>
+                                    <span>Automatically triggers the red rocket boost (Headstart) 3 times at start.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-setting="autoBoost">
                                     <span class="subway-slider"></span>
                                 </label>
                             </div>

@@ -38,9 +38,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=15.1">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=16.0">
     <script src="/assets/js/subway/subway-profile.js?v=2.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=15.1" defer></script>
+    <script src="/assets/js/subway/subway.js?v=16.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -60,6 +60,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                         <span><b>1</b> Scegli la città</span>
                         <span><b>2</b> Configura il player</span>
                         <span><b>3</b> Schiva le monete</span>
+                    </div>
+                </div>
+                <!-- Personal Best Hero Card -->
+                <div class="subway-personal-best-card" id="subwayPersonalBestCard" hidden>
+                    <div class="subway-pb-badge"><i class="fa-solid fa-trophy"></i> Tuo Record No-Coin</div>
+                    <div class="subway-pb-time" id="subwayPersonalBestTime">--:--.---</div>
+                    <div class="subway-pb-meta">
+                        <span>Posizione: <strong id="subwayPersonalBestRank">-</strong></span>
+                        <span>Mappa: <strong id="subwayPersonalBestMap">-</strong></span>
                     </div>
                 </div>
             </section>
@@ -92,6 +101,17 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             </div>
                             <label class="subway-switch">
                                 <input type="checkbox" data-setting="blockSpace">
+                                <span class="subway-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="subway-option-row">
+                            <div class="subway-option-info">
+                                <strong>Auto Boost (3x)</strong>
+                                <span>Attiva automaticamente 3 volte il boost rosso (Headstart) all'inizio di ogni corsa.</span>
+                            </div>
+                            <label class="subway-switch">
+                                <input type="checkbox" data-setting="autoBoost">
                                 <span class="subway-slider"></span>
                             </label>
                         </div>
@@ -757,6 +777,42 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
                 </div>
             </section>
+
+            <!-- No-Coin Challenge Leaderboard -->
+            <section class="game-panel game-reveal subway-leaderboard-panel" style="margin-top: 2rem;">
+                <div class="game-panel-head">
+                    <div class="subway-lb-header-info">
+                        <h2><i class="fa-solid fa-trophy" style="color: #f59e0b; margin-right: 0.5rem;"></i> Classifica No-Coin Challenge</h2>
+                        <p>I migliori tempi di sopravvivenza senza raccogliere monete salvati nel database di Cripsum™.</p>
+                    </div>
+                    <button type="button" class="game-btn game-btn-soft" id="subwayLeaderboardRefresh" aria-label="Aggiorna Classifica">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Aggiorna</span>
+                    </button>
+                </div>
+
+                <div class="subway-leaderboard-wrapper">
+                    <div class="subway-leaderboard-empty" id="subwayLeaderboardEmpty" hidden>
+                        <i class="fa-solid fa-stopwatch" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.8rem;"></i>
+                        <p>Nessun record ancora registrato. Gioca una partita per posizionarti primo in classifica!</p>
+                    </div>
+                    <div class="subway-leaderboard-table-responsive" id="subwayLeaderboardTable">
+                        <table class="subway-lb-table">
+                            <thead>
+                                <tr>
+                                    <th class="th-pos">#</th>
+                                    <th class="th-user">Giocatore</th>
+                                    <th class="th-time">Miglior Tempo</th>
+                                    <th class="th-map">Mappa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subwayLeaderboardBody">
+                                <!-- Caricato dinamicamente via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <!-- STATE 2: The Game Screen Arena with draggable overlays -->
@@ -868,6 +924,16 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                 </div>
                                 <label class="subway-switch">
                                     <input type="checkbox" data-setting="blockSpace">
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
+                            <div class="subway-option-row">
+                                <div class="subway-option-info">
+                                    <strong>Auto Boost (3x)</strong>
+                                    <span>Attiva automaticamente 3 volte il boost rosso all'avvio.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-setting="autoBoost">
                                     <span class="subway-slider"></span>
                                 </label>
                             </div>
