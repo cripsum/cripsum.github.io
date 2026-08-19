@@ -1000,13 +1000,14 @@
         }
     }
 
-    function setChallengeStatus(kind) {
+    function setChallengeStatus(kind, reason = '') {
         if (!dom.subwayStatusBadge) return;
+        const isHoverboard = typeof reason === 'string' && reason.includes('hoverboard');
         const labels = {
             ready: t('Pronta', 'Ready'),
             running: t('In corsa', 'Running'),
             paused: t('In pausa', 'Paused'),
-            failed: t('Moneta!', 'Coin!'),
+            failed: isHoverboard ? t('Hoverboard!', 'Hoverboard!') : t('Moneta!', 'Coin!'),
             ended: t('Terminata', 'Finished'),
             inactive: t('Disattiva', 'Inactive')
         };
@@ -1216,8 +1217,11 @@
         state.ended = true;
         cancelAnimationFrame(state.timerFrame);
         renderTimerDisplay(state.elapsed);
-        setChallengeStatus('failed');
-        bootLog(t(`Sfida fallita (${reason})`, `Challenge failed (${reason})`));
+        setChallengeStatus('failed', reason);
+        const reasonText = (typeof reason === 'string' && reason.includes('hoverboard'))
+            ? t('Sfida fallita: Hoverboard usato (vietato!)', 'Challenge failed: Hoverboard used (prohibited!)')
+            : t(`Sfida fallita (${reason})`, `Challenge failed (${reason})`);
+        bootLog(reasonText);
         if (state.challenge && state.elapsed > 0 && !state.scoreSubmittedForRun) {
             state.scoreSubmittedForRun = true;
             submitScoreToLeaderboard(state.elapsed);
@@ -1421,6 +1425,9 @@
             if (event.code === 'Space') {
                 if (!state.running && !state.isPaused) {
                     startTimer('space');
+                } else if (state.running && state.challenge) {
+                    // Hoverboard activation via Spacebar during challenge run -> instant fail!
+                    failChallenge('hoverboard');
                 }
             } else if (action && !state.running && !state.failed && !state.isPaused && state.accumulatedTime === 0 && state.challenge) {
                 startTimer('input');
@@ -1433,6 +1440,17 @@
                 event.stopImmediatePropagation();
                 dispatchUnityKey(unityCodes[action], 'keydown');
             }
+        }, true);
+
+        let lastCanvasPointerTime = 0;
+        dom.subwayGameContainer?.addEventListener('pointerdown', event => {
+            if (!state.running || !state.challenge) return;
+            if (event.isSyntheticBoost) return;
+            const now = performance.now();
+            if (now - lastCanvasPointerTime < 380 && (now - state.startTime > 1000)) {
+                failChallenge('hoverboard');
+            }
+            lastCanvasPointerTime = now;
         }, true);
         window.addEventListener('keyup', event => {
             if (!state.activeMap) return;
@@ -1530,16 +1548,28 @@
         };
 
         try {
-            canvas.dispatchEvent(new PointerEvent('pointerdown', eventProps));
-            canvas.dispatchEvent(new MouseEvent('mousedown', eventProps));
+            const downPointer = new PointerEvent('pointerdown', eventProps);
+            downPointer.isSyntheticBoost = true;
+            canvas.dispatchEvent(downPointer);
+            const downMouse = new MouseEvent('mousedown', eventProps);
+            downMouse.isSyntheticBoost = true;
+            canvas.dispatchEvent(downMouse);
             setTimeout(() => {
                 const upProps = Object.assign({}, eventProps, { buttons: 0 });
-                canvas.dispatchEvent(new PointerEvent('pointerup', upProps));
-                canvas.dispatchEvent(new MouseEvent('mouseup', upProps));
-                canvas.dispatchEvent(new MouseEvent('click', upProps));
+                const upPointer = new PointerEvent('pointerup', upProps);
+                upPointer.isSyntheticBoost = true;
+                canvas.dispatchEvent(upPointer);
+                const upMouse = new MouseEvent('mouseup', upProps);
+                upMouse.isSyntheticBoost = true;
+                canvas.dispatchEvent(upMouse);
+                const clickMouse = new MouseEvent('click', upProps);
+                clickMouse.isSyntheticBoost = true;
+                canvas.dispatchEvent(clickMouse);
             }, 30);
         } catch (_) {
-            canvas.dispatchEvent(new MouseEvent('click', eventProps));
+            const clickMouse = new MouseEvent('click', eventProps);
+            clickMouse.isSyntheticBoost = true;
+            canvas.dispatchEvent(clickMouse);
         }
     }
 
