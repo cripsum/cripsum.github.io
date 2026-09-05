@@ -206,7 +206,7 @@ switch ($action) {
             exit;
         }
 
-        $serialized = json_encode($presetData, JSON_UNESCAPED_UNICODE);
+        $serialized = json_encode($presetData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         $stmt = $mysqli->prepare("INSERT INTO utenti_presets (utente_id, nome, preset_data) VALUES (?, ?, ?)");
         $stmt->bind_param('iss', $targetUserId, $nome, $serialized);
@@ -249,7 +249,7 @@ switch ($action) {
             exit;
         }
 
-        $serialized = json_encode($presetData, JSON_UNESCAPED_UNICODE);
+        $serialized = json_encode($presetData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $stmt = $mysqli->prepare("UPDATE utenti_presets SET preset_data = ? WHERE id = ? AND (utente_id = ? OR utente_id = ?)");
         $stmt->bind_param('siii', $serialized, $presetId, $targetUserId, $currentUserId);
         if ($stmt->execute()) {
@@ -314,6 +314,29 @@ switch ($action) {
             'profile_layout_snap', 'profile_music_theme', 'profile_bg_grain', 'profile_cursor_effect',
             'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center'
         ];
+
+        // Preset data is user-controlled JSON, so the free-form columns that end
+        // up in a URL or a colour are re-validated the same way the normal save
+        // does. Anything invalid falls back to "unset" instead of being stored.
+        $urlColumns = ['profile_cursor_custom_url', 'profile_cursor_custom_hover_url', 'profile_music_url'];
+        foreach ($urlColumns as $urlCol) {
+            if (array_key_exists($urlCol, $presetData)) {
+                $candidate = trim((string)($presetData[$urlCol] ?? ''));
+                $presetData[$urlCol] = ($candidate !== '' && profile_is_safe_url($candidate, true)) ? $candidate : null;
+            }
+        }
+        // Required colours always keep a value; optional ones may be cleared —
+        // matching what api/update_profile.php stores for the same columns.
+        foreach (['accent_color', 'profile_secondary_color', 'avatar_ring_color'] as $colorCol) {
+            if (array_key_exists($colorCol, $presetData)) {
+                $presetData[$colorCol] = profile_normalize_hex_color($presetData[$colorCol] ?? '');
+            }
+        }
+        foreach (['profile_card_color', 'profile_text_color', 'profile_border_color'] as $colorCol) {
+            if (array_key_exists($colorCol, $presetData)) {
+                $presetData[$colorCol] = profile_optional_hex_color($presetData[$colorCol] ?? '');
+            }
+        }
 
         $setParts = [];
         $types = '';
@@ -479,6 +502,28 @@ switch ($action) {
             }
         }
 
+        // Preset payloads are built from raw POST data at save time, so they are
+        // re-validated here exactly like api/update_profile.php does. Without
+        // this a crafted preset could smuggle a `javascript:` URL into a link.
+        $presetSafeUrl = static function ($url, bool $required = false): string {
+            $url = trim((string)$url);
+            return profile_is_safe_url($url, $required) ? $url : '';
+        };
+        $presetTag = static function (array $row) use ($isPremium): array {
+            if (!$isPremium) {
+                return [null, null, null];
+            }
+            $tagText = profile_clean_text($row['card_tag_text'] ?? '', 50);
+            if ($tagText === '') {
+                return [null, null, null];
+            }
+            return [
+                $tagText,
+                profile_optional_hex_color($row['card_tag_bg'] ?? ''),
+                profile_optional_hex_color($row['card_tag_color'] ?? ''),
+            ];
+        };
+
         // Restore child relations within transactional execution context
         try {
             $mysqli->begin_transaction();
@@ -494,7 +539,7 @@ switch ($action) {
                 $label = profile_clean_text($row['label'] ?? $platform, 40);
                 $displayUsername = profile_clean_text($row['display_username'] ?? '', 60);
                 $displayUsernameDb = $displayUsername !== '' ? $displayUsername : null;
-                $url = trim((string)($row['url'] ?? ''));
+                $url = $presetSafeUrl($row['url'] ?? '', true);
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 $icon = isset($row['icon']) ? profile_clean_text($row['icon'], 255) : null;
                 if ($url === '') continue;
@@ -506,11 +551,11 @@ switch ($action) {
             // 2. Links list restoration
             $mysqli->query("DELETE FROM utenti_links WHERE utente_id = " . $targetUserId);
             $linkRows = json_decode($presetData['links_json'] ?? '[]', true) ?: [];
-            $insertLink = $mysqli->prepare("INSERT INTO utenti_links (utente_id, title, description, url, icon, button_style, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insertLink = $mysqli->prepare("INSERT INTO utenti_links (utente_id, title, description, url, icon, button_style, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             foreach ($linkRows as $i => $row) {
                 $title = profile_clean_text($row['title'] ?? '', 60);
                 $description = profile_clean_text($row['description'] ?? '', 160);
-                $url = trim((string)($row['url'] ?? ''));
+                $url = $presetSafeUrl($row['url'] ?? '', true);
                 $icon = profile_clean_text($row['icon'] ?? 'fa-solid fa-link', 255);
                 if (!$isPremium && (preg_match('/^https?:\/\//i', $icon) || str_starts_with($icon, '/uploads/') || str_contains($icon, '.'))) {
                     $icon = 'fa-solid fa-link';
@@ -518,8 +563,9 @@ switch ($action) {
                 $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
                 $featured = !empty($row['is_featured']) ? 1 : 0;
                 $visible = !empty($row['is_visible']) ? 1 : 0;
-                if ($title === '' && $url === '') continue;
-                $insertLink->bind_param('isssssiii', $targetUserId, $title, $description, $url, $icon, $buttonStyle, $featured, $visible, $i);
+                if ($title === '' || $url === '') continue;
+                [$tagText, $tagBg, $tagColor] = $presetTag($row);
+                $insertLink->bind_param('isssssiiisss', $targetUserId, $title, $description, $url, $icon, $buttonStyle, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
                 $insertLink->execute();
             }
             $insertLink->close();
@@ -527,19 +573,20 @@ switch ($action) {
             // 3. Projects list restoration
             $mysqli->query("DELETE FROM utenti_projects WHERE utente_id = " . $targetUserId);
             $projectRows = json_decode($presetData['projects_json'] ?? '[]', true) ?: [];
-            $insertProject = $mysqli->prepare("INSERT INTO utenti_projects (utente_id, title, description, url, image_url, tech_stack, status, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insertProject = $mysqli->prepare("INSERT INTO utenti_projects (utente_id, title, description, url, image_url, tech_stack, status, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $allowedStatuses = ['active', 'paused', 'finished', 'idea'];
             foreach ($projectRows as $i => $row) {
                 $title = profile_clean_text($row['title'] ?? '', 70);
                 $description = profile_clean_text($row['description'] ?? '', 260);
-                $url = trim((string)($row['url'] ?? ''));
-                $imageUrl = trim((string)($row['image_url'] ?? ''));
+                $url = $presetSafeUrl($row['url'] ?? '');
+                $imageUrl = $presetSafeUrl($row['image_url'] ?? '');
                 $techStack = profile_clean_text($row['tech_stack'] ?? '', 160);
                 $status = profile_allowed_value((string)($row['status'] ?? 'active'), $allowedStatuses, 'active');
                 $featured = !empty($row['is_featured']) ? 1 : 0;
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($title === '') continue;
-                $insertProject->bind_param('issssssiii', $targetUserId, $title, $description, $url, $imageUrl, $techStack, $status, $featured, $visible, $i);
+                [$tagText, $tagBg, $tagColor] = $presetTag($row);
+                $insertProject->bind_param('issssssiiisss', $targetUserId, $title, $description, $url, $imageUrl, $techStack, $status, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
                 $insertProject->execute();
             }
             $insertProject->close();
@@ -547,18 +594,19 @@ switch ($action) {
             // 4. Contents list restoration
             $mysqli->query("DELETE FROM utenti_contents WHERE utente_id = " . $targetUserId);
             $contentRows = json_decode($presetData['contents_json'] ?? '[]', true) ?: [];
-            $insertContent = $mysqli->prepare("INSERT INTO utenti_contents (utente_id, content_type, title, description, url, thumbnail_url, is_featured, is_visible, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insertContent = $mysqli->prepare("INSERT INTO utenti_contents (utente_id, content_type, title, description, url, thumbnail_url, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $allowedTypes = ['edit', 'video', 'game', 'post', 'other'];
             foreach ($contentRows as $i => $row) {
                 $cType = profile_allowed_value((string)($row['content_type'] ?? 'edit'), $allowedTypes, 'edit');
                 $title = profile_clean_text($row['title'] ?? '', 70);
                 $description = profile_clean_text($row['description'] ?? '', 220);
-                $url = trim((string)($row['url'] ?? ''));
-                $thumbUrl = trim((string)($row['thumbnail_url'] ?? ''));
+                $url = $presetSafeUrl($row['url'] ?? '');
+                $thumbUrl = $presetSafeUrl($row['thumbnail_url'] ?? '');
                 $featured = !empty($row['is_featured']) ? 1 : 0;
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($title === '') continue;
-                $insertContent->bind_param('isssssiii', $targetUserId, $cType, $title, $description, $url, $thumbUrl, $featured, $visible, $i);
+                [$tagText, $tagBg, $tagColor] = $presetTag($row);
+                $insertContent->bind_param('isssssiiisss', $targetUserId, $cType, $title, $description, $url, $thumbUrl, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
                 $insertContent->execute();
             }
             $insertContent->close();
@@ -566,7 +614,7 @@ switch ($action) {
             // 5. Blocks list restoration
             $mysqli->query("DELETE FROM utenti_profile_blocks WHERE utente_id = " . $targetUserId);
             $blockRows = json_decode($presetData['blocks_json'] ?? '[]', true) ?: [];
-            $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, no_card_style, media_position, text_align, media_align, media_fit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insertBlock = $mysqli->prepare("INSERT INTO utenti_profile_blocks (utente_id, block_type, title, body, media_url, media_type, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color, no_card_style, media_position, text_align, media_align, media_fit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $allowedBTypes = ['text', 'image', 'gif', 'video'];
             if ($isPremium) {
                 $allowedBTypes[] = 'markdown';
@@ -582,11 +630,16 @@ switch ($action) {
                 } else {
                     $body = profile_clean_text($body, $maxLen);
                 }
-                $mediaUrl = trim((string)($row['media_url'] ?? ''));
+                $mediaUrl = $presetSafeUrl($row['media_url'] ?? '');
                 $mType = profile_allowed_value((string)($row['media_type'] ?? $row['block_type'] ?? 'image'), $allowedBTypes, 'image');
+                if ($mediaUrl === '') {
+                    $mediaUrl = null;
+                    $mType = 'text';
+                }
                 $featured = !empty($row['is_featured']) ? 1 : 0;
                 $visible = !empty($row['is_visible']) ? 1 : 0;
-                if ($title === '' && $body === '' && $mediaUrl === '') continue;
+                if ($title === '' && $body === '' && $mediaUrl === null) continue;
+                [$tagText, $tagBg, $tagColor] = $presetTag($row);
                 $noCardStyle = (!empty($row['no_card_style']) && $isPremium) ? 1 : 0;
                 $allowedMPos = ['top', 'bottom'];
                 $allowedTAlign = ['left', 'center', 'right'];
@@ -596,7 +649,7 @@ switch ($action) {
                 $textAlign = (isset($row['text_align']) && in_array($row['text_align'], $allowedTAlign, true)) ? $row['text_align'] : 'left';
                 $mediaAlign = (isset($row['media_align']) && in_array($row['media_align'], $allowedMAlign, true)) ? $row['media_align'] : 'center';
                 $mediaFit = (isset($row['media_fit']) && in_array($row['media_fit'], $allowedMFit, true)) ? $row['media_fit'] : 'cover';
-                $insertBlock->bind_param('isssssiiiissss', $targetUserId, $bType, $title, $body, $mediaUrl, $mType, $featured, $visible, $i, $noCardStyle, $mediaPosition, $textAlign, $mediaAlign, $mediaFit);
+                $insertBlock->bind_param('isssssiiisssissss', $targetUserId, $bType, $title, $body, $mediaUrl, $mType, $featured, $visible, $i, $tagText, $tagBg, $tagColor, $noCardStyle, $mediaPosition, $textAlign, $mediaAlign, $mediaFit);
                 $insertBlock->execute();
             }
             $insertBlock->close();
@@ -610,7 +663,7 @@ switch ($action) {
                 $eType = profile_allowed_value((string)($row['type'] ?? 'spotify'), $allowedETypes, 'spotify');
                 $title = profile_clean_text($row['title'] ?? '', 100);
                 $titleDb = $title !== '' ? $title : null;
-                $url = trim((string)($row['url'] ?? ''));
+                $url = $presetSafeUrl($row['url'] ?? '', true);
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($url === '') continue;
                 $insertEmbed->bind_param('isssii', $targetUserId, $eType, $titleDb, $url, $i, $visible);
@@ -682,6 +735,12 @@ switch ($action) {
 
             $mysqli->commit();
             profile_cleanup_unused_media($mysqli, $targetUserId);
+
+            // The editor draft still holds the settings from before the preset
+            // was applied; keeping it would make the live preview show the old
+            // profile until the next manual save.
+            unset($_SESSION['profile_draft'][$targetUserId]);
+
             echo json_encode(['ok' => true, 'message' => 'Preset caricato con successo!']);
         } catch (Exception $e) {
             $mysqli->rollback();

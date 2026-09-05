@@ -116,11 +116,59 @@ if ($profile) {
         if (isset($_GET['preview_mode']) && isset($_SESSION['profile_draft'][$profileId])) {
             $draft = $_SESSION['profile_draft'][$profileId];
 
-            // Override profile values
+            // Override profile values. Only keys that are real profile columns
+            // are copied: the draft is raw POST data, so blindly merging it
+            // would let a crafted request fake fields the renderer trusts
+            // (`is_premium`, `id`, visibility, ...) inside the preview.
+            $draftBlockedKeys = [
+                'id', 'is_premium', 'ruolo', 'password', 'email', 'discord_username',
+                'discord_global_name', 'discord_connected_at', 'discord_server_cache',
+                'discord_server_cache_time', 'profile_updated_at', 'ultimo_accesso',
+                'csrf_token', 'target_user_id', 'salva', 'viewport',
+                'socials_json', 'links_json', 'projects_json', 'contents_json',
+                'blocks_json', 'badges_json', 'characters_json', 'embeds_json',
+                'profile_tags_json',
+            ];
+            // Editor-only flags that are not columns but that the renderer reads.
+            $draftExtraKeys = ['remove_profile_music_upload'];
             foreach ($draft as $key => $val) {
-                if (!in_array($key, ['socials_json', 'links_json', 'projects_json', 'contents_json', 'blocks_json', 'badges_json', 'characters_json', 'embeds_json', 'profile_tags_json'])) {
-                    $profile[$key] = $val;
+                if (!is_string($key) || in_array($key, $draftBlockedKeys, true)) continue;
+                // Only columns that already exist on the profile row may change.
+                if (!array_key_exists($key, $profile) && !in_array($key, $draftExtraKeys, true)) continue;
+                if (!is_scalar($val) && $val !== null) continue;
+                $profile[$key] = $val;
+            }
+
+            // `profile_name_style` is stored as one JSON column but edited as a
+            // set of separate fields, so it has to be rebuilt for the preview.
+            $draftHasNameStyle = false;
+            foreach (['profile_name_color_type', 'profile_name_solid_color', 'profile_name_grad_color1',
+                      'profile_name_grad_color2', 'profile_name_grad_angle', 'profile_name_animation',
+                      'profile_name_glow_color'] as $nameField) {
+                if (isset($draft[$nameField])) {
+                    $draftHasNameStyle = true;
+                    break;
                 }
+            }
+            if ($draftHasNameStyle) {
+                $draftNameStyle = [
+                    'type' => profile_allowed_value(
+                        (string)($draft['profile_name_color_type'] ?? 'default'),
+                        ['default', 'solid', 'gradient'],
+                        'default'
+                    ),
+                    'solid_color' => profile_normalize_hex_color($draft['profile_name_solid_color'] ?? '#ffffff'),
+                    'grad_color1' => profile_normalize_hex_color($draft['profile_name_grad_color1'] ?? '#ffffff'),
+                    'grad_color2' => profile_normalize_hex_color($draft['profile_name_grad_color2'] ?? '#8b5cf6'),
+                    'grad_angle' => min(max((int)($draft['profile_name_grad_angle'] ?? 90), 0), 360),
+                    'animation' => profile_allowed_value(
+                        (string)($draft['profile_name_animation'] ?? 'none'),
+                        ['none', 'rainbow', 'glow', 'sparkles', 'fire', 'water', 'glitch', 'neon', 'bounce'],
+                        'none'
+                    ),
+                    'glow_color' => profile_normalize_hex_color($draft['profile_name_glow_color'] ?? '#8b5cf6'),
+                ];
+                $profile['profile_name_style'] = json_encode($draftNameStyle);
             }
 
             // Re-map booleans
@@ -416,6 +464,19 @@ $showDiscord = $profile ? profile_flag($profile, 'profile_show_discord', true) :
 $showCharacters = $profile ? profile_flag($profile, 'profile_show_characters', true) : false;
 
 $profileFont = $profile ? ($profile['profile_font'] ?? 'Poppins') : 'Poppins';
+// Fonts land inside a CSS custom property, so only a plain family name is kept.
+if (!preg_match('/^[A-Za-z0-9 _-]{1,40}$/', (string)$profileFont)) {
+    $profileFont = 'Poppins';
+}
+
+// Cursor URLs are interpolated into an inline style attribute: percent-encode
+// everything that could terminate the CSS string (see profile_css_url_value).
+$cursorCustomUrlCss = (int)($profile['is_premium'] ?? 0) === 1
+    ? profile_css_url_value($profile['profile_cursor_custom_url'] ?? '')
+    : '';
+$cursorCustomHoverUrlCss = (int)($profile['is_premium'] ?? 0) === 1
+    ? profile_css_url_value($profile['profile_cursor_custom_hover_url'] ?? '')
+    : '';
 $hideMeta = $isPremium && $profile ? profile_flag($profile, 'profile_hide_meta', false) : false;
 $showAudioBtn = $profile ? profile_flag($profile, 'profile_show_audio_btn', true) : true;
 $audioBtnPosition = ($profile && !empty($profile['profile_audio_btn_position'])) ? $profile['profile_audio_btn_position'] : 'bottom-right';
@@ -424,7 +485,7 @@ $borderRadius = $profile ? (int)($profile['profile_border_radius'] ?? 30) : 30;
 $cardOpacity = $profile ? (int)($profile['profile_card_opacity'] ?? 68) : 68;
 $cardBlur = $profile ? (int)($profile['profile_card_blur'] ?? 20) : 20;
 $borderOpacity = $profile ? (int)($profile['profile_border_opacity'] ?? 100) : 100;
-$borderColor = $profile ? ($profile['profile_border_color'] ?? null) : null;
+$borderColor = $profile ? profile_optional_hex_color($profile['profile_border_color'] ?? '') : null;
 $borderWidth = $profile ? (int)($profile['profile_border_width'] ?? 1) : 1;
 $avatarBorder = $profile ? (int)($profile['profile_avatar_border'] ?? 1) : 1;
 
@@ -588,7 +649,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php cripsum_og_print($ogMeta); ?>
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.10.3">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.11.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -635,7 +696,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.10.4" defer></script>
+    <script src="/assets/js/profile.js?v=5.11.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1241,11 +1302,11 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-layout-snap="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_layout_snap'] ?? 0) === 1 ? '1' : '0'; ?>"
     data-bg-grain="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && ((int)($profile['profile_bg_grain'] ?? 0) === 1 || $profileEffect === 'bg_grain') ? '1' : '0'; ?>"
     data-music-theme="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_music_theme'] ?? 'default') : 'default'; ?>"
-    data-cursor-custom-url="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url']) ? profile_h($profile['profile_cursor_custom_url']) : ''; ?>"
+    data-cursor-custom-url="<?php echo profile_h($cursorCustomUrlCss); ?>"
     data-cursor-custom-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? '1' : '0'; ?>"
-    data-cursor-custom-hover-url="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_hover_url']) ? profile_h($profile['profile_cursor_custom_hover_url']) : ''; ?>"
+    data-cursor-custom-hover-url="<?php echo profile_h($cursorCustomHoverUrlCss); ?>"
     data-cursor-custom-hover-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? '1' : '0'; ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_url'])): ?>--cursor-custom-url: url('<?php echo profile_h($profile['profile_cursor_custom_url']); ?>')<?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?> <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($profile['profile_cursor_custom_hover_url'])): ?>--cursor-custom-hover-url: url('<?php echo profile_h($profile['profile_cursor_custom_hover_url']); ?>')<?php echo (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?>">
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; <?php if ($cursorCustomUrlCss !== ''): ?>--cursor-custom-url: url('<?php echo profile_h($cursorCustomUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?> <?php if ($cursorCustomHoverUrlCss !== ''): ?>--cursor-custom-hover-url: url('<?php echo profile_h($cursorCustomHoverUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?>">
 
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
         <div id="clickToEnterOverlay" class="click-to-enter-overlay">
@@ -1368,7 +1429,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?> <?php echo (!$isOwnProfile) ? 'user-card-trigger' : ''; ?>"
                         <?php echo (!$isOwnProfile) ? 'data-user-id="' . (int)$profile['id'] . '" data-username="' . profile_h($profile['username']) . '" style="cursor: pointer; --profile-ring: ' . profile_h($avatarRingColor) . ';"' : 'style="--profile-ring: ' . profile_h($avatarRingColor) . ';"'; ?>>
                         <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
-                        <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp<?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 && !empty($profile['discord_id']) ? ' data-live-discord-avatar data-discord-id="' . profile_h($profile['discord_id']) . '" data-avatar-size="256"' : ''; ?>>
+                        <?php
+                        // A Discord CDN URL 404s once the user changes avatar and
+                        // the stored hash goes stale, so fall back to the locally
+                        // stored picture instead of leaving a broken image.
+                        $avatarFallbackUrl = '/includes/get_pfp.php?id=' . (int)$profile['id'] . '&local=1';
+                        ?>
+                        <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-avatar-fallback="<?php echo profile_h($avatarFallbackUrl); ?>" onerror="if(this.dataset.avatarFallback&&this.src!==this.dataset.avatarFallback){this.onerror=null;this.src=this.dataset.avatarFallback;}" data-richpresence-pfp<?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 && !empty($profile['discord_id']) ? ' data-live-discord-avatar data-discord-id="' . profile_h($profile['discord_id']) . '" data-avatar-size="256"' : ''; ?>>
                     </div>
 
                     <?php
@@ -2171,7 +2238,73 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <script>
+            // Restores the scroll offset captured before a refresh so reloading
+            // the preview does not throw the user back to the top. The preview
+            // stylesheet can move scrolling onto <body>, so both are handled.
+            function previewScrollTop() {
+                return window.scrollY
+                    || document.documentElement.scrollTop
+                    || document.body.scrollTop
+                    || 0;
+            }
+
+            (function restorePreviewScroll() {
+                let stored = null;
+                try {
+                    stored = sessionStorage.getItem('cripsum.preview.scroll');
+                    sessionStorage.removeItem('cripsum.preview.scroll');
+                } catch (_) {}
+                const offset = Number(stored);
+                if (!stored || !Number.isFinite(offset) || offset <= 0) return;
+                const apply = () => {
+                    window.scrollTo(0, offset);
+                    document.documentElement.scrollTop = offset;
+                    document.body.scrollTop = offset;
+                };
+                window.addEventListener('load', () => {
+                    apply();
+                    window.setTimeout(apply, 60);
+                    window.setTimeout(apply, 240);
+                });
+            })();
+
+            // The editor refreshes this page whenever a setting changes, so the
+            // "click to enter" gate is only shown once per preview session.
+            (function previewClickToEnter() {
+                const KEY = 'cripsum.preview.entered';
+                const dismiss = () => {
+                    const overlay = document.getElementById('clickToEnterOverlay');
+                    if (overlay) overlay.remove();
+                    document.documentElement.classList.remove('click-to-enter-active');
+                    document.body.classList.remove('click-to-enter-active');
+                };
+
+                let entered = false;
+                try { entered = sessionStorage.getItem(KEY) === '1'; } catch (_) {}
+                if (entered) dismiss();
+
+                document.addEventListener('click', (event) => {
+                    if (event.target && event.target.closest && event.target.closest('#clickToEnterOverlay')) {
+                        try { sessionStorage.setItem(KEY, '1'); } catch (_) {}
+                    }
+                }, true);
+            })();
+
+            // Percent-encodes everything that could terminate the CSS string a
+            // URL is dropped into, mirroring profile_css_url_value() in PHP.
+            function previewCssUrl(value) {
+                const url = String(value || '').trim();
+                if (url === '') return '';
+                if (/[\x00-\x20\x7F"'\\<>`]/.test(url)) return '';
+                if (!/^https?:\/\//i.test(url) && !url.startsWith('/uploads/profile_media/')) return '';
+                if (url.includes('..')) return '';
+                return url.replace(/[()]/g, (ch) => (ch === '(' ? '%28' : '%29'));
+            }
+
             window.addEventListener('message', function(event) {
+                // The editor hosts this page in a same-origin iframe; ignore
+                // anything else that manages to post into it.
+                if (event.origin !== window.location.origin) return;
                 if (!event.data) return;
                 const data = event.data;
                 if (data.type === 'update-css-variables') {
@@ -2188,7 +2321,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             if (key.startsWith('data-') && !key.startsWith('data-tilt-')) {
                                 body.setAttribute(key, value);
                                 if (key === 'data-cursor-custom-url' || key === 'data-cursor-custom-center' || key === 'data-cursor-custom-hover-url' || key === 'data-cursor-custom-hover-center') {
-                                    const urlVal = body.getAttribute('data-cursor-custom-url');
+                                    const urlVal = previewCssUrl(body.getAttribute('data-cursor-custom-url'));
                                     const centerVal = body.getAttribute('data-cursor-custom-center') === '1';
                                     if (urlVal) {
                                         const hotspot = centerVal ? ' 32 32' : '';
@@ -2197,7 +2330,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         body.style.removeProperty('--cursor-custom-url');
                                     }
 
-                                    const hoverUrlVal = body.getAttribute('data-cursor-custom-hover-url');
+                                    const hoverUrlVal = previewCssUrl(body.getAttribute('data-cursor-custom-hover-url'));
                                     const hoverCenterVal = body.getAttribute('data-cursor-custom-hover-center') === '1';
                                     if (hoverUrlVal) {
                                         const hotspot = hoverCenterVal ? ' 32 32' : '';
@@ -2404,7 +2537,72 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                             artistEl.style.display = 'none';
                         }
                     }
+                } else if (data.type === 'update-name-style') {
+                    // Name colour/gradient/animation live without a reload.
+                    const nameEl = document.querySelector('.profile-display-name');
+                    if (nameEl) {
+                        const style = data.style || {};
+                        nameEl.setAttribute('data-name-type', style.type || 'default');
+                        nameEl.setAttribute('data-name-anim', style.animation || 'none');
+                        nameEl.style.setProperty('--name-color1', style.solid_color || '#ffffff');
+                        nameEl.style.setProperty('--name-color2', style.grad_color1 || '#ffffff');
+                        nameEl.style.setProperty('--name-color3', style.grad_color2 || '#8b5cf6');
+                        nameEl.style.setProperty('--name-angle', (parseInt(style.grad_angle, 10) || 0) + 'deg');
+                        nameEl.style.setProperty('--name-glow-color', style.glow_color || '#8b5cf6');
+
+                        const text = String(data.text ?? nameEl.getAttribute('data-text') ?? '');
+                        nameEl.setAttribute('data-text', text);
+                        if (style.animation === 'bounce') {
+                            // Mirror profile_format_name(): one span per letter.
+                            nameEl.textContent = '';
+                            Array.from(text).forEach((char, index) => {
+                                const span = document.createElement('span');
+                                span.className = char === ' ' ? 'name-char space-char' : 'name-char';
+                                span.style.setProperty('--char-index', String(index));
+                                span.textContent = char === ' ' ? ' ' : char;
+                                nameEl.appendChild(span);
+                            });
+                        } else {
+                            nameEl.textContent = text;
+                        }
+                    }
+                } else if (data.type === 'update-avatar-ring') {
+                    const wrap = document.querySelector('.bio-avatar-wrap');
+                    if (wrap) {
+                        const style = String(data.ringStyle || 'spin');
+                        const enabled = !!data.enabled && style !== 'none';
+                        Array.from(wrap.classList).forEach((className) => {
+                            if (className.startsWith('ring-style-')) wrap.classList.remove(className);
+                        });
+                        wrap.classList.add('ring-style-' + style.replace(/[^a-z0-9_-]/gi, ''));
+                        wrap.classList.toggle('ring-disabled', !enabled);
+                        if (data.ringColor) wrap.style.setProperty('--profile-ring', data.ringColor);
+
+                        let ring = wrap.querySelector('.bio-avatar-ring');
+                        if (enabled && !ring) {
+                            ring = document.createElement('div');
+                            ring.className = 'bio-avatar-ring';
+                            wrap.prepend(ring);
+                        } else if (!enabled && ring) {
+                            ring.remove();
+                        }
+                    }
+                } else if (data.type === 'update-visibility') {
+                    // Show/hide toggles apply instantly instead of waiting for a
+                    // full preview refresh.
+                    Object.entries(data.sections || {}).forEach(([selector, visible]) => {
+                        try {
+                            document.querySelectorAll(selector).forEach((el) => {
+                                el.style.setProperty('display', visible ? '' : 'none', visible ? '' : 'important');
+                            });
+                        } catch (_) {
+                            // An unusable selector must not break the rest.
+                        }
+                    });
                 } else if (data.type === 'reload') {
+                    try {
+                        sessionStorage.setItem('cripsum.preview.scroll', String(previewScrollTop()));
+                    } catch (_) {}
                     window.location.reload();
                 }
             });

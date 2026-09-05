@@ -155,12 +155,40 @@ function profile_is_safe_url(?string $url, bool $required = false): bool
 {
     $url = trim((string)$url);
     if ($url === '') return !$required;
+
+    // Reject characters that never belong in an un-encoded URL and that would
+    // let a stored value break out of the HTML attribute or CSS string it is
+    // later interpolated into.
+    if (preg_match('/[\x00-\x20\x7F"\'\\\\<>`]/', $url)) return false;
+
     if (strpos($url, '/uploads/profile_media/') === 0) {
         return strpos($url, '..') === false;
     }
     if (!filter_var($url, FILTER_VALIDATE_URL)) return false;
     $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
     return in_array($scheme, ['http', 'https'], true);
+}
+
+/**
+ * Returns a URL that is safe to drop inside a CSS `url('...')` token of an
+ * inline style attribute, or an empty string when the value is not usable.
+ *
+ * htmlspecialchars() is not enough there: the HTML parser decodes the entities
+ * before the CSS parser sees the value, so an escaped quote would still close
+ * the CSS string.
+ */
+function profile_css_url_value(?string $url): string
+{
+    $url = trim((string)$url);
+    if ($url === '' || !profile_is_safe_url($url, true)) {
+        return '';
+    }
+
+    return str_replace(
+        ['\\', "'", '"', '(', ')', ' ', "\t", "\r", "\n", '<', '>'],
+        ['%5C', '%27', '%22', '%28', '%29', '%20', '%09', '%0D', '%0A', '%3C', '%3E'],
+        $url
+    );
 }
 
 function profile_clean_text(?string $value, int $max): string
@@ -1539,119 +1567,178 @@ function profile_render_icon(?string $icon, string $default = 'fa-solid fa-link'
     return '<i class="' . profile_h($icon) . ' ' . profile_h($class) . '"></i>';
 }
 
+/**
+ * Collects every `/uploads/profile_media/user_<id>/...` filename referenced by
+ * a blob of text and records it in $referencedFiles.
+ *
+ * Values arrive from very different places: plain columns, JSON columns encoded
+ * with `json_encode()` (which escapes `/` as `\/` unless JSON_UNESCAPED_SLASHES
+ * is used), HTML/markdown block bodies, and even HTML-escaped attributes. All of
+ * those are normalised before matching, otherwise perfectly referenced files
+ * look orphaned and get deleted.
+ */
+function profile_collect_media_references(?string $text, int $userId, array &$referencedFiles): void
+{
+    $text = (string)$text;
+    // Cheap reject first: most values (and every binary blob) never mention the
+    // media folder, and this runs over every column of every profile row.
+    if ($text === '' || stripos($text, 'profile_media') === false) {
+        return;
+    }
+
+    // Undo JSON slash escaping, HTML entity escaping and URL encoding so every
+    // storage format collapses to the same plain path form. JSON lists stored
+    // inside another JSON document (presets hold `links_json` & friends as
+    // strings) end up double or triple escaped, so every backslash is dropped
+    // last instead of matching a fixed `\/` sequence.
+    $normalized = str_ireplace(['\\u002f', '%2f', '&#47;', '&#x2f;', '&sol;'], '/', $text);
+    $normalized = str_replace('\\', '', $normalized);
+
+    $pattern = '#/uploads/profile_media/user_' . $userId . '/([A-Za-z0-9_.-]+)#i';
+    if (!preg_match_all($pattern, $normalized, $matches) || empty($matches[1])) {
+        return;
+    }
+
+    foreach ($matches[1] as $filename) {
+        $filename = strtolower($filename);
+        if ($filename === '') {
+            continue;
+        }
+        $referencedFiles[$filename] = true;
+
+        // Older section configs truncated uploaded paths to 50 characters, so
+        // the stored value can be a prefix of the real filename. Keep the
+        // prefix around and match it later.
+        $referencedFiles['prefix:' . $filename] = true;
+    }
+}
+
+/**
+ * Removes files in the user's upload folder that nothing references any more.
+ *
+ * A file is kept when it is referenced by the live profile OR by any saved
+ * preset: presets are restorable configurations, so their media has to survive
+ * even while another preset is active.
+ */
 function profile_cleanup_unused_media(mysqli $mysqli, int $userId): void
 {
+    if ($userId <= 0) {
+        return;
+    }
+
     $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $userId;
     if (!is_dir($uploadDir)) {
         return;
     }
 
-    // Get all files on disk
+    // Files uploaded very recently may not be referenced yet: the user picked
+    // them in the editor but has not saved the profile. Never collect those.
+    $graceSeconds = 6 * 3600;
+    $now = time();
+
     $filesOnDisk = [];
-    $dirIter = new DirectoryIterator($uploadDir);
-    foreach ($dirIter as $fileInfo) {
-        if ($fileInfo->isFile()) {
+    try {
+        $dirIter = new DirectoryIterator($uploadDir);
+        foreach ($dirIter as $fileInfo) {
+            if (!$fileInfo->isFile()) {
+                continue;
+            }
+            $mtime = $fileInfo->getMTime();
+            if ($mtime !== false && ($now - $mtime) < $graceSeconds) {
+                continue;
+            }
             $filesOnDisk[] = $fileInfo->getFilename();
         }
+    } catch (Throwable $e) {
+        error_log('[profile_cleanup_unused_media] ' . $e->getMessage());
+        return;
     }
 
     if (empty($filesOnDisk)) {
         return;
     }
 
-    // Collect all referenced files
     $referencedFiles = [];
-
-    $addRef = function(?string $url) use (&$referencedFiles, $userId) {
-        $url = trim((string)$url);
-        if ($url === '') return;
-        
-        $pattern = "/\/uploads\/profile_media\/user_" . $userId . "\/([a-zA-Z0-9_.-]+)/i";
-        if (preg_match($pattern, $url, $matches)) {
-            $referencedFiles[strtolower($matches[1])] = true;
-        }
+    $addRef = static function (?string $value) use (&$referencedFiles, $userId): void {
+        profile_collect_media_references($value, $userId, $referencedFiles);
     };
 
-    // A. Active profile fields
-    $stmt = $mysqli->prepare("SELECT profile_pic, profile_banner, profile_cursor_custom_url, profile_cursor_custom_hover_url FROM utenti WHERE id = ? LIMIT 1");
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-    $userRow = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if ($userRow) {
-        $addRef($userRow['profile_pic']);
-        $addRef($userRow['profile_banner']);
-        $addRef($userRow['profile_cursor_custom_url']);
-        $addRef($userRow['profile_cursor_custom_hover_url']);
-    }
-
-    // B. Custom blocks media
-    $stmt = $mysqli->prepare("SELECT media_url FROM utenti_profile_blocks WHERE utente_id = ?");
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $addRef($row['media_url']);
-    }
-    $stmt->close();
-
-    // C. Links, projects, contents
-    $stmt = $mysqli->prepare("SELECT url, icon FROM utenti_links WHERE utente_id = ?");
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $addRef($row['url']);
-        $addRef($row['icon']);
-    }
-    $stmt->close();
-
-    $stmt = $mysqli->prepare("SELECT url, image_url FROM utenti_projects WHERE utente_id = ?");
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $addRef($row['url']);
-        $addRef($row['image_url']);
-    }
-    $stmt->close();
-
-    $stmt = $mysqli->prepare("SELECT url, thumbnail_url FROM utenti_contents WHERE utente_id = ?");
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $addRef($row['url']);
-        $addRef($row['thumbnail_url']);
-    }
-    $stmt->close();
-
-    // D. Presets data (regex scanning JSON data to preserve files referenced in presets)
-    $stmt = $mysqli->prepare("SELECT preset_data FROM utenti_presets WHERE utente_id = ?");
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $presetJson = $row['preset_data'];
-        if ($presetJson) {
-            $pattern = "/\/uploads\/profile_media\/user_" . $userId . "\/([a-zA-Z0-9_.-]+)/i";
-            if (preg_match_all($pattern, $presetJson, $matches)) {
-                if (!empty($matches[1])) {
-                    foreach ($matches[1] as $filename) {
-                        $referencedFiles[strtolower($filename)] = true;
+    // Every query below is best-effort: a missing table must never turn into a
+    // deletion spree, so a failure aborts the whole cleanup.
+    $collect = static function (string $sql) use ($mysqli, $userId, $addRef): bool {
+        $stmt = $mysqli->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('i', $userId);
+        if (!$stmt->execute()) {
+            $stmt->close();
+            return false;
+        }
+        $res = $stmt->get_result();
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                foreach ($row as $value) {
+                    if (is_string($value)) {
+                        $addRef($value);
                     }
                 }
             }
         }
-    }
-    $stmt->close();
+        $stmt->close();
+        return true;
+    };
 
-    // Delete unreferenced files
+    $sources = [
+        // Active profile columns, including the JSON ones that can embed
+        // uploaded icons (sections config, tags, name style, ...).
+        "SELECT profile_pic, profile_banner, profile_cursor_custom_url, profile_cursor_custom_hover_url,
+                profile_sections_config, profile_tags_json, profile_music_url, profile_name_style
+         FROM utenti WHERE id = ?",
+        "SELECT title, body, media_url FROM utenti_profile_blocks WHERE utente_id = ?",
+        "SELECT title, description, url, icon FROM utenti_links WHERE utente_id = ?",
+        "SELECT title, description, url, image_url FROM utenti_projects WHERE utente_id = ?",
+        "SELECT title, description, url, thumbnail_url FROM utenti_contents WHERE utente_id = ?",
+        "SELECT label, url, icon FROM utenti_social WHERE utente_id = ?",
+        "SELECT title, url FROM utenti_embeds WHERE utente_id = ?",
+        // Saved presets keep their own copy of every media reference.
+        "SELECT preset_data FROM utenti_presets WHERE utente_id = ?",
+    ];
+
+    foreach ($sources as $sql) {
+        if (!$collect($sql)) {
+            // Something is off with the schema; keeping the files is always the
+            // safe outcome.
+            error_log('[profile_cleanup_unused_media] query failed, cleanup aborted for user ' . $userId);
+            return;
+        }
+    }
+
+    $prefixes = [];
+    foreach (array_keys($referencedFiles) as $key) {
+        if (str_starts_with($key, 'prefix:')) {
+            $prefixes[] = substr($key, 7);
+        }
+    }
+
     foreach ($filesOnDisk as $file) {
         $lowerFile = strtolower($file);
-        if (!isset($referencedFiles[$lowerFile])) {
-            @unlink($uploadDir . '/' . $file);
+        if (isset($referencedFiles[$lowerFile])) {
+            continue;
         }
+
+        // Keep files whose name merely got truncated by an old column limit.
+        $keep = false;
+        foreach ($prefixes as $prefix) {
+            if ($prefix !== '' && str_starts_with($lowerFile, $prefix)) {
+                $keep = true;
+                break;
+            }
+        }
+        if ($keep) {
+            continue;
+        }
+
+        @unlink($uploadDir . '/' . $file);
     }
 }

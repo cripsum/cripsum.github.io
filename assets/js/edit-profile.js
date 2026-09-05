@@ -665,18 +665,20 @@
     const previewIframe = document.getElementById('profilePreviewIframe');
     if (previewIframe) {
         previewIframe.addEventListener('load', () => {
+            // Locally selected media is not on the server yet, so it is re-sent
+            // to every freshly loaded preview document.
             if (cachedAvatarData && previewIframe.contentWindow) {
                 previewIframe.contentWindow.postMessage({
                     type: 'update-avatar-src',
                     src: cachedAvatarData
-                }, '*');
+                }, window.location.origin);
             }
             if (cachedBackgroundData && previewIframe.contentWindow) {
                 previewIframe.contentWindow.postMessage({
                     type: 'update-background-media',
                     fileType: cachedBackgroundData.fileType,
                     url: cachedBackgroundData.url
-                }, '*');
+                }, window.location.origin);
             }
             if (cachedMusicData && previewIframe.contentWindow) {
                 previewIframe.contentWindow.postMessage({
@@ -686,9 +688,10 @@
                     title: musicTitleInput?.value.trim() || 'Profile Song',
                     artist: musicArtistInput?.value.trim() || '',
                     src: cachedMusicData.url
-                }, '*');
+                }, window.location.origin);
             }
             updatePreview();
+            if (typeof markPreviewRefreshing === 'function') markPreviewRefreshing(false);
         });
     }
 
@@ -739,6 +742,20 @@
     const cardBlurVal = $('#cardBlurVal');
     const borderOpacityVal = $('#borderOpacityVal');
     const borderWidthVal = $('#borderWidthVal');
+
+    // Section visibility checkboxes, keyed by the `data-section-type` the
+    // profile page puts on the matching block.
+    const sectionToggleInputs = {
+        links: $('input[type="checkbox"][name="profile_show_links"]'),
+        embeds: $('input[type="checkbox"][name="profile_show_embeds"]'),
+        stats: $('input[type="checkbox"][name="profile_show_stats"]'),
+        projects: $('input[type="checkbox"][name="profile_show_projects"]'),
+        blocks: $('input[type="checkbox"][name="profile_show_blocks"]'),
+        contents: $('input[type="checkbox"][name="profile_show_contents"]'),
+        characters: $('input[type="checkbox"][name="profile_show_characters"]'),
+        badges: $('input[type="checkbox"][name="profile_show_badges"]'),
+        activity: $('input[type="checkbox"][name="profile_show_activity"]'),
+    };
 
     const loadedFonts = new Set();
     function loadGoogleFontPreview(fontName) {
@@ -906,7 +923,7 @@
             iframe.contentWindow.postMessage({
                 type: 'update-css-variables',
                 variables: variables
-            }, '*');
+            }, window.location.origin);
         }
 
         const dName = displayNameInput?.value.trim() || usernameInput?.value.trim() || 'Utente';
@@ -914,16 +931,20 @@
         const bioText = bioInput?.value.trim() || (isEnglish ? 'Your bio will appear here.' : 'La tua bio apparirà qui.');
         const musicTitle = musicTitleInput?.value.trim() || 'Profile Song';
         const musicArtist = musicArtistInput?.value.trim() || '';
+        // With "use Discord name" on, the shown name comes from Discord, so the
+        // display-name field must not overwrite it in the preview.
+        const usesDiscordName = !!(discordUseNameInput && discordUseNameInput.checked);
 
         if (iframe && iframe.contentWindow) {
+            const texts = {
+                '.bio-username': uName,
+                '.bio-tagline': bioText
+            };
+            if (!usesDiscordName) texts['.profile-display-name'] = dName;
             iframe.contentWindow.postMessage({
                 type: 'update-text',
-                texts: {
-                    '.profile-display-name': dName,
-                    '.bio-username': uName,
-                    '.bio-tagline': bioText
-                }
-            }, '*');
+                texts: texts
+            }, window.location.origin);
 
             const isMusicRemoved = removeMusicUploadInput && removeMusicUploadInput.checked;
             const musicUrl = isMusicRemoved ? '' : (musicUrlInput?.value.trim() || '');
@@ -939,7 +960,7 @@
                 artist: musicArtist,
                 src: (cachedMusicData && !isMusicRemoved) ? cachedMusicData.url : musicUrl,
                 defaultVolume: audioDefaultVolumeInput ? Number(audioDefaultVolumeInput.value) : 0.18
-            }, '*');
+            }, window.location.origin);
         }
 
         const attributes = {};
@@ -977,7 +998,47 @@
             iframe.contentWindow.postMessage({
                 type: 'update-attributes',
                 attributes: attributes
-            }, '*');
+            }, window.location.origin);
+
+            // Name colours / gradient / animation: rendered server-side from a
+            // single JSON column, so the preview gets them explicitly instead
+            // of waiting for a refresh.
+            iframe.contentWindow.postMessage({
+                type: 'update-name-style',
+                text: usesDiscordName ? null : dName,
+                style: {
+                    type: nameColorTypeInput ? nameColorTypeInput.value : 'default',
+                    animation: nameAnimationInput ? nameAnimationInput.value : 'none',
+                    solid_color: nameSolidColorInput ? nameSolidColorInput.value : '#ffffff',
+                    grad_color1: nameGradColor1Input ? nameGradColor1Input.value : '#ffffff',
+                    grad_color2: nameGradColor2Input ? nameGradColor2Input.value : '#8b5cf6',
+                    grad_angle: nameGradAngleInput ? nameGradAngleInput.value : 90,
+                    glow_color: nameGlowColorInput ? nameGlowColorInput.value : '#8b5cf6',
+                }
+            }, window.location.origin);
+
+            iframe.contentWindow.postMessage({
+                type: 'update-avatar-ring',
+                enabled: ringEnabledInput ? ringEnabledInput.checked : true,
+                ringStyle: ringStyleInput ? ringStyleInput.value : 'spin',
+                ringColor: ringColorInput ? ringColorInput.value : accentVal,
+            }, window.location.origin);
+
+            // Section on/off applies straight away when the markup is already
+            // in the preview; a section that was never rendered comes back with
+            // the refresh that follows.
+            const visibilityMap = {};
+            Object.entries(sectionToggleInputs).forEach(([sectionType, input]) => {
+                if (input) {
+                    visibilityMap[`[data-section-type="${sectionType}"]`] = input.checked;
+                }
+            });
+            if (Object.keys(visibilityMap).length) {
+                iframe.contentWindow.postMessage({
+                    type: 'update-visibility',
+                    sections: visibilityMap
+                }, window.location.origin);
+            }
         }
 
         if (borderRadiusVal && borderRadiusInput) borderRadiusVal.textContent = borderRadiusInput.value + 'px';
@@ -1006,77 +1067,140 @@
         if (bioCounter && bioInput) bioCounter.textContent = bioInput.value.length;
     }
 
-    function triggerPreviewStructureReload() {
-        const iframe = document.getElementById('profilePreviewIframe');
-        if (iframe) {
-            iframe.contentWindow.postMessage({ type: 'reload' }, '*');
+    // Flipped once every widget has been built, so the initialisation pass
+    // cannot trigger draft saves or preview reloads.
+    let editorReady = false;
+
+    // ── PREVIEW REFRESH ────────────────────────────────────────────────────
+    // Everything the postMessage fast path cannot express (list rows, badges,
+    // section titles, layouts, ...) is rendered server-side from the draft, so
+    // the iframe is reloaded after the draft lands. The reload is debounced and
+    // always follows the latest draft write, so no setting needs a full save to
+    // show up any more.
+    let previewRefreshTimer = null;
+
+    function markPreviewRefreshing(active) {
+        const pane = document.querySelector('.editor-preview-pane');
+        if (pane) pane.classList.toggle('is-preview-refreshing', active);
+        const statusEl = document.querySelector('.preview-status');
+        if (statusEl) {
+            if (active) {
+                if (!statusEl.dataset.idleLabel) statusEl.dataset.idleLabel = statusEl.textContent || '';
+                statusEl.textContent = isEnglish ? 'Updating preview…' : 'Aggiornamento anteprima…';
+            } else if (statusEl.dataset.idleLabel) {
+                statusEl.textContent = statusEl.dataset.idleLabel;
+            }
         }
     }
 
+    function reloadPreviewNow() {
+        const iframe = document.getElementById('profilePreviewIframe');
+        if (!iframe || !iframe.contentWindow) return;
+        markPreviewRefreshing(true);
+        // The preview page stores its scroll offset and restores it on load.
+        iframe.contentWindow.postMessage({ type: 'reload' }, window.location.origin);
+    }
+
+    function schedulePreviewRefresh(immediate = false) {
+        clearTimeout(previewRefreshTimer);
+        previewRefreshTimer = setTimeout(reloadPreviewNow, immediate ? 120 : 900);
+    }
+
+    // Kept for backwards compatibility with the existing call sites.
+    function triggerPreviewStructureReload() {
+        schedulePreviewRefresh(true);
+    }
+
     // ── DEBOUNCED AUTOSAVE DRAFT SYSTEM ────────────────────────────────────
+    // Draft writes are serialized: two overlapping requests could otherwise be
+    // applied out of order and leave the session holding an older snapshot,
+    // which is what used to make the preview show stale values.
     let autosaveTimeout = null;
-    function triggerAutosave(immediate = false) {
+    let autosaveInFlight = Promise.resolve();
+    let autosaveSequence = 0;
+
+    function setAutosaveStatus(state) {
         const statusSpan = document.getElementById('autosaveStatus');
-        if (statusSpan) {
+        if (!statusSpan) return;
+        if (state === 'saving') {
             statusSpan.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--accent);"></i> ${isEnglish ? 'Saving draft...' : 'Salvataggio bozza...'}`;
             statusSpan.style.color = 'rgba(255,255,255,0.6)';
+        } else if (state === 'saved') {
+            statusSpan.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> ${isEnglish ? 'Draft saved' : 'Bozza salvata'}`;
+            statusSpan.style.color = 'rgba(255,255,255,0.4)';
+        } else {
+            statusSpan.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i> ${isEnglish ? 'Save failed' : 'Errore bozza'}`;
+            statusSpan.style.color = 'rgba(255,255,255,0.6)';
         }
+    }
 
+    function syncHiddenJsonFields() {
+        const fields = {
+            '#socialsJson': () => collectRows('socials'),
+            '#linksJson': () => collectRows('links'),
+            '#embedsJson': () => collectRows('embeds'),
+            '#projectsJson': () => collectRows('projects'),
+            '#contentsJson': () => collectRows('contents'),
+            '#blocksJson': () => collectRows('blocks'),
+            '#badgesJson': () => collectBadges(),
+            '#charactersJson': () => collectCharacters(),
+            '#profileTagsJson': () => collectRows('tags'),
+        };
+        Object.entries(fields).forEach(([selector, collect]) => {
+            const input = $(selector);
+            if (input) input.value = JSON.stringify(collect());
+        });
+    }
+
+    function triggerAutosave(immediate = false) {
+        // Widgets dispatch synthetic input/change events while the editor is
+        // still wiring itself up; saving a draft then would be pointless and
+        // would read state that is not initialised yet.
+        if (!editorReady) return Promise.resolve();
+
+        setAutosaveStatus('saving');
         clearTimeout(autosaveTimeout);
 
-        const performSave = async () => {
-            const socialsJson = $('#socialsJson');
-            const linksJson = $('#linksJson');
-            const embedsJson = $('#embedsJson');
-            const projectsJson = $('#projectsJson');
-            const contentsJson = $('#contentsJson');
-            const blocksJson = $('#blocksJson');
-            const badgesJson = $('#badgesJson');
-            const charactersJson = $('#charactersJson');
-            const tagsJson = $('#profileTagsJson');
-
-            if (socialsJson) socialsJson.value = JSON.stringify(collectRows('socials'));
-            if (linksJson) linksJson.value = JSON.stringify(collectRows('links'));
-            if (embedsJson) embedsJson.value = JSON.stringify(collectRows('embeds'));
-            if (projectsJson) projectsJson.value = JSON.stringify(collectRows('projects'));
-            if (contentsJson) contentsJson.value = JSON.stringify(collectRows('contents'));
-            if (blocksJson) blocksJson.value = JSON.stringify(collectRows('blocks'));
-            if (badgesJson) badgesJson.value = JSON.stringify(collectBadges());
-            if (charactersJson) charactersJson.value = JSON.stringify(collectCharacters());
-            if (tagsJson) tagsJson.value = JSON.stringify(collectRows('tags'));
+        const performSave = () => {
+            syncHiddenJsonFields();
 
             const formData = new FormData(form);
+            // Files travel with the final save, not with every keystroke.
+            ['avatar', 'banner', 'profile_music_file'].forEach((name) => formData.delete(name));
 
-            try {
-                const res = await fetch('/api/update_profile_draft.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.ok) {
-                    if (statusSpan) {
-                        statusSpan.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> ${isEnglish ? 'Draft saved' : 'Bozza salvata'}`;
-                        statusSpan.style.color = 'rgba(255,255,255,0.4)';
+            const sequence = ++autosaveSequence;
+
+            autosaveInFlight = autosaveInFlight.then(async () => {
+                // A newer snapshot already went out; this one is obsolete.
+                if (sequence < autosaveSequence) return;
+                try {
+                    const res = await fetch('/api/update_profile_draft.php', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin',
+                    });
+                    const data = await res.json();
+                    if (data.ok) {
+                        setAutosaveStatus('saved');
+                        schedulePreviewRefresh(immediate);
+                    } else {
+                        setAutosaveStatus('error');
+                        if (data.message && typeof window.profileToast === 'function') {
+                            window.profileToast(data.message);
+                        }
                     }
-                    if (immediate) {
-                        triggerPreviewStructureReload();
-                    }
-                } else {
-                    if (statusSpan) {
-                        statusSpan.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i> ${isEnglish ? 'Save failed' : 'Errore bozza'}`;
-                    }
+                } catch (e) {
+                    setAutosaveStatus('error');
                 }
-            } catch (e) {
-                if (statusSpan) {
-                    statusSpan.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i> ${isEnglish ? 'Save failed' : 'Errore bozza'}`;
-                }
-            }
+            });
+
+            return autosaveInFlight;
         };
 
         if (immediate) {
             performSave();
         } else {
-            autosaveTimeout = setTimeout(performSave, 1000);
+            autosaveTimeout = setTimeout(performSave, 600);
         }
     }
 
@@ -1165,10 +1289,35 @@
     // Listen to changes on visibility checkboxes and display select menus
     $$('.profile-toggle-grid input[type="checkbox"], #badgesDisplayInput, #badgesPositionInput').forEach((input) => {
         input.addEventListener('change', () => {
+            updatePreview();
             triggerAutosave(true);
             pushHistoryState();
         });
     });
+
+    // Safety net: every form control updates the draft and the preview, even
+    // the ones without a dedicated listener, so no setting can end up in the
+    // "save first to see it" state. Delegated in the capture phase, so a
+    // control with its own handler still gets the last word (an immediate save
+    // simply supersedes the debounced one scheduled here).
+    // Only controls that carry profile state: `name` for the fields posted
+    // directly, `data-field` for the repeater rows collected into JSON. This
+    // keeps the editor's own search boxes from triggering saves.
+    const carriesProfileState = (el) => el instanceof HTMLElement
+        && el.type !== 'file'
+        && (el.hasAttribute('name') || el.hasAttribute('data-field'));
+
+    form.addEventListener('input', (event) => {
+        if (!carriesProfileState(event.target)) return;
+        updatePreview();
+        triggerAutosave(false);
+    }, true);
+
+    form.addEventListener('change', (event) => {
+        if (!carriesProfileState(event.target)) return;
+        updatePreview();
+        triggerAutosave(true);
+    }, true);
 
     // ── UNDO / REDO SYSTEM ──────────────────────────────────────────────────
     let historyStack = [];
@@ -1859,17 +2008,36 @@
     // ── MEDIA UPLOAD PREVIEWS ───────────────────────────────────────────────
     function previewAvatarFile(input, target) {
         const file = input.files && input.files[0];
-        if (!file || !file.type.startsWith('image/')) return;
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            input.value = '';
+            uploadManager.reject(file.name, isEnglish ? 'Only image files are allowed.' : 'Sono ammesse solo immagini.');
+            return;
+        }
+        const avatarLimit = (window.isPremiumUser ? 10 : 2) * 1024 * 1024;
+        if (file.size > avatarLimit) {
+            input.value = '';
+            uploadManager.reject(
+                file.name,
+                isEnglish
+                    ? `Avatar too large. Maximum size is ${formatBytes(avatarLimit)}.`
+                    : `Avatar troppo pesante. Il limite massimo è ${formatBytes(avatarLimit)}.`
+            );
+            return;
+        }
+        uploadManager.stage(file.name, file.size, isEnglish ? 'Avatar ready — save to apply' : 'Avatar pronto — salva per applicarlo');
         const reader = new FileReader();
         reader.onload = () => {
-            target.src = reader.result;
+            // The editor has no local avatar thumbnail today, so `target` can be
+            // null; the preview iframe below is what actually has to update.
+            if (target) target.src = reader.result;
             cachedAvatarData = reader.result; // Cache avatar data URL
             const iframe = document.getElementById('profilePreviewIframe');
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({
                     type: 'update-avatar-src',
                     src: reader.result
-                }, '*');
+                }, window.location.origin);
             }
         };
         reader.readAsDataURL(file);
@@ -1879,36 +2047,53 @@
         const file = input.files && input.files[0];
         if (!file) return;
 
-        const background = document.querySelector('.bio-background');
-        if (!background) return;
+        if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+            input.value = '';
+            uploadManager.reject(file.name, isEnglish ? 'Unsupported background format.' : 'Formato sfondo non supportato.');
+            return;
+        }
+        const bannerLimit = (window.isPremiumUser ? 50 : 12) * 1024 * 1024;
+        if (file.size > bannerLimit) {
+            input.value = '';
+            uploadManager.reject(
+                file.name,
+                isEnglish
+                    ? `Background too large. Maximum size is ${formatBytes(bannerLimit)}.`
+                    : `Sfondo troppo pesante. Il limite massimo è ${formatBytes(bannerLimit)}.`
+            );
+            return;
+        }
+        uploadManager.stage(file.name, file.size, isEnglish ? 'Background ready — save to apply' : 'Sfondo pronto — salva per applicarlo');
 
         const url = URL.createObjectURL(file);
         cachedBackgroundData = { url: url, fileType: file.type }; // Cache background URL and type
-        background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
 
-        let media;
-        if (file.type.startsWith('video/')) {
-            media = document.createElement('video');
-            media.autoplay = true;
-            media.muted = true;
-            media.loop = true;
-            media.playsInline = true;
-            const source = document.createElement('source');
-            source.src = url;
-            source.type = file.type;
-            media.appendChild(source);
-        } else if (file.type.startsWith('image/')) {
-            media = document.createElement('img');
-            media.src = url;
-            media.alt = '';
-        } else {
-            window.profileToast(isEnglish ? 'Unsupported background format.' : 'Formato sfondo non supportato.');
-            URL.revokeObjectURL(url);
-            return;
+        // The editor page shows the same background behind the sidebar; update
+        // it too when it is present.
+        const background = document.querySelector('.bio-background');
+        if (background) {
+            background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
+
+            let media;
+            if (file.type.startsWith('video/')) {
+                media = document.createElement('video');
+                media.autoplay = true;
+                media.muted = true;
+                media.loop = true;
+                media.playsInline = true;
+                const source = document.createElement('source');
+                source.src = url;
+                source.type = file.type;
+                media.appendChild(source);
+            } else {
+                media = document.createElement('img');
+                media.src = url;
+                media.alt = '';
+            }
+
+            media.className = 'bio-background__media';
+            background.prepend(media);
         }
-
-        media.className = 'bio-background__media';
-        background.prepend(media);
 
         // Also post message to iframe preview
         const iframe = document.getElementById('profilePreviewIframe');
@@ -1917,10 +2102,9 @@
                 type: 'update-background-media',
                 fileType: file.type,
                 url: url
-            }, '*');
+            }, window.location.origin);
         }
 
-        window.profileToast(isEnglish ? 'Background preview updated.' : 'Anteprima sfondo aggiornata.');
     }
 
     function previewMusicFile(input) {
@@ -1931,15 +2115,16 @@
         }
         const isMp3 = file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3');
         if (!isMp3) {
-            window.profileToast(isEnglish ? 'Use only MP3 files.' : 'Usa solo file MP3.');
             input.value = '';
+            uploadManager.reject(file.name, isEnglish ? 'Use only MP3 files.' : 'Usa solo file MP3.');
             return;
         }
         if (file.size > 12 * 1024 * 1024) {
-            window.profileToast(isEnglish ? 'MP3 too heavy. Max 12MB.' : 'MP3 troppo pesante. Max 12MB.');
             input.value = '';
+            uploadManager.reject(file.name, isEnglish ? 'MP3 too heavy. Max 12MB.' : 'MP3 troppo pesante. Max 12MB.');
             return;
         }
+        uploadManager.stage(file.name, file.size, isEnglish ? 'MP3 ready — save to apply' : 'MP3 pronto — salva per applicarlo');
         const title = $('#musicTitleInput');
         if (title && !title.value.trim()) {
             title.value = file.name.replace(/\.mp3$/i, '');
@@ -1957,10 +2142,9 @@
                 title: title?.value || file.name.replace(/\.mp3$/i, ''),
                 artist: $('#musicArtistInput')?.value || '',
                 src: url
-            }, '*');
+            }, window.location.origin);
         }
 
-        window.profileToast(isEnglish ? 'MP3 selected. Save to apply.' : 'MP3 selezionato. Salva per applicarlo.');
     }
 
     // ── SIDEBAR RESIZE HANDLE ────────────────────────────────────────────────
@@ -2106,6 +2290,20 @@
             document.getElementById('musicFileInput')
         ].some(input => input && input.files && input.files.length > 0);
 
+        const overlaySubtext = document.getElementById('editorLoadingSubtext');
+        const overlayBar = ensureSaveProgressBar(overlay);
+
+        const setOverlayProgress = (percent) => {
+            if (!overlayBar) return;
+            if (percent === null) {
+                overlayBar.parentElement.classList.add('is-indeterminate');
+                overlayBar.style.width = '35%';
+            } else {
+                overlayBar.parentElement.classList.remove('is-indeterminate');
+                overlayBar.style.width = `${Math.max(0, Math.min(100, Math.round(percent)))}%`;
+            }
+        };
+
         if (button) {
             button.disabled = true;
             button.innerHTML = hasFiles
@@ -2121,16 +2319,46 @@
             }
             overlay.classList.add('is-active');
         }
+        setOverlayProgress(hasFiles ? 0 : null);
 
         try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                body: new FormData(form),
-                credentials: 'same-origin',
-                headers: { 'Accept': 'application/json' },
+            // Media uploaded from the rows (icons, block images, cursors) must
+            // finish before the profile is written, otherwise the save stores a
+            // URL whose file is still being uploaded.
+            if (uploadManager.hasPending()) {
+                if (overlayText) {
+                    overlayText.textContent = isEnglish
+                        ? 'Finishing pending uploads...'
+                        : 'Completamento dei caricamenti in corso...';
+                }
+                await uploadManager.waitForAll();
+                // The uploads wrote their URLs into the row inputs.
+                syncHiddenJsonFields();
+                $('#badgesJson').value = JSON.stringify(collectBadges());
+                $('#charactersJson').value = JSON.stringify(collectCharacters());
+                if (overlayText) {
+                    overlayText.textContent = hasFiles
+                        ? (isEnglish ? 'Uploading media files...' : 'Caricamento file multimediali...')
+                        : (isEnglish ? 'Saving profile...' : 'Salvataggio profilo...');
+                }
+            }
+
+            const data = await submitProfileForm(new FormData(form), (percent) => {
+                setOverlayProgress(percent);
+                if (percent >= 100) {
+                    if (overlayText) {
+                        overlayText.textContent = isEnglish ? 'Saving profile...' : 'Salvataggio profilo...';
+                    }
+                    if (overlaySubtext) {
+                        overlaySubtext.textContent = isEnglish
+                            ? 'Upload finished, applying the changes…'
+                            : 'Caricamento completato, applico le modifiche…';
+                    }
+                }
             });
-            const data = await response.json();
-            if (!response.ok || !data.ok) throw new Error(data.message || (isEnglish ? 'Error saving.' : 'Errore salvataggio.'));
+
+            if (!data.ok) throw new Error(data.message || (isEnglish ? 'Error saving.' : 'Errore salvataggio.'));
+            setOverlayProgress(100);
             window.profileToast(data.message || (isEnglish ? 'Profile saved.' : 'Profilo salvato.'));
 
             // Clear draft session after successful publish
@@ -2139,16 +2367,69 @@
             }, 650);
         } catch (error) {
             window.profileToast(error.message || (isEnglish ? 'Error saving.' : 'Errore salvataggio.'));
+            if (overlay) overlay.classList.remove('is-active');
         } finally {
             if (button) {
                 button.disabled = false;
                 button.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> ${isEnglish ? 'Salva' : 'Salva'}`;
             }
-            if (overlay) {
-                overlay.classList.remove('is-active');
-            }
         }
     });
+
+    /** Adds the progress bar used by the saving overlay, once. */
+    function ensureSaveProgressBar(overlay) {
+        if (!overlay) return null;
+        let track = overlay.querySelector('.editor-loading-track');
+        if (!track) {
+            track = document.createElement('div');
+            track.className = 'editor-loading-track';
+            track.innerHTML = '<div class="editor-loading-bar"></div>';
+            const subtext = overlay.querySelector('.editor-loading-subtext');
+            if (subtext) {
+                subtext.parentNode.insertBefore(track, subtext);
+            } else {
+                overlay.appendChild(track);
+            }
+        }
+        return track.querySelector('.editor-loading-bar');
+    }
+
+    /**
+     * Posts the profile form with XHR so the media upload reports real
+     * progress (fetch() cannot).
+     */
+    function submitProfileForm(formData, onProgress) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', form.action, true);
+            xhr.withCredentials = true;
+            xhr.setRequestHeader('Accept', 'application/json');
+
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable && typeof onProgress === 'function') {
+                    onProgress((event.loaded / event.total) * 100);
+                }
+            });
+
+            xhr.addEventListener('load', () => {
+                let data = null;
+                try {
+                    data = JSON.parse(xhr.responseText || '{}');
+                } catch (_) {
+                    reject(new Error(isEnglish ? 'Unexpected server response.' : 'Risposta del server non valida.'));
+                    return;
+                }
+                if (xhr.status < 200 || xhr.status >= 300) {
+                    reject(new Error(data.message || (isEnglish ? 'Error saving.' : 'Errore salvataggio.')));
+                    return;
+                }
+                resolve(data);
+            });
+            xhr.addEventListener('error', () => reject(new Error(isEnglish ? 'Network error.' : 'Errore di rete.')));
+            xhr.addEventListener('abort', () => reject(new Error(isEnglish ? 'Save cancelled.' : 'Salvataggio annullato.')));
+            xhr.send(formData);
+        });
+    }
 
     // ── CHARACTER INVENTORY SORTING ──────────────────────────────────────────
     let selectedCharIds = [];
@@ -3086,6 +3367,10 @@
     pushHistoryState();
     launchOnboardingTour();
 
+    // Arm the draft/preview pipeline once the widgets above stopped firing
+    // their synthetic events. Also armed from initAll(), whichever runs first.
+    setTimeout(() => { editorReady = true; }, 150);
+
     // Custom select/picker styling integrations
     if (window.__profileCustomSelectLoaded) return;
     window.__profileCustomSelectLoaded = true;
@@ -3581,6 +3866,192 @@
         }
     });
 
+    // ── UPLOAD PROGRESS ─────────────────────────────────────────────────────
+    // Every upload gets a visible card with a real progress bar and an explicit
+    // success/failure state, and the profile save waits for pending uploads
+    // instead of racing them.
+    function formatBytes(bytes) {
+        const value = Number(bytes) || 0;
+        if (value < 1024) return `${value} B`;
+        if (value < 1024 * 1024) return `${(value / 1024).toFixed(0)} KB`;
+        return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    const uploadManager = (() => {
+        const pending = new Set();
+        let panel = null;
+
+        function ensurePanel() {
+            if (panel && document.body.contains(panel)) return panel;
+            panel = document.createElement('div');
+            panel.className = 'editor-upload-panel';
+            panel.setAttribute('aria-live', 'polite');
+            document.body.appendChild(panel);
+            return panel;
+        }
+
+        function createCard(name, size) {
+            const card = document.createElement('div');
+            card.className = 'editor-upload-card is-uploading';
+            card.innerHTML = `
+                <div class="editor-upload-head">
+                    <i class="editor-upload-icon fa-solid fa-cloud-arrow-up"></i>
+                    <span class="editor-upload-name"></span>
+                    <span class="editor-upload-pct">0%</span>
+                </div>
+                <div class="editor-upload-track"><div class="editor-upload-bar"></div></div>
+                <div class="editor-upload-meta"></div>
+            `;
+            card.querySelector('.editor-upload-name').textContent = name;
+            card.querySelector('.editor-upload-meta').textContent = size
+                ? `${formatBytes(size)} · ${isEnglish ? 'uploading…' : 'caricamento…'}`
+                : (isEnglish ? 'uploading…' : 'caricamento…');
+            ensurePanel().appendChild(card);
+            return card;
+        }
+
+        function setProgress(card, percent) {
+            const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+            const bar = card.querySelector('.editor-upload-bar');
+            const pct = card.querySelector('.editor-upload-pct');
+            if (bar) bar.style.width = `${clamped}%`;
+            if (pct) pct.textContent = `${clamped}%`;
+            card.classList.toggle('is-indeterminate', false);
+        }
+
+        function finish(card, ok, message, autoDismiss = true) {
+            card.classList.remove('is-uploading', 'is-indeterminate');
+            card.classList.add(ok ? 'is-done' : 'is-failed');
+            const icon = card.querySelector('.editor-upload-icon');
+            if (icon) icon.className = `editor-upload-icon fa-solid ${ok ? 'fa-circle-check' : 'fa-circle-exclamation'}`;
+            const bar = card.querySelector('.editor-upload-bar');
+            if (bar) bar.style.width = '100%';
+            const pct = card.querySelector('.editor-upload-pct');
+            if (pct) pct.textContent = ok ? '100%' : '!';
+            const meta = card.querySelector('.editor-upload-meta');
+            if (meta) meta.textContent = message;
+
+            if (ok && autoDismiss) {
+                setTimeout(() => {
+                    card.classList.add('is-leaving');
+                    setTimeout(() => card.remove(), 400);
+                }, 3200);
+            } else if (!ok) {
+                card.addEventListener('click', () => card.remove(), { once: true });
+                card.title = isEnglish ? 'Click to dismiss' : 'Clicca per chiudere';
+            }
+        }
+
+        return {
+            /** Shows an immediate failure card (client-side validation). */
+            reject(name, message) {
+                const card = createCard(name, 0);
+                finish(card, false, message, false);
+                if (typeof window.profileToast === 'function') window.profileToast(message);
+            },
+
+            /**
+             * Confirms a file that travels with the profile save (avatar,
+             * background, music) rather than being uploaded right away.
+             */
+            stage(name, size, message) {
+                const card = createCard(name, size);
+                card.classList.add('is-staged');
+                const bar = card.querySelector('.editor-upload-bar');
+                if (bar) bar.style.width = '100%';
+                const pct = card.querySelector('.editor-upload-pct');
+                if (pct) pct.textContent = '';
+                const icon = card.querySelector('.editor-upload-icon');
+                if (icon) icon.className = 'editor-upload-icon fa-solid fa-clock';
+                const meta = card.querySelector('.editor-upload-meta');
+                if (meta) meta.textContent = `${formatBytes(size)} · ${message}`;
+                setTimeout(() => {
+                    card.classList.add('is-leaving');
+                    setTimeout(() => card.remove(), 400);
+                }, 4200);
+            },
+
+            /**
+             * Uploads via XHR so real progress is available. `apply` receives
+             * the parsed JSON body, stores the result and returns the label to
+             * show on the finished card; throwing inside it marks the upload as
+             * failed.
+             */
+            run(name, size, url, formData, apply) {
+                const card = createCard(name, size);
+                let settle;
+                const tracked = new Promise((resolve) => { settle = resolve; });
+                pending.add(tracked);
+
+                const request = new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', url, true);
+                    xhr.withCredentials = true;
+                    xhr.responseType = 'text';
+
+                    xhr.upload.addEventListener('progress', (event) => {
+                        if (event.lengthComputable) {
+                            setProgress(card, (event.loaded / event.total) * 100);
+                        }
+                    });
+                    xhr.upload.addEventListener('load', () => {
+                        setProgress(card, 100);
+                        const meta = card.querySelector('.editor-upload-meta');
+                        if (meta) meta.textContent = isEnglish ? 'Processing on the server…' : 'Elaborazione sul server…';
+                    });
+
+                    xhr.addEventListener('load', () => {
+                        let data = null;
+                        try {
+                            data = JSON.parse(xhr.responseText || '{}');
+                        } catch (_) {
+                            reject(new Error(isEnglish ? 'Unexpected server response.' : 'Risposta del server non valida.'));
+                            return;
+                        }
+                        if (xhr.status < 200 || xhr.status >= 300) {
+                            reject(new Error(data.message || `HTTP ${xhr.status}`));
+                            return;
+                        }
+                        resolve(data);
+                    });
+                    xhr.addEventListener('error', () => reject(new Error(isEnglish ? 'Network error.' : 'Errore di rete.')));
+                    xhr.addEventListener('abort', () => reject(new Error(isEnglish ? 'Upload cancelled.' : 'Caricamento annullato.')));
+                    xhr.send(formData);
+                });
+
+                return request
+                    .then((data) => {
+                        const label = typeof apply === 'function'
+                            ? apply(data)
+                            : (isEnglish ? 'Upload complete' : 'Caricamento completato');
+                        finish(card, true, label || (isEnglish ? 'Upload complete' : 'Caricamento completato'));
+                        return data;
+                    })
+                    .catch((error) => {
+                        const message = (error && error.message) || (isEnglish ? 'Upload failed.' : 'Errore nel caricamento.');
+                        finish(card, false, message, false);
+                        if (typeof window.profileToast === 'function') window.profileToast(message);
+                        // Swallowed on purpose: a failed upload must not break
+                        // the editor, and the card already reports it.
+                        return null;
+                    })
+                    .finally(() => {
+                        pending.delete(tracked);
+                        settle();
+                    });
+            },
+
+            hasPending() {
+                return pending.size > 0;
+            },
+
+            /** Resolves once every in-flight upload has settled. */
+            waitForAll() {
+                return Promise.all(Array.from(pending));
+            },
+        };
+    })();
+
     function handleRowMediaUpload(targetInput) {
         if (!window.isPremiumUser) {
             if (typeof window.profileToast === 'function') {
@@ -3599,49 +4070,43 @@
         } else {
             fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
         }
-        
+
         fileInput.addEventListener('change', () => {
             if (!fileInput.files || fileInput.files.length === 0) return;
             const file = fileInput.files[0];
-            
-            if (typeof window.profileToast === 'function') {
-                window.profileToast(isEnglish ? 'Uploading file...' : 'Caricamento file in corso...');
+
+            const maxBytes = isCursor ? 2 * 1024 * 1024 : 25 * 1024 * 1024;
+            if (file.size > maxBytes) {
+                uploadManager.reject(
+                    file.name,
+                    isEnglish
+                        ? `File too large. Maximum size is ${formatBytes(maxBytes)}.`
+                        : `File troppo pesante. Il limite massimo è ${formatBytes(maxBytes)}.`
+                );
+                return;
             }
-            
+
             const formData = new FormData();
             formData.append('file', file);
             formData.append('csrf_token', csrfToken);
+            if (targetUserId) formData.append('target_user_id', targetUserId);
             if (isCursor) {
                 formData.append('purpose', 'cursor');
             }
-            
-            fetch('/api/upload_profile_media.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.ok && data.url) {
-                    targetInput.value = data.url;
-                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    targetInput.dispatchEvent(new Event('change', { bubbles: true }));
-                    if (typeof window.profileToast === 'function') {
-                        if (isCursor && data.url.toLowerCase().endsWith('.png')) {
-                            window.profileToast(isEnglish ? 'Upload completed! Image auto-resized to 32x32.' : 'Caricamento completato! Immagine ridimensionata a 32x32.');
-                        } else {
-                            window.profileToast(isEnglish ? 'Upload completed!' : 'Caricamento completato!');
-                        }
-                    }
-                } else {
-                    alert(data.message || (isEnglish ? 'Upload failed.' : 'Errore nel caricamento.'));
+
+            uploadManager.run(file.name, file.size, '/api/upload_profile_media.php', formData, (data) => {
+                if (!data || !data.ok || !data.url) {
+                    throw new Error((data && data.message) || (isEnglish ? 'Upload failed.' : 'Errore nel caricamento.'));
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert(isEnglish ? 'Error uploading file.' : 'Errore durante il caricamento del file.');
+                targetInput.value = data.url;
+                targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+                return isCursor && data.url.toLowerCase().endsWith('.png')
+                    ? (isEnglish ? 'Uploaded — resized to 64x64' : 'Caricato — ridimensionato a 64x64')
+                    : (isEnglish ? 'Upload complete' : 'Caricamento completato');
             });
         });
-        
+
         fileInput.click();
     }
 
@@ -3795,6 +4260,10 @@
         initOnboardingPlanModal();
         initPremiumSettingsUploads();
         initPremiumFeatureLocks();
+
+        // From here on, every change reaches the draft and the live preview.
+        // Deferred past the synthetic events the widgets fire while building.
+        setTimeout(() => { editorReady = true; }, 150);
     }
 
     if (document.readyState !== 'loading') {

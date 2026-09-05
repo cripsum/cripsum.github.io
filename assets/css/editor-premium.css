@@ -2703,3 +2703,189 @@ body.markdown-guide-open {
 .profile-row-grid label {
     min-width: 0 !important;
 }
+
+/* ── UPLOAD FEEDBACK & PREVIEW REFRESH ─────────────────────────────────── */
+
+/* Progress bar inside the saving overlay. */
+.editor-loading-track {
+    width: min(420px, 78vw);
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+}
+
+.editor-loading-bar {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg,
+            var(--editor-accent, #0f5bff),
+            color-mix(in srgb, var(--editor-accent, #0f5bff) 55%, #ffffff));
+    transition: width 0.18s ease;
+}
+
+.editor-loading-track.is-indeterminate .editor-loading-bar {
+    animation: editorLoadingSlide 1.1s ease-in-out infinite;
+}
+
+@keyframes editorLoadingSlide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(320%); }
+}
+
+/* Stack of per-file upload cards. */
+.editor-upload-panel {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(330px, calc(100vw - 36px));
+    pointer-events: none;
+}
+
+.editor-upload-card {
+    pointer-events: auto;
+    padding: 11px 13px;
+    border-radius: 14px;
+    background: rgba(10, 14, 28, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    animation: editorUploadIn 0.24s ease;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.editor-upload-card.is-leaving {
+    opacity: 0;
+    transform: translateX(18px);
+}
+
+@keyframes editorUploadIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.editor-upload-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.editor-upload-icon {
+    color: var(--editor-accent, #0f5bff);
+    flex: 0 0 auto;
+}
+
+.editor-upload-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.editor-upload-pct {
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.76rem;
+}
+
+.editor-upload-track {
+    margin: 8px 0 6px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+}
+
+.editor-upload-bar {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--editor-accent, #0f5bff);
+    transition: width 0.18s ease;
+}
+
+.editor-upload-meta {
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.55);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.editor-upload-card.is-done .editor-upload-icon,
+.editor-upload-card.is-done .editor-upload-bar {
+    color: #10b981;
+    background: #10b981;
+}
+
+.editor-upload-card.is-done .editor-upload-icon {
+    background: none;
+}
+
+.editor-upload-card.is-failed {
+    border-color: rgba(239, 68, 68, 0.45);
+    cursor: pointer;
+}
+
+.editor-upload-card.is-failed .editor-upload-icon {
+    color: #ef4444;
+}
+
+.editor-upload-card.is-failed .editor-upload-bar {
+    background: #ef4444;
+}
+
+.editor-upload-card.is-staged .editor-upload-icon {
+    color: #f59e0b;
+}
+
+.editor-upload-card.is-staged .editor-upload-bar {
+    background: rgba(245, 158, 11, 0.65);
+}
+
+/* Subtle hint that the preview iframe is being re-rendered. */
+.editor-preview-pane.is-preview-refreshing #profilePreviewIframe {
+    opacity: 0.55;
+    transition: opacity 0.15s ease;
+}
+
+.editor-preview-pane #profilePreviewIframe {
+    transition: opacity 0.25s ease;
+}
+
+.editor-preview-pane.is-preview-refreshing .preview-status::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 7px;
+    border-radius: 50%;
+    background: var(--editor-accent, #0f5bff);
+    animation: editorPreviewPulse 0.9s ease-in-out infinite;
+    vertical-align: middle;
+}
+
+@keyframes editorPreviewPulse {
+    0%, 100% { opacity: 0.35; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .editor-upload-card,
+    .editor-loading-bar,
+    .editor-upload-bar,
+    .editor-preview-pane #profilePreviewIframe {
+        animation: none !important;
+        transition: none !important;
+    }
+}

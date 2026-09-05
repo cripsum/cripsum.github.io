@@ -20,9 +20,19 @@ if (!profile_validate_csrf($_POST['csrf_token'] ?? null)) {
     profile_json_response(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.'], 419);
 }
 
-$userId = (int)$_SESSION['user_id'];
+$currentUserId = (int)$_SESSION['user_id'];
 
-// Get user profile to check premium status
+// Staff editing another profile must upload into THAT profile's folder,
+// otherwise the file lives under the staff member's id and the media garbage
+// collector treats it as orphaned the next time the staff member saves.
+$requestTargetUserId = isset($_POST['target_user_id']) ? (int)$_POST['target_user_id'] : 0;
+$userId = ($requestTargetUserId > 0 && profile_is_staff()) ? $requestTargetUserId : $currentUserId;
+
+if (!profile_can_edit($userId)) {
+    profile_json_response(['ok' => false, 'message' => 'Non puoi modificare questo profilo.'], 403);
+}
+
+// Get target profile to check premium status
 $profile = profile_get_edit_profile($mysqli, $userId);
 if (!$profile || (int)($profile['is_premium'] ?? 0) !== 1) {
     echo json_encode(['ok' => false, 'message' => 'Questa funzionalità richiede un account Premium.']);
@@ -31,7 +41,17 @@ if (!$profile || (int)($profile['is_premium'] ?? 0) !== 1) {
 
 if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
     $errCode = $_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE;
-    echo json_encode(['ok' => false, 'message' => 'Nessun file ricevuto o errore di caricamento (Codice: ' . $errCode . ').']);
+    $errMessages = [
+        UPLOAD_ERR_INI_SIZE => 'Il file supera il limite di upload del server.',
+        UPLOAD_ERR_FORM_SIZE => 'Il file supera il limite consentito dal modulo.',
+        UPLOAD_ERR_PARTIAL => 'Il caricamento si è interrotto. Riprova.',
+        UPLOAD_ERR_NO_FILE => 'Nessun file selezionato.',
+        UPLOAD_ERR_NO_TMP_DIR => 'Cartella temporanea non disponibile sul server.',
+        UPLOAD_ERR_CANT_WRITE => 'Impossibile scrivere il file sul server.',
+        UPLOAD_ERR_EXTENSION => 'Caricamento bloccato da un\'estensione del server.',
+    ];
+    $message = $errMessages[$errCode] ?? ('Errore di caricamento (codice ' . (int)$errCode . ').');
+    echo json_encode(['ok' => false, 'message' => $message]);
     exit;
 }
 
@@ -149,8 +169,11 @@ if ($purpose === 'cursor') {
         $res = cursor_convert_ani_to_gif($tmpPath, $targetPath);
         if ($res['ok']) {
             $success = true;
+            // The converter picks the real extension (gif or png) and writes to
+            // that path, so follow it here too.
             $ext = $res['ext'];
             $fileName = 'cursor_' . $randomHash . '.' . $ext;
+            $targetPath = $uploadDir . '/' . $fileName;
         } else {
             $errorMessage = $res['error'] ?? 'Errore nella conversione del file .ani.';
         }
@@ -169,7 +192,7 @@ if ($purpose === 'cursor') {
 
     if ($success) {
         $relativeUrl = '/uploads/profile_media/user_' . $userId . '/' . $fileName;
-        echo json_encode(['ok' => true, 'url' => $relativeUrl]);
+        echo json_encode(['ok' => true, 'url' => $relativeUrl, 'size' => @filesize($targetPath) ?: 0, 'name' => $fileName]);
     } else {
         echo json_encode(['ok' => false, 'message' => $errorMessage]);
     }
@@ -177,7 +200,7 @@ if ($purpose === 'cursor') {
     if (move_uploaded_file($tmpPath, $targetPath)) {
         // Return relative URL that starts with /uploads/profile_media/
         $relativeUrl = '/uploads/profile_media/user_' . $userId . '/' . $fileName;
-        echo json_encode(['ok' => true, 'url' => $relativeUrl]);
+        echo json_encode(['ok' => true, 'url' => $relativeUrl, 'size' => @filesize($targetPath) ?: 0, 'name' => $fileName]);
     } else {
         echo json_encode(['ok' => false, 'message' => 'Impossibile salvare il file sul server.']);
     }
