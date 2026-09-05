@@ -32,6 +32,11 @@ if (!profile_can_edit($userId)) {
     profile_json_response(['ok' => false, 'message' => 'Non puoi modificare questo profilo.'], 403);
 }
 
+// Authentication is done; nothing below writes to the session. Release the lock
+// so the upload does not block (or get blocked by) the editor's draft saves and
+// preview reloads happening at the same time.
+cripsum_release_session();
+
 // Get target profile to check premium status
 $profile = profile_get_edit_profile($mysqli, $userId);
 if (!$profile || (int)($profile['is_premium'] ?? 0) !== 1) {

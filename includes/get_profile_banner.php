@@ -2,6 +2,10 @@
 // Serves a user's profile background (image or video).
 require_once __DIR__ . '/../config/database.php';
 
+// Streaming media must not hold the session lock: it would block every other
+// request the same visitor makes in parallel.
+cripsum_release_session();
+
 const PROFILE_BANNER_ALLOWED_MIMES = [
     'image/jpeg' => 'jpg',
     'image/png' => 'png',

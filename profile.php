@@ -100,7 +100,11 @@ if ($profile) {
     } elseif (($profile['profile_visibility'] ?? 'public') === 'logged_in' && !$isLoggedIn) {
         $isLoginBlocked = true;
     } else {
-        profile_increment_views($mysqli, $profileId);
+        // A preview reload is not a visit: the editor refreshes this page on
+        // every change, which would otherwise inflate the counter.
+        if (!isset($_GET['preview_mode'])) {
+            profile_increment_views($mysqli, $profileId);
+        }
 
         // ── MISSION TRACKING ─────────────────────────────────────────────
         // Traccia solo se: utente loggato + sta vedendo il profilo di un altro.
@@ -115,6 +119,12 @@ if ($profile) {
         // ── /MISSION TRACKING ────────────────────────────────────────────
         if (isset($_GET['preview_mode']) && isset($_SESSION['profile_draft'][$profileId])) {
             $draft = $_SESSION['profile_draft'][$profileId];
+
+            // The editor reloads this page on every change while it is also
+            // saving drafts and uploading files. Rendering can take a while
+            // (Discord widget lookups included), so hand the session lock back
+            // now that the draft has been read; nothing below writes to it.
+            cripsum_release_session();
 
             // Override profile values. Only keys that are real profile columns
             // are copied: the draft is raw POST data, so blindly merging it

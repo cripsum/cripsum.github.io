@@ -83,3 +83,24 @@ if (!defined('CRIPSUM_SKIP_SPECIAL_SESSION_REDIRECT') && isset($_SESSION['user_i
     header('Location: uwu');
     exit();
 }
+
+/**
+ * Releases the exclusive lock PHP holds on the session file.
+ *
+ * While a request keeps the session open, EVERY other request from the same
+ * visitor blocks on session_start(). A profile page with 20 avatars, or the
+ * editor saving a draft while the preview reloads and a file uploads, then
+ * serializes into one long queue and looks like it hangs.
+ *
+ * Call this as soon as a script no longer needs to WRITE to $_SESSION. Reads
+ * still work afterwards ($_SESSION keeps its values), writes just stop being
+ * persisted.
+ */
+if (!function_exists('cripsum_release_session')) {
+    function cripsum_release_session(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+    }
+}

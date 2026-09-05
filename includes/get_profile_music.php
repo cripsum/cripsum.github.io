@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 
+// Streaming media must not hold the session lock: it would block every other
+// request the same visitor makes in parallel.
+cripsum_release_session();
+
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
     http_response_code(404);

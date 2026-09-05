@@ -40,4 +40,8 @@ if (strlen(serialize($draft)) > 1024 * 1024) {
 
 $_SESSION['profile_draft'][$targetUserId] = $draft;
 
+// The editor fires a draft save, a preview reload and possibly an upload at the
+// same time. Release the lock now so they do not queue behind each other.
+cripsum_release_session();
+
 profile_json_response(['ok' => true, 'message' => 'Bozza salvata.']);

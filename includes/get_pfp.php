@@ -6,6 +6,11 @@
 // correct image Content-Type renders as a broken image instead of showing the
 // default avatar.
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/discord_avatar_sync.php';
+
+// A page can request 20+ avatars at once. Holding the session lock while
+// streaming each one would serialize them all behind each other.
+cripsum_release_session();
 
 const PFP_DEFAULT_FILE = __DIR__ . '/../img/abdul.jpg';
 
@@ -195,13 +200,15 @@ if (!$row) {
 
 // 1. Discord avatar, when the user explicitly opted in for it.
 if (!$forceLocal && (int)($row['discord_use_avatar'] ?? 0) === 1) {
-    $discordUrl = pfp_discord_avatar_url(
-        trim((string)($row['discord_id'] ?? '')),
-        trim((string)($row['discord_avatar'] ?? '')),
-        $size
-    );
+    $discordId = trim((string)($row['discord_id'] ?? ''));
+    // The stored hash goes stale as soon as the user changes their Discord
+    // picture, and the CDN answers 404 for the old one. Resolve (and persist)
+    // the current hash before building the URL.
+    $discordHash = discord_avatar_sync($mysqli, $userId, $discordId, $row['discord_avatar'] ?? null);
+
+    $discordUrl = pfp_discord_avatar_url($discordId, (string)$discordHash, $size);
     if ($discordUrl !== null) {
-        header('Cache-Control: public, max-age=600');
+        header('Cache-Control: public, max-age=300');
         header('Location: ' . $discordUrl, true, 302);
         exit;
     }
