@@ -67,6 +67,7 @@ $canEdit = false;
 $isPremium = false;
 $isPrivateBlocked = false;
 $isLoginBlocked = false;
+$isDeactivated = false;
 $socials = $links = $projects = $contents = $blocks = $badges = $activity = [];
 $isOnline = false;
 $lastSeen = null;
@@ -93,7 +94,12 @@ if ($profile) {
         }
     }
 
-    if (($profile['profile_visibility'] ?? 'public') === 'private' && !$canEdit) {
+    // An account waiting to be deleted behaves like a deactivated one: it stays
+    // reachable for its owner (so they can cancel) and nobody else.
+    if (!empty($profile['deletion_requested_at']) && !$isOwnProfile) {
+        $isDeactivated = true;
+        $isPrivateBlocked = true;
+    } elseif (($profile['profile_visibility'] ?? 'public') === 'private' && !$canEdit) {
         $isPrivateBlocked = true;
     } elseif (($profile['profile_visibility'] ?? 'public') === 'friends' && !$canEdit && !$isFriend) {
         $isPrivateBlocked = true;
@@ -1342,6 +1348,20 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
     <?php if ($isNotFound): ?>
         <?php profile_state_page('404', 'Profile Not Found', 'This user does not exist or has changed their username.', 'Home', '/en/home'); ?>
+    <?php elseif ($isDeactivated): ?>
+        <?php
+        // Deliberately worded like a missing profile: whether an account is
+        // mid-deletion is nobody else's business.
+        profile_state_page(
+            '404',
+            ($lang === 'it') ? 'Profilo non disponibile' : 'Profile Unavailable',
+            ($lang === 'it')
+                ? 'Questo profilo non è al momento disponibile.'
+                : 'This profile is currently unavailable.',
+            'Home',
+            '/' . $lang . '/home'
+        );
+        ?>
     <?php elseif ($isPrivateBlocked): ?>
         <?php
         $blockTitle = (($profile['profile_visibility'] ?? '') === 'friends')
@@ -1439,13 +1459,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?> <?php echo (!$isOwnProfile) ? 'user-card-trigger' : ''; ?>"
                         <?php echo (!$isOwnProfile) ? 'data-user-id="' . (int)$profile['id'] . '" data-username="' . profile_h($profile['username']) . '" style="cursor: pointer; --profile-ring: ' . profile_h($avatarRingColor) . ';"' : 'style="--profile-ring: ' . profile_h($avatarRingColor) . ';"'; ?>>
                         <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
-                        <?php
-                        // A Discord CDN URL 404s once the user changes avatar and
-                        // the stored hash goes stale, so fall back to the locally
-                        // stored picture instead of leaving a broken image.
-                        $avatarFallbackUrl = '/includes/get_pfp.php?id=' . (int)$profile['id'] . '&local=1';
-                        ?>
-                        <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-avatar-fallback="<?php echo profile_h($avatarFallbackUrl); ?>" onerror="if(this.dataset.avatarFallback&&this.src!==this.dataset.avatarFallback){this.onerror=null;this.src=this.dataset.avatarFallback;}" data-richpresence-pfp<?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 && !empty($profile['discord_id']) ? ' data-live-discord-avatar data-discord-id="' . profile_h($profile['discord_id']) . '" data-avatar-size="256"' : ''; ?>>
+                        <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp<?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 && !empty($profile['discord_id']) ? ' data-live-discord-avatar data-discord-id="' . profile_h($profile['discord_id']) . '" data-avatar-size="256"' : ''; ?>>
                     </div>
 
                     <?php

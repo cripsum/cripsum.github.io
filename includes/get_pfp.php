@@ -171,9 +171,9 @@ if ($userId <= 0) {
     pfp_send_default();
 }
 
-// `local=1` skips the Discord redirect: it is the fallback the pages use when
-// the Discord CDN URL fails (for example after the user changed their avatar
-// and the stored hash went stale).
+// `local=1` skips the Discord redirect and serves the stored picture instead.
+// Nothing in the site emits it: it is kept as a manual escape hatch for
+// debugging and for linking a user's uploaded picture explicitly.
 $forceLocal = isset($_GET['local']) && $_GET['local'] !== '0';
 
 $size = isset($_GET['size']) ? (int)$_GET['size'] : 256;

@@ -62,11 +62,17 @@ if ($_SESSION[$key]['count'] > 30) {
 $search = '%' . $q . '%';
 $startsWith = $q . '%';
 
+// Accounts pending deletion are deactivated and must not surface in search.
+require_once __DIR__ . '/account_data_helpers.php';
+$activeFilter = account_active_sql($mysqli);
+$activeClause = $activeFilter !== '' ? ' AND ' . $activeFilter : '';
+
 $stmt = $mysqli->prepare("
     SELECT id, username, display_name, ruolo, is_premium
     FROM utenti
     WHERE (username LIKE ? OR display_name LIKE ?)
       AND isBannato = 0
+      $activeClause
     ORDER BY 
         CASE 
             WHEN username LIKE ? THEN 0 

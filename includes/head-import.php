@@ -34,22 +34,6 @@
             } catch (_) {}
         </script>
 
-        <script>
-            // Avatars served by get_pfp.php redirect to the Discord CDN when the
-            // user picked their Discord picture. That URL 404s once the stored
-            // avatar hash goes stale, so retry with `local=1` (the stored
-            // picture, or the default one) instead of leaving a broken image.
-            // Capturing listener: it also covers avatars injected later by JS.
-            document.addEventListener('error', function (event) {
-                const img = event.target;
-                if (!img || img.tagName !== 'IMG' || img.dataset.pfpFallback === '1') return;
-                const src = img.getAttribute('src') || '';
-                if (src.indexOf('get_pfp.php') === -1 || /[?&]local=1/.test(src)) return;
-                img.dataset.pfpFallback = '1';
-                img.src = src + (src.indexOf('?') === -1 ? '?' : '&') + 'local=1';
-            }, true);
-        </script>
-
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
         <script>
             window.dataLayer = window.dataLayer || [];

@@ -509,6 +509,16 @@ function auth_complete_login(array $user, $mysqli = null)
     if (isset($mysqli) && $mysqli instanceof mysqli && function_exists('auth_register_device_session')) {
         auth_register_device_session($mysqli, (int)$user['id']);
     }
+
+    // Signing in cancels a pending account deletion: this is the single choke
+    // point every login path goes through, so the account is restored whether
+    // the user came back through password, 2FA or Google.
+    if (isset($mysqli) && $mysqli instanceof mysqli) {
+        require_once __DIR__ . '/account_data_helpers.php';
+        if (account_cancel_deletion($mysqli, (int)$user['id'])) {
+            $_SESSION['account_deletion_cancelled'] = true;
+        }
+    }
 }
 
 function auth_start_password_login(mysqli $mysqli, string $identifier, string $password): array

@@ -958,3 +958,147 @@ body.auth-page .dropdown-menu button:hover {
         scroll-behavior: auto !important;
     }
 }
+
+/* ── ACCOUNT DATA EXPORT & DELETION ─────────────────────────────────────── */
+
+.settings-tab-btn--danger i {
+    color: #ef4444;
+}
+
+.settings-tab-btn--danger.active {
+    border-color: rgba(239, 68, 68, 0.45);
+}
+
+.account-data-box {
+    margin: 0 0 1.25rem;
+    padding: 1rem 1.15rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.account-data-box--danger {
+    background: rgba(239, 68, 68, 0.07);
+    border-color: rgba(239, 68, 68, 0.28);
+}
+
+.account-data-box h3 {
+    margin: 0 0 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.account-data-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    opacity: 0.85;
+}
+
+.account-data-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    margin: 0.9rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    opacity: 0.75;
+}
+
+.account-data-note--muted {
+    margin: 1rem 0 0.6rem;
+    opacity: 0.6;
+}
+
+.account-data-ready {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1.1rem;
+    border-radius: 14px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.32);
+}
+
+.account-data-ready__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    min-width: 0;
+}
+
+.account-data-ready__info strong {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.account-data-ready__info small {
+    font-size: 0.78rem;
+    opacity: 0.72;
+}
+
+.account-data-download {
+    width: auto !important;
+    padding: 10px 22px !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex: 0 0 auto;
+}
+
+.account-data-form {
+    margin-top: 0.4rem;
+}
+
+.account-danger-panel {
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+.account-pending {
+    padding: 1.15rem 1.25rem;
+    border-radius: 14px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: flex-start;
+}
+
+.account-pending strong {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.account-pending p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+    .account-data-ready {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .account-data-download {
+        justify-content: center;
+        width: 100% !important;
+    }
+}

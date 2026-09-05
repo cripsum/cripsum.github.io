@@ -29,7 +29,11 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         }
     }
 
-    $stmtSupp = $mysqli->prepare("SELECT id, username, display_name, discord_use_display_name, discord_global_name, discord_username, profile_updated_at, accent_color, avatar_ring_color FROM utenti WHERE is_premium = 1 ORDER BY id DESC");
+    require_once __DIR__ . '/../includes/account_data_helpers.php';
+    // Deactivated accounts (deletion pending) drop out of the list.
+    $suppActive = account_active_sql($mysqli);
+    $suppActiveClause = $suppActive !== '' ? ' AND ' . $suppActive : '';
+    $stmtSupp = $mysqli->prepare("SELECT id, username, display_name, discord_use_display_name, discord_global_name, discord_username, profile_updated_at, accent_color, avatar_ring_color FROM utenti WHERE is_premium = 1 $suppActiveClause ORDER BY id DESC");
     if ($stmtSupp) {
         $stmtSupp->execute();
         $resSupp = $stmtSupp->get_result();

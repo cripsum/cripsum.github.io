@@ -2,6 +2,7 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/account_data_helpers.php';
 
 if (function_exists('checkBan')) {
     checkBan($mysqli);
@@ -245,6 +246,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Tabella backup codes mancante o errore salvataggio.';
             }
         }
+    } elseif ($action === 'request_data_export') {
+        // Acts on the session user only: no id is read from the request.
+        if (!account_ensure_schema($mysqli)) {
+            $error = 'Funzionalità non disponibile al momento. Riprova più tardi.';
+        } else {
+            $reauth = account_reauthenticate($mysqli, $userId, $_POST);
+            $cooldown = account_export_cooldown($mysqli, $userId);
+
+            if (!$reauth['ok']) {
+                $error = $reauth['message'];
+            } elseif ($cooldown > 0) {
+                $error = sprintf('Puoi richiedere una nuova esportazione tra %s.', account_format_duration($cooldown, 'it'));
+            } else {
+                $result = account_build_export($mysqli, $userId);
+                if ($result['ok']) {
+                    $_SESSION['profile_flash_success'] = sprintf('Esportazione pronta. Il download è disponibile qui sotto per %d giorni.', ACCOUNT_EXPORT_TTL_DAYS);
+                    header('Location: impostazioni#data');
+                    exit();
+                }
+                $error = $result['message'];
+            }
+        }
+    } elseif ($action === 'request_account_deletion') {
+        if (!account_ensure_schema($mysqli)) {
+            $error = 'Funzionalità non disponibile al momento. Riprova più tardi.';
+        } else {
+            $reauth = account_reauthenticate($mysqli, $userId, $_POST);
+            $acknowledged = !empty($_POST['confirm_understand']);
+
+            if (!$reauth['ok']) {
+                $error = $reauth['message'];
+            } elseif (!$acknowledged) {
+                $error = "Devi confermare di aver capito che l'operazione è definitiva.";
+            } else {
+                $result = account_request_deletion($mysqli, $userId);
+                if (!$result['ok']) {
+                    $error = $result['message'];
+                } else {
+                    account_notify_deletion_scheduled($mysqli, $userId, $result['scheduled_for'] ?? null, 'it');
+                    // Sign the account out everywhere; coming back in cancels it.
+                    auth_revoke_other_device_sessions($mysqli, $userId);
+                    auth_revoke_current_device_session($mysqli);
+                    $_SESSION = [];
+                    session_destroy();
+                    require_once __DIR__ . '/../config/session_init.php';
+                    $_SESSION['login_message'] = sprintf('Cancellazione programmata per il %s. Accedi di nuovo entro quella data per annullarla.', date('d/m/Y', strtotime((string)($result['scheduled_for'] ?? 'now'))));
+                    header('Location: accedi');
+                    exit();
+                }
+            }
+        }
+    } elseif ($action === 'cancel_account_deletion') {
+        if (account_cancel_deletion($mysqli, $userId)) {
+            $success = 'Cancellazione annullata. Il tuo account è di nuovo attivo.';
+        } else {
+            $error = "Non c'è nessuna cancellazione da annullare.";
+        }
     }
 
     if ($error === '') {
@@ -285,6 +343,19 @@ $connectDiscordUrl = '/auth/discord_connect.php?return_url=' . urlencode('/it/im
 $deviceSessionsAvailable = auth_device_sessions_available($mysqli);
 $deviceSessions = $deviceSessionsAvailable ? auth_get_device_sessions($mysqli, $userId) : [];
 $settingsLanguage = 'it';
+
+// Data & deletion section state (see includes/account_data_helpers.php).
+$accountFeaturesReady = account_ensure_schema($mysqli);
+if ($accountFeaturesReady) {
+    // No cron on this host: the grace periods that expired are collected here.
+    account_maybe_run_scheduled_purge($mysqli);
+}
+$latestExport = $accountFeaturesReady ? account_latest_export($mysqli, $userId) : null;
+$exportCooldown = $accountFeaturesReady ? account_export_cooldown($mysqli, $userId) : 0;
+$deletionState = $accountFeaturesReady ? account_deletion_state($mysqli, $userId) : null;
+$reauthMethod = account_reauth_method($currentUser);
+$deletionCancelledNotice = !empty($_SESSION['account_deletion_cancelled']);
+unset($_SESSION['account_deletion_cancelled']);
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -293,8 +364,8 @@ $settingsLanguage = 'it';
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Impostazioni</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.4">
-    <script src="/assets/auth/auth.js?v=1.4" defer></script>
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.5">
+    <script src="/assets/auth/auth.js?v=1.5" defer></script>
 </head>
 
 <body class="auth-page settings-page">
@@ -324,6 +395,20 @@ $settingsLanguage = 'it';
             </div>
         <?php endif; ?>
 
+        <?php if ($deletionCancelledNotice): ?>
+            <div class="auth-alert auth-alert--success auth-reveal">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Bentornato: la cancellazione programmata del tuo account &egrave; stata annullata.</span>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($deletionState)): ?>
+            <div class="auth-alert auth-alert--error auth-reveal">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <span>Il tuo account &egrave; programmato per l&rsquo;eliminazione il <?php echo auth_h(date('d/m/Y', strtotime((string)$deletionState['scheduled_for']))); ?>.
+                    <a href="#delete" onclick="document.querySelector('.settings-tab-btn[data-tab='delete']').click();">Annulla la cancellazione</a>.</span>
+            </div>
+        <?php endif; ?>
         <?php if (empty($currentUser['password'])): ?>
             <div class="auth-alert auth-reveal" style="background: rgba(255, 193, 7, 0.15); border: 1px solid #ffc107; color: #ffc107; padding: 1rem; border-radius: 20px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px;">
                 <i class="fa-solid fa-key"></i>
@@ -357,6 +442,14 @@ $settingsLanguage = 'it';
                 <button class="settings-tab-btn" data-tab="connections">
                     <i class="fa-brands fa-discord"></i>
                     <span>Connessioni</span>
+                </button>
+                <button class="settings-tab-btn" data-tab="data">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>I tuoi dati</span>
+                </button>
+                <button class="settings-tab-btn settings-tab-btn--danger" data-tab="delete">
+                    <i class="fa-solid fa-user-slash"></i>
+                    <span>Elimina account</span>
                 </button>
             </aside>
 
@@ -704,6 +797,8 @@ $settingsLanguage = 'it';
                         </div>
                     </article>
                 </div>
+
+                <?php include '../includes/settings_account_data.php'; ?>
             </div>
         </div>
     </main>

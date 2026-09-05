@@ -100,17 +100,17 @@ function profile_discord_avatar_url(string $discordId, ?string $avatarHash, int 
 
 function profile_avatar_url(array $profile, int $size = 256): string
 {
-    $discordId = trim((string)($profile['discord_id'] ?? ''));
-    $discordAvatar = trim((string)($profile['discord_avatar'] ?? ''));
-    $useDiscordAvatar = (int)($profile['discord_use_avatar'] ?? 0) === 1;
+    // Always routed through get_pfp.php, including for Discord avatars: that
+    // endpoint refreshes a stale avatar hash before redirecting to the CDN and
+    // guarantees an image response, so no page needs a client-side fallback.
+    $stamp = !empty($profile['profile_updated_at']) ? (int)strtotime((string)$profile['profile_updated_at']) : time();
+    $url = '/includes/get_pfp.php?id=' . (int)$profile['id'] . '&t=' . $stamp;
 
-    if ($useDiscordAvatar) {
-        $url = profile_discord_avatar_url($discordId, $discordAvatar, $size);
-        if ($url) return $url;
+    if ((int)($profile['discord_use_avatar'] ?? 0) === 1) {
+        $url .= '&size=' . (in_array($size, [64, 128, 256, 512, 1024], true) ? $size : 256);
     }
 
-    $stamp = !empty($profile['profile_updated_at']) ? (int)strtotime((string)$profile['profile_updated_at']) : time();
-    return '/includes/get_pfp.php?id=' . (int)$profile['id'] . '&t=' . $stamp;
+    return $url;
 }
 
 function profile_display_name(array $profile): string
@@ -222,6 +222,24 @@ function profile_get_identifier(): ?string
     if ($identifier === null) return null;
     $identifier = trim((string)$identifier);
     return $identifier !== '' ? $identifier : null;
+}
+
+/**
+ * SELECT fragment exposing the pending-deletion flag.
+ *
+ * The column is added lazily by account_ensure_schema(), so databases that have
+ * not been through it yet still get a usable (always NULL) key instead of a
+ * broken query.
+ */
+function profile_deletion_select_sql(mysqli $mysqli): string
+{
+    static $available = null;
+    if ($available === null) {
+        $available = function_exists('auth_column_exists')
+            && auth_column_exists($mysqli, 'utenti', 'deletion_requested_at');
+    }
+
+    return $available ? 'u.deletion_requested_at,' : 'NULL AS deletion_requested_at,';
 }
 
 function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
@@ -336,6 +354,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_bg_blur,
             u.profile_bg_orbs_opacity,
             u.profile_bg_use_video_audio,
+            " . profile_deletion_select_sql($mysqli) . "
             COALESCE(ach.num_achievement, 0) AS num_achievement,
             COALESCE(inv.num_personaggi, 0) AS num_personaggi,
             COALESCE(inv.total_personaggi, 0) AS total_personaggi
@@ -484,6 +503,7 @@ function profile_get_public_profile_by_alias(mysqli $mysqli, string $alias): ?ar
             u.profile_bg_blur,
             u.profile_bg_orbs_opacity,
             u.profile_bg_use_video_audio,
+            " . profile_deletion_select_sql($mysqli) . "
             COALESCE(ach.num_achievement, 0) AS num_achievement,
             COALESCE(inv.num_personaggi, 0) AS num_personaggi,
             COALESCE(inv.total_personaggi, 0) AS total_personaggi
