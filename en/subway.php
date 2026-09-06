@@ -36,11 +36,15 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     <meta property="og:image" content="https://cripsum.com/img/Susremaster.png">
     <meta property="og:url" content="<?= htmlspecialchars($ogUrl) ?>">
 
+    <!-- The Unity build, its loader and ~40 MB of assets all come from jsDelivr. -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=20.0">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=21.0">
     <script src="/assets/js/subway/subway-profile.js?v=2.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=20.0" defer></script>
+    <script src="/assets/js/subway/subway.js?v=21.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -131,6 +135,29 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                             <span><strong>FPS Limit</strong><small>Used while VSync is disabled.</small></span>
                             <input type="number" min="30" max="500" step="1" value="144" data-fps-limit>
                         </label>
+
+                        <label class="subway-fps-limit-setting">
+                            <span><strong>Render Scale</strong><small>Draws the game at a fraction of the screen resolution — the biggest gain on slow PCs. Native keeps the display pixel ratio.</small></span>
+                            <select data-render-scale>
+                                <option value="native">Native</option>
+                                <option value="100">100%</option>
+                                <option value="85">85%</option>
+                                <option value="75">75%</option>
+                                <option value="65">65%</option>
+                                <option value="50">50%</option>
+                            </select>
+                        </label>
+
+                        <div class="subway-option-row">
+                            <div class="subway-option-info">
+                                <strong>Performance Mode</strong>
+                                <span>Removes overlay blur and shadows and disables anti-aliasing. Anti-aliasing changes apply on the next launch.</span>
+                            </div>
+                            <label class="subway-switch">
+                                <input type="checkbox" data-setting="perfMode">
+                                <span class="subway-slider"></span>
+                            </label>
+                        </div>
 
                     </div>
                 </section>
@@ -951,6 +978,27 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 <span><strong>FPS Limit</strong><small>Available while VSync is disabled.</small></span>
                                 <input type="number" min="30" max="500" step="1" value="144" data-fps-limit>
                             </label>
+                            <label class="subway-fps-limit-setting">
+                                <span><strong>Render Scale</strong><small>Fewer pixels to draw. Applies immediately.</small></span>
+                                <select data-render-scale>
+                                    <option value="native">Native</option>
+                                    <option value="100">100%</option>
+                                    <option value="85">85%</option>
+                                    <option value="75">75%</option>
+                                    <option value="65">65%</option>
+                                    <option value="50">50%</option>
+                                </select>
+                            </label>
+                            <div class="subway-option-row subway-modal-timing-row">
+                                <div class="subway-option-info">
+                                    <strong>Performance Mode</strong>
+                                    <span>Drops overlay blur and shadows. Anti-aliasing applies on the next launch.</span>
+                                </div>
+                                <label class="subway-switch">
+                                    <input type="checkbox" data-setting="perfMode">
+                                    <span class="subway-slider"></span>
+                                </label>
+                            </div>
                         </div>
 
                         <div class="subway-modal-section">

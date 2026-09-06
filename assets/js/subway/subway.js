@@ -95,7 +95,6 @@
         startTime: 0,
         accumulatedTime: 0,
         elapsed: 0,
-        timerFrame: 0,
         scoreSubmittedForRun: false,
         userBestTimeMs: 0,
         runToken: '',
@@ -111,9 +110,13 @@
         blockSpace: false,
         vsync: true,
         fpsLimit: 144,
-        fpsFrame: 0,
+        renderScale: 100,
+        perfMode: false,
+        loopFrame: 0,
         fpsLastSample: 0,
-        fpsFrames: 0
+        fpsFrames: 0,
+        fpsShown: null,
+        lastTimerPaint: 0
     };
 
     const dom = {};
@@ -198,6 +201,7 @@
             state.autoBoost = saved.autoBoost === true;
             state.vsync = saved.vsync !== false;
             state.fpsLimit = Math.min(500, Math.max(30, Number(saved.fpsLimit) || 144));
+            applyDefaultGraphicsProfile(saved);
         } catch (_) {
             state.bindings = Object.assign({}, defaultBindings);
             state.overlayPositions = {};
@@ -209,7 +213,35 @@
             state.autoBoost = false;
             state.vsync = true;
             state.fpsLimit = 144;
+            applyDefaultGraphicsProfile({});
         }
+    }
+
+    // Machines that report few cores or little memory are the ones that
+    // struggle with a fullscreen WebGL canvas, so they start on the lighter
+    // profile. Both values stay editable and are persisted from then on.
+    function looksLikeLowEndDevice() {
+        const cores = Number(navigator.hardwareConcurrency) || 0;
+        const memory = Number(navigator.deviceMemory) || 0;
+        return (cores > 0 && cores <= 4) || (memory > 0 && memory <= 4);
+    }
+
+    // 'native' keeps the screen's own pixel ratio, which is what the page did
+    // before the setting existed; every other value is a percentage of one CSS
+    // pixel, so 100 already halves the work of a 150% Windows scaling setup.
+    function normalizeRenderScale(value, fallback) {
+        if (value === 'native') return 'native';
+        const numeric = Number(value);
+        // Number(null) and Number('') are 0, which would clamp to the floor
+        // instead of falling back to the default.
+        if (!Number.isFinite(numeric) || numeric <= 0) return fallback;
+        return Math.min(100, Math.max(35, Math.round(numeric)));
+    }
+
+    function applyDefaultGraphicsProfile(saved) {
+        const lowEnd = looksLikeLowEndDevice();
+        state.perfMode = typeof saved.perfMode === 'boolean' ? saved.perfMode : lowEnd;
+        state.renderScale = normalizeRenderScale(saved.renderScale, lowEnd ? 85 : 100);
     }
 
     function saveSettings() {
@@ -221,7 +253,9 @@
             blockSpace: state.blockSpace,
             autoBoost: state.autoBoost,
             vsync: state.vsync,
-            fpsLimit: state.fpsLimit
+            fpsLimit: state.fpsLimit,
+            renderScale: state.renderScale,
+            perfMode: state.perfMode
         }));
     }
 
@@ -332,6 +366,12 @@
             input.value = String(state.fpsLimit);
             input.disabled = state.vsync;
             input.closest('[data-fps-control]')?.classList.toggle('is-disabled', state.vsync);
+        });
+        document.querySelectorAll('[data-setting="perfMode"]').forEach(input => {
+            input.checked = state.perfMode;
+        });
+        document.querySelectorAll('[data-render-scale]').forEach(select => {
+            select.value = String(state.renderScale);
         });
 
         document.querySelectorAll('[data-widget][data-widget-prop]').forEach(input => {
@@ -509,11 +549,14 @@
             : { mode: 0, value: 1000 / state.fpsLimit };
     }
 
+    function unityModules() {
+        return [state.unity?.Module, window.unityGame?.Module, window.Module]
+            .filter((module, index, list) => module && list.indexOf(module) === index);
+    }
+
     function applyFrameTiming() {
         const timing = frameTimingSettings();
-        const modules = [state.unity?.Module, window.unityGame?.Module, window.Module]
-            .filter((module, index, list) => module && list.indexOf(module) === index);
-        modules.forEach(module => {
+        unityModules().forEach(module => {
             module.mainLoopTimingMode = timing.mode;
             module.mainLoopTimingValue = timing.value;
             try {
@@ -522,6 +565,67 @@
                 }
             } catch (_) { /* the launch configuration still applies on next run */ }
         });
+    }
+
+    // Unity 2019 sizes its framebuffer as canvas.clientWidth/Height multiplied
+    // by (Module.devicePixelRatio || window.devicePixelRatio || 1) and polls it
+    // every frame, so this single number decides how many pixels the GPU has to
+    // fill. Capping it at 1 already saves 2.25x the work on a 150% Windows
+    // scaling setup; going lower trades sharpness for frame rate.
+    function renderScaleFactor() {
+        if (state.renderScale === 'native') return window.devicePixelRatio || 1;
+        return normalizeRenderScale(state.renderScale, 100) / 100;
+    }
+
+    function applyRenderScale() {
+        const ratio = renderScaleFactor();
+        const modules = unityModules();
+        modules.forEach(module => { module.devicePixelRatio = ratio; });
+        // Unity re-reads the ratio on its own screen-size poll, but the loader
+        // and the HUD both key off resize, so nudge them for a mid-run change.
+        if (modules.length) window.dispatchEvent(new Event('resize'));
+    }
+
+    // Chromium picks the integrated GPU by default for canvases it does not
+    // consider demanding, and keeps a readback buffer alive unless told not to.
+    // The patch has to be installed before Unity creates its canvas.
+    function installWebglPerformancePatch() {
+        if (!window.HTMLCanvasElement?.prototype?.getContext) return;
+        const original = HTMLCanvasElement.prototype.getContext;
+        if (original.__cripsumWebglPatch) return;
+
+        function patchedGetContext(type, attributes) {
+            const kind = String(type || '').toLowerCase();
+            if (kind !== 'webgl' && kind !== 'webgl2' && kind !== 'experimental-webgl') {
+                return original.apply(this, arguments);
+            }
+
+            const next = Object.assign({}, attributes || {});
+            next.powerPreference = 'high-performance';
+            next.preserveDrawingBuffer = false;
+            next.failIfMajorPerformanceCaveat = false;
+            // Dropping MSAA is the single biggest win on integrated GPUs, but it
+            // changes the default framebuffer format, so only the explicit
+            // performance profile does it.
+            if (state.perfMode) next.antialias = false;
+
+            try {
+                return original.call(this, type, next);
+            } catch (_) {
+                return original.apply(this, arguments);
+            }
+        }
+
+        try {
+            Object.defineProperty(patchedGetContext, '__cripsumWebglPatch', { value: true });
+        } catch (_) {
+            patchedGetContext.__cripsumWebglPatch = true;
+        }
+        HTMLCanvasElement.prototype.getContext = patchedGetContext;
+    }
+
+    function applyPerformanceMode() {
+        document.body.classList.toggle('subway-perf-mode', state.perfMode);
     }
 
     function bindSettings() {
@@ -554,6 +658,24 @@
                 state.vsync = input.checked;
                 syncSettingsUi();
                 applyFrameTiming();
+                saveSettings();
+            });
+        });
+
+        document.querySelectorAll('[data-render-scale]').forEach(select => {
+            select.addEventListener('change', () => {
+                state.renderScale = normalizeRenderScale(select.value, state.renderScale);
+                syncSettingsUi();
+                applyRenderScale();
+                saveSettings();
+            });
+        });
+
+        document.querySelectorAll('[data-setting="perfMode"]').forEach(input => {
+            input.addEventListener('change', () => {
+                state.perfMode = input.checked;
+                syncSettingsUi();
+                applyPerformanceMode();
                 saveSettings();
             });
         });
@@ -1052,10 +1174,37 @@
         };
     }
 
+    // The timer repaints many times per second inside a blurred HUD widget, so
+    // it writes to two persistent text nodes instead of reparsing HTML: no
+    // element churn, and nothing repaints when the string has not changed.
+    let timerMainNode = null;
+    let timerMsNode = null;
+    let lastTimerText = null;
+
+    function ensureTimerNodes() {
+        const host = dom.subwayTimerDisplay;
+        if (!host) return false;
+        if (timerMainNode && timerMainNode.parentNode === host) return true;
+
+        host.replaceChildren();
+        timerMainNode = document.createTextNode('');
+        timerMsNode = document.createTextNode('');
+        const msSpan = document.createElement('span');
+        msSpan.className = 'subway-ms';
+        msSpan.appendChild(timerMsNode);
+        host.append(timerMainNode, msSpan);
+        lastTimerText = null;
+        return true;
+    }
+
     function renderTimerDisplay(milliseconds) {
-        if (!dom.subwayTimerDisplay) return;
+        if (!ensureTimerNodes()) return;
         const { mainStr, msStr } = formatTimeParts(milliseconds);
-        dom.subwayTimerDisplay.innerHTML = `${mainStr}<span class="subway-ms">.${msStr}</span>`;
+        const text = `${mainStr}.${msStr}`;
+        if (text === lastTimerText) return;
+        lastTimerText = text;
+        timerMainNode.nodeValue = mainStr;
+        timerMsNode.nodeValue = `.${msStr}`;
     }
 
     function formatTime(milliseconds) {
@@ -1067,7 +1216,6 @@
     }
 
     function resetTimer() {
-        cancelAnimationFrame(state.timerFrame);
         cancelAutoBoost();
         state.running = false;
         state.isPaused = false;
@@ -1171,7 +1319,6 @@
         state.elapsed = state.accumulatedTime;
         state.running = false;
         state.isPaused = true;
-        cancelAnimationFrame(state.timerFrame);
         renderTimerDisplay(state.elapsed);
         setChallengeStatus('paused');
         bootLog(t(`Pausa (${source})`, `Paused (${source})`));
@@ -1180,8 +1327,9 @@
     function updateTimer(now = performance.now()) {
         if (!state.running) return;
         state.elapsed = getRunningElapsed(now);
+        state.lastTimerPaint = now;
         renderTimerDisplay(state.elapsed);
-        state.timerFrame = requestAnimationFrame(updateTimer);
+        startGameLoop();
     }
 
     function finishTimer(source) {
@@ -1194,7 +1342,6 @@
         state.running = false;
         state.isPaused = false;
         state.ended = true;
-        cancelAnimationFrame(state.timerFrame);
         renderTimerDisplay(state.elapsed);
         setChallengeStatus(state.challenge ? 'ended' : 'inactive');
         bootLog(t(`Run terminata (${source})`, `Run finished (${source})`));
@@ -1215,7 +1362,6 @@
         state.isPaused = false;
         state.failed = true;
         state.ended = true;
-        cancelAnimationFrame(state.timerFrame);
         renderTimerDisplay(state.elapsed);
         setChallengeStatus('failed', reason);
         const reasonText = (typeof reason === 'string' && reason.includes('hoverboard'))
@@ -1517,8 +1663,21 @@
         if (releaseAfter) setTimeout(() => dispatchUnityKey(code, 'keyup'), 60);
     }
 
+    // Keydown/keyup fire on the game's critical path, so the HUD keycaps are
+    // looked up once instead of on every event.
+    const hudKeyCache = new Map();
+
+    function hudKeyElement(action) {
+        let element = hudKeyCache.get(action);
+        if (!element || !element.isConnected) {
+            element = document.getElementById(`hudKey-${action}`);
+            hudKeyCache.set(action, element);
+        }
+        return element;
+    }
+
     function flashHudKey(action, pressed) {
-        document.getElementById(`hudKey-${action}`)?.classList.toggle('pressed', pressed);
+        hudKeyElement(action)?.classList.toggle('pressed', pressed);
     }
 
     function simulateCanvasClickAt(normX, normY) {
@@ -1712,22 +1871,44 @@
         window.addEventListener('resize', restoreOverlayPositions);
     }
 
-    function startFpsMonitor() {
-        if (state.fpsFrame) return;
+    // A repaint of the timer forces the compositor to redo the widget's
+    // backdrop blur over the whole canvas, and the millisecond digits are
+    // unreadable above ~30 Hz anyway, so the display is throttled.
+    function timerPaintInterval() {
+        return state.perfMode ? 66 : 33;
+    }
+
+    // One animation frame callback drives both HUD readouts. Two independent
+    // rAF loops meant two style/layout invalidations per frame on top of
+    // Unity's own.
+    function startGameLoop() {
+        if (state.loopFrame) return;
         state.fpsLastSample = performance.now();
         state.fpsFrames = 0;
-        const sample = now => {
+
+        const tick = now => {
+            state.loopFrame = requestAnimationFrame(tick);
+
             state.fpsFrames += 1;
-            const elapsed = now - state.fpsLastSample;
-            if (elapsed >= 500) {
-                const fps = Math.round(state.fpsFrames * 1000 / elapsed);
-                if (dom.subwayFpsValue) dom.subwayFpsValue.textContent = String(fps);
+            const sampleElapsed = now - state.fpsLastSample;
+            if (sampleElapsed >= 500) {
+                const fps = Math.round(state.fpsFrames * 1000 / sampleElapsed);
+                if (dom.subwayFpsValue && fps !== state.fpsShown) {
+                    dom.subwayFpsValue.textContent = String(fps);
+                    state.fpsShown = fps;
+                }
                 state.fpsFrames = 0;
                 state.fpsLastSample = now;
             }
-            state.fpsFrame = requestAnimationFrame(sample);
+
+            if (!state.running) return;
+            if (now - state.lastTimerPaint < timerPaintInterval()) return;
+            state.lastTimerPaint = now;
+            state.elapsed = getRunningElapsed(now);
+            renderTimerDisplay(state.elapsed);
         };
-        state.fpsFrame = requestAnimationFrame(sample);
+
+        state.loopFrame = requestAnimationFrame(tick);
     }
 
     function setBootProgress(progress, stage, status) {
@@ -1793,13 +1974,14 @@
             dom.subwayLobby.style.display = 'none';
             dom.subwayGameArea.style.display = 'block';
             requestAnimationFrame(restoreOverlayPositions);
-            startFpsMonitor();
+            startGameLoop();
             dom.subwayGameContainer.replaceChildren();
             bootLog(t('Runtime pronto; download degli asset...', 'Runtime ready; downloading assets...'));
 
             const moduleConfig = {
                 mainLoopTimingMode: frameTimingSettings().mode,
                 mainLoopTimingValue: frameTimingSettings().value,
+                devicePixelRatio: renderScaleFactor(),
                 preRun: [function () {
                     const mod = this || window.Module || state.unity?.Module || window.unityGame?.Module;
                     const injected = window.CripsumSubwayProfile?.injectIntoUnityFS(mod);
@@ -1847,7 +2029,10 @@
         bootLog(state.vsync
             ? t('VSync adattivo al refresh del monitor', 'VSync matched to monitor refresh')
             : t(`Limite FPS attivo: ${state.fpsLimit}`, `FPS limit enabled: ${state.fpsLimit}`));
+        const scaleLabel = state.renderScale === 'native' ? 'native' : `${state.renderScale}%`;
+        bootLog(`Render scale: ${scaleLabel}${state.perfMode ? ' (performance)' : ''}`);
         applyFrameTiming();
+        applyRenderScale();
         installAudioDetector();
         setTimeout(() => {
             dom.subwayBootSplash?.classList.add('hidden');
@@ -1882,6 +2067,8 @@
             document.body.appendChild(dom.subwaySettingsModal);
         }
         loadSettings();
+        installWebglPerformancePatch();
+        applyPerformanceMode();
         buildMapGrid();
         bindSettings();
         bindGameInput();

@@ -1796,3 +1796,102 @@ body.subway-fullscreen-active .main-footer {
     margin-top: 0.15rem;
 }
 
+
+/* ==========================================================================
+   12. Performance profile
+
+   While a run is on screen the WebGL canvas is the only thing that should
+   cost anything. Everything below either removes work the browser was doing
+   behind the opaque game layer, or keeps a HUD repaint from forcing the
+   compositor to re-read the canvas framebuffer.
+   ========================================================================== */
+
+/* Two 34rem blobs under filter: blur(90px) with an infinite animation kept
+   ticking behind the opaque game layer, and the body still painted three
+   fixed gradients underneath it. */
+body.subway-fullscreen-active .game-bg,
+body.subway-fullscreen-active #subwayLobby {
+    display: none !important;
+}
+
+body.subway-fullscreen-active {
+    background: #000 !important;
+}
+
+/* The timer widget repaints several times a second; containment keeps that
+   repaint inside the widget instead of invalidating the fullscreen layer. */
+.subway-hud-widget {
+    contain: layout paint style;
+}
+
+/* `transition: all` re-evaluated every animatable property on each keypress. */
+.subway-hud-key {
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                color 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Performance mode: backdrop-filter makes the compositor sample and blur the
+   canvas underneath each widget on every frame it repaints, which is the most
+   expensive thing on the page after the game itself. The widgets stay
+   readable because the background opacity is raised to compensate. */
+body.subway-perf-mode .subway-hud-widget,
+body.subway-perf-mode .subway-start-hint,
+body.subway-perf-mode .subway-settings-modal,
+body.subway-perf-mode .subway-modal-box {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body.subway-perf-mode .subway-hud-widget {
+    background: rgba(var(--subway-overlay-bg-rgb, 9, 13, 24), max(var(--subway-overlay-opacity, 0.88), 0.94));
+    box-shadow: none !important;
+}
+
+body.subway-perf-mode .subway-hud-widget,
+body.subway-perf-mode .subway-hud-key,
+body.subway-perf-mode .subway-start-hint {
+    transition: none !important;
+}
+
+body.subway-perf-mode .subway-hud-key {
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+body.subway-perf-mode .game-bg span {
+    animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-bg span {
+        animation: none !important;
+    }
+}
+
+/* Render scale picker, styled like the FPS limit field it sits next to. */
+.subway-fps-limit-setting select {
+    min-width: 108px;
+    min-height: 40px;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--game-border);
+    border-radius: 9px;
+    color: var(--game-text);
+    background: rgba(255, 255, 255, 0.06);
+    font: 900 0.88rem/1 var(--subway-font);
+    text-align: center;
+    cursor: pointer;
+}
+
+.subway-fps-limit-setting select:focus {
+    border-color: var(--game-accent2);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.14);
+}
+
+.subway-fps-limit-setting select option {
+    color: #f8fbff;
+    background: #0b1120;
+}
