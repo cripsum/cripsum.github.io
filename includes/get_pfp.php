@@ -5,13 +5,9 @@
 // `X-Content-Type-Options: nosniff` from .htaccess, so any response without a
 // correct image Content-Type renders as a broken image instead of showing the
 // default avatar.
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/discord_avatar_sync.php';
-require_once __DIR__ . '/avatar_thumbnail.php';
-
-// A page can request 20+ avatars at once. Holding the session lock while
-// streaming each one would serialize them all behind each other.
-cripsum_release_session();
+// Deliberately loaded before anything else and with no dependencies of its own:
+// the whole point is to answer repeat requests without a database connection.
+require_once __DIR__ . '/avatar_fastcache.php';
 
 const PFP_DEFAULT_FILE = __DIR__ . '/../img/abdul.jpg';
 
@@ -139,6 +135,32 @@ function pfp_discord_avatar_url(string $discordId, string $avatarHash, int $size
     return 'https://cdn.discordapp.com/avatars/' . $discordId . '/' . $avatarHash . '.' . $ext . '?size=' . $size;
 }
 
+/**
+ * Snaps a requested size to a supported step.
+ *
+ * Duplicated from avatar_thumbnail.php on purpose: the fast path answers before
+ * that file (and everything else) is loaded.
+ */
+function pfp_normalize_size(int $size): int
+{
+    $allowed = [32, 48, 64, 96, 128, 192, 256, 384, 512, 1024];
+    if (in_array($size, $allowed, true)) {
+        return $size;
+    }
+
+    $best = 256;
+    $bestDelta = PHP_INT_MAX;
+    foreach ($allowed as $candidate) {
+        $delta = abs($candidate - $size);
+        if ($delta < $bestDelta) {
+            $bestDelta = $delta;
+            $best = $candidate;
+        }
+    }
+
+    return $best;
+}
+
 /** Streams a file with validating cache headers and 304 support. */
 function pfp_send_file(string $path, string $mime): void
 {
@@ -179,7 +201,39 @@ $forceLocal = isset($_GET['local']) && $_GET['local'] !== '0';
 
 // Callers ask for the size they actually render at; anything else snaps to the
 // nearest supported step. 256 stays the default for links that predate this.
-$size = avatar_thumb_normalize_size(isset($_GET['size']) ? (int)$_GET['size'] : 256);
+$requestedSize = isset($_GET['size']) ? (int)$_GET['size'] : 256;
+$size = pfp_normalize_size($requestedSize);
+
+// The `t=` cache buster the pages append is the profile's last update time, so
+// it doubles as a cache key that expires exactly when the avatar changes.
+$stamp = isset($_GET['t']) ? substr(preg_replace('/[^0-9]/', '', (string)$_GET['t']), 0, 20) : '';
+
+// ── FAST PATH ───────────────────────────────────────────────────────────────
+// Repeat requests are answered from here: no database, no session, no image
+// work. This is what keeps a page full of avatars from exhausting the account's
+// PHP worker / MySQL connection budget, which used to make a random handful of
+// them fail with an empty HTTP 500.
+$cached = avatar_fastcache_get($userId, $size, $stamp, $forceLocal);
+if ($cached !== null) {
+    if ($cached['kind'] === 'file') {
+        avatar_fastcache_send_file($cached['path'], $cached['mime']);
+    } elseif ($cached['kind'] === 'redirect') {
+        header('Cache-Control: public, max-age=300');
+        header('Location: ' . $cached['url'], true, 302);
+        exit;
+    } elseif ($cached['kind'] === 'default') {
+        pfp_send_default();
+    }
+}
+
+// ── SLOW PATH ───────────────────────────────────────────────────────────────
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/discord_avatar_sync.php';
+require_once __DIR__ . '/avatar_thumbnail.php';
+
+// Holding the session lock while streaming would serialize every other request
+// this visitor makes in parallel.
+cripsum_release_session();
 
 $stmt = $mysqli->prepare(
     "SELECT profile_pic, profile_pic_type, discord_id, discord_avatar, discord_use_avatar
@@ -217,6 +271,7 @@ if (!$forceLocal && (int)($row['discord_use_avatar'] ?? 0) === 1) {
     }
     $discordUrl = pfp_discord_avatar_url($discordId, (string)$discordHash, $discordSize);
     if ($discordUrl !== null) {
+        avatar_fastcache_put($userId, $size, $stamp, $forceLocal, ['kind' => 'redirect', 'url' => $discordUrl]);
         header('Cache-Control: public, max-age=300');
         header('Location: ' . $discordUrl, true, 302);
         exit;
@@ -244,9 +299,15 @@ if ($picValue !== '') {
                         'file:' . $filePath . ':' . (@filemtime($filePath) ?: 0)
                     );
                     if ($thumb !== null) {
+                        avatar_fastcache_put($userId, $size, $stamp, $forceLocal, [
+                            'kind' => 'file', 'path' => $thumb['path'], 'mime' => $thumb['mime'],
+                        ]);
                         pfp_send_file($thumb['path'], $thumb['mime']);
                     }
                 }
+                avatar_fastcache_put($userId, $size, $stamp, $forceLocal, [
+                    'kind' => 'file', 'path' => $filePath, 'mime' => $mime,
+                ]);
                 pfp_send_file($filePath, $mime);
             }
         }
@@ -266,6 +327,9 @@ if ($picValue !== '') {
         if ($mime !== null) {
             $thumb = avatar_thumbnail($picValue, $mime, $size, 'blob:' . $userId . ':' . md5($picValue));
             if ($thumb !== null) {
+                avatar_fastcache_put($userId, $size, $stamp, $forceLocal, [
+                    'kind' => 'file', 'path' => $thumb['path'], 'mime' => $thumb['mime'],
+                ]);
                 pfp_send_file($thumb['path'], $thumb['mime']);
             }
 
@@ -284,10 +348,13 @@ if (!$forceLocal) {
     $discordId = trim((string)($row['discord_id'] ?? ''));
     if ((int)($row['discord_use_avatar'] ?? 0) === 1 && preg_match('/^\d{15,25}$/', $discordId)) {
         $fallbackIndex = abs(((int)$discordId >> 22) % 6);
-        header('Cache-Control: public, max-age=600');
-        header('Location: https://cdn.discordapp.com/embed/avatars/' . $fallbackIndex . '.png', true, 302);
+        $fallbackUrl = 'https://cdn.discordapp.com/embed/avatars/' . $fallbackIndex . '.png';
+        avatar_fastcache_put($userId, $size, $stamp, $forceLocal, ['kind' => 'redirect', 'url' => $fallbackUrl]);
+        header('Cache-Control: public, max-age=300');
+        header('Location: ' . $fallbackUrl, true, 302);
         exit;
     }
 }
 
+avatar_fastcache_put($userId, $size, $stamp, $forceLocal, ['kind' => 'default']);
 pfp_send_default();

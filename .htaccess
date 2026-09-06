@@ -28,6 +28,10 @@ RewriteRule ^uploads/.*\.(?:php[0-9]?|phtml|phar|cgi|pl|py|sh|shtml|html?|xhtml|
 # checks the session. They must never be reachable by guessing a URL.
 RewriteRule ^uploads/data_exports(?:/|$) - [F,L,NC]
 
+# Avatar cache bookkeeping: the .json records hold absolute server paths.
+# The thumbnails themselves stay reachable, only the metadata is blocked.
+RewriteRule ^uploads/avatar_cache/meta(?:/|$) - [F,L,NC]
+
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"

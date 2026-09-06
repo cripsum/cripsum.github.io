@@ -27,24 +27,55 @@ document.addEventListener('DOMContentLoaded', () => {
     // Float accumulator for scroll position to prevent browser rounding bugs on 1x DPI screens
     let currentScrollLeft = 0;
 
-    function initSupportersMarquee() {
-        // Clear any existing clones to reset measurements
-        const clones = container.querySelectorAll('.supporter-clone');
-        clones.forEach(c => c.remove());
+    // Cloning and measuring are kept strictly separate.
+    //
+    // They used to be one function wired to every image's `load` event, so a
+    // row of 19 avatars tore down and re-created all 19 clones five times over
+    // (95 <img> elements destroyed mid-flight). Removing a loading <img> aborts
+    // its request, and because the clone requests the same URL as its original,
+    // the abort took the original's load down with it: a handful of avatars
+    // ended up permanently blank, a different handful on every page load.
+    let clonesBuilt = false;
 
-        // Reset scroll position and accumulator to avoid state issues on resize
-        container.scrollLeft = 0;
-        currentScrollLeft = 0;
+    function originalCards() {
+        return Array.from(container.children).filter((child) => !child.classList.contains('supporter-clone'));
+    }
 
-        const originalChildren = Array.from(container.children);
-        if (originalChildren.length === 0) return;
+    function removeClones() {
+        if (!clonesBuilt) return;
+        container.querySelectorAll('.supporter-clone').forEach((clone) => clone.remove());
+        clonesBuilt = false;
+    }
+
+    // Built exactly once, and only after the originals have finished loading so
+    // the clones are served straight from cache instead of racing them.
+    function buildClones() {
+        if (clonesBuilt || !autoScrollActive) return;
+
+        const originals = originalCards();
+        if (originals.length === 0) return;
+
+        clonesBuilt = true;
+        originals.forEach((child) => {
+            const clone = child.cloneNode(true);
+            clone.classList.add('supporter-clone');
+            // Prevent drag ghost image behaviors on links/images inside clone
+            clone.addEventListener('dragstart', (e) => e.preventDefault());
+            container.appendChild(clone);
+        });
+    }
+
+    // Cheap and side-effect free: safe to call as often as we like.
+    function measureSupportersMarquee() {
+        const originals = originalCards();
+        if (originals.length === 0) return;
 
         // Calculate exact content width programmatically to avoid scrollWidth bugs
         let contentWidth = 0;
         const gap = 20; // 1.25rem = 20px
-        originalChildren.forEach((child, index) => {
+        originals.forEach((child, index) => {
             contentWidth += child.getBoundingClientRect().width;
-            if (index < originalChildren.length - 1) {
+            if (index < originals.length - 1) {
                 contentWidth += gap;
             }
         });
@@ -53,13 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const containerWidth = container.getBoundingClientRect().width;
 
-
-
         // If they do not overflow, center them and disable marquee behavior
         if (contentWidth <= containerWidth) {
+            removeClones();
             container.style.cursor = 'default';
             container.style.justifyContent = 'center';
             autoScrollActive = false;
+            container.scrollLeft = 0;
+            currentScrollLeft = 0;
             return;
         }
 
@@ -68,47 +100,67 @@ document.addEventListener('DOMContentLoaded', () => {
         container.style.justifyContent = 'flex-start';
         autoScrollActive = true;
 
-        // Clone nodes to support seamless infinite loop
-        originalChildren.forEach(child => {
-            const clone = child.cloneNode(true);
-            clone.classList.add('supporter-clone');
-            // Prevent drag ghost image behaviors on links/images inside clone
-            clone.addEventListener('dragstart', (e) => e.preventDefault());
-            container.appendChild(clone);
-        });
-
         // Calculate transition wrap boundary mathematically to avoid layout race conditions during resizes
         originalWidth = contentWidth - 20 + gap;
+
+        // Keep the current offset inside the new wrap window instead of
+        // snapping back to the start on every re-measure.
+        if (originalWidth > 0 && currentScrollLeft >= originalWidth) {
+            currentScrollLeft %= originalWidth;
+            container.scrollLeft = currentScrollLeft;
+        }
     }
 
-    // Initialize marquee layout
-    initSupportersMarquee();
+    function allImagesSettled() {
+        return originalCards()
+            .flatMap((card) => Array.from(card.querySelectorAll('img')))
+            .every((img) => img.complete);
+    }
+
+    // Initial layout pass. The cards carry explicit width/height, so this is
+    // already accurate before a single avatar has arrived.
+    measureSupportersMarquee();
 
     // Prevent default drag and drop image behavior on original nodes
-    Array.from(container.children).forEach(child => {
+    originalCards().forEach((child) => {
         child.addEventListener('dragstart', (e) => e.preventDefault());
     });
 
-    // Re-run setup if images finish loading dynamically
+    // Re-measure as avatars arrive, and clone once they all have.
     const images = container.querySelectorAll('img');
-    images.forEach(img => {
-        if (!img.complete) {
-            img.addEventListener('load', initSupportersMarquee);
-        }
+    images.forEach((img) => {
+        if (img.complete) return;
+        const onSettled = () => {
+            measureSupportersMarquee();
+            if (allImagesSettled()) buildClones();
+        };
+        img.addEventListener('load', onSettled);
+        // A failed avatar must not block the marquee forever.
+        img.addEventListener('error', onSettled);
     });
 
-    // Execute immediately if window is already loaded, otherwise attach to load event
     if (document.readyState === 'complete') {
-        initSupportersMarquee();
+        measureSupportersMarquee();
+        buildClones();
     } else {
-        window.addEventListener('load', initSupportersMarquee);
+        window.addEventListener('load', () => {
+            measureSupportersMarquee();
+            buildClones();
+        });
     }
 
-    // Re-initialize on screen resizing
+    // Last resort: if some avatar never settles, start the marquee anyway.
+    setTimeout(() => {
+        measureSupportersMarquee();
+        buildClones();
+    }, 6000);
+
+    // Re-measure on screen resizing. The clones stay where they are: only the
+    // wrap boundary depends on the viewport.
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(initSupportersMarquee, 200);
+        resizeTimeout = setTimeout(measureSupportersMarquee, 200);
     });
 
     // Auto scroll speed configuration (pixels per frame)
