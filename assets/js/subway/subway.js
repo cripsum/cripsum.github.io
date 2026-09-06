@@ -554,6 +554,10 @@
             .filter((module, index, list) => module && list.indexOf(module) === index);
     }
 
+    // None of the shipped runtimes read Module.mainLoopTimingMode and none of
+    // them export setMainLoopTiming, so this alone never reached the engine.
+    // It is kept because it is free and correct for builds that do support it;
+    // installFrameLimiter() below is what actually enforces the limit.
     function applyFrameTiming() {
         const timing = frameTimingSettings();
         unityModules().forEach(module => {
@@ -565,6 +569,66 @@
                 }
             } catch (_) { /* the launch configuration still applies on next run */ }
         });
+    }
+
+    // The Unity framework schedules its main loop with a live global lookup of
+    // window.requestAnimationFrame, so gating that call is the one lever that
+    // actually caps the engine's frame rate from outside the build.
+    //
+    // Each animation-frame chain is throttled against its own last run rather
+    // than a shared clock: the engine loop and the HUD loop are two independent
+    // chains, and one shared deadline would make them take turns, halving both.
+    const nativeRaf = window.requestAnimationFrame.bind(window);
+    const nativeCancelRaf = window.cancelAnimationFrame.bind(window);
+    const frameClocks = new WeakMap();
+    const throttledFrames = new Map();
+    let frameHandleSeq = 1e7;
+
+    function frameBudgetMs() {
+        if (state.vsync) return 0;
+        const limit = Math.min(500, Math.max(30, Number(state.fpsLimit) || 144));
+        return 1000 / limit;
+    }
+
+    function installFrameLimiter() {
+        if (window.requestAnimationFrame.__cripsumFrameLimiter) return;
+
+        function limitedRaf(callback) {
+            if (typeof callback !== 'function') return nativeRaf(callback);
+
+            const handle = ++frameHandleSeq;
+            const step = timestamp => {
+                const budget = frameBudgetMs();
+                // A frame is released when its own chain has waited long enough.
+                // The slack absorbs rAF timestamps landing just under the
+                // deadline, which would otherwise cost a whole extra frame.
+                if (budget > 0 && timestamp - (frameClocks.get(callback) || 0) < budget - 1) {
+                    throttledFrames.set(handle, nativeRaf(step));
+                    return;
+                }
+                throttledFrames.delete(handle);
+                frameClocks.set(callback, timestamp);
+                callback(timestamp);
+            };
+
+            throttledFrames.set(handle, nativeRaf(step));
+            return handle;
+        }
+
+        function limitedCancelRaf(handle) {
+            const nativeHandle = throttledFrames.get(handle);
+            if (nativeHandle === undefined) return nativeCancelRaf(handle);
+            throttledFrames.delete(handle);
+            return nativeCancelRaf(nativeHandle);
+        }
+
+        try {
+            Object.defineProperty(limitedRaf, '__cripsumFrameLimiter', { value: true });
+        } catch (_) {
+            limitedRaf.__cripsumFrameLimiter = true;
+        }
+        window.requestAnimationFrame = limitedRaf;
+        window.cancelAnimationFrame = limitedCancelRaf;
     }
 
     // Unity 2019 sizes its framebuffer as canvas.clientWidth/Height multiplied
@@ -2068,6 +2132,7 @@
         }
         loadSettings();
         installWebglPerformancePatch();
+        installFrameLimiter();
         applyPerformanceMode();
         buildMapGrid();
         bindSettings();

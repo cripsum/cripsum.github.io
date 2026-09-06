@@ -1835,8 +1835,7 @@ body.subway-fullscreen-active {
 
 /* Performance mode: backdrop-filter makes the compositor sample and blur the
    canvas underneath each widget on every frame it repaints, which is the most
-   expensive thing on the page after the game itself. The widgets stay
-   readable because the background opacity is raised to compensate. */
+   expensive thing on the page after the game itself. */
 body.subway-perf-mode .subway-hud-widget,
 body.subway-perf-mode .subway-start-hint,
 body.subway-perf-mode .subway-settings-modal,
@@ -1845,20 +1844,15 @@ body.subway-perf-mode .subway-modal-box {
     -webkit-backdrop-filter: none !important;
 }
 
-body.subway-perf-mode .subway-hud-widget {
-    background: rgba(var(--subway-overlay-bg-rgb, 9, 13, 24), max(var(--subway-overlay-opacity, 0.88), 0.94));
-    box-shadow: none !important;
-}
+/* Nothing else is overridden here on purpose: background opacity, shadows and
+   colours are per-widget user settings, and shadows are rasterised once into
+   the widget layer, so forcing them off costs the player their customisation
+   for no measurable gain. */
 
 body.subway-perf-mode .subway-hud-widget,
 body.subway-perf-mode .subway-hud-key,
 body.subway-perf-mode .subway-start-hint {
     transition: none !important;
-}
-
-body.subway-perf-mode .subway-hud-key {
-    box-shadow: none !important;
-    text-shadow: none !important;
 }
 
 body.subway-perf-mode .game-bg span {

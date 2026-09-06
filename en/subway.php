@@ -42,9 +42,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 
     <!-- Custom styling & game engine logic -->
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
-    <link rel="stylesheet" href="/assets/css/subway.css?v=21.0">
+    <link rel="stylesheet" href="/assets/css/subway.css?v=22.0">
     <script src="/assets/js/subway/subway-profile.js?v=2.0" defer></script>
-    <script src="/assets/js/subway/subway.js?v=21.0" defer></script>
+    <script src="/assets/js/subway/subway.js?v=22.0" defer></script>
 </head>
 
 <body class="game-page">
@@ -132,7 +132,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         </div>
 
                         <label class="subway-fps-limit-setting" data-fps-control>
-                            <span><strong>FPS Limit</strong><small>Used while VSync is disabled.</small></span>
+                            <span><strong>FPS Limit</strong><small>Used while VSync is disabled. Rounds down to a divisor of the monitor refresh.</small></span>
                             <input type="number" min="30" max="500" step="1" value="144" data-fps-limit>
                         </label>
 
@@ -975,7 +975,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                                 </label>
                             </div>
                             <label class="subway-fps-limit-setting" data-fps-control>
-                                <span><strong>FPS Limit</strong><small>Available while VSync is disabled.</small></span>
+                                <span><strong>FPS Limit</strong><small>Available while VSync is disabled. Rounds down to a divisor of the refresh rate.</small></span>
                                 <input type="number" min="30" max="500" step="1" value="144" data-fps-limit>
                             </label>
                             <label class="subway-fps-limit-setting">
