@@ -11,43 +11,36 @@ $isEn = $settingsLanguage === 'en';
 $copy = $isEn
     ? [
         'data_title' => 'Your data',
-        'data_desc' => 'Request a copy of everything your account holds, then download it as a ZIP archive.',
-        'includes_title' => 'What the archive contains',
-        'includes' => [
-            'Your profile and account settings',
-            'Posts, comments, links, projects and custom blocks',
-            'Messages, friendships, achievements and characters',
-            'The files you uploaded (avatar, background, images, music)',
-        ],
-        'excludes' => 'Passwords, 2FA secrets, backup codes and session tokens are never included: they are credentials and never leave the server.',
+        'data_desc' => 'Download a copy of everything your account holds.',
         'ready_title' => 'Archive ready',
         'ready_note' => 'The download link expires on %s.',
         'download' => 'Download my data',
         'size' => 'Size',
         'requested' => 'Requested',
         'downloads' => 'Downloads',
+        'format' => 'Format',
+        'format_txt' => 'Text',
+        'format_txt_hint' => 'Readable, to look through your data.',
+        'format_json' => 'JSON',
+        'format_json_hint' => 'Structured, to import it elsewhere.',
         'request' => 'Request my data',
         'request_again' => 'Generate a new archive',
         'cooldown' => 'You can request a new archive in %s.',
-        'confirm_hint' => 'Confirm it is really you before we generate the archive.',
         'unavailable' => 'This feature is temporarily unavailable. Please try again later.',
 
         'delete_title' => 'Delete account',
-        'delete_desc' => 'Deleting is permanent. You get %d days to change your mind.',
-        'how_title' => 'How it works',
+        'delete_desc' => 'You have %d days to change your mind.',
         'how' => [
-            'Your account is deactivated immediately and stops being visible to everyone else.',
-            'You are signed out on every device.',
-            'You have %d days to change your mind: just sign in again and the deletion is cancelled.',
-            'After that, your account and all your data are permanently erased. This cannot be undone.',
+            'Your account is hidden right away and you are signed out everywhere.',
+            'Sign in again within %d days and the deletion is cancelled.',
+            'After that everything is erased for good.',
         ],
-        'download_first' => 'Want to keep a copy? Request your data export first — it will not be available afterwards.',
+        'download_first' => 'Download your data first if you want to keep a copy.',
         'pending_title' => 'Deletion scheduled',
         'pending_text' => 'Your account will be permanently deleted on %s (%s left).',
         'pending_cancel' => 'Keep my account',
         'ack' => 'I understand this is permanent and that all my data will be deleted.',
         'delete_btn' => 'Delete my account',
-        'confirm_delete_hint' => 'Confirm it is really you before scheduling the deletion.',
         'cancelled_notice' => 'Welcome back — the scheduled deletion of your account has been cancelled.',
 
         'label_password' => 'Your password',
@@ -57,43 +50,36 @@ $copy = $isEn
     ]
     : [
         'data_title' => 'I tuoi dati',
-        'data_desc' => 'Richiedi una copia di tutto quello che il tuo account contiene e scaricala come archivio ZIP.',
-        'includes_title' => 'Cosa contiene l\'archivio',
-        'includes' => [
-            'Il tuo profilo e le impostazioni dell\'account',
-            'Post, commenti, link, progetti e blocchi personalizzati',
-            'Messaggi, amicizie, achievement e personaggi',
-            'I file che hai caricato (avatar, sfondo, immagini, musica)',
-        ],
-        'excludes' => 'Password, segreti 2FA, codici di backup e token di sessione non sono mai inclusi: sono credenziali e non lasciano mai il server.',
+        'data_desc' => 'Scarica una copia di tutto quello che il tuo account contiene.',
         'ready_title' => 'Archivio pronto',
         'ready_note' => 'Il link per il download scade il %s.',
         'download' => 'Scarica i miei dati',
         'size' => 'Dimensione',
         'requested' => 'Richiesto',
         'downloads' => 'Download',
+        'format' => 'Formato',
+        'format_txt' => 'Testo',
+        'format_txt_hint' => 'Leggibile, per consultare i tuoi dati.',
+        'format_json' => 'JSON',
+        'format_json_hint' => 'Strutturato, per importarli altrove.',
         'request' => 'Richiedi i miei dati',
         'request_again' => 'Genera un nuovo archivio',
         'cooldown' => 'Puoi richiedere un nuovo archivio tra %s.',
-        'confirm_hint' => 'Conferma di essere davvero tu prima di generare l\'archivio.',
         'unavailable' => 'Funzionalità non disponibile al momento. Riprova più tardi.',
 
         'delete_title' => 'Elimina account',
-        'delete_desc' => 'L\'eliminazione è definitiva. Hai %d giorni per ripensarci.',
-        'how_title' => 'Come funziona',
+        'delete_desc' => 'Hai %d giorni per ripensarci.',
         'how' => [
-            'Il tuo account viene disattivato subito e smette di essere visibile agli altri.',
-            'Vieni disconnesso da tutti i dispositivi.',
-            'Hai %d giorni per ripensarci: ti basta accedere di nuovo e la cancellazione viene annullata.',
-            'Dopodiché account e dati vengono eliminati definitivamente. L\'operazione non è reversibile.',
+            'Il tuo account viene nascosto subito e vieni disconnesso ovunque.',
+            'Accedi di nuovo entro %d giorni e la cancellazione viene annullata.',
+            'Dopo, tutto viene eliminato per sempre.',
         ],
-        'download_first' => 'Vuoi conservare una copia? Richiedi prima l\'esportazione dei dati: dopo non sarà più disponibile.',
+        'download_first' => 'Scarica prima i tuoi dati se vuoi conservarne una copia.',
         'pending_title' => 'Cancellazione programmata',
         'pending_text' => 'Il tuo account verrà eliminato definitivamente il %s (mancano %s).',
         'pending_cancel' => 'Mantieni il mio account',
         'ack' => 'Ho capito che l\'operazione è definitiva e che tutti i miei dati verranno eliminati.',
         'delete_btn' => 'Elimina il mio account',
-        'confirm_delete_hint' => 'Conferma di essere davvero tu prima di programmare la cancellazione.',
         'cancelled_notice' => 'Bentornato: la cancellazione programmata del tuo account è stata annullata.',
 
         'label_password' => 'La tua password',
@@ -152,16 +138,6 @@ $pendingDeletion = !empty($deletionState);
                 <span><?php echo auth_h($copy['unavailable']); ?></span>
             </div>
         <?php else: ?>
-            <div class="account-data-box">
-                <h3><i class="fa-solid fa-box-archive"></i> <?php echo auth_h($copy['includes_title']); ?></h3>
-                <ul class="account-data-list">
-                    <?php foreach ($copy['includes'] as $item): ?>
-                        <li><?php echo auth_h($item); ?></li>
-                    <?php endforeach; ?>
-                </ul>
-                <p class="account-data-note"><i class="fa-solid fa-shield-halved"></i> <?php echo auth_h($copy['excludes']); ?></p>
-            </div>
-
             <?php if ($latestExport): ?>
                 <div class="account-data-ready">
                     <div class="account-data-ready__info">
@@ -172,6 +148,7 @@ $pendingDeletion = !empty($deletionState);
                             &bull; <?php echo auth_h($copy['requested']); ?>:
                             <?php echo auth_h(date('d/m/Y H:i', strtotime((string)$latestExport['requested_at']))); ?>
                             &bull; <?php echo auth_h($copy['downloads']); ?>: <?php echo (int)$latestExport['download_count']; ?>
+                            &bull; <?php echo auth_h(account_export_format_of((string)$latestExport['file_name']) === 'json' ? $copy['format_json'] : $copy['format_txt']); ?>
                         </small>
                         <small><?php echo auth_h(sprintf($copy['ready_note'], date('d/m/Y', strtotime((string)$latestExport['expires_at'])))); ?></small>
                     </div>
@@ -191,7 +168,25 @@ $pendingDeletion = !empty($deletionState);
                 <form method="POST" action="#data" class="auth-form account-data-form">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="action" value="request_data_export">
-                    <p class="account-data-note account-data-note--muted"><?php echo auth_h($copy['confirm_hint']); ?></p>
+
+                    <fieldset class="account-format">
+                        <legend><?php echo auth_h($copy['format']); ?></legend>
+                        <label class="account-format__option">
+                            <input type="radio" name="export_format" value="txt" checked>
+                            <span>
+                                <strong><?php echo auth_h($copy['format_txt']); ?></strong>
+                                <small><?php echo auth_h($copy['format_txt_hint']); ?></small>
+                            </span>
+                        </label>
+                        <label class="account-format__option">
+                            <input type="radio" name="export_format" value="json">
+                            <span>
+                                <strong><?php echo auth_h($copy['format_json']); ?></strong>
+                                <small><?php echo auth_h($copy['format_json_hint']); ?></small>
+                            </span>
+                        </label>
+                    </fieldset>
+
                     <?php $renderConfirmFields('export'); ?>
                     <button class="auth-btn auth-btn--primary" type="submit" style="width:auto;padding:10px 22px;">
                         <i class="fa-solid fa-file-zipper"></i>
@@ -235,7 +230,6 @@ $pendingDeletion = !empty($deletionState);
             </div>
         <?php else: ?>
             <div class="account-data-box account-data-box--danger">
-                <h3><i class="fa-solid fa-circle-info"></i> <?php echo auth_h($copy['how_title']); ?></h3>
                 <ol class="account-data-list">
                     <?php foreach ($copy['how'] as $step): ?>
                         <li><?php echo auth_h(sprintf($step, ACCOUNT_DELETION_GRACE_DAYS)); ?></li>
@@ -251,7 +245,6 @@ $pendingDeletion = !empty($deletionState);
                 data-confirm-delete="<?php echo auth_h($copy['ack']); ?>">
                 <?php echo csrf_field(); ?>
                 <input type="hidden" name="action" value="request_account_deletion">
-                <p class="account-data-note account-data-note--muted"><?php echo auth_h($copy['confirm_delete_hint']); ?></p>
                 <?php $renderConfirmFields('delete'); ?>
                 <label class="auth-check" style="margin-top:.4rem;">
                     <input type="checkbox" name="confirm_understand" value="1" required>

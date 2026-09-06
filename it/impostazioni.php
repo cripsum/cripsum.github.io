@@ -259,7 +259,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($cooldown > 0) {
                 $error = sprintf('Puoi richiedere una nuova esportazione tra %s.', account_format_duration($cooldown, 'it'));
             } else {
-                $result = account_build_export($mysqli, $userId);
+                // Validated inside account_build_export(); anything
+                // unrecognised falls back to the readable text format.
+                $result = account_build_export($mysqli, $userId, (string)($_POST['export_format'] ?? 'txt'), 'it');
                 if ($result['ok']) {
                     $_SESSION['profile_flash_success'] = sprintf('Esportazione pronta. Il download è disponibile qui sotto per %d giorni.', ACCOUNT_EXPORT_TTL_DAYS);
                     header('Location: impostazioni#data');
@@ -364,7 +366,7 @@ unset($_SESSION['account_deletion_cancelled']);
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Impostazioni</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.5">
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.6">
     <script src="/assets/auth/auth.js?v=1.5" defer></script>
 </head>
 

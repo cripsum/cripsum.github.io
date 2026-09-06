@@ -104,13 +104,7 @@ function profile_avatar_url(array $profile, int $size = 256): string
     // endpoint refreshes a stale avatar hash before redirecting to the CDN and
     // guarantees an image response, so no page needs a client-side fallback.
     $stamp = !empty($profile['profile_updated_at']) ? (int)strtotime((string)$profile['profile_updated_at']) : time();
-    $url = '/includes/get_pfp.php?id=' . (int)$profile['id'] . '&t=' . $stamp;
-
-    if ((int)($profile['discord_use_avatar'] ?? 0) === 1) {
-        $url .= '&size=' . (in_array($size, [64, 128, 256, 512, 1024], true) ? $size : 256);
-    }
-
-    return $url;
+    return '/includes/get_pfp.php?id=' . (int)$profile['id'] . '&t=' . $stamp . '&size=' . max(32, min(1024, $size));
 }
 
 function profile_display_name(array $profile): string

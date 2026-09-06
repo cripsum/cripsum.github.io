@@ -1102,3 +1102,63 @@ body.auth-page .dropdown-menu button:hover {
         width: 100% !important;
     }
 }
+
+.account-format {
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 12px;
+    padding: 0.85rem 1rem 1rem;
+    margin: 0 0 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.account-format legend {
+    float: none;
+    width: auto;
+    padding: 0 0.4rem;
+    margin: 0 0 0.2rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+}
+
+.account-format__option {
+    flex: 1 1 190px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.account-format__option:hover {
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.account-format__option:has(input:checked) {
+    border-color: var(--accent, #0f5bff);
+    background: rgba(15, 91, 255, 0.08);
+}
+
+.account-format__option input {
+    margin-top: 0.25rem;
+    flex: 0 0 auto;
+}
+
+.account-format__option strong {
+    display: block;
+    font-size: 0.9rem;
+}
+
+.account-format__option small {
+    display: block;
+    font-size: 0.78rem;
+    opacity: 0.65;
+    line-height: 1.4;
+}

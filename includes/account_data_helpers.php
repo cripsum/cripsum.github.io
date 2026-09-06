@@ -10,6 +10,8 @@
 // so a table added later is covered automatically.
 
 require_once __DIR__ . '/account_zip.php';
+require_once __DIR__ . '/account_export_labels.php';
+require_once __DIR__ . '/account_export_text.php';
 require_once __DIR__ . '/security_helpers.php';
 
 const ACCOUNT_DELETION_GRACE_DAYS = 30;
@@ -179,13 +181,14 @@ function account_is_blob_column(string $column): bool
 }
 
 /** Makes a database value safe and readable inside the JSON export. */
-function account_export_value(string $column, $value)
+function account_export_value(string $column, $value, string $lang = 'it')
 {
+    $strings = account_txt_strings($lang);
     if ($value === null) {
         return null;
     }
-    if (account_is_secret_column($column)) {
-        return '[rimosso per sicurezza]';
+    if (account_is_flag_column($column) && (is_int($value) || preg_match('/^[01]$/', (string)$value))) {
+        return (bool)(int)$value;
     }
     if (!is_string($value)) {
         return $value;
@@ -193,13 +196,60 @@ function account_export_value(string $column, $value)
     if (account_is_blob_column($column)) {
         return str_starts_with($value, '/uploads/')
             ? $value
-            : '[dati binari, ' . strlen($value) . ' byte - vedi la cartella media/]';
+            : '[' . sprintf($strings['binary_media'], strlen($value)) . ']';
     }
     if (!mb_check_encoding($value, 'UTF-8')) {
-        return '[dati binari, ' . strlen($value) . ' byte]';
+        return '[' . sprintf($strings['binary'], strlen($value)) . ']';
     }
 
     return $value;
+}
+
+/**
+ * True for the flag columns MySQL hands back as "1"/"0" strings.
+ *
+ * Rendering those verbatim makes an export look like a database dump; a person
+ * reading it expects "Si" and "No".
+ */
+function account_is_flag_column(string $column): bool
+{
+    return (bool)preg_match('/^(is_|has_|show_|profile_show_|can_)/i', $column)
+        || in_array(strtolower($column), ['is_premium', 'premium', 'visibile', 'nsfw', 'richpresence', 'is_visible', 'is_featured', 'twofa_enabled'], true);
+}
+
+/**
+ * Resolves user ids to usernames in one query, so a message reads
+ * "Da: marco_rossi" instead of "Sender: 42".
+ */
+function account_resolve_usernames(mysqli $mysqli, array $ids): array
+{
+    $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn(int $id): bool => $id > 0)));
+    if (empty($ids)) {
+        return [];
+    }
+
+    // Chunked: an active account can reference a lot of people.
+    $names = [];
+    foreach (array_chunk($ids, 500) as $chunk) {
+        $placeholders = implode(',', array_fill(0, count($chunk), '?'));
+        try {
+            $stmt = $mysqli->prepare("SELECT id, username FROM `utenti` WHERE id IN ($placeholders)");
+            if (!$stmt) {
+                continue;
+            }
+            $stmt->bind_param(str_repeat('i', count($chunk)), ...$chunk);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            while ($row = $res->fetch_assoc()) {
+                $names[(int)$row['id']] = (string)$row['username'];
+            }
+            $stmt->close();
+        } catch (Throwable $e) {
+            error_log('[account_resolve_usernames] ' . $e->getMessage());
+        }
+    }
+
+    return $names;
 }
 
 /** Encodes one export document. */
@@ -212,7 +262,7 @@ function account_json(array $data): string
 }
 
 /** Collects the files the user uploaded, for inclusion in the archive. */
-function account_media_files(mysqli $mysqli, int $userId): array
+function account_media_files(mysqli $mysqli, int $userId, string $lang = 'it'): array
 {
     $files = [];
     $total = 0;
@@ -274,10 +324,11 @@ function account_media_files(mysqli $mysqli, int $userId): array
     }
 
     if ($row) {
+        $isEn = account_export_lang($lang) === 'en';
         $blobs = [
             ['profile_pic', 'profile_pic_type', 'avatar'],
-            ['profile_banner', 'profile_banner_type', 'sfondo-profilo'],
-            ['profile_music_blob', 'profile_music_mime', 'musica-profilo'],
+            ['profile_banner', 'profile_banner_type', $isEn ? 'profile-background' : 'sfondo-profilo'],
+            ['profile_music_blob', 'profile_music_mime', $isEn ? 'profile-music' : 'musica-profilo'],
         ];
         $extensions = [
             'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif',
@@ -302,60 +353,22 @@ function account_media_files(mysqli $mysqli, int $userId): array
     return $files;
 }
 
-/** Human-readable index shipped at the root of the archive. */
-function account_export_readme(array $account, array $tableCounts, int $mediaCount): string
-{
-    $lines = [];
-    $lines[] = 'ESPORTAZIONE DATI - Cripsum(TM)';
-    $lines[] = str_repeat('=', 46);
-    $lines[] = '';
-    $lines[] = 'Account : ' . ($account['username'] ?? '-') . ' (ID ' . ($account['id'] ?? '-') . ')';
-    $lines[] = 'Generato: ' . date('d/m/Y H:i:s');
-    $lines[] = '';
-    $lines[] = 'CONTENUTO';
-    $lines[] = '---------';
-    $lines[] = 'account.json   Il tuo profilo e le impostazioni dell\'account.';
-    $lines[] = 'data/*.json    Una tabella per file, con tutte le righe che ti riguardano.';
-    $lines[] = 'media/         I file che hai caricato (avatar, sfondi, immagini, musica).';
-    $lines[] = '';
-    $lines[] = 'TABELLE INCLUSE';
-    $lines[] = '---------------';
-    if (empty($tableCounts)) {
-        $lines[] = '(nessun dato aggiuntivo)';
-    } else {
-        ksort($tableCounts);
-        foreach ($tableCounts as $table => $count) {
-            $lines[] = sprintf('%-38s %6d righe', $table, $count);
-        }
-    }
-    $lines[] = '';
-    $lines[] = 'File multimediali inclusi: ' . $mediaCount;
-    $lines[] = '';
-    $lines[] = 'NOTE';
-    $lines[] = '----';
-    $lines[] = '- Password, codici di backup, segreti 2FA e token di sessione NON sono';
-    $lines[] = '  inclusi: sono credenziali e non lasciano mai il server.';
-    $lines[] = '- I messaggi privati includono anche quelli ricevuti, perche fanno parte';
-    $lines[] = '  della tua casella. Trattali con la stessa riservatezza.';
-    $lines[] = '- Questo archivio contiene dati personali: conservalo in un posto sicuro.';
-    $lines[] = '';
-
-    return implode("\r\n", $lines);
-}
-
 /**
  * Builds the export archive for a user.
  *
  * Returns ['ok' => bool, 'message' => string, 'file' => ?string, 'size' => int].
  */
-function account_build_export(mysqli $mysqli, int $userId): array
+function account_build_export(mysqli $mysqli, int $userId, string $format = 'txt', string $lang = 'it'): array
 {
     if ($userId <= 0) {
         return ['ok' => false, 'message' => 'Utente non valido.'];
     }
 
+    $format = account_export_normalize_format($format);
+    $lang = account_export_lang($lang);
+
     try {
-        return account_build_export_unsafe($mysqli, $userId);
+        return account_build_export_unsafe($mysqli, $userId, $format, $lang);
     } catch (Throwable $e) {
         error_log('[account_build_export] ' . $e->getMessage());
         return ['ok' => false, 'message' => "Errore durante la creazione dell'archivio. Riprova più tardi."];
@@ -363,8 +376,11 @@ function account_build_export(mysqli $mysqli, int $userId): array
 }
 
 /** Actual export work; always called through account_build_export(). */
-function account_build_export_unsafe(mysqli $mysqli, int $userId): array
+function account_build_export_unsafe(mysqli $mysqli, int $userId, string $format, string $lang): array
 {
+    $isJson = $format === 'json';
+    $extension = $isJson ? '.json' : '.txt';
+    $s = account_txt_strings($lang);
 
     $dir = account_export_dir();
     if (!is_dir($dir) && !@mkdir($dir, 0750, true) && !is_dir($dir)) {
@@ -387,23 +403,36 @@ function account_build_export_unsafe(mysqli $mysqli, int $userId): array
     }
 
     $account = [];
+    $skipColumns = account_export_skip_columns();
     foreach ($accountRow as $column => $value) {
-        $account[$column] = account_export_value($column, $value);
+        if (in_array(strtolower($column), $skipColumns, true) || account_is_secret_column($column)) {
+            continue;
+        }
+        $account[account_friendly_field($column, $lang)] = account_export_value($column, $value, $lang);
     }
 
     $entries = [];
-    $entries[] = ['name' => 'account.json', 'data' => account_json([
-        'esportazione' => [
-            'generata_il' => date('c'),
-            'sito' => defined('SITE_URL') ? SITE_URL : 'https://cripsum.com',
-            'formato' => 'JSON (UTF-8)',
-        ],
-        'account' => $account,
-    ])];
+    $entries[] = [
+        'name' => 'account' . $extension,
+        'data' => $isJson
+            ? account_json([
+                $s['json_export'] => [
+                    $s['json_generated'] => date('c'),
+                    $s['json_site'] => defined('SITE_URL') ? SITE_URL : 'https://cripsum.com',
+                ],
+                $s['json_account'] => $account,
+            ])
+            : account_txt_account($account, $lang),
+    ];
 
     // 2. Every other table that references this user.
     $tableCounts = [];
+    $skipTables = account_export_skip_tables();
+    $usedSlugs = [];
     foreach (account_owned_tables($mysqli) as $table => $columns) {
+        if (in_array(strtolower($table), $skipTables, true)) {
+            continue;
+        }
         $where = [];
         foreach ($columns as $column) {
             $where[] = "`$column` = ?";
@@ -422,24 +451,70 @@ function account_build_export_unsafe(mysqli $mysqli, int $userId): array
                 continue;
             }
             $result = $rowStmt->get_result();
-            $rows = [];
+            $rawRows = [];
+            $personIds = [];
+            $ownerColumns = array_flip(array_map('strtolower', account_owner_columns()));
             while ($row = $result->fetch_assoc()) {
-                $clean = [];
+                $rawRows[] = $row;
                 foreach ($row as $column => $value) {
-                    $clean[$column] = account_export_value($column, $value);
+                    if (isset($ownerColumns[strtolower($column)])) {
+                        $personIds[] = $value;
+                    }
                 }
-                $rows[] = $clean;
             }
             $rowStmt->close();
+
+            $usernames = account_resolve_usernames($mysqli, $personIds);
+
+            $rows = [];
+            foreach ($rawRows as $row) {
+                $clean = [];
+                foreach ($row as $column => $value) {
+                    $key = strtolower($column);
+                    if (in_array($key, $skipColumns, true) || account_is_secret_column($column)) {
+                        continue;
+                    }
+                    if (isset($ownerColumns[$key])) {
+                        $id = (int)$value;
+                        // The account's own id adds nothing; the other side does.
+                        if ($id === $userId) {
+                            continue;
+                        }
+                        $fallback = ($lang === 'en' ? 'user #' : 'utente #') . $id;
+                        $clean[account_person_field_label($column, $lang)] = $usernames[$id] ?? $fallback;
+                        continue;
+                    }
+                    $clean[account_friendly_field($column, $lang)] = account_export_value($column, $value, $lang);
+                }
+                if (!empty($clean)) {
+                    $rows[] = $clean;
+                }
+            }
 
             if (empty($rows)) {
                 continue;
             }
 
-            $tableCounts[$table] = count($rows);
+            $label = account_friendly_table($table, $lang);
+            $slug = account_export_slug($label);
+            // Two tables can map to the same label; keep the file names unique.
+            if (isset($usedSlugs[$slug])) {
+                $usedSlugs[$slug]++;
+                $slug .= '-' . $usedSlugs[$slug];
+            } else {
+                $usedSlugs[$slug] = 1;
+            }
+
+            $tableCounts[$label] = count($rows);
             $entries[] = [
-                'name' => 'data/' . $table . '.json',
-                'data' => account_json(['tabella' => $table, 'righe' => count($rows), 'dati' => $rows]),
+                'name' => $s['data_dir'] . '/' . $slug . $extension,
+                'data' => $isJson
+                    ? account_json([
+                        $s['json_section'] => $label,
+                        $s['json_rows'] => count($rows),
+                        $s['json_data'] => $rows,
+                    ])
+                    : account_txt_section($label, $rows, $lang),
             ];
         } catch (Throwable $e) {
             error_log('[account_build_export] ' . $table . ': ' . $e->getMessage());
@@ -447,17 +522,17 @@ function account_build_export_unsafe(mysqli $mysqli, int $userId): array
     }
 
     // 3. Uploaded media.
-    $media = account_media_files($mysqli, $userId);
+    $media = account_media_files($mysqli, $userId, $lang);
     foreach ($media as $file) {
         $entries[] = $file;
     }
 
     array_unshift($entries, [
-        'name' => 'README.txt',
-        'data' => account_export_readme($accountRow, $tableCounts, count($media)),
+        'name' => $s['readme_name'],
+        'data' => account_txt_readme($accountRow, $tableCounts, count($media), $format, $lang),
     ]);
 
-    $fileName = 'cripsum-dati-' . $userId . '-' . date('Ymd-His') . '-' . bin2hex(random_bytes(16)) . '.zip';
+    $fileName = 'cripsum-dati-' . $userId . '-' . date('Ymd-His') . '-' . $format . '-' . bin2hex(random_bytes(16)) . '.zip';
     $path = $dir . '/' . $fileName;
 
     if (!account_zip_write($path, $entries)) {
@@ -477,7 +552,7 @@ function account_build_export_unsafe(mysqli $mysqli, int $userId): array
 
     account_cleanup_exports($mysqli, $userId);
 
-    return ['ok' => true, 'message' => 'Esportazione pronta.', 'file' => $fileName, 'size' => $size];
+    return ['ok' => true, 'message' => 'Esportazione pronta.', 'file' => $fileName, 'size' => $size, 'format' => $format];
 }
 
 /** Drops an .htaccess into the export folder so Apache never serves it. */

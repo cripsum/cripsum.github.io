@@ -222,7 +222,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         ?>
                             <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>" style="--supporter-color: <?= htmlspecialchars($suppColor) ?>;">
                                 <div class="supporter-avatar-container">
-                                    <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>&t=<?= $stamp ?>" alt="" class="supporter-pfp">
+                                    <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>&amp;t=<?= $stamp ?>&amp;size=96" alt="" class="supporter-pfp" width="48" height="48" decoding="async">
                                     <div class="supporter-badge"><i class="fa-solid fa-gem"></i></div>
                                 </div>
                                 <span class="supporter-name"><?= htmlspecialchars($dispName) ?></span>

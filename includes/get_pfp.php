@@ -7,6 +7,7 @@
 // default avatar.
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/discord_avatar_sync.php';
+require_once __DIR__ . '/avatar_thumbnail.php';
 
 // A page can request 20+ avatars at once. Holding the session lock while
 // streaming each one would serialize them all behind each other.
@@ -176,10 +177,9 @@ if ($userId <= 0) {
 // debugging and for linking a user's uploaded picture explicitly.
 $forceLocal = isset($_GET['local']) && $_GET['local'] !== '0';
 
-$size = isset($_GET['size']) ? (int)$_GET['size'] : 256;
-if (!in_array($size, [64, 128, 256, 512, 1024], true)) {
-    $size = 256;
-}
+// Callers ask for the size they actually render at; anything else snaps to the
+// nearest supported step. 256 stays the default for links that predate this.
+$size = avatar_thumb_normalize_size(isset($_GET['size']) ? (int)$_GET['size'] : 256);
 
 $stmt = $mysqli->prepare(
     "SELECT profile_pic, profile_pic_type, discord_id, discord_avatar, discord_use_avatar
@@ -206,7 +206,16 @@ if (!$forceLocal && (int)($row['discord_use_avatar'] ?? 0) === 1) {
     // the current hash before building the URL.
     $discordHash = discord_avatar_sync($mysqli, $userId, $discordId, $row['discord_avatar'] ?? null);
 
-    $discordUrl = pfp_discord_avatar_url($discordId, (string)$discordHash, $size);
+    // Discord only serves power-of-two sizes; ask for the smallest one that
+    // still covers what we render.
+    $discordSize = 256;
+    foreach ([16, 32, 64, 128, 256, 512, 1024] as $candidate) {
+        if ($candidate >= $size) {
+            $discordSize = $candidate;
+            break;
+        }
+    }
+    $discordUrl = pfp_discord_avatar_url($discordId, (string)$discordHash, $discordSize);
     if ($discordUrl !== null) {
         header('Cache-Control: public, max-age=300');
         header('Location: ' . $discordUrl, true, 302);
@@ -224,6 +233,20 @@ if ($picValue !== '') {
         if ($filePath !== null) {
             $mime = pfp_resolve_mime($storedMime, $filePath, null);
             if ($mime !== null) {
+                // Downscale first: the stored original can be several MB, and
+                // every caller renders it far smaller than that.
+                $binary = @file_get_contents($filePath);
+                if ($binary !== false) {
+                    $thumb = avatar_thumbnail(
+                        $binary,
+                        $mime,
+                        $size,
+                        'file:' . $filePath . ':' . (@filemtime($filePath) ?: 0)
+                    );
+                    if ($thumb !== null) {
+                        pfp_send_file($thumb['path'], $thumb['mime']);
+                    }
+                }
                 pfp_send_file($filePath, $mime);
             }
         }
@@ -241,6 +264,11 @@ if ($picValue !== '') {
         // 4. Legacy binary blob stored directly in the column.
         $mime = pfp_resolve_mime($storedMime, null, $picValue);
         if ($mime !== null) {
+            $thumb = avatar_thumbnail($picValue, $mime, $size, 'blob:' . $userId . ':' . md5($picValue));
+            if ($thumb !== null) {
+                pfp_send_file($thumb['path'], $thumb['mime']);
+            }
+
             header('Content-Type: ' . $mime);
             header('Content-Length: ' . strlen($picValue));
             header('Cache-Control: public, max-age=86400');
