@@ -455,6 +455,10 @@ unset($_SESSION['account_deletion_cancelled']);
                     <i class="fa-brands fa-discord"></i>
                     <span>Connessioni</span>
                 </button>
+                <button class="settings-tab-btn" data-tab="rewind">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Rewind</span>
+                </button>
                 <button class="settings-tab-btn" data-tab="data">
                     <i class="fa-solid fa-box-archive"></i>
                     <span>I tuoi dati</span>

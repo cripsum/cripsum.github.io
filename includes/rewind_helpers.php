@@ -2279,3 +2279,20 @@ function rewind_share_url(string $token, string $lang = 'it'): string
 
     return 'https://cripsum.com/' . $lang . '/rewind/' . $token;
 }
+
+/**
+ * Indirizzo di un asset del Rewind con la versione presa dal file stesso.
+ *
+ * I `?v=` scritti a mano vanno aggiornati a ogni modifica, e prima o poi ci
+ * si dimentica: il browser continua a servire il vecchio file e sembra che
+ * le modifiche non siano state applicate. Qui la versione è la data di
+ * modifica del file, quindi cambia da sola ogni volta che il file cambia e
+ * resta stabile finché non cambia.
+ */
+function rewind_asset(string $path): string
+{
+    $full = __DIR__ . '/..' . $path;
+    $stamp = @filemtime($full);
+
+    return $path . '?v=' . ($stamp !== false ? $stamp : '1');
+}

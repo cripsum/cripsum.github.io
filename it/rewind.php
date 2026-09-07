@@ -58,12 +58,12 @@ function rw_h(mixed $value): string
     <meta name="twitter:card" content="summary_large_image">
     <meta name="robots" content="noindex">
 
-    <link rel="stylesheet" href="/assets/rewind/rewind.css?v=2">
+    <link rel="stylesheet" href="<?php echo rewind_asset('/assets/rewind/rewind.css'); ?>">
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
         window.CRIPSUM_CSRF = '<?php echo rw_h(function_exists('csrf_token') ? csrf_token() : ''); ?>';
     </script>
-    <script src="/assets/rewind/rewind.js?v=2" defer></script>
+    <script src="<?php echo rewind_asset('/assets/rewind/rewind.js'); ?>" defer></script>
 </head>
 
 <body class="rw-page">

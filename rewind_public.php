@@ -96,7 +96,7 @@ $ogDescription = $payload
     <link rel="icon" href="/img/Susremaster.png" type="image/png">
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700,800,900" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/rewind/rewind.css?v=2">
+    <link rel="stylesheet" href="<?php echo rewind_asset('/assets/rewind/rewind.css'); ?>">
 
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
@@ -109,7 +109,7 @@ $ogDescription = $payload
                 : 'null';
         ?>;
     </script>
-    <script src="/assets/rewind/rewind.js?v=2" defer></script>
+    <script src="<?php echo rewind_asset('/assets/rewind/rewind.js'); ?>" defer></script>
 </head>
 
 <body class="rw-page">
