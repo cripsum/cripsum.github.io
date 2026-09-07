@@ -42,7 +42,7 @@ cripsum_release_session();
 
 $limit = isset($_POST['limit']) ? max(1, min(200, (int)$_POST['limit'])) : 25;
 
-$aggregates = rewind_recompute_aggregates($mysqli, 'r365');
+$aggregates = rewind_recompute_aggregates($mysqli, 'all');
 $rebuilt = rewind_precompute_batch($mysqli, $limit);
 
 echo json_encode([

@@ -21,13 +21,20 @@
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const SLIDE_MS = 7000;
 
+    /**
+     * Schermate che hanno bisogno di piu' tempo del solito.
+     * La sequenza dei personaggi e' costruita a tappe: con sette secondi
+     * l'ultimo non farebbe in tempo a comparire.
+     */
+    const SLIDE_DURATIONS = { cast: 14000, best_pull: 9000, persona: 10000 };
+
     // ─────────────────────────────────────────────────────────
     //  TESTI
     // ─────────────────────────────────────────────────────────
 
     const T = {
         it: {
-            loading: 'Sto ripercorrendo il tuo anno...',
+            loading: 'Sto ripercorrendo la tua storia...',
             error: 'Non riesco a caricare il tuo Rewind.',
             retry: 'Riprova',
             unavailable: 'Il Rewind non è ancora attivo su questo account.',
@@ -35,9 +42,11 @@
             hintKeys: 'Usa le frecce o clicca per continuare',
 
             introKicker: 'Cripsum Rewind',
-            introTitle: 'Ecco com\'è andato<br>il tuo anno',
-            introLead: n => `Sei con noi da <strong>${n}</strong> giorni. Vediamo cosa hai combinato.`,
+            introTitle: 'Tutto quello<br>che hai fatto',
+            introLead: n => `Sei con noi da <strong>${n}</strong> giorni. Vediamo come li hai spesi.`,
+            introSince: y => `Dal ${y} a oggi.`,
             introStart: 'Comincia',
+            introHint: 'Premi per iniziare',
 
             timeKicker: 'Tempo passato qui',
             timeUnitH: 'ore',
@@ -82,10 +91,10 @@
 
             gachaKicker: 'Lootbox e gacha',
             gachaTitle: 'pull',
-            gachaLead: n => `Hai aperto <strong>${n}</strong> lootbox quest'anno.`,
+            gachaLead: n => `Hai aperto <strong>${n}</strong> lootbox in tutto.`,
             gachaNew: 'Nuovi', gachaPity: 'Pity max', gacha5050: '50/50 vinti', gachaSpent: 'Godos spesi',
 
-            bestKicker: 'Il colpo dell\'anno',
+            bestKicker: 'Il colpo grosso',
             bestLead: (name, pity) => `<strong>${name}</strong> arrivato con solo <strong>${pity}</strong> di pity.`,
             bestLeadNoPity: name => `<strong>${name}</strong>, il pezzo più raro che hai tirato.`,
 
@@ -100,11 +109,36 @@
             chrTimes: n => n === 1 ? '1 volta' : `${n} volte`,
             chrLead: (name, n) => `<strong>${name}</strong> è uscito <strong>${n}</strong> volte. Ormai siete parenti.`,
 
+            collDupeLabel: 'Il più duplicato',
+            rarestKicker: 'Il pezzo pregiato',
+            rarestLead: 'Il più raro che sia mai finito nella tua collezione.',
+            rarestWhen: d => `Arrivato il ${d}.`,
+            rarestPity: p => `Ed è uscito con solo <strong>${p}</strong> di pity.`,
+            postRimasto: 'Top Rimasto più votato',
+            postVotesN: n => `${n} voti`,
+            conShitposts: 'Shitpost', conRimasti: 'Top Rimasti',
+            conViews: 'Visualizzazioni', conVotesIn: 'Voti ricevuti',
+            castKicker: 'In scena',
+            castTitle: 'I due estremi della tua collezione',
+            castMost: 'Il fedelissimo',
+            castLeast: 'Il fantasma',
+            castRarest: 'Il gioiello',
+
+            cardTheme: 'Tema della card',
+
             postKicker: 'I tuoi primati',
             postTitle: 'Il meglio che hai pubblicato',
             postLikes: 'Più apprezzato', postViews: 'Più visto', postComments: 'Più commentato',
             postLikesN: n => `${n} like`, postViewsN: n => `${n} visualizzazioni`, postCommentsN: n => `${n} commenti`,
             postViewsTotal: n => `In tutto i tuoi post hanno raccolto <strong>${n}</strong> visualizzazioni.`,
+
+            cardKicker: 'La tua card',
+            cardTitle: 'Portala con te',
+            cardLead: 'Salvala e mettila dove vuoi.',
+            cardDownload: 'Scarica immagine',
+            cardSaved: 'Immagine scaricata!',
+            cardBusy: 'Preparo l\'immagine...',
+            cardMember: 'Membro dal',
 
             audioToggle: 'Attiva o disattiva la musica',
             audioVolume: 'Volume',
@@ -134,7 +168,12 @@
             gamKicker: 'Giochi',
             gamTitle: 'duelli',
             gamWin: 'Vinti', gamLoss: 'Persi', gamRate: 'Winrate',
-            gamSubway: (s, rank) => `Subway: <strong>${s}s</strong>, posizione <strong>#${rank}</strong>.`,
+            subKicker: 'Subway Surfers',
+            subTitle: 'il tuo record',
+            subRank: 'In classifica', subRuns: 'Partite', subMap: 'Mappa',
+            subPodium: r => r === 1
+                ? 'Sei primo in classifica. Nessuno ti ha ancora preso.'
+                : `Sei sul podio, ${r}° posto assoluto.`,
 
             conKicker: 'Contenuti',
             conTitle: 'like ricevuti',
@@ -151,7 +190,7 @@
             perKicker: 'E quindi tu sei...',
             rankTop: (p, n) => `Sei nel <strong>top ${p}%</strong> degli utenti più attivi, su ${n}.`,
 
-            sumKicker: 'Il tuo anno in breve',
+            sumKicker: 'La tua storia in breve',
             sumTitle: 'Ecco tutto',
             share: 'Condividi',
             shareOn: 'Link attivo',
@@ -163,7 +202,7 @@
             back: 'Torna al sito'
         },
         en: {
-            loading: 'Replaying your year...',
+            loading: 'Replaying your story...',
             error: 'I could not load your Rewind.',
             retry: 'Try again',
             unavailable: 'Rewind is not active on this account yet.',
@@ -171,9 +210,11 @@
             hintKeys: 'Use the arrows or click to continue',
 
             introKicker: 'Cripsum Rewind',
-            introTitle: 'Here is how<br>your year went',
-            introLead: n => `You have been with us for <strong>${n}</strong> days. Let us see what you did.`,
+            introTitle: 'Everything<br>you have done',
+            introLead: n => `You have been with us for <strong>${n}</strong> days. Let us see how you spent them.`,
+            introSince: y => `From ${y} until today.`,
             introStart: 'Start',
+            introHint: 'Press to begin',
 
             timeKicker: 'Time spent here',
             timeUnitH: 'hours',
@@ -218,10 +259,10 @@
 
             gachaKicker: 'Lootboxes and gacha',
             gachaTitle: 'pulls',
-            gachaLead: n => `You opened <strong>${n}</strong> lootboxes this year.`,
+            gachaLead: n => `You opened <strong>${n}</strong> lootboxes in total.`,
             gachaNew: 'New', gachaPity: 'Max pity', gacha5050: '50/50 won', gachaSpent: 'Godos spent',
 
-            bestKicker: 'Pull of the year',
+            bestKicker: 'The big one',
             bestLead: (name, pity) => `<strong>${name}</strong> landed at only <strong>${pity}</strong> pity.`,
             bestLeadNoPity: name => `<strong>${name}</strong>, the rarest thing you pulled.`,
 
@@ -236,11 +277,36 @@
             chrTimes: n => n === 1 ? 'once' : `${n} times`,
             chrLead: (name, n) => `<strong>${name}</strong> showed up <strong>${n}</strong> times. You are practically related.`,
 
+            collDupeLabel: 'Most duplicated',
+            rarestKicker: 'The prize piece',
+            rarestLead: 'The rarest thing that ever landed in your collection.',
+            rarestWhen: d => `Landed on ${d}.`,
+            rarestPity: p => `And it dropped at only <strong>${p}</strong> pity.`,
+            postRimasto: 'Most voted Top Rimasto',
+            postVotesN: n => `${n} votes`,
+            conShitposts: 'Shitposts', conRimasti: 'Top Rimasti',
+            conViews: 'Views', conVotesIn: 'Votes received',
+            castKicker: 'On stage',
+            castTitle: 'The two extremes of your collection',
+            castMost: 'The regular',
+            castLeast: 'The ghost',
+            castRarest: 'The gem',
+
+            cardTheme: 'Card theme',
+
             postKicker: 'Your records',
             postTitle: 'The best you posted',
             postLikes: 'Most liked', postViews: 'Most viewed', postComments: 'Most commented',
             postLikesN: n => `${n} likes`, postViewsN: n => `${n} views`, postCommentsN: n => `${n} comments`,
             postViewsTotal: n => `Your posts collected <strong>${n}</strong> views in total.`,
+
+            cardKicker: 'Your card',
+            cardTitle: 'Take it with you',
+            cardLead: 'Save it and put it wherever you like.',
+            cardDownload: 'Download image',
+            cardSaved: 'Image downloaded!',
+            cardBusy: 'Preparing the image...',
+            cardMember: 'Member since',
 
             audioToggle: 'Turn the music on or off',
             audioVolume: 'Volume',
@@ -270,7 +336,12 @@
             gamKicker: 'Games',
             gamTitle: 'duels',
             gamWin: 'Won', gamLoss: 'Lost', gamRate: 'Winrate',
-            gamSubway: (s, rank) => `Subway: <strong>${s}s</strong>, rank <strong>#${rank}</strong>.`,
+            subKicker: 'Subway Surfers',
+            subTitle: 'your record',
+            subRank: 'Leaderboard', subRuns: 'Runs', subMap: 'Map',
+            subPodium: r => r === 1
+                ? 'You are first on the leaderboard. Nobody has caught you yet.'
+                : `You are on the podium, #${r} overall.`,
 
             conKicker: 'Content',
             conTitle: 'likes received',
@@ -287,7 +358,7 @@
             perKicker: 'And so you are...',
             rankTop: (p, n) => `You are in the <strong>top ${p}%</strong> of the most active users, out of ${n}.`,
 
-            sumKicker: 'Your year at a glance',
+            sumKicker: 'Your story at a glance',
             sumTitle: 'That is all',
             share: 'Share',
             shareOn: 'Link is live',
@@ -311,17 +382,21 @@
         best_pull:   ['#f59e0b', '#4a1d00'],
         collection:  ['#a78bfa', '#3b1e75'],
         characters:  ['#c084fc', '#4c1d95'],
+        cast:        ['#7c3aed', '#1e0a3c'],
+        rarest:      ['#fbbf24', '#4a2c00'],
         achievements:['#f472b6', '#5c1140'],
         missions:    ['#34d399', '#064e3b'],
         social:      ['#22d3ee', '#083344'],
         profile:     ['#38bdf8', '#0c4a6e'],
         games:       ['#f87171', '#5c1414'],
+        subway:      ['#fb7185', '#4c0519'],
         content:     ['#fb923c', '#5c2a00'],
         top_post:    ['#f97316', '#431407'],
         economy:     ['#facc15', '#4a3a00'],
         busiest_day: ['#8b5cf6', '#2e1065'],
         persona:     ['#2f6bff', '#0b2a6b'],
-        summary:     ['#1e293b', '#05070d']
+        summary:     ['#1e293b', '#05070d'],
+        card:        ['#0f172a', '#05070d']
     };
 
     // ─────────────────────────────────────────────────────────
@@ -380,6 +455,9 @@
     const AUDIO_DIR = '/audio/rewind/';
     const AUDIO_STORE = 'cripsum.rewind.volume';
     const AUDIO_DEFAULT_VOLUME = 0.45;
+
+    /** Ogni quante schermate parte una canzone nuova. */
+    const MUSIC_EVERY_SLIDES = 5;
 
     class Soundtrack {
         constructor() {
@@ -457,6 +535,33 @@
             requestAnimationFrame(step);
         }
 
+        /**
+         * Passa alla traccia successiva sfumando fra le due.
+         *
+         * Il volume scende, si cambia sorgente e si risale: senza questo il
+         * salto fra due brani si sente come un taglio netto proprio mentre
+         * cambia la schermata.
+         */
+        next(fadeMs = 1100) {
+            if (!this.started || this.failed) return;
+
+            const target = this.muted ? 0 : this.volume;
+
+            this.fadeTo(0, fadeMs);
+            window.setTimeout(() => {
+                this.position += 1;
+                if (this.position >= this.order.length) {
+                    this.order = this.shuffle();
+                    this.position = 0;
+                }
+                this.load();
+                this.audio.volume = 0;
+                const p = this.audio.play();
+                if (p && p.catch) p.catch(() => {});
+                this.fadeTo(target, fadeMs);
+                this.onState?.();
+            }, fadeMs);
+        }
         play() {
             const promise = this.audio.play();
             if (promise && typeof promise.catch === 'function') {
@@ -556,15 +661,39 @@
 
     const RENDER = {
         intro(d) {
-            const days = d.user?.days_on_site || 0;
+            const u = d.user || {};
+            const days = u.days_on_site || 0;
+            const since = u.member_since ? new Date(String(u.member_since).replace(' ', 'T')) : null;
+            const year = since && !Number.isNaN(since.getTime()) ? since.getFullYear() : null;
+
+            // Questa schermata non avanza da sola: è la copertina. Le lettere
+            // del titolo entrano una alla volta, l'avatar sale dall'anello e
+            // solo alla fine compare il pulsante.
+            const title = T.introTitle.split('<br>').map((line, lineIndex) => {
+                const letters = [...line].map((ch, i) =>
+                    `<span class="rw-letter" style="--rw-l:${lineIndex * 14 + i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`
+                ).join('');
+                return `<span class="rw-titleline">${letters}</span>`;
+            }).join('');
+
             return `
-                <p class="rw-kicker rw-in">${esc(T.introKicker)}</p>
-                <h1 class="rw-title rw-in">${T.introTitle}</h1>
-                <p class="rw-lead rw-in">${T.introLead(num(days))}</p>
-                <div class="rw-actions rw-in">
-                    <button type="button" class="rw-btn" data-rw-next>
-                        ${esc(T.introStart)} <i class="fa-solid fa-arrow-right"></i>
-                    </button>
+                <div class="rw-cover">
+                    <div class="rw-cover__avatar rw-in">
+                        <span class="rw-cover__ring" aria-hidden="true"></span>
+                        <img src="${esc(u.avatar || '/img/Susremaster.png')}" alt="${esc(u.display_name || '')}"
+                             onerror="this.src='/img/Susremaster.png'">
+                    </div>
+                    <p class="rw-kicker rw-in">${esc(T.introKicker)}</p>
+                    <h1 class="rw-title rw-cover__title">${title}</h1>
+                    <p class="rw-lead rw-in">${T.introLead(num(days))}</p>
+                    ${year ? `<p class="rw-note rw-in">${esc(T.introSince(year))}</p>` : ''}
+                    <div class="rw-actions rw-in">
+                        <button type="button" class="rw-btn rw-btn--cta" data-rw-next>
+                            <span>${esc(T.introStart)}</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <p class="rw-cover__hint rw-in">${esc(T.introHint)}</p>
                 </div>`;
         },
 
@@ -624,8 +753,10 @@
 
             // La griglia copre l'intero periodo, non solo i giorni presenti:
             // i buchi sono l'informazione più leggibile di una heatmap.
-            const start = new Date(d.period.start + 'T00:00:00');
-            const end = new Date(d.period.end + 'T00:00:00');
+            // Il periodo copre tutta la vita dell'account, la heatmap solo
+            // l'ultimo anno: il server decide la finestra, qui si disegna.
+            const start = new Date((cal.heatmap_start || d.period.start) + 'T00:00:00');
+            const end = new Date((cal.heatmap_end || d.period.end) + 'T00:00:00');
             const cells = [];
 
             for (let cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
@@ -705,20 +836,71 @@
 
         collection(d) {
             const c = d.collection || {};
-            const rarest = c.rarest;
+
+            // Il piu' raro NON sta qui: ha la sua schermata piu' avanti.
+            // Prima compariva anche in questa e nella sequenza in scena, cioe'
+            // tre volte nello stesso racconto.
+            const pct = Math.max(0, Math.min(100, Number(c.completion || 0)));
+
             return `
                 <p class="rw-kicker rw-in">${esc(T.collKicker)}</p>
                 <p class="rw-big rw-in" data-count="${c.owned || 0}">0<small>${esc(T.collTitle)}</small></p>
                 <p class="rw-lead rw-in">${T.collLead(num(c.owned), num(c.catalogue), c.completion)}</p>
-                ${rarest ? `
-                    <div class="rw-card rw-in" style="margin-top:18px">
-                        <p class="rw-kicker" style="margin-bottom:8px">${esc(T.collRarest)}</p>
-                        <strong style="font-size:1.1rem">${esc(rarest.nome)}</strong>
-                        <span class="rw-chip rw-chip--purple" style="margin-left:8px">${esc(rarest.rarita || '')}</span>
-                    </div>` : ''}
-                ${c.most_duplicated ? `<p class="rw-note rw-in">${esc(c.most_duplicated.nome)} — ${esc(T.collDupes(c.most_duplicated.quantita))}</p>` : ''}`;
+                <div class="rw-meter rw-in" role="img" aria-label="${pct}%">
+                    <span class="rw-meter__fill" data-w="${pct}"></span>
+                </div>
+                ${c.most_duplicated ? `
+                    <div class="rw-card rw-card--row rw-in" style="margin-top:18px">
+                        ${c.most_duplicated.img_url
+                            ? `<img class="rw-card__icon" src="${esc(c.most_duplicated.img_url)}" alt="" loading="lazy" onerror="this.remove()">`
+                            : ''}
+                        <div>
+                            <p class="rw-kicker" style="margin-bottom:6px">${esc(T.collDupeLabel)}</p>
+                            <strong style="font-size:1.05rem">${esc(c.most_duplicated.nome)}</strong>
+                            <p class="rw-note" style="margin-top:4px">${esc(T.collDupes(c.most_duplicated.quantita))}</p>
+                        </div>
+                    </div>` : ''}`;
         },
 
+        /**
+         * Sequenza cinematica dei tre personaggi che contano.
+         *
+         * Non e' una schermata con tre riquadri: entrano uno alla volta, con
+         * il titolo che sfuma prima e un riflettore che scorre. Per questo
+         * dura piu' del doppio delle altre (vedi SLIDE_DURATIONS).
+         */
+        cast(d) {
+            const c = d.collection || {};
+
+            const acts = [];
+            // Solo i due estremi: il piu' raro ha la schermata dopo.
+            if (c.most_pulled)  acts.push(['most',  T.castMost,  c.most_pulled,  T.chrTimes(Number(c.most_pulled.pulls || 0))]);
+            if (c.least_pulled) acts.push(['least', T.castLeast, c.least_pulled, T.chrTimes(Number(c.least_pulled.pulls || 0))]);
+
+            if (acts.length < 2) return '';
+
+            // Ogni atto entra dopo il precedente: il ritardo e' il suo posto
+            // nella sequenza, non un numero scelto a caso.
+            const scene = acts.map(([kind, label, item, meta], i) => `
+                <figure class="rw-act rw-act--${esc(kind)}" style="--rw-act:${i}">
+                    <span class="rw-act__beam" aria-hidden="true"></span>
+                    <span class="rw-act__label">${esc(label)}</span>
+                    ${item.img_url
+                        ? `<img class="rw-act__img" src="${esc(item.img_url)}" alt="${esc(item.nome)}" loading="eager" onerror="this.remove()">`
+                        : '<span class="rw-act__img rw-act__img--empty"></span>'}
+                    <figcaption>
+                        <span class="rw-act__name">${esc(item.nome || '')}</span>
+                        <span class="rw-act__meta">${esc(meta)}</span>
+                    </figcaption>
+                </figure>`).join('');
+
+            return `
+                <div class="rw-cast">
+                    <p class="rw-kicker rw-cast__kicker">${esc(T.castKicker)}</p>
+                    <h2 class="rw-title rw-cast__title">${esc(T.castTitle)}</h2>
+                    <div class="rw-cast__stage">${scene}</div>
+                </div>`;
+        },
         characters(d) {
             const c = d.collection || {};
             const most = c.most_pulled;
@@ -748,19 +930,29 @@
             const rows = [];
 
             if (c.best_post) {
-                rows.push(['fa-solid fa-heart', T.postLikes, c.best_post.titolo, T.postLikesN(num(c.best_post.likes))]);
+                rows.push(['fa-solid fa-heart', T.postLikes, c.best_post.titolo,
+                    T.postLikesN(num(c.best_post.likes)), c.best_post.media_url]);
             }
             if (c.most_viewed) {
-                rows.push(['fa-solid fa-eye', T.postViews, c.most_viewed.titolo, T.postViewsN(num(c.most_viewed.views))]);
+                rows.push(['fa-solid fa-eye', T.postViews, c.most_viewed.titolo,
+                    T.postViewsN(num(c.most_viewed.views)), c.most_viewed.media_url]);
             }
             if (c.most_commented) {
-                rows.push(['fa-solid fa-comment', T.postComments, c.most_commented.titolo, T.postCommentsN(num(c.most_commented.comments))]);
+                rows.push(['fa-solid fa-comment', T.postComments, c.most_commented.titolo,
+                    T.postCommentsN(num(c.most_commented.comments)), c.most_commented.media_url]);
+            }
+            if (c.top_rimasto) {
+                rows.push(['fa-solid fa-star', T.postRimasto, c.top_rimasto.titolo,
+                    T.postVotesN(num(c.top_rimasto.votes)), c.top_rimasto.media_url]);
             }
             if (!rows.length) return '';
 
-            const list = rows.map(([icon, label, title, meta]) => `
+            const list = rows.map(([icon, label, title, meta, media]) => `
                 <div class="rw-record rw-in">
-                    <span class="rw-record__icon"><i class="${esc(icon)}"></i></span>
+                    ${media
+                        ? `<img class="rw-record__media" src="${esc(media)}" alt="" loading="lazy"
+                                onerror="this.outerHTML='<span class=&quot;rw-record__icon&quot;><i class=&quot;${esc(icon)}&quot;></i></span>'">`
+                        : `<span class="rw-record__icon"><i class="${esc(icon)}"></i></span>`}
                     <span class="rw-record__body">
                         <span class="rw-record__label">${esc(label)}</span>
                         <span class="rw-record__title">${esc(title || '—')}</span>
@@ -775,6 +967,31 @@
                 ${c.views_received ? `<p class="rw-note rw-in">${T.postViewsTotal(num(c.views_received))}</p>` : ''}`;
         },
 
+        /**
+         * Il pezzo piu' raro della collezione, da solo.
+         *
+         * Ha bisogno di spazio suo: messo accanto agli altri due si perdeva,
+         * e ripetuto in tre schermate diverse diventava rumore.
+         */
+        rarest(d) {
+            const r = d.collection?.rarest;
+            if (!r) return '';
+
+            return `
+                <p class="rw-kicker rw-in">${esc(T.rarestKicker)}</p>
+                <div class="rw-relic rw-in">
+                    <span class="rw-relic__halo" aria-hidden="true"></span>
+                    ${r.img_url
+                        ? `<img class="rw-relic__img" src="${esc(r.img_url)}" alt="${esc(r.nome)}" loading="eager" onerror="this.remove()">`
+                        : ''}
+                </div>
+                <h2 class="rw-title rw-in" style="font-size:clamp(1.5rem,5vw,2.4rem)">${esc(r.nome)}</h2>
+                <p class="rw-in"><span class="rw-chip rw-chip--gold">${esc(r.rarita || '')}</span></p>
+                <p class="rw-lead rw-in" style="margin-top:14px">${esc(T.rarestLead)}</p>
+                ${r.was_lucky_pull && r.pity !== null && r.pity !== undefined
+                    ? `<p class="rw-lead rw-in">${T.rarestPity(r.pity)}</p>` : ''}
+                ${r.data ? `<p class="rw-note rw-in">${esc(T.rarestWhen(formatDate(r.data)))}</p>` : ''}`;
+        },
         achievements(d) {
             const a = d.achievements || {};
             const rarest = a.rarest;
@@ -783,9 +1000,12 @@
                 <p class="rw-big rw-in" data-count="${a.unlocked_in_period || 0}">0<small>${esc(T.achTitle)}</small></p>
                 <p class="rw-lead rw-in">${T.achLead(num(a.points_in_period))}</p>
                 ${rarest ? `
-                    <div class="rw-card rw-in" style="margin-top:18px">
+                    <div class="rw-card rw-card--row rw-in" style="margin-top:18px">
+                        ${rarest.img_url ? `<img class="rw-card__icon" src="${esc(rarest.img_url)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+                        <div>
                         <strong style="font-size:1.05rem">${esc(lang === 'en' ? (rarest.nome_en || rarest.nome) : rarest.nome)}</strong>
                         ${rarest.owners_pct !== undefined ? `<p class="rw-note" style="margin-top:8px">${T.achRarest(rarest.owners_pct)}</p>` : ''}
+                        </div>
                     </div>` : ''}`;
         },
 
@@ -809,14 +1029,28 @@
                     ${stat(num(s.msg_group), T.socGroup)}
                     ${stat(num(s.friends_total), T.socFriends)}
                 </div>
-                ${s.top_partner ? `<p class="rw-lead rw-in" style="margin-top:18px">${T.socPartner(esc(s.top_partner.display_name))}</p>` : ''}
+                ${s.top_partner ? `
+                    <div class="rw-person rw-in">
+                        <div class="rw-avatar">
+                            <img src="${esc(s.top_partner.avatar || '/img/Susremaster.png')}"
+                                 alt="${esc(s.top_partner.display_name)}"
+                                 onerror="this.src='/img/Susremaster.png'">
+                        </div>
+                        <span class="rw-person__text">${T.socPartner(esc(s.top_partner.display_name))}</span>
+                    </div>` : ''}
                 ${s.busiest_day ? `<p class="rw-note rw-in">${esc(T.socBusiest(formatDate(s.busiest_day.giorno), s.busiest_day.n))}</p>` : ''}`;
         },
 
         profile(d) {
             const p = d.profile || {};
+            const u = d.user || {};
             return `
                 <p class="rw-kicker rw-in">${esc(T.proKicker)}</p>
+                <div class="rw-avatar rw-avatar--lg rw-in">
+                    <img src="${esc(u.avatar || '/img/Susremaster.png')}" alt="${esc(u.display_name || '')}"
+                         onerror="this.src='/img/Susremaster.png'">
+                </div>
+                <p class="rw-username rw-in">@${esc(u.username || '')}</p>
                 <p class="rw-big rw-in" data-count="${p.views_lifetime || 0}">0<small>${esc(T.proTitle)}</small></p>
                 <p class="rw-lead rw-in">${T.proLead(num(p.changes))}</p>
                 ${p.changes > 20 ? `<p class="rw-note rw-in">${esc(T.proNeverHappy)}</p>` : ''}`;
@@ -824,15 +1058,47 @@
 
         games(d) {
             const g = d.games || {};
+            const hasDuels = (g.duels_played || 0) > 0;
+
             return `
                 <p class="rw-kicker rw-in">${esc(T.gamKicker)}</p>
                 <p class="rw-big rw-in" data-count="${g.duels_played || 0}">0<small>${esc(T.gamTitle)}</small></p>
+                ${hasDuels ? `
+                    <div class="rw-stats rw-in">
+                        ${stat(num(g.duels_won), T.gamWin)}
+                        ${stat(num(g.duels_lost), T.gamLoss)}
+                        ${g.winrate !== null && g.winrate !== undefined ? stat(g.winrate + '%', T.gamRate) : ''}
+                    </div>` : ''}`;
+        },
+
+        /**
+         * Subway ha una schermata sua: il record è un tempo, non un
+         * conteggio, e affogato in fondo a quella dei duelli non si notava.
+         */
+        subway(d) {
+            const g = d.games || {};
+            if (!g.subway_best_ms) return '';
+
+            const seconds = (g.subway_best_ms / 1000);
+            const mins = Math.floor(seconds / 60);
+            const secs = (seconds % 60).toFixed(1);
+            const pretty = mins > 0 ? `${mins}:${String(secs).padStart(4, '0')}` : `${secs}s`;
+
+            const mapName = g.subway_map
+                ? g.subway_map.charAt(0).toUpperCase() + g.subway_map.slice(1)
+                : null;
+
+            return `
+                <p class="rw-kicker rw-in">${esc(T.subKicker)}</p>
+                <p class="rw-big rw-in">${esc(pretty)}<small>${esc(T.subTitle)}</small></p>
                 <div class="rw-stats rw-in">
-                    ${stat(num(g.duels_won), T.gamWin)}
-                    ${stat(num(g.duels_lost), T.gamLoss)}
-                    ${g.winrate !== null && g.winrate !== undefined ? stat(g.winrate + '%', T.gamRate) : ''}
+                    ${g.subway_rank ? stat('#' + g.subway_rank, T.subRank) : ''}
+                    ${g.subway_runs ? stat(num(g.subway_runs), T.subRuns) : ''}
+                    ${mapName ? stat(mapName, T.subMap) : ''}
                 </div>
-                ${g.subway_best_ms ? `<p class="rw-lead rw-in" style="margin-top:18px">${T.gamSubway((g.subway_best_ms / 1000).toFixed(1), g.subway_rank ?? '?')}</p>` : ''}`;
+                ${g.subway_rank && g.subway_rank <= 3
+                    ? `<p class="rw-lead rw-in" style="margin-top:18px">${T.subPodium(g.subway_rank)}</p>`
+                    : ''}`;
         },
 
         content(d) {
@@ -840,14 +1106,21 @@
             return `
                 <p class="rw-kicker rw-in">${esc(T.conKicker)}</p>
                 <p class="rw-big rw-in" data-count="${c.likes_received || 0}">0<small>${esc(T.conTitle)}</small></p>
-                <p class="rw-lead rw-in">${T.conLead(num(c.shitposts), num(c.comments))}</p>
-                ${c.best_post ? `<p class="rw-note rw-in">${esc(T.conBest(c.best_post.titolo || '', c.best_post.likes))}</p>` : ''}`;
+                <p class="rw-lead rw-in">${T.conLead(num(c.posts_total ?? c.shitposts), num(c.comments))}</p>
+                <div class="rw-stats rw-in">
+                    ${c.shitposts ? stat(num(c.shitposts), T.conShitposts) : ''}
+                    ${c.rimasti ? stat(num(c.rimasti), T.conRimasti) : ''}
+                    ${c.views_received ? stat(num(c.views_received), T.conViews) : ''}
+                    ${c.votes_received ? stat(num(c.votes_received), T.conVotesIn) : ''}
+                </div>
+`;
         },
 
         economy(d) {
             const e = d.economy || {};
             return `
                 <p class="rw-kicker rw-in">${esc(T.ecoKicker)}</p>
+                <img class="rw-coin rw-in" src="/img/godos.png" alt="Godos" onerror="this.remove()">
                 <p class="rw-big rw-in" data-count="${e.spent || 0}">0<small>${esc(T.ecoTitle)}</small></p>
                 <div class="rw-stats rw-in">
                     ${stat(num(e.earned), T.ecoEarned)}
@@ -879,6 +1152,36 @@
                 ${rank.has_data ? `<p class="rw-note rw-in">${T.rankTop(rank.top_percent, num(rank.total_users))}</p>` : ''}`;
         },
 
+        /**
+         * L'ultima schermata: la card vera, disegnata su canvas e
+         * scaricabile. Il canvas e' anche cio' che si vede, quindi quello che
+         * si salva e' esattamente quello che si guarda.
+         */
+        card(d) {
+            return `
+                <p class="rw-kicker rw-in">${esc(T.cardKicker)}</p>
+                <h2 class="rw-title rw-in">${esc(T.cardTitle)}</h2>
+                <div class="rw-cardwrap rw-in">
+                    <canvas class="rw-cardcanvas" data-rw-card
+                            width="1080" height="1350"
+                            role="img" aria-label="${esc(T.cardTitle)}"></canvas>
+                </div>
+                <div class="rw-swatches rw-in" role="group" aria-label="${esc(T.cardTheme)}">
+                    ${CARD_THEMES.map((t, i) => `
+                        <button type="button" class="rw-swatch${i === 0 ? ' is-on' : ''}"
+                                data-rw-theme="${esc(t.id)}" aria-label="${esc(t.id)}"
+                                style="--rw-sw1:${esc(t.from || (d.persona?.color || '#2f6bff'))};--rw-sw2:${esc(t.to || (d.persona?.color_2 || '#0b2a6b'))}"></button>`).join('')}
+                </div>
+                <p class="rw-note rw-in">${esc(T.cardLead)}</p>
+                <div class="rw-actions rw-in">
+                    <button type="button" class="rw-btn" data-rw-download>
+                        <i class="fa-solid fa-download"></i> <span>${esc(T.cardDownload)}</span>
+                    </button>
+                    <button type="button" class="rw-btn rw-btn--ghost" data-rw-replay>
+                        <i class="fa-solid fa-rotate-left"></i> ${esc(T.replay)}
+                    </button>
+                </div>`;
+        },
         summary(d) {
             const t = d.time || {};
             const g = d.gacha || {};
@@ -940,6 +1243,239 @@
     }
 
     // ─────────────────────────────────────────────────────────
+    //  CARD FINALE
+    //
+    //  Disegnata su <canvas> invece che generata dal server: non
+    //  dipende da GD, non serve un Rewind gia' condiviso per ottenerla, e
+    //  soprattutto il file esce direttamente dal browser di chi la vuole.
+    //  Tutte le immagini coinvolte (avatar, personaggi) sono dello stesso
+    //  dominio, quindi il canvas non viene contaminato e toBlob funziona.
+    // ─────────────────────────────────────────────────────────
+
+    /**
+     * Temi della card.
+     *
+     * Il primo prende i colori dell'archetipo, gli altri sono fissi. Sono
+     * coppie [colore alto, colore basso]: la card e' una sfumatura fra i
+     * due piu' il nero del fondo, quindi bastano questi per cambiarne
+     * completamente l'aria.
+     */
+    const CARD_THEMES = [
+        { id: 'persona', from: null,      to: null      },
+        { id: 'notte',   from: '#4338ca', to: '#0b1026' },
+        { id: 'tramonto',from: '#f97316', to: '#4a1d00' },
+        { id: 'menta',   from: '#10b981', to: '#04352a' },
+        { id: 'rosa',    from: '#ec4899', to: '#4a0d2e' },
+        { id: 'ghiaccio',from: '#38bdf8', to: '#0b2b45' },
+        { id: 'oro',     from: '#f59e0b', to: '#3b2600' },
+        { id: 'carbone', from: '#475569', to: '#05070d' }
+    ];
+
+    const CARD_W = 1080;
+    const CARD_H = 1350;
+
+    /** Carica un'immagine, o restituisce null se non arriva. */
+    function loadImage(src) {
+        return new Promise(resolve => {
+            if (!src) return resolve(null);
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = src;
+        });
+    }
+
+    function hexToRgb(hex) {
+        const clean = String(hex || '').replace('#', '');
+        if (!/^[0-9a-f]{6}$/i.test(clean)) return [47, 107, 255];
+        return [
+            parseInt(clean.slice(0, 2), 16),
+            parseInt(clean.slice(2, 4), 16),
+            parseInt(clean.slice(4, 6), 16)
+        ];
+    }
+
+    /** Testo troncato con i puntini se supera la larghezza data. */
+    function fitText(ctx, text, maxWidth) {
+        let value = String(text ?? '');
+        if (ctx.measureText(value).width <= maxWidth) return value;
+        while (value.length > 1 && ctx.measureText(value + '…').width > maxWidth) {
+            value = value.slice(0, -1);
+        }
+        return value + '…';
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    /**
+     * Disegna la card. Le sei statistiche sono quelle che raccontano di piu'
+     * a colpo d'occhio; se una manca il riquadro resta comunque riempito.
+     */
+    async function drawShareCard(canvas, d, themeId = 'persona') {
+        const ctx = canvas.getContext('2d');
+        canvas.width = CARD_W;
+        canvas.height = CARD_H;
+
+        const u = d.user || {};
+        const p = d.persona || {};
+        const theme = CARD_THEMES.find(t => t.id === themeId) || CARD_THEMES[0];
+        const [r1, g1, b1] = hexToRgb(theme.from || p.color || '#2f6bff');
+        const [r2, g2, b2] = hexToRgb(theme.to || p.color_2 || '#0b2a6b');
+
+        // Sfondo: sfumatura diagonale piu' un alone dietro all'avatar.
+        const bg = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
+        bg.addColorStop(0, `rgb(${r1},${g1},${b1})`);
+        bg.addColorStop(0.55, `rgb(${Math.round(r2 * 0.9)},${Math.round(g2 * 0.9)},${Math.round(b2 * 0.9)})`);
+        bg.addColorStop(1, '#05070d');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, CARD_W, CARD_H);
+
+        const glow = ctx.createRadialGradient(CARD_W / 2, 400, 40, CARD_W / 2, 400, 520);
+        glow.addColorStop(0, `rgba(255,255,255,0.20)`);
+        glow.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, CARD_W, CARD_H);
+
+        // Poppins e' caricato dalla pagina: senza attendere i font il canvas
+        // ripiegherebbe sul sans-serif di sistema.
+        try { await document.fonts.ready; } catch (_) {}
+
+        ctx.textAlign = 'center';
+
+        // Intestazione
+        ctx.fillStyle = 'rgba(255,255,255,0.72)';
+        ctx.font = '600 30px Poppins, sans-serif';
+        ctx.letterSpacing = '6px';
+        ctx.fillText('CRIPSUM REWIND', CARD_W / 2, 110);
+        ctx.letterSpacing = '0px';
+
+        // Avatar, ritagliato in cerchio con anello
+        const avatar = await loadImage(u.avatar);
+        const cx = CARD_W / 2;
+        const cy = 360;
+        const radius = 130;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+        if (avatar) {
+            ctx.drawImage(avatar, cx - radius, cy - radius, radius * 2, radius * 2);
+        } else {
+            ctx.fillStyle = 'rgba(255,255,255,0.16)';
+            ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
+        }
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        // Nome e username
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 58px Poppins, sans-serif';
+        ctx.fillText(fitText(ctx, u.display_name || u.username || '', CARD_W - 140), cx, 580);
+
+        ctx.fillStyle = 'rgba(255,255,255,0.66)';
+        ctx.font = '500 32px Poppins, sans-serif';
+        ctx.fillText('@' + (u.username || ''), cx, 628);
+
+        // Archetipo
+        const persona = (lang === 'en' ? p.name_en : p.name_it) || '';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 66px Poppins, sans-serif';
+        ctx.fillText(fitText(ctx, persona.toUpperCase(), CARD_W - 120), cx, 740);
+
+        // Sei riquadri di statistiche
+        const t = d.time || {};
+        const g = d.gacha || {};
+        const so = d.social || {};
+        const a = d.achievements || {};
+        const co = d.collection || {};
+
+        const cells = [
+            [humanDuration(t.seconds), T.timeKicker],
+            [num(t.days_active), T.timeDays],
+            [num(t.longest_streak), T.timeStreak],
+            [num(g.pulls), T.gachaTitle],
+            [num(so.msg_total), T.socTitle],
+            [num(a.total_unlocked || a.unlocked_in_period), T.achKicker]
+        ];
+
+        const gridX = 70;
+        const gridY = 810;
+        const cellW = (CARD_W - gridX * 2 - 30) / 3;
+        const cellH = 150;
+
+        cells.forEach((cell, i) => {
+            const col = i % 3;
+            const row = Math.floor(i / 3);
+            const x = gridX + col * (cellW + 15);
+            const y = gridY + row * (cellH + 15);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.10)';
+            roundRect(ctx, x, y, cellW, cellH, 26);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 44px Poppins, sans-serif';
+            ctx.fillText(fitText(ctx, cell[0], cellW - 24), x + cellW / 2, y + 72);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.62)';
+            ctx.font = '600 20px Poppins, sans-serif';
+            ctx.fillText(fitText(ctx, String(cell[1]).toUpperCase(), cellW - 20), x + cellW / 2, y + 110);
+        });
+
+        // Personaggio piu' trovato, se c'e'
+        const chip = co.most_pulled;
+        if (chip) {
+            const chipImg = await loadImage(chip.img_url);
+            const boxY = 1140;
+            ctx.fillStyle = 'rgba(255,255,255,0.10)';
+            roundRect(ctx, gridX, boxY, CARD_W - gridX * 2, 110, 30);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            if (chipImg) {
+                ctx.save();
+                roundRect(ctx, gridX + 20, boxY + 15, 80, 80, 18);
+                ctx.clip();
+                ctx.drawImage(chipImg, gridX + 20, boxY + 15, 80, 80);
+                ctx.restore();
+            }
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.font = '600 19px Poppins, sans-serif';
+            ctx.fillText(String(T.chrMost).toUpperCase(), gridX + 122, boxY + 46);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '700 34px Poppins, sans-serif';
+            ctx.fillText(fitText(ctx, chip.nome || '', CARD_W - gridX * 2 - 160), gridX + 122, boxY + 84);
+            ctx.textAlign = 'center';
+        }
+
+        // Piede
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.font = '600 26px Poppins, sans-serif';
+        ctx.fillText('cripsum.com', cx, CARD_H - 52);
+    }
+    // ─────────────────────────────────────────────────────────
     //  MOTORE
     // ─────────────────────────────────────────────────────────
 
@@ -952,6 +1488,9 @@
             this.timer = null;
             this.startedAt = 0;
             this.remaining = SLIDE_MS;
+            this.lastMusicSlide = -1;
+            this.cardTheme = 'persona';
+            this.fillRaf = null;
 
             // Le schermate senza contenuto vengono scartate qui: il piano
             // arriva dal server, ma un renderer può comunque restituire
@@ -1031,6 +1570,8 @@
                 if (event.target.closest('[data-rw-next]')) this.go(this.index + 1);
                 if (event.target.closest('[data-rw-replay]')) this.go(0);
                 if (event.target.closest('[data-rw-share]')) this.share(event.target.closest('[data-rw-share]'));
+                if (event.target.closest('[data-rw-download]')) this.download(event.target.closest('[data-rw-download]'));
+                if (event.target.closest('[data-rw-theme]')) this.setCardTheme(event.target.closest('[data-rw-theme]'));
             });
 
             document.addEventListener('keydown', event => {
@@ -1068,12 +1609,38 @@
 
             this.nodes.forEach((node, i) => node.classList.toggle('is-active', i === index));
 
+            // Una schermata con dei pulsanti non scorre via da sola: sarebbe
+            // il modo migliore per far sparire "Condividi" mentre qualcuno lo
+            // sta per premere. Vale per la copertina, per il riepilogo e per
+            // la card, senza doverle elencare una per una.
+            const isLast = index === this.slides.length - 1;
+            const hasActions = !!this.nodes[index].querySelector('.rw-actions');
+            const willBeStatic = hasActions || isLast || reduceMotion;
+
+            // Il segmento corrente va sempre riazzerato, anche tornando
+            // indietro: altrimenti si porta dietro il 100% guadagnato al
+            // primo passaggio e la barra mostra due posizioni piene, come se
+            // ci fossero due schermate correnti.
+            //
+            // Su una schermata che non avanza da sola non c'è niente da
+            // scandire, quindi il suo segmento resta pieno: sei arrivato.
+            const willTick = !willBeStatic;
+
+            // Prima di ridipingere: qualsiasi riempimento ancora in coda
+            // appartiene alla schermata precedente.
+            if (this.fillRaf) { cancelAnimationFrame(this.fillRaf); this.fillRaf = null; }
+
             this.segments.forEach((seg, i) => {
                 const fill = seg.querySelector('.rw-progress__fill');
                 seg.classList.toggle('is-done', i < index);
-                if (i !== index) {
-                    fill.style.transition = 'none';
-                    fill.style.width = i < index ? '100%' : '0';
+
+                fill.style.transition = 'none';
+                if (i < index) {
+                    fill.style.width = '100%';
+                } else if (i > index) {
+                    fill.style.width = '0';
+                } else {
+                    fill.style.width = willTick ? '0' : '100%';
                 }
             });
 
@@ -1082,15 +1649,16 @@
             this.bg.style.setProperty('--rw-slide-2', theme[1]);
 
             this.animate(this.nodes[index]);
+            this.paintCard(this.nodes[index]);
             this.hint?.classList.toggle('is-hidden', index > 0);
 
-            // L'ultima schermata resta ferma: è quella con i pulsanti.
-            const isLast = index === this.slides.length - 1;
-            if (isLast || reduceMotion) {
+            if (willBeStatic) {
                 this.stopTimer();
             } else {
                 this.startTimer();
             }
+
+            this.rotateMusic(index);
 
             if (navigator.vibrate && !reduceMotion) navigator.vibrate(8);
         }
@@ -1132,24 +1700,35 @@
 
         startTimer() {
             this.stopTimer();
-            this.remaining = SLIDE_MS;
+            const duration = SLIDE_DURATIONS[this.slides[this.index]?.name] || SLIDE_MS;
+            this.duration = duration;
+            this.remaining = duration;
             this.startedAt = performance.now();
 
             const fill = this.segments[this.index]?.querySelector('.rw-progress__fill');
             if (fill) {
                 fill.style.transition = 'none';
                 fill.style.width = '0';
-                requestAnimationFrame(() => {
-                    fill.style.transition = `width ${SLIDE_MS}ms linear`;
+                // Il riempimento parte al frame successivo, altrimenti il
+                // browser accorpa le due scritture e la transizione non si
+                // vede. Il frame va pero' annullabile: cambiando schermata
+                // in fretta, uno rimasto in coda tornerebbe a riempire il
+                // segmento di prima dopo che go() lo ha gia' azzerato, ed e'
+                // esattamente cosi' che la barra finiva per mostrare due
+                // posizioni piene insieme.
+                this.fillRaf = requestAnimationFrame(() => {
+                    this.fillRaf = null;
+                    fill.style.transition = `width ${duration}ms linear`;
                     fill.style.width = '100%';
                 });
             }
 
-            this.timer = window.setTimeout(() => this.go(this.index + 1), SLIDE_MS);
+            this.timer = window.setTimeout(() => this.go(this.index + 1), duration);
         }
 
         stopTimer() {
             if (this.timer) { window.clearTimeout(this.timer); this.timer = null; }
+            if (this.fillRaf) { cancelAnimationFrame(this.fillRaf); this.fillRaf = null; }
         }
 
         pause() {
@@ -1169,14 +1748,17 @@
         resume() {
             if (!this.paused) return;
             this.paused = false;
+            // Stessa regola di go(): dove ci sono pulsanti non si riparte.
             if (this.index === this.slides.length - 1 || reduceMotion) return;
+            if (this.nodes[this.index]?.querySelector('.rw-actions')) return;
 
             this.startedAt = performance.now();
             const left = Math.max(400, this.remaining);
 
             const fill = this.segments[this.index]?.querySelector('.rw-progress__fill');
             if (fill) {
-                requestAnimationFrame(() => {
+                this.fillRaf = requestAnimationFrame(() => {
+                    this.fillRaf = null;
                     fill.style.transition = `width ${left}ms linear`;
                     fill.style.width = '100%';
                 });
@@ -1185,6 +1767,104 @@
             this.timer = window.setTimeout(() => this.go(this.index + 1), left);
         }
 
+        /**
+         * Fa cambiare canzone ogni tot schermate, all'inizio di una nuova.
+         *
+         * Con un brano solo per tutto il racconto la seconda meta' diventa
+         * monotona; cambiando qui il taglio coincide con il cambio di
+         * schermata e si nota molto meno.
+         */
+        rotateMusic(index) {
+            if (!this.track || index <= this.lastMusicSlide) {
+                // Tornando indietro non si cambia: sarebbe un salto continuo.
+                if (index <= this.lastMusicSlide) this.lastMusicSlide = Math.max(index, this.lastMusicSlide);
+                return;
+            }
+
+            this.lastMusicSlide = index;
+
+            if (index > 0 && index % MUSIC_EVERY_SLIDES === 0) {
+                this.track.next();
+            }
+        }
+        /** Cambia i colori della card e la ridisegna. */
+        setCardTheme(button) {
+            const id = button.dataset.rwTheme;
+            if (!id || id === this.cardTheme) return;
+
+            this.cardTheme = id;
+
+            button.parentElement.querySelectorAll('[data-rw-theme]')
+                .forEach(b => b.classList.toggle('is-on', b === button));
+
+            const canvas = this.root.querySelector('[data-rw-card]');
+            if (!canvas) return;
+
+            canvas.dataset.painted = '1';
+            drawShareCard(canvas, this.data, id).catch(() => {
+                canvas.dataset.painted = '';
+            });
+        }
+        /**
+         * Disegna la card la prima volta che la sua schermata si apre.
+         * Ridisegnarla a ogni passaggio sarebbe lavoro sprecato: i dati non
+         * cambiano mentre si guarda.
+         */
+        paintCard(node) {
+            const canvas = node.querySelector('[data-rw-card]');
+            if (!canvas || canvas.dataset.painted === '1') return;
+            canvas.dataset.painted = '1';
+
+            drawShareCard(canvas, this.data, this.cardTheme).catch(err => {
+                console.warn('[Rewind] card non disegnata:', err);
+                canvas.dataset.painted = '';
+            });
+        }
+
+        /** Salva la card come PNG. */
+        async download(button) {
+            const canvas = this.root.querySelector('[data-rw-card]');
+            if (!canvas) return;
+
+            const label = button.querySelector('span');
+            const original = label ? label.textContent : '';
+            if (label) label.textContent = T.cardBusy;
+            button.disabled = true;
+
+            try {
+                // Se la schermata e' stata aperta di corsa il disegno
+                // potrebbe non essere ancora partito.
+                if (canvas.dataset.painted !== '1') {
+                    canvas.dataset.painted = '1';
+                    await drawShareCard(canvas, this.data, this.cardTheme);
+                }
+
+                // JPEG e non PNG: su una sfumatura come questa il PNG pesa
+                // circa un megabyte e mezzo contro i cento kilobyte del JPEG,
+                // e a qualita' 0.92 la differenza non si vede. Conta, per
+                // un'immagine pensata per finire in una chat.
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+                if (!blob) throw new Error('toBlob vuoto');
+
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `cripsum-rewind-${(this.data.user?.username || 'card')}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                // Il rilascio immediato interromperebbe il salvataggio su
+                // qualche browser: meglio lasciargli un istante.
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+
+                toast(T.cardSaved);
+            } catch (err) {
+                toast(T.shareErr);
+            } finally {
+                if (label) label.textContent = original;
+                button.disabled = false;
+            }
+        }
         async share(button) {
             const label = button.querySelector('[data-rw-share-label]');
             const token = window.CRIPSUM_CSRF || '';

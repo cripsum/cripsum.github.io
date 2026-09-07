@@ -6,7 +6,7 @@
  * Attiva o revoca il link pubblico del proprio Rewind.
  *
  * Endpoint : POST /api/rewind/share.php
- * Body     : {"action": "enable"|"disable", "period": "r365"}
+ * Body     : {"action": "enable"|"disable", "period": "all"}
  * Auth     : sessione PHP + token CSRF
  *
  * Pubblicare un Rewind è un'azione visibile all'esterno, quindi passa da una
@@ -52,9 +52,9 @@ if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
 $userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
-$periodKey = (string)($input['period'] ?? 'r365');
-if (!preg_match('/^(r365|\d{4})$/', $periodKey)) {
-    $periodKey = 'r365';
+$periodKey = (string)($input['period'] ?? 'all');
+if (!preg_match('/^(all|r365|\d{4})$/', $periodKey)) {
+    $periodKey = 'all';
 }
 
 $action = (string)($input['action'] ?? '');

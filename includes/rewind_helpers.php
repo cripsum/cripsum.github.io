@@ -41,11 +41,30 @@ require_once __DIR__ . '/stats_tracker.php';
 /** Versione dello schema del payload. Cambiarla invalida le cache esistenti. */
 const REWIND_PAYLOAD_VERSION = 1;
 
-/** Per quanto tempo un Rewind generato resta valido prima di essere rifatto. */
-const REWIND_CACHE_TTL = 21600; // 6 ore
+/**
+ * Per quanto tempo un Rewind generato resta valido prima di essere rifatto.
+ *
+ * Dieci minuti: abbastanza da assorbire i ricaricamenti di chi sta guardando
+ * il proprio Rewind, abbastanza poco da far comparire in fretta quello che si
+ * è appena fatto. Una generazione costa una sessantina di query ma va a buon
+ * fine in una ventina di millisecondi, quindi tenerla fresca non pesa.
+ */
+const REWIND_CACHE_TTL = 600; // 10 minuti
 
 /** Finestra mobile: gli ultimi 365 giorni. */
 const REWIND_ROLLING_DAYS = 365;
+
+/** Prima data plausibile del sito, usata quando manca l'iscrizione. */
+const REWIND_EPOCH = '2019-01-01';
+
+/**
+ * Quanti giorni al massimo entrano nella heatmap.
+ *
+ * Il periodo "da sempre" può coprire anni: disegnarli tutti produrrebbe una
+ * striscia illeggibile larga migliaia di pixel. La heatmap mostra quindi
+ * l'ultimo anno, mentre i conteggi restano su tutto il periodo.
+ */
+const REWIND_HEATMAP_DAYS = 371;
 
 // ─────────────────────────────────────────────────────────────
 //  PERIODO
@@ -54,37 +73,77 @@ const REWIND_ROLLING_DAYS = 365;
 /**
  * Traduce una chiave di periodo in un intervallo di date.
  *
- * 'r365' è la finestra mobile degli ultimi 365 giorni: è quella predefinita,
- * perché rende il Rewind utilizzabile in qualsiasi momento dell'anno invece
- * che solo a dicembre. Una chiave numerica ('2026') dà l'anno solare.
+ * 'all' è il periodo predefinito e copre tutta la vita dell'account.
+ * Su un sito con questo traffico un taglio annuale mostrerebbe una fetta
+ * poco rappresentativa di quello che una persona ha davvero fatto — chi ha
+ * sbloccato tutti gli achievement negli anni si vedrebbe scritto "3
+ * sbloccati" soltanto perché gli altri sono più vecchi di dodici mesi.
  *
- * @return array{key:string,start:string,end:string,label_it:string,label_en:string,rolling:bool}
+ * Restano disponibili 'r365' (ultimi 365 giorni) e un anno solare ('2026'),
+ * utili quando il sito sarà più frequentato o per un'edizione di dicembre.
+ *
+ * @param string|null $memberSince data di iscrizione, per non far partire il
+ *                                 periodo prima che l'account esistesse
+ * @return array{key:string,start:string,end:string,label_it:string,label_en:string,mode:string}
  */
-function rewind_period(string $periodKey = 'r365'): array
+function rewind_period(string $periodKey = 'all', ?string $memberSince = null): array
 {
+    $today = date('Y-m-d');
+
     if (preg_match('/^\d{4}$/', $periodKey)) {
         $year = (int)$periodKey;
-        $today = date('Y-m-d');
-        $end = min($year . '-12-31', $today);
 
         return [
             'key'      => (string)$year,
             'start'    => $year . '-01-01',
-            'end'      => $end,
+            'end'      => min($year . '-12-31', $today),
             'label_it' => 'Il tuo ' . $year,
             'label_en' => 'Your ' . $year,
-            'rolling'  => false,
+            'mode'     => 'year',
         ];
     }
 
+    if ($periodKey === 'r365') {
+        return [
+            'key'      => 'r365',
+            'start'    => date('Y-m-d', strtotime('-' . (REWIND_ROLLING_DAYS - 1) . ' days')),
+            'end'      => $today,
+            'label_it' => 'Il tuo ultimo anno',
+            'label_en' => 'Your last year',
+            'mode'     => 'rolling',
+        ];
+    }
+
+    // Da quando esiste l'account. Il ripiego copre comunque tutta la storia
+    // del sito, così un'iscrizione senza data non taglia fuori nulla.
+    $start = REWIND_EPOCH;
+    if ($memberSince) {
+        $parsed = strtotime((string)$memberSince);
+        if ($parsed !== false) {
+            $start = date('Y-m-d', $parsed);
+        }
+    }
+
+    if ($start > $today) {
+        $start = $today;
+    }
+
     return [
-        'key'      => 'r365',
-        'start'    => date('Y-m-d', strtotime('-' . (REWIND_ROLLING_DAYS - 1) . ' days')),
-        'end'      => date('Y-m-d'),
-        'label_it' => 'Il tuo ultimo anno',
-        'label_en' => 'Your last year',
-        'rolling'  => true,
+        'key'      => 'all',
+        'start'    => $start,
+        'end'      => $today,
+        'label_it' => 'Da sempre',
+        'label_en' => 'All time',
+        'mode'     => 'all',
     ];
+}
+
+/** Legge la data di iscrizione, per delimitare il periodo "da sempre". */
+function rewind_member_since(mysqli $mysqli, int $userId): ?string
+{
+    $row = rewind_row($mysqli, 'SELECT data_creazione FROM utenti WHERE id = ? LIMIT 1', 'i', [$userId]);
+
+    return $row['data_creazione'] ?? null;
 }
 
 /** Estremi come DATETIME, per le tabelle che salvano l'ora oltre alla data. */
@@ -206,13 +265,15 @@ function rewind_available(mysqli $mysqli): bool
  * @param bool $force ignora la cache e ricalcola
  * @return array|null null se lo schema non è pronto
  */
-function rewind_get_or_build(mysqli $mysqli, int $userId, string $periodKey = 'r365', bool $force = false): ?array
+function rewind_get_or_build(mysqli $mysqli, int $userId, string $periodKey = 'all', bool $force = false): ?array
 {
     if ($userId <= 0 || !rewind_available($mysqli)) {
         return null;
     }
 
-    $period = rewind_period($periodKey);
+    // Il periodo "da sempre" parte dall'iscrizione, quindi va risolto
+    // conoscendo l'utente.
+    $period = rewind_period($periodKey, rewind_member_since($mysqli, $userId));
 
     if (!$force) {
         $cached = rewind_read_cache($mysqli, $userId, $period['key']);
@@ -344,8 +405,45 @@ function rewind_build(mysqli $mysqli, int $userId, array $period): array
     $payload['economy']      = rewind_try(fn() => rewind_section_economy($mysqli, $userId, $period), [], 'economy');
     $payload['ranking']      = rewind_try(fn() => rewind_section_ranking($mysqli, $userId, $period, $payload), [], 'ranking');
 
+    $payload = rewind_normalize_media($payload);
+
     $payload['persona'] = rewind_persona($payload);
     $payload['slides']  = rewind_slide_plan($payload);
+
+    return $payload;
+}
+
+/**
+ * Trasforma in indirizzi utilizzabili tutti gli \`img_url\` del payload.
+ *
+ * Sta in un punto solo perche' la regola e' sempre la stessa e ripeterla
+ * dentro ogni query sarebbe il modo migliore per dimenticarsene in una.
+ */
+function rewind_normalize_media(array $payload): array
+{
+    $single = [
+        ['gacha', 'best_pull'],
+        ['collection', 'rarest'],
+        ['collection', 'first'],
+        ['collection', 'most_duplicated'],
+        ['collection', 'most_pulled'],
+        ['collection', 'least_pulled'],
+        ['achievements', 'rarest'],
+    ];
+
+    foreach ($single as [$section, $key]) {
+        if (isset($payload[$section][$key]['img_url'])) {
+            $payload[$section][$key]['img_url'] = rewind_media_url($payload[$section][$key]['img_url']);
+        }
+    }
+
+    if (!empty($payload['achievements']['timeline']) && is_array($payload['achievements']['timeline'])) {
+        foreach ($payload['achievements']['timeline'] as $i => $item) {
+            if (isset($item['img_url'])) {
+                $payload['achievements']['timeline'][$i]['img_url'] = rewind_media_url($item['img_url']);
+            }
+        }
+    }
 
     return $payload;
 }
@@ -379,7 +477,37 @@ function rewind_section_user(mysqli $mysqli, int $userId, array $period): array
         'days_on_site' => $daysOnSite,
         'accent_color' => (string)($row['accent_color'] ?? '#2f6bff'),
         'is_premium'   => (int)($row['is_premium'] ?? 0) === 1,
+        // get_pfp.php gestisce da solo avatar Discord, caricamenti e
+        // immagine predefinita: qui basta l'indirizzo.
+        'avatar'       => rewind_avatar_url($userId, 256),
     ];
+}
+
+/** Indirizzo dell'avatar di un utente, alla dimensione richiesta. */
+function rewind_avatar_url(int $userId, int $size = 128): string
+{
+    return '/includes/get_pfp.php?id=' . $userId . '&size=' . $size;
+}
+
+/**
+ * Normalizza un `img_url` del database in un indirizzo utilizzabile.
+ *
+ * Le tabelle `personaggi` e `achievement` conservano il solo nome del file
+ * (`sus.png`) e tutto il sito ci antepone `/img/`. Un valore già assoluto o
+ * già radicato viene lasciato com'è.
+ */
+function rewind_media_url(?string $raw): ?string
+{
+    $raw = trim((string)$raw);
+    if ($raw === '') {
+        return null;
+    }
+
+    if (preg_match('#^(https?:)?//#i', $raw) || str_starts_with($raw, '/')) {
+        return $raw;
+    }
+
+    return '/img/' . ltrim($raw, '/');
 }
 
 // ── Tempo e presenza ─────────────────────────────────────────
@@ -586,10 +714,21 @@ function rewind_section_calendar(mysqli $mysqli, int $userId, array $period): ar
 
     ksort($days);
 
+    // Il periodo "da sempre" puo' coprire anni: la heatmap ne disegna al
+    // massimo l'ultimo, mentre i conteggi restano su tutto il periodo.
+    $heatmapStart = $period['start'];
+    $cap = date('Y-m-d', strtotime($period['end'] . ' -' . (REWIND_HEATMAP_DAYS - 1) . ' days'));
+    if ($heatmapStart < $cap) {
+        $heatmapStart = $cap;
+    }
+
     return [
-        'days'        => $days,
-        'total_days'  => count($days),
-        'busiest_day' => $busiest,
+        'days'          => $days,
+        'total_days'    => count($days),
+        'busiest_day'   => $busiest,
+        'heatmap_start' => $heatmapStart,
+        'heatmap_end'   => $period['end'],
+        'is_clipped'    => $heatmapStart > $period['start'],
     ];
 }
 
@@ -1019,9 +1158,13 @@ function rewind_top_partner(mysqli $mysqli, int $userId, array $period): ?array
         return null;
     }
 
+    $partnerId = (int)$row['partner_id'];
+
     return [
+        'id'           => $partnerId,
         'username'     => (string)$row['username'],
         'display_name' => (string)($row['display_name'] ?: $row['username']),
+        'avatar'       => rewind_avatar_url($partnerId, 128),
     ];
 }
 
@@ -1142,6 +1285,25 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
         [$userId, $from, $to]
     );
 
+    // I Top Rimasti sono l'altra meta' dei contenuti pubblicati: contarli
+    // separatamente e poi sommarli tiene distinte le due sezioni del sito
+    // senza far sparire meta' del lavoro di chi pubblica soprattutto li'.
+    $rimasti = rewind_count(
+        $mysqli,
+        'SELECT COUNT(*) FROM toprimasti WHERE id_utente = ? AND data_creazione BETWEEN ? AND ?',
+        'iss',
+        [$userId, $from, $to]
+    );
+
+    $votesReceived = rewind_count(
+        $mysqli,
+        'SELECT COUNT(*) FROM voti_toprimasti v
+         INNER JOIN toprimasti t ON t.id = v.id_post
+         WHERE t.id_utente = ? AND v.data_voto BETWEEN ? AND ?',
+        'iss',
+        [$userId, $from, $to]
+    );
+
     $comments = rewind_count(
         $mysqli,
         'SELECT COUNT(*) FROM commenti_shitpost WHERE id_utente = ? AND data_commento BETWEEN ? AND ?',
@@ -1166,7 +1328,7 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
     // Il post più apprezzato dell'anno.
     $bestPost = rewind_row(
         $mysqli,
-        'SELECT s.id, s.titolo, s.data_creazione,
+        'SELECT s.id, s.titolo, s.data_creazione, (s.foto_shitpost IS NOT NULL) AS has_media,
                 (SELECT COUNT(*) FROM shitpost_likes l WHERE l.id_shitpost = s.id) AS likes
          FROM shitposts s
          WHERE s.id_utente = ? AND s.data_creazione BETWEEN ? AND ? AND s.approvato = 1
@@ -1199,7 +1361,7 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
 
     $mostViewed = rewind_row(
         $mysqli,
-        "SELECT s.id, s.titolo, s.data_creazione,
+        "SELECT s.id, s.titolo, s.data_creazione, (s.foto_shitpost IS NOT NULL) AS has_media,
                 (SELECT COUNT(*) FROM content_views v
                   WHERE v.content_type = 'shitpost' AND v.post_id = s.id) AS views
          FROM shitposts s
@@ -1212,7 +1374,7 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
 
     $mostCommented = rewind_row(
         $mysqli,
-        'SELECT s.id, s.titolo,
+        'SELECT s.id, s.titolo, (s.foto_shitpost IS NOT NULL) AS has_media,
                 (SELECT COUNT(*) FROM commenti_shitpost c WHERE c.id_shitpost = s.id) AS comments
          FROM shitposts s
          WHERE s.id_utente = ? AND s.data_creazione BETWEEN ? AND ? AND s.approvato = 1
@@ -1222,6 +1384,43 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
         [$userId, $from, $to]
     );
 
+    // Il Top Rimasto piu' votato: e' il primato proprio di quella sezione,
+    // dove conta il voto e non il like.
+    $topRimasto = rewind_row(
+        $mysqli,
+        'SELECT t.id, t.titolo, t.data_creazione, (t.foto_rimasto IS NOT NULL) AS has_media,
+                (SELECT COUNT(*) FROM voti_toprimasti v WHERE v.id_post = t.id) AS votes
+         FROM toprimasti t
+         WHERE t.id_utente = ? AND t.data_creazione BETWEEN ? AND ? AND t.approvato = 1
+         ORDER BY votes DESC
+         LIMIT 1',
+        'iss',
+        [$userId, $from, $to]
+    );
+
+    if ($topRimasto) {
+        $topRimasto['media_url'] = !empty($topRimasto['has_media'])
+            ? '/api/content/media.php?type=rimasto&id=' . (int)$topRimasto['id']
+            : null;
+        unset($topRimasto['has_media']);
+
+        if ((int)$topRimasto['votes'] === 0) {
+            $topRimasto = null;
+        }
+    }
+
+    // I media dei post sono BLOB serviti da un endpoint dedicato, che
+    // controlla l'approvazione: qui passiamo solo l'indirizzo.
+    foreach ([&$bestPost, &$mostViewed, &$mostCommented] as &$post) {
+        if (is_array($post)) {
+            $post['media_url'] = !empty($post['has_media'])
+                ? '/api/content/media.php?type=shitpost&id=' . (int)$post['id']
+                : null;
+            unset($post['has_media']);
+        }
+    }
+    unset($post);
+
     // Un post con zero interazioni non merita una schermata dedicata.
     if ($mostViewed && (int)$mostViewed['views'] === 0)       $mostViewed = null;
     if ($mostCommented && (int)$mostCommented['comments'] === 0) $mostCommented = null;
@@ -1229,15 +1428,19 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
 
     return [
         'shitposts'      => $shitposts,
+        'rimasti'        => $rimasti,
+        'posts_total'    => $shitposts + $rimasti,
         'comments'       => $comments,
         'votes'          => $votes,
+        'votes_received' => $votesReceived,
         'likes_given'    => $likesGiven,
         'likes_received' => $likesReceived,
         'views_received' => $viewsReceived,
         'best_post'      => $bestPost,
         'most_viewed'    => $mostViewed,
         'most_commented' => $mostCommented,
-        'has_data'       => ($shitposts + $comments + $votes + $likesGiven) > 0,
+        'top_rimasto'    => $topRimasto,
+        'has_data'       => ($shitposts + $rimasti + $comments + $votes + $likesGiven) > 0,
     ];
 }
 
@@ -1491,9 +1694,13 @@ function rewind_persona_catalogue(): array
  * meglio saltarla. Chi ha appena aperto l'account vede un Rewind corto ma
  * onesto, non uno lungo e vuoto.
  *
+ * Riceve il payload per riferimento perche', oltre a scegliere le
+ * schermate, sposta un paio di dati fra l'una e l'altra quando due si
+ * fondono (il pity del colpo fortunato finisce sul pezzo piu' raro).
+ *
  * @return array<int,string>
  */
-function rewind_slide_plan(array $payload): array
+function rewind_slide_plan(array &$payload): array
 {
     $slides = ['intro'];
 
@@ -1502,29 +1709,51 @@ function rewind_slide_plan(array $payload): array
     if (($payload['calendar']['total_days'] ?? 0) > 3) $slides[] = 'calendar';
     if (!empty($payload['pages']['has_data']))         $slides[] = 'pages';
     if (!empty($payload['gacha']['has_data']))         $slides[] = 'gacha';
-    if (!empty($payload['gacha']['best_pull']))        $slides[] = 'best_pull';
+    // Il colpo fortunato e il pezzo piu' raro sono quasi sempre lo stesso
+    // personaggio: in quel caso una sola schermata, con dentro anche il
+    // dettaglio del pity. Due di fila sullo stesso nome sono una
+    // ripetizione, non due momenti diversi.
+    $bestPullName = $payload['gacha']['best_pull']['nome'] ?? null;
+    $rarestName   = $payload['collection']['rarest']['nome'] ?? null;
+    $pullIsRarest = $bestPullName !== null && $bestPullName === $rarestName;
+
+    if ($bestPullName !== null && !$pullIsRarest) $slides[] = 'best_pull';
     if (!empty($payload['collection']['has_data']))    $slides[] = 'collection';
 
-    // La coppia più/meno trovato ha senso solo con abbastanza varietà:
-    // con due o tre personaggi diversi il confronto non dice niente.
+    // La sequenza cinematica dei personaggi ha senso solo con abbastanza
+    // varietà: con due o tre personaggi diversi il confronto non dice nulla.
     if (($payload['collection']['distinct_pulled'] ?? 0) >= 4
         && !empty($payload['collection']['most_pulled'])
         && !empty($payload['collection']['least_pulled'])) {
-        $slides[] = 'characters';
+        $slides[] = 'cast';
+    }
+
+    // Il piu' raro non si mescola agli altri due: ha la sua schermata,
+    // altrimenti comparirebbe tre volte nello stesso racconto.
+    if (!empty($payload['collection']['rarest'])) {
+        $slides[] = 'rarest';
+        $payload['collection']['rarest']['was_lucky_pull'] = $pullIsRarest;
+        $payload['collection']['rarest']['pity'] = $pullIsRarest
+            ? (int)($payload['gacha']['best_pull']['pity_al_momento'] ?? 0)
+            : null;
     }
 
     if (!empty($payload['achievements']['has_data']))  $slides[] = 'achievements';
     if (!empty($payload['missions']['has_data']))      $slides[] = 'missions';
     if (!empty($payload['social']['has_data']))        $slides[] = 'social';
     if (!empty($payload['profile']['has_data']))       $slides[] = 'profile';
-    if (!empty($payload['games']['has_data']))         $slides[] = 'games';
+    if (($payload['games']['duels_played'] ?? 0) > 0) $slides[] = 'games';
+
+    // Subway ha una schermata sua: il record e un tempo, non un conteggio.
+    if (!empty($payload['games']['subway_best_ms']))     $slides[] = 'subway';
     if (!empty($payload['content']['has_data']))       $slides[] = 'content';
 
     // Il post migliore merita la sua schermata solo se qualcuno lo ha
     // davvero guardato, commentato o apprezzato.
     if (!empty($payload['content']['best_post'])
         || !empty($payload['content']['most_viewed'])
-        || !empty($payload['content']['most_commented'])) {
+        || !empty($payload['content']['most_commented'])
+        || !empty($payload['content']['top_rimasto'])) {
         $slides[] = 'top_post';
     }
 
@@ -1533,6 +1762,9 @@ function rewind_slide_plan(array $payload): array
 
     $slides[] = 'persona';
     $slides[] = 'summary';
+
+    // La card chiude il racconto: e quello che si porta via.
+    $slides[] = 'card';
 
     return $slides;
 }
@@ -1676,7 +1908,7 @@ function rewind_public_payload(array $payload): array
  * poche migliaia di righe: si fa in memoria, senza finestre analitiche che
  * MariaDB 10.1 non avrebbe.
  */
-function rewind_recompute_aggregates(mysqli $mysqli, string $periodKey = 'r365'): bool
+function rewind_recompute_aggregates(mysqli $mysqli, string $periodKey = 'all'): bool
 {
     if (!rewind_available($mysqli)) {
         return false;
@@ -1766,7 +1998,7 @@ function rewind_maybe_precompute(mysqli $mysqli, int $batch = 2): void
     @touch($lock);
 
     try {
-        rewind_recompute_aggregates($mysqli, 'r365');
+        rewind_recompute_aggregates($mysqli, 'all');
         rewind_precompute_batch($mysqli, $batch);
     } catch (Throwable $e) {
         error_log('[rewind_maybe_precompute] ' . $e->getMessage());
@@ -1796,14 +2028,14 @@ function rewind_precompute_batch(mysqli $mysqli, int $limit = 10): int
          ORDER BY r.generated_at IS NOT NULL, r.generated_at ASC
          LIMIT ' . max(1, min(100, $limit)),
         's',
-        ['r365']
+        ['all']
     );
 
     $done = 0;
     foreach ($rows as $row) {
         $userId = (int)$row['utente_id'];
         try {
-            rewind_get_or_build($mysqli, $userId, 'r365', true);
+            rewind_get_or_build($mysqli, $userId, 'all', true);
             $done++;
         } catch (Throwable $e) {
             error_log('[rewind_precompute_batch] utente ' . $userId . ': ' . $e->getMessage());

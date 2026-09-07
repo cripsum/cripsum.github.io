@@ -48,9 +48,9 @@ if (!rewind_available($mysqli)) {
     exit;
 }
 
-$periodKey = (string)($_GET['period'] ?? 'r365');
-if (!preg_match('/^(r365|\d{4})$/', $periodKey)) {
-    $periodKey = 'r365';
+$periodKey = (string)($_GET['period'] ?? 'all');
+if (!preg_match('/^(all|r365|\d{4})$/', $periodKey)) {
+    $periodKey = 'all';
 }
 
 // Una rigenerazione forzata è cara: la concediamo al massimo ogni cinque
