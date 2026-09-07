@@ -1081,3 +1081,39 @@ function stats_get_totals(mysqli $mysqli, int $userId): array
         return $empty;
     }
 }
+
+// ─────────────────────────────────────────────────────────────
+//  ACCESSO ANTICIPATO
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Il Rewind è visibile solo allo staff finché non viene aperto a tutti.
+ *
+ * Il tracciamento gira già per chiunque: è proprio il punto. Quando la
+ * pagina verrà aperta, le persone troveranno mesi di dati alle spalle invece
+ * di un riepilogo vuoto — che è il motivo per cui questa porta resta chiusa.
+ *
+ * Per aprirla a tutti basta mettere questa costante a true: non c'è altro da
+ * cambiare, i controlli passano tutti da rewind_user_can_view().
+ */
+const REWIND_OPEN_TO_EVERYONE = false;
+
+/** Vero se l'utente corrente può aprire il proprio Rewind. */
+function rewind_user_can_view(): bool
+{
+    if (REWIND_OPEN_TO_EVERYONE) {
+        return true;
+    }
+
+    $role = $_SESSION['ruolo'] ?? '';
+
+    return $role === 'admin' || $role === 'owner';
+}
+
+/** Messaggio mostrato a chi arriva sulla pagina prima dell'apertura. */
+function rewind_locked_message(string $lang = 'it'): string
+{
+    return $lang === 'en'
+        ? 'Cripsum Rewind is still being built. It is collecting your stats in the meantime, so there will be something to show when it opens.'
+        : 'Cripsum Rewind è ancora in lavorazione. Intanto sta raccogliendo le tue statistiche, così all\'apertura ci sarà qualcosa da guardare.';
+}

@@ -32,6 +32,15 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
 $userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
+// Accesso anticipato: finché il Rewind non è aperto a tutti, la pagina
+// risponde solo allo staff. Le statistiche intanto continuano a essere
+// raccolte per chiunque, così all'apertura non sarà vuota.
+if (!rewind_user_can_view()) {
+    $_SESSION['error_message'] = rewind_locked_message($lang);
+    header('Location: /' . $lang . '/home');
+    exit();
+}
+
 $pageTitle = 'Cripsum Rewind';
 $ogDescription = $isEn
     ? 'Your year on Cripsum, in one story.'

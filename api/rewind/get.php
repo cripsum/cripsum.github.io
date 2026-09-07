@@ -39,6 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
+// Stessa porta della pagina: senza questo controllo il payload sarebbe
+// raggiungibile lo stesso chiamando l'endpoint a mano.
+if (!rewind_user_can_view()) {
+    http_response_code(403);
+    echo json_encode(['error' => rewind_locked_message($lang), 'code' => 'NOT_RELEASED']);
+    exit;
+}
+
 if (!rewind_available($mysqli)) {
     http_response_code(503);
     echo json_encode([

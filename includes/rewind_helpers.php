@@ -503,11 +503,31 @@ function rewind_media_url(?string $raw): ?string
         return null;
     }
 
-    if (preg_match('#^(https?:)?//#i', $raw) || str_starts_with($raw, '/')) {
+    // Indirizzo esterno: si lascia com'è.
+    if (preg_match('#^(https?:)?//#i', $raw)) {
         return $raw;
     }
 
-    return '/img/' . ltrim($raw, '/');
+    // Il pannello admin salva i percorsi come li scrivono le pagine dentro
+    // it/ ed en/, cioè relativi: `../img/segone4.png`. Da quelle pagine il
+    // `../` risale alla radice e funziona, ma il Rewind serve lo stesso
+    // payload a pagine di livello diverso (e alla card, e ai link pubblici),
+    // quindi qui il percorso va reso assoluto una volta per tutte.
+    $raw = (string)preg_replace('#^(?:\.{1,2}/)+#', '', $raw);
+    if ($raw === '') {
+        return null;
+    }
+
+    if (str_starts_with($raw, '/')) {
+        return $raw;
+    }
+
+    // `img/x.png` era il caso che rompeva tutto: diventava `/img/img/x.png`.
+    if (str_starts_with($raw, 'img/')) {
+        return '/' . $raw;
+    }
+
+    return '/img/' . $raw;
 }
 
 // ── Tempo e presenza ─────────────────────────────────────────
@@ -1582,6 +1602,12 @@ function rewind_persona(array $payload): array
     $persona = $catalogue[$slug] ?? $catalogue['esploratore'];
     $persona['slug'] = $slug;
     $persona['score'] = (int)($scores[$slug] ?? 0);
+
+    // Icona disegnata a mano, se c'e'. Il file viene cercato per nome
+    // dell'archetipo: img/rewind/nottambulo.png e cosi' via. Se manca,
+    // resta l'icona vettoriale gia' presente in 'icon'.
+    $custom = __DIR__ . '/../img/rewind/' . $slug . '.png';
+    $persona['image'] = is_file($custom) ? '/img/rewind/' . $slug . '.png' : null;
 
     return $persona;
 }

@@ -364,12 +364,13 @@ body.rw-page {
     width: 100%;
     max-height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: none;
     text-align: center;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(18px) scale(0.985);
+    transform: scale(0.985);
     transition: opacity 320ms var(--rw-standard),
                 transform 420ms var(--rw-emphasized),
                 visibility 0s linear 420ms;
@@ -392,8 +393,8 @@ body.rw-page {
 }
 
 @keyframes rw-enter {
-    from { opacity: 0; transform: translateY(26px) scale(0.96); filter: blur(4px); }
-    60%  { filter: blur(0); }
+    from { opacity: 0; transform: scale(0.93); filter: blur(4px); }
+    55%  { filter: blur(0); }
     to   { opacity: 1; transform: none; filter: blur(0); }
 }
 
@@ -688,7 +689,7 @@ body.rw-page {
 .rw-record {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     background: var(--rw-card);
     border: 1px solid var(--rw-border);
     border-radius: var(--rw-radius-lg);
@@ -698,9 +699,10 @@ body.rw-page {
 }
 
 .rw-record__icon {
-    flex: 0 0 40px;
-    width: 40px;
-    height: 40px;
+    flex: 0 0 auto;
+    width: clamp(56px, 8vw, 72px);
+    height: clamp(56px, 8vw, 72px);
+    font-size: 1.2rem;
     display: grid;
     place-items: center;
     border-radius: 12px;
@@ -710,7 +712,7 @@ body.rw-page {
 
 .rw-record__body { min-width: 0; }
 .rw-record__label { display: block; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.58); }
-.rw-record__title { display: block; font-weight: 700; font-size: 0.95rem; margin: 3px 0; overflow-wrap: anywhere; }
+.rw-record__title { display: block; font-weight: 700; font-size: clamp(0.98rem, 1.8vw, 1.12rem); margin: 4px 0; overflow-wrap: anywhere; }
 .rw-record__meta { display: block; font-size: 0.8rem; color: rgba(255, 255, 255, 0.68); font-variant-numeric: tabular-nums; }
 
 /* Archetipo */
@@ -1154,10 +1156,10 @@ body.rw-page {
 
 /* Anteprima del post al posto dell'icona generica. */
 .rw-record__media {
-    width: 52px;
-    height: 52px;
-    flex: 0 0 52px;
-    border-radius: 12px;
+    width: clamp(72px, 11vw, 96px);
+    height: clamp(72px, 11vw, 96px);
+    flex: 0 0 auto;
+    border-radius: 16px;
     object-fit: cover;
     border: 1px solid rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.08);
@@ -1170,8 +1172,8 @@ body.rw-page {
    ============================================================= */
 
 .rw-cardwrap {
-    margin: 18px auto;
-    max-width: min(340px, 68vw);
+    margin: 16px auto;
+    max-width: min(300px, 60vw, 34vh);
     border-radius: 26px;
     overflow: hidden;
     box-shadow: var(--rw-e4);
@@ -1188,7 +1190,7 @@ body.rw-page {
 
 /* Su finestre basse la card ruberebbe tutta l'altezza. */
 @media (max-height: 780px) {
-    .rw-cardwrap { max-width: min(230px, 46vw); margin: 12px auto; }
+    .rw-cardwrap { max-width: min(210px, 42vw, 30vh); margin: 10px auto; }
 }
 
 /* =============================================================
@@ -1215,13 +1217,19 @@ body.rw-page {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    gap: clamp(8px, 2vw, 20px);
+    gap: clamp(10px, 2vw, 22px);
     width: 100%;
-    align-items: start;
+    /* stretch e non start: i riquadri restano alti uguali anche con
+       nomi di lunghezza diversa. */
+    align-items: stretch;
 }
 
 .rw-act {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     margin: 0;
     padding: clamp(12px, 2vw, 20px) 8px;
     border-radius: var(--rw-radius-xl);
@@ -1238,7 +1246,7 @@ body.rw-page {
 }
 
 @keyframes rw-act-in {
-    from { opacity: 0; transform: translateY(46px) scale(0.86); filter: blur(8px); }
+    from { opacity: 0; transform: scale(0.82); filter: blur(7px); }
     70%  { filter: blur(0); }
     to   { opacity: 1; transform: none; filter: blur(0); }
 }
@@ -1428,4 +1436,89 @@ body.rw-page {
 @keyframes rw-relic-in {
     from { opacity: 0; transform: scale(0.55) rotate(-10deg); }
     to   { opacity: 1; transform: none; }
+}
+
+/* =============================================================
+   MEDAGLIA ACHIEVEMENT
+   Il logo dell'achievement e' il soggetto, non una miniatura
+   di corredo: sta al centro, grande, con il suo alone.
+   ============================================================= */
+
+.rw-medal {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+    margin: 22px auto 0;
+    padding: clamp(18px, 3vw, 26px) clamp(16px, 3vw, 28px);
+    max-width: 460px;
+    border-radius: var(--rw-radius-xl);
+    background: var(--rw-card);
+    border: 1px solid var(--rw-border);
+    backdrop-filter: blur(14px);
+    box-shadow: var(--rw-e2);
+}
+
+.rw-medal__glow {
+    position: absolute;
+    top: 6%;
+    width: 46%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(244, 114, 182, 0.45), transparent 70%);
+    filter: blur(22px);
+    pointer-events: none;
+    animation: rw-halo 3.6s ease-in-out infinite;
+}
+
+.rw-medal__img {
+    position: relative;
+    width: clamp(96px, 16vh, 140px);
+    aspect-ratio: 1;
+    object-fit: contain;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 10px;
+    box-shadow: var(--rw-e3);
+    animation: rw-medal-in 900ms var(--rw-emphasized) both;
+}
+
+.rw-medal__img--empty {
+    display: grid;
+    place-items: center;
+    font-size: 2.4rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes rw-medal-in {
+    from { opacity: 0; transform: scale(0.6) rotate(-8deg); }
+    to   { opacity: 1; transform: none; }
+}
+
+.rw-medal__body { position: relative; display: grid; gap: 5px; }
+
+.rw-medal__label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.rw-medal__name {
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+    font-weight: 800;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.rw-medal__meta { font-size: 0.86rem; color: rgba(255, 255, 255, 0.7); }
+
+/* L'archetipo puo' avere un'icona disegnata al posto di quella vettoriale. */
+.rw-persona__icon img {
+    width: 76%;
+    height: 76%;
+    object-fit: contain;
+    display: block;
 }

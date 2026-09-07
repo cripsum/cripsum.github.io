@@ -30,6 +30,7 @@ $rwCopy = $rwIsEn
         'title'         => 'Stats and Rewind',
         'desc'          => 'Cripsum Rewind turns your time on the site into a story. These settings decide what goes into it.',
         'open'          => 'Open my Rewind',
+        'soon'          => 'Cripsum Rewind is still being built. Your stats are already being collected, so there will be something to show when it opens.',
         'unavailable'   => 'This feature is not available yet.',
 
         'prefs_title'   => 'What gets collected',
@@ -50,6 +51,7 @@ $rwCopy = $rwIsEn
         'title'         => 'Statistiche e Rewind',
         'desc'          => 'Cripsum Rewind racconta il tuo tempo sul sito. Da qui decidi cosa ci finisce dentro.',
         'open'          => 'Apri il mio Rewind',
+        'soon'          => 'Cripsum Rewind è ancora in lavorazione. Le tue statistiche vengono già raccolte, così all\'apertura ci sarà qualcosa da guardare.',
         'unavailable'   => 'Questa funzione non è ancora disponibile.',
 
         'prefs_title'   => 'Cosa viene raccolto',
@@ -88,11 +90,18 @@ $rwH = static fn($v): string => htmlspecialchars((string)$v, ENT_QUOTES | ENT_SU
 
         <?php else: ?>
 
-            <a class="auth-btn auth-btn--primary" href="/<?php echo $rwLang; ?>/rewind"
-               style="width:auto;padding:10px 22px;">
-                <i class="fa-solid fa-play"></i>
-                <span><?php echo $rwH($rwCopy['open']); ?></span>
-            </a>
+            <?php if (rewind_user_can_view()): ?>
+                <a class="auth-btn auth-btn--primary" href="/<?php echo $rwLang; ?>/rewind"
+                   style="width:auto;padding:10px 22px;">
+                    <i class="fa-solid fa-play"></i>
+                    <span><?php echo $rwH($rwCopy['open']); ?></span>
+                </a>
+            <?php else: ?>
+                <div class="auth-alert">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <span><?php echo $rwH($rwCopy['soon']); ?></span>
+                </div>
+            <?php endif; ?>
 
             <form method="post" class="auth-form" style="margin-top:1.25rem;">
                 <?php echo csrf_field(); ?>

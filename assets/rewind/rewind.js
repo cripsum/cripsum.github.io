@@ -109,7 +109,9 @@
             chrTimes: n => n === 1 ? '1 volta' : `${n} volte`,
             chrLead: (name, n) => `<strong>${name}</strong> è uscito <strong>${n}</strong> volte. Ormai siete parenti.`,
 
-            collDupeLabel: 'Il più duplicato',
+            collProgress: p => p >= 100
+                ? 'Li hai tutti. Non manca più niente.'
+                : (p >= 75 ? 'Ci sei quasi.' : (p >= 40 ? 'Sei a metà strada.' : 'C\'è ancora parecchio da trovare.')),
             rarestKicker: 'Il pezzo pregiato',
             rarestLead: 'Il più raro che sia mai finito nella tua collezione.',
             rarestWhen: d => `Arrivato il ${d}.`,
@@ -120,8 +122,8 @@
             conViews: 'Visualizzazioni', conVotesIn: 'Voti ricevuti',
             castKicker: 'In scena',
             castTitle: 'I due estremi della tua collezione',
-            castMost: 'Il fedelissimo',
-            castLeast: 'Il fantasma',
+            castMost: 'Più trovato',
+            castLeast: 'Meno trovato',
             castRarest: 'Il gioiello',
 
             cardTheme: 'Tema della card',
@@ -146,7 +148,8 @@
             achKicker: 'Achievement',
             achTitle: 'sbloccati',
             achLead: p => `E <strong>${p}</strong> punti guadagnati.`,
-            achRarest: pct => `Il tuo più raro ce l'ha solo il <strong>${pct}%</strong> degli utenti.`,
+            achRarestLabel: 'Il tuo più raro',
+            achRarest: pct => `Ce l'ha solo il <strong>${pct}%</strong> degli utenti.`,
 
             misKicker: 'Missioni',
             misTitle: 'completate',
@@ -277,7 +280,9 @@
             chrTimes: n => n === 1 ? 'once' : `${n} times`,
             chrLead: (name, n) => `<strong>${name}</strong> showed up <strong>${n}</strong> times. You are practically related.`,
 
-            collDupeLabel: 'Most duplicated',
+            collProgress: p => p >= 100
+                ? 'You have them all. Nothing left to find.'
+                : (p >= 75 ? 'Almost there.' : (p >= 40 ? 'You are halfway.' : 'Still plenty out there.')),
             rarestKicker: 'The prize piece',
             rarestLead: 'The rarest thing that ever landed in your collection.',
             rarestWhen: d => `Landed on ${d}.`,
@@ -288,8 +293,8 @@
             conViews: 'Views', conVotesIn: 'Votes received',
             castKicker: 'On stage',
             castTitle: 'The two extremes of your collection',
-            castMost: 'The regular',
-            castLeast: 'The ghost',
+            castMost: 'Most pulled',
+            castLeast: 'Least pulled',
             castRarest: 'The gem',
 
             cardTheme: 'Card theme',
@@ -314,7 +319,8 @@
             achKicker: 'Achievements',
             achTitle: 'unlocked',
             achLead: p => `And <strong>${p}</strong> points earned.`,
-            achRarest: pct => `Only <strong>${pct}%</strong> of users have your rarest one.`,
+            achRarestLabel: 'Your rarest',
+            achRarest: pct => `Only <strong>${pct}%</strong> of users have it.`,
 
             misKicker: 'Missions',
             misTitle: 'completed',
@@ -466,6 +472,7 @@
             this.muted = false;
             this.started = false;
             this.failed = false;
+            this.fadeRaf = null;
             this.volume = this.readVolume();
 
             this.audio = new Audio();
@@ -524,15 +531,33 @@
         }
 
         /** Sale gradualmente al volume scelto: entrare a piena potenza stona. */
-        fadeTo(target, ms = 900) {
+        /**
+         * Sfuma il volume verso un valore.
+         *
+         * L'interpolazione non e' lineare: l'orecchio percepisce il volume
+         * in modo logaritmico, quindi una rampa dritta suona come uno
+         * scatto a meta' strada. Con una curva morbida in entrata e in
+         * uscita il passaggio non si nota.
+         *
+         * Una sola dissolvenza per volta: se ne parte un'altra mentre la
+         * prima e' in corso, la vecchia va fermata o si azzuffano sul
+         * volume dello stesso elemento.
+         */
+        fadeTo(target, ms = 1600) {
+            if (this.fadeRaf) cancelAnimationFrame(this.fadeRaf);
+
             const from = this.audio.volume;
+            if (Math.abs(target - from) < 0.005) { this.audio.volume = target; return; }
+
             const started = performance.now();
             const step = now => {
                 const p = Math.min(1, (now - started) / ms);
-                this.audio.volume = from + (target - from) * p;
-                if (p < 1) requestAnimationFrame(step);
+                // Accelera e decelera: niente spigoli agli estremi.
+                const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+                this.audio.volume = Math.max(0, Math.min(1, from + (target - from) * eased));
+                this.fadeRaf = p < 1 ? requestAnimationFrame(step) : null;
             };
-            requestAnimationFrame(step);
+            this.fadeRaf = requestAnimationFrame(step);
         }
 
         /**
@@ -542,7 +567,7 @@
          * salto fra due brani si sente come un taglio netto proprio mentre
          * cambia la schermata.
          */
-        next(fadeMs = 1100) {
+        next(fadeMs = 2000) {
             if (!this.started || this.failed) return;
 
             const target = this.muted ? 0 : this.volume;
@@ -558,7 +583,7 @@
                 this.audio.volume = 0;
                 const p = this.audio.play();
                 if (p && p.catch) p.catch(() => {});
-                this.fadeTo(target, fadeMs);
+                this.fadeTo(target, fadeMs + 600);
                 this.onState?.();
             }, fadeMs);
         }
@@ -568,7 +593,8 @@
                 promise
                     .then(() => {
                         this.started = true;
-                        this.fadeTo(this.muted ? 0 : this.volume);
+                        this.audio.volume = 0;
+                        this.fadeTo(this.muted ? 0 : this.volume, 2400);
                         this.onState?.();
                     })
                     .catch(() => { this.started = false; this.onState?.(); });
@@ -578,7 +604,7 @@
         toggle() {
             if (!this.started) { this.play(); return; }
             this.muted = !this.muted;
-            this.fadeTo(this.muted ? 0 : this.volume, 260);
+            this.fadeTo(this.muted ? 0 : this.volume, 520);
             this.onState?.();
         }
 
@@ -712,7 +738,7 @@
                     ${stat(t.sessions, T.timeSessions)}
                     ${stat(Math.round((t.longest_session || 0) / 60) + ' min', T.timeLongest)}
                 </div>
-                ${t.is_estimated ? `<p class="rw-note rw-in">${esc(T.timeEstimate)}</p>` : ''}`;
+`;
         },
 
         hours(d) {
@@ -849,17 +875,7 @@
                 <div class="rw-meter rw-in" role="img" aria-label="${pct}%">
                     <span class="rw-meter__fill" data-w="${pct}"></span>
                 </div>
-                ${c.most_duplicated ? `
-                    <div class="rw-card rw-card--row rw-in" style="margin-top:18px">
-                        ${c.most_duplicated.img_url
-                            ? `<img class="rw-card__icon" src="${esc(c.most_duplicated.img_url)}" alt="" loading="lazy" onerror="this.remove()">`
-                            : ''}
-                        <div>
-                            <p class="rw-kicker" style="margin-bottom:6px">${esc(T.collDupeLabel)}</p>
-                            <strong style="font-size:1.05rem">${esc(c.most_duplicated.nome)}</strong>
-                            <p class="rw-note" style="margin-top:4px">${esc(T.collDupes(c.most_duplicated.quantita))}</p>
-                        </div>
-                    </div>` : ''}`;
+                <p class="rw-note rw-in">${esc(T.collProgress(pct))}</p>`;
         },
 
         /**
@@ -1000,12 +1016,17 @@
                 <p class="rw-big rw-in" data-count="${a.unlocked_in_period || 0}">0<small>${esc(T.achTitle)}</small></p>
                 <p class="rw-lead rw-in">${T.achLead(num(a.points_in_period))}</p>
                 ${rarest ? `
-                    <div class="rw-card rw-card--row rw-in" style="margin-top:18px">
-                        ${rarest.img_url ? `<img class="rw-card__icon" src="${esc(rarest.img_url)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
-                        <div>
-                        <strong style="font-size:1.05rem">${esc(lang === 'en' ? (rarest.nome_en || rarest.nome) : rarest.nome)}</strong>
-                        ${rarest.owners_pct !== undefined ? `<p class="rw-note" style="margin-top:8px">${T.achRarest(rarest.owners_pct)}</p>` : ''}
-                        </div>
+                    <div class="rw-medal rw-in">
+                        <span class="rw-medal__glow" aria-hidden="true"></span>
+                        ${rarest.img_url
+                            ? `<img class="rw-medal__img" src="${esc(rarest.img_url)}" alt="${esc(rarest.nome)}" loading="eager" onerror="this.onerror=null;this.src='/img/achievement-default.png'">`
+                            : '<span class="rw-medal__img rw-medal__img--empty"><i class="fa-solid fa-trophy"></i></span>'}
+                        <span class="rw-medal__body">
+                            <span class="rw-medal__label">${esc(T.achRarestLabel)}</span>
+                            <strong class="rw-medal__name">${esc(lang === 'en' ? (rarest.nome_en || rarest.nome) : rarest.nome)}</strong>
+                            ${rarest.owners_pct !== undefined
+                                ? `<span class="rw-medal__meta">${T.achRarest(rarest.owners_pct)}</span>` : ''}
+                        </span>
                     </div>` : ''}`;
         },
 
@@ -1146,7 +1167,7 @@
 
             return `
                 <p class="rw-kicker rw-in">${esc(T.perKicker)}</p>
-                <div class="rw-persona__icon rw-in"><i class="${esc(p.icon || 'fa-solid fa-star')}"></i></div>
+                <div class="rw-persona__icon rw-in">${p.image ? `<img src="${esc(p.image)}" alt="" onerror="this.outerHTML='<i class=&quot;${esc(p.icon || 'fa-solid fa-star')}&quot;></i>'">` : `<i class="${esc(p.icon || 'fa-solid fa-star')}"></i>`}</div>
                 <h2 class="rw-persona__name rw-in">${esc(name || '')}</h2>
                 <p class="rw-lead rw-in">${esc(desc || '')}</p>
                 ${rank.has_data ? `<p class="rw-note rw-in">${T.rankTop(rank.top_percent, num(rank.total_users))}</p>` : ''}`;
