@@ -5,16 +5,17 @@
  *
  * Il gioco è un Songspot con le musiche delle animazioni di pull: si sente
  * un frammento sempre più lungo (0,1s → 0,5s → 2s → 5s → 8s → 15s) e si deve
- * indovinare di quale personaggio è. Sei tentativi, uno al giorno per tutti.
+ * indovinare di quale personaggio è. Sei tentativi, e si gioca quanto si vuole:
+ * finita una traccia ne parte un'altra.
  *
  * Due regole guidano tutto quello che c'è qui dentro:
  *
  * 1. il client non deve mai poter sapere la risposta prima della fine. Il nome
  *    del file audio la rivelerebbe da solo, quindi l'audio passa da un proxy
  *    (api/pullspot/audio.php) che serve solo i secondi già sbloccati;
- * 2. la tabella dello stato può non esistere ancora (le migration di questo
- *    progetto si applicano a mano). In quel caso la partita vive in sessione:
- *    si gioca lo stesso, si perdono solo statistiche e streak.
+ * 2. la tabella dello storico può non esistere ancora (le migration di questo
+ *    progetto si applicano a mano). In quel caso si gioca lo stesso: si perdono
+ *    solo le statistiche.
  */
 
 if (!defined('CRIPSUM_PULLSPOT_HELPERS')) {
@@ -27,14 +28,14 @@ require_once __DIR__ . '/security_helpers.php';
 /** Durate sbloccate, in secondi, tentativo per tentativo. */
 const PULLSPOT_STEPS = [0.1, 0.5, 2.0, 5.0, 8.0, 15.0];
 
-/** Giorno del Pullspot numero 1. */
-const PULLSPOT_EPOCH = '2026-09-08';
-
 /**
  * Se lo stesso file audio è condiviso da più personaggi di così è un segnaposto
  * (il suono di default), non la musica di qualcuno: fuori dal mazzo.
  */
 const PULLSPOT_MAX_SHARED_AUDIO = 3;
+
+/** Quanti personaggi appena usciti evitare prima di poterli ripescare. */
+const PULLSPOT_RECENT_MEMORY = 25;
 
 const PULLSPOT_TABLE = 'pullspot_partite';
 
@@ -80,35 +81,6 @@ function pullspot_msg(string $key, string $lang = 'it'): string
     ];
 
     return $messages[$key][$lang] ?? $messages[$key]['it'] ?? $key;
-}
-
-/* ── Calendario ─────────────────────────────────────────────────────────── */
-
-function pullspot_timezone(): DateTimeZone
-{
-    return new DateTimeZone('Europe/Rome');
-}
-
-function pullspot_today(): string
-{
-    return (new DateTimeImmutable('now', pullspot_timezone()))->format('Y-m-d');
-}
-
-/** Quanti giorni sono passati dal Pullspot #1. Prima dell'epoca non si gioca. */
-function pullspot_day_index(string $day): int
-{
-    $epoch = new DateTimeImmutable(PULLSPOT_EPOCH . ' 00:00:00', pullspot_timezone());
-    $date  = new DateTimeImmutable($day . ' 00:00:00', pullspot_timezone());
-
-    return max(0, (int)$epoch->diff($date)->format('%r%a'));
-}
-
-/** Secondi che mancano alla mezzanotte italiana, cioè al prossimo puzzle. */
-function pullspot_seconds_to_next(): int
-{
-    $now = new DateTimeImmutable('now', pullspot_timezone());
-
-    return max(0, $now->modify('tomorrow midnight')->getTimestamp() - $now->getTimestamp());
 }
 
 /* ── Mazzo dei personaggi ───────────────────────────────────────────────── */
@@ -158,9 +130,6 @@ function pullspot_schema_ready(mysqli $mysqli): bool
 /**
  * Tutti i personaggi che possono essere la risposta: hanno una musica, il file
  * esiste davvero e quella musica non è condivisa da mezzo roster.
- *
- * L'ordine è per id, così il mazzo è identico a ogni richiesta e la scelta del
- * giorno resta la stessa per tutti.
  */
 function pullspot_pool(mysqli $mysqli): array
 {
@@ -174,9 +143,9 @@ function pullspot_pool(mysqli $mysqli): array
     $select  = '`id` AS id';
     $select .= ', ' . gacha_qcol($columns['name']) . ' AS nome';
     $select .= ', ' . gacha_qcol($columns['audio']) . ' AS audio_url';
-    $select .= $columns['image']  ? ', ' . gacha_qcol($columns['image']) . ' AS img_url'    : ', NULL AS img_url';
-    $select .= $columns['rarity'] ? ', ' . gacha_qcol($columns['rarity']) . ' AS rarita'    : ", '' AS rarita";
-    $select .= $columns['video']  ? ', ' . gacha_qcol($columns['video']) . ' AS video_url'  : ', NULL AS video_url';
+    $select .= $columns['image']  ? ', ' . gacha_qcol($columns['image']) . ' AS img_url'   : ', NULL AS img_url';
+    $select .= $columns['rarity'] ? ', ' . gacha_qcol($columns['rarity']) . ' AS rarita'   : ", '' AS rarita";
+    $select .= $columns['video']  ? ', ' . gacha_qcol($columns['video']) . ' AS video_url' : ', NULL AS video_url';
 
     $audioColumn = gacha_qcol($columns['audio']);
     $sql = 'SELECT ' . $select . ' FROM `personaggi`'
@@ -220,38 +189,6 @@ function pullspot_pool(mysqli $mysqli): array
     return $cache = $pool;
 }
 
-/** Mescolata deterministica: stesso seme, stesso ordine, ovunque e per sempre. */
-function pullspot_seeded_shuffle(array $values, string $seed): array
-{
-    $state = (int)hexdec(substr(hash('sha256', $seed), 0, 8));
-    if ($state === 0) $state = 1;
-
-    for ($i = count($values) - 1; $i > 0; $i--) {
-        $state = ($state * 1103515245 + 12345) & 0x7FFFFFFF;
-        $j = $state % ($i + 1);
-        [$values[$i], $values[$j]] = [$values[$j], $values[$i]];
-    }
-
-    return $values;
-}
-
-/**
- * Il personaggio del giorno.
- *
- * Il mazzo viene mescolato una volta per "giro" e poi consumato una carta al
- * giorno: nessuno si ripete finché non sono usciti tutti gli altri.
- */
-function pullspot_answer_for_day(mysqli $mysqli, int $dayIndex): ?array
-{
-    $pool = pullspot_pool($mysqli);
-    $size = count($pool);
-    if ($size === 0) return null;
-
-    $order = pullspot_seeded_shuffle(range(0, $size - 1), 'pullspot|v1|' . intdiv($dayIndex, $size));
-
-    return $pool[$order[$dayIndex % $size]];
-}
-
 function pullspot_character_by_id(mysqli $mysqli, int $id): ?array
 {
     foreach (pullspot_pool($mysqli) as $character) {
@@ -273,12 +210,21 @@ function pullspot_reveal(array $character): array
     ];
 }
 
-/** L'elenco che riempie il campo di ricerca: sono anche le risposte possibili. */
+/**
+ * L'elenco che riempie il campo di ricerca: sono anche le risposte possibili.
+ *
+ * Ci va anche l'immagine. Non svela niente proprio perché c'è per tutti: se
+ * comparisse solo per qualcuno, quel qualcuno sarebbe la risposta.
+ */
 function pullspot_character_list(mysqli $mysqli): array
 {
     $list = [];
     foreach (pullspot_pool($mysqli) as $character) {
-        $list[] = ['id' => $character['id'], 'nome' => $character['nome']];
+        $list[] = [
+            'id'        => $character['id'],
+            'nome'      => $character['nome'],
+            'image_url' => gacha_media_url($character['img_url'] ?? null, '/img/'),
+        ];
     }
 
     usort($list, static fn(array $a, array $b): int => strcasecmp($a['nome'], $b['nome']));
@@ -288,24 +234,24 @@ function pullspot_character_list(mysqli $mysqli): array
 
 /* ── Partita ────────────────────────────────────────────────────────────── */
 
-/** La tabella dello stato esiste? Se no si gioca lo stesso, ma solo in sessione. */
+/** La tabella dello storico esiste? Se no si gioca lo stesso, senza statistiche. */
 function pullspot_state_ready(mysqli $mysqli): bool
 {
     return auth_table_exists($mysqli, PULLSPOT_TABLE);
 }
 
-function pullspot_new_game(string $day, int $characterId): array
+function pullspot_new_game(int $characterId): array
 {
     return [
-        'day'     => $day,
-        'char_id' => $characterId,
-        'guesses' => [],
-        'status'  => 'playing',
+        'char_id'  => $characterId,
+        'guesses'  => [],
+        'status'   => 'playing',
+        'recorded' => false,
     ];
 }
 
 /** Ricostruisce una partita da come è stata salvata, scartando ciò che non torna. */
-function pullspot_normalize_game(mixed $raw, string $day): ?array
+function pullspot_normalize_game(mixed $raw): ?array
 {
     if (!is_array($raw)) return null;
 
@@ -330,106 +276,98 @@ function pullspot_normalize_game(mixed $raw, string $day): ?array
     if (!in_array($status, ['playing', 'won', 'lost'], true)) $status = 'playing';
 
     return [
-        'day'     => (string)($raw['day'] ?? $day),
-        'char_id' => $characterId,
-        'guesses' => $guesses,
-        'status'  => $status,
+        'char_id'  => $characterId,
+        'guesses'  => $guesses,
+        'status'   => $status,
+        'recorded' => !empty($raw['recorded']),
     ];
 }
 
-function pullspot_session_slot(string $mode, string $day): string
+function pullspot_session_load(): ?array
 {
-    return $mode === 'practice' ? 'practice' : 'daily|' . $day;
+    return pullspot_normalize_game($_SESSION['pullspot']['round'] ?? null);
 }
 
-function pullspot_session_load(string $slot, string $day): ?array
-{
-    return pullspot_normalize_game($_SESSION['pullspot'][$slot] ?? null, $day);
-}
-
-function pullspot_session_save(string $slot, array $game): void
+function pullspot_session_save(array $game): void
 {
     if (!isset($_SESSION['pullspot']) || !is_array($_SESSION['pullspot'])) {
         $_SESSION['pullspot'] = [];
     }
 
-    // Le partite giornaliere vecchie non servono più: la sessione dura due
-    // settimane e non deve diventare un archivio.
-    foreach (array_keys($_SESSION['pullspot']) as $key) {
-        if (str_starts_with((string)$key, 'daily|') && $key !== $slot) {
-            unset($_SESSION['pullspot'][$key]);
-        }
-    }
+    $_SESSION['pullspot']['round'] = $game;
+}
 
-    $_SESSION['pullspot'][$slot] = $game;
+/** Gli ultimi personaggi usciti, per non riproporli subito. */
+function pullspot_recent(): array
+{
+    $recent = $_SESSION['pullspot']['recent'] ?? [];
+
+    return is_array($recent) ? array_map('intval', $recent) : [];
+}
+
+function pullspot_remember(int $characterId): void
+{
+    $recent = pullspot_recent();
+    $recent[] = $characterId;
+
+    if (!isset($_SESSION['pullspot']) || !is_array($_SESSION['pullspot'])) {
+        $_SESSION['pullspot'] = [];
+    }
+    $_SESSION['pullspot']['recent'] = array_slice($recent, -PULLSPOT_RECENT_MEMORY);
 }
 
 /**
- * Carica la partita del giorno, creandola se è la prima volta.
- *
- * Se il personaggio salvato non esiste più (rimosso dal roster, musica
- * sparita) la giornata riparte da capo: è meglio di una partita che non può
- * più essere vinta.
+ * Pesca un personaggio a caso evitando quelli appena usciti — a meno che il
+ * mazzo sia così piccolo da non lasciare scelta.
  */
-function pullspot_load_game(mysqli $mysqli, int $userId, string $mode, string $day, array $fallbackCharacter): array
+function pullspot_pick(mysqli $mysqli): ?array
 {
-    $slot = pullspot_session_slot($mode, $day);
-    $game = null;
+    $pool = pullspot_pool($mysqli);
+    if (!$pool) return null;
 
-    if ($mode === 'daily' && pullspot_state_ready($mysqli)) {
-        $stmt = $mysqli->prepare(
-            'SELECT personaggio_id, tentativi, esito FROM `' . PULLSPOT_TABLE . '`'
-            . ' WHERE utente_id = ? AND giorno = ? LIMIT 1'
-        );
-        if ($stmt) {
-            $stmt->bind_param('is', $userId, $day);
-            $stmt->execute();
-            $row = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+    $recent = pullspot_recent();
+    $fresh = array_values(array_filter(
+        $pool,
+        static fn(array $character): bool => !in_array($character['id'], $recent, true)
+    ));
 
-            if ($row) {
-                $game = pullspot_normalize_game([
-                    'day'     => $day,
-                    'char_id' => (int)$row['personaggio_id'],
-                    'guesses' => json_decode((string)$row['tentativi'], true),
-                    'status'  => ['in_corso' => 'playing', 'vinto' => 'won', 'perso' => 'lost'][$row['esito']] ?? 'playing',
-                ], $day);
-            }
-        }
-    }
+    $from = $fresh ?: $pool;
 
-    if ($game === null) {
-        $game = pullspot_session_load($slot, $day);
-    }
+    return $from[random_int(0, count($from) - 1)];
+}
 
+/**
+ * Prepara la partita in corso, creandone una nuova se non ce n'è o se è stata
+ * chiesta esplicitamente.
+ *
+ * Restituisce null solo se non c'è nessun personaggio giocabile, cioè se
+ * nessuno ha ancora una musica di pull utilizzabile.
+ */
+function pullspot_bootstrap(mysqli $mysqli, bool $restart = false): ?array
+{
+    if (!pullspot_pool($mysqli)) return null;
+
+    $game = $restart ? null : pullspot_session_load();
+
+    // Un personaggio tolto dal roster mentre ci si giocava lascia una partita
+    // che non si può più vincere: meglio ricominciare.
     if ($game !== null && pullspot_character_by_id($mysqli, $game['char_id']) === null) {
         $game = null;
     }
 
-    return $game ?? pullspot_new_game($day, $fallbackCharacter['id']);
-}
+    if ($game === null) {
+        $character = pullspot_pick($mysqli);
+        if ($character === null) return null;
 
-function pullspot_save_game(mysqli $mysqli, int $userId, string $mode, array $game): void
-{
-    pullspot_session_save(pullspot_session_slot($mode, $game['day']), $game);
+        $game = pullspot_new_game($character['id']);
+        pullspot_remember($character['id']);
+        pullspot_session_save($game);
+    }
 
-    if ($mode !== 'daily' || !pullspot_state_ready($mysqli)) return;
-
-    $esito = ['playing' => 'in_corso', 'won' => 'vinto', 'lost' => 'perso'][$game['status']] ?? 'in_corso';
-    $tentativi = json_encode($game['guesses'], JSON_UNESCAPED_UNICODE);
-    $usati = count($game['guesses']);
-
-    $stmt = $mysqli->prepare(
-        'INSERT INTO `' . PULLSPOT_TABLE . '` (utente_id, giorno, personaggio_id, tentativi, esito, tentativi_usati)'
-        . ' VALUES (?, ?, ?, ?, ?, ?)'
-        . ' ON DUPLICATE KEY UPDATE personaggio_id = VALUES(personaggio_id), tentativi = VALUES(tentativi),'
-        . ' esito = VALUES(esito), tentativi_usati = VALUES(tentativi_usati)'
-    );
-    if (!$stmt) return;
-
-    $stmt->bind_param('isissi', $userId, $game['day'], $game['char_id'], $tentativi, $esito, $usati);
-    $stmt->execute();
-    $stmt->close();
+    return [
+        'game'      => $game,
+        'character' => pullspot_character_by_id($mysqli, $game['char_id']),
+    ];
 }
 
 /** Due personaggi che condividono la stessa traccia sono entrambi giusti. */
@@ -458,6 +396,36 @@ function pullspot_apply_guess(array $game, ?array $guess, array $answer): array
 }
 
 /**
+ * Scrive la partita finita nello storico, una volta sola.
+ *
+ * Se la tabella non c'è, il gioco continua: si perdono solo le statistiche.
+ */
+function pullspot_record_result(mysqli $mysqli, int $userId, array $game): array
+{
+    if ($game['status'] === 'playing' || !empty($game['recorded'])) return $game;
+
+    $game['recorded'] = true;
+
+    if (!pullspot_state_ready($mysqli)) return $game;
+
+    $esito = $game['status'] === 'won' ? 'vinto' : 'perso';
+    $tentativi = json_encode($game['guesses'], JSON_UNESCAPED_UNICODE);
+    $usati = count($game['guesses']);
+
+    $stmt = $mysqli->prepare(
+        'INSERT INTO `' . PULLSPOT_TABLE . '` (utente_id, personaggio_id, tentativi, esito, tentativi_usati)'
+        . ' VALUES (?, ?, ?, ?, ?)'
+    );
+    if (!$stmt) return $game;
+
+    $stmt->bind_param('iissi', $userId, $game['char_id'], $tentativi, $esito, $usati);
+    $stmt->execute();
+    $stmt->close();
+
+    return $game;
+}
+
+/**
  * Quanti secondi di traccia sono sbloccati adesso.
  * A partita finita non c'è più niente da nascondere: null vuol dire "tutta".
  */
@@ -469,15 +437,12 @@ function pullspot_unlocked_seconds(array $game): ?float
 }
 
 /** Il payload che vede il client: la risposta compare solo a partita finita. */
-function pullspot_public_state(array $game, array $character, string $mode, ?int $dayIndex): array
+function pullspot_public_state(array $game, array $character): array
 {
     $finished = $game['status'] !== 'playing';
 
     return [
-        'mode'         => $mode,
         'status'       => $game['status'],
-        'day'          => $game['day'],
-        'puzzle'       => $dayIndex === null ? null : $dayIndex + 1,
         'attempt'      => count($game['guesses']),
         'max_attempts' => pullspot_max_attempts(),
         'steps'        => array_map('floatval', PULLSPOT_STEPS),
@@ -485,52 +450,6 @@ function pullspot_public_state(array $game, array $character, string $mode, ?int
         'full'         => $finished,
         'guesses'      => $game['guesses'],
         'answer'       => $finished ? pullspot_reveal($character) : null,
-        'next_in'      => pullspot_seconds_to_next(),
-    ];
-}
-
-/**
- * Prepara la partita richiesta: quella del giorno oppure una di allenamento.
- *
- * Restituisce null solo se non c'è nessun personaggio giocabile, cioè se
- * nessuno ha ancora una musica di pull utilizzabile.
- */
-function pullspot_bootstrap(mysqli $mysqli, int $userId, string $mode, bool $restart = false): ?array
-{
-    $pool = pullspot_pool($mysqli);
-    if (!$pool) return null;
-
-    $day = pullspot_today();
-
-    if ($mode === 'practice') {
-        $game = $restart ? null : pullspot_session_load('practice', $day);
-        if ($game !== null && pullspot_character_by_id($mysqli, $game['char_id']) === null) {
-            $game = null;
-        }
-        if ($game === null) {
-            $game = pullspot_new_game($day, $pool[random_int(0, count($pool) - 1)]['id']);
-            pullspot_session_save('practice', $game);
-        }
-
-        return [
-            'mode'      => 'practice',
-            'day_index' => null,
-            'game'      => $game,
-            'character' => pullspot_character_by_id($mysqli, $game['char_id']),
-        ];
-    }
-
-    $dayIndex = pullspot_day_index($day);
-    $answer   = pullspot_answer_for_day($mysqli, $dayIndex);
-    if ($answer === null) return null;
-
-    $game = pullspot_load_game($mysqli, $userId, 'daily', $day, $answer);
-
-    return [
-        'mode'      => 'daily',
-        'day_index' => $dayIndex,
-        'game'      => $game,
-        'character' => pullspot_character_by_id($mysqli, $game['char_id']) ?? $answer,
     ];
 }
 
@@ -552,8 +471,9 @@ function pullspot_empty_stats(): array
 /**
  * Partite giocate, vinte, distribuzione dei tentativi e serie di vittorie.
  *
- * La serie si spezza sia perdendo sia saltando un giorno; se oggi non è ancora
- * stato giocato la serie di ieri resta viva, come su Songspot.
+ * Senza più un calendario la serie conta le vittorie di fila, non i giorni:
+ * si spezza solo perdendo. Guardiamo le ultime cinquecento partite, che è già
+ * più storia di quanta ne serva a chiunque.
  */
 function pullspot_stats(mysqli $mysqli, int $userId): array
 {
@@ -563,8 +483,8 @@ function pullspot_stats(mysqli $mysqli, int $userId): array
     $stats['persisted'] = true;
 
     $stmt = $mysqli->prepare(
-        'SELECT giorno, esito, tentativi_usati FROM `' . PULLSPOT_TABLE . '`'
-        . " WHERE utente_id = ? AND esito <> 'in_corso' ORDER BY giorno ASC"
+        'SELECT esito, tentativi_usati FROM `' . PULLSPOT_TABLE . '`'
+        . ' WHERE utente_id = ? ORDER BY id DESC LIMIT 500'
     );
     if (!$stmt) return $stats;
 
@@ -572,37 +492,36 @@ function pullspot_stats(mysqli $mysqli, int $userId): array
     $stmt->execute();
     $result = $stmt->get_result();
 
-    $byDay = [];
-    $running = 0;
-
+    $rows = [];
     while ($row = $result->fetch_assoc()) {
-        $won = $row['esito'] === 'vinto';
-        $byDay[(string)$row['giorno']] = $won;
-
-        $stats['played']++;
-        if ($won) {
-            $stats['won']++;
-            $index = max(1, min(count(PULLSPOT_STEPS), (int)$row['tentativi_usati'])) - 1;
-            $stats['distribution'][$index]++;
-            $running++;
-            $stats['best_streak'] = max($stats['best_streak'], $running);
-        } else {
-            $running = 0;
-        }
+        $rows[] = ['won' => $row['esito'] === 'vinto', 'attempts' => (int)$row['tentativi_usati']];
     }
     $stmt->close();
 
-    if ($stats['played'] > 0) {
-        $stats['win_rate'] = (int)round($stats['won'] * 100 / $stats['played']);
+    // La query torna dalla più recente: la serie in corso si legge da lì.
+    foreach ($rows as $row) {
+        if (!$row['won']) break;
+        $stats['streak']++;
     }
 
-    $cursor = new DateTimeImmutable(pullspot_today(), pullspot_timezone());
-    if (!isset($byDay[$cursor->format('Y-m-d')])) {
-        $cursor = $cursor->modify('-1 day');
+    $running = 0;
+    foreach (array_reverse($rows) as $row) {
+        $stats['played']++;
+
+        if (!$row['won']) {
+            $running = 0;
+            continue;
+        }
+
+        $stats['won']++;
+        $index = max(1, min(count(PULLSPOT_STEPS), $row['attempts'])) - 1;
+        $stats['distribution'][$index]++;
+        $running++;
+        $stats['best_streak'] = max($stats['best_streak'], $running);
     }
-    while (!empty($byDay[$cursor->format('Y-m-d')])) {
-        $stats['streak']++;
-        $cursor = $cursor->modify('-1 day');
+
+    if ($stats['played'] > 0) {
+        $stats['win_rate'] = (int)round($stats['won'] * 100 / $stats['played']);
     }
 
     return $stats;

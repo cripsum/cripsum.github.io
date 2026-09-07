@@ -15,18 +15,19 @@
     const LANG = window.PULLSPOT_LANG === 'en' ? 'en' : 'it';
     const CSRF = window.PULLSPOT_CSRF || '';
     const DECIMAL = LANG === 'en' ? '.' : ',';
+    const VOLUME_KEY = 'cripsum.pullspot.volume';
 
     const STRINGS = {
         it: {
             skipped: 'Saltato',
-            skip: 'Salta',
             giveUp: 'Arrenditi',
-            submit: 'Indovina',
-            placeholder: 'Cerca un personaggio…',
             noResults: 'Nessun personaggio',
-            wonAt: (n) => (n === 1 ? 'Preso al primo colpo!' : 'Indovinato al ' + n + 'º tentativo!'),
+            attempt: (n, max) => 'Tentativo ' + n + '/' + max,
+            streak: (n) => 'Serie ' + n,
+            unlocked: 'sbloccati',
+            fullTrack: 'traccia intera',
+            wonAt: (n) => (n === 1 ? 'Preso al primo colpo' : 'Indovinato al ' + n + 'º tentativo'),
             lost: 'Nessuno l\'ha presa. Era:',
-            nextIn: 'Prossimo Pullspot tra',
             share: 'Condividi',
             copied: 'Risultato copiato',
             copyFailed: 'Non sono riuscito a copiare',
@@ -34,25 +35,23 @@
             stats: 'Statistiche',
             played: 'Giocate',
             winRate: '% vinte',
-            streak: 'Serie',
+            streakLabel: 'Serie',
             best: 'Record',
             distribution: 'Tentativi usati',
-            noStats: 'Le statistiche non sono ancora attive su questo sito: la partita di oggi resta salvata solo nella sessione del browser.',
+            noStats: 'Le statistiche non sono ancora attive su questo sito: quello che giochi adesso non viene salvato.',
             loadError: 'Non riesco a caricare il gioco. Riprova tra poco.',
             audioError: 'Traccia non disponibile.',
-            practiceHint: 'Traccia a caso, non conta per le statistiche.',
-            puzzle: (n) => 'Pullspot #' + n,
         },
         en: {
             skipped: 'Skipped',
-            skip: 'Skip',
             giveUp: 'Give up',
-            submit: 'Guess',
-            placeholder: 'Search a character…',
             noResults: 'No character',
-            wonAt: (n) => (n === 1 ? 'First try!' : 'Got it on try ' + n + '!'),
+            attempt: (n, max) => 'Guess ' + n + '/' + max,
+            streak: (n) => 'Streak ' + n,
+            unlocked: 'unlocked',
+            fullTrack: 'full track',
+            wonAt: (n) => (n === 1 ? 'First try' : 'Got it on try ' + n),
             lost: 'Nobody got it. It was:',
-            nextIn: 'Next Pullspot in',
             share: 'Share',
             copied: 'Result copied',
             copyFailed: 'Could not copy',
@@ -60,14 +59,12 @@
             stats: 'Statistics',
             played: 'Played',
             winRate: 'Win %',
-            streak: 'Streak',
+            streakLabel: 'Streak',
             best: 'Best',
             distribution: 'Guess distribution',
-            noStats: 'Statistics are not enabled on this site yet: today\'s round is only kept in the browser session.',
+            noStats: 'Statistics are not enabled on this site yet: what you play now is not being saved.',
             loadError: 'Could not load the game. Try again shortly.',
             audioError: 'Track unavailable.',
-            practiceHint: 'Random track, it does not count towards your stats.',
-            puzzle: (n) => 'Pullspot #' + n,
         },
     }[LANG];
 
@@ -75,19 +72,22 @@
         boot: root.querySelector('[data-ps-boot]'),
         game: root.querySelector('[data-ps-game]'),
         error: root.querySelector('[data-ps-error]'),
-        subtitle: root.querySelector('[data-ps-subtitle]'),
+        metaLeft: root.querySelector('[data-ps-meta-left]'),
+        metaRight: root.querySelector('[data-ps-meta-right]'),
         rows: root.querySelector('[data-ps-rows]'),
-        unlocked: root.querySelector('[data-ps-unlocked]'),
-        played: root.querySelector('[data-ps-played]'),
-        marks: root.querySelector('[data-ps-marks]'),
+        segments: root.querySelector('[data-ps-segments]'),
+        marker: root.querySelector('[data-ps-marker]'),
         play: root.querySelector('[data-ps-play]'),
-        time: root.querySelector('[data-ps-time]'),
+        clock: root.querySelector('[data-ps-clock]'),
+        clockLabel: root.querySelector('[data-ps-clock-label]'),
+        controls: root.querySelector('[data-ps-controls]'),
         input: root.querySelector('[data-ps-input]'),
         clear: root.querySelector('[data-ps-clear]'),
         list: root.querySelector('[data-ps-list]'),
         skip: root.querySelector('[data-ps-skip]'),
-        submit: root.querySelector('[data-ps-submit]'),
-        controls: root.querySelector('[data-ps-controls]'),
+        skipBonus: root.querySelector('[data-ps-skip-bonus]'),
+        chips: root.querySelector('[data-ps-chips]'),
+        volume: root.querySelector('[data-ps-volume]'),
         result: root.querySelector('[data-ps-result]'),
         toast: root.querySelector('[data-ps-toast]'),
         statsModal: document.querySelector('[data-ps-stats-modal]'),
@@ -95,14 +95,14 @@
         rulesModal: document.querySelector('[data-ps-rules-modal]'),
     };
 
+    const skipLabel = el.skip ? el.skip.querySelector('span') : null;
+
     let state = null;
     let characters = [];
-    let mode = 'daily';
-    let selected = null;
     let highlighted = -1;
     let filtered = [];
     let busy = false;
-    let countdownTimer = null;
+    let segments = [];
 
     const audio = new Audio();
     audio.preload = 'auto';
@@ -124,19 +124,12 @@
     }
 
     function formatStep(value) {
-        return String(value).replace('.', DECIMAL);
-    }
-
-    function formatCountdown(total) {
-        const hours = Math.floor(total / 3600);
-        const minutes = Math.floor((total % 3600) / 60);
-        const seconds = Math.floor(total % 60);
-        return [hours, minutes, seconds].map((n) => String(n).padStart(2, '0')).join(':');
+        return String(value).replace('.', DECIMAL) + 's';
     }
 
     // I nomi arrivano dal database: in pagina ci vanno come testo, mai come HTML.
     function text(node, value) {
-        node.textContent = value == null ? '' : String(value);
+        if (node) node.textContent = value == null ? '' : String(value);
         return node;
     }
 
@@ -146,6 +139,10 @@
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-z0-9]+/g, '');
+    }
+
+    function ratio(value) {
+        return Math.max(0, Math.min(1, value)) * 100 + '%';
     }
 
     let toastTimer = 0;
@@ -174,40 +171,33 @@
         return payload;
     }
 
-    function loadState(options) {
-        const params = new URLSearchParams({ mode: mode, lang: LANG });
-        if (options && options.fresh) params.set('new', '1');
-        return request('/api/pullspot/state.php?' + params.toString());
+    function loadState(fresh) {
+        return request('/api/pullspot/state.php?lang=' + LANG + (fresh ? '&new=1' : ''));
     }
 
     function sendGuess(body) {
         return request('/api/pullspot/guess.php?lang=' + LANG, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
-            body: JSON.stringify(Object.assign({ mode: mode, csrf_token: CSRF }, body)),
+            body: JSON.stringify(Object.assign({ csrf_token: CSRF }, body)),
         });
     }
 
     /* ── Lettore ───────────────────────────────────────────────────────── */
 
-    function limitSeconds() {
-        if (!state) return 0;
-        if (state.full) return isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
-        return state.unlocked || 0;
+    function trackDuration() {
+        return isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
     }
 
-    function spanSeconds() {
-        const max = state ? state.steps[state.steps.length - 1] : 15;
-        if (state && state.full) {
-            return isFinite(audio.duration) && audio.duration > 0 ? audio.duration : max;
-        }
-        return max;
+    function limitSeconds() {
+        if (!state) return 0;
+        return state.full ? trackDuration() : (state.unlocked || 0);
     }
 
     // La traccia cambia a ogni tentativo: la chiave dice se il pezzo scaricato
     // è ancora quello giusto o se va richiesto di nuovo.
     function currentClipKey() {
-        return [mode, state ? state.day : '', state ? state.attempt : 0, state && state.full ? 'full' : 'clip'].join('|');
+        return state ? [state.attempt, state.status, state.full ? 'full' : 'clip'].join('|') : '';
     }
 
     function ensureClip() {
@@ -216,7 +206,7 @@
         if (clipLoading && clipKey === key) return clipLoading;
 
         clipKey = key;
-        clipLoading = fetch('/api/pullspot/audio.php?mode=' + encodeURIComponent(mode) + '&lang=' + LANG, {
+        clipLoading = fetch('/api/pullspot/audio.php?lang=' + LANG, {
             credentials: 'same-origin',
             cache: 'no-store',
         })
@@ -241,30 +231,30 @@
         return clipLoading;
     }
 
-    function stopPlayback() {
-        audio.pause();
-        cancelAnimationFrame(rafId);
-        rafId = 0;
-        renderProgress(0);
-        setPlayIcon(false);
+    function dropClip() {
+        if (clipUrl) URL.revokeObjectURL(clipUrl);
+        clipUrl = null;
+        clipKey = '';
+
+        // Senza questo l'elemento continua a dichiarare la durata del pezzo
+        // precedente, e il cronometro mostra un totale che non esiste piu'.
+        audio.removeAttribute('src');
+        audio.load();
     }
 
     function setPlayIcon(isPlaying) {
         if (!el.play) return;
         el.play.innerHTML = '<i class="fa-solid fa-' + (isPlaying ? 'pause' : 'play') + '"></i>';
+        el.play.classList.toggle('ps-play--on', isPlaying);
         el.play.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
     }
 
-    function renderProgress(current) {
-        const span = spanSeconds() || 1;
-        const limit = limitSeconds();
-
-        if (el.played) el.played.style.width = Math.min(100, (current / span) * 100) + '%';
-        if (el.unlocked) el.unlocked.style.width = (state && state.full ? 100 : Math.min(100, (limit / span) * 100)) + '%';
-
-        // A partita finita la traccia è intera, ma quanto duri lo si sa solo
-        // dopo averla scaricata: fino ad allora il totale resta una lineetta.
-        if (el.time) text(el.time, formatSeconds(current) + ' / ' + (limit > 0 ? formatSeconds(limit) : '—'));
+    function stopPlayback() {
+        audio.pause();
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+        setPlayIcon(false);
+        paint(0);
     }
 
     function tick() {
@@ -275,7 +265,7 @@
             stopPlayback();
             return;
         }
-        renderProgress(audio.currentTime);
+        paint(audio.currentTime);
         rafId = requestAnimationFrame(tick);
     }
 
@@ -310,8 +300,78 @@
     // A partita finita la traccia è intera: la durata la conosciamo solo dopo
     // che il browser ha letto l'intestazione del file.
     audio.addEventListener('loadedmetadata', function () {
-        if (audio.paused) renderProgress(0);
+        if (audio.paused) paint(0);
     });
+
+    /* ── Barra a segmenti ──────────────────────────────────────────────── */
+
+    function buildSegments() {
+        if (!el.segments || !state) return;
+
+        el.segments.innerHTML = '';
+        segments = [];
+
+        // Finita la partita non ci sono più scalini da mostrare: la barra
+        // diventa un blocco solo, lungo quanto la traccia.
+        const bounds = state.full
+            ? [{ from: 0, to: null, grow: 1 }]
+            : state.steps.map((to, index) => ({
+                from: index === 0 ? 0 : state.steps[index - 1],
+                to: to,
+                grow: to - (index === 0 ? 0 : state.steps[index - 1]),
+            }));
+
+        bounds.forEach((bound) => {
+            const seg = document.createElement('div');
+            seg.className = 'ps-seg';
+            seg.style.flexGrow = String(bound.grow);
+            seg.style.flexBasis = '4px';
+
+            const unlocked = document.createElement('div');
+            unlocked.className = 'ps-seg__unlocked';
+
+            const played = document.createElement('div');
+            played.className = 'ps-seg__played';
+
+            seg.appendChild(unlocked);
+            seg.appendChild(played);
+            el.segments.appendChild(seg);
+
+            segments.push({ from: bound.from, to: bound.to, unlocked: unlocked, played: played });
+        });
+    }
+
+    /** Ridisegna barra, marcatore e cronometro per una data posizione. */
+    function paint(current) {
+        if (!state) return;
+
+        const limit = limitSeconds();
+        const unlockedTo = state.full ? Infinity : limit;
+
+        segments.forEach((seg) => {
+            const to = seg.to === null ? (trackDuration() || 1) : seg.to;
+            const span = Math.max(to - seg.from, 1e-6);
+            seg.unlocked.style.width = ratio((unlockedTo - seg.from) / span);
+            seg.played.style.width = ratio((current - seg.from) / span);
+        });
+
+        if (el.marker) {
+            if (state.full) {
+                el.marker.hidden = true;
+            } else {
+                const total = state.steps[state.steps.length - 1] || 1;
+                el.marker.hidden = false;
+                el.marker.style.left = ratio(limit / total);
+                text(el.marker, formatSeconds(limit));
+            }
+        }
+
+        const playing = !audio.paused;
+        text(el.clock, playing ? formatSeconds(current) : (limit > 0 ? formatSeconds(limit) : '—'));
+        text(el.clockLabel, playing
+            ? '/ ' + (limit > 0 ? formatSeconds(limit) : '—')
+            : (state.full ? STRINGS.fullTrack : STRINGS.unlocked));
+    }
 
     /* ── Ricerca ───────────────────────────────────────────────────────── */
 
@@ -319,6 +379,7 @@
         if (!el.list) return;
         el.list.hidden = true;
         el.list.innerHTML = '';
+        if (el.input) el.input.setAttribute('aria-expanded', 'false');
         highlighted = -1;
         filtered = [];
     }
@@ -328,8 +389,8 @@
 
         const needle = normalize(query);
         filtered = (needle === ''
-            ? characters.slice(0, 80)
-            : characters.filter((character) => normalize(character.nome).includes(needle)).slice(0, 80));
+            ? characters.slice(0, 40)
+            : characters.filter((character) => normalize(character.nome).includes(needle)).slice(0, 40));
 
         el.list.innerHTML = '';
 
@@ -347,18 +408,31 @@
             const option = document.createElement('li');
             option.className = 'ps-option';
             option.setAttribute('role', 'option');
-            option.dataset.index = String(index);
-            text(option, character.nome);
+
+            if (character.image_url) {
+                const art = document.createElement('img');
+                art.src = character.image_url;
+                art.alt = '';
+                art.loading = 'lazy';
+                option.appendChild(art);
+            }
+
+            const name = document.createElement('span');
+            text(name, character.nome);
+            option.appendChild(name);
+
             option.addEventListener('mousedown', (event) => {
                 event.preventDefault();
                 choose(index);
             });
+
             el.list.appendChild(option);
         });
 
         highlighted = 0;
         paintHighlight();
         el.list.hidden = false;
+        if (el.input) el.input.setAttribute('aria-expanded', 'true');
     }
 
     function paintHighlight() {
@@ -370,52 +444,16 @@
         if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest' });
     }
 
+    /** Scegliere un nome dall'elenco è già il tentativo: non c'è conferma. */
     function choose(index) {
         const character = filtered[index];
-        if (!character) return;
+        if (!character || busy) return;
 
-        selected = character;
-        el.input.value = character.nome;
         closeList();
-        syncControls();
-        el.submit.focus();
-    }
-
-    function clearSelection() {
-        selected = null;
-        el.input.value = '';
-        closeList();
-        syncControls();
-        el.input.focus();
+        submitGuess({ action: 'guess', character_id: character.id });
     }
 
     /* ── Vetrina ───────────────────────────────────────────────────────── */
-
-    function renderMarks() {
-        if (!el.marks || !state) return;
-
-        const span = state.steps[state.steps.length - 1] || 1;
-        el.marks.innerHTML = '';
-
-        // I primi due scalini distano meno di mezzo secondo su quindici: le
-        // tacche ci stanno tutte, i numeri no. Se ne scrive uno solo ogni
-        // tanto, l'ultimo sempre, e il valore esatto resta accanto al lettore.
-        let lastLabelled = -Infinity;
-
-        state.steps.forEach((step, index) => {
-            const position = (step / span) * 100;
-            const mark = document.createElement('span');
-            mark.className = 'ps-mark' + (index <= (state.attempt || 0) ? ' ps-mark--reached' : '');
-            mark.style.left = position + '%';
-
-            if (position - lastLabelled >= 8 || index === state.steps.length - 1) {
-                text(mark, formatStep(step));
-                lastLabelled = position;
-            }
-
-            el.marks.appendChild(mark);
-        });
-    }
 
     function renderRows() {
         if (!el.rows || !state) return;
@@ -427,31 +465,50 @@
             const row = document.createElement('li');
             row.className = 'ps-row';
 
-            const icon = document.createElement('span');
-            icon.className = 'ps-row__icon';
+            const number = document.createElement('span');
+            number.className = 'ps-row__no';
+            text(number, index + 1);
 
             const label = document.createElement('span');
             label.className = 'ps-row__text';
 
             if (guess) {
                 row.classList.add('ps-row--' + guess.type);
-                if (guess.type === 'skip') {
-                    icon.innerHTML = '<i class="fa-solid fa-forward"></i>';
-                    text(label, STRINGS.skipped);
-                } else {
-                    icon.innerHTML = '<i class="fa-solid fa-' + (guess.type === 'correct' ? 'check' : 'xmark') + '"></i>';
-                    text(label, guess.nome || '—');
-                }
+                text(label, guess.type === 'skip' ? STRINGS.skipped : (guess.nome || '—'));
             } else if (index === state.guesses.length && state.status === 'playing') {
-                row.classList.add('ps-row--active');
-                icon.innerHTML = '<i class="fa-solid fa-headphones"></i>';
-                text(label, formatStep(state.steps[Math.min(index, state.steps.length - 1)]) + 's');
+                row.classList.add('ps-row--now');
+                text(label, formatStep(state.steps[Math.min(index, state.steps.length - 1)]));
+            } else {
+                text(label, '—');
             }
 
-            row.appendChild(icon);
+            row.appendChild(number);
             row.appendChild(label);
             el.rows.appendChild(row);
         }
+    }
+
+    function renderChips() {
+        if (!el.chips || !state) return;
+
+        el.chips.innerHTML = '';
+
+        state.steps.forEach((step, index) => {
+            const chip = document.createElement('span');
+            chip.className = 'ps-chip' + (state.full || index <= state.attempt ? ' ps-chip--on' : '');
+            text(chip, formatStep(step));
+            el.chips.appendChild(chip);
+        });
+    }
+
+    function renderMeta() {
+        if (!state) return;
+
+        const done = state.status !== 'playing';
+        text(el.metaLeft, STRINGS.attempt(Math.min(state.attempt + (done ? 0 : 1), state.max_attempts), state.max_attempts));
+
+        const streak = (state.stats && state.stats.streak) || 0;
+        text(el.metaRight, streak > 0 ? STRINGS.streak(streak) : '');
     }
 
     function renderControls() {
@@ -460,29 +517,25 @@
         if (el.controls) el.controls.hidden = !playing;
         if (!playing) return;
 
-        el.input.disabled = false;
-        el.input.placeholder = STRINGS.placeholder;
-
         const index = state.guesses.length;
         const next = state.steps[index + 1];
-        const current = state.steps[index];
 
         if (typeof next === 'number') {
-            const bonus = Math.round((next - current) * 10) / 10;
-            text(el.skip, STRINGS.skip + ' (+' + formatStep(bonus) + 's)');
+            text(skipLabel, el.skip.dataset.psSkipWord || skipLabel.textContent);
+            const bonus = Math.round((next - state.steps[index]) * 10) / 10;
+            text(el.skipBonus, '+' + formatStep(bonus));
         } else {
-            text(el.skip, STRINGS.giveUp);
+            text(skipLabel, STRINGS.giveUp);
+            text(el.skipBonus, '');
         }
 
-        text(el.submit, STRINGS.submit);
         syncControls();
     }
 
     function syncControls() {
-        const playing = state && state.status === 'playing';
-        el.submit.disabled = busy || !playing || !selected;
-        el.skip.disabled = busy || !playing;
-        if (el.clear) el.clear.hidden = !el.input.value;
+        if (el.skip) el.skip.disabled = busy || !state || state.status !== 'playing';
+        if (el.input) el.input.disabled = busy;
+        if (el.clear) el.clear.hidden = !el.input || !el.input.value;
     }
 
     function squares() {
@@ -498,11 +551,9 @@
     }
 
     function shareText() {
-        const header = state.puzzle
-            ? STRINGS.puzzle(state.puzzle) + ' ' + (state.status === 'won' ? state.guesses.length : 'X') + '/' + state.max_attempts
-            : 'Pullspot ' + (state.status === 'won' ? state.guesses.length : 'X') + '/' + state.max_attempts;
+        const score = (state.status === 'won' ? state.guesses.length : 'X') + '/' + state.max_attempts;
 
-        return header + '\n' + squares() + '\n' + window.location.origin + '/' + LANG + '/pullspot';
+        return 'Pullspot ' + score + '\n' + squares() + '\n' + window.location.origin + '/' + LANG + '/pullspot';
     }
 
     async function share() {
@@ -525,10 +576,18 @@
         }
     }
 
+    function button(className, icon, label, handler) {
+        const node = document.createElement('button');
+        node.type = 'button';
+        node.className = className;
+        node.innerHTML = '<i class="fa-solid fa-' + icon + '"></i> ';
+        node.appendChild(document.createTextNode(label));
+        node.addEventListener('click', handler);
+        return node;
+    }
+
     function renderResult() {
         if (!el.result) return;
-
-        clearInterval(countdownTimer);
 
         if (!state || state.status === 'playing' || !state.answer) {
             el.result.hidden = true;
@@ -572,48 +631,17 @@
         text(marks, squares());
         el.result.appendChild(marks);
 
-        const actions = document.createElement('div');
-        actions.className = 'ps-actions';
+        const primary = document.createElement('div');
+        primary.className = 'ps-result__actions';
+        primary.appendChild(button('ps-btn ps-btn--go', 'rotate', STRINGS.newTrack, () => start(true)));
+        el.result.appendChild(primary);
 
-        if (mode === 'daily') {
-            const next = document.createElement('p');
-            next.className = 'ps-result__next';
-            el.result.appendChild(next);
-
-            let remaining = state.next_in;
-            const paint = () => {
-                text(next, STRINGS.nextIn + ' ' + formatCountdown(Math.max(0, remaining)));
-                remaining -= 1;
-            };
-            paint();
-            countdownTimer = setInterval(paint, 1000);
-
-            const shareButton = document.createElement('button');
-            shareButton.type = 'button';
-            shareButton.className = 'ps-btn ps-btn--primary';
-            shareButton.innerHTML = '<i class="fa-solid fa-share-nodes"></i> ';
-            shareButton.appendChild(document.createTextNode(STRINGS.share));
-            shareButton.addEventListener('click', share);
-            actions.appendChild(shareButton);
-        } else {
-            const again = document.createElement('button');
-            again.type = 'button';
-            again.className = 'ps-btn ps-btn--primary';
-            again.innerHTML = '<i class="fa-solid fa-rotate"></i> ';
-            again.appendChild(document.createTextNode(STRINGS.newTrack));
-            again.addEventListener('click', () => start({ fresh: true }));
-            actions.appendChild(again);
-        }
-
-        const statsButton = document.createElement('button');
-        statsButton.type = 'button';
-        statsButton.className = 'ps-btn';
-        statsButton.innerHTML = '<i class="fa-solid fa-chart-simple"></i> ';
-        statsButton.appendChild(document.createTextNode(STRINGS.stats));
-        statsButton.addEventListener('click', openStats);
-        actions.appendChild(statsButton);
-
-        el.result.appendChild(actions);
+        const secondary = document.createElement('div');
+        secondary.className = 'ps-result__actions';
+        secondary.style.marginTop = '.5rem';
+        secondary.appendChild(button('ps-btn', 'share-nodes', STRINGS.share, share));
+        secondary.appendChild(button('ps-btn', 'chart-simple', STRINGS.stats, openStats));
+        el.result.appendChild(secondary);
     }
 
     function renderStats() {
@@ -628,7 +656,7 @@
         [
             [stats.played || 0, STRINGS.played],
             [(stats.win_rate || 0) + '%', STRINGS.winRate],
-            [stats.streak || 0, STRINGS.streak],
+            [stats.streak || 0, STRINGS.streakLabel],
             [stats.best_streak || 0, STRINGS.best],
         ].forEach(([value, label]) => {
             const figure = document.createElement('div');
@@ -664,17 +692,17 @@
             const isCurrent = state.status === 'won' && state.guesses.length === index + 1;
 
             const bar = document.createElement('div');
-            bar.className = 'ps-bar' + (isCurrent ? ' ps-bar--best' : '');
+            bar.className = 'ps-bar-row' + (isCurrent ? ' ps-bar-row--now' : '');
 
             const label = document.createElement('span');
-            label.className = 'ps-bar__label';
+            label.className = 'ps-bar-row__label';
             text(label, String(index + 1));
 
             const track = document.createElement('div');
-            track.className = 'ps-bar__track';
+            track.className = 'ps-bar-row__track';
 
             const fill = document.createElement('div');
-            fill.className = 'ps-bar__fill';
+            fill.className = 'ps-bar-row__fill';
             fill.style.width = Math.max(6, (count / peak) * 100) + '%';
             text(fill, String(count));
 
@@ -697,31 +725,29 @@
     function render() {
         if (!state) return;
 
-        if (el.subtitle) {
-            text(el.subtitle, mode === 'practice'
-                ? STRINGS.practiceHint
-                : (state.puzzle ? STRINGS.puzzle(state.puzzle) : ''));
-        }
-
-        renderMarks();
+        buildSegments();
         renderRows();
+        renderChips();
+        renderMeta();
         renderControls();
-        renderProgress(0);
         renderResult();
         renderStats();
         setPlayIcon(false);
+        paint(0);
+
+        // A partita finita la traccia intera si scarica subito: serve la sua
+        // durata vera per il cronometro, e comunque la si vuole risentire.
+        if (state.full) ensureClip().then(() => paint(0)).catch(() => {});
     }
 
     /* ── Modali ────────────────────────────────────────────────────────── */
 
     function openModal(modal) {
-        if (!modal) return;
-        modal.hidden = false;
+        if (modal) modal.hidden = false;
     }
 
     function closeModal(modal) {
-        if (!modal) return;
-        modal.hidden = true;
+        if (modal) modal.hidden = true;
     }
 
     function openStats() {
@@ -731,20 +757,21 @@
 
     /* ── Avvio ─────────────────────────────────────────────────────────── */
 
-    async function start(options) {
+    async function start(fresh) {
+        if (busy) return;
+        busy = true;
+
         if (el.boot) el.boot.hidden = false;
         if (el.game) el.game.hidden = true;
         if (el.error) el.error.hidden = true;
 
         stopPlayback();
-        if (clipUrl) URL.revokeObjectURL(clipUrl);
-        clipUrl = null;
-        clipKey = '';
-        selected = null;
+        dropClip();
+        closeList();
         if (el.input) el.input.value = '';
 
         try {
-            const payload = await loadState(options);
+            const payload = await loadState(fresh);
             state = payload;
             characters = payload.characters || characters;
             if (el.boot) el.boot.hidden = true;
@@ -756,10 +783,13 @@
                 el.error.hidden = false;
                 text(el.error.querySelector('[data-ps-error-text]') || el.error, error.message || STRINGS.loadError);
             }
+        } finally {
+            busy = false;
+            syncControls();
         }
     }
 
-    async function submitGuess(body, autoplay) {
+    async function submitGuess(body) {
         if (busy) return;
         busy = true;
         syncControls();
@@ -768,15 +798,15 @@
             const payload = await sendGuess(body);
             const wasPlaying = state && state.status === 'playing';
             state = Object.assign({}, state, payload);
-            selected = null;
-            el.input.value = '';
+            if (el.input) el.input.value = '';
             closeList();
             stopPlayback();
+            dropClip();
             render();
 
-            // Come su Songspot il frammento più lungo parte da solo: il click
+            // Come su allspot il frammento più lungo parte da solo: il click
             // sul pulsante vale come gesto dell'utente per l'autoplay.
-            if (autoplay && wasPlaying && state.status === 'playing') play();
+            if (wasPlaying && state.status === 'playing') play();
         } catch (error) {
             toast(error.message || STRINGS.loadError);
         } finally {
@@ -785,26 +815,57 @@
         }
     }
 
+    /* ── Volume ────────────────────────────────────────────────────────── */
+
+    function applyVolume(value, remember) {
+        const level = Math.max(0, Math.min(1, value));
+        audio.volume = level;
+
+        if (el.volume) {
+            el.volume.value = String(Math.round(level * 100));
+            // Il cursore da solo non dice quanto è alzato: la parte a sinistra
+            // la coloriamo a mano, perché il track non si può riempire in CSS.
+            el.volume.style.background = 'linear-gradient(90deg, var(--ps-green) '
+                + (level * 100) + '%, rgba(255, 255, 255, .1) ' + (level * 100) + '%)';
+        }
+
+        if (!remember) return;
+        try {
+            localStorage.setItem(VOLUME_KEY, String(level));
+        } catch (error) { /* niente storage, niente memoria: si riparte da 80% */ }
+    }
+
+    let savedVolume = 0.8;
+    try {
+        const stored = parseFloat(localStorage.getItem(VOLUME_KEY));
+        if (isFinite(stored)) savedVolume = stored;
+    } catch (error) { /* vedi sopra */ }
+    applyVolume(savedVolume, false);
+
+    if (el.volume) {
+        el.volume.addEventListener('input', () => applyVolume(el.volume.value / 100, true));
+    }
+
     /* ── Eventi ────────────────────────────────────────────────────────── */
 
     if (el.play) el.play.addEventListener('click', play);
 
     if (el.skip) {
-        el.skip.addEventListener('click', () => submitGuess({ action: 'skip' }, true));
+        el.skip.dataset.psSkipWord = skipLabel ? skipLabel.textContent : '';
+        el.skip.addEventListener('click', () => submitGuess({ action: 'skip' }));
     }
 
-    if (el.submit) {
-        el.submit.addEventListener('click', () => {
-            if (!selected) return;
-            submitGuess({ action: 'guess', character_id: selected.id }, true);
+    if (el.clear) {
+        el.clear.addEventListener('click', () => {
+            el.input.value = '';
+            closeList();
+            syncControls();
+            el.input.focus();
         });
     }
 
-    if (el.clear) el.clear.addEventListener('click', clearSelection);
-
     if (el.input) {
         el.input.addEventListener('input', () => {
-            selected = null;
             openList(el.input.value);
             syncControls();
         });
@@ -835,29 +896,20 @@
         });
     }
 
-    root.querySelectorAll('[data-ps-tab]').forEach((tab) => {
-        tab.addEventListener('click', () => {
-            const next = tab.dataset.psTab === 'practice' ? 'practice' : 'daily';
-            if (next === mode) return;
-
-            mode = next;
-            root.querySelectorAll('[data-ps-tab]').forEach((other) => {
-                other.setAttribute('aria-selected', other === tab ? 'true' : 'false');
-            });
-            start();
-        });
+    root.querySelectorAll('[data-ps-new]').forEach((node) => {
+        node.addEventListener('click', () => start(true));
     });
 
-    document.querySelectorAll('[data-ps-open-stats]').forEach((button) => {
-        button.addEventListener('click', openStats);
+    document.querySelectorAll('[data-ps-open-stats]').forEach((node) => {
+        node.addEventListener('click', openStats);
     });
 
-    document.querySelectorAll('[data-ps-open-rules]').forEach((button) => {
-        button.addEventListener('click', () => openModal(el.rulesModal));
+    document.querySelectorAll('[data-ps-open-rules]').forEach((node) => {
+        node.addEventListener('click', () => openModal(el.rulesModal));
     });
 
-    document.querySelectorAll('[data-ps-close]').forEach((button) => {
-        button.addEventListener('click', () => closeModal(button.closest('.ps-modal')));
+    document.querySelectorAll('[data-ps-close]').forEach((node) => {
+        node.addEventListener('click', () => closeModal(node.closest('.ps-modal')));
     });
 
     document.querySelectorAll('.ps-modal').forEach((modal) => {
@@ -873,17 +925,15 @@
         }
 
         // La barra spaziatrice fa partire la traccia, ma non mentre si scrive.
-        if (event.code === 'Space' && document.activeElement !== el.input) {
+        if (event.code === 'Space') {
             const tag = (document.activeElement && document.activeElement.tagName) || '';
-            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON') return;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON' || tag === 'SELECT') return;
             event.preventDefault();
             play();
         }
     });
 
-    window.addEventListener('pagehide', () => {
-        if (clipUrl) URL.revokeObjectURL(clipUrl);
-    });
+    window.addEventListener('pagehide', dropClip);
 
-    start();
+    start(false);
 })();

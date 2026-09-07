@@ -3,13 +3,13 @@
 /**
  * Cripsum™ — API Pullspot: stato della partita
  *
- * Endpoint : GET /api/pullspot/state.php[?mode=daily|practice][&new=1]
+ * Endpoint : GET /api/pullspot/state.php[?new=1]
  * Auth     : sessione PHP
  * Response : JSON
  *
  * È l'unica chiamata che manda anche l'elenco dei personaggi, perché serve a
- * riempire il campo di ricerca. La risposta del giorno non è mai qui dentro
- * finché la partita non è finita.
+ * riempire il campo di ricerca. La risposta non è mai qui dentro finché la
+ * partita non è finita.
  */
 
 require_once __DIR__ . '/../../config/session_init.php';
@@ -38,10 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
-$mode    = ($_GET['mode'] ?? 'daily') === 'practice' ? 'practice' : 'daily';
-$restart = $mode === 'practice' && !empty($_GET['new']);
-
-$round = pullspot_bootstrap($mysqli, $userId, $mode, $restart);
+$round = pullspot_bootstrap($mysqli, !empty($_GET['new']));
 
 if ($round === null) {
     http_response_code(503);
@@ -49,7 +46,7 @@ if ($round === null) {
     exit;
 }
 
-$payload = pullspot_public_state($round['game'], $round['character'], $round['mode'], $round['day_index']);
+$payload = pullspot_public_state($round['game'], $round['character']);
 $payload['ok']         = true;
 $payload['characters'] = pullspot_character_list($mysqli);
 $payload['stats']      = pullspot_stats($mysqli, $userId);

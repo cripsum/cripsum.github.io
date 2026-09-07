@@ -3,7 +3,7 @@
 /**
  * Cripsum™ — API Pullspot: traccia
  *
- * Endpoint : GET /api/pullspot/audio.php[?mode=daily|practice]
+ * Endpoint : GET /api/pullspot/audio.php
  * Auth     : sessione PHP
  * Response : audio/mpeg
  *
@@ -39,11 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     pullspot_audio_fail(405, pullspot_msg('method', $lang));
 }
 
-$userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
-$mode  = ($_GET['mode'] ?? 'daily') === 'practice' ? 'practice' : 'daily';
-$round = pullspot_bootstrap($mysqli, $userId, $mode);
+$round = pullspot_bootstrap($mysqli);
 
 if ($round === null || empty($round['character'])) {
     pullspot_audio_fail(503, pullspot_msg('no_pool', $lang));

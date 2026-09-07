@@ -4,11 +4,11 @@
  * Cripsum™ — API Pullspot: tentativo
  *
  * Endpoint : POST /api/pullspot/guess.php
- * Body     : {"mode":"daily|practice", "action":"guess|skip", "character_id":123}
+ * Body     : {"action":"guess|skip", "character_id":123}
  * Auth     : sessione PHP + token CSRF
  *
  * Il confronto con la risposta avviene solo qui: il client non sa chi sia il
- * personaggio del giorno finché non ha finito i tentativi.
+ * personaggio finché non ha finito i tentativi.
  */
 
 require_once __DIR__ . '/../../config/session_init.php';
@@ -47,9 +47,7 @@ if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
 $userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
-$mode = ($input['mode'] ?? 'daily') === 'practice' ? 'practice' : 'daily';
-
-$round = pullspot_bootstrap($mysqli, $userId, $mode);
+$round = pullspot_bootstrap($mysqli);
 if ($round === null) {
     http_response_code(503);
     echo json_encode(['error' => pullspot_msg('no_pool', $lang), 'code' => 'NO_POOL']);
@@ -76,9 +74,10 @@ if (($input['action'] ?? 'guess') !== 'skip') {
 }
 
 $game = pullspot_apply_guess($game, $guess, $character);
-pullspot_save_game($mysqli, $userId, $mode, $game);
+$game = pullspot_record_result($mysqli, $userId, $game);
+pullspot_session_save($game);
 
-$payload = pullspot_public_state($game, $character, $mode, $round['day_index']);
+$payload = pullspot_public_state($game, $character);
 $payload['ok']    = true;
 $payload['stats'] = pullspot_stats($mysqli, $userId);
 
