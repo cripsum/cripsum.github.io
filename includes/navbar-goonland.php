@@ -36,6 +36,7 @@ $t = [
         'admin_panel'  => 'Pannello Admin',
         'my_profile_alt' => 'Profilo',
         'missions'     => 'Missioni',
+        'rewind'       => 'Il tuo Rewind',
     ],
     'en' => [
         'back_cripsum' => 'Back to Cripsum™',
@@ -53,6 +54,7 @@ $t = [
         'admin_panel'  => 'Admin Panel',
         'my_profile_alt' => 'Profile',
         'missions'     => 'Missions',
+        'rewind'       => 'Your Rewind',
     ],
 ][$lang];
 
@@ -157,6 +159,9 @@ if ($isLoggedIn) {
                         <ul class="dropdown-menu dropdown-menu-end animate slideIn">
                             <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fa-solid fa-user me-2"></i><?= $t['my_profile'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fa-solid fa-gear me-2"></i><?= $t['settings'] ?></a></li>
+                            <?php if (rewind_user_can_view()): ?>
+                                <li><a class="dropdown-item" href="/<?= $lang ?>/rewind"><i class="fa-solid fa-clock-rotate-left me-2"></i><?= $t['rewind'] ?></a></li>
+                            <?php endif; ?>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fa-solid fa-trophy me-2"></i>Achievements</a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/missions"><i class="fa-solid fa-bullseye me-2"></i><?= $t['missions'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fa-solid fa-box me-2"></i><?= $t['inventory'] ?></a></li>

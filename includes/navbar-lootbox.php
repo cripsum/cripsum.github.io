@@ -25,6 +25,7 @@ $t = [
         'top_rimasti'  => 'Top rimasti',
         'games'        => 'Giochi',
         'duels'        => 'Duelli',
+        'subway'       => 'Subway Surfers',
         'shop'         => 'Shop',
         'store'        => 'Negozio',
         'gacha_shop'   => 'Shop Gacha',
@@ -49,12 +50,14 @@ $t = [
         'missions'     => 'Missioni',
         'private_chat' => 'Chat Privata',
         'friends'      => 'Amici',
+        'rewind'       => 'Il tuo Rewind',
     ],
     'en' => [
         'memes'        => 'Memes',
         'top_rimasti'  => 'Top braindeads',
         'games'        => 'Games',
         'duels'        => 'Duels',
+        'subway'       => 'Subway Surfers',
         'shop'         => 'Shop',
         'store'        => 'Store',
         'gacha_shop'   => 'Gacha Shop',
@@ -79,6 +82,7 @@ $t = [
         'missions'     => 'Missions',
         'private_chat' => 'Private Chat',
         'friends'      => 'Friends',
+        'rewind'       => 'Your Rewind',
     ],
 ][$lang];
 
@@ -156,6 +160,8 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item " href="/<?= $lang ?>/gambling"><i class="fa-solid fa-dice me-2"></i>Gambling</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox"><i class="fa-solid fa-box-open me-2"></i>Lootbox</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/game/"><i class="fa-solid fa-gamepad me-2"></i><?= $t['duels'] ?></a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/subway"><i class="fa-solid fa-train me-2"></i><?= $t['subway'] ?></a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/pullspot"><i class="fa-solid fa-headphones-simple me-2"></i>Pullspot</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
@@ -234,6 +240,9 @@ if ($isLoggedIn) {
                         <ul class="dropdown-menu dropdown-menu-end animate slideIn">
                             <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fa-solid fa-user me-2"></i><?= $t['my_profile'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fa-solid fa-gear me-2"></i><?= $t['settings'] ?></a></li>
+                            <?php if (rewind_user_can_view()): ?>
+                                <li><a class="dropdown-item" href="/<?= $lang ?>/rewind"><i class="fa-solid fa-clock-rotate-left me-2"></i><?= $t['rewind'] ?></a></li>
+                            <?php endif; ?>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fa-solid fa-trophy me-2"></i>Achievements</a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/missions"><i class="fa-solid fa-bullseye me-2"></i><?= $t['missions'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fa-solid fa-box me-2"></i><?= $t['inventory'] ?></a></li>

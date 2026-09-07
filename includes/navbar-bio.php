@@ -24,6 +24,7 @@ $t = [
         'top_rimasti'  => 'Top rimasti',
         'games'        => 'Giochi',
         'duels'        => 'Duelli',
+        'subway'       => 'Subway Surfers',
         'shop'         => 'Shop',
         'store'        => 'Negozio',
         'gacha_shop'   => 'Shop Gacha',
@@ -48,12 +49,14 @@ $t = [
         'missions'     => 'Missioni',
         'private_chat' => 'Chat Privata',
         'friends'      => 'Amici',
+        'rewind'       => 'Il tuo Rewind',
     ],
     'en' => [
         'memes'        => 'Memes',
         'top_rimasti'  => 'Top braindeads',
         'games'        => 'Games',
         'duels'        => 'Duels',
+        'subway'       => 'Subway Surfers',
         'shop'         => 'Shop',
         'store'        => 'Store',
         'gacha_shop'   => 'Gacha Shop',
@@ -78,6 +81,7 @@ $t = [
         'missions'     => 'Missions',
         'private_chat' => 'Private Chat',
         'friends'      => 'Friends',
+        'rewind'       => 'Your Rewind',
     ],
 ][$lang];
 
@@ -154,6 +158,8 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item " href="/<?= $lang ?>/gambling"><i class="fa-solid fa-dice me-2"></i>Gambling</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox"><i class="fa-solid fa-box-open me-2"></i>Lootbox</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/game/"><i class="fa-solid fa-gamepad me-2"></i><?= $t['duels'] ?></a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/subway"><i class="fa-solid fa-train me-2"></i><?= $t['subway'] ?></a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/pullspot"><i class="fa-solid fa-headphones-simple me-2"></i>Pullspot</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
@@ -233,6 +239,9 @@ if ($isLoggedIn) {
                         <ul class="dropdown-menu dropdown-menu-end animate slideIn">
                             <li><a class="dropdown-item" href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fa-solid fa-user me-2"></i><?= $t['my_profile'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/impostazioni"><i class="fa-solid fa-gear me-2"></i><?= $t['settings'] ?></a></li>
+                            <?php if (rewind_user_can_view()): ?>
+                                <li><a class="dropdown-item" href="/<?= $lang ?>/rewind"><i class="fa-solid fa-clock-rotate-left me-2"></i><?= $t['rewind'] ?></a></li>
+                            <?php endif; ?>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/achievements"><i class="fa-solid fa-trophy me-2"></i>Achievements</a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/missions"><i class="fa-solid fa-bullseye me-2"></i><?= $t['missions'] ?></a></li>
                             <li><a class="dropdown-item" href="/<?= $lang ?>/inventario"><i class="fa-solid fa-box me-2"></i><?= $t['inventory'] ?></a></li>
@@ -605,6 +614,8 @@ if ($isPublicProfilePage):
                             <li><a href="/<?php echo $lang; ?>/gambling"><i class="fa-solid fa-dice"></i> Gambling</a></li>
                             <li><a href="/<?php echo $lang; ?>/lootbox"><i class="fa-solid fa-box-open"></i> Lootbox</a></li>
                             <li><a href="/<?php echo $lang; ?>/game/"><i class="fa-solid fa-gamepad"></i> <?php echo htmlspecialchars($t['duels']); ?></a></li>
+                            <li><a href="/<?php echo $lang; ?>/subway"><i class="fa-solid fa-train"></i> <?php echo htmlspecialchars($t['subway']); ?></a></li>
+                            <li><a href="/<?php echo $lang; ?>/pullspot"><i class="fa-solid fa-headphones-simple"></i> Pullspot</a></li>
                         </ul>
                     </div>
                     <!-- Section Shop -->
@@ -647,6 +658,9 @@ if ($isPublicProfilePage):
                             <div class="profile-nav-user-grid">
                                 <a href="/u/<?php echo htmlspecialchars($username); ?>"><i class="fa-solid fa-user"></i> <?php echo htmlspecialchars($t['my_profile']); ?></a>
                                 <a href="/<?php echo $lang; ?>/impostazioni"><i class="fa-solid fa-gear"></i> <?php echo htmlspecialchars($t['settings']); ?></a>
+                                <?php if (rewind_user_can_view()): ?>
+                                    <a href="/<?php echo $lang; ?>/rewind"><i class="fa-solid fa-clock-rotate-left"></i> <?php echo htmlspecialchars($t['rewind']); ?></a>
+                                <?php endif; ?>
                                 <a href="/<?php echo $lang; ?>/achievements"><i class="fa-solid fa-trophy"></i> Achievements</a>
                                 <a href="/<?php echo $lang; ?>/missions"><i class="fa-solid fa-bullseye"></i> <?php echo htmlspecialchars($t['missions']); ?></a>
                                 <a href="/<?php echo $lang; ?>/inventario"><i class="fa-solid fa-box"></i> <?php echo htmlspecialchars($t['inventory']); ?></a>

@@ -160,6 +160,7 @@ if ($isLoggedIn) {
                         <li><a class="dropdown-item " href="/<?= $lang ?>/lootbox"><i class="fa-solid fa-box-open me-2"></i>Lootbox</a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/game/"><i class="fa-solid fa-gamepad me-2"></i><?= $t['duels'] ?></a></li>
                         <li><a class="dropdown-item " href="/<?= $lang ?>/subway"><i class="fa-solid fa-train me-2"></i><?= $t['subway'] ?></a></li>
+                        <li><a class="dropdown-item " href="/<?= $lang ?>/pullspot"><i class="fa-solid fa-headphones-simple me-2"></i>Pullspot</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown dropdownutenti">
