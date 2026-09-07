@@ -16,6 +16,7 @@
 defined('ABSPATH') || define('ABSPATH', true);
 
 require_once __DIR__ . '/mission_generator.php';
+require_once __DIR__ . '/stats_tracker.php';
 
 // ─────────────────────────────────────────────────────────────
 //  MAPPA DEGLI EVENTI SUPPORTATI
@@ -71,6 +72,12 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
         // Evento non registrato — ignora silenziosamente
         return [];
     }
+
+    // ── Statistiche Rewind ────────────────────────────────────
+    // Aggangiate qui e non nei singoli file: ogni chiamata al tracker delle
+    // missioni alimenta anche le statistiche annuali, senza toccare i quindici
+    // punti del sito che già invocano questa funzione.
+    trackStatsForMissionEvent($mysqli, $userId, $evento, $quantita);
 
     // Inizializza le missioni per oggi/questa settimana se non ancora fatto in questa sessione
     if (isset($_SESSION)) {
@@ -226,4 +233,43 @@ function _getMissionWeeklyPeriodForTracker(): string
         $monday = strtotime('last monday');
     }
     return date('Y-m-d', $monday);
+}
+
+
+// ─────────────────────────────────────────────────────────────
+//  PONTE VERSO LE STATISTICHE DEL REWIND
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Traduce un evento missione nella metrica corrispondente del Rewind.
+ *
+ * Non tutti gli eventi hanno un equivalente: `daily_login` e `view_page` sono
+ * già coperti altrove (l'heartbeat conta presenza e visualizzazioni), e
+ * `send_message` non compare qui perché il tracker non sa distinguere chat
+ * globale, privata e di gruppo — quei tre casi chiamano stats_track()
+ * direttamente dai rispettivi endpoint.
+ */
+function trackStatsForMissionEvent(mysqli $mysqli, int $userId, string $evento, int $quantita): void
+{
+    static $map = [
+        'lootbox_open'       => 'lootboxes_opened',
+        'use_global_chat'    => 'msg_global',
+        'visit_profile'      => 'profile_visits_made',
+        'add_like'           => 'likes_given',
+        'edit_profile'       => 'profile_edits',
+        'view_edit'          => 'edits_viewed',
+        'download_content'   => 'downloads',
+        'get_rarity_rare'    => 'gacha_rare',
+        'get_rarity_epic'    => 'gacha_epic',
+        'get_rarity_special' => 'gacha_special',
+        'get_rarity_secret'  => 'gacha_secret',
+    ];
+
+    if (!isset($map[$evento])) {
+        return;
+    }
+
+    // stats_track() non lancia mai: se la migration non è stata applicata
+    // esce da sola e le missioni proseguono normalmente.
+    stats_track($mysqli, $userId, $map[$evento], $quantita);
 }

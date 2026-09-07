@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/game_config.php';
+require_once __DIR__ . '/stats_tracker.php';
 
 
 
@@ -500,6 +501,20 @@ function gd_finish(mysqli $m, array $match, int $winner, int $loser): void
     }
     $st->execute();
     $st->close();
+
+    // Statistiche Rewind. Il bot non è un utente: le sue partite contano
+    // solo per l'avversario umano.
+    try {
+        $botId = gd_bot_id();
+        if ($winner !== $botId) {
+            stats_track_many($m, $winner, ['duels_played' => 1, 'duels_won' => 1]);
+        }
+        if ($loser !== $botId) {
+            stats_track_many($m, $loser, ['duels_played' => 1, 'duels_lost' => 1]);
+        }
+    } catch (Throwable $trackErr) {
+        error_log('[Stats gd_finish] ' . $trackErr->getMessage());
+    }
 }
 function gd_user_public(mysqli $m, int $uid): array
 {

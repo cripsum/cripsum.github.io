@@ -14,6 +14,7 @@
 require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
+require_once '../../includes/stats_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -158,6 +159,16 @@ try {
     $nuovoTotale  = (int)($userRow['soldi'] ?? 0);
 
     $mysqli->commit();
+
+    // Statistiche Rewind: la missione è completata e riscattata.
+    try {
+        stats_track_many($mysqli, $userId, [
+            "missions_claimed" => 1,
+            "godos_earned"     => $punti,
+        ]);
+    } catch (Throwable $trackErr) {
+        error_log("[Stats missions/claim] " . $trackErr->getMessage());
+    }
 
     // ── Risposta successo ─────────────────────────────────────
     echo json_encode([

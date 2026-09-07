@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../config/session_init.php';
+require_once __DIR__ . '/../../includes/stats_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -172,6 +173,17 @@ try {
     $rankRes = $rankStmt->get_result();
     $userRank = (int)($rankRes->fetch_assoc()['user_rank'] ?? 1);
     $rankStmt->close();
+
+    // Statistiche Rewind. `best_time_ms` è un tempo di sopravvivenza, quindi
+    // più alto è meglio: la metrica va tenuta al massimo, non sommata.
+    try {
+        stats_track_many($mysqli, $user_id, [
+            'subway_runs'    => 1,
+            'subway_best_ms' => $time_ms,
+        ]);
+    } catch (Throwable $trackErr) {
+        error_log('[Stats subway save_score] ' . $trackErr->getMessage());
+    }
 
     echo json_encode([
         'status' => 'success',

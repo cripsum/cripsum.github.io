@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/stats_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -89,6 +90,15 @@ try {
     $stmt->close();
 
     $mysqli->commit();
+
+    // Statistiche Rewind, dopo il commit: lo sblocco resta valido anche se
+    // il contatore non riesce a scrivere.
+    try {
+        stats_track($mysqli, $userId, 'achievements_unlocked');
+    } catch (Throwable $trackErr) {
+        error_log('[Stats set_achievement] ' . $trackErr->getMessage());
+    }
+
     echo json_encode(['status' => 'success', 'message' => 'Achievement sbloccato.', 'points_added' => 0]);
 } catch (Throwable $e) {
     try {

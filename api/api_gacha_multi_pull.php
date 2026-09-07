@@ -429,6 +429,32 @@ try {
                 trackMissionProgress($mysqli, $userId, 'get_rarity_secret');
             }
         }
+
+        // ── Statistiche Rewind ────────────────────────────────────────────
+        // Una sola scrittura per l'intera multi-pull invece di dieci.
+        $statDeltas = ['gacha_pulls' => count($pulls)];
+        if ($pointsToUse > 0) $statDeltas['godos_spent']  = $pointsToUse;
+        if ($pointsToUse > 0) $statDeltas['gacha_spent']  = $pointsToUse;
+        if ($shardsToUse > 0) $statDeltas['shards_spent'] = $shardsToUse;
+
+        $newChars = 0;
+        $won50 = 0;
+        $lost50 = 0;
+        $maxPity = 0;
+
+        foreach ($pulls as $pull) {
+            if (!empty($pull['is_new'])) $newChars++;
+            if (($pull['vinto_50_50'] ?? null) === 1) $won50++;
+            if (($pull['vinto_50_50'] ?? null) === 0) $lost50++;
+            $maxPity = max($maxPity, (int)($pull['pity_snapshot'] ?? 0));
+        }
+
+        if ($newChars > 0) $statDeltas['gacha_new_chars'] = $newChars;
+        if ($won50 > 0)    $statDeltas['gacha_5050_won']  = $won50;
+        if ($lost50 > 0)   $statDeltas['gacha_5050_lost'] = $lost50;
+        if ($maxPity > 0)  $statDeltas['max_pity_hit']    = $maxPity;
+
+        stats_track_many($mysqli, $userId, $statDeltas);
     } catch (Throwable $trackErr) {
         error_log('[MissionTracking gacha_multi_pull] ' . $trackErr->getMessage());
     }

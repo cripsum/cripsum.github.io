@@ -3,6 +3,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/account_data_helpers.php';
+require_once '../includes/rewind_helpers.php';
 
 if (function_exists('checkBan')) {
     checkBan($mysqli);
@@ -45,7 +46,16 @@ if (!empty($_SESSION['profile_flash_error'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string)($_POST['action'] ?? '');
 
-    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+    // Le due azioni del pannello Rewind sono gestite dal loro modulo.
+    $rewindOutcome = null;
+    if (csrf_validate($_POST['csrf_token'] ?? null)) {
+        $rewindOutcome = rewind_settings_handle_post($mysqli, $userId, $action, true);
+    }
+
+    if ($rewindOutcome !== null) {
+        if ($rewindOutcome['ok']) { $success = $rewindOutcome['message']; }
+        else { $error = $rewindOutcome['message']; }
+    } elseif (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $error = 'Session expired. Please try again.';
     } elseif ($action === 'revoke_device') {
         $deviceSessionId = filter_input(INPUT_POST, 'device_session_id', FILTER_VALIDATE_INT);
@@ -799,6 +809,8 @@ unset($_SESSION['account_deletion_cancelled']);
                         </div>
                     </article>
                 </div>
+
+                <?php include '../includes/settings_rewind.php'; ?>
 
                 <?php include '../includes/settings_account_data.php'; ?>
             </div>

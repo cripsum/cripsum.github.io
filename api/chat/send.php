@@ -136,6 +136,11 @@ try {
     if (defined('IS_GLOBAL_CHAT') && IS_GLOBAL_CHAT) {
         trackMissionProgress($mysqli, $userId, 'use_global_chat');
     }
+
+    // Statistiche Rewind: questo endpoint scrive sempre sulla tabella
+    // `messages`, cioè la chat globale, a prescindere da IS_GLOBAL_CHAT
+    // (che resta indefinito in parecchi punti di ingresso).
+    stats_track($mysqli, $userId, 'msg_global');
 } catch (Throwable $trackErr) {
     error_log('[MissionTracking send.php] ' . $trackErr->getMessage());
 }

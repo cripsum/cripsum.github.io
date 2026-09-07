@@ -45,12 +45,7 @@
 
             gtag("config", "G-T0CTM2SBJJ");
         </script>
-        <script>
-            fetch('/api/update_activity.php');
-            setInterval(() => {
-                fetch('/api/update_activity.php');
-            }, 25000);
-        </script>
+        <script src="/js/activity-beat.js?v=1" defer></script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -75,7 +70,7 @@
         <script src="/js/controlloTema.js"></script>
         <script src="/js/impostazioni.js?v=2"></script>
         <script src="/js/<?php echo $t['achievement']; ?>"></script>
-        <script src="/js/achievements-globali.js?v=4"></script>
+        <script src="/js/achievements-globali.js?v=5"></script>
         <!-- <script src="/js/nomePagina.js"></script> -->
 
         <meta charset="UTF-8" />

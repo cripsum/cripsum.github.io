@@ -5,6 +5,7 @@
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../includes/group_chat_functions.php';
 require_once __DIR__ . '/../../includes/social_functions.php';
+require_once __DIR__ . '/../../includes/mission_tracker.php';
 
 $input = get_json_input();
 $chatId = isset($input['chat_id']) ? (int)$input['chat_id'] : 0;
@@ -138,7 +139,17 @@ if ($chatId > 0) {
             $contentEn = "@{$newMsg['sender_username']}: " . (strlen($notifText) > 40 ? substr($notifText, 0, 40) . '...' : $notifText);
             sendSocialNotification($mysqli, $memberId, $titleIt, $titleEn, $contentIt, $contentEn);
         }
-        
+
+        // ── Tracking (missioni + statistiche Rewind) ──────────────────
+        // Dopo il commit e mai bloccante: un contatore perso non deve
+        // impedire la consegna di un messaggio già salvato.
+        try {
+            trackMissionProgress($mysqli, $userId, 'send_message');
+            stats_track($mysqli, $userId, 'msg_group');
+        } catch (Throwable $trackErr) {
+            error_log('[Tracking send_message group] ' . $trackErr->getMessage());
+        }
+
         send_success(['message' => $newMsg]);
         
     } catch (Throwable $e) {
@@ -285,9 +296,17 @@ try {
     $stmtSelect->execute();
     $newMsg = $stmtSelect->get_result()->fetch_assoc();
     $stmtSelect->close();
-    
+
+    // ── Tracking (missioni + statistiche Rewind) ──────────────────────
+    try {
+        trackMissionProgress($mysqli, $userId, 'send_message');
+        stats_track($mysqli, $userId, 'msg_private');
+    } catch (Throwable $trackErr) {
+        error_log('[Tracking send_message private] ' . $trackErr->getMessage());
+    }
+
     send_success(['message' => $newMsg]);
-    
+
 } catch (Exception $e) {
     $mysqli->rollback();
     send_error($e->getMessage(), $e->getCode() ?: 400);

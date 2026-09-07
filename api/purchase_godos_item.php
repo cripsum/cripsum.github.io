@@ -2,6 +2,7 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/stats_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -131,6 +132,14 @@ try {
     $stmtLog->close();
 
     $mysqli->commit();
+
+    // Statistiche Rewind: il flusso dei Godos non lascia traccia storica
+    // altrove, `utenti.soldi` conserva solo il saldo attuale.
+    try {
+        stats_track($mysqli, $userId, 'godos_spent', $costo);
+    } catch (Throwable $trackErr) {
+        error_log('[Stats purchase_godos_item] ' . $trackErr->getMessage());
+    }
 
     // Recupera dettagli del badge se applicabile per la reveal animation
     $badgeDetails = null;

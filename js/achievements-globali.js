@@ -124,6 +124,14 @@
     }
 
     function checkTimeSpent() {
+        // Il contatore avanza solo a scheda visibile. Prima cresceva anche
+        // con la pagina dimenticata in secondo piano, il che rendeva il
+        // totale inservibile per le statistiche del Rewind.
+        // Il valore già accumulato resta: nessuno perde l'achievement 14.
+        if (document.visibilityState !== 'visible') {
+            return;
+        }
+
         const currentTimeSpent = Number.parseInt(getCookie('timeSpent'), 10) || 0;
         const nextTimeSpent = currentTimeSpent + 1;
 

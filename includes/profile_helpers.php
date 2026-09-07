@@ -2,6 +2,8 @@
 // Cripsum™ Profile System V2 helpers
 // Richiede: config/session_init.php, config/database.php, includes/functions.php
 
+require_once __DIR__ . '/stats_tracker.php';
+
 if (!function_exists('profile_h')) {
     function profile_h($value): string
     {
@@ -559,6 +561,14 @@ function profile_increment_views(mysqli $mysqli, int $profileId): void
     $stmt->execute();
     $stmt->close();
     $_SESSION['viewed_profiles_v2'][] = $profileId;
+
+    // Statistiche Rewind: `utenti.profile_views` è un contatore senza storia,
+    // qui teniamo anche la data così il Rewind può mostrare l'andamento.
+    try {
+        stats_track($mysqli, $profileId, 'profile_views_received');
+    } catch (Throwable $trackErr) {
+        error_log('[Stats profile_register_view] ' . $trackErr->getMessage());
+    }
 }
 
 function profile_list_socials(mysqli $mysqli, int $userId, bool $onlyVisible = true): array

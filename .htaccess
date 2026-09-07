@@ -67,6 +67,12 @@ RewriteRule ^(it|en)/cripsumpedia/editor/?$ cripsumpedia/editor.php?lang=$1 [L,Q
 RewriteRule ^(it|en)/cripsumpedia/(persone|people|eventi|events|meme|memes)/?$ cripsumpedia/category.php?lang=$1&category=$2 [L,QSA]
 RewriteRule ^(it|en)/cripsumpedia/(persone|people|eventi|events|meme|memes)/([a-zA-Z0-9_-]+)/?$ cripsumpedia/entry.php?lang=$1&category=$2&slug=$3 [L,QSA]
 
+# Rewind condivisi. Il token e' di 22 caratteri base64url: la regola non
+# puo' collidere con gli alias personalizzati dei profili, che si fermano a 30
+# caratteri ma non hanno mai una barra dopo "rewind".
+RewriteRule ^rewind/([A-Za-z0-9_-]{22})/?$ rewind_public.php?token=$1 [L,QSA]
+RewriteRule ^(it|en)/rewind/([A-Za-z0-9_-]{22})/?$ rewind_public.php?lang=$1&token=$2 [L,QSA]
+
 RewriteRule ^u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
 RewriteRule ^profile/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]

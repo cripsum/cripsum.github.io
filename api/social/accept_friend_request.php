@@ -55,7 +55,16 @@ try {
     $contentEn = "Hooray! **@$myUsername** accepted your friend request. You are now friends! View their profile [here](/u/$myUsername).";
     
     sendSocialNotification($mysqli, $senderId, $titleIt, $titleEn, $contentIt, $contentEn);
-    
+
+    // Statistiche Rewind: l'amicizia vale per entrambi, non solo per chi
+    // preme "accetta".
+    try {
+        stats_track($mysqli, $userId, 'friends_added');
+        stats_track($mysqli, $senderId, 'friends_added');
+    } catch (Throwable $trackErr) {
+        error_log('[Stats accept_friend_request] ' . $trackErr->getMessage());
+    }
+
     send_api_success(['is_friend' => true], "Richiesta di amicizia accettata. Ora siete amici!");
     
 } catch (Exception $e) {

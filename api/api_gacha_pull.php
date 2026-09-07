@@ -577,6 +577,20 @@ try {
         if (in_array($rarità, $raritySecretPlus, true)) {
             trackMissionProgress($mysqli, $userId, 'get_rarity_secret');
         }
+
+        // ── Statistiche Rewind ────────────────────────────────────────────
+        // Le rarità arrivano già dal tracker delle missioni; qui restano i
+        // dati che nessuna missione osserva: pull, spesa, pity e 50/50.
+        $statDeltas = ['gacha_pulls' => 1];
+        if ($pointsToUse > 0)  $statDeltas['godos_spent']   = $pointsToUse;
+        if ($pointsToUse > 0)  $statDeltas['gacha_spent']   = $pointsToUse;
+        if ($shardsToUse > 0)  $statDeltas['shards_spent']  = $shardsToUse;
+        if ($isNew)            $statDeltas['gacha_new_chars'] = 1;
+        if ($vinto50_50 === true)  $statDeltas['gacha_5050_won']  = 1;
+        if ($vinto50_50 === false) $statDeltas['gacha_5050_lost'] = 1;
+        if ($pitySnapshot > 0) $statDeltas['max_pity_hit'] = $pitySnapshot;
+
+        stats_track_many($mysqli, $userId, $statDeltas);
     } catch (Throwable $trackErr) {
         // Il tracking non deve mai rompere la risposta
         error_log('[MissionTracking gacha_pull] ' . $trackErr->getMessage());

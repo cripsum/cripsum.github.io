@@ -7,6 +7,7 @@ error_reporting(0);
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/session_init.php';
+require_once __DIR__ . '/../includes/stats_tracker.php';
 
 header('Content-Type: application/json');
 
@@ -70,6 +71,14 @@ try {
     if ($stmt->execute()) {
         $insertId = $mysqli->insert_id;
         error_log("Shitpost inserito con successo: ID={$insertId}");
+
+        // Statistiche Rewind: conta la pubblicazione, non l'approvazione.
+        try {
+            stats_track($mysqli, $userId, "shitposts_created");
+        } catch (Throwable $trackErr) {
+            error_log("[Stats set_new_shitpost] " . $trackErr->getMessage());
+        }
+
         
         echo json_encode([
             'success' => true, 
