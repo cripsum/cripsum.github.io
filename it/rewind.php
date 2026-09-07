@@ -96,11 +96,16 @@ function rw_h(mixed $value): string
 
         <div class="rw-topbar">
             <span class="rw-topbar__brand">
-                <i class="fa-solid fa-clock-rotate-left"></i> Cripsum Rewind
+                <i class="fa-solid fa-clock-rotate-left"></i> Cripsum Rewind&trade;
             </span>
             <!-- Il controllo audio viene montato qui dal JS: se la
                  musica non e' disponibile lo slot resta vuoto. -->
             <div class="rw-topbar__actions" data-rw-audio-slot>
+                <button type="button" class="rw-iconbtn" data-rw-playpause
+                        aria-pressed="false"
+                        aria-label="<?php echo $isEn ? 'Pause the story' : 'Metti in pausa lo scorrimento'; ?>">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
                 <a class="rw-iconbtn" href="/<?php echo $lang; ?>/home"
                    aria-label="<?php echo $isEn ? 'Close' : 'Chiudi'; ?>">
                     <i class="fa-solid fa-xmark"></i>

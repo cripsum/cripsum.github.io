@@ -160,6 +160,11 @@ $ogDescription = $payload
             <!-- Il controllo audio viene montato qui dal JS: se la
                  musica non e' disponibile lo slot resta vuoto. -->
             <div class="rw-topbar__actions" data-rw-audio-slot>
+                <button type="button" class="rw-iconbtn" data-rw-playpause
+                        aria-pressed="false"
+                        aria-label="<?php echo $isEn ? 'Pause the story' : 'Metti in pausa lo scorrimento'; ?>">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
                 <a class="rw-iconbtn" href="/<?php echo $lang; ?>/home" aria-label="Cripsum">
                     <i class="fa-solid fa-house"></i>
                 </a>

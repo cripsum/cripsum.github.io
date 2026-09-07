@@ -41,7 +41,7 @@
             hint: 'Tocca per continuare',
             hintKeys: 'Usa le frecce o clicca per continuare',
 
-            introKicker: 'Cripsum Rewind',
+            introKicker: 'Cripsum Rewind™',
             introTitle: 'Tutto quello<br>che hai fatto',
             introLead: n => `Sei con noi da <strong>${n}</strong> giorni. Vediamo come li hai spesi.`,
             introSince: y => `Dal ${y} a oggi.`,
@@ -105,7 +105,7 @@
 
             chrKicker: 'Chi hai visto di più',
             chrTitle: 'Il tuo compagno fisso',
-            chrMost: 'Più trovato', chrLeast: 'Meno trovato',
+            chrMost: 'Personaggio più trovato', chrLeast: 'Personaggio meno trovato',
             chrTimes: n => n === 1 ? '1 volta' : `${n} volte`,
             chrLead: (name, n) => `<strong>${name}</strong> è uscito <strong>${n}</strong> volte. Ormai siete parenti.`,
 
@@ -122,8 +122,8 @@
             conViews: 'Visualizzazioni', conVotesIn: 'Voti ricevuti',
             castKicker: 'In scena',
             castTitle: 'I due estremi della tua collezione',
-            castMost: 'Più trovato',
-            castLeast: 'Meno trovato',
+            castMost: 'Personaggio più trovato',
+            castLeast: 'Personaggio meno trovato',
             castRarest: 'Il gioiello',
 
             cardTheme: 'Tema della card',
@@ -144,6 +144,8 @@
 
             audioToggle: 'Attiva o disattiva la musica',
             audioVolume: 'Volume',
+            playPause: 'Metti in pausa lo scorrimento',
+            playResume: 'Riprendi lo scorrimento',
 
             achKicker: 'Achievement',
             achTitle: 'sbloccati',
@@ -193,6 +195,42 @@
             perKicker: 'E quindi tu sei...',
             rankTop: (p, n) => `Sei nel <strong>top ${p}%</strong> degli utenti più attivi, su ${n}.`,
 
+            quipTime: h => h >= 500 ? 'A questo punto ti conviene prendere la residenza.'
+                : (h >= 200 ? 'Praticamente ci abiti.'
+                : (h >= 50 ? 'Un rapporto sano, o quasi.' : 'Passi di rado, ma passi.')),
+
+            quipGacha: (pulls, rate) => pulls >= 1000 ? 'Il banco ringrazia.'
+                : (rate !== null && rate < 40 ? 'Il 50/50 ti odia, e i numeri lo confermano.'
+                : (pulls >= 200 ? 'Una dipendenza gestita male ma con stile.' : 'Prudente. Per ora.')),
+
+            quipGames: (played, rate) => played === 0 ? ''
+                : (rate >= 70 ? 'Qualcuno dovrebbe controllarti il mazzo.'
+                : (rate >= 45 ? 'Vinci quanto perdi. Equilibrio perfetto.'
+                : 'La partecipazione è quello che conta, giusto?')),
+
+            quipSubway: runs => runs >= 100 ? 'Il treno ormai lo guidi tu.'
+                : 'Un altro giro e poi basta, dicevi.',
+
+            quipContent: likes => likes >= 500 ? 'Il pubblico ti ama, e si vede.'
+                : (likes >= 50 ? 'Non male per uno che dice di postare a caso.'
+                : 'Nicchia. Molto nicchia.'),
+
+            quipEconomy: net => net > 0 ? 'Guadagni più di quanto spendi. Sospetto.'
+                : (net < -5000 ? 'I Godos ti passano fra le dita.'
+                : 'Entrate e uscite più o meno in pari.'),
+
+            quipMissions: rate => rate >= 95 ? 'Non ne lasci indietro una.'
+                : (rate >= 60 ? 'Qualcuna ti scappa, ma tieni il ritmo.'
+                : 'Le inizi tutte, le finisci quasi mai.'),
+
+            quipSocial: total => total >= 5000 ? 'Il tuo pollice merita un riposo.'
+                : (total >= 500 ? 'Ti fai sentire.' : 'Uno che ascolta più di quanto parla.'),
+
+            quipCollection: pct => pct >= 100 ? 'Non ti resta più niente da desiderare.'
+                : (pct >= 60 ? 'Manca poco, e lo sai.' : 'C\'è ancora molto là fuori.'),
+
+            quipCalendar: days => days >= 300 ? 'Non salti quasi mai.'
+                : (days >= 100 ? 'Una presenza costante.' : 'Vai e vieni, come le stagioni.'),
             sumKicker: 'La tua storia in breve',
             sumTitle: 'Ecco tutto',
             share: 'Condividi',
@@ -212,7 +250,7 @@
             hint: 'Tap to continue',
             hintKeys: 'Use the arrows or click to continue',
 
-            introKicker: 'Cripsum Rewind',
+            introKicker: 'Cripsum Rewind™',
             introTitle: 'Everything<br>you have done',
             introLead: n => `You have been with us for <strong>${n}</strong> days. Let us see how you spent them.`,
             introSince: y => `From ${y} until today.`,
@@ -276,7 +314,7 @@
 
             chrKicker: 'Who you saw the most',
             chrTitle: 'Your constant companion',
-            chrMost: 'Most pulled', chrLeast: 'Least pulled',
+            chrMost: 'Most pulled character', chrLeast: 'Least pulled character',
             chrTimes: n => n === 1 ? 'once' : `${n} times`,
             chrLead: (name, n) => `<strong>${name}</strong> showed up <strong>${n}</strong> times. You are practically related.`,
 
@@ -293,8 +331,8 @@
             conViews: 'Views', conVotesIn: 'Votes received',
             castKicker: 'On stage',
             castTitle: 'The two extremes of your collection',
-            castMost: 'Most pulled',
-            castLeast: 'Least pulled',
+            castMost: 'Most pulled character',
+            castLeast: 'Least pulled character',
             castRarest: 'The gem',
 
             cardTheme: 'Card theme',
@@ -315,6 +353,8 @@
 
             audioToggle: 'Turn the music on or off',
             audioVolume: 'Volume',
+            playPause: 'Pause the story',
+            playResume: 'Resume the story',
 
             achKicker: 'Achievements',
             achTitle: 'unlocked',
@@ -364,6 +404,42 @@
             perKicker: 'And so you are...',
             rankTop: (p, n) => `You are in the <strong>top ${p}%</strong> of the most active users, out of ${n}.`,
 
+            quipTime: h => h >= 500 ? 'At this point you should register as a resident.'
+                : (h >= 200 ? 'You basically live here.'
+                : (h >= 50 ? 'A healthy relationship. Almost.' : 'You drop by rarely, but you drop by.')),
+
+            quipGacha: (pulls, rate) => pulls >= 1000 ? 'The house thanks you.'
+                : (rate !== null && rate < 40 ? 'The 50/50 hates you, and the numbers agree.'
+                : (pulls >= 200 ? 'A badly managed habit, but a stylish one.' : 'Careful. For now.')),
+
+            quipGames: (played, rate) => played === 0 ? ''
+                : (rate >= 70 ? 'Somebody should check your deck.'
+                : (rate >= 45 ? 'You win as much as you lose. Perfect balance.'
+                : 'Taking part is what counts, right?')),
+
+            quipSubway: runs => runs >= 100 ? 'You practically drive that train now.'
+                : 'One more run and then you stop, you said.',
+
+            quipContent: likes => likes >= 500 ? 'The crowd loves you, and it shows.'
+                : (likes >= 50 ? 'Not bad for someone who claims to post at random.'
+                : 'Niche. Very niche.'),
+
+            quipEconomy: net => net > 0 ? 'You earn more than you spend. Suspicious.'
+                : (net < -5000 ? 'Godos slip right through your fingers.'
+                : 'Roughly break-even.'),
+
+            quipMissions: rate => rate >= 95 ? 'You never leave one behind.'
+                : (rate >= 60 ? 'A few slip away, but you keep the pace.'
+                : 'You start them all, you finish almost none.'),
+
+            quipSocial: total => total >= 5000 ? 'Your thumb deserves a break.'
+                : (total >= 500 ? 'You make yourself heard.' : 'More of a listener than a talker.'),
+
+            quipCollection: pct => pct >= 100 ? 'Nothing left to want.'
+                : (pct >= 60 ? 'Not far now, and you know it.' : 'Still a lot out there.'),
+
+            quipCalendar: days => days >= 300 ? 'You hardly ever skip.'
+                : (days >= 100 ? 'A steady presence.' : 'You come and go, like the seasons.'),
             sumKicker: 'Your story at a glance',
             sumTitle: 'That is all',
             share: 'Share',
@@ -738,6 +814,7 @@
                     ${stat(t.sessions, T.timeSessions)}
                     ${stat(Math.round((t.longest_session || 0) / 60) + ' min', T.timeLongest)}
                 </div>
+                <p class="rw-quip rw-in">${esc(T.quipTime(t.hours || 0))}</p>
 `;
         },
 
@@ -800,7 +877,8 @@
                 <p class="rw-kicker rw-in">${esc(T.calKicker)}</p>
                 <h2 class="rw-title rw-in">${T.calTitle(num(cal.total_days))}</h2>
                 <div class="rw-heat rw-in">${cells.join('')}</div>
-                <p class="rw-note rw-in">${esc(T.calLead)}</p>`;
+                <p class="rw-note rw-in">${esc(T.calLead)}</p>
+                <p class="rw-quip rw-in">${esc(T.quipCalendar(cal.total_days || 0))}</p>`;
         },
 
         pages(d) {
@@ -840,7 +918,8 @@
                     ${stat(g.max_pity, T.gachaPity)}
                     ${g.rate_5050 !== null && g.rate_5050 !== undefined ? stat(g.rate_5050 + '%', T.gacha5050) : ''}
                     ${g.godos_spent ? stat(num(g.godos_spent), T.gachaSpent) : ''}
-                </div>`;
+                </div>
+                <p class="rw-quip rw-in">${esc(T.quipGacha(g.pulls || 0, g.rate_5050 ?? null))}</p>`;
         },
 
         best_pull(d) {
@@ -875,7 +954,8 @@
                 <div class="rw-meter rw-in" role="img" aria-label="${pct}%">
                     <span class="rw-meter__fill" data-w="${pct}"></span>
                 </div>
-                <p class="rw-note rw-in">${esc(T.collProgress(pct))}</p>`;
+                <p class="rw-note rw-in">${esc(T.collProgress(pct))}</p>
+                <p class="rw-quip rw-in">${esc(T.quipCollection(pct))}</p>`;
         },
 
         /**
@@ -947,23 +1027,23 @@
 
             if (c.best_post) {
                 rows.push(['fa-solid fa-heart', T.postLikes, c.best_post.titolo,
-                    T.postLikesN(num(c.best_post.likes)), c.best_post.media_url]);
+                    T.postLikesN(num(c.best_post.likes)), c.best_post.media_url, c.best_post.descrizione]);
             }
             if (c.most_viewed) {
                 rows.push(['fa-solid fa-eye', T.postViews, c.most_viewed.titolo,
-                    T.postViewsN(num(c.most_viewed.views)), c.most_viewed.media_url]);
+                    T.postViewsN(num(c.most_viewed.views)), c.most_viewed.media_url, c.most_viewed.descrizione]);
             }
             if (c.most_commented) {
                 rows.push(['fa-solid fa-comment', T.postComments, c.most_commented.titolo,
-                    T.postCommentsN(num(c.most_commented.comments)), c.most_commented.media_url]);
+                    T.postCommentsN(num(c.most_commented.comments)), c.most_commented.media_url, c.most_commented.descrizione]);
             }
             if (c.top_rimasto) {
                 rows.push(['fa-solid fa-star', T.postRimasto, c.top_rimasto.titolo,
-                    T.postVotesN(num(c.top_rimasto.votes)), c.top_rimasto.media_url]);
+                    T.postVotesN(num(c.top_rimasto.votes)), c.top_rimasto.media_url, c.top_rimasto.descrizione]);
             }
             if (!rows.length) return '';
 
-            const list = rows.map(([icon, label, title, meta, media]) => `
+            const list = rows.map(([icon, label, title, meta, media, desc]) => `
                 <div class="rw-record rw-in">
                     ${media
                         ? `<img class="rw-record__media" src="${esc(media)}" alt="" loading="lazy"
@@ -972,6 +1052,7 @@
                     <span class="rw-record__body">
                         <span class="rw-record__label">${esc(label)}</span>
                         <span class="rw-record__title">${esc(title || '—')}</span>
+                        ${desc ? `<span class="rw-record__desc">${esc(desc)}</span>` : ''}
                         <span class="rw-record__meta">${esc(meta)}</span>
                     </span>
                 </div>`).join('');
@@ -979,7 +1060,7 @@
             return `
                 <p class="rw-kicker rw-in">${esc(T.postKicker)}</p>
                 <h2 class="rw-title rw-in">${esc(T.postTitle)}</h2>
-                <div class="rw-records">${list}</div>
+                <div class="rw-records rw-records--${rows.length}">${list}</div>
                 ${c.views_received ? `<p class="rw-note rw-in">${T.postViewsTotal(num(c.views_received))}</p>` : ''}`;
         },
 
@@ -1036,7 +1117,8 @@
                 <p class="rw-kicker rw-in">${esc(T.misKicker)}</p>
                 <p class="rw-big rw-in" data-count="${m.completed || 0}">0<small>${esc(T.misTitle)}</small></p>
                 <p class="rw-lead rw-in">${T.misLead(m.claim_rate)}</p>
-                ${m.claim_rate < 90 ? `<p class="rw-note rw-in">${esc(T.misForgot)}</p>` : ''}`;
+
+                <p class="rw-quip rw-in">${esc(T.quipMissions(m.claim_rate || 0))}</p>`;
         },
 
         social(d) {
@@ -1059,7 +1141,8 @@
                         </div>
                         <span class="rw-person__text">${T.socPartner(esc(s.top_partner.display_name))}</span>
                     </div>` : ''}
-                ${s.busiest_day ? `<p class="rw-note rw-in">${esc(T.socBusiest(formatDate(s.busiest_day.giorno), s.busiest_day.n))}</p>` : ''}`;
+                ${s.busiest_day ? `<p class="rw-note rw-in">${esc(T.socBusiest(formatDate(s.busiest_day.giorno), s.busiest_day.n))}</p>` : ''}
+                <p class="rw-quip rw-in">${esc(T.quipSocial(s.msg_total || 0))}</p>`;
         },
 
         profile(d) {
@@ -1089,7 +1172,8 @@
                         ${stat(num(g.duels_won), T.gamWin)}
                         ${stat(num(g.duels_lost), T.gamLoss)}
                         ${g.winrate !== null && g.winrate !== undefined ? stat(g.winrate + '%', T.gamRate) : ''}
-                    </div>` : ''}`;
+                    </div>` : ''}
+                <p class="rw-quip rw-in">${esc(T.quipGames(g.duels_played || 0, g.winrate ?? 0))}</p>`;
         },
 
         /**
@@ -1119,7 +1203,8 @@
                 </div>
                 ${g.subway_rank && g.subway_rank <= 3
                     ? `<p class="rw-lead rw-in" style="margin-top:18px">${T.subPodium(g.subway_rank)}</p>`
-                    : ''}`;
+                    : ''}
+                <p class="rw-quip rw-in">${esc(T.quipSubway(g.subway_runs || 0))}</p>`;
         },
 
         content(d) {
@@ -1134,7 +1219,7 @@
                     ${c.views_received ? stat(num(c.views_received), T.conViews) : ''}
                     ${c.votes_received ? stat(num(c.votes_received), T.conVotesIn) : ''}
                 </div>
-`;
+                <p class="rw-quip rw-in">${esc(T.quipContent(c.likes_received || 0))}</p>`;
         },
 
         economy(d) {
@@ -1147,7 +1232,8 @@
                     ${stat(num(e.earned), T.ecoEarned)}
                     ${stat(num(e.spent), T.ecoSpent)}
                     ${e.balance !== undefined ? stat(num(e.balance), T.ecoBalance) : ''}
-                </div>`;
+                </div>
+                <p class="rw-quip rw-in">${esc(T.quipEconomy(e.net || 0))}</p>`;
         },
 
         busiest_day(d) {
@@ -1295,6 +1381,22 @@
     const CARD_W = 1080;
     const CARD_H = 1350;
 
+    /**
+     * Impaginazione della card.
+     *
+     * CARD_PAD è l'unico margine orizzontale: griglia, riquadri e testi
+     * lo usano tutti, così i bordi restano allineati fra loro. Le
+     * posizioni verticali non sono scritte a mano ma calcolate a
+     * cascata: ogni elemento parte dove finisce il precedente più uno
+     * spazio. Prima erano coordinate fisse e bastava spostarne una per
+     * farla finire sopra a un'altra.
+     */
+    const CARD_PAD = 70;
+    const CARD_CELL_H = 150;
+    const CARD_CELL_GAP = 15;
+    const CARD_CHIP_H = 110;
+    const CARD_FOOTER = 52;
+
     /** Carica un'immagine, o restituisce null se non arriva. */
     function loadImage(src) {
         return new Promise(resolve => {
@@ -1371,60 +1473,90 @@
 
         ctx.textAlign = 'center';
 
-        // Intestazione
-        ctx.fillStyle = 'rgba(255,255,255,0.72)';
-        ctx.font = '600 30px Poppins, sans-serif';
-        ctx.letterSpacing = '6px';
-        ctx.fillText('CRIPSUM REWIND', CARD_W / 2, 110);
-        ctx.letterSpacing = '0px';
-
-        // Avatar, ritagliato in cerchio con anello
-        const avatar = await loadImage(u.avatar);
         const cx = CARD_W / 2;
-        const cy = 360;
-        const radius = 130;
 
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.clip();
-        if (avatar) {
-            ctx.drawImage(avatar, cx - radius, cy - radius, radius * 2, radius * 2);
-        } else {
-            ctx.fillStyle = 'rgba(255,255,255,0.16)';
-            ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
-        }
-        ctx.restore();
-
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius + 6, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-        ctx.lineWidth = 5;
-        ctx.stroke();
-
-        // Nome e username
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '800 58px Poppins, sans-serif';
-        ctx.fillText(fitText(ctx, u.display_name || u.username || '', CARD_W - 140), cx, 580);
-
-        ctx.fillStyle = 'rgba(255,255,255,0.66)';
-        ctx.font = '500 32px Poppins, sans-serif';
-        ctx.fillText('@' + (u.username || ''), cx, 628);
-
-        // Archetipo
-        const persona = (lang === 'en' ? p.name_en : p.name_it) || '';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '900 66px Poppins, sans-serif';
-        ctx.fillText(fitText(ctx, persona.toUpperCase(), CARD_W - 120), cx, 740);
-
-        // Sei riquadri di statistiche
+        // Scorciatoie sulle sezioni del payload usate qui sotto.
         const t = d.time || {};
         const g = d.gacha || {};
         const so = d.social || {};
         const a = d.achievements || {};
         const co = d.collection || {};
 
+        // Le due parti opzionali vanno note prima di impaginare: la loro
+        // presenza decide gli spazi verticali di tutto il resto.
+        const personaIcon = await loadImage(p.image);
+        const chip = co.most_pulled;
+
+        // Icona dell'archetipo e riquadro del personaggio possono mancare.
+        // Quando succede, lo spazio che avrebbero occupato si ridistribuisce
+        // fra gli stacchi principali: altrimenti si accumulerebbe tutto in
+        // fondo e la card resterebbe sbilanciata verso l'alto.
+        const slack = (personaIcon ? 0 : 130) + (chip ? 0 : 132);
+        const share = Math.round(slack / 3);
+
+        let y = 104 + share;
+
+        // Intestazione
+        ctx.fillStyle = 'rgba(255,255,255,0.72)';
+        ctx.font = '600 30px Poppins, sans-serif';
+        ctx.letterSpacing = '6px';
+        ctx.fillText('CRIPSUM REWIND\u2122', cx, y);
+        ctx.letterSpacing = '0px';
+
+        // Avatar, ritagliato in cerchio con anello
+        const radius = 126;
+        y += 64 + radius;                       // centro del cerchio
+        const avatar = await loadImage(u.avatar);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, y, radius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+        if (avatar) {
+            ctx.drawImage(avatar, cx - radius, y - radius, radius * 2, radius * 2);
+        } else {
+            ctx.fillStyle = 'rgba(255,255,255,0.16)';
+            ctx.fillRect(cx - radius, y - radius, radius * 2, radius * 2);
+        }
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.arc(cx, y, radius + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        y += radius;                            // bordo inferiore dell'avatar
+
+        // Nome e username
+        y += 76 + share;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 58px Poppins, sans-serif';
+        ctx.fillText(fitText(ctx, u.display_name || u.username || '', CARD_W - CARD_PAD * 2), cx, y);
+
+        y += 46;
+        ctx.fillStyle = 'rgba(255,255,255,0.66)';
+        ctx.font = '500 32px Poppins, sans-serif';
+        ctx.fillText('@' + (u.username || ''), cx, y);
+
+        // Icona dell'archetipo, se ne esiste una disegnata
+        if (personaIcon) {
+            const iconSize = 100;
+            y += 30;
+            ctx.drawImage(personaIcon, cx - iconSize / 2, y, iconSize, iconSize);
+            y += iconSize;
+        }
+
+        // Nome dell'archetipo. Senza l'icona sopra serve piu' respiro:
+        // il carattere e' grosso e appiccicato all'username stava stretto.
+        y += personaIcon ? 66 : 86;
+        const persona = (lang === 'en' ? p.name_en : p.name_it) || '';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 66px Poppins, sans-serif';
+        ctx.fillText(fitText(ctx, persona.toUpperCase(), CARD_W - CARD_PAD * 2), cx, y);
+
+        // Sei riquadri di statistiche
         const cells = [
             [humanDuration(t.seconds), T.timeKicker],
             [num(t.days_active), T.timeDays],
@@ -1434,19 +1566,17 @@
             [num(a.total_unlocked || a.unlocked_in_period), T.achKicker]
         ];
 
-        const gridX = 70;
-        const gridY = 810;
-        const cellW = (CARD_W - gridX * 2 - 30) / 3;
-        const cellH = 150;
+        const cellW = (CARD_W - CARD_PAD * 2 - CARD_CELL_GAP * 2) / 3;
+        const gridY = y + 44 + share;
 
         cells.forEach((cell, i) => {
             const col = i % 3;
             const row = Math.floor(i / 3);
-            const x = gridX + col * (cellW + 15);
-            const y = gridY + row * (cellH + 15);
+            const x = CARD_PAD + col * (cellW + CARD_CELL_GAP);
+            const cellY = gridY + row * (CARD_CELL_H + CARD_CELL_GAP);
 
             ctx.fillStyle = 'rgba(255,255,255,0.10)';
-            roundRect(ctx, x, y, cellW, cellH, 26);
+            roundRect(ctx, x, cellY, cellW, CARD_CELL_H, 26);
             ctx.fill();
             ctx.strokeStyle = 'rgba(255,255,255,0.18)';
             ctx.lineWidth = 2;
@@ -1454,47 +1584,52 @@
 
             ctx.fillStyle = '#ffffff';
             ctx.font = '800 44px Poppins, sans-serif';
-            ctx.fillText(fitText(ctx, cell[0], cellW - 24), x + cellW / 2, y + 72);
+            ctx.fillText(fitText(ctx, cell[0], cellW - 24), x + cellW / 2, cellY + 72);
 
             ctx.fillStyle = 'rgba(255,255,255,0.62)';
             ctx.font = '600 20px Poppins, sans-serif';
-            ctx.fillText(fitText(ctx, String(cell[1]).toUpperCase(), cellW - 20), x + cellW / 2, y + 110);
+            ctx.fillText(fitText(ctx, String(cell[1]).toUpperCase(), cellW - 20), x + cellW / 2, cellY + 110);
         });
 
-        // Personaggio piu' trovato, se c'e'
-        const chip = co.most_pulled;
+        y = gridY + CARD_CELL_H * 2 + CARD_CELL_GAP;   // fondo della griglia
+
+        // Personaggio più trovato, se c'è
         if (chip) {
             const chipImg = await loadImage(chip.img_url);
-            const boxY = 1140;
+            const boxY = y + 22;
+
             ctx.fillStyle = 'rgba(255,255,255,0.10)';
-            roundRect(ctx, gridX, boxY, CARD_W - gridX * 2, 110, 30);
+            roundRect(ctx, CARD_PAD, boxY, CARD_W - CARD_PAD * 2, CARD_CHIP_H, 30);
             ctx.fill();
             ctx.strokeStyle = 'rgba(255,255,255,0.18)';
             ctx.lineWidth = 2;
             ctx.stroke();
 
+            const imgSize = 80;
+            const imgX = CARD_PAD + 20;
             if (chipImg) {
                 ctx.save();
-                roundRect(ctx, gridX + 20, boxY + 15, 80, 80, 18);
+                roundRect(ctx, imgX, boxY + (CARD_CHIP_H - imgSize) / 2, imgSize, imgSize, 18);
                 ctx.clip();
-                ctx.drawImage(chipImg, gridX + 20, boxY + 15, 80, 80);
+                ctx.drawImage(chipImg, imgX, boxY + (CARD_CHIP_H - imgSize) / 2, imgSize, imgSize);
                 ctx.restore();
             }
 
+            const textX = imgX + imgSize + 22;
             ctx.textAlign = 'left';
             ctx.fillStyle = 'rgba(255,255,255,0.6)';
             ctx.font = '600 19px Poppins, sans-serif';
-            ctx.fillText(String(T.chrMost).toUpperCase(), gridX + 122, boxY + 46);
+            ctx.fillText(String(T.chrMost).toUpperCase(), textX, boxY + 46);
             ctx.fillStyle = '#ffffff';
             ctx.font = '700 34px Poppins, sans-serif';
-            ctx.fillText(fitText(ctx, chip.nome || '', CARD_W - gridX * 2 - 160), gridX + 122, boxY + 84);
+            ctx.fillText(fitText(ctx, chip.nome || '', CARD_W - CARD_PAD - textX - 20), textX, boxY + 84);
             ctx.textAlign = 'center';
         }
 
         // Piede
         ctx.fillStyle = 'rgba(255,255,255,0.55)';
         ctx.font = '600 26px Poppins, sans-serif';
-        ctx.fillText('cripsum.com', cx, CARD_H - 52);
+        ctx.fillText('cripsum.com', cx, CARD_H - CARD_FOOTER);
     }
     // ─────────────────────────────────────────────────────────
     //  MOTORE
@@ -1512,6 +1647,7 @@
             this.lastMusicSlide = -1;
             this.cardTheme = 'persona';
             this.fillRaf = null;
+            this.autoplayOff = false;
 
             // Le schermate senza contenuto vengono scartate qui: il piano
             // arriva dal server, ma un renderer può comunque restituire
@@ -1585,6 +1721,10 @@
 
         bind() {
             this.root.querySelector('[data-rw-prev]')?.addEventListener('click', () => this.go(this.index - 1));
+            this.root.querySelector('[data-rw-playpause]')?.addEventListener('click', event => {
+                event.stopPropagation();
+                this.toggleAutoplay();
+            });
             this.root.querySelector('[data-rw-next]')?.addEventListener('click', () => this.go(this.index + 1));
 
             this.container.addEventListener('click', event => {
@@ -1636,7 +1776,7 @@
             // la card, senza doverle elencare una per una.
             const isLast = index === this.slides.length - 1;
             const hasActions = !!this.nodes[index].querySelector('.rw-actions');
-            const willBeStatic = hasActions || isLast || reduceMotion;
+            const willBeStatic = hasActions || isLast || reduceMotion || this.autoplayOff;
 
             // Il segmento corrente va sempre riazzerato, anche tornando
             // indietro: altrimenti si porta dietro il 100% guadagnato al
@@ -1719,6 +1859,39 @@
             });
         }
 
+        /**
+         * Ferma o riprende l'avanzamento automatico.
+         *
+         * Diverso dalla pausa che si ottiene tenendo premuto: quella dura
+         * quanto il dito, questa resta finche' non la si toglie. Serve a chi
+         * vuole guardarsi una schermata con calma senza dover tenere premuto.
+         */
+        toggleAutoplay() {
+            this.autoplayOff = !this.autoplayOff;
+
+            const button = this.root.querySelector('[data-rw-playpause]');
+            if (button) {
+                button.classList.toggle('is-paused', this.autoplayOff);
+                button.setAttribute('aria-pressed', this.autoplayOff ? 'true' : 'false');
+                button.setAttribute('aria-label', this.autoplayOff ? T.playResume : T.playPause);
+                const icon = button.querySelector('i');
+                if (icon) icon.className = this.autoplayOff ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+            }
+
+            if (this.autoplayOff) {
+                this.stopTimer();
+                // Il segmento resta dov'e': congelarlo dice a colpo d'occhio
+                // che il racconto e' fermo, non che e' finito.
+                const fill = this.segments[this.index]?.querySelector('.rw-progress__fill');
+                if (fill) {
+                    const width = getComputedStyle(fill).width;
+                    fill.style.transition = 'none';
+                    fill.style.width = width;
+                }
+            } else {
+                this.go(this.index);
+            }
+        }
         startTimer() {
             this.stopTimer();
             const duration = SLIDE_DURATIONS[this.slides[this.index]?.name] || SLIDE_MS;
@@ -1739,6 +1912,7 @@
                 // posizioni piene insieme.
                 this.fillRaf = requestAnimationFrame(() => {
                     this.fillRaf = null;
+            this.autoplayOff = false;
                     fill.style.transition = `width ${duration}ms linear`;
                     fill.style.width = '100%';
                 });
@@ -1770,6 +1944,7 @@
             if (!this.paused) return;
             this.paused = false;
             // Stessa regola di go(): dove ci sono pulsanti non si riparte.
+            if (this.autoplayOff) return;
             if (this.index === this.slides.length - 1 || reduceMotion) return;
             if (this.nodes[this.index]?.querySelector('.rw-actions')) return;
 
@@ -1780,6 +1955,7 @@
             if (fill) {
                 this.fillRaf = requestAnimationFrame(() => {
                     this.fillRaf = null;
+            this.autoplayOff = false;
                     fill.style.transition = `width ${left}ms linear`;
                     fill.style.width = '100%';
                 });

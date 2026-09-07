@@ -182,29 +182,42 @@ function rewind_try(callable $fn, $fallback, string $label = '')
 /**
  * Esegue una query preparata e restituisce tutte le righe.
  *
+ * Una query che non gira — tabella assente, colonna con un altro nome —
+ * restituisce un elenco vuoto e basta. L'errore viene fermato QUI, alla
+ * singola interrogazione, e non a livello di sezione: senza questo, una sola
+ * tabella mancante farebbe sparire tutte le statistiche che la circondano.
+ *
+ * Il try/catch è indispensabile: da PHP 8.1 mysqli segnala gli errori con
+ * eccezioni, che l'operatore @ non intercetta.
+ *
  * @return array<int,array<string,mixed>>
  */
 function rewind_rows(mysqli $mysqli, string $sql, string $types = '', array $params = []): array
 {
-    $stmt = @$mysqli->prepare($sql);
-    if (!$stmt) {
-        return [];
-    }
+    try {
+        $stmt = @$mysqli->prepare($sql);
+        if (!$stmt) {
+            return [];
+        }
 
-    if ($types !== '') {
-        $stmt->bind_param($types, ...$params);
-    }
+        if ($types !== '') {
+            $stmt->bind_param($types, ...$params);
+        }
 
-    if (!$stmt->execute()) {
+        if (!$stmt->execute()) {
+            $stmt->close();
+            return [];
+        }
+
+        $result = $stmt->get_result();
+        $rows = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         $stmt->close();
+
+        return $rows ?: [];
+    } catch (Throwable $e) {
+        error_log('[rewind_rows] ' . $e->getMessage());
         return [];
     }
-
-    $result = $stmt->get_result();
-    $rows = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-    $stmt->close();
-
-    return $rows ?: [];
 }
 
 /** Prima riga di una query, oppure null. */
@@ -1348,7 +1361,7 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
     // Il post più apprezzato dell'anno.
     $bestPost = rewind_row(
         $mysqli,
-        'SELECT s.id, s.titolo, s.data_creazione, (s.foto_shitpost IS NOT NULL) AS has_media,
+        'SELECT s.id, s.titolo, s.descrizione, s.data_creazione, (s.foto_shitpost IS NOT NULL) AS has_media,
                 (SELECT COUNT(*) FROM shitpost_likes l WHERE l.id_shitpost = s.id) AS likes
          FROM shitposts s
          WHERE s.id_utente = ? AND s.data_creazione BETWEEN ? AND ? AND s.approvato = 1
@@ -1381,7 +1394,7 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
 
     $mostViewed = rewind_row(
         $mysqli,
-        "SELECT s.id, s.titolo, s.data_creazione, (s.foto_shitpost IS NOT NULL) AS has_media,
+        "SELECT s.id, s.titolo, s.descrizione, s.data_creazione, (s.foto_shitpost IS NOT NULL) AS has_media,
                 (SELECT COUNT(*) FROM content_views v
                   WHERE v.content_type = 'shitpost' AND v.post_id = s.id) AS views
          FROM shitposts s
@@ -1394,7 +1407,7 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
 
     $mostCommented = rewind_row(
         $mysqli,
-        'SELECT s.id, s.titolo, (s.foto_shitpost IS NOT NULL) AS has_media,
+        'SELECT s.id, s.titolo, s.descrizione, (s.foto_shitpost IS NOT NULL) AS has_media,
                 (SELECT COUNT(*) FROM commenti_shitpost c WHERE c.id_shitpost = s.id) AS comments
          FROM shitposts s
          WHERE s.id_utente = ? AND s.data_creazione BETWEEN ? AND ? AND s.approvato = 1
@@ -1408,7 +1421,7 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
     // dove conta il voto e non il like.
     $topRimasto = rewind_row(
         $mysqli,
-        'SELECT t.id, t.titolo, t.data_creazione, (t.foto_rimasto IS NOT NULL) AS has_media,
+        'SELECT t.id, t.titolo, t.descrizione, t.data_creazione, (t.foto_rimasto IS NOT NULL) AS has_media,
                 (SELECT COUNT(*) FROM voti_toprimasti v WHERE v.id_post = t.id) AS votes
          FROM toprimasti t
          WHERE t.id_utente = ? AND t.data_creazione BETWEEN ? AND ? AND t.approvato = 1
@@ -1428,6 +1441,21 @@ function rewind_section_content(mysqli $mysqli, int $userId, array $period): arr
             $topRimasto = null;
         }
     }
+
+    // La descrizione va accorciata qui: mandarla intera per poi tagliarla
+    // nel browser significherebbe spedire testo che nessuno leggera'.
+    $trim = static function (?string $text): ?string {
+        $text = trim(preg_replace('/\s+/u', ' ', (string)$text));
+        if ($text === '') return null;
+        return mb_strlen($text, 'UTF-8') > 140
+            ? mb_substr($text, 0, 139, 'UTF-8') . '…'
+            : $text;
+    };
+
+    foreach ([&$bestPost, &$mostViewed, &$mostCommented, &$topRimasto] as &$p) {
+        if (is_array($p)) $p['descrizione'] = $trim($p['descrizione'] ?? null);
+    }
+    unset($p);
 
     // I media dei post sono BLOB serviti da un endpoint dedicato, che
     // controlla l'approvazione: qui passiamo solo l'indirizzo.
