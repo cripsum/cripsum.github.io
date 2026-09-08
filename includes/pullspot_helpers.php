@@ -233,6 +233,160 @@ function pullspot_character_list(mysqli $mysqli): array
     return $list;
 }
 
+/* ── Colore del personaggio ─────────────────────────────────────────────── */
+
+/** Estensioni di immagine da cui sappiamo tirare fuori un colore. */
+const PULLSPOT_IMAGE_EXT = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'];
+
+/** Come per l'audio: solo file veri dentro le cartelle dei media del sito. */
+function pullspot_image_path(?string $raw): ?string
+{
+    $raw = trim((string)$raw);
+    if ($raw === '' || preg_match('~^https?://~i', $raw)) return null;
+
+    $relative = ltrim(str_replace('\\', '/', $raw), '/');
+    if ($relative === '' || str_contains($relative, '..')) return null;
+
+    $roots = ['img', 'uploads'];
+    $folder = 'img';
+
+    if (str_starts_with($raw, '/')) {
+        $first = explode('/', $relative)[0];
+        if (!in_array($first, $roots, true)) return null;
+        $folder = $first;
+        $relative = substr($relative, strlen($first) + 1);
+    }
+
+    $extension = strtolower((string)pathinfo($relative, PATHINFO_EXTENSION));
+    if (!in_array($extension, PULLSPOT_IMAGE_EXT, true)) return null;
+
+    $root = realpath(__DIR__ . '/../' . $folder);
+    if ($root === false) return null;
+
+    $full = realpath($root . '/' . $relative);
+    if ($full === false || !is_file($full)) return null;
+    if (!str_starts_with($full, rtrim($root, '\\/') . DIRECTORY_SEPARATOR)) return null;
+
+    return $full;
+}
+
+/**
+ * Tinta di ripiego, stabile per personaggio: serve quando l'immagine non c'è
+ * o quando GD non è compilato. Il passo di 137,5 gradi è l'angolo aureo, che
+ * sparpaglia le tinte invece di raggrupparle.
+ */
+function pullspot_accent_from_id(int $id): array
+{
+    return ['h' => (int)round(($id * 137.508)) % 360, 's' => 78, 'l' => 64];
+}
+
+/** Da RGB a una tinta che si legge sul nero: satura e a media luminosità. */
+function pullspot_rgb_to_accent(float $r, float $g, float $b): array
+{
+    $max = max($r, $g, $b) / 255;
+    $min = min($r, $g, $b) / 255;
+    $delta = $max - $min;
+    $h = 0.0;
+
+    if ($delta > 0) {
+        if ($max === $r / 255)      $h = fmod((($g - $b) / 255) / $delta, 6);
+        elseif ($max === $g / 255)  $h = (($b - $r) / 255) / $delta + 2;
+        else                        $h = (($r - $g) / 255) / $delta + 4;
+
+        $h *= 60;
+        if ($h < 0) $h += 360;
+    }
+
+    $l = ($max + $min) / 2;
+    $s = $delta === 0.0 ? 0.0 : $delta / (1 - abs(2 * $l - 1));
+
+    return [
+        'h' => (int)round($h),
+        's' => (int)round(max(.62, min(.95, $s)) * 100),
+        'l' => (int)round(max(52, min(68, $l * 100))),
+    ];
+}
+
+/**
+ * Il colore del personaggio, ricavato dalla sua immagine.
+ *
+ * Lo calcola il server perché il colore accompagna tutta la partita, non solo
+ * la rivelazione: mandare al client l'immagine per farglielo estrarre da solo
+ * vorrebbe dire mandargli la risposta.
+ *
+ * Senza GD (o senza immagine) si ripiega sulla tinta legata all'id: cambia
+ * comunque da personaggio a personaggio.
+ */
+function pullspot_accent(array $character): array
+{
+    $id = (int)$character['id'];
+
+    if (isset($_SESSION['pullspot']['accents'][$id])) {
+        return $_SESSION['pullspot']['accents'][$id];
+    }
+
+    $accent = pullspot_accent_from_id($id);
+    $path = pullspot_image_path($character['img_url'] ?? null);
+
+    if ($path !== null && function_exists('imagecreatefromstring')) {
+        $bytes = @file_get_contents($path);
+        $source = $bytes === false ? false : @imagecreatefromstring($bytes);
+
+        if ($source !== false) {
+            $size = 24;
+            $thumb = @imagecreatetruecolor($size, $size);
+
+            if ($thumb !== false) {
+                imagealphablending($thumb, false);
+                imagesavealpha($thumb, true);
+                imagecopyresampled(
+                    $thumb, $source, 0, 0, 0, 0,
+                    $size, $size, imagesx($source), imagesy($source)
+                );
+
+                $r = $g = $b = $weight = 0.0;
+
+                for ($x = 0; $x < $size; $x++) {
+                    for ($y = 0; $y < $size; $y++) {
+                        $rgba = imagecolorat($thumb, $x, $y);
+                        if ((($rgba >> 24) & 0x7F) > 64) continue;   // troppo trasparente
+
+                        $pr = ($rgba >> 16) & 0xFF;
+                        $pg = ($rgba >> 8) & 0xFF;
+                        $pb = $rgba & 0xFF;
+
+                        // I pixel spenti pesano poco: il colore lo danno i vivi.
+                        $w = (max($pr, $pg, $pb) - min($pr, $pg, $pb)) / 255 + .06;
+
+                        $r += $pr * $w;
+                        $g += $pg * $w;
+                        $b += $pb * $w;
+                        $weight += $w;
+                    }
+                }
+
+                if ($weight > 0) {
+                    $accent = pullspot_rgb_to_accent($r / $weight, $g / $weight, $b / $weight);
+                }
+
+                imagedestroy($thumb);
+            }
+
+            imagedestroy($source);
+        }
+    }
+
+    if (!isset($_SESSION['pullspot']) || !is_array($_SESSION['pullspot'])) {
+        $_SESSION['pullspot'] = [];
+    }
+    if (!isset($_SESSION['pullspot']['accents']) || !is_array($_SESSION['pullspot']['accents'])) {
+        $_SESSION['pullspot']['accents'] = [];
+    }
+    $_SESSION['pullspot']['accents'][$id] = $accent;
+
+    return $accent;
+}
+
 /* ── Partita ────────────────────────────────────────────────────────────── */
 
 /** La tabella dello storico esiste? Se no si gioca lo stesso, senza statistiche. */
@@ -457,6 +611,10 @@ function pullspot_public_state(array $game, array $character): array
 
     return [
         'status'       => $game['status'],
+        // Il colore accompagna tutta la partita, non solo la fine: è una
+        // scelta di gioco, non una svista. Toglierlo da qui lo riporta a
+        // comparire solo alla rivelazione.
+        'accent'       => pullspot_accent($character),
         'attempt'      => count($game['guesses']),
         'max_attempts' => pullspot_max_attempts(),
         'steps'        => array_map('floatval', PULLSPOT_STEPS),

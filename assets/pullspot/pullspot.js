@@ -130,6 +130,8 @@
     let starting = false;
     let autoplayReveal = false;
     let celebrate = false;
+    let resumeAt = 0;
+    let continueFrom = null;
 
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -185,7 +187,7 @@
 
     /* ── Colore del personaggio ────────────────────────────────────────── */
 
-    const DEFAULT_ACCENT = { h: 152, s: 75, l: 51 };
+    const DEFAULT_ACCENT = { h: 262, s: 83, l: 66 };
 
     function setAccent(accent) {
         const a = accent || DEFAULT_ACCENT;
@@ -199,77 +201,9 @@
         style.setProperty('--ps-accent-ink', 'hsl(' + a.h + ' 55% 7%)');
     }
 
-    function rgbToAccent(r, g, b) {
-        const max = Math.max(r, g, b) / 255;
-        const min = Math.min(r, g, b) / 255;
-        const delta = max - min;
-        let h = 0;
-
-        if (delta > 0) {
-            if (max === r / 255) h = ((g - b) / 255 / delta) % 6;
-            else if (max === g / 255) h = (b - r) / 255 / delta + 2;
-            else h = (r - g) / 255 / delta + 4;
-            h = Math.round(h * 60);
-            if (h < 0) h += 360;
-        }
-
-        const l = (max + min) / 2;
-        const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-
-        // Sul nero un colore spento sparisce: lo tiriamo su in saturazione e
-        // lo teniamo in una fascia di luminosità dove il testo scuro si legge.
-        return {
-            h: h,
-            s: Math.round(Math.max(.55, Math.min(.95, s)) * 100),
-            l: Math.round(Math.max(52, Math.min(68, l * 100))),
-        };
-    }
-
-    /** Colore di ripiego quando l'immagine manca: stabile per personaggio. */
+    /** Tinta di ripiego se il server non ne manda una: stabile per personaggio. */
     function accentFromId(id) {
-        return { h: Math.round((id * 137.508) % 360), s: 72, l: 58 };
-    }
-
-    function accentFromImage(url) {
-        return new Promise((resolve) => {
-            const image = new Image();
-
-            image.onload = function () {
-                try {
-                    const size = 28;
-                    const canvas = document.createElement('canvas');
-                    canvas.width = size;
-                    canvas.height = size;
-
-                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                    ctx.drawImage(image, 0, 0, size, size);
-
-                    const data = ctx.getImageData(0, 0, size, size).data;
-                    let r = 0, g = 0, b = 0, weight = 0;
-
-                    for (let i = 0; i < data.length; i += 4) {
-                        if (data[i + 3] < 128) continue;
-                        const max = Math.max(data[i], data[i + 1], data[i + 2]);
-                        const min = Math.min(data[i], data[i + 1], data[i + 2]);
-                        // I pixel spenti pesano poco: il colore lo danno i vivi.
-                        const w = (max - min) / 255 + .06;
-                        r += data[i] * w;
-                        g += data[i + 1] * w;
-                        b += data[i + 2] * w;
-                        weight += w;
-                    }
-
-                    resolve(weight ? rgbToAccent(r / weight, g / weight, b / weight) : null);
-                } catch (error) {
-                    // Immagine da un altro dominio: la tela è marchiata e non
-                    // si può leggere. Si va di ripiego.
-                    resolve(null);
-                }
-            };
-
-            image.onerror = () => resolve(null);
-            image.src = url;
-        });
+        return { h: Math.round((id || 1) * 137.508) % 360, s: 78, l: 64 };
     }
 
     /* ── Rete ──────────────────────────────────────────────────────────── */
@@ -431,10 +365,24 @@
         }
     }
 
+    /** Pausa: la testina resta dove sta, cosi ripartendo si continua da li. */
+    function pausePlayback() {
+        const at = audio.currentTime;
+        audio.pause();
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+        setPlayIcon(false);
+        paint(at);
+    }
+
+    /** Stop vero: il frammento e finito, la prossima volta si riparte da capo. */
     function stopPlayback() {
         audio.pause();
         cancelAnimationFrame(rafId);
         rafId = 0;
+        try {
+            audio.currentTime = 0;
+        } catch (error) { /* prima dei metadati non si puo, ed e gia a zero */ }
         setPlayIcon(false);
         paint(0);
     }
@@ -451,9 +399,9 @@
         rafId = requestAnimationFrame(tick);
     }
 
-    function startPlayback() {
+    function startPlayback(from) {
         try {
-            audio.currentTime = 0;
+            audio.currentTime = from || 0;
         } catch (error) { /* alcuni browser lo rifiutano: si parte da dove sta */ }
 
         return audio.play().then(() => {
@@ -463,18 +411,40 @@
         });
     }
 
+    /**
+     * Da dove riparte l'ascolto.
+     *
+     * Dopo uno skip si riprende dal punto in cui il frammento precedente si
+     * era fermato: quello che interessa e il pezzo nuovo, non risentire da
+     * capo. Consumata la ripresa, il tasto rifa tutto il frammento.
+     */
+    function resumePoint() {
+        if (resumeAt > 0) {
+            const from = resumeAt;
+            resumeAt = 0;
+            return from;
+        }
+
+        const limit = limitSeconds();
+        const at = audio.currentTime;
+
+        return (at > 0 && limit > 0 && at < limit - .05) ? at : 0;
+    }
+
     async function play(silent) {
         if (!state || starting) return;
 
         if (!audio.paused) {
-            stopPlayback();
+            pausePlayback();
             return;
         }
+
+        const from = resumePoint();
 
         // Percorso veloce: se il pezzo è già pronto si parte dentro al click,
         // che è quello che i browser vogliono per non bloccare l'audio.
         if (clipReady()) {
-            startPlayback().catch(() => {
+            startPlayback(from).catch(() => {
                 if (!silent) toast(STRINGS.audioError);
             });
             return;
@@ -486,7 +456,7 @@
         try {
             await ensureClip();
             await whenReady();
-            await startPlayback();
+            await startPlayback(from);
         } catch (error) {
             if (!silent) toast(STRINGS.audioError);
         } finally {
@@ -861,21 +831,8 @@
 
         // I coriandoli festeggiano il momento, non lo stato: ricaricando la
         // pagina su una partita già vinta non devono ripartire.
-        const party = won && celebrate;
+        if (won && celebrate) confetti();
         celebrate = false;
-
-        // Il colore lo detta il personaggio, e con lui si tingono fascio,
-        // pastiglia, cornice e coriandoli.
-        const paintAccent = (accent) => {
-            setAccent(accent || accentFromId(state.answer.id));
-            if (party) confetti();
-        };
-
-        if (state.answer.image_url) {
-            accentFromImage(state.answer.image_url).then(paintAccent);
-        } else {
-            paintAccent(null);
-        }
     }
 
     let confettiRaf = 0;
@@ -1032,6 +989,10 @@
             if (guess.id) excluded.add(guess.id);
         });
 
+        // Il colore del personaggio c'è da subito: lo calcola il server, così
+        // il client non deve vedere l'immagine per ricavarlo.
+        setAccent(state.accent || accentFromId(state.attempt + 1));
+
         buildSegments();
         renderRows();
         renderChips();
@@ -1052,6 +1013,16 @@
             if (state && state.full && autoplayReveal) {
                 autoplayReveal = false;
                 play(true);
+                return;
+            }
+
+            // Si stava ascoltando quando e' arrivato il tentativo: la traccia
+            // e' la stessa, solo piu' lunga, quindi riprende dal punto esatto
+            // in cui era invece di ricominciare.
+            if (continueFrom !== null) {
+                const from = continueFrom;
+                continueFrom = null;
+                startPlayback(from).catch(() => {});
             }
         }).catch(() => {});
     }
@@ -1073,18 +1044,35 @@
 
     /* ── Avvio ─────────────────────────────────────────────────────────── */
 
+    function wait(ms) {
+        return new Promise((resolve) => setTimeout(resolve, reducedMotion ? 0 : ms));
+    }
+
     async function start(fresh) {
         if (busy) return;
         busy = true;
 
-        if (el.boot) el.boot.hidden = false;
-        if (el.game) el.game.hidden = true;
+        const showing = el.game && !el.game.hidden;
+
+        // Anche la prima apparizione entra in dissolvenza: la classe c'e' gia'
+        // quando il riquadro smette di essere nascosto.
+        root.classList.add('ps-stage--swap');
+
+        // Passare da un personaggio all'altro è un cambio di scena: si spegne
+        // e si riaccende, invece di sostituire tutto di scatto.
+        if (showing) {
+            await wait(280);
+        } else if (el.boot) {
+            el.boot.hidden = false;
+        }
+
         if (el.error) el.error.hidden = true;
 
         stopPlayback();
         dropClip();
         closeList();
-        setAccent(null);
+        resumeAt = 0;
+        continueFrom = null;
         document.body.classList.remove('ps-is-reveal');
         if (el.input) el.input.value = '';
 
@@ -1095,8 +1083,11 @@
             if (el.boot) el.boot.hidden = true;
             if (el.game) el.game.hidden = false;
             render();
+            await wait(30);
+            root.classList.remove('ps-stage--swap');
         } catch (error) {
             if (el.boot) el.boot.hidden = true;
+            root.classList.remove('ps-stage--swap');
             if (el.error) {
                 el.error.hidden = false;
                 text(el.error.querySelector('[data-ps-error-text]') || el.error, error.message || STRINGS.loadError);
@@ -1114,20 +1105,35 @@
 
         try {
             const payload = await sendGuess(body);
-            const wasPlaying = state && state.status === 'playing';
+
+            // Fotografia dell'ascolto prima che lo stato cambi: dove era la
+            // testina, se stava suonando, e fin dove era arrivato lo sblocco.
+            const wasPlaying = !audio.paused;
+            const at = audio.currentTime;
+            const heardUpTo = limitSeconds();
 
             state = Object.assign({}, state, payload);
-            autoplayReveal = state.status !== 'playing';
+            autoplayReveal = state.status === 'won';
             celebrate = state.status === 'won';
+
+            if (state.status !== 'playing') {
+                resumeAt = 0;
+                continueFrom = null;
+            } else if (wasPlaying) {
+                // Stava suonando: prosegue, non riparte.
+                continueFrom = at;
+                resumeAt = 0;
+            } else {
+                // Era fermo: al prossimo play riparte da dove si era fermato.
+                continueFrom = null;
+                resumeAt = heardUpTo;
+            }
+
             if (el.input) el.input.value = '';
             closeList();
             stopPlayback();
             dropClip();
             render();
-
-            // Il frammento più lungo parte da solo: il click sul pulsante vale
-            // come gesto dell'utente. Alla rivelazione ci pensa render().
-            if (wasPlaying && state.status === 'playing') play();
         } catch (error) {
             toast(error.message || STRINGS.loadError);
         } finally {
