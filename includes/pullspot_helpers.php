@@ -94,11 +94,6 @@ function pullspot_msg(string $key, string $lang = 'it'): string
 /* ── Mazzo dei personaggi ───────────────────────────────────────────────── */
 
 /**
- * Percorso su disco della musica di un personaggio, oppure null se non è
- * utilizzabile: media esterni, estensioni che non sono audio, file spariti e
- * qualunque cosa provi a uscire da /audio finiscono tutti qui.
- */
-/**
  * Cerca un file dentro una cartella, prima com'e' scritto e poi ignorando le
  * maiuscole.
  *
@@ -133,6 +128,11 @@ function pullspot_find_file(string $root, string $relative): ?string
     return $index[$root][strtolower(str_replace('\\', '/', $relative))] ?? null;
 }
 
+/**
+ * Percorso su disco della musica di un personaggio, oppure null se non è
+ * utilizzabile: media esterni, estensioni che non sono audio, file spariti e
+ * qualunque cosa provi a uscire da /audio finiscono tutti qui.
+ */
 function pullspot_audio_path(?string $raw): ?string
 {
     $raw = trim((string)$raw);
@@ -832,8 +832,9 @@ function pullspot_mp3_frame(string $bytes, int $offset): ?array
 
     // Il primo frame di quasi ogni MP3 è un descrittore Xing/Info/VBRI: non
     // contiene musica, quindi non deve consumare i decimi di secondo concessi.
-    $crc      = (($b1 & 0x01) === 0) ? 2 : 0;
-    $mono     = ((($b3 >> 6) & 0x03) === 3);
+    $crc         = (($b1 & 0x01) === 0) ? 2 : 0;
+    $channelBits = ($b3 >> 6) & 0x03;
+    $mono        = $channelBits === 3;
     $sideInfo = $mpeg1 ? ($mono ? 17 : 32) : ($mono ? 9 : 17);
     $tagAt    = $offset + 4 + $crc + $sideInfo;
 
@@ -844,6 +845,7 @@ function pullspot_mp3_frame(string $bytes, int $offset): ?array
         'length'   => $length,
         'duration' => $samples / $sampleRate,
         'is_tag'   => $isTag,
+        'shape'    => $version . ':' . $layer . ':' . $sampleRate . ':' . $channelBits,
     ];
 }
 
@@ -867,18 +869,26 @@ function pullspot_mp3_clip(string $bytes, float $seconds): ?string
         if (ord($bytes[5]) & 0x10) $cursor += 10;   // footer
     }
 
+    $audioStart = $cursor;
     $start   = null;
     $end     = null;
     $elapsed = 0.0;
+    $frames  = 0;
+    $shape   = null;
 
     while ($cursor + 4 <= $total) {
         if (ord($bytes[$cursor]) !== 0xFF || (ord($bytes[$cursor + 1]) & 0xE0) !== 0xE0) {
+            // Un flusso MPEG vero comincia subito dopo il tag. Se bisogna
+            // rovistare per chilometri prima di trovare un sync, quello che si
+            // sta leggendo non è un MP3: meglio ammetterlo e non tagliare.
+            if ($cursor - $audioStart > 4096) return null;
             $cursor++;
             continue;
         }
 
         $frame = pullspot_mp3_frame($bytes, $cursor);
         if ($frame === null) {
+            if ($cursor - $audioStart > 4096) return null;
             $cursor++;
             continue;
         }
@@ -886,11 +896,21 @@ function pullspot_mp3_clip(string $bytes, float $seconds): ?string
 
         if ($frame['is_tag'] && $start === null) {
             $cursor += $frame['length'];
+            $audioStart = $cursor;
             continue;
+        }
+
+        // Versione, layer e frequenza non cambiano mai dentro un file vero:
+        // se cambiano, i "frame" sono coincidenze dentro dati di altro tipo.
+        if ($shape === null) {
+            $shape = $frame['shape'];
+        } elseif ($shape !== $frame['shape']) {
+            return null;
         }
 
         if ($start === null) $start = $cursor;
 
+        $frames++;
         $elapsed += $frame['duration'];
         $cursor  += $frame['length'];
         $end      = $cursor;
@@ -898,38 +918,384 @@ function pullspot_mp3_clip(string $bytes, float $seconds): ?string
         if ($elapsed >= $seconds - 1e-9) break;
     }
 
-    if ($start === null || $end === null) return null;
+    // Quattro frame sono meno di un decimo di secondo: sotto quella soglia
+    // non c'è abbastanza flusso per dire che il file sia stato capito.
+    if ($start === null || $end === null || $frames < 4) return null;
 
     return substr($bytes, $start, $end - $start);
 }
 
-function pullspot_audio_mime(string $path): string
+/* ── Che cosa c'è davvero dentro il file ─────────────────────────────────── */
+
+/**
+ * Riconosce il contenitore dai byte, non dal nome.
+ *
+ * Una quindicina di tracce del sito sono MP4/AAC con l'estensione .mp3: dare
+ * retta all'estensione voleva dire cercare frame MPEG dentro dati MP4, trovare
+ * per caso due byte che sembravano un sync e servire spazzatura che nessun
+ * browser sa suonare.
+ */
+function pullspot_sniff(string $bytes): string
+{
+    $at = 0;
+
+    // Un tag ID3 può stare davanti a qualsiasi cosa: si guarda oltre.
+    if (strlen($bytes) > 10 && strncmp($bytes, 'ID3', 3) === 0) {
+        $at = 10
+            + (((ord($bytes[6]) & 0x7F) << 21) | ((ord($bytes[7]) & 0x7F) << 14)
+             | ((ord($bytes[8]) & 0x7F) << 7)  | (ord($bytes[9]) & 0x7F));
+        if (ord($bytes[5]) & 0x10) $at += 10;
+    }
+
+    if (strlen($bytes) >= $at + 12 && substr($bytes, $at + 4, 4) === 'ftyp') return 'mp4';
+    if (strncmp(substr($bytes, $at, 4), 'OggS', 4) === 0) return 'ogg';
+    if (strncmp(substr($bytes, $at, 4), 'RIFF', 4) === 0) return 'wav';
+    if (strncmp(substr($bytes, $at, 4), 'fLaC', 4) === 0) return 'flac';
+
+    if (strlen($bytes) >= $at + 2) {
+        $b0 = ord($bytes[$at]);
+        $b1 = ord($bytes[$at + 1]);
+
+        if ($b0 === 0xFF && ($b1 & 0xE0) === 0xE0) {
+            // Nel sync ADTS i bit di "layer" sono a zero; in quello MPEG no.
+            return (($b1 >> 1) & 0x03) === 0 ? 'aac' : 'mpeg';
+        }
+    }
+
+    return 'unknown';
+}
+
+function pullspot_container_mime(string $kind): string
 {
     return [
-        'mp3'  => 'audio/mpeg',
-        'ogg'  => 'audio/ogg',
-        'opus' => 'audio/ogg',
-        'wav'  => 'audio/wav',
-        'm4a'  => 'audio/mp4',
-        'webm' => 'audio/webm',
-    ][strtolower((string)pathinfo($path, PATHINFO_EXTENSION))] ?? 'application/octet-stream';
+        'mpeg'    => 'audio/mpeg',
+        'aac'     => 'audio/aac',
+        'mp4'     => 'audio/mp4',
+        'ogg'     => 'audio/ogg',
+        'wav'     => 'audio/wav',
+        'flac'    => 'audio/flac',
+        'unknown' => 'application/octet-stream',
+    ][$kind] ?? 'application/octet-stream';
+}
+
+/* ── Taglio dei file MP4/AAC ─────────────────────────────────────────────── */
+
+/** Trova un box MP4 dentro un intervallo. Restituisce [inizio, fine] del contenuto. */
+function pullspot_mp4_box(string $bytes, int $start, int $end, string $type): ?array
+{
+    $at = $start;
+
+    while ($at + 8 <= $end) {
+        $size = unpack('N', substr($bytes, $at, 4))[1];
+        $name = substr($bytes, $at + 4, 4);
+        $header = 8;
+
+        if ($size === 1) {
+            if ($at + 16 > $end) return null;
+            $high = unpack('N', substr($bytes, $at + 8, 4))[1];
+            $low  = unpack('N', substr($bytes, $at + 12, 4))[1];
+            $size = $high * 4294967296 + $low;
+            $header = 16;
+        } elseif ($size === 0) {
+            $size = $end - $at;
+        }
+
+        if ($size < $header || $at + $size > $end) return null;
+        if ($name === $type) return [$at + $header, $at + $size];
+
+        $at += $size;
+    }
+
+    return null;
+}
+
+/** Tutti i box di un tipo, non solo il primo. */
+function pullspot_mp4_boxes(string $bytes, int $start, int $end, string $type): array
+{
+    $found = [];
+    $at = $start;
+
+    while ($at + 8 <= $end) {
+        $size = unpack('N', substr($bytes, $at, 4))[1];
+        $name = substr($bytes, $at + 4, 4);
+        $header = 8;
+
+        if ($size === 1) {
+            if ($at + 16 > $end) break;
+            $high = unpack('N', substr($bytes, $at + 8, 4))[1];
+            $low  = unpack('N', substr($bytes, $at + 12, 4))[1];
+            $size = $high * 4294967296 + $low;
+            $header = 16;
+        } elseif ($size === 0) {
+            $size = $end - $at;
+        }
+
+        if ($size < $header || $at + $size > $end) break;
+        if ($name === $type) $found[] = [$at + $header, $at + $size];
+
+        $at += $size;
+    }
+
+    return $found;
+}
+
+/** Legge una tabella di interi a 32 bit (o 64 per co64). */
+function pullspot_mp4_table(string $bytes, int $start, int $end, int $width, int $columns): array
+{
+    if ($start + 8 > $end) return [];
+
+    $count = unpack('N', substr($bytes, $start + 4, 4))[1];
+    $rows = [];
+    $at = $start + 8;
+    $step = $width * $columns;
+
+    for ($i = 0; $i < $count; $i++) {
+        if ($at + $step > $end) break;
+        $row = [];
+
+        for ($c = 0; $c < $columns; $c++) {
+            if ($width === 8) {
+                $high = unpack('N', substr($bytes, $at, 4))[1];
+                $low  = unpack('N', substr($bytes, $at + 4, 4))[1];
+                $row[] = $high * 4294967296 + $low;
+            } else {
+                $row[] = unpack('N', substr($bytes, $at, 4))[1];
+            }
+            $at += $width;
+        }
+
+        $rows[] = $columns === 1 ? $row[0] : $row;
+    }
+
+    return $rows;
+}
+
+/** Estrae la configurazione audio (AudioSpecificConfig) da un box esds. */
+function pullspot_mp4_asc(string $bytes, int $start, int $end): ?array
+{
+    $at = $start + 4;   // versione e flag
+
+    // I descrittori sono annidati: si scende finché non si trova il 0x05.
+    while ($at < $end) {
+        $tag = ord($bytes[$at]);
+        $at++;
+
+        $length = 0;
+        for ($i = 0; $i < 4 && $at < $end; $i++) {
+            $byte = ord($bytes[$at]);
+            $at++;
+            $length = ($length << 7) | ($byte & 0x7F);
+            if (!($byte & 0x80)) break;
+        }
+
+        if ($tag === 0x03) {
+            // ES_Descriptor: si salta l'intestazione e si continua dentro.
+            if ($at + 3 > $end) return null;
+            $flags = ord($bytes[$at + 2]);
+            $at += 3;
+            if ($flags & 0x80) $at += 2;
+            if ($flags & 0x40) $at += 1 + ord($bytes[$at]);
+            if ($flags & 0x20) $at += 2;
+            continue;
+        }
+
+        if ($tag === 0x04) {
+            $at += 13;   // tipo, stream, buffer, bitrate
+            continue;
+        }
+
+        if ($tag === 0x05) {
+            if ($at + 2 > $end) return null;
+
+            $b0 = ord($bytes[$at]);
+            $b1 = ord($bytes[$at + 1]);
+
+            $objectType = ($b0 >> 3) & 0x1F;
+            $rateIndex  = (($b0 & 0x07) << 1) | (($b1 >> 7) & 0x01);
+            $channels   = ($b1 >> 3) & 0x0F;
+
+            // ADTS sa dire solo i quattro profili base, e la frequenza deve
+            // stare in tabella: fuori da lì si preferisce non inventare.
+            if ($objectType < 1 || $objectType > 4) return null;
+            if ($rateIndex > 12 || $channels < 1 || $channels > 7) return null;
+
+            return ['object' => $objectType, 'rate' => $rateIndex, 'channels' => $channels];
+        }
+
+        $at += $length;
+    }
+
+    return null;
+}
+
+/** Intestazione ADTS di 7 byte davanti a un frame AAC grezzo. */
+function pullspot_adts_header(array $config, int $frameLength): string
+{
+    $total = $frameLength + 7;
+
+    return chr(0xFF)
+        . chr(0xF1)                                                   // MPEG-4, niente CRC
+        . chr((($config['object'] - 1) << 6) | ($config['rate'] << 2) | (($config['channels'] >> 2) & 0x01))
+        . chr((($config['channels'] & 0x03) << 6) | (($total >> 11) & 0x03))
+        . chr(($total >> 3) & 0xFF)
+        . chr((($total & 0x07) << 5) | 0x1F)
+        . chr(0xFC);
 }
 
 /**
- * I byte da mandare al browser: i primi $seconds secondi, oppure la traccia
- * intera se $seconds è null (partita finita) o se il formato non è tagliabile.
+ * I primi $seconds secondi di un MP4/AAC, riconfezionati in ADTS.
+ *
+ * Riscrivere un MP4 accorciato vorrebbe dire rifare tutte le tabelle degli
+ * indici; l'AAC invece si può servire nudo, un frame dietro l'altro con la sua
+ * intestazione, e i browser lo suonano come se fosse un file a sé.
+ *
+ * Restituisce null se il file non si lascia leggere: chi chiama servirà la
+ * traccia intera piuttosto che qualcosa di rotto.
  */
-function pullspot_clip_bytes(string $path, ?float $seconds): ?string
+function pullspot_mp4_clip(string $bytes, float $seconds): ?string
+{
+    $total = strlen($bytes);
+
+    $moov = pullspot_mp4_box($bytes, 0, $total, 'moov');
+    if ($moov === null) return null;
+
+    foreach (pullspot_mp4_boxes($bytes, $moov[0], $moov[1], 'trak') as $trak) {
+        $mdia = pullspot_mp4_box($bytes, $trak[0], $trak[1], 'mdia');
+        if ($mdia === null) continue;
+
+        $mdhd = pullspot_mp4_box($bytes, $mdia[0], $mdia[1], 'mdhd');
+        $minf = pullspot_mp4_box($bytes, $mdia[0], $mdia[1], 'minf');
+        if ($mdhd === null || $minf === null) continue;
+
+        $stbl = pullspot_mp4_box($bytes, $minf[0], $minf[1], 'stbl');
+        if ($stbl === null) continue;
+
+        $stsd = pullspot_mp4_box($bytes, $stbl[0], $stbl[1], 'stsd');
+        if ($stsd === null) continue;
+
+        $mp4a = pullspot_mp4_box($bytes, $stsd[0] + 8, $stsd[1], 'mp4a');
+        if ($mp4a === null) continue;   // non è una traccia audio AAC
+
+        $esds = pullspot_mp4_box($bytes, $mp4a[0] + 28, $mp4a[1], 'esds');
+        if ($esds === null) continue;
+
+        $config = pullspot_mp4_asc($bytes, $esds[0], $esds[1]);
+        if ($config === null) return null;
+
+        $version = ord($bytes[$mdhd[0]]);
+        $timescale = $version === 1
+            ? unpack('N', substr($bytes, $mdhd[0] + 20, 4))[1]
+            : unpack('N', substr($bytes, $mdhd[0] + 12, 4))[1];
+        if ($timescale <= 0) return null;
+
+        $stts = pullspot_mp4_box($bytes, $stbl[0], $stbl[1], 'stts');
+        $stsc = pullspot_mp4_box($bytes, $stbl[0], $stbl[1], 'stsc');
+        $stsz = pullspot_mp4_box($bytes, $stbl[0], $stbl[1], 'stsz');
+        $stco = pullspot_mp4_box($bytes, $stbl[0], $stbl[1], 'stco');
+        $co64 = $stco === null ? pullspot_mp4_box($bytes, $stbl[0], $stbl[1], 'co64') : null;
+
+        if ($stts === null || $stsc === null || $stsz === null || ($stco === null && $co64 === null)) {
+            return null;
+        }
+
+        $times  = pullspot_mp4_table($bytes, $stts[0], $stts[1], 4, 2);
+        $chunks = pullspot_mp4_table($bytes, $stsc[0], $stsc[1], 4, 3);
+        $offsets = $stco !== null
+            ? pullspot_mp4_table($bytes, $stco[0], $stco[1], 4, 1)
+            : pullspot_mp4_table($bytes, $co64[0], $co64[1], 8, 1);
+
+        if (!$times || !$chunks || !$offsets) return null;
+
+        // stsz: se la misura fissa è zero, le misure stanno in tabella.
+        $fixed = unpack('N', substr($bytes, $stsz[0] + 4, 4))[1];
+        $count = unpack('N', substr($bytes, $stsz[0] + 8, 4))[1];
+        $sizes = [];
+
+        if ($fixed === 0) {
+            $at = $stsz[0] + 12;
+            for ($i = 0; $i < $count && $at + 4 <= $stsz[1]; $i++) {
+                $sizes[] = unpack('N', substr($bytes, $at, 4))[1];
+                $at += 4;
+            }
+        }
+
+        $sampleCount = $fixed === 0 ? count($sizes) : $count;
+        if ($sampleCount === 0) return null;
+
+        $out = '';
+        $elapsed = 0.0;
+        $sample = 0;
+        $timeRow = 0;
+        $timeLeft = $times[0][0];
+        $stscRow = 0;
+
+        foreach ($offsets as $chunkIndex => $offset) {
+            while (isset($chunks[$stscRow + 1]) && $chunks[$stscRow + 1][0] <= $chunkIndex + 1) {
+                $stscRow++;
+            }
+            $perChunk = max(1, (int)$chunks[$stscRow][1]);
+
+            for ($i = 0; $i < $perChunk; $i++) {
+                if ($sample >= $sampleCount) break 2;
+
+                $size = $fixed === 0 ? $sizes[$sample] : $fixed;
+                if ($size <= 0 || $offset + $size > $total) break 2;
+
+                $out .= pullspot_adts_header($config, $size) . substr($bytes, $offset, $size);
+                $offset += $size;
+
+                while ($timeLeft <= 0 && isset($times[$timeRow + 1])) {
+                    $timeRow++;
+                    $timeLeft = $times[$timeRow][0];
+                }
+                $elapsed += $times[$timeRow][1] / $timescale;
+                $timeLeft--;
+
+                $sample++;
+                if ($elapsed >= $seconds - 1e-9) break 2;
+            }
+        }
+
+        return $out === '' ? null : $out;
+    }
+
+    return null;
+}
+
+/**
+ * I byte da mandare al browser e il loro tipo.
+ *
+ * Il formato lo decide il contenuto del file, non il nome: sul sito ci sono
+ * tracce MP4/AAC chiamate .mp3, e trattarle da MP3 significava servire
+ * spezzoni che nessun browser riusciva a suonare.
+ *
+ * Se il taglio non riesce si manda la traccia intera: meglio un frammento
+ * lungo che uno rotto. In quel caso a limitare l'ascolto resta il client.
+ */
+function pullspot_clip_bytes(string $path, ?float $seconds): ?array
 {
     $bytes = @file_get_contents($path);
     if ($bytes === false) return null;
 
-    if ($seconds === null) return $bytes;
+    $kind = pullspot_sniff($bytes);
 
-    if (strtolower((string)pathinfo($path, PATHINFO_EXTENSION)) === 'mp3') {
-        $clip = pullspot_mp3_clip($bytes, $seconds);
-        if ($clip !== null) return $clip;
+    if ($seconds === null) {
+        return ['bytes' => $bytes, 'mime' => pullspot_container_mime($kind), 'exact' => true];
     }
 
-    return $bytes;
+    if ($kind === 'mpeg') {
+        $clip = pullspot_mp3_clip($bytes, $seconds);
+        if ($clip !== null) {
+            return ['bytes' => $clip, 'mime' => 'audio/mpeg', 'exact' => true];
+        }
+    }
+
+    if ($kind === 'mp4') {
+        $clip = pullspot_mp4_clip($bytes, $seconds);
+        if ($clip !== null) {
+            return ['bytes' => $clip, 'mime' => 'audio/aac', 'exact' => true];
+        }
+    }
+
+    return ['bytes' => $bytes, 'mime' => pullspot_container_mime($kind), 'exact' => false];
 }

@@ -52,8 +52,8 @@ if ($path === null) {
     pullspot_audio_fail(404, pullspot_msg('no_audio', $lang));
 }
 
-$bytes = pullspot_clip_bytes($path, pullspot_unlocked_seconds($round['game']));
-if ($bytes === null) {
+$clip = pullspot_clip_bytes($path, pullspot_unlocked_seconds($round['game']));
+if ($clip === null) {
     pullspot_audio_fail(404, pullspot_msg('no_audio', $lang));
 }
 
@@ -61,8 +61,14 @@ if ($bytes === null) {
 // gioco fa in parallelo mentre il browser scarica la traccia.
 cripsum_release_session();
 
-header('Content-Type: ' . pullspot_audio_mime($path));
-header('Content-Length: ' . strlen($bytes));
-header('Content-Disposition: inline; filename="pullspot.' . pathinfo($path, PATHINFO_EXTENSION) . '"');
+// Il tipo lo detta il formato che è stato prodotto davvero: un frammento AAC
+// annunciato come audio/mpeg è un altro modo per non farlo suonare.
+header('Content-Type: ' . $clip['mime']);
+header('Content-Length: ' . strlen($clip['bytes']));
+header('Content-Disposition: inline; filename="pullspot"');
 
-echo $bytes;
+// Dice al client se il taglio è esatto: quando non lo è, la traccia arriva
+// intera e a fermarsi al punto giusto deve pensarci lui.
+header('X-Pullspot-Exact: ' . ($clip['exact'] ? '1' : '0'));
+
+echo $clip['bytes'];
