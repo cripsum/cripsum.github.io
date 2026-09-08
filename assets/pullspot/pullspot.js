@@ -124,19 +124,20 @@
     let segments = [];
     let revealIcon = null;
 
-    const audio = new Audio();
-    audio.preload = 'auto';
     let clipUrl = null;
     let clipKey = '';
     let clipLoading = null;
     let clipDuration = 0;
+    let clipSeconds = 0;
     let rafId = 0;
     let starting = false;
     let autoplayReveal = false;
     let celebrate = false;
     let resumeAt = 0;
-    let continueFrom = null;
     let listenedUpTo = 0;
+    let suspenseTimer = 0;
+    let handoffToken = 0;
+    let handoffsInFlight = 0;
     let selected = null;
 
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -243,6 +244,46 @@
 
     /* ── Lettore ───────────────────────────────────────────────────────── */
 
+    /*
+     * Ci sono due lettori, non uno.
+     *
+     * Quando si salta mentre la traccia suona, il frammento nuovo è lo stesso
+     * pezzo di musica, solo più lungo: sostituire la sorgente del lettore che
+     * sta suonando lo fa tacere per un istante, ed è lo scatto che si sentiva.
+     * Invece il pezzo nuovo si prepara nel lettore di riserva, lo si porta già
+     * sul secondo esatto in cui il vecchio finirà, e al confine si passa il
+     * testimone: uno parte, l'altro tace, e in mezzo non c'è silenzio.
+     */
+    function makePlayer() {
+        const el = new Audio();
+        el.preload = 'auto';
+
+        el.addEventListener('ended', () => {
+            // Durante il passaggio di testimone la fine del pezzo vecchio è
+            // prevista: fermare tutto proprio lì rimetterebbe il buco che si
+            // sta cercando di togliere.
+            if (el === audio && handoffsInFlight === 0) stopPlayback();
+        });
+
+        el.addEventListener('loadedmetadata', () => {
+            if (el !== audio) return;
+            clipDuration = isFinite(el.duration) && el.duration > 0 ? el.duration : 0;
+            if (el.paused) paint(0);
+        });
+
+        return el;
+    }
+
+    let audio = makePlayer();
+    let spare = makePlayer();
+
+    function swapPlayers() {
+        const previous = audio;
+        audio = spare;
+        spare = previous;
+        clipDuration = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
+    }
+
     function trackDuration() {
         return clipDuration;
     }
@@ -262,28 +303,29 @@
         return !!clipUrl && clipKey === currentClipKey();
     }
 
+    /** Scarica il frammento e ne restituisce un indirizzo locale. */
+    function fetchClip() {
+        return fetch('/api/pullspot/audio.php?lang=' + LANG, {
+            credentials: 'same-origin',
+            cache: 'no-store',
+        }).then((response) => {
+            if (!response.ok) throw new Error('audio ' + response.status);
+            return response.blob();
+        }).then((blob) => URL.createObjectURL(blob));
+    }
+
     function ensureClip() {
         const key = currentClipKey();
         if (clipUrl && clipKey === key) return Promise.resolve();
         if (clipLoading && clipKey === key) return clipLoading;
 
         clipKey = key;
-        clipLoading = fetch('/api/pullspot/audio.php?lang=' + LANG, {
-            credentials: 'same-origin',
-            cache: 'no-store',
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error('audio ' + response.status);
-                return response.blob();
-            })
-            .then((blob) => {
-                if (continueFrom === 'auto') {
-                    continueFrom = audio.paused ? 0 : audio.currentTime;
-                }
-
+        clipLoading = fetchClip()
+            .then((url) => {
                 if (clipUrl) URL.revokeObjectURL(clipUrl);
-                clipUrl = URL.createObjectURL(blob);
+                clipUrl = url;
                 clipDuration = 0;
+                clipSeconds = limitSeconds();
                 audio.src = clipUrl;
                 audio.load();
             })
@@ -303,6 +345,120 @@
         clipUrl = null;
         clipKey = '';
         clipDuration = 0;
+        clipSeconds = 0;
+    }
+
+    /** Aspetta un evento dell'elemento, o si arrende dopo un po'. */
+    function once(el, events, timeout) {
+        return new Promise((resolve) => {
+            let settled = false;
+
+            const done = () => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                events.forEach((name) => el.removeEventListener(name, done));
+                resolve();
+            };
+
+            const timer = setTimeout(done, timeout || 6000);
+            events.forEach((name) => el.addEventListener(name, done));
+        });
+    }
+
+    /** Aspetta che il lettore attuale arrivi in fondo al suo frammento. */
+    function untilBoundary(el, limit) {
+        if (el.paused || el.ended || (limit > 0 && el.currentTime >= limit - .06)) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            const stop = () => {
+                clearInterval(poll);
+                el.removeEventListener('ended', stop);
+                resolve();
+            };
+
+            const poll = setInterval(() => {
+                if (el.paused || el.ended || (limit > 0 && el.currentTime >= limit - .06)) stop();
+            }, 30);
+
+            el.addEventListener('ended', stop, { once: true });
+        });
+    }
+
+    /**
+     * Allunga la traccia senza interromperla: prepara il pezzo nuovo nel
+     * lettore di riserva e lo fa partire quando il vecchio finisce.
+     */
+    /**
+     * Saltare due volte di fila mentre la musica va avvia due passaggi che si
+     * pestano i piedi: il gettone dice qual è quello buono, e chi resta
+     * indietro molla il colpo invece di sostituire una sorgente che non è più
+     * la sua.
+     */
+    async function handoff() {
+        const token = ++handoffToken;
+        const key = currentClipKey();
+        const boundary = clipSeconds;
+
+        handoffsInFlight++;
+        try {
+            await handoffSteps(boundary, key, token);
+        } finally {
+            handoffsInFlight--;
+        }
+    }
+
+    async function handoffSteps(boundary, key, token) {
+        const stale = () => token !== handoffToken || currentClipKey() !== key;
+        const url = await fetchClip();
+
+        // Nel frattempo può essere cambiato tutto (nuova partita, tentativo
+        // andato a buon fine, un altro salto): il pezzo preso non serve più.
+        if (stale()) {
+            URL.revokeObjectURL(url);
+            return;
+        }
+
+        spare.src = url;
+        spare.load();
+        await once(spare, ['loadedmetadata', 'error'], 6000);
+
+        try {
+            spare.currentTime = boundary;
+        } catch (error) { /* niente metadati: partirà da capo, pazienza */ }
+
+        await once(spare, ['seeked', 'canplay', 'error'], 4000);
+        if (stale()) {
+            URL.revokeObjectURL(url);
+            return;
+        }
+
+        await untilBoundary(audio, boundary);
+
+        if (stale()) {
+            URL.revokeObjectURL(url);
+            return;
+        }
+
+        const playing = !audio.paused;
+        audio.pause();
+
+        if (clipUrl) URL.revokeObjectURL(clipUrl);
+        clipUrl = url;
+        clipKey = key;
+        swapPlayers();
+        clipSeconds = limitSeconds();
+
+        if (playing) {
+            try {
+                await audio.play();
+                setPlayIcon(true);
+                cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(tick);
+            } catch (error) { /* il tasto resta lì per farla ripartire a mano */ }
+        }
     }
 
     function setPlayIcon(isPlaying) {
@@ -331,7 +487,7 @@
         }
     }
 
-    /** Pausa: la testina resta dove sta, cosi ripartendo si continua da li. */
+    /** Pausa: la testina resta dove sta, così ripartendo si continua da lì. */
     function pausePlayback() {
         const at = audio.currentTime;
         audio.pause();
@@ -341,14 +497,15 @@
         paint(at);
     }
 
-    /** Stop vero: il frammento e finito, la prossima volta si riparte da capo. */
+    /** Stop vero: il frammento è finito, la prossima volta si riparte da capo. */
     function stopPlayback() {
         audio.pause();
+        spare.pause();
         cancelAnimationFrame(rafId);
         rafId = 0;
         try {
             audio.currentTime = 0;
-        } catch (error) { /* prima dei metadati non si puo, ed e gia a zero */ }
+        } catch (error) { /* prima dei metadati non si può, ed è già a zero */ }
         setPlayIcon(false);
         paint(0);
     }
@@ -356,6 +513,7 @@
     function tick() {
         const limit = limitSeconds();
         listenedUpTo = Math.max(listenedUpTo, audio.currentTime);
+
         // Il server manda già il pezzo tagliato: questo è il freno di scorta
         // per i formati che non sappiamo tagliare.
         if (limit > 0 && audio.currentTime >= limit) {
@@ -460,15 +618,6 @@
             setPlayBusy(false);
         }
     }
-
-    audio.addEventListener('ended', stopPlayback);
-
-    // A partita finita la traccia è intera: la durata la conosciamo solo dopo
-    // che il browser ha letto l'intestazione del file.
-    audio.addEventListener('loadedmetadata', function () {
-        clipDuration = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
-        if (audio.paused) paint(0);
-    });
 
     /* ── Barra a segmenti ──────────────────────────────────────────────── */
 
@@ -792,8 +941,9 @@
         if (!state || state.status === 'playing' || !state.answer) {
             el.reveal.hidden = true;
             el.reveal.innerHTML = '';
+            el.reveal.classList.remove('ps-reveal--waiting');
             if (el.player) el.player.hidden = false;
-            document.body.classList.remove('ps-is-reveal');
+            document.body.classList.remove('ps-is-reveal', 'ps-is-suspense');
             return;
         }
 
@@ -803,7 +953,21 @@
         if (el.player) el.player.hidden = true;
         el.reveal.hidden = false;
         el.reveal.innerHTML = '';
+
+        // Due tempi. Prima il fascio si stringe a lama e la musica parte: per
+        // un attimo c'è solo il suono e nessuna risposta. Poi la luce si apre
+        // e il personaggio arriva dentro quel gesto.
+        const suspense = celebrate || autoplayReveal;
+
+        clearTimeout(suspenseTimer);
+        document.body.classList.remove('ps-is-suspense');
         document.body.classList.add('ps-is-reveal');
+        if (suspense && !reducedMotion) {
+            document.body.classList.add('ps-is-suspense');
+            el.reveal.classList.add('ps-reveal--waiting');
+        } else {
+            el.reveal.classList.remove('ps-reveal--waiting');
+        }
 
         const card = document.createElement('div');
         card.className = 'ps-card';
@@ -856,8 +1020,19 @@
 
         // I coriandoli festeggiano il momento, non lo stato: ricaricando la
         // pagina su una partita già vinta non devono ripartire.
-        if (won && celebrate) confetti();
+        const party = won && celebrate;
         celebrate = false;
+
+        if (!suspense || reducedMotion) {
+            if (party) confetti();
+            return;
+        }
+
+        suspenseTimer = setTimeout(() => {
+            document.body.classList.remove('ps-is-suspense');
+            el.reveal.classList.remove('ps-reveal--waiting');
+            if (party) confetti();
+        }, 1150);
     }
 
     let confettiRaf = 0;
@@ -1032,26 +1207,22 @@
         paint(audio.paused ? 0 : audio.currentTime);
 
         // Il pezzo si scarica prima che serva: al click deve partire subito,
-        // non dopo un viaggio in rete.
+        // non dopo un viaggio in rete. Se però la traccia sta suonando, il
+        // cambio lo sta già gestendo handoff() e qui non si tocca niente.
+        if (!audio.paused) return;
+
         ensureClip().then(() => {
             paint(0);
 
-            // La musica del personaggio parte da sola appena si scopre chi
-            // era. Se il browser la blocca resta il pulsante sulla figura.
+            // La musica del personaggio parte mentre la luce si stringe: è
+            // lei a reggere l'attesa. Se il browser la blocca resta il
+            // pulsante sulla figura.
             if (state && state.full && autoplayReveal) {
                 autoplayReveal = false;
                 play(true);
                 return;
             }
 
-            // Si stava ascoltando quando e' arrivato il tentativo: la traccia
-            // e' la stessa, solo piu' lunga, quindi riprende dal punto esatto
-            // in cui era invece di ricominciare.
-            if (continueFrom !== null) {
-                const from = continueFrom;
-                continueFrom = null;
-                startPlayback(from).catch(() => {});
-            }
         }).catch(() => {});
     }
 
@@ -1099,8 +1270,9 @@
         stopPlayback();
         dropClip();
         closeList();
+        clearTimeout(suspenseTimer);
+        document.body.classList.remove('ps-is-suspense');
         resumeAt = 0;
-        continueFrom = null;
         listenedUpTo = 0;
         selected = null;
         document.body.classList.remove('ps-is-reveal');
@@ -1147,19 +1319,16 @@
 
             if (state.status !== 'playing') {
                 resumeAt = 0;
-                continueFrom = null;
                 stopPlayback();
                 dropClip();
             } else if (wasPlaying) {
-                // Stava suonando: continua a suonare mentre arriva il pezzo
-                // più lungo, e riprende dal punto esatto del cambio. Fermarla
-                // qui era quello che si sentiva come uno scatto.
-                continueFrom = 'auto';
+                // Stava suonando: il pezzo più lungo si prepara di lato e
+                // subentra al confine, senza far tacere niente.
                 resumeAt = 0;
+                handoff().catch(() => {});
             } else {
                 // Era ferma: al prossimo play riparte da dove l'ascolto era
                 // arrivato davvero. Se non è mai partita, riparte dall'inizio.
-                continueFrom = null;
                 resumeAt = listenedUpTo;
                 stopPlayback();
                 dropClip();
@@ -1182,6 +1351,7 @@
     function applyVolume(value, remember) {
         const level = Math.max(0, Math.min(1, value));
         audio.volume = level;
+        spare.volume = level;
 
         if (el.volume) {
             el.volume.value = String(Math.round(level * 100));

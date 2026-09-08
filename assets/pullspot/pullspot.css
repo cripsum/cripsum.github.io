@@ -86,6 +86,33 @@ body.ps-is-reveal .ps-beam span {
     clip-path: polygon(45% 0, 55% 0, 63% 100%, 37% 100%);
 }
 
+/* Il tempo dell'attesa: il fascio si chiude a lama e pulsa piano, come un
+   respiro trattenuto. Dura quanto basta a far sentire che sta per succedere
+   qualcosa, non tanto da diventare un ritardo. */
+body.ps-is-suspense .ps-beam span {
+    clip-path: polygon(48.6% 0, 51.4% 0, 54.5% 100%, 45.5% 100%);
+    transition: clip-path .75s cubic-bezier(.7, 0, .3, 1);
+}
+
+body.ps-is-suspense .ps-glow {
+    opacity: .5;
+    animation: psBreath 1.15s ease-in-out;
+}
+
+@keyframes psBreath {
+    0%   { opacity: .2; transform: scale(.9); }
+    60%  { opacity: .55; transform: scale(1.04); }
+    100% { opacity: .34; transform: scale(1); }
+}
+
+/* La carta è già nel documento ma non ancora arrivata: entra quando la luce
+   si riapre, così il personaggio sembra uscire dal fascio. */
+.ps-reveal--waiting .ps-card {
+    opacity: 0;
+    transform: translateY(22px) scale(.9);
+    animation: none;
+}
+
 /* Cambio di scena: le tre colonne si spengono e si riaccendono insieme,
    invece di essere sostituite di scatto sotto agli occhi di chi guarda. */
 .ps-rail,
@@ -702,6 +729,13 @@ body.ps-page .ps-input:disabled { opacity: .5; }
     to   { opacity: 1; transform: none; }
 }
 
+/* Nome, rarità e pastiglia arrivano appena dopo la figura, non tutti insieme:
+   è quello che fa sembrare la scena raccontata invece che stampata. */
+.ps-card__name  { animation: psReveal .5s cubic-bezier(.16, 1, .3, 1) .1s both; }
+.ps-card__meta  { animation: psReveal .5s cubic-bezier(.16, 1, .3, 1) .18s both; }
+.ps-pill        { animation: psReveal .55s cubic-bezier(.16, 1, .3, 1) .28s both; }
+.ps-reveal__actions { animation: psReveal .5s cubic-bezier(.16, 1, .3, 1) .38s both; }
+
 .ps-card__art {
     position: relative;
     width: 11rem;
@@ -1101,6 +1135,10 @@ body.ps-page .ps-input:disabled { opacity: .5; }
 
 @media (prefers-reduced-motion: reduce) {
     .ps-card,
+    .ps-card__name,
+    .ps-card__meta,
+    .ps-pill,
+    .ps-reveal__actions,
     .ps-modal__box,
     .ps-spinner,
     .ps-play--on::after,

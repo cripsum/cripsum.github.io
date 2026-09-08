@@ -1292,16 +1292,50 @@ function rewind_section_games(mysqli $mysqli, int $userId, array $period): array
         [$userId, $period['start'], $period['end']]
     );
 
+    // Pullspot: le partite le conta il diario giornaliero, il colpo migliore
+    // lo sa solo lo storico delle partite.
+    $pullspot = rewind_row(
+        $mysqli,
+        'SELECT COALESCE(SUM(pullspot_rounds), 0)    AS partite,
+                COALESCE(SUM(pullspot_won), 0)       AS vinte,
+                COALESCE(SUM(pullspot_first_try), 0) AS primo_colpo
+         FROM user_daily_stats
+         WHERE utente_id = ? AND `day` BETWEEN ? AND ?',
+        'iss',
+        [$userId, $period['start'], $period['end']]
+    ) ?? [];
+
+    $pullspotPlayed = (int)($pullspot['partite'] ?? 0);
+    $pullspotWon = (int)($pullspot['vinte'] ?? 0);
+
+    $pullspotBest = rewind_row(
+        $mysqli,
+        "SELECT p.tentativi_usati, c.nome
+         FROM pullspot_partite p
+         LEFT JOIN personaggi c ON c.id = p.personaggio_id
+         WHERE p.utente_id = ? AND p.esito = 'vinto' AND p.creato_il BETWEEN ? AND ?
+         ORDER BY p.tentativi_usati ASC, p.id ASC
+         LIMIT 1",
+        'iss',
+        [$userId, $from, $to]
+    );
+
     return [
-        'duels_played'   => $played,
-        'duels_won'      => $wins,
-        'duels_lost'     => (int)($duels['losses'] ?? 0),
-        'winrate'        => $played > 0 ? round($wins / $played * 100) : null,
-        'subway_best_ms' => $subway ? (int)$subway['best_time_ms'] : 0,
-        'subway_map'     => $subway['map_slug'] ?? null,
-        'subway_rank'    => $subwayRank,
-        'subway_runs'    => $subwayRuns,
-        'has_data'       => $played > 0 || $subway !== null,
+        'duels_played'      => $played,
+        'duels_won'         => $wins,
+        'duels_lost'        => (int)($duels['losses'] ?? 0),
+        'winrate'           => $played > 0 ? round($wins / $played * 100) : null,
+        'subway_best_ms'    => $subway ? (int)$subway['best_time_ms'] : 0,
+        'subway_map'        => $subway['map_slug'] ?? null,
+        'subway_rank'       => $subwayRank,
+        'subway_runs'       => $subwayRuns,
+        'pullspot_played'   => $pullspotPlayed,
+        'pullspot_won'      => $pullspotWon,
+        'pullspot_first'    => (int)($pullspot['primo_colpo'] ?? 0),
+        'pullspot_rate'     => $pullspotPlayed > 0 ? (int)round($pullspotWon / $pullspotPlayed * 100) : null,
+        'pullspot_best'     => $pullspotBest ? (int)$pullspotBest['tentativi_usati'] : null,
+        'pullspot_best_who' => $pullspotBest['nome'] ?? null,
+        'has_data'          => $played > 0 || $subway !== null || $pullspotPlayed > 0,
     ];
 }
 
@@ -1800,6 +1834,7 @@ function rewind_slide_plan(array &$payload): array
 
     // Subway ha una schermata sua: il record e un tempo, non un conteggio.
     if (!empty($payload['games']['subway_best_ms']))     $slides[] = 'subway';
+    if (($payload['games']['pullspot_played'] ?? 0) > 0) $slides[] = 'pullspot';
     if (!empty($payload['content']['has_data']))       $slides[] = 'content';
 
     // Il post migliore merita la sua schermata solo se qualcuno lo ha

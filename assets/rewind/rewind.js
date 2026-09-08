@@ -83,7 +83,7 @@
                 'global-chat': 'Chat globale', inbox: 'Inbox', amici: 'Amici',
                 lootbox: 'Lootbox', gacha: 'Shop gacha', negozio: 'Negozio',
                 inventario: 'Inventario', achievements: 'Achievement', missions: 'Missioni',
-                subway: 'Subway', game: 'Duelli', gambling: 'Gambling', goonland: 'GoonLand',
+                subway: 'Subway', pullspot: 'Pullspot', game: 'Duelli', gambling: 'Gambling', goonland: 'GoonLand',
                 shitpost: 'Shitpost', rimasti: 'Top Rimasti', cripsumpedia: 'CripsumPedia',
                 edits: 'Edits', download: 'Download', tiktokpedia: 'TikTokPedia',
                 merch: 'Merch', donazioni: 'Donazioni', impostazioni: 'Impostazioni', altro: 'Altro'
@@ -211,6 +211,18 @@
             quipSubway: runs => runs >= 100 ? 'Il treno ormai lo guidi tu.'
                 : 'Un altro giro e poi basta, dicevi.',
 
+            psKicker: 'Pullspot',
+            psTitle: 'tracce indovinate',
+            psPlayed: 'Partite', psRate: '% vinte', psFirst: 'Al primo colpo',
+            psBest: n => n === 1
+                ? 'Il colpo migliore: presa al primo tentativo.'
+                : `Il colpo migliore: presa al ${n}° tentativo.`,
+            psBestWho: who => `Era ${who}.`,
+            quipPullspot: (won, first) => first > 0
+                ? 'Riconosci un personaggio da un decimo di secondo. Un po\' inquietante.'
+                : (won >= 20 ? 'Orecchio fine: le musiche di pull non hanno più segreti.'
+                    : 'Ancora qualche giro e le riconoscerai dal primo respiro.'),
+
             quipContent: likes => likes >= 500 ? 'Il pubblico ti ama, e si vede.'
                 : (likes >= 50 ? 'Non male per uno che dice di postare a caso.'
                 : 'Nicchia. Molto nicchia.'),
@@ -292,7 +304,7 @@
                 'global-chat': 'Global chat', inbox: 'Inbox', amici: 'Friends',
                 lootbox: 'Lootbox', gacha: 'Gacha shop', negozio: 'Store',
                 inventario: 'Inventory', achievements: 'Achievements', missions: 'Missions',
-                subway: 'Subway', game: 'Duels', gambling: 'Gambling', goonland: 'GoonLand',
+                subway: 'Subway', pullspot: 'Pullspot', game: 'Duels', gambling: 'Gambling', goonland: 'GoonLand',
                 shitpost: 'Shitpost', rimasti: 'Top Rimasti', cripsumpedia: 'CripsumPedia',
                 edits: 'Edits', download: 'Downloads', tiktokpedia: 'TikTokPedia',
                 merch: 'Merch', donazioni: 'Donations', impostazioni: 'Settings', altro: 'Other'
@@ -420,6 +432,18 @@
             quipSubway: runs => runs >= 100 ? 'You practically drive that train now.'
                 : 'One more run and then you stop, you said.',
 
+            psKicker: 'Pullspot',
+            psTitle: 'tracks guessed',
+            psPlayed: 'Rounds', psRate: 'Win %', psFirst: 'First try',
+            psBest: n => n === 1
+                ? 'Your best call: got it on the first try.'
+                : `Your best call: got it on try ${n}.`,
+            psBestWho: who => `It was ${who}.`,
+            quipPullspot: (won, first) => first > 0
+                ? 'You can name a character from a tenth of a second. Slightly unsettling.'
+                : (won >= 20 ? 'Sharp ear: pull tracks have no secrets left for you.'
+                    : 'A few more rounds and you will know them from the first breath.'),
+
             quipContent: likes => likes >= 500 ? 'The crowd loves you, and it shows.'
                 : (likes >= 50 ? 'Not bad for someone who claims to post at random.'
                 : 'Niche. Very niche.'),
@@ -472,6 +496,7 @@
         profile:     ['#38bdf8', '#0c4a6e'],
         games:       ['#f87171', '#5c1414'],
         subway:      ['#fb7185', '#4c0519'],
+        pullspot:    ['#a78bfa', '#2e1065'],
         content:     ['#fb923c', '#5c2a00'],
         top_post:    ['#f97316', '#431407'],
         economy:     ['#facc15', '#4a3a00'],
@@ -1205,6 +1230,27 @@
                     ? `<p class="rw-lead rw-in" style="margin-top:18px">${T.subPodium(g.subway_rank)}</p>`
                     : ''}
                 <p class="rw-quip rw-in">${esc(T.quipSubway(g.subway_runs || 0))}</p>`;
+        },
+
+        /**
+         * Pullspot: il numero che conta è quante tracce hai riconosciuto, non
+         * quante partite hai fatto. Il colpo migliore si prende la riga sotto.
+         */
+        pullspot(d) {
+            const g = d.games || {};
+            if (!(g.pullspot_played > 0)) return '';
+
+            return `
+                <p class="rw-kicker rw-in">${esc(T.psKicker)}</p>
+                <p class="rw-big rw-in" data-count="${g.pullspot_won || 0}">0<small>${esc(T.psTitle)}</small></p>
+                <div class="rw-stats rw-in">
+                    ${stat(num(g.pullspot_played), T.psPlayed)}
+                    ${g.pullspot_rate !== null && g.pullspot_rate !== undefined ? stat(g.pullspot_rate + '%', T.psRate) : ''}
+                    ${g.pullspot_first ? stat(num(g.pullspot_first), T.psFirst) : ''}
+                </div>
+                ${g.pullspot_best ? `<p class="rw-lead rw-in" style="margin-top:18px">${esc(T.psBest(g.pullspot_best))}${
+                    g.pullspot_best_who ? ' ' + esc(T.psBestWho(g.pullspot_best_who)) : ''}</p>` : ''}
+                <p class="rw-quip rw-in">${esc(T.quipPullspot(g.pullspot_won || 0, g.pullspot_first || 0))}</p>`;
         },
 
         content(d) {

@@ -82,6 +82,9 @@ const STATS_METRICS = [
     'duels_won'              => 'duels_won',
     'duels_lost'             => 'duels_lost',
     'subway_runs'            => 'subway_runs',
+    'pullspot_rounds'        => 'pullspot_rounds',
+    'pullspot_won'           => 'pullspot_won',
+    'pullspot_first_try'     => 'pullspot_first_try',
 ];
 
 /** Metriche che vanno tenute al massimo raggiunto invece che sommate. */
@@ -112,6 +115,7 @@ const STATS_PAGE_KEYS = [
     'achievements',
     'missions',
     'subway',
+    'pullspot',
     'game',
     'gambling',
     'goonland',
@@ -427,8 +431,43 @@ function stats_flush(mysqli $mysqli): void
  * @param array<string,int> $sums   colonna => incremento
  * @param array<string,int> $maxes  colonna => valore candidato al massimo
  */
+/**
+ * Le colonne che la tabella ha davvero.
+ *
+ * Le metriche nuove arrivano con una migration applicata a mano: finché non lo
+ * è, scriverle farebbe fallire l'intera riga del giorno e si perderebbero anche
+ * le metriche vecchie. Meglio scartare quella che manca e salvare il resto.
+ */
+function stats_existing_columns(mysqli $mysqli): array
+{
+    static $columns = null;
+    if ($columns !== null) return $columns;
+
+    $columns = [];
+
+    try {
+        $result = $mysqli->query('SHOW COLUMNS FROM user_daily_stats');
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                if (!empty($row['Field'])) $columns[$row['Field']] = true;
+            }
+            $result->free();
+        }
+    } catch (Throwable $e) {
+        error_log('[stats_existing_columns] ' . $e->getMessage());
+    }
+
+    return $columns;
+}
+
 function stats_upsert_day(mysqli $mysqli, int $userId, string $day, array $sums, array $maxes = []): void
 {
+    $known = stats_existing_columns($mysqli);
+    if ($known !== []) {
+        $sums  = array_intersect_key($sums, $known);
+        $maxes = array_intersect_key($maxes, $known);
+    }
+
     $columns = ['`utente_id`', '`day`'];
     $placeholders = ['?', '?'];
     $types = 'is';
@@ -568,6 +607,7 @@ function stats_page_key_from_path(string $path): string
         'negozio'      => 'negozio',
         'inventario'   => 'inventario',
         'achievements' => 'achievements',
+        'pullspot'     => 'pullspot',
         'missions'     => 'missions',
         'subway'       => 'subway',
         'game'         => 'game',

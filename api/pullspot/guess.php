@@ -15,6 +15,7 @@ require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/pullspot_helpers.php';
+require_once __DIR__ . '/../../includes/stats_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -79,9 +80,24 @@ if (($input['action'] ?? 'guess') !== 'skip') {
     }
 }
 
+$wasPlaying = $game['status'] === 'playing';
+
 $game = pullspot_apply_guess($game, $guess, $character);
 $game = pullspot_record_result($mysqli, $userId, $game);
 pullspot_session_save($game);
+
+// Il Rewind racconta l'anno con questi numeri: una partita finita è un fatto
+// dell'anno come un pull o una corsa alla metropolitana.
+if ($wasPlaying && $game['status'] !== 'playing') {
+    $tracked = ['pullspot_rounds' => 1];
+
+    if ($game['status'] === 'won') {
+        $tracked['pullspot_won'] = 1;
+        if (count($game['guesses']) === 1) $tracked['pullspot_first_try'] = 1;
+    }
+
+    stats_track_many($mysqli, $userId, $tracked);
+}
 
 $payload = pullspot_public_state($game, $character);
 $payload['ok']    = true;
