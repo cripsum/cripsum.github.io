@@ -5,10 +5,9 @@
  * tre colonne: i tentativi a sinistra, il lettore al centro, le opzioni a
  * destra. Tutto sta su una griglia, così niente si sovrappone a niente.
  *
- * Il colore acceso è uno solo e vive in --ps-accent: durante la partita è
- * verde, alla rivelazione diventa quello del personaggio (lo ricava il JS
- * dalla sua immagine). Ogni cosa colorata legge quella variabile, quindi il
- * cambio è istantaneo e coerente.
+ * Il colore acceso è uno solo e vive in --ps-accent: lo manda il server, già
+ * ricavato dall'immagine del personaggio, e vale per tutta la partita. Ogni
+ * cosa colorata legge quella variabile, quindi cambiano tutte insieme.
  */
 
 :root {
@@ -44,15 +43,31 @@ body.ps-page {
 /* ── Sfondo ────────────────────────────────────────────────────────────── */
 
 /* Il fascio si allarga scendendo, come un faro da soffitto. Alla rivelazione
-   si stringe e si accende del colore del personaggio. */
+ * si stringe e si accende del colore del personaggio.
+ *
+ * La sfocatura sta sul contenitore e il ritaglio sul figlio: al contrario il
+ * taglio verrebbe applicato dopo la sfocatura e i lati resterebbero due righe
+ * diagonali nette, che sembrano passare davanti ai pannelli laterali invece
+ * che dietro. Il fondo si ferma prima dei bordi, così non c'è nessuno scalino. */
 .ps-beam {
     position: fixed;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
     pointer-events: none;
-    background: linear-gradient(180deg, transparent, var(--ps-accent-soft) 14%, rgba(255, 255, 255, .01) 58%, transparent 84%);
-    clip-path: polygon(38% 0, 62% 0, 80% 100%, 20% 100%);
-    transition: clip-path .9s cubic-bezier(.16, 1, .3, 1), background .9s ease;
+}
+
+.ps-beam span {
+    position: absolute;
+    top: -14%;
+    left: 50%;
+    display: block;
+    width: 64%;
+    height: 120%;
+    transform: translateX(-50%);
+    transform-origin: 50% 0;
+    background: radial-gradient(ellipse 52% 58% at 50% 0%, var(--ps-accent-soft), transparent 72%);
+    transition: transform .9s cubic-bezier(.16, 1, .3, 1), background .9s ease;
 }
 
 .ps-glow {
@@ -71,8 +86,8 @@ body.ps-page {
     transition: opacity .9s ease, background .9s ease;
 }
 
-body.ps-is-reveal .ps-beam {
-    clip-path: polygon(44% 0, 56% 0, 68% 100%, 32% 100%);
+body.ps-is-reveal .ps-beam span {
+    transform: translateX(-50%) scaleX(.6);
 }
 
 /* Cambio di scena: le tre colonne si spengono e si riaccendono insieme,
@@ -1053,8 +1068,7 @@ body.ps-page .ps-input:disabled { opacity: .5; }
         margin: 0 auto;
     }
 
-    .ps-beam { clip-path: polygon(20% 0, 80% 0, 97% 100%, 3% 100%); }
-    body.ps-is-reveal .ps-beam { clip-path: polygon(34% 0, 66% 0, 82% 100%, 18% 100%); }
+    .ps-beam span { width: 118%; }
 }
 
 @media (max-width: 30rem) {
@@ -1084,7 +1098,7 @@ body.ps-page .ps-input:disabled { opacity: .5; }
         animation: none;
     }
 
-    .ps-beam,
+    .ps-beam span,
     .ps-glow,
     .ps-marker,
     .ps-seg__unlocked {

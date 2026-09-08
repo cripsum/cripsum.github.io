@@ -113,7 +113,7 @@ $copy = [
 <body class="ps-page">
     <?php include '../includes/navbar.php'; ?>
 
-    <div class="ps-beam" aria-hidden="true"></div>
+    <div class="ps-beam" aria-hidden="true"><span></span></div>
     <div class="ps-glow" aria-hidden="true"></div>
     <canvas class="ps-confetti" data-ps-confetti aria-hidden="true"></canvas>
 

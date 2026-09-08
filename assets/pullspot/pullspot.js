@@ -126,6 +126,7 @@
     let clipUrl = null;
     let clipKey = '';
     let clipLoading = null;
+    let clipDuration = 0;
     let rafId = 0;
     let starting = false;
     let autoplayReveal = false;
@@ -238,7 +239,7 @@
     /* ── Lettore ───────────────────────────────────────────────────────── */
 
     function trackDuration() {
-        return isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
+        return clipDuration;
     }
 
     function limitSeconds() {
@@ -273,6 +274,7 @@
             .then((blob) => {
                 if (clipUrl) URL.revokeObjectURL(clipUrl);
                 clipUrl = URL.createObjectURL(blob);
+                clipDuration = 0;
                 audio.src = clipUrl;
                 audio.load();
             })
@@ -291,11 +293,7 @@
         if (clipUrl) URL.revokeObjectURL(clipUrl);
         clipUrl = null;
         clipKey = '';
-
-        // Senza questo l'elemento continua a dichiarare la durata del pezzo
-        // precedente, e il cronometro mostra un totale che non esiste più.
-        audio.removeAttribute('src');
-        audio.load();
+        clipDuration = 0;
     }
 
     /**
@@ -326,7 +324,9 @@
             }
 
             function ko() {
-                if (settled) return;
+                // Un evento di errore senza un errore vero e' il rimasuglio di
+                // un caricamento precedente: non deve far fallire questo.
+                if (settled || !audio.error) return;
                 settled = true;
                 cleanup();
                 reject(new Error('audio'));
@@ -431,6 +431,12 @@
         return (at > 0 && limit > 0 && at < limit - .05) ? at : 0;
     }
 
+    async function fetchAndPlay(from) {
+        await ensureClip();
+        await whenReady();
+        await startPlayback(from);
+    }
+
     async function play(silent) {
         if (!state || starting) return;
 
@@ -444,21 +450,29 @@
         // Percorso veloce: se il pezzo è già pronto si parte dentro al click,
         // che è quello che i browser vogliono per non bloccare l'audio.
         if (clipReady()) {
-            startPlayback(from).catch(() => {
-                if (!silent) toast(STRINGS.audioError);
-            });
-            return;
+            try {
+                await startPlayback(from);
+                return;
+            } catch (error) {
+                // Un play interrotto a metà (AbortError) capita quando il
+                // pezzo viene sostituito proprio in quell'istante: si rifà.
+            }
         }
 
         starting = true;
         setPlayBusy(true);
 
         try {
-            await ensureClip();
-            await whenReady();
-            await startPlayback(from);
+            await fetchAndPlay(from);
         } catch (error) {
-            if (!silent) toast(STRINGS.audioError);
+            // Un secondo tentativo con il pezzo riscaricato da zero copre i
+            // guasti di passaggio: prima di dire che non parte, si riprova.
+            try {
+                dropClip();
+                await fetchAndPlay(from);
+            } catch (retryError) {
+                if (!silent) toast(STRINGS.audioError);
+            }
         } finally {
             starting = false;
             setPlayBusy(false);
@@ -470,6 +484,7 @@
     // A partita finita la traccia è intera: la durata la conosciamo solo dopo
     // che il browser ha letto l'intestazione del file.
     audio.addEventListener('loadedmetadata', function () {
+        clipDuration = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
         if (audio.paused) paint(0);
     });
 
