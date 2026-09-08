@@ -120,8 +120,8 @@ html[data-cnav-theme="light"] {
     color: var(--cn-text);
 }
 
-/* Pagina aperta: sfondo tenue piu' icona accesa. Senza questo la barra non
-   dice mai in che sezione ci si trova. */
+/* Pagina aperta: sfondo tenue piu' icona a pieno contrasto. Senza questo
+   la barra non dice mai in che sezione ci si trova. */
 .cnav-trigger.is-current,
 .navbarutenti .cnav-list .cnav-navlink.is-current {
     background: var(--cn-raise);
@@ -130,7 +130,7 @@ html[data-cnav-theme="light"] {
 
 .cnav-trigger.is-current .cnav-ico,
 .cnav-navlink.is-current .cnav-ico {
-    color: var(--cn-accent);
+    color: var(--cn-text);
     opacity: 1;
 }
 
@@ -617,10 +617,6 @@ html[data-cnav-theme="light"] {
     white-space: nowrap;
 }
 
-.cnav-stat i {
-    font-size: 0.78rem;
-    color: var(--cn-accent);
-}
 
 .cnav-stat__val {
     font-weight: 600;
@@ -1281,7 +1277,7 @@ html[data-cnav-theme="light"] .cnav-icon-btn__badge {
 
 .cnav-stat__ico i {
     font-size: 0.82rem;
-    color: var(--cn-accent);
+    color: var(--cn-text);
 }
 
 .cnav-stat {
@@ -1303,7 +1299,7 @@ html[data-cnav-theme="light"] .cnav-icon-btn__badge {
 
 .cnav-row.is-current .cnav-row__ico,
 .cnav-tile.is-current .cnav-tile__ico {
-    color: var(--cn-accent);
+    color: var(--cn-text);
     opacity: 1;
 }
 
