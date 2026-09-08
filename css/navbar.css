@@ -359,8 +359,7 @@ html[data-cnav-theme="light"] {
 .cnav-tile:focus-visible,
 .cnav-key:focus-visible,
 .cnav-acct-head:focus-visible,
-.cnav-foot-btn:focus-visible,
-.cnav-foot-icon:focus-visible {
+.cnav-foot-btn:focus-visible {
     outline: 2px solid var(--cn-accent);
     outline-offset: -2px;
 }
@@ -635,9 +634,18 @@ html[data-cnav-theme="light"] {
 
 /* ── Piede ───────────────────────────────────────────────── */
 
+/* Due bottoni di pari misura, tutti e due con icona ed etichetta.
+   Prima Logout prendeva quasi tutta la riga in rosso pieno e Impostazioni
+   era un ingranaggio muto da 38px: il peso visivo era il contrario della
+   frequenza d'uso, e su touch, dove il tooltip non c'e', quell'ingranaggio
+   non diceva niente. Impostazioni sta a sinistra perche' e' quello che si
+   apre di solito; Logout resta rosso ma non e' piu' la cosa piu' grossa
+   dello schermo, il che conta su mobile dove il piede dello sheet cade
+   proprio sotto il pollice. */
+
 .cnav-acct-foot {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
     padding: 8px;
     border-top: 1px solid var(--cn-border-soft);
@@ -646,42 +654,49 @@ html[data-cnav-theme="light"] {
 .cnav-foot-btn {
     display: inline-flex;
     align-items: center;
-    gap: 9px;
-    flex: 1;
-    padding: 9px 12px;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--cn-border-soft);
     border-radius: var(--cn-radius-sm);
-    font-size: 0.85rem;
+    background: var(--cn-raise);
+    color: var(--cn-text);
+    font-size: 0.83rem;
     font-weight: 600;
     text-decoration: none;
-    transition: background-color var(--cn-hover-dur) ease;
+    transition:
+        background-color var(--cn-hover-dur) ease,
+        border-color var(--cn-hover-dur) ease,
+        color var(--cn-hover-dur) ease;
+}
+
+.cnav-foot-btn:hover,
+.cnav-foot-btn:focus-visible {
+    background: var(--cn-hover);
+    border-color: var(--cn-border);
+    color: var(--cn-text);
+}
+
+/* Un nome utente lungo non deve poter allargare il piede. */
+.cnav-foot-btn__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .cnav-foot-btn--danger {
+    background: transparent;
+    border-color: var(--cn-danger-border);
     color: var(--cn-danger);
 }
 
 .cnav-foot-btn--danger:hover,
 .cnav-foot-btn--danger:focus-visible {
     background: var(--cn-danger-bg);
+    border-color: var(--cn-danger);
     color: var(--cn-danger);
-}
-
-.cnav-foot-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: var(--cn-radius-sm);
-    color: var(--cn-muted);
-    text-decoration: none;
-    transition: background-color var(--cn-hover-dur) ease, color var(--cn-hover-dur) ease;
-}
-
-.cnav-foot-icon:hover,
-.cnav-foot-icon:focus-visible {
-    background: var(--cn-hover);
-    color: var(--cn-text);
 }
 
 /* ── Sotto i 1200px: bottom sheet ────────────────────────────
@@ -877,13 +892,8 @@ html[data-cnav-theme="light"] {
     }
 
     .cnav-foot-btn {
-        padding: 13px 14px;
-        justify-content: center;
-    }
-
-    .cnav-foot-icon {
-        width: 46px;
-        height: 46px;
+        padding: 13px 12px;
+        font-size: 0.88rem;
     }
 
     /* I trigger dentro il collapse sono righe di elenco, non pillole. */

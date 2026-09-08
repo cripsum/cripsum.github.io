@@ -355,12 +355,13 @@ if (!function_exists('nav_bootstrap')) {
             </div>
 
             <div class="cnav-acct-foot">
+                <a class="cnav-foot-btn" role="menuitem" href="<?= nav_e($panel['settings']['href']) ?>">
+                    <?= nav_icon($panel['settings']) ?>
+                    <span class="cnav-foot-btn__label"><?= nav_e($panel['settings']['label']) ?></span>
+                </a>
                 <a class="cnav-foot-btn cnav-foot-btn--danger" role="menuitem" href="<?= nav_e($panel['logout']['href']) ?>">
                     <?= nav_icon($panel['logout']) ?>
-                    <span><?= nav_e($panel['logout']['label']) ?></span>
-                </a>
-                <a class="cnav-foot-icon" role="menuitem" href="<?= nav_e($panel['settings']['href']) ?>" data-cnav-tip="<?= nav_e($panel['settings']['label']) ?>" aria-label="<?= nav_e($panel['settings']['label']) ?>">
-                    <?= nav_icon($panel['settings']) ?>
+                    <span class="cnav-foot-btn__label"><?= nav_e($panel['logout']['label']) ?></span>
                 </a>
             </div>
         </div>
