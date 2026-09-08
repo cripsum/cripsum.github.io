@@ -25,6 +25,7 @@
         it: {
             skipped: 'Saltato',
             giveUp: 'Arrenditi',
+            guess: 'Indovina',
             noResults: 'Nessun personaggio',
             attempt: (n, max) => 'Tentativo ' + n + '/' + max,
             streak: (n) => 'Serie ' + n,
@@ -53,6 +54,7 @@
         en: {
             skipped: 'Skipped',
             giveUp: 'Give up',
+            guess: 'Guess',
             noResults: 'No character',
             attempt: (n, max) => 'Guess ' + n + '/' + max,
             streak: (n) => 'Streak ' + n,
@@ -110,6 +112,7 @@
     };
 
     const skipWord = el.skip ? el.skip.querySelector('span') : null;
+    const skipIcon = el.skip ? el.skip.querySelector('i') : null;
     const skipWordText = skipWord ? skipWord.textContent : '';
 
     let state = null;
@@ -133,6 +136,8 @@
     let celebrate = false;
     let resumeAt = 0;
     let continueFrom = null;
+    let listenedUpTo = 0;
+    let selected = null;
 
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -254,7 +259,7 @@
     }
 
     function clipReady() {
-        return !!clipUrl && clipKey === currentClipKey() && audio.readyState >= 2;
+        return !!clipUrl && clipKey === currentClipKey();
     }
 
     function ensureClip() {
@@ -272,6 +277,10 @@
                 return response.blob();
             })
             .then((blob) => {
+                if (continueFrom === 'auto') {
+                    continueFrom = audio.paused ? 0 : audio.currentTime;
+                }
+
                 if (clipUrl) URL.revokeObjectURL(clipUrl);
                 clipUrl = URL.createObjectURL(blob);
                 clipDuration = 0;
@@ -294,49 +303,6 @@
         clipUrl = null;
         clipKey = '';
         clipDuration = 0;
-    }
-
-    /**
-     * Aspetta che l'elemento abbia abbastanza dati per suonare.
-     *
-     * Senza questa attesa `currentTime = 0` può essere rifiutato dal browser
-     * (i metadati non ci sono ancora) e il play muore in silenzio: era il
-     * motivo per cui a volte premevi e non partiva niente.
-     */
-    function whenReady() {
-        if (audio.readyState >= 2) return Promise.resolve();
-
-        return new Promise((resolve, reject) => {
-            let settled = false;
-
-            function cleanup() {
-                clearTimeout(timer);
-                audio.removeEventListener('canplay', ok);
-                audio.removeEventListener('loadeddata', ok);
-                audio.removeEventListener('error', ko);
-            }
-
-            function ok() {
-                if (settled) return;
-                settled = true;
-                cleanup();
-                resolve();
-            }
-
-            function ko() {
-                // Un evento di errore senza un errore vero e' il rimasuglio di
-                // un caricamento precedente: non deve far fallire questo.
-                if (settled || !audio.error) return;
-                settled = true;
-                cleanup();
-                reject(new Error('audio'));
-            }
-
-            const timer = setTimeout(ko, 9000);
-            audio.addEventListener('canplay', ok);
-            audio.addEventListener('loadeddata', ok);
-            audio.addEventListener('error', ko);
-        });
     }
 
     function setPlayIcon(isPlaying) {
@@ -389,6 +355,7 @@
 
     function tick() {
         const limit = limitSeconds();
+        listenedUpTo = Math.max(listenedUpTo, audio.currentTime);
         // Il server manda già il pezzo tagliato: questo è il freno di scorta
         // per i formati che non sappiamo tagliare.
         if (limit > 0 && audio.currentTime >= limit) {
@@ -399,10 +366,27 @@
         rafId = requestAnimationFrame(tick);
     }
 
+    /**
+     * Fa partire la traccia dal punto voluto.
+     *
+     * Non si aspetta nessun evento di "pronto": ci pensa play(), che parte da
+     * solo appena ha dati. Aspettare canplay a mano era il motivo per cui certe
+     * tracce restavano a caricare all'infinito — quell'evento a volte non
+     * arriva, e il timeout diventava un errore che non c'entrava niente.
+     */
     function startPlayback(from) {
-        try {
-            audio.currentTime = from || 0;
-        } catch (error) { /* alcuni browser lo rifiutano: si parte da dove sta */ }
+        // Spostare la testina prima dei metadati viene rifiutato: se serve,
+        // si aspetta l'evento giusto invece di insistere.
+        if (from > 0) {
+            const seek = () => {
+                try {
+                    audio.currentTime = from;
+                } catch (error) { /* pazienza: si parte da dove capita */ }
+            };
+
+            if (audio.readyState >= 1) seek();
+            else audio.addEventListener('loadedmetadata', seek, { once: true });
+        }
 
         return audio.play().then(() => {
             setPlayIcon(true);
@@ -419,6 +403,8 @@
      * capo. Consumata la ripresa, il tasto rifa tutto il frammento.
      */
     function resumePoint() {
+        listenedUpTo = Math.max(listenedUpTo, audio.currentTime);
+
         if (resumeAt > 0) {
             const from = resumeAt;
             resumeAt = 0;
@@ -429,12 +415,6 @@
         const at = audio.currentTime;
 
         return (at > 0 && limit > 0 && at < limit - .05) ? at : 0;
-    }
-
-    async function fetchAndPlay(from) {
-        await ensureClip();
-        await whenReady();
-        await startPlayback(from);
     }
 
     async function play(silent) {
@@ -463,13 +443,15 @@
         setPlayBusy(true);
 
         try {
-            await fetchAndPlay(from);
+            await ensureClip();
+            await startPlayback(from);
         } catch (error) {
             // Un secondo tentativo con il pezzo riscaricato da zero copre i
             // guasti di passaggio: prima di dire che non parte, si riprova.
             try {
                 dropClip();
-                await fetchAndPlay(from);
+                await ensureClip();
+                await startPlayback(from);
             } catch (retryError) {
                 if (!silent) toast(STRINGS.audioError);
             }
@@ -633,13 +615,20 @@
         if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest' });
     }
 
-    /** Scegliere un nome dall'elenco è già il tentativo: non c'è conferma. */
+    /**
+     * Scegliere un nome lo scrive nel campo e arma il tasto: il tentativo parte
+     * solo quando si conferma. Un click sbagliato nell'elenco non deve costare
+     * un tentativo.
+     */
     function choose(index) {
         const character = filtered[index];
         if (!character || busy) return;
 
+        selected = character;
+        if (el.input) el.input.value = character.nome;
         closeList();
-        submitGuess({ action: 'guess', character_id: character.id });
+        syncControls();
+        if (el.skip) el.skip.focus();
     }
 
     /* ── Vetrina ───────────────────────────────────────────────────────── */
@@ -709,6 +698,28 @@
         if (el.controls) el.controls.hidden = !playing;
         if (!playing) return;
 
+        syncControls();
+    }
+
+    /**
+     * Un tasto solo, due mestieri: salta finché non si è scelto un personaggio,
+     * poi diventa la conferma del tentativo.
+     */
+    function paintActionButton() {
+        if (!el.skip || !state) return;
+
+        const guessing = selected !== null;
+        el.skip.classList.toggle('ps-skip--guess', guessing);
+
+        if (guessing) {
+            if (skipIcon) skipIcon.className = 'fa-solid fa-check';
+            text(skipWord, STRINGS.guess);
+            text(el.skipBonus, '');
+            return;
+        }
+
+        if (skipIcon) skipIcon.className = 'fa-solid fa-forward-step';
+
         const index = state.guesses.length;
         const next = state.steps[index + 1];
 
@@ -719,14 +730,13 @@
             text(skipWord, STRINGS.giveUp);
             text(el.skipBonus, '');
         }
-
-        syncControls();
     }
 
     function syncControls() {
         if (el.skip) el.skip.disabled = busy || !state || state.status !== 'playing';
         if (el.input) el.input.disabled = busy;
         if (el.clear) el.clear.hidden = !el.input || !el.input.value;
+        paintActionButton();
     }
 
     function button(className, iconName, label, handler) {
@@ -1015,8 +1025,11 @@
         renderControls();
         renderReveal();
         renderStats();
-        setPlayIcon(false);
-        paint(0);
+
+        // Se la traccia sta ancora suonando (skip al volo) non si azzera nulla:
+        // il lettore continua e la barra lo segue.
+        setPlayIcon(!audio.paused);
+        paint(audio.paused ? 0 : audio.currentTime);
 
         // Il pezzo si scarica prima che serva: al click deve partire subito,
         // non dopo un viaggio in rete.
@@ -1088,6 +1101,8 @@
         closeList();
         resumeAt = 0;
         continueFrom = null;
+        listenedUpTo = 0;
+        selected = null;
         document.body.classList.remove('ps-is-reveal');
         if (el.input) el.input.value = '';
 
@@ -1124,8 +1139,7 @@
             // Fotografia dell'ascolto prima che lo stato cambi: dove era la
             // testina, se stava suonando, e fin dove era arrivato lo sblocco.
             const wasPlaying = !audio.paused;
-            const at = audio.currentTime;
-            const heardUpTo = limitSeconds();
+            listenedUpTo = Math.max(listenedUpTo, audio.currentTime);
 
             state = Object.assign({}, state, payload);
             autoplayReveal = state.status === 'won';
@@ -1134,20 +1148,26 @@
             if (state.status !== 'playing') {
                 resumeAt = 0;
                 continueFrom = null;
+                stopPlayback();
+                dropClip();
             } else if (wasPlaying) {
-                // Stava suonando: prosegue, non riparte.
-                continueFrom = at;
+                // Stava suonando: continua a suonare mentre arriva il pezzo
+                // più lungo, e riprende dal punto esatto del cambio. Fermarla
+                // qui era quello che si sentiva come uno scatto.
+                continueFrom = 'auto';
                 resumeAt = 0;
             } else {
-                // Era fermo: al prossimo play riparte da dove si era fermato.
+                // Era ferma: al prossimo play riparte da dove l'ascolto era
+                // arrivato davvero. Se non è mai partita, riparte dall'inizio.
                 continueFrom = null;
-                resumeAt = heardUpTo;
+                resumeAt = listenedUpTo;
+                stopPlayback();
+                dropClip();
             }
 
+            selected = null;
             if (el.input) el.input.value = '';
             closeList();
-            stopPlayback();
-            dropClip();
             render();
         } catch (error) {
             toast(error.message || STRINGS.loadError);
@@ -1192,11 +1212,20 @@
 
     if (el.play) el.play.addEventListener('click', () => play());
 
-    if (el.skip) el.skip.addEventListener('click', () => submitGuess({ action: 'skip' }));
+    if (el.skip) {
+        el.skip.addEventListener('click', () => {
+            if (selected) {
+                submitGuess({ action: 'guess', character_id: selected.id });
+                return;
+            }
+            submitGuess({ action: 'skip' });
+        });
+    }
 
     if (el.clear) {
         el.clear.addEventListener('click', () => {
             el.input.value = '';
+            selected = null;
             closeList();
             syncControls();
             el.input.focus();
@@ -1205,6 +1234,7 @@
 
     if (el.input) {
         el.input.addEventListener('input', () => {
+            selected = null;
             openList(el.input.value);
             syncControls();
         });

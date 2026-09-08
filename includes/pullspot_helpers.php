@@ -30,11 +30,18 @@ const PULLSPOT_STEPS = [0.1, 0.5, 2.0, 5.0, 8.0, 15.0];
 
 /**
  * Se lo stesso file audio è condiviso da più personaggi di così è un segnaposto
- * (il suono di default), non la musica di qualcuno: fuori dal mazzo.
+ * (il suono di default), non la musica di qualcuno: fuori dal mazzo. La soglia
+ * è larga apposta — un gruppo di personaggi che condivide un tema deve restare
+ * giocabile, a sparire è solo il suono buono per tutti.
  */
-const PULLSPOT_MAX_SHARED_AUDIO = 3;
+const PULLSPOT_MAX_SHARED_AUDIO = 6;
 
-/** Quanti personaggi appena usciti evitare prima di poterli ripescare. */
+/**
+ * Quanti personaggi appena usciti evitare prima di poterli ripescare. Non può
+ * mai superare metà del mazzo: se lo superasse, la lista dei recenti coprirebbe
+ * quasi tutti e la scelta ripiegherebbe ogni volta sul mazzo intero, che è
+ * proprio quello che si voleva evitare.
+ */
 const PULLSPOT_RECENT_MEMORY = 25;
 
 const PULLSPOT_TABLE = 'pullspot_partite';
@@ -91,6 +98,41 @@ function pullspot_msg(string $key, string $lang = 'it'): string
  * utilizzabile: media esterni, estensioni che non sono audio, file spariti e
  * qualunque cosa provi a uscire da /audio finiscono tutti qui.
  */
+/**
+ * Cerca un file dentro una cartella, prima com'e' scritto e poi ignorando le
+ * maiuscole.
+ *
+ * In produzione il disco distingue "Hitori.mp3" da "hitori.mp3", il database
+ * no: senza questo secondo tentativo un personaggio scritto con una maiuscola
+ * di troppo sparisce dal gioco e non lo si capisce guardando il database.
+ */
+function pullspot_find_file(string $root, string $relative): ?string
+{
+    $direct = realpath($root . '/' . $relative);
+    if ($direct !== false && is_file($direct)) return $direct;
+
+    static $index = [];
+
+    if (!isset($index[$root])) {
+        $index[$root] = [];
+
+        try {
+            $walk = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS)
+            );
+            foreach ($walk as $entry) {
+                if (!$entry->isFile()) continue;
+                $key = strtolower(str_replace('\\', '/', substr($entry->getPathname(), strlen($root) + 1)));
+                $index[$root][$key] = $entry->getPathname();
+            }
+        } catch (Throwable $error) {
+            // Cartella illeggibile: si resta senza indice, non senza gioco.
+        }
+    }
+
+    return $index[$root][strtolower(str_replace('\\', '/', $relative))] ?? null;
+}
+
 function pullspot_audio_path(?string $raw): ?string
 {
     $raw = trim((string)$raw);
@@ -112,11 +154,34 @@ function pullspot_audio_path(?string $raw): ?string
     $root = realpath(__DIR__ . '/../audio');
     if ($root === false) return null;
 
-    $full = realpath($root . '/' . $relative);
-    if ($full === false || !is_file($full)) return null;
+    $full = pullspot_find_file($root, $relative);
+    if ($full === null) return null;
     if (!str_starts_with($full, rtrim($root, '\\/') . DIRECTORY_SEPARATOR)) return null;
 
     return $full;
+}
+
+/**
+ * Perché un personaggio non è nel mazzo. Serve al pannello di diagnosi: senza,
+ * un personaggio che non esce mai è un mistero che si può sciogliere solo
+ * frugando nel database a mano.
+ */
+function pullspot_exclusion_reason(array $row): ?string
+{
+    $audio = trim((string)($row['audio_url'] ?? ''));
+
+    if ($audio === '') return 'audio_url vuoto';
+    if (preg_match('~^https?://~i', $audio)) return 'audio esterno (http)';
+
+    $extension = strtolower((string)pathinfo($audio, PATHINFO_EXTENSION));
+    if (!in_array($extension, PULLSPOT_AUDIO_EXT, true)) {
+        return 'estensione non audio: .' . $extension;
+    }
+
+    if (pullspot_audio_path($audio) === null) return 'file non trovato in /audio';
+    if (trim((string)($row['nome'] ?? '')) === '') return 'nome vuoto';
+
+    return null;
 }
 
 function pullspot_schema_ready(mysqli $mysqli): bool
@@ -263,8 +328,8 @@ function pullspot_image_path(?string $raw): ?string
     $root = realpath(__DIR__ . '/../' . $folder);
     if ($root === false) return null;
 
-    $full = realpath($root . '/' . $relative);
-    if ($full === false || !is_file($full)) return null;
+    $full = pullspot_find_file($root, $relative);
+    if ($full === null) return null;
     if (!str_starts_with($full, rtrim($root, '\\/') . DIRECTORY_SEPARATOR)) return null;
 
     return $full;
@@ -460,15 +525,17 @@ function pullspot_recent(): array
     return is_array($recent) ? array_map('intval', $recent) : [];
 }
 
-function pullspot_remember(int $characterId): void
+function pullspot_remember(int $characterId, int $poolSize): void
 {
     $recent = pullspot_recent();
     $recent[] = $characterId;
 
+    $keep = max(1, min(PULLSPOT_RECENT_MEMORY, (int)floor($poolSize / 2)));
+
     if (!isset($_SESSION['pullspot']) || !is_array($_SESSION['pullspot'])) {
         $_SESSION['pullspot'] = [];
     }
-    $_SESSION['pullspot']['recent'] = array_slice($recent, -PULLSPOT_RECENT_MEMORY);
+    $_SESSION['pullspot']['recent'] = array_slice($recent, -$keep);
 }
 
 /**
@@ -515,7 +582,7 @@ function pullspot_bootstrap(mysqli $mysqli, bool $restart = false): ?array
         if ($character === null) return null;
 
         $game = pullspot_new_game($character['id']);
-        pullspot_remember($character['id']);
+        pullspot_remember($character['id'], count(pullspot_pool($mysqli)));
         pullspot_session_save($game);
     }
 
