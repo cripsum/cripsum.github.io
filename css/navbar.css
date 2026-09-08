@@ -77,14 +77,17 @@ html[data-cnav-theme="light"] {
     list-style: none;
 }
 
-/* Allineato a `.navbarutenti .nav-link` dei fogli di tema: i trigger sono
-   <button>, quindi non ereditano niente da quelle regole e devono
-   dichiarare gli stessi valori per stare in riga con Home page ed Edits. */
-.cnav-trigger {
+/* I trigger sono <button> e i link <a class="nav-link">: due elementi che i
+   fogli di tema trattano in modo diverso. Qui prendono la stessa geometria,
+   cosi' dentro il menu mobile le etichette partono tutte dalla stessa
+   ascissa invece di andare a zigzag. La specificita' e' alzata a tre classi
+   per battere `.navbarutenti .nav-link` dei temi senza !important. */
+.cnav-trigger,
+.navbarutenti .cnav-list .cnav-navlink {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 8px 12px;
+    gap: 8px;
+    padding: 8px 11px;
     border: 0;
     border-radius: var(--cn-radius-sm);
     background: transparent;
@@ -94,8 +97,41 @@ html[data-cnav-theme="light"] {
     font-weight: 500;
     line-height: 1.2;
     white-space: nowrap;
+    text-decoration: none;
     cursor: pointer;
     transition: background-color var(--cn-hover-dur) ease, color var(--cn-hover-dur) ease;
+}
+
+/* Casella a larghezza fissa: una casa e tre puntini hanno glifi di larghezza
+   diversa, senza casella le etichette non si allineano. */
+.cnav-ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    flex-shrink: 0;
+    opacity: 0.85;
+    transition: color var(--cn-hover-dur) ease, opacity var(--cn-hover-dur) ease;
+}
+
+.navbarutenti .cnav-list .cnav-navlink:hover,
+.navbarutenti .cnav-list .cnav-navlink:focus-visible {
+    background: var(--cn-hover);
+    color: var(--cn-text);
+}
+
+/* Pagina aperta: sfondo tenue piu' icona accesa. Senza questo la barra non
+   dice mai in che sezione ci si trova. */
+.cnav-trigger.is-current,
+.navbarutenti .cnav-list .cnav-navlink.is-current {
+    background: var(--cn-raise);
+    color: var(--cn-text);
+}
+
+.cnav-trigger.is-current .cnav-ico,
+.cnav-navlink.is-current .cnav-ico {
+    color: var(--cn-accent);
+    opacity: 1;
 }
 
 .cnav-trigger:hover,
@@ -136,11 +172,28 @@ html[data-cnav-theme="light"] {
     pointer-events: none;
 }
 
+/* amongus-logo.jpg e' 750x504: gli attributi width/height servono a riservare
+   lo spazio con le proporzioni giuste, la dimensione vera la da' il CSS. */
+.navbarutenti .navbar-brand .cnav-logo {
+    height: 40px;
+    width: auto;
+    border-radius: 6px;
+}
+
 /* Con cinque voci piu' ricerca la barra e' densa: una voce che va a capo
    alza tutta la navbar. */
 @media (min-width: 1200px) {
     .navbarutenti .cnav-list .nav-link {
         white-space: nowrap;
+    }
+
+    .dropdownprofilo .cnav-trigger__label {
+        display: inline-block;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
     }
 }
 
@@ -895,17 +948,62 @@ html[data-cnav-theme="light"] {
 
 /* ── Larghezze intermedie della barra ────────────────────── */
 
-@media (min-width: 1200px) and (max-width: 1399.98px) {
-    .cnav-trigger {
-        padding: 6px 9px;
-        font-size: 0.88rem;
+/* Fra 1200 e 1500 la barra ha tutto in riga ma poco spazio: senza queste
+   strette le voci escono dal contenitore. Le regole compatte di
+   navbar-search.css si fermano a 1400 e da li' in su tutto tornava a
+   grandezza piena prima che ci fosse davvero posto, per questo la fascia
+   qui arriva a 1500. Gli !important rispondono a quelli che
+   navbar-search.css mette su `.navbarutenti .nav-link`: senza, i link e i
+   trigger prenderebbero due padding diversi e le etichette non si
+   allineerebbero. */
+@media (min-width: 1200px) and (max-width: 1499.98px) {
+    .cnav-trigger,
+    .navbarutenti .cnav-list .cnav-navlink {
+        padding: 6px 8px !important;
+        gap: 6px;
+        font-size: 0.88rem !important;
     }
 
-    .dropdownprofilo .cnav-trigger span {
+    .cnav-ico {
+        width: 17px;
+    }
+
+    .cnav-search-kbd {
+        display: none;
+    }
+
+    .cnav-lang__seg {
+        padding: 3px 7px;
+        font-size: 0.68rem;
+    }
+
+    .navbarutenti .cnav-icon-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 0.9rem;
+    }
+
+    .navbarutenti .lang-switch-item {
+        margin-right: 4px !important;
+    }
+
+    .navbarutenti .inbox-item {
+        margin-left: 4px !important;
+        margin-right: 8px !important;
+    }
+
+    /* Sopra i 1400 navbar-search.css non stringe piu' il campo e da solo
+       riprende 55px che qui non ci sono. */
+    .navbarutenti .navbar-search-group {
+        width: 165px;
+    }
+
+    .navbarutenti .navbar-search-group:focus-within {
+        width: 215px;
+    }
+
+    .dropdownprofilo .cnav-trigger__label {
         max-width: 85px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 }
 
@@ -958,48 +1056,528 @@ html[data-cnav-theme="light"] {
     text-overflow: ellipsis;
 }
 
-/* ── Cambio lingua ───────────────────────────────────────────
-   Era ripetuto in un blocco <style> dentro navbar.php,
-   navbar-bio.php e navbar-goonland.php. */
+/* ── Cambio lingua ─────────────────────────────────────────
+   Era "IT · EN" con l'intera pillola cliccabile: sembrava un interruttore a
+   due stati ma qualsiasi punto si premesse faceva la stessa cosa. Ora la
+   lingua attiva e' un segmento pieno e l'altra e' il bersaglio. */
 
-.lang-switch {
+.cnav-lang {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
+    gap: 2px;
+    padding: 3px;
     border: 1px solid var(--cn-border);
-    border-radius: 20px;
+    border-radius: 999px;
+    background: var(--cn-raise);
     text-decoration: none;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: var(--cn-muted);
+    line-height: 1;
     white-space: nowrap;
-    transition:
-        border-color var(--cn-hover-dur) ease,
-        color var(--cn-hover-dur) ease,
-        background-color var(--cn-hover-dur) ease;
+    transition: border-color var(--cn-hover-dur) ease, background-color var(--cn-hover-dur) ease;
 }
 
-.lang-switch:hover,
-.lang-switch:focus-visible {
-    border-color: var(--cn-text);
-    color: var(--cn-text);
+.cnav-lang:hover,
+.cnav-lang:focus-visible {
+    border-color: var(--cn-border-hover, var(--cn-text));
     background: var(--cn-hover);
 }
 
-.lang-switch__cur {
-    color: var(--cn-text);
-    font-weight: 700;
+.cnav-lang:focus-visible {
+    outline: 2px solid var(--cn-accent);
+    outline-offset: 2px;
 }
 
-.lang-switch__sep {
+.cnav-lang__seg {
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     color: var(--cn-faint);
-    font-weight: 400;
+    transition: background-color var(--cn-hover-dur) ease, color var(--cn-hover-dur) ease;
 }
+
+.cnav-lang__seg--on {
+    background: var(--cn-press);
+    color: var(--cn-text);
+}
+
+.cnav-lang:hover .cnav-lang__seg:not(.cnav-lang__seg--on) {
+    color: var(--cn-text);
+}
+
+/* ── Pulsanti tondi della barra (posta) ─────────────────── */
+
+.cnav-icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    background: var(--cn-raise);
+    color: var(--cn-muted);
+    font-size: 0.98rem;
+    text-decoration: none;
+    transition:
+        background-color var(--cn-hover-dur) ease,
+        border-color var(--cn-hover-dur) ease,
+        color var(--cn-hover-dur) ease,
+        transform var(--cn-hover-dur) ease;
+}
+
+.cnav-icon-btn:hover,
+.cnav-icon-btn:focus-visible {
+    background: var(--cn-hover);
+    border-color: var(--cn-border);
+    color: var(--cn-text);
+}
+
+.cnav-icon-btn:focus-visible {
+    outline: 2px solid var(--cn-accent);
+    outline-offset: 2px;
+}
+
+.cnav-icon-btn:active {
+    transform: scale(0.94);
+}
+
+/* Con posta da leggere l'icona si accende: il badge da solo e' piccolo. */
+.cnav-inbox.has-unread {
+    color: var(--cn-text);
+    border-color: var(--cn-danger-border);
+}
+
+.cnav-icon-btn__badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--cn-danger);
+    color: #fff;
+    font-size: 0.67rem;
+    font-weight: 700;
+    line-height: 19px;
+    text-align: center;
+    box-shadow: 0 0 0 2px var(--cn-badge-ring, rgba(12, 12, 16, 0.9));
+}
+
+html[data-cnav-theme="light"] .cnav-icon-btn__badge {
+    --cn-badge-ring: rgba(250, 249, 247, 0.95);
+}
+
+/* ── Suggerimento della tastiera nella ricerca ───────────── */
+
+.cnav-search-kbd {
+    display: none;
+    flex-shrink: 0;
+    margin-right: 6px;
+    padding: 1px 6px;
+    border: 1px solid var(--cn-border);
+    border-radius: 5px;
+    background: var(--cn-raise);
+    color: var(--cn-faint);
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* Solo dove esiste una tastiera, e solo finche' il campo non e' in uso. */
+@media (min-width: 1200px) and (hover: hover) {
+    .cnav-search-kbd {
+        display: inline-block;
+    }
+
+    .navbar-search-group:focus-within .cnav-search-kbd {
+        display: none;
+    }
+}
+
+/* ── Tooltip ────────────────────────────────────────────────
+   Quello del browser arriva dopo un secondo, non si puo' impaginare e sotto
+   ai menu (che stanno nel top layer) finirebbe dietro. Anche questo e' un
+   popover, cosi' vive nello stesso strato e resta sopra. */
+
+.cnav-tip {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    max-width: 240px;
+    padding: 6px 10px;
+    border: 1px solid var(--cn-border);
+    border-radius: 8px;
+    background: var(--cn-bg-solid);
+    color: var(--cn-text);
+    font-size: 0.76rem;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: center;
+    box-shadow: var(--cn-shadow);
+    pointer-events: none;
+    overflow: visible;
+
+    display: none;
+    opacity: 0;
+    transform: translateY(3px);
+    transition:
+        opacity 110ms ease,
+        transform 110ms ease,
+        display 110ms allow-discrete,
+        overlay 110ms allow-discrete;
+}
+
+.cnav-tip:popover-open,
+.cnav-tip.is-open {
+    display: block;
+    opacity: 1;
+    transform: none;
+    z-index: 2147483000;
+}
+
+@starting-style {
+    .cnav-tip:popover-open {
+        opacity: 0;
+        transform: translateY(3px);
+    }
+}
+
+/* ── Registrati come azione principale ──────────────────── */
+
+.navbarutenti .nav-auth-group .cnav-cta {
+    border: 1px solid var(--cn-accent);
+    border-radius: var(--cn-radius-sm);
+    color: var(--cn-accent);
+}
+
+.navbarutenti .nav-auth-group .cnav-cta:hover {
+    background: var(--cn-hover);
+    color: var(--cn-accent);
+}
+
+/* ── Icona della riga stat ───────────────────────────────────
+   I Godos hanno un'immagine, le altre due voci un glifo: la casella comune
+   li tiene sulla stessa linea di base. */
+
+.cnav-stat__ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.cnav-stat__ico img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.cnav-stat__ico i {
+    font-size: 0.82rem;
+    color: var(--cn-accent);
+}
+
+.cnav-stat {
+    cursor: default;
+}
+
+.cnav-stat:focus-visible {
+    outline: 2px solid var(--cn-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+/* ── Voce corrente dentro i menu ─────────────────────────── */
+
+.cnav-row.is-current,
+.cnav-tile.is-current {
+    background: var(--cn-press);
+}
+
+.cnav-row.is-current .cnav-row__ico,
+.cnav-tile.is-current .cnav-tile__ico {
+    color: var(--cn-accent);
+    opacity: 1;
+}
+
+.cnav-row.is-current .cnav-row__label,
+.cnav-tile.is-current .cnav-tile__label {
+    font-weight: 600;
+}
+
+/* ── Posizione della ricerca ─────────────────────────────────
+   Nel markup sta per prima, cosi' su mobile apre il menu: cercare qualcuno
+   e' la cosa piu' frequente e non deve stare in fondo a una lista lunga.
+   Da desktop torna dopo le voci, dov'era. */
+
+@media (min-width: 1200px) {
+    .cnav-list .navbar-search-wrapper {
+        order: 1;
+    }
+}
+
+/* ── Barra mobile ────────────────────────────────────────── */
 
 @media (max-width: 1199.98px) {
-    .lang-switch {
-        margin: 6px 0 2px 0;
+    .navbar-mobile-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
+
+    /* Lingua, posta, avatar e hamburger hanno la stessa altezza: prima
+       erano quattro elementi di quattro taglie diverse. */
+    .navbarutenti .cnav-icon-btn,
+    .navbarutenti .cnav-avatar-btn,
+    .navbarutenti .cnav-toggler {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+    }
+
+    .navbarutenti .cnav-avatar-btn img {
+        width: 36px;
+        height: 36px;
+    }
+
+    .navbarutenti .cnav-toggler {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 50%;
+    }
+
+    .navbarutenti .cnav-toggler .navbar-toggler-icon {
+        width: 19px;
+        height: 19px;
+    }
+
+    .cnav-lang {
+        margin: 0;
+        padding: 2px;
+    }
+
+    .cnav-lang__seg {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+    }
+
+    /* Voci del menu: stessa altezza, stesso rientro, area toccabile piena. */
+    .cnav-trigger,
+    .navbarutenti .cnav-list .cnav-navlink {
+        width: 100%;
+        /* i temi mettono max-width:200px sui .nav-link: in colonna dimezza
+           l'area toccabile rispetto ai trigger accanto */
+        max-width: none;
+        padding: 12px 10px;
+        gap: 10px;
+        font-size: 0.98rem;
+    }
+
+    .cnav-ico {
+        width: 22px;
+        font-size: 1.02rem;
+    }
+
+    .cnav-trigger__label,
+    .cnav-navlink__label {
+        flex: 1;
+        min-width: 0;
+        text-align: left;
+    }
+
+    .cnav-trigger__caret {
+        margin-left: auto;
+    }
+
+    /* Barra a sinistra sulla voce corrente: sottolineature e sfondi tenui
+       si perdono in una lista verticale. */
+    .cnav-trigger.is-current,
+    .navbarutenti .cnav-list .cnav-navlink.is-current {
+        box-shadow: inset 2px 0 0 var(--cn-accent);
+    }
+
+    .navbar-search-wrapper {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 2px 0 8px !important;
+        padding: 0 !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .navbar-mobile-actions {
+        gap: 6px;
+    }
+
+    .navbarutenti .cnav-icon-btn,
+    .navbarutenti .cnav-avatar-btn,
+    .navbarutenti .cnav-toggler {
+        width: 34px;
+        height: 34px;
+    }
+
+    .navbarutenti .cnav-avatar-btn img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .cnav-lang__seg {
+        padding: 4px 6px;
+        font-size: 0.66rem;
+    }
+
+    .navbarutenti .navbar-brand .cnav-logo {
+        height: 32px;
+    }
+}
+
+/* ── Hamburger ───────────────────────────────────────────────
+   I fogli di tema ruotano l'icona di 90 gradi all'apertura: tre righe
+   orizzontali diventano tre righe verticali, che non vogliono dire niente.
+   Qui le barre sono disegnate a mano e da aperto si incrociano in una X. */
+
+.navbarutenti .navbar-toggler.cnav-toggler {
+    color: var(--cn-text);
+    background: var(--cn-raise);
+    border: 1px solid transparent;
+    transition:
+        background-color var(--cn-hover-dur) ease,
+        border-color var(--cn-hover-dur) ease;
+}
+
+.navbarutenti .navbar-toggler.cnav-toggler:hover,
+.navbarutenti .navbar-toggler.cnav-toggler[aria-expanded="true"] {
+    background: var(--cn-hover);
+    border-color: var(--cn-border);
+}
+
+.navbarutenti .cnav-toggler .navbar-toggler-icon {
+    position: relative;
+    width: 18px;
+    height: 2px;
+    background-image: none;
+    background-color: currentColor;
+    border-radius: 2px;
+    transition:
+        background-color 120ms ease,
+        transform 200ms var(--cn-ease);
+}
+
+.navbarutenti .cnav-toggler .navbar-toggler-icon::before,
+.navbarutenti .cnav-toggler .navbar-toggler-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background-color: currentColor;
+    transition: transform 200ms var(--cn-ease);
+}
+
+.navbarutenti .cnav-toggler .navbar-toggler-icon::before {
+    top: -6px;
+}
+
+.navbarutenti .cnav-toggler .navbar-toggler-icon::after {
+    top: 6px;
+}
+
+.navbarutenti .navbar-toggler.cnav-toggler[aria-expanded="true"] .navbar-toggler-icon {
+    background-color: transparent;
+    transform: none;
+}
+
+.navbarutenti .navbar-toggler.cnav-toggler[aria-expanded="true"] .navbar-toggler-icon::before {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.navbarutenti .navbar-toggler.cnav-toggler[aria-expanded="true"] .navbar-toggler-icon::after {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .navbarutenti .cnav-toggler .navbar-toggler-icon,
+    .navbarutenti .cnav-toggler .navbar-toggler-icon::before,
+    .navbarutenti .cnav-toggler .navbar-toggler-icon::after {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ── Indicatori di notifica ──────────────────────────────────
+   Rosso pieno, con un anello del colore della superficie sotto: senza
+   l'anello il pallino si confonde con il bordo del riquadro. */
+
+.cnav-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    min-width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: var(--cn-danger);
+    box-shadow: 0 0 0 2px var(--cn-dot-ring, var(--cn-bg-solid));
+    pointer-events: none;
+}
+
+.cnav-dot--count {
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    top: 4px;
+    right: 4px;
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    line-height: 17px;
+    text-align: center;
+}
+
+.cnav-tile {
+    position: relative;
+}
+
+/* Il pallino riassuntivo sull'avatar resta spento finche' non c'e' niente
+   sotto: e' la classe has-news, messa dal server e poi ricalcolata da
+   navbar.js quando anche gli achievement contano. */
+.cnav-dot--corner {
+    top: -1px;
+    right: -1px;
+    display: none;
+}
+
+.cnav-trigger--account.has-news .cnav-dot--corner,
+.cnav-avatar-btn.has-news .cnav-dot--corner {
+    display: block;
+}
+
+.cnav-trigger__pfp-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+.cnav-avatar-btn {
+    position: relative;
+}
+
+/* Sopra l'avatar l'anello deve sparire nel colore della barra, non del
+   pannello: la barra e' semitrasparente, quindi si usa una tinta piena. */
+.cnav-trigger__pfp-wrap .cnav-dot,
+.cnav-avatar-btn .cnav-dot {
+    --cn-dot-ring: var(--cn-navbar-ring, #16161a);
+}
+
+html[data-cnav-theme="light"] .cnav-trigger__pfp-wrap .cnav-dot,
+html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
+    --cn-dot-ring: #e9e7e3;
 }

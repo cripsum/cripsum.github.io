@@ -389,6 +389,194 @@
         }, { passive: true });
     }
 
+    /* ── Indicatori di notifica ─────────────────────────────────
+       Missioni da riscuotere, richieste di amicizia e chat non lette le
+       conta il server. Gli achievement no: a database non c'e' uno stato
+       "gia' visto", quindi il confronto lo fa il browser fra la data
+       dell'ultimo sbloccato e l'ultima volta che la pagina e' stata
+       aperta. Il pallino sull'avatar riassume tutto, perche' il pannello
+       resta chiuso quasi sempre. */
+
+    var SEEN_PREFIX = 'cnav.achvSeen.';
+
+    function seenKey() {
+        var state = window.CNAV_STATE || {};
+        return SEEN_PREFIX + (state.userId || 0);
+    }
+
+    function readSeen() {
+        try {
+            return parseInt(localStorage.getItem(seenKey()), 10) || 0;
+        } catch (e) {
+            // Navigazione privata o storage negato: senza memoria il pallino
+            // resta acceso, che e' il male minore rispetto a nasconderlo.
+            return 0;
+        }
+    }
+
+    function writeSeen(value) {
+        try {
+            localStorage.setItem(seenKey(), String(value));
+        } catch (e) {
+            /* niente da fare */
+        }
+    }
+
+    function refreshAccountDot() {
+        // Niente ispezione del DOM: a pannello chiuso e' tutto display:none e
+        // ogni misura darebbe zero. Le due sorgenti sono il conteggio del
+        // server e il pallino degli achievement, che decide il browser.
+        var state = window.CNAV_STATE || {};
+        var achvDot = document.querySelector('[data-cnav-new-key="achv"] .cnav-dot');
+        var lit = !!state.hasNews || !!(achvDot && !achvDot.hidden);
+
+        Array.prototype.forEach.call(
+            document.querySelectorAll('.cnav-trigger--account, .cnav-avatar-btn'),
+            function (el) {
+                el.classList.toggle('has-news', lit);
+            }
+        );
+    }
+
+    function initNotifications() {
+        var tile = document.querySelector('[data-cnav-new-key="achv"]');
+        if (!tile) {
+            refreshAccountDot();
+            return;
+        }
+
+        var latest = parseInt(tile.getAttribute('data-cnav-new-since'), 10) || 0;
+        var dot = tile.querySelector('.cnav-dot');
+
+        // "Sono sulla pagina achievements?" lo ha gia' deciso il server
+        // marcando il riquadro come corrente: rifare il confronto sull'URL
+        // qui vorrebbe dire tenere due regole allineate a mano.
+        if (tile.classList.contains('is-current')) {
+            writeSeen(latest || Math.floor(Date.now() / 1000));
+            if (dot) {
+                dot.hidden = true;
+            }
+        } else if (dot && latest > 0 && latest > readSeen()) {
+            dot.hidden = false;
+            tile.setAttribute('data-cnav-tip', (window.CNAV_I18N || {}).achvNew || '');
+        }
+
+        refreshAccountDot();
+    }
+
+    /* ── Tooltip ────────────────────────────────────────
+       Quello del browser compare dopo circa un secondo, non si puo'
+       impaginare e sotto ai menu (che stanno nel top layer) finirebbe
+       dietro. Anche questo e' un popover, cosi' condivide quello strato.
+       Su touch non si mostra: un tooltip appeso al dito copre solo il
+       bersaglio, e le etichette che contano si vedono comunque. */
+
+    function initTooltips() {
+        var tip = document.getElementById('cnavTip');
+        if (!tip || !window.matchMedia('(hover: hover)').matches) {
+            return;
+        }
+
+        if (supportsPopover) {
+            tip.setAttribute('popover', 'manual');
+        }
+
+        var target = null;
+        var timer = null;
+
+        function place() {
+            if (!target) {
+                return;
+            }
+            var r = target.getBoundingClientRect();
+            var t = tip.getBoundingClientRect();
+            var vw = document.documentElement.clientWidth;
+            var gap = 8;
+
+            var top = r.top - t.height - gap;
+            if (top < 4) {
+                top = r.bottom + gap;
+            }
+
+            var left = r.left + (r.width / 2) - (t.width / 2);
+            left = Math.max(6, Math.min(left, vw - t.width - 6));
+
+            tip.style.top = Math.round(top) + 'px';
+            tip.style.left = Math.round(left) + 'px';
+        }
+
+        function open(el) {
+            var text = el.getAttribute('data-cnav-tip');
+            if (!text) {
+                return;
+            }
+            target = el;
+            tip.textContent = text;
+
+            if (supportsPopover) {
+                try {
+                    tip.showPopover();
+                } catch (e) {
+                    tip.classList.add('is-open');
+                }
+            } else {
+                tip.classList.add('is-open');
+            }
+            place();
+        }
+
+        function close() {
+            clearTimeout(timer);
+            target = null;
+            if (supportsPopover) {
+                try {
+                    tip.hidePopover();
+                } catch (e) {
+                    /* non era aperto */
+                }
+            }
+            tip.classList.remove('is-open');
+        }
+
+        function schedule(el) {
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                open(el);
+            }, 240);
+        }
+
+        document.addEventListener('pointerover', function (e) {
+            var el = e.target.closest ? e.target.closest('[data-cnav-tip]') : null;
+            if (!el) {
+                if (target) {
+                    close();
+                }
+                return;
+            }
+            if (el !== target) {
+                schedule(el);
+            }
+        });
+
+        document.addEventListener('focusin', function (e) {
+            var el = e.target.closest ? e.target.closest('[data-cnav-tip]') : null;
+            if (el) {
+                open(el);
+            }
+        });
+
+        document.addEventListener('focusout', close);
+        document.addEventListener('pointerdown', close);
+        window.addEventListener('scroll', close, { passive: true });
+        window.addEventListener('resize', close);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                close();
+            }
+        });
+    }
+
     /* ── Hamburger senza Bootstrap ──────────────────────────────
        Diciassette pagine hanno la navbar ma non caricano il bundle JS di
        Bootstrap (fra cui imposta_password). Prima ci pensava la navbar
@@ -618,6 +806,25 @@
             }
         });
 
+        // "/" porta il cursore nella ricerca, come su GitHub o YouTube.
+        // offsetParent nullo vuol dire che il campo sta nel menu chiuso.
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) {
+                return;
+            }
+            var el = document.activeElement;
+            var tag = el ? el.tagName : '';
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (el && el.isContentEditable)) {
+                return;
+            }
+            if (!input.offsetParent) {
+                return;
+            }
+            e.preventDefault();
+            input.focus();
+            input.select();
+        });
+
         clearBtn.addEventListener('click', function () {
             input.value = '';
             clearBtn.style.display = 'none';
@@ -646,9 +853,30 @@
             return;
         }
 
+        // inbox.php riscrive il badge con il numero grezzo, e oltre il
+        // centinaio non ci sta nella pastiglia. Riscrivere '99+' non ricade
+        // in questo ramo (parseInt('99+') fa 99), quindi non si cicla.
+        function cap(el) {
+            var raw = (el.textContent || '').trim();
+            var n = parseInt(raw, 10);
+            if (!isNaN(n) && n > 99) {
+                el.textContent = '99+';
+            }
+        }
+
+        function hasUnread(el) {
+            return !el.classList.contains('d-none') && (el.textContent || '').trim() !== '0';
+        }
+
         function sync() {
+            cap(desktop);
             mobile.textContent = desktop.textContent;
             mobile.classList.toggle('d-none', desktop.classList.contains('d-none'));
+
+            var lit = hasUnread(desktop);
+            Array.prototype.forEach.call(document.querySelectorAll('.cnav-inbox'), function (btn) {
+                btn.classList.toggle('has-unread', lit);
+            });
         }
 
         sync();
@@ -662,8 +890,10 @@
     function boot() {
         init();
         initCollapse();
+        initTooltips();
         initSearch();
         initBadges();
+        initNotifications();
     }
 
     if (document.readyState === 'loading') {

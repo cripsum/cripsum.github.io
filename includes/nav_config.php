@@ -68,9 +68,20 @@ if (!function_exists('nav_lang')) {
                 'sec_restricted' => 'Riservato',
                 'account_menu'   => 'Menu account',
                 'close'          => 'Chiudi',
-                'stat_money'     => 'Punti',
+                'missions_ready' => 'ricompense da riscuotere',
+                'achv_new'       => 'Nuovi achievement sbloccati',
+                'has_news'       => 'Ci sono novità nel menu account',
+                'stat_money'     => 'Godos',
+                'stat_money_tip' => 'Godos: la valuta del sito',
                 'stat_streak'    => 'Giorni di fila',
-                'stat_achv'      => 'Achievement sbloccati',
+                'stat_streak_tip' => 'Giorni consecutivi in cui sei passato',
+                'stat_achv'      => 'Achievement',
+                'stat_achv_tip'  => 'Achievement sbloccati',
+                'inbox'          => 'Posta',
+                'inbox_unread'   => 'messaggi da leggere',
+                'inbox_empty'    => 'Nessun messaggio nuovo',
+                'lang_switch'    => 'Passa a',
+                'search_hint'    => 'Premi / per cercare',
                 'logout'         => 'Logout',
                 'back_cripsum'   => 'Torna su Cripsum',
                 'home_page'      => 'Home page',
@@ -117,9 +128,20 @@ if (!function_exists('nav_lang')) {
                 'sec_restricted' => 'Restricted',
                 'account_menu'   => 'Account menu',
                 'close'          => 'Close',
-                'stat_money'     => 'Points',
+                'missions_ready' => 'rewards to claim',
+                'achv_new'       => 'New achievements unlocked',
+                'has_news'       => 'You have news in the account menu',
+                'stat_money'     => 'Godos',
+                'stat_money_tip' => 'Godos: the site currency',
                 'stat_streak'    => 'Day streak',
-                'stat_achv'      => 'Achievements unlocked',
+                'stat_streak_tip' => 'Days in a row you stopped by',
+                'stat_achv'      => 'Achievements',
+                'stat_achv_tip'  => 'Achievements unlocked',
+                'inbox'          => 'Inbox',
+                'inbox_unread'   => 'unread messages',
+                'inbox_empty'    => 'No new messages',
+                'lang_switch'    => 'Switch to',
+                'search_hint'    => 'Press / to search',
                 'logout'         => 'Log out',
                 'back_cripsum'   => 'Back to Cripsum',
                 'home_page'      => 'Home page',
@@ -132,6 +154,29 @@ if (!function_exists('nav_lang')) {
         ];
 
         return $strings[$lang] ?? $strings['it'];
+    }
+
+    /**
+     * Vero se l'indirizzo corrente sta dentro questa voce di menu.
+     *
+     * Confronta per prefisso di percorso, cosi' /it/cripsumpedia/qualcosa
+     * accende comunque la voce CripsumPedia. Il taglio sulla query evita che
+     * ?page=2 spenga la voce.
+     */
+    function nav_is_current(string $href, string $uri): bool
+    {
+        if ($href === '' || $href === '#') {
+            return false;
+        }
+
+        $path = rtrim(strtok($href, '?'), '/');
+        $cur  = rtrim(strtok($uri, '?'), '/');
+
+        if ($path === '') {
+            return false;
+        }
+
+        return $cur === $path || strpos($cur . '/', $path . '/') === 0;
     }
 
     /**
@@ -238,9 +283,25 @@ if (!function_exists('nav_lang')) {
             'label'  => $t['sec_play'],
             'layout' => 'tiles',
             'items'  => [
-                ['icon' => 'fa-trophy',   'label' => $t['achievements'], 'href' => "/$lang/achievements"],
-                ['icon' => 'fa-bullseye', 'label' => $t['missions'],     'href' => "/$lang/missions"],
-                ['icon' => 'fa-box',      'label' => $t['inventory'],    'href' => "/$lang/inventario"],
+                [
+                    'icon'  => 'fa-trophy',
+                    'label' => $t['achievements'],
+                    'href'  => "/$lang/achievements",
+                    // Gli achievement non hanno uno stato "letto" a database:
+                    // il pallino lo decide il browser confrontando questa
+                    // data con l'ultima volta che la pagina e' stata aperta.
+                    'new_since' => $ctx['achv_latest'] ?? null,
+                ],
+                [
+                    'icon'  => 'fa-bullseye',
+                    'label' => $t['missions'],
+                    'href'  => "/$lang/missions",
+                    'badge' => ((int)($ctx['missions'] ?? 0)) > 0 ? (int)$ctx['missions'] : null,
+                    'tip'   => ((int)($ctx['missions'] ?? 0)) > 0
+                        ? (int)$ctx['missions'] . ' ' . $t['missions_ready']
+                        : null,
+                ],
+                ['icon' => 'fa-box', 'label' => $t['inventory'], 'href' => "/$lang/inventario"],
             ],
         ];
 
@@ -255,8 +316,13 @@ if (!function_exists('nav_lang')) {
                     'href'  => "/$lang/chat",
                     'badge' => ((int)($ctx['unread_chat'] ?? 0)) > 0 ? (int)$ctx['unread_chat'] : null,
                 ],
-                ['icon' => 'fa-envelope',   'label' => $t['global_chat'], 'href' => "/$lang/global-chat"],
-                ['icon' => 'fa-user-group', 'label' => $t['friends'],     'href' => "/$lang/amici"],
+                ['icon' => 'fa-envelope', 'label' => $t['global_chat'], 'href' => "/$lang/global-chat"],
+                [
+                    'icon'  => 'fa-user-group',
+                    'label' => $t['friends'],
+                    'href'  => "/$lang/amici",
+                    'badge' => ((int)($ctx['friends'] ?? 0)) > 0 ? (int)$ctx['friends'] : null,
+                ],
             ],
         ];
 
@@ -349,30 +415,36 @@ if (!function_exists('nav_lang')) {
     }
 
     /**
-     * Numeri della riga stat del pannello account.
+     * Numeri e pallini del pannello account, in una query sola.
      *
-     * La navbar sta su ogni pagina, quindi il costo va tenuto basso: una sola
-     * query, e il risultato resta in sessione per 90 secondi. Ogni valore puo'
-     * essere null (colonna o tabella assente) e in quel caso il renderer salta
-     * la voce invece di mostrare uno zero inventato.
+     * La navbar sta su ogni pagina, quindi tutto quello che serve al
+     * pannello viene letto insieme: il saldo, le tre statistiche e i
+     * conteggi che accendono gli indicatori rossi.
+     *
+     * Non c'e' cache: un pallino che resta acceso dopo che hai riscosso la
+     * missione e' peggio di una query in piu', e le sottoquery girano tutte
+     * su colonne indicizzate. La navbar ne fa gia' due per i messaggi.
+     *
+     * Ogni valore puo' essere null quando la colonna o la tabella non
+     * esistono ancora: lo schema qui si migra a mano, quindi il renderer
+     * salta la voce invece di mostrare uno zero inventato.
      */
-    function nav_user_stats(mysqli $mysqli, int $userId): array
+    function nav_user_snapshot(mysqli $mysqli, int $userId): array
     {
-        $empty = ['money' => null, 'streak' => null, 'achievements' => null];
+        $empty = [
+            'money'        => null,
+            'streak'       => null,
+            'achievements' => null,
+            'achv_latest'  => null,
+            'missions'     => 0,
+            'friends'      => 0,
+        ];
 
         if ($userId <= 0) {
             return $empty;
         }
 
-        $cacheKey = 'nav_stats_' . $userId;
-        $cachedAt = (int)($_SESSION[$cacheKey . '_at'] ?? 0);
-        $now      = (int)($_SERVER['REQUEST_TIME'] ?? time());
-
-        if (isset($_SESSION[$cacheKey]) && is_array($_SESSION[$cacheKey]) && ($now - $cachedAt) < 90) {
-            return $_SESSION[$cacheKey] + $empty;
-        }
-
-        $stats = $empty;
+        $snap = $empty;
 
         try {
             $select   = [];
@@ -392,10 +464,39 @@ if (!function_exists('nav_lang')) {
             $achvUser = nav_pick_column($mysqli, 'utenti_achievement', ['utente_id', 'user_id', 'id_utente']);
             if ($achvUser !== null) {
                 $select[] = '(SELECT COUNT(*) FROM `utenti_achievement` a WHERE a.`' . $achvUser . '` = u.id) AS achievements';
+
+                // Serve a decidere se l'utente ha gia' visto gli ultimi
+                // sbloccati: non c'e' una colonna "letto", quindi il
+                // confronto lo fa il browser con quello che ha memorizzato.
+                $achvDate = nav_pick_column($mysqli, 'utenti_achievement', ['data', 'unlocked_at', 'created_at']);
+                if ($achvDate !== null) {
+                    $select[] = '(SELECT UNIX_TIMESTAMP(MAX(a2.`' . $achvDate . '`)) FROM `utenti_achievement` a2 WHERE a2.`' . $achvUser . '` = u.id) AS achv_latest';
+                }
+            }
+
+            // Missione finita ma ricompensa non ritirata: e' l'unico stato
+            // che chiede davvero un'azione, e si spegne da solo al riscatto.
+            $mCols = nav_table_columns($mysqli, 'user_missions');
+            if ($mCols) {
+                $mUser  = nav_pick_column($mysqli, 'user_missions', ['user_id', 'utente_id']);
+                $mDone  = nav_pick_column($mysqli, 'user_missions', ['completata', 'completed']);
+                $mTaken = nav_pick_column($mysqli, 'user_missions', ['riscattata', 'claimed']);
+                if ($mUser !== null && $mDone !== null && $mTaken !== null) {
+                    $select[] = '(SELECT COUNT(*) FROM `user_missions` m WHERE m.`' . $mUser . '` = u.id'
+                        . ' AND m.`' . $mDone . '` = 1 AND m.`' . $mTaken . '` = 0) AS missions';
+                }
+            }
+
+            // Richieste di amicizia ricevute e ancora in sospeso.
+            $fRecv = nav_pick_column($mysqli, 'friendship_requests', ['receiver_id']);
+            $fStat = nav_pick_column($mysqli, 'friendship_requests', ['status']);
+            if ($fRecv !== null && $fStat !== null) {
+                $select[] = '(SELECT COUNT(*) FROM `friendship_requests` r WHERE r.`' . $fRecv . '` = u.id'
+                    . " AND r.`" . $fStat . "` = 'pending') AS friends";
             }
 
             if (!$select) {
-                return $stats;
+                return $snap;
             }
 
             $sql = 'SELECT ' . implode(', ', $select) . ' FROM `utenti` u';
@@ -406,7 +507,7 @@ if (!function_exists('nav_lang')) {
 
             $stmt = $mysqli->prepare($sql);
             if (!$stmt) {
-                return $stats;
+                return $snap;
             }
             $stmt->bind_param('i', $userId);
             $stmt->execute();
@@ -414,19 +515,21 @@ if (!function_exists('nav_lang')) {
             $stmt->close();
 
             if ($row) {
-                foreach (['money', 'streak', 'achievements'] as $key) {
+                foreach (['money', 'streak', 'achievements', 'achv_latest'] as $key) {
                     if (array_key_exists($key, $row) && $row[$key] !== null) {
-                        $stats[$key] = (int)$row[$key];
+                        $snap[$key] = (int)$row[$key];
+                    }
+                }
+                foreach (['missions', 'friends'] as $key) {
+                    if (array_key_exists($key, $row)) {
+                        $snap[$key] = (int)$row[$key];
                     }
                 }
             }
         } catch (Throwable $e) {
-            return $stats;
+            return $snap;
         }
 
-        $_SESSION[$cacheKey]         = $stats;
-        $_SESSION[$cacheKey . '_at'] = $now;
-
-        return $stats;
+        return $snap;
     }
 }
