@@ -71,6 +71,12 @@ if (($input['action'] ?? 'guess') !== 'skip') {
         echo json_encode(['error' => pullspot_msg('bad_guess', $lang), 'code' => 'BAD_GUESS']);
         exit;
     }
+
+    if (pullspot_already_guessed($game, $guess['id'])) {
+        http_response_code(409);
+        echo json_encode(['error' => pullspot_msg('repeat', $lang), 'code' => 'REPEAT']);
+        exit;
+    }
 }
 
 $game = pullspot_apply_guess($game, $guess, $character);

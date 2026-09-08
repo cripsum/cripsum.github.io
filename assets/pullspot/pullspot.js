@@ -3,7 +3,11 @@
  *
  * Il client non sa mai chi sia il personaggio finché la partita non è finita:
  * i tentativi li valida il server e l'audio arriva già tagliato ai secondi
- * sbloccati. Qui dentro ci sono solo il lettore, la ricerca e la vetrina.
+ * sbloccati. Qui dentro ci sono il lettore, la ricerca e la rivelazione.
+ *
+ * Alla rivelazione la pagina prende il colore del personaggio, ricavato dalla
+ * sua immagine: tutto quello che è colorato legge --ps-accent, quindi cambia
+ * insieme senza che nessuno debba saperlo.
  */
 
 (function () {
@@ -26,12 +30,14 @@
             streak: (n) => 'Serie ' + n,
             unlocked: 'sbloccati',
             fullTrack: 'traccia intera',
-            wonAt: (n) => (n === 1 ? 'Preso al primo colpo' : 'Indovinato al ' + n + 'º tentativo'),
-            lost: 'Nessuno l\'ha presa. Era:',
+            wonIn: (s) => 'Indovinato in ' + s,
+            lostPill: 'Non presa',
+            triesUsed: (n, max) => n + ' tentativi su ' + max,
+            oneTry: 'al primo tentativo',
             share: 'Condividi',
             copied: 'Risultato copiato',
             copyFailed: 'Non sono riuscito a copiare',
-            newTrack: 'Nuova traccia',
+            newTrack: 'Prossima',
             stats: 'Statistiche',
             played: 'Giocate',
             winRate: '% vinte',
@@ -40,7 +46,9 @@
             distribution: 'Tentativi usati',
             noStats: 'Le statistiche non sono ancora attive su questo sito: quello che giochi adesso non viene salvato.',
             loadError: 'Non riesco a caricare il gioco. Riprova tra poco.',
-            audioError: 'Traccia non disponibile.',
+            audioError: 'La traccia non parte. Riprova.',
+            shareWon: (s, n, max) => 'Pullspot: indovinato in ' + s + ', al tentativo ' + n + ' su ' + max + '.',
+            shareLost: (max) => 'Pullspot: non l\'ho presa, ' + max + ' tentativi buttati.',
         },
         en: {
             skipped: 'Skipped',
@@ -50,12 +58,14 @@
             streak: (n) => 'Streak ' + n,
             unlocked: 'unlocked',
             fullTrack: 'full track',
-            wonAt: (n) => (n === 1 ? 'First try' : 'Got it on try ' + n),
-            lost: 'Nobody got it. It was:',
+            wonIn: (s) => 'Guessed in ' + s,
+            lostPill: 'Not guessed',
+            triesUsed: (n, max) => n + ' guesses out of ' + max,
+            oneTry: 'on the first try',
             share: 'Share',
             copied: 'Result copied',
             copyFailed: 'Could not copy',
-            newTrack: 'New track',
+            newTrack: 'Next',
             stats: 'Statistics',
             played: 'Played',
             winRate: 'Win %',
@@ -64,7 +74,9 @@
             distribution: 'Guess distribution',
             noStats: 'Statistics are not enabled on this site yet: what you play now is not being saved.',
             loadError: 'Could not load the game. Try again shortly.',
-            audioError: 'Track unavailable.',
+            audioError: 'The track will not start. Try again.',
+            shareWon: (s, n, max) => 'Pullspot: guessed in ' + s + ', on guess ' + n + ' of ' + max + '.',
+            shareLost: (max) => 'Pullspot: missed it, all ' + max + ' guesses gone.',
         },
     }[LANG];
 
@@ -75,6 +87,7 @@
         metaLeft: root.querySelector('[data-ps-meta-left]'),
         metaRight: root.querySelector('[data-ps-meta-right]'),
         rows: root.querySelector('[data-ps-rows]'),
+        player: root.querySelector('[data-ps-player]'),
         segments: root.querySelector('[data-ps-segments]'),
         marker: root.querySelector('[data-ps-marker]'),
         play: root.querySelector('[data-ps-play]'),
@@ -88,21 +101,25 @@
         skipBonus: root.querySelector('[data-ps-skip-bonus]'),
         chips: root.querySelector('[data-ps-chips]'),
         volume: root.querySelector('[data-ps-volume]'),
-        result: root.querySelector('[data-ps-result]'),
+        reveal: root.querySelector('[data-ps-reveal]'),
         toast: root.querySelector('[data-ps-toast]'),
+        confetti: document.querySelector('[data-ps-confetti]'),
         statsModal: document.querySelector('[data-ps-stats-modal]'),
         statsBody: document.querySelector('[data-ps-stats-body]'),
         rulesModal: document.querySelector('[data-ps-rules-modal]'),
     };
 
-    const skipLabel = el.skip ? el.skip.querySelector('span') : null;
+    const skipWord = el.skip ? el.skip.querySelector('span') : null;
+    const skipWordText = skipWord ? skipWord.textContent : '';
 
     let state = null;
     let characters = [];
+    let excluded = new Set();
     let highlighted = -1;
     let filtered = [];
     let busy = false;
     let segments = [];
+    let revealIcon = null;
 
     const audio = new Audio();
     audio.preload = 'auto';
@@ -110,6 +127,11 @@
     let clipKey = '';
     let clipLoading = null;
     let rafId = 0;
+    let starting = false;
+    let autoplayReveal = false;
+    let celebrate = false;
+
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     /* ── Utilità ───────────────────────────────────────────────────────── */
 
@@ -145,13 +167,109 @@
         return Math.max(0, Math.min(1, value)) * 100 + '%';
     }
 
+    function icon(name) {
+        const node = document.createElement('i');
+        node.className = 'fa-solid fa-' + name;
+        node.setAttribute('aria-hidden', 'true');
+        return node;
+    }
+
     let toastTimer = 0;
     function toast(message) {
         if (!el.toast) return;
         text(el.toast, message);
         el.toast.classList.add('ps-toast--on');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => el.toast.classList.remove('ps-toast--on'), 2200);
+        toastTimer = setTimeout(() => el.toast.classList.remove('ps-toast--on'), 2400);
+    }
+
+    /* ── Colore del personaggio ────────────────────────────────────────── */
+
+    const DEFAULT_ACCENT = { h: 152, s: 75, l: 51 };
+
+    function setAccent(accent) {
+        const a = accent || DEFAULT_ACCENT;
+        const tone = (alpha) => 'hsl(' + a.h + ' ' + a.s + '% ' + a.l + '%' + (alpha == null ? '' : ' / ' + alpha) + ')';
+        const style = document.body.style;
+
+        style.setProperty('--ps-accent', tone());
+        style.setProperty('--ps-accent-soft', tone(.13));
+        style.setProperty('--ps-accent-line', tone(.34));
+        style.setProperty('--ps-accent-glow', tone(.34));
+        style.setProperty('--ps-accent-ink', 'hsl(' + a.h + ' 55% 7%)');
+    }
+
+    function rgbToAccent(r, g, b) {
+        const max = Math.max(r, g, b) / 255;
+        const min = Math.min(r, g, b) / 255;
+        const delta = max - min;
+        let h = 0;
+
+        if (delta > 0) {
+            if (max === r / 255) h = ((g - b) / 255 / delta) % 6;
+            else if (max === g / 255) h = (b - r) / 255 / delta + 2;
+            else h = (r - g) / 255 / delta + 4;
+            h = Math.round(h * 60);
+            if (h < 0) h += 360;
+        }
+
+        const l = (max + min) / 2;
+        const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+
+        // Sul nero un colore spento sparisce: lo tiriamo su in saturazione e
+        // lo teniamo in una fascia di luminosità dove il testo scuro si legge.
+        return {
+            h: h,
+            s: Math.round(Math.max(.55, Math.min(.95, s)) * 100),
+            l: Math.round(Math.max(52, Math.min(68, l * 100))),
+        };
+    }
+
+    /** Colore di ripiego quando l'immagine manca: stabile per personaggio. */
+    function accentFromId(id) {
+        return { h: Math.round((id * 137.508) % 360), s: 72, l: 58 };
+    }
+
+    function accentFromImage(url) {
+        return new Promise((resolve) => {
+            const image = new Image();
+
+            image.onload = function () {
+                try {
+                    const size = 28;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    ctx.drawImage(image, 0, 0, size, size);
+
+                    const data = ctx.getImageData(0, 0, size, size).data;
+                    let r = 0, g = 0, b = 0, weight = 0;
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        if (data[i + 3] < 128) continue;
+                        const max = Math.max(data[i], data[i + 1], data[i + 2]);
+                        const min = Math.min(data[i], data[i + 1], data[i + 2]);
+                        // I pixel spenti pesano poco: il colore lo danno i vivi.
+                        const w = (max - min) / 255 + .06;
+                        r += data[i] * w;
+                        g += data[i + 1] * w;
+                        b += data[i + 2] * w;
+                        weight += w;
+                    }
+
+                    resolve(weight ? rgbToAccent(r / weight, g / weight, b / weight) : null);
+                } catch (error) {
+                    // Immagine da un altro dominio: la tela è marchiata e non
+                    // si può leggere. Si va di ripiego.
+                    resolve(null);
+                }
+            };
+
+            image.onerror = () => resolve(null);
+            image.src = url;
+        });
     }
 
     /* ── Rete ──────────────────────────────────────────────────────────── */
@@ -200,6 +318,10 @@
         return state ? [state.attempt, state.status, state.full ? 'full' : 'clip'].join('|') : '';
     }
 
+    function clipReady() {
+        return !!clipUrl && clipKey === currentClipKey() && audio.readyState >= 2;
+    }
+
     function ensureClip() {
         const key = currentClipKey();
         if (clipUrl && clipKey === key) return Promise.resolve();
@@ -237,16 +359,76 @@
         clipKey = '';
 
         // Senza questo l'elemento continua a dichiarare la durata del pezzo
-        // precedente, e il cronometro mostra un totale che non esiste piu'.
+        // precedente, e il cronometro mostra un totale che non esiste più.
         audio.removeAttribute('src');
         audio.load();
     }
 
+    /**
+     * Aspetta che l'elemento abbia abbastanza dati per suonare.
+     *
+     * Senza questa attesa `currentTime = 0` può essere rifiutato dal browser
+     * (i metadati non ci sono ancora) e il play muore in silenzio: era il
+     * motivo per cui a volte premevi e non partiva niente.
+     */
+    function whenReady() {
+        if (audio.readyState >= 2) return Promise.resolve();
+
+        return new Promise((resolve, reject) => {
+            let settled = false;
+
+            function cleanup() {
+                clearTimeout(timer);
+                audio.removeEventListener('canplay', ok);
+                audio.removeEventListener('loadeddata', ok);
+                audio.removeEventListener('error', ko);
+            }
+
+            function ok() {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                resolve();
+            }
+
+            function ko() {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                reject(new Error('audio'));
+            }
+
+            const timer = setTimeout(ko, 9000);
+            audio.addEventListener('canplay', ok);
+            audio.addEventListener('loadeddata', ok);
+            audio.addEventListener('error', ko);
+        });
+    }
+
     function setPlayIcon(isPlaying) {
+        if (el.play) {
+            el.play.innerHTML = '';
+            el.play.appendChild(icon(isPlaying ? 'pause' : 'play'));
+            el.play.classList.toggle('ps-play--on', isPlaying);
+            el.play.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+        }
+
+        if (revealIcon) {
+            revealIcon.innerHTML = '';
+            revealIcon.appendChild(icon(isPlaying ? 'pause' : 'play'));
+        }
+    }
+
+    function setPlayBusy(isBusy) {
         if (!el.play) return;
-        el.play.innerHTML = '<i class="fa-solid fa-' + (isPlaying ? 'pause' : 'play') + '"></i>';
-        el.play.classList.toggle('ps-play--on', isPlaying);
-        el.play.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+        el.play.disabled = isBusy;
+        el.play.classList.toggle('ps-play--busy', isBusy);
+        if (isBusy) {
+            el.play.innerHTML = '';
+            el.play.appendChild(icon('circle-notch'));
+        } else {
+            setPlayIcon(!audio.paused);
+        }
     }
 
     function stopPlayback() {
@@ -269,30 +451,48 @@
         rafId = requestAnimationFrame(tick);
     }
 
-    async function play() {
-        if (!state) return;
+    function startPlayback() {
+        try {
+            audio.currentTime = 0;
+        } catch (error) { /* alcuni browser lo rifiutano: si parte da dove sta */ }
+
+        return audio.play().then(() => {
+            setPlayIcon(true);
+            cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(tick);
+        });
+    }
+
+    async function play(silent) {
+        if (!state || starting) return;
+
         if (!audio.paused) {
             stopPlayback();
             return;
         }
 
+        // Percorso veloce: se il pezzo è già pronto si parte dentro al click,
+        // che è quello che i browser vogliono per non bloccare l'audio.
+        if (clipReady()) {
+            startPlayback().catch(() => {
+                if (!silent) toast(STRINGS.audioError);
+            });
+            return;
+        }
+
+        starting = true;
+        setPlayBusy(true);
+
         try {
             await ensureClip();
+            await whenReady();
+            await startPlayback();
         } catch (error) {
-            toast(STRINGS.audioError);
-            return;
+            if (!silent) toast(STRINGS.audioError);
+        } finally {
+            starting = false;
+            setPlayBusy(false);
         }
-
-        audio.currentTime = 0;
-        try {
-            await audio.play();
-        } catch (error) {
-            return;
-        }
-
-        setPlayIcon(true);
-        cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(tick);
     }
 
     audio.addEventListener('ended', stopPlayback);
@@ -315,17 +515,16 @@
         // diventa un blocco solo, lungo quanto la traccia.
         const bounds = state.full
             ? [{ from: 0, to: null, grow: 1 }]
-            : state.steps.map((to, index) => ({
-                from: index === 0 ? 0 : state.steps[index - 1],
-                to: to,
-                grow: to - (index === 0 ? 0 : state.steps[index - 1]),
-            }));
+            : state.steps.map((to, index) => {
+                const from = index === 0 ? 0 : state.steps[index - 1];
+                return { from: from, to: to, grow: to - from };
+            });
 
         bounds.forEach((bound) => {
             const seg = document.createElement('div');
             seg.className = 'ps-seg';
             seg.style.flexGrow = String(bound.grow);
-            seg.style.flexBasis = '4px';
+            seg.style.flexBasis = '5px';
 
             const unlocked = document.createElement('div');
             unlocked.className = 'ps-seg__unlocked';
@@ -388,9 +587,14 @@
         if (!el.list) return;
 
         const needle = normalize(query);
+
+        // Un nome già provato non torna nell'elenco: sprecare un tentativo
+        // due volte sullo stesso personaggio non è una scelta, è un incidente.
+        const pool = characters.filter((character) => !excluded.has(character.id));
+
         filtered = (needle === ''
-            ? characters.slice(0, 40)
-            : characters.filter((character) => normalize(character.nome).includes(needle)).slice(0, 40));
+            ? pool.slice(0, 40)
+            : pool.filter((character) => normalize(character.nome).includes(needle)).slice(0, 40));
 
         el.list.innerHTML = '';
 
@@ -505,7 +709,10 @@
         if (!state) return;
 
         const done = state.status !== 'playing';
-        text(el.metaLeft, STRINGS.attempt(Math.min(state.attempt + (done ? 0 : 1), state.max_attempts), state.max_attempts));
+        text(el.metaLeft, STRINGS.attempt(
+            Math.min(state.attempt + (done ? 0 : 1), state.max_attempts),
+            state.max_attempts
+        ));
 
         const streak = (state.stats && state.stats.streak) || 0;
         text(el.metaRight, streak > 0 ? STRINGS.streak(streak) : '');
@@ -521,11 +728,10 @@
         const next = state.steps[index + 1];
 
         if (typeof next === 'number') {
-            text(skipLabel, el.skip.dataset.psSkipWord || skipLabel.textContent);
-            const bonus = Math.round((next - state.steps[index]) * 10) / 10;
-            text(el.skipBonus, '+' + formatStep(bonus));
+            text(skipWord, skipWordText);
+            text(el.skipBonus, '+' + formatStep(Math.round((next - state.steps[index]) * 10) / 10));
         } else {
-            text(skipLabel, STRINGS.giveUp);
+            text(skipWord, STRINGS.giveUp);
             text(el.skipBonus, '');
         }
 
@@ -538,22 +744,27 @@
         if (el.clear) el.clear.hidden = !el.input || !el.input.value;
     }
 
-    function squares() {
-        const marks = [];
-        for (let index = 0; index < state.max_attempts; index += 1) {
-            const guess = state.guesses[index];
-            if (!guess) marks.push('⬜');
-            else if (guess.type === 'skip') marks.push('🔇');
-            else if (guess.type === 'correct') marks.push('🟩');
-            else marks.push('🟥');
-        }
-        return marks.join('');
+    function button(className, iconName, label, handler) {
+        const node = document.createElement('button');
+        node.type = 'button';
+        node.className = className;
+        node.appendChild(icon(iconName));
+        node.appendChild(document.createTextNode(label));
+        node.addEventListener('click', handler);
+        return node;
+    }
+
+    /** In quanti secondi di traccia è stata presa: è il numero che si vanta. */
+    function winningSeconds() {
+        return formatStep(state.steps[Math.min(state.guesses.length - 1, state.steps.length - 1)]);
     }
 
     function shareText() {
-        const score = (state.status === 'won' ? state.guesses.length : 'X') + '/' + state.max_attempts;
+        const line = state.status === 'won'
+            ? STRINGS.shareWon(winningSeconds(), state.guesses.length, state.max_attempts)
+            : STRINGS.shareLost(state.max_attempts);
 
-        return 'Pullspot ' + score + '\n' + squares() + '\n' + window.location.origin + '/' + LANG + '/pullspot';
+        return line + '\n' + window.location.origin + '/' + LANG + '/pullspot';
     }
 
     async function share() {
@@ -576,73 +787,164 @@
         }
     }
 
-    function button(className, icon, label, handler) {
-        const node = document.createElement('button');
-        node.type = 'button';
-        node.className = className;
-        node.innerHTML = '<i class="fa-solid fa-' + icon + '"></i> ';
-        node.appendChild(document.createTextNode(label));
-        node.addEventListener('click', handler);
-        return node;
-    }
+    /* ── Rivelazione ───────────────────────────────────────────────────── */
 
-    function renderResult() {
-        if (!el.result) return;
+    function renderReveal() {
+        revealIcon = null;
+
+        if (!el.reveal) return;
 
         if (!state || state.status === 'playing' || !state.answer) {
-            el.result.hidden = true;
-            el.result.innerHTML = '';
+            el.reveal.hidden = true;
+            el.reveal.innerHTML = '';
+            if (el.player) el.player.hidden = false;
+            document.body.classList.remove('ps-is-reveal');
             return;
         }
 
         const won = state.status === 'won';
-        el.result.className = 'ps-result ps-result--' + (won ? 'won' : 'lost');
-        el.result.hidden = false;
-        el.result.innerHTML = '';
 
-        const verdict = document.createElement('p');
-        verdict.className = 'ps-result__verdict';
-        text(verdict, won ? STRINGS.wonAt(state.guesses.length) : STRINGS.lost);
-        el.result.appendChild(verdict);
+        // Il lettore sparisce: da qui in poi la scena è del personaggio.
+        if (el.player) el.player.hidden = true;
+        el.reveal.hidden = false;
+        el.reveal.innerHTML = '';
+        document.body.classList.add('ps-is-reveal');
+
+        const card = document.createElement('div');
+        card.className = 'ps-card';
+
+        const art = document.createElement('button');
+        art.type = 'button';
+        art.className = 'ps-card__art';
+        art.addEventListener('click', () => play());
 
         if (state.answer.image_url) {
-            const art = document.createElement('img');
-            art.className = 'ps-result__art';
-            art.src = state.answer.image_url;
-            art.alt = state.answer.nome;
-            art.loading = 'lazy';
-            el.result.appendChild(art);
+            const image = document.createElement('img');
+            image.src = state.answer.image_url;
+            image.alt = state.answer.nome;
+            art.appendChild(image);
         }
+
+        revealIcon = document.createElement('span');
+        revealIcon.className = 'ps-card__icon';
+        revealIcon.appendChild(icon('play'));
+        art.appendChild(revealIcon);
+        card.appendChild(art);
 
         const name = document.createElement('h2');
-        name.className = 'ps-result__name';
+        name.className = 'ps-card__name';
         text(name, state.answer.nome);
-        el.result.appendChild(name);
+        card.appendChild(name);
 
-        if (state.answer.rarita) {
-            const rarity = document.createElement('span');
-            rarity.className = 'ps-result__rarity';
-            text(rarity, state.answer.rarita);
-            el.result.appendChild(rarity);
+        const meta = document.createElement('p');
+        meta.className = 'ps-card__meta';
+        text(meta, [
+            state.answer.rarita || null,
+            won
+                ? (state.guesses.length === 1 ? STRINGS.oneTry : STRINGS.triesUsed(state.guesses.length, state.max_attempts))
+                : STRINGS.triesUsed(state.max_attempts, state.max_attempts),
+        ].filter(Boolean).join(' · '));
+        card.appendChild(meta);
+
+        const pill = document.createElement('span');
+        pill.className = 'ps-pill' + (won ? '' : ' ps-pill--lost');
+        text(pill, won ? STRINGS.wonIn(winningSeconds()) : STRINGS.lostPill);
+        card.appendChild(pill);
+
+        const actions = document.createElement('div');
+        actions.className = 'ps-reveal__actions';
+        actions.appendChild(button('ps-btn', 'share-nodes', STRINGS.share, share));
+        actions.appendChild(button('ps-btn ps-btn--go', 'forward', STRINGS.newTrack, () => start(true)));
+        card.appendChild(actions);
+
+        el.reveal.appendChild(card);
+
+        // I coriandoli festeggiano il momento, non lo stato: ricaricando la
+        // pagina su una partita già vinta non devono ripartire.
+        const party = won && celebrate;
+        celebrate = false;
+
+        // Il colore lo detta il personaggio, e con lui si tingono fascio,
+        // pastiglia, cornice e coriandoli.
+        const paintAccent = (accent) => {
+            setAccent(accent || accentFromId(state.answer.id));
+            if (party) confetti();
+        };
+
+        if (state.answer.image_url) {
+            accentFromImage(state.answer.image_url).then(paintAccent);
+        } else {
+            paintAccent(null);
+        }
+    }
+
+    let confettiRaf = 0;
+
+    function confetti() {
+        const canvas = el.confetti;
+        if (!canvas || reducedMotion) return;
+
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        if (!width || !height) return;
+
+        const scale = Math.min(2, window.devicePixelRatio || 1);
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+
+        const accent = getComputedStyle(document.body).getPropertyValue('--ps-accent').trim() || '#22e07d';
+        const colors = [accent, accent, '#ffffff', 'rgba(255,255,255,.65)'];
+        const pieces = [];
+
+        for (let i = 0; i < 120; i += 1) {
+            pieces.push({
+                x: width / 2 + (Math.random() - .5) * width * .5,
+                y: height * .34 + (Math.random() - .5) * 70,
+                vx: (Math.random() - .5) * 7.5,
+                vy: -5 - Math.random() * 10,
+                gravity: .22 + Math.random() * .14,
+                size: 4 + Math.random() * 7,
+                rotation: Math.random() * Math.PI,
+                spin: (Math.random() - .5) * .32,
+                color: colors[(Math.random() * colors.length) | 0],
+            });
         }
 
-        const marks = document.createElement('p');
-        marks.className = 'ps-result__squares';
-        text(marks, squares());
-        el.result.appendChild(marks);
+        let frame = 0;
+        cancelAnimationFrame(confettiRaf);
 
-        const primary = document.createElement('div');
-        primary.className = 'ps-result__actions';
-        primary.appendChild(button('ps-btn ps-btn--go', 'rotate', STRINGS.newTrack, () => start(true)));
-        el.result.appendChild(primary);
+        (function step() {
+            frame += 1;
+            ctx.clearRect(0, 0, width, height);
 
-        const secondary = document.createElement('div');
-        secondary.className = 'ps-result__actions';
-        secondary.style.marginTop = '.5rem';
-        secondary.appendChild(button('ps-btn', 'share-nodes', STRINGS.share, share));
-        secondary.appendChild(button('ps-btn', 'chart-simple', STRINGS.stats, openStats));
-        el.result.appendChild(secondary);
+            let alive = 0;
+            const fade = Math.max(0, 1 - frame / 200);
+
+            pieces.forEach((piece) => {
+                piece.vy += piece.gravity;
+                piece.x += piece.vx;
+                piece.y += piece.vy;
+                piece.rotation += piece.spin;
+                if (piece.y < height + 40) alive += 1;
+
+                ctx.save();
+                ctx.translate(piece.x, piece.y);
+                ctx.rotate(piece.rotation);
+                ctx.globalAlpha = fade;
+                ctx.fillStyle = piece.color;
+                ctx.fillRect(-piece.size / 2, -piece.size / 4, piece.size, piece.size * .55);
+                ctx.restore();
+            });
+
+            if (alive && frame < 210) confettiRaf = requestAnimationFrame(step);
+            else ctx.clearRect(0, 0, width, height);
+        })();
     }
+
+    /* ── Statistiche ───────────────────────────────────────────────────── */
 
     function renderStats() {
         if (!el.statsBody || !state) return;
@@ -679,7 +981,7 @@
 
         const title = document.createElement('div');
         title.className = 'ps-figure__label';
-        title.style.marginBottom = '.5rem';
+        title.style.marginBottom = '.55rem';
         text(title, STRINGS.distribution);
         el.statsBody.appendChild(title);
 
@@ -725,19 +1027,33 @@
     function render() {
         if (!state) return;
 
+        excluded = new Set();
+        state.guesses.forEach((guess) => {
+            if (guess.id) excluded.add(guess.id);
+        });
+
         buildSegments();
         renderRows();
         renderChips();
         renderMeta();
         renderControls();
-        renderResult();
+        renderReveal();
         renderStats();
         setPlayIcon(false);
         paint(0);
 
-        // A partita finita la traccia intera si scarica subito: serve la sua
-        // durata vera per il cronometro, e comunque la si vuole risentire.
-        if (state.full) ensureClip().then(() => paint(0)).catch(() => {});
+        // Il pezzo si scarica prima che serva: al click deve partire subito,
+        // non dopo un viaggio in rete.
+        ensureClip().then(() => {
+            paint(0);
+
+            // La musica del personaggio parte da sola appena si scopre chi
+            // era. Se il browser la blocca resta il pulsante sulla figura.
+            if (state && state.full && autoplayReveal) {
+                autoplayReveal = false;
+                play(true);
+            }
+        }).catch(() => {});
     }
 
     /* ── Modali ────────────────────────────────────────────────────────── */
@@ -768,6 +1084,8 @@
         stopPlayback();
         dropClip();
         closeList();
+        setAccent(null);
+        document.body.classList.remove('ps-is-reveal');
         if (el.input) el.input.value = '';
 
         try {
@@ -797,15 +1115,18 @@
         try {
             const payload = await sendGuess(body);
             const wasPlaying = state && state.status === 'playing';
+
             state = Object.assign({}, state, payload);
+            autoplayReveal = state.status !== 'playing';
+            celebrate = state.status === 'won';
             if (el.input) el.input.value = '';
             closeList();
             stopPlayback();
             dropClip();
             render();
 
-            // Come su allspot il frammento più lungo parte da solo: il click
-            // sul pulsante vale come gesto dell'utente per l'autoplay.
+            // Il frammento più lungo parte da solo: il click sul pulsante vale
+            // come gesto dell'utente. Alla rivelazione ci pensa render().
             if (wasPlaying && state.status === 'playing') play();
         } catch (error) {
             toast(error.message || STRINGS.loadError);
@@ -824,8 +1145,8 @@
         if (el.volume) {
             el.volume.value = String(Math.round(level * 100));
             // Il cursore da solo non dice quanto è alzato: la parte a sinistra
-            // la coloriamo a mano, perché il track non si può riempire in CSS.
-            el.volume.style.background = 'linear-gradient(90deg, var(--ps-green) '
+            // la coloriamo a mano, perché il track non si riempie da sé.
+            el.volume.style.background = 'linear-gradient(90deg, var(--ps-accent) '
                 + (level * 100) + '%, rgba(255, 255, 255, .1) ' + (level * 100) + '%)';
         }
 
@@ -848,12 +1169,9 @@
 
     /* ── Eventi ────────────────────────────────────────────────────────── */
 
-    if (el.play) el.play.addEventListener('click', play);
+    if (el.play) el.play.addEventListener('click', () => play());
 
-    if (el.skip) {
-        el.skip.dataset.psSkipWord = skipLabel ? skipLabel.textContent : '';
-        el.skip.addEventListener('click', () => submitGuess({ action: 'skip' }));
-    }
+    if (el.skip) el.skip.addEventListener('click', () => submitGuess({ action: 'skip' }));
 
     if (el.clear) {
         el.clear.addEventListener('click', () => {

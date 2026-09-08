@@ -77,6 +77,7 @@ function pullspot_msg(string $key, string $lang = 'it'): string
         'no_pool'         => ['it' => 'Nessun personaggio ha ancora una musica di pull.', 'en' => 'No character has a pull track yet.'],
         'finished'        => ['it' => 'Questa partita è già finita.',                     'en' => 'This round is already over.'],
         'bad_guess'       => ['it' => 'Personaggio non valido.',                          'en' => 'Invalid character.'],
+        'repeat'          => ['it' => 'Questo personaggio lo hai già provato.',            'en' => 'You have already tried that character.'],
         'no_audio'        => ['it' => 'Traccia non disponibile.',                         'en' => 'Track unavailable.'],
     ];
 
@@ -368,6 +369,19 @@ function pullspot_bootstrap(mysqli $mysqli, bool $restart = false): ?array
         'game'      => $game,
         'character' => pullspot_character_by_id($mysqli, $game['char_id']),
     ];
+}
+
+/**
+ * Un nome già provato non si ripropone: la ricerca lo toglie dall'elenco e
+ * questo controllo chiude la porta anche a chi la chiama a mano.
+ */
+function pullspot_already_guessed(array $game, int $characterId): bool
+{
+    foreach ($game['guesses'] as $guess) {
+        if ((int)($guess['id'] ?? 0) === $characterId) return true;
+    }
+
+    return false;
 }
 
 /** Due personaggi che condividono la stessa traccia sono entrambi giusti. */

@@ -38,7 +38,6 @@ function ps_h(mixed $value): string
 $copy = [
     'it' => [
         'attempts'   => 'Tentativi',
-        'round'      => 'Partita',
         'newTrack'   => 'Nuova traccia',
         'unlocks'    => 'Sblocchi',
         'volume'     => 'Volume',
@@ -56,6 +55,7 @@ $copy = [
             'Parte l\'inizio della musica di pull di un personaggio: devi capire di chi è.',
             'Hai sei tentativi. Ogni errore o salto allunga il frammento: 0,1s → 0,5s → 2s → 5s → 8s → 15s.',
             'Scrivi nel campo di ricerca e scegli un nome dall\'elenco: la scelta vale subito come tentativo.',
+            'Un nome già provato sparisce dall\'elenco: non lo puoi rigiocare.',
             'Se due personaggi condividono la stessa musica valgono tutti e due.',
             'La traccia è sempre a caso e non ci sono limiti: finita una partita ne parte un\'altra.',
         ],
@@ -63,7 +63,6 @@ $copy = [
     ],
     'en' => [
         'attempts'   => 'Guesses',
-        'round'      => 'Round',
         'newTrack'   => 'New track',
         'unlocks'    => 'Unlocks',
         'volume'     => 'Volume',
@@ -81,6 +80,7 @@ $copy = [
             'You hear the beginning of a character\'s pull track: work out whose it is.',
             'You get six tries. Every wrong guess or skip makes the snippet longer: 0.1s → 0.5s → 2s → 5s → 8s → 15s.',
             'Type in the search box and pick a name from the list: picking one counts as your guess straight away.',
+            'A name you already tried drops out of the list: you cannot spend a guess on it twice.',
             'If two characters share the same track, both of them count as right.',
             'The track is always random and there is no limit: when a round ends, another one starts.',
         ],
@@ -115,10 +115,11 @@ $copy = [
 
     <div class="ps-beam" aria-hidden="true"></div>
     <div class="ps-glow" aria-hidden="true"></div>
+    <canvas class="ps-confetti" data-ps-confetti aria-hidden="true"></canvas>
 
     <main class="ps-stage" data-ps-root>
 
-        <div class="ps-wordmark" aria-hidden="true">pullspot</div>
+        <div class="ps-brand" aria-hidden="true">pullspot</div>
 
         <div class="ps-boot ps-full" data-ps-boot>
             <div class="ps-spinner" aria-hidden="true"></div>
@@ -137,10 +138,13 @@ $copy = [
                 <div>
                     <h2 class="ps-group__title"><?php echo ps_h($copy['attempts']); ?></h2>
                     <ol class="ps-rows" data-ps-rows></ol>
+                    <button type="button" class="ps-link" data-ps-new>
+                        <i class="fa-solid fa-rotate" aria-hidden="true"></i> <?php echo ps_h($copy['newTrack']); ?>
+                    </button>
                 </div>
             </aside>
 
-            <!-- ══ Colonna centrale: il lettore ══ -->
+            <!-- ══ Colonna centrale: il lettore, poi la rivelazione ══ -->
             <section class="ps-center">
 
                 <div class="ps-meta">
@@ -148,55 +152,48 @@ $copy = [
                     <span class="ps-meta__now" data-ps-meta-right></span>
                 </div>
 
-                <div class="ps-bar">
-                    <div class="ps-segments" data-ps-segments></div>
-                    <div class="ps-marks"><span class="ps-marker" data-ps-marker></span></div>
-                </div>
-
-                <div class="ps-transport">
-                    <button type="button" class="ps-play" data-ps-play aria-pressed="false"
-                            aria-label="<?php echo ps_h($copy['play']); ?>">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                    <div class="ps-clock">
-                        <span data-ps-clock>—</span>
-                        <small data-ps-clock-label></small>
+                <div class="ps-player" data-ps-player>
+                    <div class="ps-bar">
+                        <div class="ps-segments" data-ps-segments></div>
+                        <div class="ps-marks"><span class="ps-marker" data-ps-marker></span></div>
                     </div>
-                </div>
 
-                <div class="ps-guessrow" data-ps-controls hidden>
-                    <div class="ps-search">
-                        <i class="fa-solid fa-magnifying-glass ps-search__icon" aria-hidden="true"></i>
-                        <input type="text" class="ps-input" data-ps-input autocomplete="off" spellcheck="false"
-                               role="combobox" aria-expanded="false" aria-autocomplete="list"
-                               placeholder="<?php echo ps_h($copy['search']); ?>">
-                        <button type="button" class="ps-clear" data-ps-clear hidden
-                                aria-label="<?php echo ps_h($copy['clear']); ?>">
-                            <i class="fa-solid fa-xmark"></i>
+                    <div class="ps-transport">
+                        <button type="button" class="ps-play" data-ps-play aria-pressed="false"
+                                aria-label="<?php echo ps_h($copy['play']); ?>">
+                            <i class="fa-solid fa-play" aria-hidden="true"></i>
                         </button>
-                        <ul class="ps-list" role="listbox" data-ps-list hidden></ul>
+                        <div class="ps-clock">
+                            <span class="ps-clock__value" data-ps-clock>—</span>
+                            <span class="ps-clock__label" data-ps-clock-label></span>
+                        </div>
                     </div>
-                    <button type="button" class="ps-skip" data-ps-skip>
-                        <i class="fa-solid fa-forward-step" aria-hidden="true"></i>
-                        <span><?php echo ps_h($copy['skip']); ?></span>
-                        <small data-ps-skip-bonus></small>
-                    </button>
+
+                    <div class="ps-guessrow" data-ps-controls hidden>
+                        <div class="ps-search">
+                            <i class="fa-solid fa-magnifying-glass ps-search__icon" aria-hidden="true"></i>
+                            <input type="text" class="ps-input" data-ps-input autocomplete="off" spellcheck="false"
+                                   role="combobox" aria-expanded="false" aria-autocomplete="list"
+                                   placeholder="<?php echo ps_h($copy['search']); ?>">
+                            <button type="button" class="ps-clear" data-ps-clear hidden
+                                    aria-label="<?php echo ps_h($copy['clear']); ?>">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                            <ul class="ps-list" role="listbox" data-ps-list hidden></ul>
+                        </div>
+                        <button type="button" class="ps-skip" data-ps-skip>
+                            <i class="fa-solid fa-forward-step" aria-hidden="true"></i>
+                            <span><?php echo ps_h($copy['skip']); ?></span>
+                            <small data-ps-skip-bonus></small>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="ps-result" data-ps-result hidden></div>
+                <div class="ps-reveal" data-ps-reveal hidden></div>
             </section>
 
             <!-- ══ Colonna destra: le opzioni ══ -->
             <aside class="ps-rail">
-                <div>
-                    <h2 class="ps-group__title"><?php echo ps_h($copy['round']); ?></h2>
-                    <div class="ps-stack">
-                        <button type="button" class="ps-opt" data-ps-new>
-                            <i class="fa-solid fa-rotate"></i> <?php echo ps_h($copy['newTrack']); ?>
-                        </button>
-                    </div>
-                </div>
-
                 <div>
                     <h2 class="ps-group__title"><?php echo ps_h($copy['unlocks']); ?></h2>
                     <div class="ps-chips" data-ps-chips></div>
@@ -212,10 +209,10 @@ $copy = [
                     <h2 class="ps-group__title"><?php echo ps_h($copy['help']); ?></h2>
                     <div class="ps-stack">
                         <button type="button" class="ps-opt" data-ps-open-rules>
-                            <i class="fa-solid fa-circle-question"></i> <?php echo ps_h($copy['rules']); ?>
+                            <i class="fa-solid fa-circle-question" aria-hidden="true"></i> <?php echo ps_h($copy['rules']); ?>
                         </button>
                         <button type="button" class="ps-opt" data-ps-open-stats>
-                            <i class="fa-solid fa-chart-simple"></i> <?php echo ps_h($copy['stats']); ?>
+                            <i class="fa-solid fa-chart-simple" aria-hidden="true"></i> <?php echo ps_h($copy['stats']); ?>
                         </button>
                     </div>
                 </div>
@@ -230,7 +227,7 @@ $copy = [
             <div class="ps-modal__head">
                 <h2><?php echo ps_h($copy['stats']); ?></h2>
                 <button type="button" class="ps-iconbtn" data-ps-close aria-label="<?php echo ps_h($copy['close']); ?>">
-                    <i class="fa-solid fa-xmark"></i>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
             <div data-ps-stats-body></div>
@@ -242,7 +239,7 @@ $copy = [
             <div class="ps-modal__head">
                 <h2><?php echo ps_h($copy['rules']); ?></h2>
                 <button type="button" class="ps-iconbtn" data-ps-close aria-label="<?php echo ps_h($copy['close']); ?>">
-                    <i class="fa-solid fa-xmark"></i>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
             <ul class="ps-rules">
