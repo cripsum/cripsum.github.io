@@ -1,0 +1,1005 @@
+/* ============================================================
+   Navbar - trigger, menu e pannello account
+   ============================================================
+
+   I menu sono elementi [popover]: stanno nel top layer, quindi non
+   servono z-index alti e non vengono tagliati dai contenitori. Esc e il
+   click fuori li chiude il browser.
+
+   Il tema arriva da data-cnav-theme sull'elemento <html>, scritto dallo
+   script inline della navbar leggendo lo stesso cookie di controlloTema.js.
+   Serve un attributo e non l'ordine dei <link> perche' i fogli di stile del
+   tema vengono aggiunti a runtime, quindi l'ordine non e' garantito.
+   ============================================================ */
+
+:root {
+    --cn-bg: rgba(24, 24, 28, 0.94);
+    --cn-bg-solid: #1a1a1e;
+    --cn-raise: rgba(255, 255, 255, 0.05);
+    --cn-border: rgba(255, 255, 255, 0.12);
+    --cn-border-soft: rgba(255, 255, 255, 0.07);
+    --cn-text: rgba(255, 255, 255, 0.93);
+    --cn-muted: rgba(255, 255, 255, 0.52);
+    --cn-faint: rgba(255, 255, 255, 0.34);
+    --cn-hover: rgba(255, 255, 255, 0.09);
+    --cn-press: rgba(255, 255, 255, 0.14);
+    --cn-shadow: 0 18px 52px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    --cn-danger: #ff5a4e;
+    --cn-danger-bg: rgba(255, 69, 58, 0.12);
+    --cn-danger-border: rgba(255, 69, 58, 0.34);
+    --cn-staff: #ffb340;
+    --cn-staff-bg: rgba(255, 179, 64, 0.11);
+    --cn-staff-border: rgba(255, 179, 64, 0.34);
+    --cn-nsfw: #c88cff;
+    --cn-nsfw-bg: rgba(200, 140, 255, 0.11);
+    --cn-nsfw-border: rgba(200, 140, 255, 0.34);
+    --cn-accent: #ffd166;
+
+    --cn-radius: 16px;
+    --cn-radius-sm: 10px;
+    --cn-pad: 8px;
+
+    --cn-in: 170ms;
+    --cn-out: 110ms;
+    --cn-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --cn-hover-dur: 120ms;
+}
+
+html[data-cnav-theme="light"] {
+    --cn-bg: rgba(250, 249, 247, 0.96);
+    --cn-bg-solid: #faf9f7;
+    --cn-raise: rgba(20, 20, 20, 0.045);
+    --cn-border: rgba(20, 20, 20, 0.14);
+    --cn-border-soft: rgba(20, 20, 20, 0.08);
+    --cn-text: rgb(28, 28, 30);
+    --cn-muted: rgba(28, 28, 30, 0.6);
+    --cn-faint: rgba(28, 28, 30, 0.4);
+    --cn-hover: rgba(20, 20, 20, 0.06);
+    --cn-press: rgba(20, 20, 20, 0.11);
+    --cn-shadow: 0 18px 44px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(20, 20, 20, 0.06);
+    --cn-danger: #d92c1f;
+    --cn-danger-bg: rgba(217, 44, 31, 0.09);
+    --cn-danger-border: rgba(217, 44, 31, 0.3);
+    --cn-staff: #9a6100;
+    --cn-staff-bg: rgba(154, 97, 0, 0.09);
+    --cn-staff-border: rgba(154, 97, 0, 0.3);
+    --cn-nsfw: #7031b8;
+    --cn-nsfw-bg: rgba(112, 49, 184, 0.09);
+    --cn-nsfw-border: rgba(112, 49, 184, 0.3);
+    --cn-accent: #9a6100;
+}
+
+/* ── Trigger nella barra ─────────────────────────────────── */
+
+.cnav-item {
+    display: flex;
+    align-items: center;
+    list-style: none;
+}
+
+/* Allineato a `.navbarutenti .nav-link` dei fogli di tema: i trigger sono
+   <button>, quindi non ereditano niente da quelle regole e devono
+   dichiarare gli stessi valori per stare in riga con Home page ed Edits. */
+.cnav-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: var(--cn-radius-sm);
+    background: transparent;
+    color: var(--cn-text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--cn-hover-dur) ease, color var(--cn-hover-dur) ease;
+}
+
+.cnav-trigger:hover,
+.cnav-trigger:focus-visible {
+    background: var(--cn-hover);
+}
+
+.cnav-trigger:focus-visible {
+    outline: 2px solid var(--cn-accent);
+    outline-offset: 2px;
+}
+
+.cnav-trigger__caret {
+    font-size: 0.6em;
+    opacity: 0.55;
+    transition: transform var(--cn-hover-dur) ease, opacity var(--cn-hover-dur) ease;
+}
+
+.cnav-trigger[aria-expanded="true"] {
+    background: var(--cn-press);
+}
+
+.cnav-trigger[aria-expanded="true"] .cnav-trigger__caret {
+    transform: rotate(180deg);
+    opacity: 0.9;
+}
+
+.cnav-trigger__pfp {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.cnav-link--off {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Con cinque voci piu' ricerca la barra e' densa: una voce che va a capo
+   alza tutta la navbar. */
+@media (min-width: 1200px) {
+    .navbarutenti .cnav-list .nav-link {
+        white-space: nowrap;
+    }
+}
+
+/* Avatar accanto all'hamburger: su mobile il pannello account si apre da
+   qui invece di stare sepolto dentro il menu a tendina. */
+.cnav-avatar-btn {
+    display: inline-flex;
+    padding: 0;
+    border: 1px solid var(--cn-border);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    line-height: 0;
+    transition: border-color var(--cn-hover-dur) ease, transform var(--cn-hover-dur) ease;
+}
+
+.cnav-avatar-btn img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.cnav-avatar-btn:active {
+    transform: scale(0.94);
+}
+
+.cnav-avatar-btn[aria-expanded="true"] {
+    border-color: var(--cn-accent);
+}
+
+/* ── Contenitore del menu ────────────────────────────────── */
+
+.cnav-pop {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    padding: 0;
+    width: 264px;
+    max-width: calc(100vw - 24px);
+    max-height: min(78vh, 640px);
+    /* Il popover chiuso lo nasconde lo user-agent, ma con `display: flex`
+       qui la regola dell'UA perderebbe e il menu resterebbe invisibile e
+       cliccabile sopra la pagina. Il display sta solo nello stato aperto;
+       questo `none` copre anche l'attimo prima che navbar.js parta e i
+       browser senza popover API. */
+    display: none;
+    flex-direction: column;
+    overflow: visible;
+    border: 1px solid var(--cn-border);
+    border-radius: var(--cn-radius);
+    background: var(--cn-bg);
+    -webkit-backdrop-filter: blur(22px) saturate(1.4);
+    backdrop-filter: blur(22px) saturate(1.4);
+    box-shadow: var(--cn-shadow);
+    color: var(--cn-text);
+    font-size: 0.9rem;
+    transform-origin: var(--cn-origin, top left);
+
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+    transition:
+        opacity var(--cn-out) ease,
+        transform var(--cn-out) ease,
+        display var(--cn-out) allow-discrete,
+        overlay var(--cn-out) allow-discrete;
+}
+
+.cnav-pop--account {
+    width: 340px;
+}
+
+.cnav-pop:popover-open,
+.cnav-pop.is-open {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition:
+        opacity var(--cn-in) var(--cn-ease),
+        transform var(--cn-in) var(--cn-ease),
+        display var(--cn-in) allow-discrete,
+        overlay var(--cn-in) allow-discrete;
+}
+
+@starting-style {
+    .cnav-pop:popover-open {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.96);
+    }
+}
+
+/* Browser senza popover API: niente top layer, quindi serve uno z-index
+   sopra la barra. La classe la mette navbar.js. */
+.cnav-pop.cnav-pop--fallback.is-open {
+    z-index: 20000;
+}
+
+.cnav-pop::backdrop {
+    background: transparent;
+    transition: background var(--cn-out) ease;
+}
+
+.cnav-pop__body {
+    padding: var(--cn-pad);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Testata visibile solo quando il menu e' un sheet. */
+.cnav-sheet-head {
+    display: none;
+}
+
+/* ── Righe ───────────────────────────────────────────────── */
+
+.cnav-row,
+.cnav-tile,
+.cnav-key,
+.cnav-acct-head {
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity var(--cn-out) ease, transform var(--cn-out) ease;
+}
+
+.cnav-pop:popover-open .cnav-row,
+.cnav-pop:popover-open .cnav-tile,
+.cnav-pop:popover-open .cnav-key,
+.cnav-pop:popover-open .cnav-acct-head,
+.cnav-pop.is-open .cnav-row,
+.cnav-pop.is-open .cnav-tile,
+.cnav-pop.is-open .cnav-key,
+.cnav-pop.is-open .cnav-acct-head {
+    opacity: 1;
+    transform: none;
+    transition:
+        opacity var(--cn-in) var(--cn-ease) calc(min(var(--i, 0), 6) * 12ms),
+        transform var(--cn-in) var(--cn-ease) calc(min(var(--i, 0), 6) * 12ms);
+}
+
+.cnav-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--cn-radius-sm);
+    color: var(--cn-text);
+    text-decoration: none;
+    transition:
+        background-color var(--cn-hover-dur) ease,
+        color var(--cn-hover-dur) ease,
+        opacity var(--cn-out) ease,
+        transform var(--cn-out) ease;
+}
+
+.cnav-row:hover,
+.cnav-row:focus-visible {
+    background: var(--cn-hover);
+    color: var(--cn-text);
+}
+
+.cnav-row:focus-visible,
+.cnav-tile:focus-visible,
+.cnav-key:focus-visible,
+.cnav-acct-head:focus-visible,
+.cnav-foot-btn:focus-visible,
+.cnav-foot-icon:focus-visible {
+    outline: 2px solid var(--cn-accent);
+    outline-offset: -2px;
+}
+
+.cnav-row__ico {
+    display: inline-flex;
+    justify-content: center;
+    width: 18px;
+    color: var(--cn-muted);
+    transition: color var(--cn-hover-dur) ease;
+}
+
+.cnav-row:hover .cnav-row__ico {
+    color: var(--cn-text);
+}
+
+.cnav-row__label {
+    flex: 1;
+    min-width: 0;
+}
+
+.cnav-row__badge {
+    flex-shrink: 0;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--cn-danger-bg);
+    border: 1px solid var(--cn-danger-border);
+    color: var(--cn-danger);
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* ── Sezioni ─────────────────────────────────────────────── */
+
+.cnav-sect + .cnav-sect {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid var(--cn-border-soft);
+}
+
+.cnav-sect__label {
+    margin: 2px 0 5px 10px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--cn-faint);
+}
+
+/* ── Riquadri (Achievements / Missioni / Inventario) ─────── */
+
+.cnav-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.cnav-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 4px;
+    border-radius: var(--cn-radius-sm);
+    background: var(--cn-raise);
+    color: var(--cn-text);
+    text-align: center;
+    text-decoration: none;
+    transition:
+        background-color var(--cn-hover-dur) ease,
+        transform var(--cn-hover-dur) ease,
+        opacity var(--cn-out) ease;
+}
+
+.cnav-tile:hover,
+.cnav-tile:focus-visible {
+    background: var(--cn-hover);
+    color: var(--cn-text);
+    transform: translateY(-1px);
+}
+
+.cnav-tile__ico {
+    font-size: 1.05rem;
+    color: var(--cn-muted);
+    transition: color var(--cn-hover-dur) ease;
+}
+
+.cnav-tile:hover .cnav-tile__ico {
+    color: var(--cn-text);
+}
+
+.cnav-tile__label {
+    font-size: 0.72rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+/* ── Accessi riservati (Admin / GoonLand) ────────────────── */
+
+.cnav-keys {
+    display: grid;
+    gap: 6px;
+}
+
+.cnav-key {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--cn-key-border, var(--cn-border));
+    border-radius: var(--cn-radius-sm);
+    background: var(--cn-key-bg, var(--cn-raise));
+    color: var(--cn-key-fg, var(--cn-text));
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+        background-color var(--cn-hover-dur) ease,
+        border-color var(--cn-hover-dur) ease,
+        transform var(--cn-hover-dur) ease,
+        opacity var(--cn-out) ease;
+}
+
+.cnav-key--staff {
+    --cn-key-fg: var(--cn-staff);
+    --cn-key-bg: var(--cn-staff-bg);
+    --cn-key-border: var(--cn-staff-border);
+}
+
+.cnav-key--nsfw {
+    --cn-key-fg: var(--cn-nsfw);
+    --cn-key-bg: var(--cn-nsfw-bg);
+    --cn-key-border: var(--cn-nsfw-border);
+}
+
+.cnav-key:hover,
+.cnav-key:focus-visible {
+    color: var(--cn-key-fg, var(--cn-text));
+    border-color: var(--cn-key-fg, var(--cn-border));
+    transform: translateY(-1px);
+}
+
+.cnav-key__ico {
+    font-size: 0.95rem;
+}
+
+.cnav-key__label {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.83rem;
+}
+
+.cnav-key__go {
+    font-size: 0.72rem;
+    opacity: 0.55;
+    transition: transform var(--cn-hover-dur) ease, opacity var(--cn-hover-dur) ease;
+}
+
+.cnav-key:hover .cnav-key__go {
+    transform: translateX(3px);
+    opacity: 1;
+}
+
+/* ── Testata del pannello account ────────────────────────── */
+
+.cnav-acct-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    color: var(--cn-text);
+    text-decoration: none;
+    transition:
+        background-color var(--cn-hover-dur) ease,
+        opacity var(--cn-out) ease,
+        transform var(--cn-out) ease;
+}
+
+.cnav-acct-head:hover,
+.cnav-acct-head:focus-visible {
+    background: var(--cn-hover);
+    color: var(--cn-text);
+}
+
+.cnav-acct-head__pfp {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.cnav-acct-head__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 1px;
+}
+
+.cnav-acct-head__name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cnav-acct-head__gem {
+    font-size: 0.72rem;
+    color: #fbbf24;
+    margin-left: 3px;
+}
+
+.cnav-acct-head__meta {
+    font-size: 0.75rem;
+    color: var(--cn-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cnav-acct-head__go {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--cn-faint);
+    transition: transform var(--cn-hover-dur) ease;
+}
+
+.cnav-acct-head:hover .cnav-acct-head__go {
+    transform: translateX(3px);
+}
+
+/* ── Riga stat ───────────────────────────────────────────── */
+
+.cnav-acct-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 7px 10px;
+    margin-bottom: 6px;
+    border-radius: var(--cn-radius-sm);
+    background: var(--cn-raise);
+}
+
+.cnav-stat {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    font-size: 0.76rem;
+    color: var(--cn-muted);
+    white-space: nowrap;
+}
+
+.cnav-stat i {
+    font-size: 0.78rem;
+    color: var(--cn-accent);
+}
+
+.cnav-stat__val {
+    font-weight: 600;
+    color: var(--cn-text);
+}
+
+.cnav-stat + .cnav-stat {
+    padding-left: 6px;
+    border-left: 1px solid var(--cn-border-soft);
+}
+
+/* Le etichette stanno nel title finche' c'e' spazio solo per i numeri. */
+.cnav-stat__lbl {
+    display: none;
+}
+
+/* ── Piede ───────────────────────────────────────────────── */
+
+.cnav-acct-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-top: 1px solid var(--cn-border-soft);
+}
+
+.cnav-foot-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: var(--cn-radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color var(--cn-hover-dur) ease;
+}
+
+.cnav-foot-btn--danger {
+    color: var(--cn-danger);
+}
+
+.cnav-foot-btn--danger:hover,
+.cnav-foot-btn--danger:focus-visible {
+    background: var(--cn-danger-bg);
+    color: var(--cn-danger);
+}
+
+.cnav-foot-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--cn-radius-sm);
+    color: var(--cn-muted);
+    text-decoration: none;
+    transition: background-color var(--cn-hover-dur) ease, color var(--cn-hover-dur) ease;
+}
+
+.cnav-foot-icon:hover,
+.cnav-foot-icon:focus-visible {
+    background: var(--cn-hover);
+    color: var(--cn-text);
+}
+
+/* ── Sotto i 1200px: bottom sheet ────────────────────────────
+   Il vecchio menu diventava una griglia a due colonne alta 240px con
+   scroll interno, dentro il collapse che a sua volta scorreva. Qui ogni
+   menu sale invece dal basso a tutta larghezza, con una sola area
+   scrollabile. */
+
+@media (max-width: 1199.98px) {
+    .cnav-pop,
+    .cnav-pop--account {
+        inset: auto 0 0 0 !important;
+        width: 100%;
+        max-width: 100%;
+        max-height: 86dvh;
+        border-width: 1px 0 0 0;
+        border-radius: 20px 20px 0 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        transform-origin: bottom center;
+        transform: translateY(16px);
+    }
+
+    .cnav-pop:popover-open,
+    .cnav-pop.is-open {
+        transform: translateY(var(--cn-drag, 0px));
+    }
+
+    @starting-style {
+        .cnav-pop:popover-open {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+    }
+
+    .cnav-pop.cnav-pop--closing {
+        transform: translateY(100%);
+    }
+
+    /* La classe la mette navbar.js quando uno sheet e' aperto. */
+    html.cnav-locked,
+    html.cnav-locked body {
+        overflow: hidden;
+        touch-action: none;
+    }
+
+    .cnav-pop::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(2px);
+    }
+
+    .cnav-pop:not(:popover-open)::backdrop {
+        background: transparent;
+    }
+
+    /* Lo sheet e' gia' un pannello a se': lo stagger delle voci qui
+       rallenta l'apertura senza aggiungere niente. */
+    .cnav-pop:popover-open .cnav-row,
+    .cnav-pop:popover-open .cnav-tile,
+    .cnav-pop:popover-open .cnav-key,
+    .cnav-pop:popover-open .cnav-acct-head,
+    .cnav-pop.is-open .cnav-row,
+    .cnav-pop.is-open .cnav-tile,
+    .cnav-pop.is-open .cnav-key,
+    .cnav-pop.is-open .cnav-acct-head {
+        transition-delay: 0ms;
+    }
+
+    .cnav-sheet-head {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        padding: 16px 52px 10px;
+        touch-action: none;
+    }
+
+    .cnav-sheet-grip {
+        position: absolute;
+        top: 7px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 38px;
+        height: 4px;
+        border-radius: 999px;
+        background: var(--cn-faint);
+    }
+
+    .cnav-sheet-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--cn-text);
+    }
+
+    .cnav-sheet-close {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: var(--cn-raise);
+        color: var(--cn-muted);
+        cursor: pointer;
+        transition: background-color var(--cn-hover-dur) ease, color var(--cn-hover-dur) ease;
+    }
+
+    .cnav-sheet-close:hover {
+        background: var(--cn-hover);
+        color: var(--cn-text);
+    }
+
+    .cnav-pop__body {
+        padding: 4px 12px 12px;
+    }
+
+    /* Su touch le righe hanno bisogno di piu' area cliccabile. */
+    .cnav-row {
+        padding: 13px 12px;
+        font-size: 0.95rem;
+    }
+
+    .cnav-row__ico {
+        width: 22px;
+        font-size: 1.02rem;
+    }
+
+    .cnav-tile {
+        padding: 16px 6px;
+    }
+
+    .cnav-tile__ico {
+        font-size: 1.25rem;
+    }
+
+    .cnav-tile__label {
+        font-size: 0.78rem;
+    }
+
+    .cnav-key {
+        padding: 13px 14px;
+    }
+
+    .cnav-key__label {
+        font-size: 0.9rem;
+    }
+
+    .cnav-acct-head__pfp {
+        width: 52px;
+        height: 52px;
+    }
+
+    .cnav-acct-head__name {
+        font-size: 1.02rem;
+    }
+
+    /* In larghezza piena c'e' spazio per dire cosa sono i numeri. */
+    .cnav-acct-stats {
+        justify-content: space-around;
+        padding: 12px 10px;
+    }
+
+    .cnav-stat {
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 0.68rem;
+        text-align: center;
+    }
+
+    .cnav-stat + .cnav-stat {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .cnav-stat__val {
+        font-size: 1.05rem;
+    }
+
+    .cnav-stat__lbl {
+        display: block;
+    }
+
+    .cnav-acct-foot {
+        padding: 10px 12px;
+    }
+
+    .cnav-foot-btn {
+        padding: 13px 14px;
+        justify-content: center;
+    }
+
+    .cnav-foot-icon {
+        width: 46px;
+        height: 46px;
+    }
+
+    /* I trigger dentro il collapse sono righe di elenco, non pillole. */
+    .cnav-item--menu {
+        display: block;
+    }
+
+    .cnav-trigger {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 10px 8px;
+    }
+
+    .cnav-trigger__caret {
+        margin-left: auto;
+        transform: rotate(-90deg);
+    }
+
+    .cnav-trigger[aria-expanded="true"] .cnav-trigger__caret {
+        transform: rotate(-90deg);
+    }
+}
+
+@media (max-width: 400px) {
+    .cnav-tiles {
+        gap: 5px;
+    }
+
+    .cnav-tile {
+        padding: 13px 3px;
+    }
+
+    .cnav-tile__label {
+        font-size: 0.7rem;
+    }
+
+    .cnav-stat__lbl {
+        font-size: 0.64rem;
+    }
+}
+
+/* Schermi bassi in orizzontale: lo sheet non deve mangiare tutto. */
+@media (max-width: 1199.98px) and (max-height: 460px) {
+    .cnav-pop,
+    .cnav-pop--account {
+        max-height: 94dvh;
+    }
+
+    .cnav-sheet-head {
+        padding-top: 12px;
+    }
+
+    .cnav-acct-head__pfp {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* ── Larghezze intermedie della barra ────────────────────── */
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+    .cnav-trigger {
+        padding: 6px 9px;
+        font-size: 0.88rem;
+    }
+
+    .dropdownprofilo .cnav-trigger span {
+        max-width: 85px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* ── Riduzione del movimento ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .cnav-pop,
+    .cnav-pop:popover-open,
+    .cnav-row,
+    .cnav-tile,
+    .cnav-key,
+    .cnav-acct-head,
+    .cnav-trigger,
+    .cnav-trigger__caret,
+    .cnav-key__go,
+    .cnav-acct-head__go {
+        transition-duration: 0.01ms !important;
+        transition-delay: 0ms !important;
+    }
+
+    .cnav-pop {
+        transform: none !important;
+    }
+
+    .cnav-tile:hover,
+    .cnav-key:hover,
+    .cnav-acct-head:hover .cnav-acct-head__go,
+    .cnav-key:hover .cnav-key__go {
+        transform: none !important;
+    }
+}
+
+/* ── Risultati della ricerca ─────────────────────────────────
+   Erano stili inline nel markup generato dal JS: qui seguono i token del
+   tema come tutto il resto. */
+
+.cnav-mark {
+    padding: 0 2px;
+    border-radius: 3px;
+    background: var(--cn-press);
+    color: var(--cn-text);
+}
+
+.search-result-handle {
+    margin-top: 1px;
+    font-size: 0.75rem;
+    color: var(--cn-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Cambio lingua ───────────────────────────────────────────
+   Era ripetuto in un blocco <style> dentro navbar.php,
+   navbar-bio.php e navbar-goonland.php. */
+
+.lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 1px solid var(--cn-border);
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--cn-muted);
+    white-space: nowrap;
+    transition:
+        border-color var(--cn-hover-dur) ease,
+        color var(--cn-hover-dur) ease,
+        background-color var(--cn-hover-dur) ease;
+}
+
+.lang-switch:hover,
+.lang-switch:focus-visible {
+    border-color: var(--cn-text);
+    color: var(--cn-text);
+    background: var(--cn-hover);
+}
+
+.lang-switch__cur {
+    color: var(--cn-text);
+    font-weight: 700;
+}
+
+.lang-switch__sep {
+    color: var(--cn-faint);
+    font-weight: 400;
+}
+
+@media (max-width: 1199.98px) {
+    .lang-switch {
+        margin: 6px 0 2px 0;
+    }
+}
