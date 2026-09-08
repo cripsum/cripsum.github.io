@@ -33,7 +33,7 @@
     --cn-nsfw: #c88cff;
     --cn-nsfw-bg: rgba(200, 140, 255, 0.11);
     --cn-nsfw-border: rgba(200, 140, 255, 0.34);
-    --cn-accent: #ffd166;
+    --cn-accent: #64c8ff;
 
     --cn-radius: 16px;
     --cn-radius-sm: 10px;
@@ -66,7 +66,7 @@ html[data-cnav-theme="light"] {
     --cn-nsfw: #7031b8;
     --cn-nsfw-bg: rgba(112, 49, 184, 0.09);
     --cn-nsfw-border: rgba(112, 49, 184, 0.3);
-    --cn-accent: #9a6100;
+    --cn-accent: #0d6ea8;
 }
 
 /* ── Trigger nella barra ─────────────────────────────────── */
@@ -232,7 +232,7 @@ html[data-cnav-theme="light"] {
     inset: auto;
     margin: 0;
     padding: 0;
-    width: 264px;
+    width: 220px;
     max-width: calc(100vw - 24px);
     max-height: min(78vh, 640px);
     /* Il popover chiuso lo nasconde lo user-agent, ma con `display: flex`
@@ -610,7 +610,7 @@ html[data-cnav-theme="light"] {
 
 .cnav-stat {
     display: inline-flex;
-    align-items: baseline;
+    align-items: center;
     gap: 5px;
     font-size: 0.76rem;
     color: var(--cn-muted);
@@ -1396,13 +1396,6 @@ html[data-cnav-theme="light"] .cnav-icon-btn__badge {
 
     .cnav-trigger__caret {
         margin-left: auto;
-    }
-
-    /* Barra a sinistra sulla voce corrente: sottolineature e sfondi tenui
-       si perdono in una lista verticale. */
-    .cnav-trigger.is-current,
-    .navbarutenti .cnav-list .cnav-navlink.is-current {
-        box-shadow: inset 2px 0 0 var(--cn-accent);
     }
 
     .navbar-search-wrapper {

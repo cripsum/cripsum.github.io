@@ -448,6 +448,8 @@ if (!function_exists('nav_lang')) {
 
         try {
             $select   = [];
+            $types    = '';
+            $params   = [];
             $joinStat = false;
 
             $moneyCol = nav_pick_column($mysqli, 'utenti', ['soldi', 'punti', 'points']);
@@ -474,17 +476,38 @@ if (!function_exists('nav_lang')) {
                 }
             }
 
-            // Missione finita ma ricompensa non ritirata: e' l'unico stato
-            // che chiede davvero un'azione, e si spegne da solo al riscatto.
-            $mCols = nav_table_columns($mysqli, 'user_missions');
-            if ($mCols) {
-                $mUser  = nav_pick_column($mysqli, 'user_missions', ['user_id', 'utente_id']);
-                $mDone  = nav_pick_column($mysqli, 'user_missions', ['completata', 'completed']);
-                $mTaken = nav_pick_column($mysqli, 'user_missions', ['riscattata', 'claimed']);
-                if ($mUser !== null && $mDone !== null && $mTaken !== null) {
-                    $select[] = '(SELECT COUNT(*) FROM `user_missions` m WHERE m.`' . $mUser . '` = u.id'
-                        . ' AND m.`' . $mDone . '` = 1 AND m.`' . $mTaken . '` = 0) AS missions';
-                }
+            // Missione finita ma ricompensa non ritirata.
+            //
+            // Il periodo va filtrato: user_missions conserva anche le
+            // giornaliere e settimanali scadute, e quelle restano completate
+            // e non riscosse per sempre. La pagina missioni non le mostra
+            // (fetchUserMissionsForPeriod legge solo il periodo corrente),
+            // quindi contarle accenderebbe un pallino su cui non si puo'
+            // fare niente. I due periodi arrivano da mission_generator.php
+            // invece che ricalcolati qui: sono la stessa definizione che usa
+            // la pagina, e tenerne due allineate a mano finirebbe male.
+            $mUser  = nav_pick_column($mysqli, 'user_missions', ['user_id', 'utente_id']);
+            $mDone  = nav_pick_column($mysqli, 'user_missions', ['completata', 'completed']);
+            $mTaken = nav_pick_column($mysqli, 'user_missions', ['riscattata', 'claimed']);
+            $mType  = nav_pick_column($mysqli, 'user_missions', ['tipo']);
+            $mPer   = nav_pick_column($mysqli, 'user_missions', ['periodo']);
+
+            if (!function_exists('getMissionDailyPeriod') && file_exists(__DIR__ . '/mission_generator.php')) {
+                require_once __DIR__ . '/mission_generator.php';
+            }
+            $canPeriod = function_exists('getMissionDailyPeriod') && function_exists('getMissionWeeklyPeriod');
+
+            if ($mUser !== null && $mDone !== null && $mTaken !== null
+                && $mType !== null && $mPer !== null && $canPeriod) {
+                $select[] = '(SELECT COUNT(*) FROM `user_missions` m'
+                    . ' WHERE m.`' . $mUser . '` = u.id'
+                    . ' AND m.`' . $mDone . '` = 1'
+                    . ' AND m.`' . $mTaken . '` = 0'
+                    . ' AND ((m.`' . $mType . '` = \'daily\' AND m.`' . $mPer . '` = ?)'
+                    . ' OR (m.`' . $mType . '` = \'weekly\' AND m.`' . $mPer . '` = ?))) AS missions';
+                $types   .= 'ss';
+                $params[] = getMissionDailyPeriod();
+                $params[] = getMissionWeeklyPeriod();
             }
 
             // Richieste di amicizia ricevute e ancora in sospeso.
@@ -509,7 +532,12 @@ if (!function_exists('nav_lang')) {
             if (!$stmt) {
                 return $snap;
             }
-            $stmt->bind_param('i', $userId);
+
+            // L'utente chiude la lista: il suo segnaposto e' l'ultimo della
+            // query, dopo quelli che le sottoquery hanno aggiunto sopra.
+            $types   .= 'i';
+            $params[] = $userId;
+            $stmt->bind_param($types, ...$params);
             $stmt->execute();
             $row = $stmt->get_result()->fetch_assoc();
             $stmt->close();

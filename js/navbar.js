@@ -67,7 +67,13 @@
         left = Math.min(left, vw - w - EDGE);
         left = Math.max(EDGE, left);
 
-        var top = r.bottom + GAP;
+        // Il riferimento verticale e' il bordo basso della barra, non quello
+        // del trigger: il trigger dell'account contiene l'avatar ed e' piu'
+        // alto degli altri, quindi ancorando a lui i menu uscivano a quote
+        // diverse e quelli corti finivano sopra la barra. I due pixel sono
+        // solo per non far combaciare i due bordi in una riga sola.
+        var bar = trigger.closest ? trigger.closest('.navbarutenti') : null;
+        var top = bar ? bar.getBoundingClientRect().bottom + 2 : r.bottom + GAP;
 
         pop.style.left = left + 'px';
         pop.style.right = 'auto';
