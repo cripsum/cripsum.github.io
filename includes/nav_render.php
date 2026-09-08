@@ -448,6 +448,12 @@ if (!function_exists('nav_bootstrap')) {
         static $assetsDone = false;
         $emitAssets = !$assetsDone;
         $assetsDone = true;
+
+        // La versione la da' la data del file, non un numero da incrementare
+        // a mano: cambiare il CSS senza ricordarsi di alzare ?v= vuol dire
+        // che nessuno vede la modifica finche' non svuota la cache.
+        $cssVer = @filemtime(__DIR__ . '/../css/navbar.css') ?: 1;
+        $jsVer  = @filemtime(__DIR__ . '/../js/navbar.js') ?: 1;
         ?>
         <?php if ($emitAssets): ?>
             <script>
@@ -464,7 +470,7 @@ if (!function_exists('nav_bootstrap')) {
                     }
                 })();
             </script>
-            <link rel="stylesheet" href="/css/navbar.css?v=2">
+            <link rel="stylesheet" href="/css/navbar.css?v=<?= $cssVer ?>">
         <?php endif; ?>
 
         <nav class="navbarutenti navbar navbar-expand-xl<?= $ctx['fadein'] ? ' fadein' : '' ?>">
@@ -617,7 +623,7 @@ if (!function_exists('nav_bootstrap')) {
                     hasNews: <?= json_encode($t['has_news'], JSON_UNESCAPED_UNICODE) ?>
                 };
             </script>
-            <script src="/js/navbar.js?v=2" defer></script>
+            <script src="/js/navbar.js?v=<?= $jsVer ?>" defer></script>
         <?php endif; ?>
 
         <?php if ($ctx['richpresence'] === 1): ?>
