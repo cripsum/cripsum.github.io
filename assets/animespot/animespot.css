@@ -1240,6 +1240,24 @@ body.as-page .as-input:disabled { opacity: .5; }
 
 .as-level--on .as-level__count { color: var(--as-level); }
 
+/* La serie è di cinque sigle, una per difficoltà: queste due dicono quali
+   posti sono già chiusi e come sono andati. Restano cliccabili — tornarci
+   sopra rimette a schermo quella sigla lì, non una nuova. */
+.as-level--won .as-level__count  { color: var(--as-level); }
+.as-level--lost .as-level__count { color: var(--as-red); }
+
+.as-level--won:not(.as-level--on),
+.as-level--lost:not(.as-level--on) {
+    border-color: rgba(255, 255, 255, .13);
+    color: var(--as-dim);
+}
+
+/* Il pallino di un posto ancora da giocare è vuoto: pieno vuol dire fatto. */
+.as-level:not(.as-level--won):not(.as-level--lost):not(.as-level--on) .as-level__dot {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--as-level);
+}
+
 /* Il livello cambiato a partita in corso vale dalla prossima sigla: dirlo qui
    costa una riga e toglie la sensazione che il tasto non abbia funzionato. */
 .as-hint {

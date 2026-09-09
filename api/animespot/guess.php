@@ -15,6 +15,7 @@ require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/animespot_helpers.php';
+require_once __DIR__ . '/../../includes/stats_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -85,11 +86,38 @@ if (($input['action'] ?? 'guess') !== 'skip') {
 
 $round = animespot_apply_guess($round, $guess, $correct);
 $round = animespot_record($mysqli, $userId, $round);
-animespot_round_save($round);
 
-$payload = animespot_public_round($round, $track, $lang);
-$payload['ok']      = true;
-$payload['options'] = animespot_options();
-$payload['stats']   = animespot_stats($mysqli, $userId);
+$series = animespot_round_save($round, $current['slot']);
 
-echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+// Il Rewind racconta l'anno con questi numeri: una sigla indovinata è un fatto
+// dell'anno come un pull o una corsa alla metropolitana.
+if ($round['status'] !== 'playing') {
+    $tracked = ['animespot_rounds' => 1];
+
+    if ($round['status'] === 'won') {
+        $tracked['animespot_won']    = 1;
+        $tracked['animespot_points'] = animespot_points($round);
+        if (count($round['guesses']) === 1) $tracked['animespot_first_try'] = 1;
+    }
+
+    stats_track_many($mysqli, $userId, $tracked);
+}
+
+echo json_encode(
+    animespot_full_payload($mysqli, $userId, $lang, $round, $track, $current['slot'], $series),
+    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+);
+
+// Finita una sigla si sa già quale sarà la prossima: scaricarla adesso, a
+// risposta chiusa, vuol dire che premere "Prossima" non fa aspettare nessuno.
+if ($round['status'] !== 'playing') {
+    $next = animespot_next_slot($series, $current['slot']);
+
+    if ($next > 0) {
+        $following = animespot_track($mysqli, (int)($series['tracce'][$next] ?? 0));
+
+        if ($following !== null) {
+            if (animespot_finish_request()) animespot_cache_warm($following);
+        }
+    }
+}

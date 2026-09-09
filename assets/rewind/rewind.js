@@ -83,7 +83,7 @@
                 'global-chat': 'Chat globale', inbox: 'Inbox', amici: 'Amici',
                 lootbox: 'Lootbox', gacha: 'Shop gacha', negozio: 'Negozio',
                 inventario: 'Inventario', achievements: 'Achievement', missions: 'Missioni',
-                subway: 'Subway', pullspot: 'Pullspot', game: 'Duelli', gambling: 'Gambling', goonland: 'GoonLand',
+                subway: 'Subway', pullspot: 'Pullspot', animespot: 'Animespot', game: 'Duelli', gambling: 'Gambling', goonland: 'GoonLand',
                 shitpost: 'Shitpost', rimasti: 'Top Rimasti', cripsumpedia: 'CripsumPedia',
                 edits: 'Edits', download: 'Download', tiktokpedia: 'TikTokPedia',
                 merch: 'Merch', donazioni: 'Donazioni', impostazioni: 'Impostazioni', altro: 'Altro'
@@ -218,6 +218,17 @@
                 ? 'Il colpo migliore: presa al primo tentativo.'
                 : `Il colpo migliore: presa al ${n}° tentativo.`,
             psBestWho: who => `Era ${who}.`,
+
+            asKicker: 'Animespot',
+            asTitle: 'sigle indovinate',
+            asPlayed: 'Partite', asRate: '% vinte', asFirst: 'Al primo colpo', asPoints: 'Punti',
+            asBest: (n, lvl) => (n === 1 ? 'Il colpo migliore: presa al primo tentativo' : `Il colpo migliore: presa al ${n}° tentativo`)
+                + (lvl ? ` in ${['', 'facile', 'media', 'difficile', 'esperto', 'impossibile'][lvl] || ''}.` : '.'),
+            asBestWho: who => `Era ${who}.`,
+            quipAnimespot: (won, first) => first > 0
+                ? 'Un decimo di secondo di opening e sapevi già di che anime era.'
+                : (won >= 20 ? 'Ti bastano due note per sapere che stagione stavi guardando.'
+                    : 'Ancora qualche sigla e le riconoscerai dal primo accordo.'),
             quipPullspot: (won, first) => first > 0
                 ? 'Riconosci un personaggio da un decimo di secondo. Un po\' inquietante.'
                 : (won >= 20 ? 'Orecchio fine: le musiche di pull non hanno più segreti.'
@@ -304,7 +315,7 @@
                 'global-chat': 'Global chat', inbox: 'Inbox', amici: 'Friends',
                 lootbox: 'Lootbox', gacha: 'Gacha shop', negozio: 'Store',
                 inventario: 'Inventory', achievements: 'Achievements', missions: 'Missions',
-                subway: 'Subway', pullspot: 'Pullspot', game: 'Duels', gambling: 'Gambling', goonland: 'GoonLand',
+                subway: 'Subway', pullspot: 'Pullspot', animespot: 'Animespot', game: 'Duels', gambling: 'Gambling', goonland: 'GoonLand',
                 shitpost: 'Shitpost', rimasti: 'Top Rimasti', cripsumpedia: 'CripsumPedia',
                 edits: 'Edits', download: 'Downloads', tiktokpedia: 'TikTokPedia',
                 merch: 'Merch', donazioni: 'Donations', impostazioni: 'Settings', altro: 'Other'
@@ -439,6 +450,17 @@
                 ? 'Your best call: got it on the first try.'
                 : `Your best call: got it on try ${n}.`,
             psBestWho: who => `It was ${who}.`,
+
+            asKicker: 'Animespot',
+            asTitle: 'themes guessed',
+            asPlayed: 'Rounds', asRate: 'Win %', asFirst: 'First try', asPoints: 'Points',
+            asBest: (n, lvl) => (n === 1 ? 'Best call: got it on the first try' : `Best call: got it on guess ${n}`)
+                + (lvl ? ` on ${['', 'easy', 'medium', 'hard', 'expert', 'impossible'][lvl] || ''}.` : '.'),
+            asBestWho: who => `It was ${who}.`,
+            quipAnimespot: (won, first) => first > 0
+                ? 'A tenth of a second of an opening and you already knew the show.'
+                : (won >= 20 ? 'Two notes are enough for you to name the season.'
+                    : 'A few more themes and you will know them from the first chord.'),
             quipPullspot: (won, first) => first > 0
                 ? 'You can name a character from a tenth of a second. Slightly unsettling.'
                 : (won >= 20 ? 'Sharp ear: pull tracks have no secrets left for you.'
@@ -497,6 +519,7 @@
         games:       ['#f87171', '#5c1414'],
         subway:      ['#fb7185', '#4c0519'],
         pullspot:    ['#a78bfa', '#2e1065'],
+        animespot:   ['#34d399', '#052e1b'],
         content:     ['#fb923c', '#5c2a00'],
         top_post:    ['#f97316', '#431407'],
         economy:     ['#facc15', '#4a3a00'],
@@ -1251,6 +1274,30 @@
                 ${g.pullspot_best ? `<p class="rw-lead rw-in" style="margin-top:18px">${esc(T.psBest(g.pullspot_best))}${
                     g.pullspot_best_who ? ' ' + esc(T.psBestWho(g.pullspot_best_who)) : ''}</p>` : ''}
                 <p class="rw-quip rw-in">${esc(T.quipPullspot(g.pullspot_won || 0, g.pullspot_first || 0))}</p>`;
+        },
+
+        /*
+         * Animespot: come il Pullspot, ma il colpo migliore vale il doppio se
+         * è arrivato in una difficoltà alta — indovinare una sigla che non
+         * conosce nessuno non è la stessa cosa che indovinare l'opening di
+         * Attack on Titan.
+         */
+        animespot(d) {
+            const g = d.games || {};
+            if (!(g.animespot_played > 0)) return '';
+
+            return `
+                <p class="rw-kicker rw-in">${esc(T.asKicker)}</p>
+                <p class="rw-big rw-in" data-count="${g.animespot_won || 0}">0<small>${esc(T.asTitle)}</small></p>
+                <div class="rw-stats rw-in">
+                    ${stat(num(g.animespot_played), T.asPlayed)}
+                    ${g.animespot_rate !== null && g.animespot_rate !== undefined ? stat(g.animespot_rate + '%', T.asRate) : ''}
+                    ${g.animespot_first ? stat(num(g.animespot_first), T.asFirst) : ''}
+                    ${g.animespot_points ? stat(num(g.animespot_points), T.asPoints) : ''}
+                </div>
+                ${g.animespot_best ? `<p class="rw-lead rw-in" style="margin-top:18px">${esc(T.asBest(g.animespot_best, g.animespot_best_lvl))}${
+                    g.animespot_best_who ? ' ' + esc(T.asBestWho(g.animespot_best_who)) : ''}</p>` : ''}
+                <p class="rw-quip rw-in">${esc(T.quipAnimespot(g.animespot_won || 0, g.animespot_first || 0))}</p>`;
         },
 
         content(d) {

@@ -1320,6 +1320,37 @@ function rewind_section_games(mysqli $mysqli, int $userId, array $period): array
         [$userId, $from, $to]
     );
 
+    // Animespot: stessa forma del Pullspot, perché è lo stesso gioco con dentro
+    // le sigle degli anime. Se le colonne non ci sono ancora la query fallisce
+    // in silenzio e la sezione resta vuota, che è il comportamento voluto.
+    $animespot = rewind_row(
+        $mysqli,
+        'SELECT COALESCE(SUM(animespot_rounds), 0)    AS partite,
+                COALESCE(SUM(animespot_won), 0)       AS vinte,
+                COALESCE(SUM(animespot_first_try), 0) AS primo_colpo,
+                COALESCE(SUM(animespot_points), 0)    AS punti
+         FROM user_daily_stats
+         WHERE utente_id = ? AND `day` BETWEEN ? AND ?',
+        'iss',
+        [$userId, $period['start'], $period['end']]
+    ) ?? [];
+
+    $animespotPlayed = (int)($animespot['partite'] ?? 0);
+    $animespotWon = (int)($animespot['vinte'] ?? 0);
+
+    $animespotBest = rewind_row(
+        $mysqli,
+        "SELECT p.tentativi_usati, p.difficolta, a.nome
+         FROM animespot_partite p
+         LEFT JOIN animespot_tracce t ON t.id = p.traccia_id
+         LEFT JOIN animespot_anime a ON a.id = t.anime_id
+         WHERE p.utente_id = ? AND p.esito = 'vinto' AND p.creato_il BETWEEN ? AND ?
+         ORDER BY p.difficolta DESC, p.tentativi_usati ASC, p.id ASC
+         LIMIT 1",
+        'iss',
+        [$userId, $from, $to]
+    );
+
     return [
         'duels_played'      => $played,
         'duels_won'         => $wins,
@@ -1335,7 +1366,15 @@ function rewind_section_games(mysqli $mysqli, int $userId, array $period): array
         'pullspot_rate'     => $pullspotPlayed > 0 ? (int)round($pullspotWon / $pullspotPlayed * 100) : null,
         'pullspot_best'     => $pullspotBest ? (int)$pullspotBest['tentativi_usati'] : null,
         'pullspot_best_who' => $pullspotBest['nome'] ?? null,
-        'has_data'          => $played > 0 || $subway !== null || $pullspotPlayed > 0,
+        'animespot_played'  => $animespotPlayed,
+        'animespot_won'     => $animespotWon,
+        'animespot_first'   => (int)($animespot['primo_colpo'] ?? 0),
+        'animespot_points'  => (int)($animespot['punti'] ?? 0),
+        'animespot_rate'    => $animespotPlayed > 0 ? (int)round($animespotWon / $animespotPlayed * 100) : null,
+        'animespot_best'    => $animespotBest ? (int)$animespotBest['tentativi_usati'] : null,
+        'animespot_best_who' => $animespotBest['nome'] ?? null,
+        'animespot_best_lvl' => $animespotBest ? (int)$animespotBest['difficolta'] : null,
+        'has_data'          => $played > 0 || $subway !== null || $pullspotPlayed > 0 || $animespotPlayed > 0,
     ];
 }
 
@@ -1835,6 +1874,7 @@ function rewind_slide_plan(array &$payload): array
     // Subway ha una schermata sua: il record e un tempo, non un conteggio.
     if (!empty($payload['games']['subway_best_ms']))     $slides[] = 'subway';
     if (($payload['games']['pullspot_played'] ?? 0) > 0) $slides[] = 'pullspot';
+    if (($payload['games']['animespot_played'] ?? 0) > 0) $slides[] = 'animespot';
     if (!empty($payload['content']['has_data']))       $slides[] = 'content';
 
     // Il post migliore merita la sua schermata solo se qualcuno lo ha

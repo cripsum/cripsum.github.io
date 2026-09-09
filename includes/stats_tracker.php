@@ -85,6 +85,10 @@ const STATS_METRICS = [
     'pullspot_rounds'        => 'pullspot_rounds',
     'pullspot_won'           => 'pullspot_won',
     'pullspot_first_try'     => 'pullspot_first_try',
+    'animespot_rounds'       => 'animespot_rounds',
+    'animespot_won'          => 'animespot_won',
+    'animespot_first_try'    => 'animespot_first_try',
+    'animespot_points'       => 'animespot_points',
 ];
 
 /** Metriche che vanno tenute al massimo raggiunto invece che sommate. */
@@ -116,6 +120,7 @@ const STATS_PAGE_KEYS = [
     'missions',
     'subway',
     'pullspot',
+    'animespot',
     'game',
     'gambling',
     'goonland',
@@ -608,6 +613,7 @@ function stats_page_key_from_path(string $path): string
         'inventario'   => 'inventario',
         'achievements' => 'achievements',
         'pullspot'     => 'pullspot',
+        'animespot'    => 'animespot',
         'missions'     => 'missions',
         'subway'       => 'subway',
         'game'         => 'game',

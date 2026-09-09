@@ -46,6 +46,7 @@ if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
     exit;
 }
 
+$userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
 // Si cambia una voce alla volta: quello che non arriva resta com'era. Un
@@ -62,11 +63,31 @@ $options = animespot_clean_options([
 
 animespot_options_save($options);
 
-echo json_encode([
-    'ok'      => true,
-    'options' => $options,
-    'pool'    => animespot_counts($mysqli, $options['era']),
-    'eras'    => animespot_era_counts($mysqli),
-    'name'    => animespot_level_name($options['difficolta'], $lang),
-    'era_name' => animespot_era_name($options['era'], $lang),
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+// Cambiare frammenti o punto di partenza riguarda le sigle che non si sono
+// ancora cominciate: quelle si buttano e rinascono con le regole nuove. Una
+// partita già aperta si tiene la scala con cui è nata, o cambierebbero le
+// regole a metà.
+$rifai = $options['passi'] !== $current['passi'] || $options['avvio'] !== $current['avvio'];
+
+if ($rifai) {
+    $series = animespot_series();
+
+    foreach ($series['rounds'] as $slot => $round) {
+        if ($round['status'] === 'playing' && !$round['guesses']) unset($series['rounds'][$slot]);
+    }
+
+    animespot_series_save($series);
+}
+
+$state = animespot_bootstrap($mysqli);
+
+if ($state === null) {
+    http_response_code(503);
+    echo json_encode(['error' => animespot_msg('no_catalog', $lang), 'code' => 'NO_CATALOG']);
+    exit;
+}
+
+echo json_encode(
+    animespot_full_payload($mysqli, $userId, $lang, $state['round'], $state['track'], $state['slot'], $state['series']),
+    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+);

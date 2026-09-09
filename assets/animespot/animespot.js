@@ -221,8 +221,6 @@
     let starting = false;
     let autoplayReveal = false;
     let celebrate = false;
-    let resumeAt = 0;
-    let listenedUpTo = 0;
     let suspenseTimer = 0;
     let handoffToken = 0;
     let handoffsInFlight = 0;
@@ -310,8 +308,8 @@
         return payload;
     }
 
-    function loadState(fresh) {
-        return request('/api/animespot/state.php?lang=' + LANG + (fresh ? '&new=1' : ''));
+    function loadState(query) {
+        return request('/api/animespot/state.php?lang=' + LANG + (query ? '&' + query : ''));
     }
 
     function post(url, body) {
@@ -612,14 +610,25 @@
         }
     }
 
-    /** Pausa: la testina resta dove sta, così ripartendo si continua da lì. */
+    /**
+     * Pausa: la testina torna all'inizio.
+     *
+     * Il frammento più corto dura un decimo di secondo. Riprendere da dove si
+     * era interrotto vorrebbe dire ripartire da dentro quel decimo, cioè da
+     * quasi la fine: schiacciare pausa e poi play deve rifar sentire il pezzo,
+     * non finirlo.
+     */
     function pausePlayback() {
-        const at = audio.currentTime;
         audio.pause();
         cancelAnimationFrame(rafId);
         rafId = 0;
+
+        try {
+            audio.currentTime = 0;
+        } catch (error) { /* prima dei metadati non si può, ed è già a zero */ }
+
         setPlayIcon(false);
-        paint(at);
+        paint(0);
     }
 
     /** Stop vero: il frammento è finito, la prossima volta si riparte da capo. */
@@ -637,8 +646,6 @@
 
     function tick() {
         const limit = limitSeconds();
-        listenedUpTo = Math.max(listenedUpTo, audio.currentTime);
-
         // Il server manda già il pezzo tagliato: questo è il freno di scorta
         // per i formati che non sappiamo tagliare.
         if (limit > 0 && audio.currentTime >= limit) {
@@ -679,25 +686,15 @@
     }
 
     /**
-     * Da dove riparte l'ascolto.
+     * Da dove riparte l'ascolto: sempre da capo.
      *
-     * Dopo uno skip si riprende dal punto in cui il frammento precedente si
-     * era fermato: quello che interessa e il pezzo nuovo, non risentire da
-     * capo. Consumata la ripresa, il tasto rifa tutto il frammento.
+     * Il frammento è già corto e ogni errore lo allunga dall'inizio, quindi
+     * "riprendere" non vuol dire niente: quello che serve è risentirlo tutto.
+     * L'unica continuità che conta è quella del passaggio di testimone, che
+     * avviene mentre la musica suona e non passa di qui.
      */
     function resumePoint() {
-        listenedUpTo = Math.max(listenedUpTo, audio.currentTime);
-
-        if (resumeAt > 0) {
-            const from = resumeAt;
-            resumeAt = 0;
-            return from;
-        }
-
-        const limit = limitSeconds();
-        const at = audio.currentTime;
-
-        return (at > 0 && limit > 0 && at < limit - .05) ? at : 0;
+        return 0;
     }
 
     async function play(silent) {
@@ -1065,23 +1062,34 @@
     }
 
     /** La scala delle difficoltà, con quante sigle ha dietro ogni gradino. */
+    /**
+     * La scala delle difficoltà, che qui è anche la mappa della serie.
+     *
+     * Ogni riga è uno dei cinque posti: quella in corso è accesa, quelle già
+     * chiuse portano il segno di com'è andata, e cliccandole ci si torna
+     * sopra — la sigla è ancora quella, con i tentativi che si erano fatti.
+     */
     function renderLevels() {
         if (!el.levels || !state) return;
 
-        const current = (state.options && state.options.difficolta) || 1;
+        const slots = state.slots || [];
         const pool = state.pool || {};
 
         el.levels.innerHTML = '';
 
         LEVELS.forEach((name, index) => {
             const level = index + 1;
-            const count = pool[level] || pool[String(level)] || 0;
+            const info = slots[index] || { status: 'nuova', points: 0, attempt: 0 };
+            const on = level === (state.slot || 1);
 
             const row = document.createElement('button');
             row.type = 'button';
-            row.className = 'as-level' + (level === current ? ' as-level--on' : '');
+            row.className = 'as-level'
+                + (on ? ' as-level--on' : '')
+                + (info.status === 'won' ? ' as-level--won' : '')
+                + (info.status === 'lost' ? ' as-level--lost' : '');
             row.style.setProperty('--as-level', levelTint(level));
-            row.setAttribute('aria-pressed', level === current ? 'true' : 'false');
+            row.setAttribute('aria-pressed', on ? 'true' : 'false');
 
             const dot = document.createElement('span');
             dot.className = 'as-level__dot';
@@ -1092,33 +1100,38 @@
             text(label, name);
             row.appendChild(label);
 
-            const tally = document.createElement('span');
-            tally.className = 'as-level__count';
-            text(tally, count);
-            row.appendChild(tally);
+            const mark = document.createElement('span');
+            mark.className = 'as-level__count';
 
-            // Un livello senza sigle non è una scelta: succede solo se il
-            // catalogo è stato importato a metà, e cliccarlo darebbe un errore.
-            if (count <= 0) row.disabled = true;
-            else row.addEventListener('click', () => pickLevel(level));
+            if (info.status === 'won') {
+                mark.appendChild(icon('check'));
+                if (info.points) mark.appendChild(document.createTextNode(' ' + info.points));
+            } else if (info.status === 'lost') {
+                mark.appendChild(icon('xmark'));
+            } else if (info.status === 'playing' && info.attempt > 0) {
+                text(mark, info.attempt + '/' + (state.max_attempts || 5));
+            } else {
+                text(mark, pool[level] || pool[String(level)] || 0);
+            }
 
+            row.appendChild(mark);
+            row.addEventListener('click', () => pickLevel(level));
             el.levels.appendChild(row);
         });
     }
 
     /**
-     * Cambia difficoltà.
+     * Sposta il gioco su un'altra difficoltà della serie.
      *
-     * Il server la applica dalla sigla successiva, quindi a partita in corso
-     * qui cambia solo il colore e la scritta: senza dirlo, il tasto sembrerebbe
-     * non aver fatto niente.
+     * Non è più "vale dalla prossima": il posto c'è già, con la sua sigla, e
+     * ci si va sopra subito. Se quella difficoltà l'hai già finita ritrovi la
+     * schermata della risposta, non una sigla nuova.
      */
     async function pickLevel(level) {
-        if (!state || level === ((state.options && state.options.difficolta) || 1)) return;
-        sendOption({ difficulty: level }, true);
+        if (!state || level === (state.slot || 1)) return;
+        sendOption({ difficulty: level });
     }
 
-    /** Accende o spegne un frammento. Vale dalla sigla successiva, come il livello. */
     async function toggleStep(index) {
         if (!state) return;
 
@@ -1128,7 +1141,7 @@
         if (at === -1) chosen.push(index);
         else chosen.splice(at, 1);
 
-        sendOption({ steps: chosen }, true);
+        sendOption({ steps: chosen });
     }
 
     /**
@@ -1199,12 +1212,12 @@
         renderSwitch(el.playback, [
             ['inizio', STRINGS.fromStart, STRINGS.fromStartHint],
             ['anteprima', STRINGS.fromPreview, STRINGS.fromPreviewHint],
-        ], state.options.avvio, (value) => sendOption({ start: value }, true));
+        ], state.options.avvio, (value) => sendOption({ start: value }));
 
         renderSwitch(el.search, [
             ['facile', STRINGS.searchEasy, STRINGS.searchEasyHint],
             ['stretta', STRINGS.searchStrict, STRINGS.searchStrictHint],
-        ], state.options.ricerca, (value) => sendOption({ search: value }, false));
+        ], state.options.ricerca, (value) => sendOption({ search: value }));
     }
 
     /**
@@ -1215,35 +1228,44 @@
      * traccia sarebbe un modo per scappare da una sigla difficile), la
      * generosità della ricerca no — quella si può cambiare mentre si scrive.
      */
-    async function sendOption(body, restart) {
+    async function sendOption(body) {
         if (busy || !state) return;
+
+        const wasSearch = state.options && state.options.ricerca;
+        const wasTrack = state.answer || null;
 
         try {
             const payload = await sendOptions(body);
-            state.options = payload.options;
-            state.pool = payload.pool || state.pool;
-            state.eras = payload.eras || state.eras;
+            const changed = payload.slot !== state.slot || payload.attempt !== state.attempt;
 
-            renderLevels();
-            renderEras();
-            renderChips();
-            renderToggles();
+            state = payload;
 
-            if (!restart) {
-                // La ricerca cambia subito: quello che è già scritto nel campo
-                // va ricercato con le regole nuove, o l'elenco resta quello di
-                // prima e sembra che l'interruttore non serva a niente.
+            // Cambiando posto la sigla è un'altra: quello che stava suonando
+            // non c'entra più niente e va fermato prima di ridisegnare.
+            if (changed || wasTrack !== (payload.answer || null)) {
+                stopPlayback();
+                dropClip();
+                selected = null;
+                if (el.input) el.input.value = '';
+                closeList();
+            }
+
+            render();
+
+            // Frammenti e punto di partenza non toccano una sigla già
+            // cominciata: si applicano alla prossima, e conviene dirlo o il
+            // pulsante sembra non aver fatto niente.
+            if ((body.steps || body.start) && state.status === 'playing' && state.attempt > 0) {
+                toast(STRINGS.levelHint);
+            }
+
+            // La ricerca cambia subito: quello che è già scritto nel campo va
+            // ricercato con le regole nuove, o l'elenco resta quello di prima
+            // e sembra che l'interruttore non serva a niente.
+            if (state.options.ricerca !== wasSearch) {
                 searchedFor = null;
                 if (el.input && el.input.value && state.status === 'playing') openList(el.input.value);
-                return;
             }
-
-            if (state.status !== 'playing') {
-                start(true);
-                return;
-            }
-
-            toast(STRINGS.levelHint);
         } catch (error) {
             toast(error.message || STRINGS.loadError);
         }
@@ -1251,7 +1273,7 @@
 
     function pickEra(era) {
         if (!state || era === ((state.options && state.options.era) || 0)) return;
-        sendOption({ era: era }, true);
+        sendOption({ era: era });
     }
 
 
@@ -1480,7 +1502,7 @@
         const actions = document.createElement('div');
         actions.className = 'as-reveal__actions';
         actions.appendChild(button('as-btn', 'share-nodes', STRINGS.share, share));
-        actions.appendChild(button('as-btn as-btn--go', 'forward', STRINGS.newTrack, () => start(true)));
+        actions.appendChild(button('as-btn as-btn--go', 'forward', STRINGS.newTrack, () => start('next=1')));
         card.appendChild(actions);
 
         // Il video della sigla è la cosa che si vuole vedere davvero, ma pesa
@@ -1791,18 +1813,25 @@
         // cambio lo sta già gestendo handoff() e qui non si tocca niente.
         if (!audio.paused) return;
 
+        // A partita finita la traccia è quella intera, un mega e mezzo preso
+        // da AnimeThemes: scaricarla senza che nessuno l'abbia chiesta faceva
+        // sembrare lentissimo arrendersi. Ora parte solo se c'è da festeggiare,
+        // altrimenti aspetta che si prema sulla copertina.
+        if (state.full && !autoplayReveal) {
+            paint(0);
+            return;
+        }
+
         ensureClip().then(() => {
             paint(0);
 
-            // La musica del personaggio parte mentre la luce si stringe: è
-            // lei a reggere l'attesa. Se il browser la blocca resta il
-            // pulsante sulla figura.
+            // La sigla parte mentre la luce si stringe: è lei a reggere
+            // l'attesa. Se il browser la blocca resta il pulsante sulla
+            // copertina.
             if (state && state.full && autoplayReveal) {
                 autoplayReveal = false;
                 play(true);
-                return;
             }
-
         }).catch(() => {});
     }
 
@@ -1827,7 +1856,14 @@
         return new Promise((resolve) => setTimeout(resolve, reducedMotion ? 0 : ms));
     }
 
-    async function start(fresh) {
+    /**
+     * Carica una sigla e rifà la scena.
+     *
+     * `query` dice al server che cosa vogliamo: niente per riprendere quella
+     * dove si era, `new=1` per ripescare questo posto, `next=1` per passare al
+     * posto successivo della serie.
+     */
+    async function start(query) {
         if (busy) return;
         busy = true;
 
@@ -1852,14 +1888,12 @@
         closeList();
         clearTimeout(suspenseTimer);
         document.body.classList.remove('as-is-suspense');
-        resumeAt = 0;
-        listenedUpTo = 0;
         selected = null;
         document.body.classList.remove('as-is-reveal');
         if (el.input) el.input.value = '';
 
         try {
-            const payload = await loadState(fresh);
+            const payload = await loadState(query);
             state = payload;
             if (el.boot) el.boot.hidden = true;
             if (el.game) el.game.hidden = false;
@@ -1890,25 +1924,21 @@
             // Fotografia dell'ascolto prima che lo stato cambi: dove era la
             // testina, se stava suonando, e fin dove era arrivato lo sblocco.
             const wasPlaying = !audio.paused;
-            listenedUpTo = Math.max(listenedUpTo, audio.currentTime);
 
             state = Object.assign({}, state, payload);
             autoplayReveal = state.status === 'won';
             celebrate = state.status === 'won';
 
             if (state.status !== 'playing') {
-                resumeAt = 0;
                 stopPlayback();
                 dropClip();
             } else if (wasPlaying) {
                 // Stava suonando: il pezzo più lungo si prepara di lato e
                 // subentra al confine, senza far tacere niente.
-                resumeAt = 0;
                 handoff().catch(() => {});
             } else {
-                // Era ferma: al prossimo play riparte da dove l'ascolto era
-                // arrivato davvero. Se non è mai partita, riparte dall'inizio.
-                resumeAt = listenedUpTo;
+                // Era ferma: il frammento nuovo si prende quando si ripreme
+                // play, e riparte da capo come tutti.
                 stopPlayback();
                 dropClip();
             }
@@ -2015,7 +2045,7 @@
     }
 
     root.querySelectorAll('[data-as-new]').forEach((node) => {
-        node.addEventListener('click', () => start(true));
+        node.addEventListener('click', () => start('new=1'));
     });
 
     document.querySelectorAll('[data-as-open-stats]').forEach((node) => {
@@ -2053,5 +2083,5 @@
 
     window.addEventListener('pagehide', dropClip);
 
-    start(false);
+    start('');
 })();

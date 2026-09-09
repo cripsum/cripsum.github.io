@@ -18,8 +18,9 @@
  * 1. il client non deve mai poter sapere la risposta prima della fine. Il nome
  *    del file audio è il titolo dell'anime, quindi l'audio passa da un proxy
  *    (api/animespot/audio.php) che serve solo i secondi già sbloccati;
- * 2. il catalogo non si scrive a mano: lo costruisce
- *    `scripts/animespot_import.php` da AnimeThemes e Kitsu;
+ * 2. il catalogo non si scrive a mano: lo ha costruito da AnimeThemes e Kitsu
+ *    lo script d'importazione, che non sta più nel repository perché serviva
+ *    una volta sola — si ripesca dal commit f885176 se un giorno va rifatto;
  * 3. le tabelle possono non esistere ancora (le migration di questo progetto si
  *    applicano a mano). Senza catalogo il gioco lo dice, senza storico si gioca
  *    lo stesso e si perdono solo le statistiche;
@@ -301,8 +302,9 @@ function animespot_pick(mysqli $mysqli, int $level, int $era = 0, array $avoid =
 /* ── Ricerca ────────────────────────────────────────────────────────────── */
 
 /**
- * La forma su cui si confrontano i titoli. Deve restare identica a quella di
- * scripts/animespot_import.php: è la stessa chiave, scritta da due parti.
+ * La forma su cui si confrontano i titoli. È la stessa che ha usato lo script
+ * d'importazione per riempire la colonna `norm`: cambiarla qui senza rifare il
+ * catalogo vuol dire smettere di trovare quello che c'è.
  */
 function animespot_normalize(string $text): string
 {
@@ -614,20 +616,6 @@ function animespot_normalize_round(mixed $raw): ?array
     ];
 }
 
-function animespot_round_load(): ?array
-{
-    return animespot_normalize_round($_SESSION['animespot']['round'] ?? null);
-}
-
-function animespot_round_save(array $round): void
-{
-    if (!isset($_SESSION['animespot']) || !is_array($_SESSION['animespot'])) {
-        $_SESSION['animespot'] = [];
-    }
-
-    $_SESSION['animespot']['round'] = $round;
-}
-
 /** Le ultime sigle uscite, per non riproporle subito. */
 function animespot_recent(): array
 {
@@ -649,50 +637,225 @@ function animespot_remember(int $trackId, int $poolSize): void
     $_SESSION['animespot']['recenti'] = array_slice($recent, -$keep);
 }
 
-/**
- * Prepara la partita in corso, creandone una nuova se non ce n'è, se è stata
- * chiesta esplicitamente o se la difficoltà è cambiata.
+/* ── La serie ───────────────────────────────────────────────────────────── */
+
+/*
+ * Non si gioca una sigla per volta: se ne gioca una per difficoltà.
  *
- * Restituisce null solo se a quella difficoltà non c'è nessuna sigla, cioè se
- * il catalogo non è stato importato.
+ * All'apertura si pescano cinque sigle, una facile, una media, una difficile,
+ * una da esperto e una impossibile. Si comincia dalla facile e finita quella
+ * si passa alla successiva, fino all'impossibile; poi se ne pescano altre
+ * cinque e si ricomincia. È il giro dell'originale, senza calendario.
+ *
+ * I cinque posti si possono anche visitare a mano, e questa è la ragione per
+ * cui la serie sta in sessione tutta insieme invece che una partita alla
+ * volta: tornando su una difficoltà già giocata si deve ritrovare quella
+ * sigla lì, con i tentativi che si erano fatti, non una nuova.
  */
-function animespot_bootstrap(mysqli $mysqli, bool $restart = false): ?array
+
+/** La serie in corso, ripulita da quello che non torna. */
+function animespot_series(): array
+{
+    $raw = $_SESSION['animespot']['serie'] ?? [];
+    if (!is_array($raw)) $raw = [];
+
+    $tracks = [];
+    foreach (ANIMESPOT_LEVELS as $slot) {
+        $id = (int)(($raw['tracce'][$slot] ?? 0));
+        if ($id > 0) $tracks[$slot] = $id;
+    }
+
+    $rounds = [];
+    foreach (ANIMESPOT_LEVELS as $slot) {
+        $round = animespot_normalize_round($raw['rounds'][$slot] ?? null);
+        if ($round !== null) $rounds[$slot] = $round;
+    }
+
+    return [
+        'era'    => (int)($raw['era'] ?? 0),
+        'tracce' => $tracks,
+        'rounds' => $rounds,
+    ];
+}
+
+function animespot_series_save(array $series): void
+{
+    if (!isset($_SESSION['animespot']) || !is_array($_SESSION['animespot'])) {
+        $_SESSION['animespot'] = [];
+    }
+
+    $_SESSION['animespot']['serie'] = $series;
+}
+
+/**
+ * Pesca cinque sigle nuove, una per difficoltà.
+ *
+ * Se a una difficoltà l'epoca scelta non lascia niente si allarga l'epoca solo
+ * per quel posto: meglio una serie con dentro un classico fuori decennio che
+ * una serie di quattro.
+ */
+function animespot_series_draw(mysqli $mysqli, int $era): array
+{
+    $tracks = [];
+    $avoid  = animespot_recent();
+
+    foreach (ANIMESPOT_LEVELS as $slot) {
+        $track = animespot_pick($mysqli, $slot, $era, $avoid);
+        if ($track === null && $era !== 0) $track = animespot_pick($mysqli, $slot, 0, $avoid);
+        if ($track === null) continue;
+
+        $tracks[$slot] = (int)$track['id'];
+        $avoid[] = (int)$track['id'];
+        animespot_remember((int)$track['id'], max(1, array_sum(animespot_counts($mysqli, $era))));
+    }
+
+    return $tracks;
+}
+
+/** Il posto in cui si sta giocando: è la difficoltà scelta. */
+function animespot_slot(): int
+{
+    $slot = animespot_options()['difficolta'];
+
+    return in_array($slot, ANIMESPOT_LEVELS, true) ? $slot : 1;
+}
+
+function animespot_slot_save(int $slot): void
+{
+    $options = animespot_options();
+    $options['difficolta'] = in_array($slot, ANIMESPOT_LEVELS, true) ? $slot : 1;
+    animespot_options_save($options);
+}
+
+/**
+ * Il prossimo posto da giocare dopo quello corrente.
+ *
+ * Si va avanti in ordine di difficoltà e si girano tutti e cinque i posti:
+ * chi salta alla difficile e la finisce torna indietro a prendersi la facile
+ * che aveva lasciato, invece di trovarsi la serie finita a metà. Quando non
+ * resta niente da giocare si restituisce zero, che vuol dire "serie finita".
+ */
+function animespot_next_slot(array $series, int $from): int
+{
+    foreach (ANIMESPOT_LEVELS as $step) {
+        $slot  = (($from - 1 + $step) % count(ANIMESPOT_LEVELS)) + 1;
+        $round = $series['rounds'][$slot] ?? null;
+
+        if ($round === null || $round['status'] === 'playing') return $slot;
+    }
+
+    return 0;
+}
+
+/**
+ * Prepara la serie e la partita del posto in cui si sta.
+ *
+ * `$restart` ripesca la sigla di questo posto soltanto: è il tasto "nuova
+ * sigla", che serve a chi non ha voglia di quella che gli è capitata.
+ * `$advance` dice che si sta chiedendo di andare avanti, ed è l'unico caso in
+ * cui una serie finita viene sostituita.
+ *
+ * Restituisce null solo se il catalogo non è stato importato.
+ */
+function animespot_bootstrap(mysqli $mysqli, bool $restart = false, bool $advance = false): ?array
 {
     if (!animespot_catalog_ready($mysqli)) return null;
 
     $options = animespot_options();
-    $round   = $restart ? null : animespot_round_load();
-    $track   = $round !== null ? animespot_track($mysqli, $round['traccia']) : null;
+    $series  = animespot_series();
+    $slot    = animespot_slot();
 
-    // Una sigla sparita dal catalogo lascia una partita che non si può più
-    // vincere: quella si butta.
-    //
-    // Una difficoltà cambiata a metà partita invece no. Vale dalla sigla
-    // successiva, come nell'originale, e per due motivi: cambiarla subito
-    // sarebbe un modo per scappare da una sigla difficile senza contarsi la
-    // sconfitta, e soprattutto questa funzione la chiama anche il proxy
-    // dell'audio — la partita sparirebbe sotto le mani di chi sta ascoltando.
-    if ($round !== null && $track === null) $round = null;
-
-    if ($round === null) {
-        $track = animespot_pick($mysqli, $options['difficolta'], $options['era'], animespot_recent());
-
-        // Epoca e difficoltà insieme possono non lasciare niente: piuttosto che
-        // una pagina vuota si allarga l'epoca, che è la scelta meno impegnativa
-        // delle due — chi ha chiesto "difficile" vuole difficile.
-        if ($track === null && $options['era'] !== 0) {
-            $track = animespot_pick($mysqli, $options['difficolta'], 0, animespot_recent());
-        }
-        if ($track === null) return null;
-
-        $counts = animespot_counts($mysqli, $options['era']);
-        $round  = animespot_new_round($track, $options['passi'], animespot_start_at($options));
-
-        animespot_remember((int)$track['id'], $counts[$options['difficolta']] ?? 1);
-        animespot_round_save($round);
+    // Cambiare epoca cambia il mazzo: la serie vecchia non è più di questo
+    // mazzo e va rifatta tutta, o si finirebbe a giocare gli anni Dieci
+    // avendo chiesto i classici.
+    if ($series['era'] !== $options['era'] || !$series['tracce']) {
+        $series = ['era' => $options['era'], 'tracce' => animespot_series_draw($mysqli, $options['era']), 'rounds' => []];
+        $slot   = 1;
+        animespot_slot_save($slot);
     }
 
-    return ['round' => $round, 'track' => $track];
+    // Una serie tutta finita lascia il posto alla successiva, ma solo quando lo
+    // si chiede. Rigenerarla da sola vorrebbe dire che ricaricare la pagina
+    // sull'ultima risposta la fa sparire prima di averla letta.
+    if ($advance && animespot_next_slot($series, $slot) === 0 && $series['tracce']) {
+        $series = ['era' => $options['era'], 'tracce' => animespot_series_draw($mysqli, $options['era']), 'rounds' => []];
+        $slot   = 1;
+        animespot_slot_save($slot);
+    }
+
+    if ($restart) {
+        unset($series['rounds'][$slot]);
+
+        $track = animespot_pick($mysqli, $slot, $options['era'], array_merge(animespot_recent(), array_values($series['tracce'])));
+        if ($track === null) $track = animespot_pick($mysqli, $slot, 0, animespot_recent());
+        if ($track !== null) {
+            $series['tracce'][$slot] = (int)$track['id'];
+            animespot_remember((int)$track['id'], max(1, array_sum(animespot_counts($mysqli, $options['era']))));
+        }
+    }
+
+    $trackId = (int)($series['tracce'][$slot] ?? 0);
+    $track   = animespot_track($mysqli, $trackId);
+
+    // Sigla sparita dal catalogo (succede dopo un reimport): se ne pesca
+    // un'altra invece di lasciare una partita che non si può vincere.
+    if ($track === null) {
+        $track = animespot_pick($mysqli, $slot, $options['era'], animespot_recent());
+        if ($track === null) $track = animespot_pick($mysqli, $slot, 0, animespot_recent());
+        if ($track === null) return null;
+
+        $series['tracce'][$slot] = (int)$track['id'];
+        unset($series['rounds'][$slot]);
+    }
+
+    // La partita nasce quando ci si arriva, non quando si pesca la serie: così
+    // prende i frammenti e il tipo di ascolto scelti in quel momento.
+    if (!isset($series['rounds'][$slot])) {
+        $series['rounds'][$slot] = animespot_new_round($track, $options['passi'], animespot_start_at($options));
+    }
+
+    animespot_series_save($series);
+
+    return [
+        'round'  => $series['rounds'][$slot],
+        'track'  => $track,
+        'slot'   => $slot,
+        'series' => $series,
+    ];
+}
+
+/** Scrive la partita di un posto e restituisce la serie aggiornata. */
+function animespot_round_save(array $round, int $slot): array
+{
+    $series = animespot_series();
+    $series['rounds'][$slot] = $round;
+    animespot_series_save($series);
+
+    return $series;
+}
+
+/**
+ * Com'è messa la serie, posto per posto: è quello che colora la scala delle
+ * difficoltà e dice quale si sta giocando.
+ */
+function animespot_series_state(array $series, int $slot, string $lang = 'it'): array
+{
+    $slots = [];
+
+    foreach (ANIMESPOT_LEVELS as $level) {
+        $round = $series['rounds'][$level] ?? null;
+
+        $slots[] = [
+            'slot'    => $level,
+            'name'    => animespot_level_name($level, $lang),
+            'status'  => $round === null ? 'nuova' : $round['status'],
+            'attempt' => $round === null ? 0 : count($round['guesses']),
+            'points'  => $round === null ? 0 : animespot_points($round),
+            'current' => $level === $slot,
+        ];
+    }
+
+    return $slots;
 }
 
 function animespot_already_guessed(array $round, int $animeId): bool
@@ -944,6 +1107,39 @@ function animespot_public_round(array $round, array $track, string $lang = 'it')
     ];
 }
 
+/**
+ * Tutto quello che serve alla pagina in una risposta sola.
+ *
+ * Le tre chiamate che cambiano qualcosa — stato, tentativo, opzioni —
+ * rispondono con la stessa identica forma. Il client non deve mai mettere
+ * insieme due risposte diverse per sapere dov'è: è la fine di una categoria di
+ * disallineamenti fra quello che si vede e quello che il server ha in mente.
+ */
+function animespot_full_payload(
+    mysqli $mysqli,
+    int $userId,
+    string $lang,
+    array $round,
+    array $track,
+    int $slot,
+    array $series
+): array {
+    $options = animespot_options();
+
+    $payload = animespot_public_round($round, $track, $lang);
+
+    $payload['ok']        = true;
+    $payload['slot']      = $slot;
+    $payload['slots']     = animespot_series_state($series, $slot, $lang);
+    $payload['next_slot'] = animespot_next_slot($series, $slot);
+    $payload['options']   = $options;
+    $payload['pool']      = animespot_counts($mysqli, $options['era']);
+    $payload['eras']      = animespot_era_counts($mysqli);
+    $payload['stats']     = animespot_stats($mysqli, $userId);
+
+    return $payload;
+}
+
 /* ── L'audio ────────────────────────────────────────────────────────────── */
 
 /** Il nome del file è quello del catalogo: niente barre, niente risalite. */
@@ -1129,7 +1325,12 @@ function animespot_ogg_page(string $bytes, int $offset): ?array
     // uno) vuol dire "in questa pagina non finisce nessun pacchetto".
     $granule = unpack('P', substr($bytes, $offset + 6, 8))[1] ?? 0;
 
-    return ['length' => $length, 'flags' => ord($bytes[$offset + 5]), 'granule' => $granule];
+    return [
+        'length'   => $length,
+        'segments' => $segments,
+        'flags'    => ord($bytes[$offset + 5]),
+        'granule'  => $granule,
+    ];
 }
 
 /** Riscrive i campi di una pagina Ogg e le rifà il CRC. */
@@ -1143,7 +1344,111 @@ function animespot_ogg_rewrite(string $page, ?int $granule, ?int $sequence, bool
 }
 
 /**
- * Un pezzo di Ogg Opus lungo `$seconds`, che comincia al secondo `$from`.
+ * I pacchetti che finiscono in una pagina, con quanto pesano.
+ *
+ * La tabella dei segmenti dice quanto è lungo ogni pezzo: un pacchetto continua
+ * finché i segmenti valgono 255 e finisce al primo che vale meno. La durata di
+ * ciascuno si ricava dividendo il tempo coperto dalla pagina per quanti
+ * pacchetti ci sono finiti dentro — in un file prodotto da un encoder solo
+ * durano tutti uguale, e questo basta per capire dov'è il silenzio.
+ */
+function animespot_ogg_packets(string $bytes, int $offset, int $segments): array
+{
+    $sizes = [];
+    $size  = 0;
+
+    for ($i = 0; $i < $segments; $i++) {
+        $value = ord($bytes[$offset + 27 + $i]);
+        $size += $value;
+
+        if ($value < 255) {
+            $sizes[] = $size;
+            $size = 0;
+        }
+    }
+
+    return $sizes;
+}
+
+/**
+ * Da che campione comincia davvero la musica.
+ *
+ * Parecchie sigle hanno uno o due secondi di silenzio digitale prima
+ * dell'attacco: a chi gioca arriva un frammento da un decimo di secondo in cui
+ * non si sente niente, e non è una difficoltà, è un difetto.
+ *
+ * Il silenzio si riconosce da quanto pesa. Opus è a bitrate variabile e il
+ * silenzio non costa quasi niente: dove la musica viaggia a quaranta kilobyte
+ * al secondo, il silenzio ne occupa uno. Non serve decodificare niente, basta
+ * guardare quanti byte occupa ogni pacchetto — quaranta volte meno non è una
+ * sfumatura, è un altro contenuto.
+ *
+ * Si taglia al massimo sei secondi: oltre non è più un attacco muto, è un
+ * pezzo che comincia piano, e quello va lasciato com'è.
+ */
+function animespot_ogg_audio_start(string $bytes, int $preSkip): int
+{
+    $limit  = $preSkip + 12 * 48000;
+    $offset = 0;
+    $prev   = 0;
+    $packets = [];
+
+    while (($page = animespot_ogg_page($bytes, $offset)) !== null) {
+        $granule = $page['granule'];
+        $offset += $page['length'];
+
+        if ($granule <= 0) continue;
+        if ($granule <= $prev) { $prev = $granule; continue; }
+
+        $sizes = animespot_ogg_packets($bytes, $offset - $page['length'], $page['segments']);
+        $count = count($sizes);
+
+        if ($count > 0) {
+            $span = intdiv($granule - $prev, $count);
+
+            foreach ($sizes as $index => $size) {
+                $at = $prev + $index * $span;
+                $packets[] = ['at' => $at, 'rate' => $span > 0 ? $size * 48000 / $span : 0];
+            }
+        }
+
+        $prev = $granule;
+        if ($granule >= $limit) break;
+    }
+
+    if (count($packets) < 4) return $preSkip;
+
+    // Il riferimento è il pacchetto più pesante dei primi dieci secondi: è
+    // sempre dentro a quello che si scarica comunque, quindi la soglia non
+    // cambia da un frammento all'altro della stessa partita.
+    $reference = 0;
+    foreach ($packets as $packet) {
+        if ($packet['at'] > $preSkip + 10 * 48000) break;
+        $reference = max($reference, $packet['rate']);
+    }
+
+    if ($reference <= 0) return $preSkip;
+
+    $threshold = $reference * 0.15;
+    $ceiling   = $preSkip + 6 * 48000;
+    $total     = count($packets);
+
+    // Servono due pacchetti pieni di fila. Il primo pacchetto di un flusso
+    // Opus è grosso anche quando è muto — si porta dietro l'avvio del decoder —
+    // e da solo direbbe che la musica comincia subito quando invece dopo di lui
+    // arriva un secondo di pacchetti da tre byte. Due di fila non capitano per
+    // sbaglio.
+    for ($i = 0; $i + 1 < $total; $i++) {
+        if ($packets[$i]['rate'] >= $threshold && $packets[$i + 1]['rate'] >= $threshold) {
+            return min(max($packets[$i]['at'], $preSkip), $ceiling);
+        }
+    }
+
+    return $preSkip;
+}
+
+/**
+ * Un pezzo di Ogg Opus lungo `$seconds`, che comincia dove deve cominciare.
  *
  * In Opus la posizione granulare conta sempre campioni a 48 kHz e comprende il
  * pre-skip dichiarato nell'intestazione. Il taglio in coda è quello previsto
@@ -1151,13 +1456,18 @@ function animespot_ogg_rewrite(string $page, ?int $granule, ?int $sequence, bool
  * — così il frammento è netto invece che arrotondato alla pagina — e si alza
  * il bit di fine flusso, perché il browser sappia che non deve aspettare altro.
  *
- * Partire da metà sigla è un po' più laborioso. Si buttano le pagine fino al
- * punto voluto, si tengono le due di intestazione (senza OpusHead non c'è
- * niente da decodificare) e si riscrivono le posizioni di quelle rimaste
- * togliendo quanto si è saltato: il frammento deve cominciare da zero, o il
- * lettore mostrerebbe una traccia che parte al trentesimo secondo. Anche i
- * numeri di pagina vanno rifatti in fila, perché un salto nella numerazione è
- * un buco, e un buco fa scartare l'audio.
+ * Il taglio in testa è più interessante. Le pagine si possono buttare solo
+ * intere, ma il punto da cui si vuole partire cade quasi sempre in mezzo a una:
+ * allora si tiene quella pagina e si riscrive il pre-skip dell'intestazione,
+ * che è esattamente il campo con cui il formato dice "di questi campioni, i
+ * primi tot buttali". Ne esce un taglio al millisecondo invece che al secondo,
+ * e in più il decoder si scalda sui campioni buttati, quindi non c'è il
+ * crepitio che si sente saltando in mezzo a un flusso.
+ *
+ * Le posizioni granulari delle pagine tenute vanno traslate, o il lettore
+ * mostrerebbe una traccia che parte al trentesimo secondo; e i numeri di
+ * pagina vanno rifatti in fila, perché un salto nella numerazione è un buco, e
+ * un buco fa scartare l'audio.
  *
  * Restituisce null se il file non è un Ogg Opus o se quello che abbiamo in
  * mano non arriva fin dove serve: in quel caso chi chiama scarica di più.
@@ -1169,71 +1479,136 @@ function animespot_ogg_clip(string $bytes, float $seconds, float $from = 0.0): ?
     $first = animespot_ogg_page($bytes, 0);
     if ($first === null) return null;
 
-    $head = substr($bytes, 27 + ord($bytes[26]), 19);
-    if (strncmp($head, 'OpusHead', 8) !== 0) return null;
+    $headStart = 27 + $first['segments'];
+    if (strncmp(substr($bytes, $headStart, 8), 'OpusHead', 8) !== 0) return null;
 
-    $preSkip = unpack('v', substr($head, 10, 2))[1] ?? 0;
+    $preSkip = unpack('v', substr($bytes, $headStart + 10, 2))[1] ?? 0;
 
     // Le pagine di intestazione (OpusHead e OpusTags) hanno posizione zero e
     // vanno tenute sempre: sono la ricetta con cui si decodifica il resto.
     $offset  = 0;
-    $header  = '';
-    $pages   = 0;
+    $headers = [];
 
     while (($page = animespot_ogg_page($bytes, $offset)) !== null && $page['granule'] === 0) {
-        $header .= substr($bytes, $offset, $page['length']);
+        $headers[] = substr($bytes, $offset, $page['length']);
         $offset += $page['length'];
-        $pages++;
     }
 
-    if ($header === '') return null;
+    if (!$headers) return null;
 
-    // Quanto si salta, in campioni. Si parte dalla prima pagina che arriva
-    // oltre il traguardo e che non continua un pacchetto cominciato prima:
-    // quella a metà pacchetto, da sola, non si saprebbe decodificare.
+    // Dove si vuole cominciare: a metà sigla se lo chiede il giocatore, se no
+    // dove finisce l'eventuale silenzio iniziale.
+    $target = $from > 0
+        ? $preSkip + (int)round($from * 48000)
+        : animespot_ogg_audio_start($bytes, $preSkip);
+
+    // La prima pagina che arriva oltre quel punto: è quella da cui si parte, e
+    // il pre-skip nuovo butta via il pezzo di troppo che si porta dietro.
+    $audio = $offset;
     $shift = 0;
+    $found = false;
 
-    if ($from > 0) {
-        $startAt = $preSkip + (int)round($from * 48000);
-        $found   = false;
-
-        while (($page = animespot_ogg_page($bytes, $offset)) !== null) {
-            if ($page['granule'] >= $startAt && ($page['flags'] & 0x01) === 0) {
-                $found = true;
-                break;
-            }
-
-            if ($page['granule'] >= 0) $shift = $page['granule'];
-            $offset += $page['length'];
-        }
-
-        if (!$found) return null;
+    while (($page = animespot_ogg_page($bytes, $audio)) !== null) {
+        if ($page['granule'] > $target && ($page['flags'] & 0x01) === 0) { $found = true; break; }
+        if ($page['granule'] >= 0) $shift = $page['granule'];
+        $audio += $page['length'];
     }
 
-    $target = $preSkip + (int)round($seconds * 48000);
-    $body   = '';
-    $done   = false;
+    if (!$found) return null;
 
-    while (($page = animespot_ogg_page($bytes, $offset)) !== null) {
-        $raw     = substr($bytes, $offset, $page['length']);
+    $discard = $target - $shift;
+
+    // Il pre-skip sta in due byte: se il pezzo da buttare non ci sta (pagine
+    // lunghissime, o un salto capitato male) si torna al confine di pagina,
+    // che è meno preciso ma sempre corretto.
+    if ($discard < 0 || $discard > 65535) {
+        $discard = $preSkip;
+        $shift   = 0;
+        $audio   = $offset;
+    }
+
+    $headers[0] = animespot_ogg_rewrite(
+        substr_replace($headers[0], pack('v', $discard), $headStart + 10, 2),
+        null,
+        null
+    );
+
+    $end   = $discard + (int)round($seconds * 48000);
+    $body  = '';
+    $pages = count($headers);
+    $done  = false;
+
+    while (($page = animespot_ogg_page($bytes, $audio)) !== null) {
+        $raw     = substr($bytes, $audio, $page['length']);
         $granule = $page['granule'];
 
         // -1 su 64 bit: pagina senza fine di pacchetto, non dice niente sul
         // tempo trascorso e va tenuta senza guardarla.
         $moved = $granule >= 0 ? $granule - $shift : $granule;
 
-        if ($granule >= 0 && $moved >= $target) {
-            $body .= animespot_ogg_rewrite($raw, $target, $pages, true);
+        if ($granule >= 0 && $moved >= $end) {
+            $body .= animespot_ogg_rewrite($raw, $end, $pages, true);
             $done  = true;
             break;
         }
 
         $body .= animespot_ogg_rewrite($raw, $granule >= 0 ? $moved : null, $pages);
-        $offset += $page['length'];
+        $audio += $page['length'];
         $pages++;
     }
 
-    return $done ? $header . $body : null;
+    return $done ? implode('', $headers) . $body : null;
+}
+
+/**
+ * Chiude la risposta lasciando il processo libero di lavorare ancora.
+ *
+ * Restituisce false dove non si può fare davvero. È una distinzione che conta:
+ * senza una chiusura vera, tutto quello che si fa dopo lo aspetta comunque il
+ * browser, e un precaricamento "in background" diventerebbe esattamente
+ * l'attesa che si voleva togliere. Meglio non farlo.
+ */
+function animespot_finish_request(): bool
+{
+    ignore_user_abort(true);
+    while (ob_get_level() > 0) @ob_end_flush();
+    @flush();
+
+    if (function_exists('litespeed_finish_request')) { litespeed_finish_request(); return true; }
+    if (function_exists('fastcgi_finish_request'))    { fastcgi_finish_request();    return true; }
+
+    return false;
+}
+
+/**
+ * Scarica il resto della sigla dopo aver risposto.
+ *
+ * Il primo frammento chiede pochi byte perché deve arrivare subito; gli altri
+ * quattro ne vogliono via via di più, e chiederli alla rete uno alla volta
+ * mentre il giocatore aspetta è esattamente il tempo morto che si vuole
+ * togliere. Qui la richiesta è già chiusa: quando arriva il primo errore, i
+ * quindici secondi sono già sul disco.
+ */
+function animespot_cache_warm(array $track, float $from = 0.0): void
+{
+    $basename = animespot_audio_name((string)$track['audio']);
+    if ($basename === null) return;
+
+    $fullSize = (int)($track['audio_bytes'] ?? 0);
+    $longest  = ANIMESPOT_STEPS[count(ANIMESPOT_STEPS) - 1];
+
+    // 48 KB/s, non 32: qui si può essere larghi e conviene esserlo. Se la stima
+    // resta corta il frammento più lungo torna a chiedere alla rete proprio
+    // all'ultimo tentativo, che è il momento peggiore per farlo aspettare.
+    $want = 65536 + (int)ceil(($from + $longest + 2) * 49152);
+
+    if ($fullSize > 0) $want = min($want, $fullSize);
+
+    $path = animespot_cache_path($basename);
+    clearstatcache(true, $path);
+    if (is_file($path) && filesize($path) >= $want) return;
+
+    animespot_audio_prefix($basename, $want, $fullSize);
 }
 
 /**

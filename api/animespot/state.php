@@ -43,24 +43,25 @@ if (!animespot_catalog_ready($mysqli)) {
     exit;
 }
 
-$round = animespot_bootstrap($mysqli, !empty($_GET['new']));
+// `next` fa passare al posto successivo della serie: è il tasto "Prossima"
+// della schermata di risposta. `new` invece ripesca la sigla di questo posto.
+$advance = !empty($_GET['next']);
 
-if ($round === null) {
+if ($advance) {
+    $next = animespot_next_slot(animespot_series(), animespot_slot());
+    if ($next > 0) animespot_slot_save($next);
+    // Zero vuol dire serie finita: ci pensa il bootstrap, che ne pesca un'altra.
+}
+
+$current = animespot_bootstrap($mysqli, !empty($_GET['new']), $advance);
+
+if ($current === null) {
     http_response_code(503);
     echo json_encode(['error' => animespot_msg('no_pool', $lang), 'code' => 'NO_POOL']);
     exit;
 }
 
-$options = animespot_options();
-
-$payload = animespot_public_round($round['round'], $round['track'], $lang);
-$payload['ok']      = true;
-$payload['options'] = $options;
-// Due conteggi diversi: quante sigle ha ogni difficoltà dentro l'epoca scelta,
-// e quante ne ha ogni epoca in tutto. Servono ai due gruppi di pulsanti, che
-// mostrano il numero accanto a ogni voce e spengono quelle vuote.
-$payload['pool']    = animespot_counts($mysqli, $options['era']);
-$payload['eras']    = animespot_era_counts($mysqli);
-$payload['stats']   = animespot_stats($mysqli, $userId);
-
-echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+echo json_encode(
+    animespot_full_payload($mysqli, $userId, $lang, $current['round'], $current['track'], $current['slot'], $current['series']),
+    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+);

@@ -37,9 +37,9 @@ function as_h(mixed $value): string
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-// Il catalogo può non esserci ancora: le migration di questo progetto si
-// applicano a mano e l'import è un comando a parte. In quel caso la pagina
-// resta in piedi e dice che cosa manca, invece di girare a vuoto.
+// Il catalogo può non esserci: le migration di questo progetto si applicano a
+// mano e il catalogo lo riempie un import a parte. In quel caso la pagina resta
+// in piedi e dice che cosa manca, invece di girare a vuoto.
 $ready = animespot_catalog_ready($mysqli);
 
 $copy = [
@@ -64,18 +64,20 @@ $copy = [
         'skip'       => 'Salta',
         'clipsHint'  => 'Spegni i frammenti che non vuoi. L\'ultimo resta sempre acceso.',
         'credit'     => 'Sigle e video da <a href="https://animethemes.moe" target="_blank" rel="noopener noreferrer">AnimeThemes</a>, notorietà e titoli da <a href="https://kitsu.io" target="_blank" rel="noopener noreferrer">Kitsu</a>.',
-        'missing'    => 'Il catalogo delle sigle non è ancora stato importato. Serve applicare <code>migrations/2026_09_09_animespot.sql</code> e lanciare <code>php scripts/animespot_import.php</code>.',
+        'missing'    => 'Il catalogo delle sigle non è ancora stato importato: mancano le tabelle <code>animespot_*</code> o sono vuote.',
         'rulesList'  => [
             'Parte l\'inizio di una sigla — opening o ending — e devi capire di quale anime è.',
             'Hai cinque tentativi. Ogni errore o salto allunga il frammento: 0,1s → 0,5s → 2s → 8s → 15s.',
             'Scrivi nel campo di ricerca e scegli una serie dall\'elenco: cerca fra titolo giapponese, inglese, alternativi e anche fra i titoli delle canzoni.',
             'Una serie già provata sparisce dall\'elenco: non la puoi rigiocare.',
             'Prima indovini, più punti prendi: 1200, 975, 750, 525, 300.',
-            'La difficoltà decide quanto è conosciuto l\'anime da cui esce la sigla, non le regole. Cambiarla vale dalla sigla successiva.',
+            'Si gioca a serie di cinque: una sigla facile, una media, una difficile, una da esperto e una impossibile, in quest\'ordine. Finita la quinta ne parte un\'altra serie.',
+            'Le cinque difficoltà si possono girare a mano quando si vuole: tornando su una già chiusa si ritrova quella sigla lì, non una nuova.',
+            'La difficoltà decide quanto è conosciuto l\'anime da cui esce la sigla, non le regole.',
             'L\'epoca restringe il mazzo a un decennio: i classici prima del Duemila, oppure gli anni 2000, 2010 o 2020.',
             'Ad anteprima il frammento non parte dall\'inizio ma da un punto in mezzo alla sigla: si perde l\'attacco, che è la parte che riconoscono tutti.',
             'Puoi spegnere i frammenti che non ti servono: partire da due secondi vale meno punti ma è più facile.',
-            'La sigla è sempre a caso e non ci sono limiti: finita una partita ne parte un\'altra.',
+            'Le sigle sono sempre a caso e non ci sono limiti: si gioca quanto si vuole.',
         ],
         'description' => 'Indovina l\'anime dalla sua sigla: cinque tentativi, un frammento più lungo a ogni errore, cinque difficoltà.',
     ],
@@ -100,18 +102,20 @@ $copy = [
         'skip'       => 'Skip',
         'clipsHint'  => 'Turn off the clips you do not want. The last one always stays on.',
         'credit'     => 'Themes and videos from <a href="https://animethemes.moe" target="_blank" rel="noopener noreferrer">AnimeThemes</a>, popularity and titles from <a href="https://kitsu.io" target="_blank" rel="noopener noreferrer">Kitsu</a>.',
-        'missing'    => 'The theme catalogue has not been imported yet. Apply <code>migrations/2026_09_09_animespot.sql</code> and run <code>php scripts/animespot_import.php</code>.',
+        'missing'    => 'The theme catalogue has not been imported yet: the <code>animespot_*</code> tables are missing or empty.',
         'rulesList'  => [
             'You hear the beginning of a theme — an opening or an ending — and work out which anime it belongs to.',
             'You get five tries. Every wrong guess or skip makes the clip longer: 0.1s → 0.5s → 2s → 8s → 15s.',
             'Type in the search box and pick a series from the list: it searches Japanese, English and alternative titles, and song titles too.',
             'A series you already tried drops out of the list: you cannot spend a guess on it twice.',
             'The sooner you get it, the more you score: 1200, 975, 750, 525, 300.',
-            'Difficulty changes how well known the anime behind the theme is, not the rules. A new choice applies from the next theme.',
+            'You play in sets of five: one easy theme, one medium, one hard, one expert and one impossible, in that order. After the fifth, another set begins.',
+            'You can move between the five difficulties whenever you like: going back to one you already finished shows that theme again, not a new one.',
+            'Difficulty changes how well known the anime behind the theme is, not the rules.',
             'The era narrows the pool to one decade: classics before 2000, or the 2000s, 2010s and 2020s.',
             'On preview playback the clip does not start at the beginning but somewhere in the middle of the theme: you lose the intro, which is the part everyone recognises.',
             'You can turn off the clips you do not need: starting at two seconds is worth fewer points but is easier.',
-            'The theme is always random and there is no limit: when a round ends, another one starts.',
+            'Themes are always random and there is no limit: play as much as you like.',
         ],
         'description' => 'Guess the anime from its opening or ending: five tries, a longer clip after every miss, five difficulties.',
     ],
