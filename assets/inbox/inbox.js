@@ -1,0 +1,1180 @@
+/**
+ * Centro messaggi.
+ *
+ * Prima queste righe stavano dentro it/inbox.php e, identiche, dentro
+ * en/inbox.php: 1100 righe di JavaScript scritte due volte, con i testi
+ * incastrati nel codice. Qui ci sono una volta sola e le stringhe arrivano
+ * da window.INBOX_I18N, che la pagina riempie nella lingua giusta.
+ */
+(function () {
+    'use strict';
+
+    var BOOT = window.INBOX_BOOT || {};
+    var T = window.INBOX_I18N || {};
+    var LANG = BOOT.lang === 'en' ? 'en' : 'it';
+    var LOCALE = LANG === 'en' ? 'en-US' : 'it-IT';
+
+    // L'API rende sia title_it sia title_en: si sceglie il campo, non la frase.
+    function F(base) {
+        return base + '_' + LANG;
+    }
+
+    const API_ENDPOINT = '/api/inbox.php';
+    const isAdmin = BOOT.isAdmin;
+    const csrfToken = BOOT.csrfToken;
+    
+    // Cache globali caricate una volta sola per evitare il bug dei contatori a 0
+    let globalMessages = [];
+    let globalTickets = [];
+    let messagesCache = []; // Lista filtrata visualizzata a schermo
+
+    let currentMessageId = null;
+    let chatPollingInterval = null;
+
+    let currentSection = 'messages';
+    let filterCategory = '';
+    let filterStatus = '';
+    let filterSearch = '';
+
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    // Inizializzazione
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticketId = urlParams.get('ticket_id');
+        if (ticketId) {
+            setSection('tickets');
+            currentMessageId = ticketId;
+        }
+
+        loadMessages().then(() => {
+            if (ticketId) {
+                selectMessage(ticketId, 'ticket');
+            }
+        });
+        setupEventListeners();
+    });
+
+    // Serviva sia alla scheda nella lista sia all'intestazione del
+    // dettaglio, che pero' stampava il valore grezzo del database: da qui
+    // in poi le due leggono la stessa tabella.
+    function categoryLabel(cat) {
+        switch (cat) {
+            case 'system': return T.cat_system;
+            case 'changelog': return T.cat_changelog;
+            case 'security': return T.cat_security;
+            case 'moderation': return T.cat_moderation;
+            case 'rewards': return T.cat_reward;
+            case 'social': return T.cat_social;
+            case 'special': return T.cat_special;
+            case 'ticket': return T.cat_ticket;
+            default: return T.cat_system;
+        }
+    }
+
+    /**
+     * Passa fra messaggi e ticket.
+     *
+     * Prima i ticket erano una voce dell'elenco delle categorie, e cambiando
+     * voce le linguette dei filtri cambiavano significato sotto le dita
+     * (Entrate diventava Aperti). Ora il livello e' esplicito e i filtri
+     * appartengono alla sezione scelta.
+     */
+    function setSection(section) {
+        currentSection = section;
+        filterCategory = '';
+        filterStatus = '';
+        currentMessageId = null;
+
+        $$('.inbox-section-btn').forEach(b => {
+            const attiva = b.dataset.section === section;
+            b.classList.toggle('is-active', attiva);
+            b.setAttribute('aria-selected', attiva ? 'true' : 'false');
+        });
+
+        $('#inboxChips').hidden = section !== 'messages';
+
+        $$('.inbox-filter-tab').forEach(tab => {
+            const st = tab.dataset.status;
+            if (section === 'tickets') {
+                tab.hidden = (st === 'unread' || st === 'important');
+                if (st === '') tab.textContent = T.tab_open;
+                if (st === 'archived') tab.textContent = T.tab_closed;
+            } else {
+                tab.hidden = false;
+                if (st === '') tab.textContent = T.tab_inbox;
+                if (st === 'archived') tab.textContent = T.tab_archive;
+            }
+            tab.classList.toggle('is-active', st === '');
+        });
+
+        $$('.inbox-chip').forEach(c => c.classList.toggle('is-active', c.dataset.cat === ''));
+
+        renderEmptyDetails();
+        renderFilteredList();
+    }
+
+    function setupEventListeners() {
+        $$('.inbox-section-btn').forEach(btn => {
+            btn.addEventListener('click', () => setSection(btn.dataset.section));
+        });
+
+        $$('.inbox-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                $$('.inbox-chip').forEach(c => c.classList.remove('is-active'));
+                chip.classList.add('is-active');
+                filterCategory = chip.dataset.cat;
+                currentMessageId = null;
+                renderEmptyDetails();
+                renderFilteredList();
+            });
+        });
+
+        // Click Filtri Stati
+        $$('.inbox-filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                $$('.inbox-filter-tab').forEach(t => t.classList.remove('is-active'));
+                tab.classList.add('is-active');
+                filterStatus = tab.dataset.status;
+                currentMessageId = null;
+                renderEmptyDetails();
+                renderFilteredList();
+            });
+        });
+
+        // Ricerca con Debounce
+        let searchTimeout;
+        $('#inboxSearchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterSearch = e.target.value.trim();
+                renderFilteredList();
+            }, 300);
+        });
+
+        // Chiusura Modal Premi
+        $('#rewardModalCloseBtn').addEventListener('click', () => {
+            $('#rewardModalBackdrop').classList.remove('is-visible');
+        });
+    }
+
+    async function loadMessages() {
+        const container = $('#inboxCardsContainer');
+        if (globalMessages.length === 0 && globalTickets.length === 0) {
+            container.innerHTML = `<div style="padding: 30px; text-align: center; color: rgba(255,255,255,0.4);"><i class="fa-solid fa-spinner fa-spin me-2"></i>${T.loading}</div>`;
+        }
+
+        try {
+            // Carichiamo in parallelo sia i messaggi tradizionali sia i ticket
+            const [msgRes, ticketRes] = await Promise.all([
+                fetch(API_ENDPOINT).then(r => r.json()),
+                fetch('/api/tickets.php').then(r => r.json())
+            ]);
+
+            if (msgRes.ok) {
+                globalMessages = msgRes.messages || [];
+                updateNavbarBadge(msgRes.unread_count);
+            }
+            
+            if (ticketRes.ok) {
+                globalTickets = ticketRes.tickets || [];
+            }
+
+            // Calcoliamo i badge globalmente una volta sola
+            updateCategoryCounters();
+
+            // Applichiamo i filtri locali e renderizziamo
+            renderFilteredList();
+
+            // Se c'è una conversazione attiva, la aggiorniamo graficamente con lo stato fresco dal server
+            if (currentMessageId) {
+                let activeMsg = null;
+                if (currentSection === 'tickets') {
+                    const t = globalTickets.find(x => x.ticket_id === currentMessageId);
+                    if (t) {
+                        activeMsg = {
+                            message_id: t.ticket_id,
+                            title_it: t.title,
+                            title_en: t.title,
+                            category: 'ticket',
+                            topic: t.topic,
+                            status: t.status,
+                            username: t.username
+                        };
+                    }
+                } else {
+                    activeMsg = globalMessages.find(x => x.message_id === parseInt(currentMessageId, 10));
+                }
+
+                if (activeMsg) {
+                    renderMessageDetails(activeMsg);
+                } else {
+                    currentMessageId = null;
+                    renderEmptyDetails();
+                }
+            }
+
+        } catch (error) {
+            container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">${T.load_error}</div>`;
+        }
+    }
+
+    function updateNavbarBadge(count) {
+        const badge = document.getElementById('inbox-unread-count');
+        if (badge) {
+            const c = parseInt(count, 10) || 0;
+            if (c > 0) {
+                badge.textContent = c;
+                badge.classList.remove('d-none');
+            } else {
+                badge.classList.add('d-none');
+            }
+        }
+    }
+
+    function updateCategoryCounters() {
+        const attivi = globalMessages.filter(m => parseInt(m.is_archived) === 0);
+
+        // Numero grigio sulle chip: quanti ce ne sono. Pastiglia rossa sulle
+        // sezioni: quanti ne aspettano uno. Due domande diverse, due segni.
+        const perChip = {
+            all: attivi.length,
+            system: attivi.filter(m => ['system', 'changelog', 'security', 'moderation'].includes(m.category)).length,
+            social: attivi.filter(m => m.category === 'social').length,
+            rewards: attivi.filter(m => m.category === 'rewards').length,
+            special: attivi.filter(m => m.category === 'special').length
+        };
+
+        $$('.inbox-chip-badge').forEach(b => {
+            const n = perChip[b.dataset.badge] || 0;
+            b.textContent = n;
+            b.hidden = n === 0;
+        });
+
+        segnaBadge('#badge-messages', attivi.filter(m => parseInt(m.is_read) === 0).length);
+
+        // Contava i ticket aperti, letti o no: restava acceso per sempre e
+        // smetteva di voler dire qualcosa. Ora conta quelli che non hai letto.
+        const ticketDaLeggere = globalTickets.filter(
+            t => t.status === 'open' && parseInt(t.is_unread_status, 10) === 0
+        ).length;
+        segnaBadge('#badge-ticket', ticketDaLeggere);
+    }
+
+    function segnaBadge(sel, n) {
+        const el = $(sel);
+        if (!el) return;
+        el.textContent = n > 99 ? '99+' : n;
+        el.hidden = n === 0;
+    }
+
+    function renderFilteredList() {
+        const container = $('#inboxCardsContainer');
+        let filtered = [];
+
+        if (currentSection === 'tickets') {
+            // Mappiamo i ticket per renderli compatibili con il template delle card
+            // Il riassunto e' gia' nella lingua giusta, quindi i due campi
+            // portano lo stesso testo: e' F() che sceglie quale leggere.
+            filtered = globalTickets.map(t => {
+                const summary = `${T.topic}: ${t.topic} — ${T.status}: ${t.status === 'open' ? T.status_open : T.status_closed}`;
+                return {
+                message_id: t.ticket_id,
+                title_it: t.title,
+                title_en: t.title,
+                content_it: summary,
+                content_en: summary,
+                category: 'ticket',
+                created_at: t.created_at,
+                is_read: t.is_unread_status, // 1 = letto, 0 = non letto
+                is_important: 0,
+                is_archived: t.status === 'closed' ? 1 : 0,
+                username: t.username || null,
+                topic: t.topic,
+                status: t.status
+                };
+            });
+
+            // Filtro stato locale per Ticket (Aperti o Chiusi)
+            if (filterStatus === 'archived') {
+                filtered = filtered.filter(m => m.status === 'closed');
+            } else {
+                filtered = filtered.filter(m => m.status === 'open');
+            }
+
+        } else {
+            // Filtriamo i messaggi tradizionali
+            filtered = globalMessages;
+
+            // Filtro Categoria
+            if (filterCategory !== '') {
+                if (filterCategory === 'system') {
+                    filtered = filtered.filter(m => 
+                        m.category === 'system' || m.category === 'changelog' || m.category === 'security' || m.category === 'moderation'
+                    );
+                } else {
+                    filtered = filtered.filter(m => m.category === filterCategory);
+                }
+            }
+
+            // Filtro Stato (Entrate, Non Letti, Importanti, Archivio)
+            if (filterStatus === 'unread') {
+                filtered = filtered.filter(m => parseInt(m.is_read) === 0 && parseInt(m.is_archived) === 0);
+            } else if (filterStatus === 'important') {
+                filtered = filtered.filter(m => parseInt(m.is_important) === 1 && parseInt(m.is_archived) === 0);
+            } else if (filterStatus === 'archived') {
+                filtered = filtered.filter(m => parseInt(m.is_archived) === 1);
+            } else {
+                filtered = filtered.filter(m => parseInt(m.is_archived) === 0);
+            }
+        }
+
+        // Filtro di Ricerca Testuale
+        if (filterSearch !== '') {
+            const q = filterSearch.toLowerCase();
+            filtered = filtered.filter(m => 
+                m.title_it.toLowerCase().includes(q) || 
+                m.title_en.toLowerCase().includes(q) || 
+                m.content_it.toLowerCase().includes(q) || 
+                m.content_en.toLowerCase().includes(q)
+            );
+        }
+
+        // Assegniamo alla cache visualizzata a schermo
+        messagesCache = filtered;
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 50px 20px; text-align: center; color: rgba(255,255,255,0.3);">
+                    <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <div>${filterSearch || filterStatus ? T.no_items : (currentSection === 'tickets' ? T.no_tickets : T.no_messages)}</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map(msg => {
+            const isUnread = parseInt(msg.is_read) === 0 ? 'is-unread' : '';
+            const isActive = msg.message_id === currentMessageId ? 'is-active' : '';
+            const isStarred = parseInt(msg.is_important) === 1;
+            const dateFormatted = formatMessageDate(msg.created_at);
+
+            const starIcon = isStarred ? '<i class="fa-solid fa-star text-warning inbox-card-icon is-active"></i>' : '';
+            const giftIcon = parseInt(msg.has_rewards) > 0 ? '<i class="fa-solid fa-gift text-purple inbox-card-icon" style="color:#a78bfa;"></i>' : '';
+
+            const title = htmlEscape(msg[F('title')]);
+            const contentPlain = msg[F('content')].replace(/<[^>]+>/g, '');
+            const excerpt = htmlEscape(contentPlain.substring(0, 65) + (contentPlain.length > 65 ? '...' : ''));
+
+            const catLabel = categoryLabel(msg.category);
+
+            return `
+                <div class="inbox-card ${isUnread} ${isActive}" data-id="${msg.message_id}" data-cat="${msg.category}">
+                    <div class="inbox-card-header">
+                        <span class="inbox-card-category cat-${msg.category}">${catLabel}</span>
+                        <span class="inbox-card-date">${dateFormatted}</span>
+                    </div>
+                    <div class="inbox-card-title">${title}</div>
+                    <div class="inbox-card-excerpt">${excerpt}</div>
+                    <div class="inbox-card-footer">
+                        ${starIcon}
+                        ${giftIcon}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        $$('.inbox-card').forEach(card => {
+            card.addEventListener('click', () => {
+                selectMessage(card.dataset.id, card.dataset.cat);
+            });
+        });
+    }
+
+    function selectMessage(messageId, category) {
+        if (chatPollingInterval) {
+            clearInterval(chatPollingInterval);
+            chatPollingInterval = null;
+        }
+
+        currentMessageId = messageId;
+
+        $$('.inbox-card').forEach(c => {
+            c.classList.remove('is-active');
+            if (c.dataset.id === messageId) {
+                c.classList.add('is-active');
+            }
+        });
+
+        if (category === 'ticket') {
+            const ticket = globalTickets.find(t => t.ticket_id === messageId);
+            if (ticket) {
+                const mappedTicket = {
+                    message_id: ticket.ticket_id,
+                    title_it: ticket.title,
+                    title_en: ticket.title,
+                    category: 'ticket',
+                    topic: ticket.topic,
+                    status: ticket.status,
+                    username: ticket.username
+                };
+                renderMessageDetails(mappedTicket);
+
+                // Segna il ticket come letto localmente e sul server se era non letto
+                if (parseInt(ticket.is_unread_status) === 0) {
+                    ticket.is_unread_status = 1;
+
+                    const card = $(`.inbox-card[data-id="${messageId}"]`);
+                    if (card) card.classList.remove('is-unread');
+
+                    // Lo stato locale cambiava ma i contatori no, quindi la
+                    // pastiglia dei ticket restava accesa dopo la lettura.
+                    updateCategoryCounters();
+
+                    fetch(`/api/tickets.php?ticket_id=${messageId}`).then(() => {
+                        fetch(API_ENDPOINT).then(r => r.json()).then(res => {
+                            if (res.ok) updateNavbarBadge(res.unread_count);
+                        });
+                    });
+                }
+            }
+        } else {
+            const msg = globalMessages.find(m => m.message_id === parseInt(messageId, 10));
+            if (msg) {
+                renderMessageDetails(msg);
+
+                if (parseInt(msg.is_read) === 0) {
+                    markAsRead(parseInt(messageId, 10));
+                }
+            }
+        }
+    }
+
+    function renderEmptyDetails() {
+        const pane = $('#inboxDetailContainer');
+        pane.innerHTML = `
+            <div class="inbox-view-empty">
+                <i class="fa-solid fa-envelope-open"></i>
+                <h4>${T.empty_title}</h4>
+                <p class="text-muted" style="font-size: 0.9rem;">${T.empty_body}</p>
+            </div>
+        `;
+        pane.classList.remove('is-open');
+    }
+
+    function renderMessageDetails(msg) {
+        const pane = $('#inboxDetailContainer');
+
+        // Se il messaggio appartiene alla categoria Ticket, renderizziamo la Chat
+        if (msg.category === 'ticket') {
+            renderTicketChat(msg.message_id, msg);
+            return;
+        }
+
+        const isStarred = parseInt(msg.is_important) === 1;
+        const isArchived = parseInt(msg.is_archived) === 1;
+        const dateFormatted = formatMessageDateTime(msg.created_at);
+
+        const starClass = isStarred ? 'is-active' : '';
+        const archiveText = isArchived
+            ? `<i class="fa-solid fa-box-open"></i> <span>${T.restore}</span>`
+            : `<i class="fa-solid fa-archive"></i> <span>${T.archive}</span>`;
+
+        let rewardsHtml = '';
+        if (parseInt(msg.has_rewards) > 0 && msg.rewards && msg.rewards.length) {
+            const isClaimed = msg.claimed_at !== null;
+
+            const rewardsListHtml = msg.rewards.map(rew => {
+                let iconHtml = '🎁';
+                let label = '';
+                let sub = '';
+
+                switch (rew.reward_type) {
+                    case 'points':
+                        iconHtml = `<img src="/img/godos.png" alt="Godos" style="width: 22px; height: 22px; object-fit: contain;">`;
+                        label = `+${parseInt(rew.reward_value) * parseInt(rew.quantity)} Godos`;
+                        sub = T.reward_money_sub;
+                        break;
+                    case 'godoshards':
+                        iconHtml = `<img src="/img/godoshards.png" alt="Godo Shards" style="width: 22px; height: 22px; object-fit: contain;">`;
+                        label = `+${parseInt(rew.reward_value) * parseInt(rew.quantity)} Godo Shards`;
+                        sub = T.reward_shard_sub;
+                        break;
+                    case 'character':
+                        iconHtml = '👤';
+                        label = `${T.reward_character}: ${rew.reward_value}`;
+                        sub = T.reward_character_sub;
+                        break;
+                    case 'badge':
+                        iconHtml = '🏆';
+                        label = `${T.reward_badge}: ${rew.reward_value}`;
+                        sub = T.reward_badge_sub;
+                        break;
+                    case 'premium':
+                        iconHtml = '⭐';
+                        label = T.reward_premium;
+                        sub = T.reward_premium_sub;
+                        break;
+                }
+
+                return `
+                    <div class="inbox-reward-item">
+                        <span class="inbox-reward-icon ${rew.reward_type}" style="display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.03); border-radius: 50%; width: 40px; height: 40px;">${iconHtml}</span>
+                        <div class="inbox-reward-details">
+                            <span class="inbox-reward-name">${label}</span>
+                            <span class="inbox-reward-sub">${sub}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const actionButton = isClaimed ?
+                `<div class="inbox-claimed-badge"><i class="fa-solid fa-circle-check"></i>${T.rewards_claimed}</div>` :
+                `<button type="button" class="inbox-claim-btn" id="claimRewardsBtn" data-id="${msg.message_id}">
+                        <i class="fa-solid fa-gift"></i>${T.claim_rewards}
+                   </button>`;
+
+            rewardsHtml = `
+                <div class="inbox-rewards-box">
+                    <div class="inbox-rewards-header">
+                        <i class="fa-solid fa-box-open"></i>${T.rewards_included}
+                    </div>
+                    <div class="inbox-rewards-list">
+                        ${rewardsListHtml}
+                    </div>
+                    ${actionButton}
+                </div>
+            `;
+        }
+
+        pane.innerHTML = `
+            <button class="inbox-action-btn inbox-mobile-back" id="inboxMobileBackBtn"><i class="fa-solid fa-arrow-left"></i> ${T.back}</button>
+            
+            <div class="inbox-view-header">
+                <div class="inbox-view-meta">
+                    <span class="inbox-card-category cat-${msg.category}">${categoryLabel(msg.category)}</span>
+                    <span class="inbox-card-date">${dateFormatted}</span>
+                </div>
+                <div class="inbox-view-actions">
+                    <button type="button" class="inbox-action-btn ${starClass}" id="btnStar" data-id="${msg.message_id}"><i class="fa-solid fa-star"></i> <span>${T.important}</span></button>
+                    <button type="button" class="inbox-action-btn" id="btnArchive" data-id="${msg.message_id}">${archiveText}</button>
+                    <button type="button" class="inbox-action-btn inbox-action-btn--danger" id="btnDelete" data-id="${msg.message_id}"><i class="fa-solid fa-trash"></i> <span>${T.delete}</span></button>
+                </div>
+            </div>
+            
+            <h2 class="inbox-view-title">${htmlEscape(msg[F('title')])}</h2>
+            <div class="inbox-view-content">${parseMarkdown(msg[F('content')])}</div>
+            
+            ${rewardsHtml}
+        `;
+
+        $('#btnStar').addEventListener('click', () => toggleImportant(msg.message_id));
+        $('#btnArchive').addEventListener('click', () => toggleArchive(msg.message_id));
+        // Due tocchi sullo stesso tasto invece della finestra di sistema:
+        // resta dentro la pagina e si annulla da sola se cambi idea.
+        const btnDelete = $('#btnDelete');
+        let armato = null;
+        btnDelete.addEventListener('click', () => {
+            if (armato) {
+                clearTimeout(armato);
+                deleteMessage(msg.message_id);
+                return;
+            }
+            btnDelete.classList.add('is-confirming');
+            btnDelete.querySelector('span').textContent = T.confirm_delete;
+            armato = setTimeout(() => {
+                armato = null;
+                btnDelete.classList.remove('is-confirming');
+                btnDelete.querySelector('span').textContent = T.delete;
+            }, 4000);
+        });
+
+        const claimBtn = $('#claimRewardsBtn');
+        if (claimBtn) {
+            claimBtn.addEventListener('click', () => claimRewards(msg.message_id));
+        }
+
+        const backBtn = $('#inboxMobileBackBtn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                pane.classList.remove('is-open');
+            });
+        }
+
+        if (window.innerWidth <= 768) {
+            pane.classList.add('is-open');
+        }
+    }
+
+    // Chiudi o Riapri il Ticket
+    async function toggleTicketStatus(ticketId) {
+        const btn = $('#btnToggleTicket');
+        if (!btn) return;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        
+        try {
+            const formData = new FormData();
+            formData.append('action', 'toggle_status');
+            formData.append('ticket_id', ticketId);
+            formData.append('csrf_token', csrfToken);
+            
+            const response = await fetch('/api/tickets.php', {
+                method: 'POST',
+                body: formData
+            });
+            const res = await response.json();
+            
+            if (res.ok) {
+                // Ricarica le cache globali e aggiorna la schermata
+                loadMessages();
+            } else {
+                alert(T.ticket_status_error + res.error);
+                btn.disabled = false;
+                btn.textContent = 'Modifica Stato';
+            }
+        } catch (e) {
+            alert(T.conn_error);
+            btn.disabled = false;
+        }
+    }
+
+    // Renderizza la Chat Box del Ticket
+    function renderTicketChat(ticketId, ticket) {
+        const pane = $('#inboxDetailContainer');
+        
+        // Bottone di chiusura/riapertura ticket a seconda dello stato (SOLO PER ADMIN/OWNER)
+        const isClosed = ticket.status === 'closed';
+        let toggleBtnHtml = '';
+        if (isAdmin) {
+            toggleBtnHtml = isClosed ? 
+                `<button class="btn-toggle-ticket btn-toggle-ticket--reopen" id="btnToggleTicket"><i class="fa-solid fa-envelope-open me-1"></i>${T.ticket_reopen}</button>` :
+                `<button class="btn-toggle-ticket btn-toggle-ticket--close" id="btnToggleTicket"><i class="fa-solid fa-lock me-1"></i>${T.ticket_close}</button>`;
+        }
+
+        // Se il ticket e' chiuso, al posto del modulo va un avviso.
+        const inputAreaHtml = isClosed ? `
+            <div class="inbox-chat-input-area inbox-chat-locked">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                <span>${T.ticket_closed_banner}</span>
+            </div>
+        ` : `
+            <div class="inbox-chat-input-area">
+                <form id="chatSendForm" class="chat-form">
+                    <input type="hidden" name="ticket_id" value="${ticketId}">
+
+                    <label for="chat-attachment" class="chat-attach-btn" title="${T.attach_image}">
+                        <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+                    </label>
+                    <input type="file" id="chat-attachment" name="attachment" accept="image/*" hidden>
+
+                    <textarea name="message" id="chatMessageInput" class="chat-input" required rows="1"
+                        placeholder="${T.reply_placeholder}" aria-label="${T.reply_placeholder}"></textarea>
+
+                    <button type="submit" class="chat-send-btn" title="${T.send}" aria-label="${T.send}">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <div id="chat-preview-container" class="chat-preview" hidden>
+                    <button type="button" id="chat-remove-preview" class="chat-preview-remove" aria-label="${T.delete}">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
+                    <img id="chat-image-preview" src="" alt="">
+                </div>
+            </div>
+        `;
+
+        const statoClasse = ticket.status === 'open' ? 'is-open' : 'is-closed';
+
+        pane.innerHTML = `
+            <button class="inbox-action-btn inbox-mobile-back" id="inboxMobileBackBtn"><i class="fa-solid fa-arrow-left"></i> <span>${T.back}</span></button>
+
+            <div class="inbox-chat-wrapper">
+                <div class="inbox-chat-header">
+                    <div class="inbox-chat-heading">
+                        <h4 class="inbox-chat-title">
+                            <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+                            Ticket ${ticketId} — ${htmlEscape(ticket[F('title')])}
+                        </h4>
+                        <p class="inbox-chat-sub">
+                            ${T.topic}: <span class="inbox-chat-topic">${htmlEscape(ticket.topic)}</span>
+                            ${ticket.username ? ` &middot; ${T.user}: <strong>${htmlEscape(ticket.username)}</strong>` : ''}
+                        </p>
+                    </div>
+                    <div class="inbox-chat-actions">
+                        ${toggleBtnHtml}
+                        <span class="inbox-ticket-state ${statoClasse}">
+                            ${ticket.status === 'open' ? T.status_open : T.status_closed}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="inbox-chat-messages" id="chatMessagesContainer">
+                    <div class="chat-empty"><i class="fa-solid fa-spinner fa-spin me-2"></i>${T.loading_chat}</div>
+                </div>
+
+                ${inputAreaHtml}
+            </div>
+        `;
+
+        loadTicketMessages(ticketId);
+
+        // Attiva gli eventi del modulo solo se il ticket non è chiuso
+        if (!isClosed) {
+            setupChatFormEvents(ticketId);
+        }
+
+        const toggleBtn = $('#btnToggleTicket');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => toggleTicketStatus(ticketId));
+        }
+
+        const backBtn = $('#inboxMobileBackBtn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                pane.classList.remove('is-open');
+            });
+        }
+
+        if (window.innerWidth <= 768) {
+            pane.classList.add('is-open');
+        }
+    }
+
+    async function loadTicketMessages(ticketId) {
+        if (chatPollingInterval) clearInterval(chatPollingInterval);
+
+        const container = $('#chatMessagesContainer');
+        try {
+            const response = await fetch(`/api/tickets.php?ticket_id=${ticketId}`);
+            const res = await response.json();
+
+            if (!res.ok) {
+                container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">${res.error}</div>`;
+                return;
+            }
+
+            renderChatMessages(res.messages);
+
+            // Polling ogni 4 secondi per aggiornare la chat in tempo reale
+            chatPollingInterval = setInterval(async () => {
+                if (currentMessageId !== ticketId) {
+                    clearInterval(chatPollingInterval);
+                    return;
+                }
+                const pollResponse = await fetch(`/api/tickets.php?ticket_id=${ticketId}`);
+                const pollRes = await pollResponse.json();
+                if (pollRes.ok) {
+                    const currentCount = container.querySelectorAll('.chat-msg-row').length;
+                    if (pollRes.messages.length !== currentCount) {
+                        renderChatMessages(pollRes.messages);
+                    }
+                }
+            }, 4000);
+
+        } catch (e) {
+            container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">${T.load_chat_error}</div>`;
+        }
+    }
+
+    function renderChatMessages(messages) {
+        const container = $('#chatMessagesContainer');
+        if (messages.length === 0) {
+            container.innerHTML = `<div class="chat-empty">${T.no_chat_messages}</div>`;
+            return;
+        }
+
+        const loggedUserId = BOOT.userId;
+
+        container.innerHTML = messages.map(msg => {
+            const isMe = parseInt(msg.sender_id, 10) === loggedUserId;
+            const rowClass = isMe ? 'msg-row-me' : 'msg-row-them';
+            const bubbleClass = isMe ? 'chat-msg-me' : 'chat-msg-them';
+
+            const roleBadge = (msg.ruolo === 'admin' || msg.ruolo === 'owner')
+                ? '<span class="chat-msg-staff">Staff</span>'
+                : '';
+
+            const attachmentMarkup = msg.attachment_url ? `
+                <a class="chat-msg-attachment" href="${msg.attachment_url}" target="_blank" rel="noopener">
+                    <img src="${msg.attachment_url}" alt="">
+                </a>
+            ` : '';
+
+            const pfpUrl = parseInt(msg.sender_id, 10) > 0 ? `/includes/get_pfp.php?id=${msg.sender_id}` : '/img/abdul.jpg';
+
+            return `
+                <div class="chat-msg-row ${rowClass}">
+                    <img src="${pfpUrl}" class="chat-msg-pfp" alt="" onerror="this.onerror=null;this.src='/img/abdul.jpg'">
+                    <div class="chat-msg-bubble ${bubbleClass}">
+                        <div class="chat-msg-meta">
+                            <span><strong>${htmlEscape(msg.username || T.guest)}</strong>${roleBadge}</span>
+                            <span>${formatMessageTime(msg.created_at)}</span>
+                        </div>
+                        <div class="chat-msg-text">${htmlEscape(msg.message)}</div>
+                        ${attachmentMarkup}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.scrollTop = container.scrollHeight;
+    }
+
+    /**
+     * Bolla provvisoria in fondo alla chat.
+     *
+     * Il polling la sostituisce con quella vera al giro successivo, quindi
+     * qui non serve altro che farla vedere e ricordarsi di toglierla se
+     * l'invio fallisce.
+     */
+    function bollaInAttesa(testo) {
+        const container = $('#chatMessagesContainer');
+        if (!container) return null;
+
+        const riga = document.createElement('div');
+        riga.className = 'chat-msg-row msg-row-me chat-msg-pending';
+        riga.innerHTML = `
+            <img src="/includes/get_pfp.php?id=${BOOT.userId}" class="chat-msg-pfp" alt=""
+                onerror="this.onerror=null;this.src='/img/abdul.jpg'">
+            <div class="chat-msg-bubble chat-msg-me">
+                <div class="chat-msg-meta">
+                    <span></span>
+                    <span><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                </div>
+                <div class="chat-msg-text">${htmlEscape(testo)}</div>
+            </div>
+        `;
+        container.appendChild(riga);
+        container.scrollTop = container.scrollHeight;
+        return riga;
+    }
+
+    function setupChatFormEvents(ticketId) {
+        const form = $('#chatSendForm');
+        const fileInput = $('#chat-attachment');
+        const previewContainer = $('#chat-preview-container');
+        const imagePreview = $('#chat-image-preview');
+        const removePreview = $('#chat-remove-preview');
+        const messageInput = $('#chatMessageInput');
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    if (!file.type.startsWith('image/')) {
+                        alert(T.only_images);
+                        this.value = '';
+                        return;
+                    }
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(T.image_too_big);
+                        this.value = '';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        previewContainer.hidden = false;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        if (removePreview) {
+            removePreview.addEventListener('click', function(e) {
+                e.preventDefault();
+                fileInput.value = '';
+                previewContainer.hidden = true;
+                imagePreview.src = '';
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const messageText = messageInput.value.trim();
+                if (!messageText) return;
+
+                const formData = new FormData(form);
+                formData.append('csrf_token', csrfToken);
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                // La bolla compare subito, in attesa. Prima si scriveva, si
+                // premeva invia e non succedeva niente finche' il server non
+                // rispondeva: su una connessione lenta sembrava rotto.
+                const inAttesa = bollaInAttesa(messageText);
+                messageInput.value = '';
+                messageInput.style.height = '';
+
+                try {
+                    const response = await fetch('/api/tickets.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const res = await response.json();
+
+                    if (res.ok) {
+                        fileInput.value = '';
+                        previewContainer.hidden = true;
+                        imagePreview.src = '';
+                        
+                        loadTicketMessages(ticketId);
+                    } else {
+                        if (inAttesa) inAttesa.remove();
+                        messageInput.value = messageText;
+                        alert(T.send_error + res.error);
+                    }
+                } catch (err) {
+                    if (inAttesa) inAttesa.remove();
+                    messageInput.value = messageText;
+                    alert(T.send_conn_error);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+                }
+            });
+
+            // Invio con tasto Invio (e Shift+Invio per andare a capo)
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    form.requestSubmit();
+                }
+            });
+        }
+    }
+
+    async function markAsRead(messageId) {
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'read',
+                    message_id: messageId
+                })
+            });
+            const res = await response.json();
+            if (res.ok) {
+                const msg = globalMessages.find(m => m.message_id === messageId);
+                if (msg && parseInt(msg.is_read) === 0) {
+                    msg.is_read = 1;
+
+                    const card = $(`.inbox-card[data-id="${messageId}"]`);
+                    if (card) card.classList.remove('is-unread');
+
+                    // Ricalcoliamo i badge e aggiorniamo navbar
+                    updateCategoryCounters();
+                    updateNavbarBadge(res.unread_count);
+                }
+            }
+        } catch (e) {
+            console.error('mark as read failed', e);
+        }
+    }
+
+    async function toggleImportant(messageId) {
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'toggle_important',
+                    message_id: messageId
+                })
+            });
+            const res = await response.json();
+            if (res.ok) {
+                const msg = globalMessages.find(m => m.message_id === messageId);
+                if (msg) msg.is_important = res.is_important;
+                renderFilteredList();
+            }
+        } catch (e) {
+            alert(T.star_error);
+        }
+    }
+
+    async function toggleArchive(messageId) {
+        currentMessageId = null;
+        renderEmptyDetails();
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'toggle_archive',
+                    message_id: messageId
+                })
+            });
+            const res = await response.json();
+            if (res.ok) {
+                loadMessages();
+            } else {
+                alert(T.error_prefix + res.error);
+                loadMessages();
+            }
+        } catch (e) {
+            alert(T.archive_error);
+            loadMessages();
+        }
+    }
+
+    async function deleteMessage(messageId) {
+        currentMessageId = null;
+        renderEmptyDetails();
+
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'delete',
+                    message_id: messageId
+                })
+            });
+            const res = await response.json();
+            if (res.ok) {
+                loadMessages();
+            } else {
+                alert(res.error);
+                loadMessages();
+            }
+        } catch (e) {
+            alert(T.delete_error);
+            loadMessages();
+        }
+    }
+
+    async function claimRewards(messageId) {
+        const btn = $('#claimRewardsBtn');
+        if (!btn) return;
+
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i>${T.claiming}`;
+
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'claim_rewards',
+                    message_id: messageId
+                })
+            });
+            const res = await response.json();
+
+            if (!res.ok) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-gift"></i>${T.claim_rewards}`;
+                alert(res.error || T.claim_error);
+                return;
+            }
+
+            const listContainer = $('#rewardModalList');
+            listContainer.innerHTML = res.rewards.map(rew => {
+                let icon = '🎁';
+                if (rew.type === 'points') icon = `<img src="/img/godos.png" alt="Godos" style="width: 22px; height: 22px; vertical-align: middle; margin-right: 8px; object-fit: contain;">`;
+                else if (rew.type === 'godoshards') icon = `<img src="/img/godoshards.png" alt="Godo Shards" style="width: 22px; height: 22px; vertical-align: middle; margin-right: 8px; object-fit: contain;">`;
+                else if (rew.type === 'character') icon = '👤';
+                else if (rew.type === 'badge') icon = '🏆';
+                else if (rew.type === 'premium') icon = '⭐';
+
+                return `
+                    <div class="inbox-reward-modal-item" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                        <span>${icon}</span>
+                        <span>${htmlEscape(rew.label)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            $('#rewardModalBackdrop').classList.add('is-visible');
+            loadMessages();
+
+        } catch (e) {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-gift"></i>${T.claim_rewards}`;
+            alert(T.conn_error_generic);
+        }
+    }
+
+    // Helpers di formattazione
+    function formatMessageDate(dateStr) {
+        const date = new Date(dateStr.replace(' ', 'T'));
+        if (isNaN(date.getTime())) return dateStr;
+
+        const now = new Date();
+        const isToday = date.toDateString() === now.toDateString();
+
+        if (isToday) {
+            return date.toLocaleTimeString(LOCALE, {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } else {
+            return date.toLocaleDateString(LOCALE, {
+                day: '2-digit',
+                month: '2-digit'
+            });
+        }
+    }
+
+    function formatMessageDateTime(dateStr) {
+        const date = new Date(dateStr.replace(' ', 'T'));
+        if (isNaN(date.getTime())) return dateStr;
+        return date.toLocaleString(LOCALE, {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function formatMessageTime(dateStr) {
+        const date = new Date(dateStr.replace(' ', 'T'));
+        if (isNaN(date.getTime())) return dateStr;
+        return date.toLocaleTimeString(LOCALE, {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function htmlEscape(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function parseMarkdown(text) {
+        let html = htmlEscape(text);
+        
+        html = html.replace(/^### (.*?)$/gm, '<h3 style="color:#c084fc; margin:16px 0 8px 0; font-weight:750; font-size:1.2rem;">$1</h3>');
+        html = html.replace(/^## (.*?)$/gm, '<h2 style="color:#c084fc; margin:20px 0 10px 0; font-weight:800; font-size:1.4rem;">$1</h2>');
+        html = html.replace(/^# (.*?)$/gm, '<h1 style="color:#c084fc; margin:24px 0 12px 0; font-weight:900; font-size:1.6rem;">$1</h1>');
+        
+        html = html.replace(/^&gt;\s+(.*?)$/gm, '<blockquote style="border-left: 4px solid #8b5cf6; padding-left: 12px; margin: 12px 0; color: rgba(255,255,255,0.7); font-style: italic;">$1</blockquote>');
+        
+        html = html.replace(/^(?:-|\*)\s+(.*?)$/gm, '<li style="margin-left: 20px; list-style-type: disc; margin-bottom: 4px;">$1</li>');
+        
+        html = html.replace(/!\[(.*?)\]\(([^)]+)\)/g, function(match, alt, url) {
+            const cleanUrl = url.replace(/&amp;/g, '&');
+            return `<img src="${cleanUrl}" alt="${alt}" class="inbox-embedded-img">`;
+        });
+        
+        html = html.replace(/\[(.*?)\]\(([^)]+)\)/g, function(match, label, url) {
+            const cleanUrl = url.replace(/&amp;/g, '&');
+            return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" style="color:#8b5cf6; text-decoration:underline; font-weight:600; transition:color 0.2s;" onmouseover="this.style.color=\'#a78bfa\'" onmouseout="this.style.color=\'#8b5cf6\'">${label}</a>`;
+        });
+        
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        return html;
+    }
+})();

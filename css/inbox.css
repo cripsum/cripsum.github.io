@@ -24,13 +24,17 @@
 /* ══ MAIN LAYOUT CONTAINER ══ */
 .inbox-container {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 24px;
+    /* La colonna delle categorie non c'e' piu': erano sei voci in una
+       colonna intera, e i ticket ci stavano dentro come se fossero un tipo
+       di messaggio. Ora quella larghezza va alla lista e al dettaglio. */
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 16px;
     width: min(1360px, calc(100% - 32px));
     margin: 0 auto;
     padding-top: 8rem; /* Large top padding to clear fixed navbar beautifully */
     padding-bottom: 4rem;
-    min-height: 100vh;
+    min-height: 100dvh;
     box-sizing: border-box;
 }
 
@@ -134,8 +138,8 @@
     border: 1px solid var(--home-border);
     background: rgba(8, 11, 22, 0.3);
     padding: 0;
-    height: calc(100vh - 14rem);
-    min-height: 600px;
+    min-height: 0;
+    height: 100%;
     box-sizing: border-box;
 }
 
@@ -755,7 +759,7 @@
     
     .inbox-main-layout {
         grid-template-columns: 320px minmax(0, 1fr);
-        height: calc(100vh - 16rem);
+        height: calc(100dvh - 16rem);
         min-height: 550px;
     }
 }
@@ -770,7 +774,7 @@
     
     .inbox-main-layout {
         grid-template-columns: minmax(0, 1fr);
-        height: calc(100vh - 14rem);
+        height: calc(100dvh - 14rem);
         min-height: 500px;
         position: relative;
         overflow: hidden;
@@ -916,4 +920,677 @@
 @keyframes bounceReward {
     0%, 100% { transform: translateY(0) scale(1); }
     50% { transform: translateY(-8px) scale(1.04); }
+}
+
+/* ============================================================
+   Chat dei ticket e dettagli della barra laterale
+
+   Questo blocco stava in un <style> dentro it/inbox.php e, uguale, dentro
+   en/inbox.php. Insieme ci sono gli stili che erano scritti negli attributi
+   style= del markup: in un attributo non si possono usare media query né
+   stati, quindi quella roba non era adattabile per costruzione.
+   ============================================================ */
+
+.inbox-chat-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: rgba(13, 20, 35, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.inbox-chat-messages {
+    flex-grow: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    background: rgba(8, 12, 24, 0.15);
+}
+
+.inbox-chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.inbox-chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.inbox-chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+}
+
+.inbox-chat-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Messaggi con foto profilo ───────────────────────────── */
+
+.chat-msg-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    max-width: 80%;
+    animation: msg-slide-in 0.2s ease-out;
+}
+
+.msg-row-me {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.msg-row-them {
+    margin-right: auto;
+}
+
+.chat-msg-bubble {
+    padding: 0.8rem 1.1rem;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    color: #f1f5f9;
+}
+
+@keyframes msg-slide-in {
+    from {
+        transform: translateY(8px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.chat-msg-me {
+    background: #6d28d9;
+    border-bottom-right-radius: 2px;
+}
+
+.chat-msg-them {
+    background: #1e293b;
+    border-bottom-left-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.inbox-card-category.cat-ticket {
+    background: rgba(139, 92, 246, 0.12);
+    color: #c084fc;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chat-msg-row {
+        animation: none;
+    }
+}
+
+/* ── Apertura e chiusura del ticket ──────────────────────── */
+
+.btn-toggle-ticket {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    background: transparent;
+    font-family: inherit;
+}
+
+.btn-toggle-ticket--close {
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-toggle-ticket--close:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+}
+
+.btn-toggle-ticket--reopen {
+    color: #23a55a;
+    border: 1px solid rgba(35, 165, 90, 0.3);
+}
+
+.btn-toggle-ticket--reopen:hover {
+    background: rgba(35, 165, 90, 0.1);
+    border-color: #23a55a;
+}
+
+/* ── Barra laterale: pezzi che erano attributi style= ───── */
+
+.inbox-sidebar-title {
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+}
+
+.inbox-sidebar-title i {
+    color: #0f5bff;
+}
+
+.inbox-sidebar-divider {
+    margin: 15px 10px 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 12px;
+}
+
+.inbox-sidebar-group {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.inbox-view-empty-sub {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* Gli aloni di sfondo erano due gradienti scritti negli attributi. */
+.home-bg .home-orb--one {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+}
+
+.home-bg .home-orb--two {
+    background: radial-gradient(circle, rgba(15, 91, 255, 0.4) 0%, transparent 70%);
+}
+
+/* ============================================================
+   Navigazione: sezioni, chip, e il resto del nuovo impianto
+
+   Prima i livelli erano tre: una colonna di categorie a sinistra (con i
+   ticket infilati dentro come se fossero un tipo di messaggio), poi le
+   linguette di stato che cambiavano significato a seconda della categoria
+   scelta, poi la lista. Ora i livelli sono due e ognuno resta se stesso.
+   ============================================================ */
+
+.inbox-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+    padding: 14px 20px;
+    border: 1px solid var(--home-border);
+    border-radius: var(--home-radius-lg);
+    background: rgba(8, 11, 22, 0.45);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+}
+
+.inbox-sections {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.inbox-section-btn {
+    flex: 0 0 auto;
+    min-width: 150px;
+}
+
+.inbox-section-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--home-border);
+    border-radius: var(--home-radius-md);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--home-muted);
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--home-transition), border-color var(--home-transition), color var(--home-transition);
+}
+
+.inbox-section-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--home-text);
+}
+
+.inbox-section-btn.is-active {
+    background: rgba(var(--home-accent-rgb), 0.14);
+    border-color: rgba(var(--home-accent-rgb), 0.45);
+    color: var(--home-text);
+}
+
+.inbox-section-btn i {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+/* Pastiglia rossa: quante cose aspettano te. */
+.inbox-section-badge {
+    min-width: 19px;
+    height: 19px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 19px;
+    text-align: center;
+}
+
+/* ── Chip delle categorie ────────────────────────────────── */
+
+.inbox-chips {
+    display: flex;
+    gap: 7px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.inbox-chips::-webkit-scrollbar {
+    display: none;
+}
+
+.inbox-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border: 1px solid var(--home-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--home-muted);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--home-transition), border-color var(--home-transition), color var(--home-transition);
+}
+
+.inbox-chip:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--home-text);
+}
+
+.inbox-chip.is-active {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: var(--home-border-strong);
+    color: var(--home-text);
+}
+
+/* Numero grigio: quante ce ne sono. Non e' una notifica. */
+.inbox-chip-badge {
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--home-muted-2);
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.inbox-chip.is-active .inbox-chip-badge {
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--home-text);
+}
+
+/* ── Conferma di eliminazione dentro il tasto ────────────── */
+
+.inbox-action-btn.is-confirming {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.55);
+    color: #fca5a5;
+}
+
+/* ── Chat: classi al posto degli attributi style ─────────── */
+
+.chat-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--home-muted-2);
+}
+
+.chat-msg-pfp {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-msg-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 2px;
+    font-size: 0.72rem;
+    color: #94a3b8;
+}
+
+.msg-row-me .chat-msg-meta strong {
+    color: #e9d5ff;
+}
+
+.msg-row-them .chat-msg-meta strong {
+    color: #cbd5e1;
+}
+
+.chat-msg-staff {
+    margin-left: 5px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.chat-msg-text {
+    font-size: 0.92rem;
+    color: #f1f5f9;
+    line-height: 1.4;
+    text-align: left;
+    word-break: break-word;
+    white-space: pre-line;
+}
+
+.chat-msg-attachment {
+    display: block;
+    max-width: 280px;
+    margin-top: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.chat-msg-attachment img {
+    display: block;
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+/* La bolla scritta ma non ancora confermata dal server. */
+.chat-msg-pending {
+    opacity: 0.55;
+}
+
+/* ── Testata della chat ──────────────────────────────────── */
+
+.inbox-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inbox-chat-heading {
+    min-width: 0;
+}
+
+.inbox-chat-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.inbox-chat-title i {
+    color: #c084fc;
+    font-size: 0.95rem;
+}
+
+.inbox-chat-sub {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+.inbox-chat-topic {
+    color: #c084fc;
+    font-weight: 600;
+}
+
+.inbox-chat-sub strong {
+    color: #f1f5f9;
+}
+
+.inbox-chat-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.inbox-ticket-state {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.inbox-ticket-state.is-open {
+    background: rgba(35, 165, 90, 0.12);
+    border: 1px solid rgba(35, 165, 90, 0.2);
+    color: #23a55a;
+}
+
+.inbox-ticket-state.is-closed {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+/* ── Modulo di invio ─────────────────────────────────────── */
+
+.inbox-chat-input-area {
+    padding: 0.7rem 1.2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(13, 20, 35, 0.25);
+}
+
+.inbox-chat-locked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 1rem 1.2rem;
+    background: rgba(239, 68, 68, 0.05);
+    color: #ef4444;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.chat-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-attach-btn,
+.chat-send-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color var(--home-transition), border-color var(--home-transition);
+}
+
+.chat-attach-btn {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: #a78bfa;
+}
+
+.chat-attach-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.chat-send-btn {
+    border: none;
+    background: var(--home-purple);
+    color: #fff;
+}
+
+.chat-send-btn:hover:not(:disabled) {
+    background: #7c4ded;
+}
+
+.chat-send-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.chat-input {
+    flex-grow: 1;
+    min-width: 0;
+    height: 38px;
+    min-height: 38px;
+    max-height: 80px;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    outline: none;
+    resize: none;
+}
+
+.chat-input:focus {
+    border-color: rgba(var(--home-accent-rgb), 0.45);
+}
+
+.chat-preview {
+    position: relative;
+    max-width: 120px;
+    margin-top: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.chat-preview img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.chat-preview-remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.8);
+    color: #fff;
+    font-size: 0.65rem;
+    cursor: pointer;
+}
+
+/* ── Le etichette dei tasti azione ───────────────────────────
+   Sotto i 1150px sparivano e restavano tre icone mute: stella, scatola,
+   cestino. Stella e cestino si indovinano, la scatola dell'archivio no.
+   Tornano visibili, stringendo il resto per farle stare. */
+
+@media (max-width: 1150px) {
+    .inbox-action-btn span {
+        display: inline;
+    }
+
+    .inbox-action-btn {
+        gap: 6px;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .inbox-topbar {
+        gap: 10px;
+        padding: 12px 14px;
+    }
+
+    .inbox-sections {
+        width: 100%;
+    }
+
+    .inbox-section-btn {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .inbox-chips {
+        flex: 1 0 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .inbox-action-btn {
+        padding: 7px 9px;
+        font-size: 0.75rem;
+    }
+
+    .inbox-chat-header {
+        flex-wrap: wrap;
+        padding: 0.9rem;
+    }
+
+    .inbox-chat-title {
+        font-size: 0.98rem;
+    }
+
+    .inbox-section-btn {
+        padding: 10px 10px;
+        font-size: 0.86rem;
+    }
+}
+
+/* Le quattro linguette di stato devono stare nei 380px della colonna senza
+   costringere a scorrerle di lato per trovare Archivio. */
+.inbox-filters {
+    padding: 10px 12px;
+    gap: 4px;
+}
+
+.inbox-filter-tab {
+    padding: 7px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
 }

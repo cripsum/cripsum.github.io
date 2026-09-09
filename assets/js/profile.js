@@ -1773,7 +1773,7 @@
                         let roleLabel = user.ruolo === 'owner' ? 'Owner' : (user.ruolo === 'admin' ? 'Admin' : (isIt ? 'Utente' : 'User'));
                         return `
                             <a href="/u/${encodeURIComponent(user.username)}" class="profile-search-item">
-                                <img src="${user.pfp}" alt="${user.username}" class="profile-search-avatar" onerror="this.src='/img/default_pfp.png'">
+                                <img src="${user.pfp}" alt="${user.username}" class="profile-search-avatar" onerror="this.onerror=null;this.src='/img/abdul.jpg'">
                                 <div class="profile-search-info">
                                     <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
                                         <span class="profile-search-username">${user.display_name && user.display_name.trim() ? user.display_name : user.username}</span>

@@ -701,7 +701,7 @@
                 return '<a href="/u/' + encodeURIComponent(u.username) + '"' +
                     ' class="search-result-item" role="option" data-index="' + i + '" tabindex="-1">' +
                     '<img src="' + escapeHtml(u.pfp) + '" alt="" class="search-result-avatar" loading="lazy"' +
-                    ' onerror="this.src=\'/img/default_pfp.png\'">' +
+                    ' onerror="this.onerror=null;this.src=\'/img/abdul.jpg\'">' +
                     '<div class="search-result-info">' +
                     '<span class="search-result-username">' + name + gem + '</span>' +
                     handle +
