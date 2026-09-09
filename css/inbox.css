@@ -34,7 +34,11 @@
     margin: 0 auto;
     padding-top: 8rem; /* Large top padding to clear fixed navbar beautifully */
     padding-bottom: 4rem;
-    min-height: 100dvh;
+    /* height, non min-height: e' questo che da' un fondo alla riga della
+       lista. Con il solo minimo il contenitore cresceva insieme ai messaggi
+       e la pagina diventava lunga quanto la casella. */
+    height: 100dvh;
+    min-height: 640px;
     box-sizing: border-box;
 }
 
@@ -759,8 +763,6 @@
     
     .inbox-main-layout {
         grid-template-columns: 320px minmax(0, 1fr);
-        height: calc(100dvh - 16rem);
-        min-height: 550px;
     }
 }
 
@@ -774,8 +776,6 @@
     
     .inbox-main-layout {
         grid-template-columns: minmax(0, 1fr);
-        height: calc(100dvh - 14rem);
-        min-height: 500px;
         position: relative;
         overflow: hidden;
     }
@@ -1593,4 +1593,27 @@
     padding: 7px 10px;
     font-size: 0.72rem;
     letter-spacing: 0.03em;
+}
+
+/* Su schermo stretto il segnaposto del campo di risposta andava a capo
+   dentro un campo alto 38px, e si vedeva mezza riga tagliata. */
+@media (max-width: 560px) {
+    .inbox-chat-input-area {
+        padding: 0.6rem 0.8rem;
+    }
+
+    .chat-form {
+        gap: 8px;
+    }
+
+    .chat-input {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.88rem;
+    }
+
+    .chat-attach-btn,
+    .chat-send-btn {
+        width: 36px;
+        height: 36px;
+    }
 }
