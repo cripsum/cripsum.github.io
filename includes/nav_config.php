@@ -235,6 +235,7 @@ if (!function_exists('nav_lang')) {
                     ['icon' => 'fa-gamepad',           'label' => $t['duels'],  'href' => "/$lang/game/"],
                     ['icon' => 'fa-train',             'label' => $t['subway'], 'href' => "/$lang/subway"],
                     ['icon' => 'fa-headphones-simple', 'label' => 'Pullspot',   'href' => "/$lang/pullspot"],
+                    ['icon' => 'fa-compact-disc',      'label' => 'Animespot',  'href' => "/$lang/animespot"],
                 ],
             ],
             [

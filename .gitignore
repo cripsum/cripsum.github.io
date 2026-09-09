@@ -4,3 +4,8 @@ config/paypal_config.php
 config/discord_oauth.php
 secure/config.php
 presence-bot/
+
+# Cache locali di Animespot: pagine delle API e inizi dei file audio.
+scratch/animespot/
+scratch/animespot-audio/
+scratch/*.log

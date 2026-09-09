@@ -18,7 +18,7 @@ RewriteEngine On
 
 # Never expose application secrets, local diagnostics, or browser-executable
 # content uploaded by users.
-RewriteRule ^(?:config|secure|migrations)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:config|secure|migrations|scripts)(?:/|$) - [F,L,NC]
 RewriteRule ^(?:scratch)(?:/|$) - [F,L,NC]
 RewriteRule ^(?:debug_chars|test_apply)\.php$ - [F,L,NC]
 RewriteRule ^api/(?:bot/migrate_[^/]+|chat/(?:create_group_chat_db|debug_chat|fix_chat_db|temp_debug|test_list|test_messages)|game/(?:check_db_name|check_prod_db|debug_actions)|social/(?:init_db|debug_friends|debug_profile))\.php$ - [F,L,NC]
