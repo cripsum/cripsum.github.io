@@ -1591,6 +1591,103 @@ body.as-page .as-input:disabled { opacity: .5; }
     box-shadow: inset 0 0 0 1px var(--as-accent-line);
 }
 
+/* ── Classifica ────────────────────────────────────────────────────────── */
+
+/* La classifica ha cinque colonne e i nomi possono essere lunghi: la finestra
+   delle statistiche starebbe stretta. */
+.as-modal__box--wide { max-width: 34rem; }
+
+.as-switch--three { grid-template-columns: repeat(3, 1fr); }
+
+.as-ranks {
+    display: grid;
+    gap: 2px;
+    margin-top: .3rem;
+}
+
+.as-rank {
+    display: grid;
+    grid-template-columns: 1.8rem 1.6rem minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: .55rem;
+    padding: .4rem .5rem;
+    border-radius: 8px;
+    font-size: .84rem;
+}
+
+/* L'intestazione non è una riga come le altre: niente sfondo, solo le parole
+   che dicono che cosa sono i due numeri a destra. */
+.as-rank--head {
+    padding-bottom: .2rem;
+    font-size: .64rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--as-dim);
+}
+
+.as-rank--head .as-rank__score,
+.as-rank--head .as-rank__meta { color: var(--as-dim); }
+
+.as-ranks .as-rank:nth-child(odd) { background: rgba(255, 255, 255, .022); }
+
+.as-rank__place {
+    font-family: var(--as-mono);
+    font-size: .74rem;
+    text-align: right;
+    color: var(--as-dim);
+}
+
+/* I primi tre posti portano il colore acceso: è il premio che si vede da
+   lontano scorrendo l'elenco. */
+.as-rank--top .as-rank__place { color: var(--as-accent); }
+
+.as-rank__face {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 999px;
+    object-fit: cover;
+    background: var(--as-panel-hi);
+}
+
+.as-rank__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--as-text);
+    text-decoration: none;
+}
+
+.as-rank__name:hover { color: var(--as-accent); }
+
+.as-rank__score {
+    font-family: var(--as-mono);
+    font-weight: 700;
+    color: var(--as-text);
+}
+
+.as-rank__meta {
+    font-family: var(--as-mono);
+    font-size: .68rem;
+    color: var(--as-dim);
+}
+
+/* La propria riga resta riconoscibile anche in mezzo a cinquanta altre. */
+.as-rank--me {
+    background: var(--as-accent-soft) !important;
+    box-shadow: inset 0 0 0 1px var(--as-accent-line);
+}
+
+.as-rank--me .as-rank__name,
+.as-rank--me .as-rank__score { color: var(--as-accent); }
+
+/* Lo stacco fra i primi cinquanta e la propria riga, quando si è più giù. */
+.as-ranks__gap {
+    padding: .3rem 0;
+    text-align: center;
+    letter-spacing: .3em;
+    color: var(--as-dim);
+}
+
 /* ── Attribuzione ──────────────────────────────────────────────────────── */
 
 /* Le sigle non sono nostre: chi ce le dà va nominato, e va nominato dove si

@@ -55,6 +55,7 @@ $copy = [
         'help'       => 'Aiuto',
         'rules'      => 'Come si gioca',
         'stats'      => 'Statistiche',
+        'board'      => 'Classifica',
         'loading'    => 'Sto cercando una sigla…',
         'retry'      => 'Riprova',
         'play'       => 'Ascolta il frammento',
@@ -93,6 +94,7 @@ $copy = [
         'help'       => 'Help',
         'rules'      => 'How to play',
         'stats'      => 'Statistics',
+        'board'      => 'Leaderboard',
         'loading'    => 'Looking for a theme…',
         'retry'      => 'Try again',
         'play'       => 'Play the clip',
@@ -274,6 +276,9 @@ $copy = [
                         <button type="button" class="as-opt" data-as-open-stats>
                             <i class="fa-solid fa-chart-simple" aria-hidden="true"></i> <?php echo as_h($copy['stats']); ?>
                         </button>
+                        <button type="button" class="as-opt" data-as-open-board>
+                            <i class="fa-solid fa-ranking-star" aria-hidden="true"></i> <?php echo as_h($copy['board']); ?>
+                        </button>
                     </div>
                 </div>
             </aside>
@@ -295,6 +300,19 @@ $copy = [
                 </button>
             </div>
             <div data-as-stats-body></div>
+        </div>
+    </div>
+
+    <div class="as-modal" data-as-board-modal hidden role="dialog" aria-modal="true" aria-label="<?php echo as_h($copy['board']); ?>">
+        <div class="as-modal__box as-modal__box--wide">
+            <div class="as-modal__head">
+                <h2><?php echo as_h($copy['board']); ?></h2>
+                <button type="button" class="as-iconbtn" data-as-close aria-label="<?php echo as_h($copy['close']); ?>">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="as-switch as-switch--three" data-as-board-periods></div>
+            <div data-as-board-body></div>
         </div>
     </div>
 

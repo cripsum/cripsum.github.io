@@ -1053,6 +1053,164 @@ function animespot_stats(mysqli $mysqli, int $userId): array
     return $stats;
 }
 
+/* ── Classifica ─────────────────────────────────────────────────────────── */
+
+/** I periodi su cui si può guardare la classifica. */
+const ANIMESPOT_PERIODS = ['settimana', 'mese', 'sempre'];
+
+function animespot_period_from(string $period): string
+{
+    return match ($period) {
+        'settimana' => date('Y-m-d H:i:s', strtotime('-7 days')),
+        'mese'      => date('Y-m-d H:i:s', strtotime('-30 days')),
+        default     => '1970-01-01 00:00:00',
+    };
+}
+
+/**
+ * La classifica di chi ha indovinato più sigle.
+ *
+ * Si ordina per sigle prese, non per punti: i punti premiano chi indovina in
+ * fretta, che è un'altra bravura e la si vede nella colonna accanto. Chi gioca
+ * tanto e sbaglia spesso resta comunque davanti a chi non gioca, ed è giusto
+ * così — è una classifica che deve invogliare a giocare.
+ *
+ * I tre periodi non sono un vezzo: senza, dopo un mese la cima diventa
+ * inarrivabile e chi arriva dopo non ha più niente da vincere.
+ */
+function animespot_board(mysqli $mysqli, string $period = 'settimana', int $limit = 50): array
+{
+    if (!animespot_state_ready($mysqli)) return [];
+
+    $limit = max(1, min(100, $limit));
+    $since = animespot_period_from($period);
+
+    // La tabella degli utenti può avere nomi diversi da quelli che ci si
+    // aspetta: se manca si mostra comunque la classifica, con i numeri al
+    // posto dei nomi, invece di non mostrarla.
+    if (!auth_table_exists($mysqli, 'utenti')) return [];
+
+    $sql =
+        'SELECT p.utente_id,'
+        . " SUM(p.esito = 'vinto') AS indovinate,"
+        . ' COALESCE(SUM(p.punti), 0) AS punti,'
+        . ' COUNT(*) AS giocate,'
+        . ' MAX(p.creato_il) AS ultima,'
+        . ' u.username, u.display_name, u.discord_id, u.discord_avatar, u.discord_use_avatar,'
+        . ' COALESCE(u.is_premium, 0) AS is_premium'
+        . ' FROM `' . ANIMESPOT_TABLE_GAMES . '` p'
+        . ' JOIN `utenti` u ON u.id = p.utente_id'
+        . ' WHERE p.creato_il >= ? AND (u.isBannato IS NULL OR u.isBannato = 0)'
+        . ' GROUP BY p.utente_id'
+        . ' HAVING indovinate > 0'
+        . ' ORDER BY indovinate DESC, punti DESC, ultima ASC'
+        . ' LIMIT ?';
+
+    $stmt = $mysqli->prepare($sql);
+    if (!$stmt) return [];
+
+    $stmt->bind_param('si', $since, $limit);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $rows = [];
+    $rank = 0;
+
+    while ($row = $result->fetch_assoc()) {
+        $rows[] = animespot_board_row($row, ++$rank);
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/** Una riga di classifica, con avatar e nome come li mostra il resto del sito. */
+function animespot_board_row(array $row, int $rank): array
+{
+    $userId = (int)$row['utente_id'];
+    $name   = trim((string)($row['display_name'] ?? '')) !== ''
+        ? (string)$row['display_name']
+        : (string)($row['username'] ?? ('#' . $userId));
+
+    $avatar = '/includes/get_pfp.php?id=' . $userId;
+    if (!empty($row['discord_use_avatar']) && !empty($row['discord_avatar']) && !empty($row['discord_id'])) {
+        $avatar = 'https://cdn.discordapp.com/avatars/'
+            . rawurlencode((string)$row['discord_id']) . '/'
+            . rawurlencode((string)$row['discord_avatar']) . '.png';
+    }
+
+    $played = max(1, (int)$row['giocate']);
+    $won    = (int)$row['indovinate'];
+
+    return [
+        'rank'       => $rank,
+        'user_id'    => $userId,
+        'username'   => (string)($row['username'] ?? ''),
+        'name'       => $name,
+        'avatar'     => $avatar,
+        'premium'    => (int)($row['is_premium'] ?? 0) === 1,
+        'guessed'    => $won,
+        'points'     => (int)$row['punti'],
+        'played'     => (int)$row['giocate'],
+        'rate'       => (int)round($won * 100 / $played),
+    ];
+}
+
+/**
+ * La riga del giocatore che sta guardando, con la sua posizione vera.
+ *
+ * Serve a chi sta oltre il cinquantesimo posto: una classifica in cui non ti
+ * trovi non ti dice se stai salendo, e quindi non ti fa giocare.
+ */
+function animespot_board_me(mysqli $mysqli, int $userId, string $period = 'settimana'): ?array
+{
+    if (!animespot_state_ready($mysqli) || !auth_table_exists($mysqli, 'utenti')) return null;
+
+    $since = animespot_period_from($period);
+
+    $stmt = $mysqli->prepare(
+        'SELECT p.utente_id,'
+        . " SUM(p.esito = 'vinto') AS indovinate,"
+        . ' COALESCE(SUM(p.punti), 0) AS punti,'
+        . ' COUNT(*) AS giocate,'
+        . ' u.username, u.display_name, u.discord_id, u.discord_avatar, u.discord_use_avatar,'
+        . ' COALESCE(u.is_premium, 0) AS is_premium'
+        . ' FROM `' . ANIMESPOT_TABLE_GAMES . '` p'
+        . ' JOIN `utenti` u ON u.id = p.utente_id'
+        . ' WHERE p.utente_id = ? AND p.creato_il >= ?'
+        . ' GROUP BY p.utente_id'
+    );
+    if (!$stmt) return null;
+
+    $stmt->bind_param('is', $userId, $since);
+    $stmt->execute();
+    $mine = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$mine || (int)$mine['indovinate'] <= 0) return null;
+
+    $stmt = $mysqli->prepare(
+        'SELECT COUNT(*) + 1 AS posizione FROM ('
+        . "   SELECT p.utente_id, SUM(p.esito = 'vinto') AS indovinate, COALESCE(SUM(p.punti), 0) AS punti"
+        . '   FROM `' . ANIMESPOT_TABLE_GAMES . '` p'
+        . '   JOIN `utenti` u ON u.id = p.utente_id'
+        . '   WHERE p.creato_il >= ? AND (u.isBannato IS NULL OR u.isBannato = 0)'
+        . '   GROUP BY p.utente_id'
+        . ' ) x WHERE x.indovinate > ? OR (x.indovinate = ? AND x.punti > ?)'
+    );
+    if (!$stmt) return null;
+
+    $won    = (int)$mine['indovinate'];
+    $points = (int)$mine['punti'];
+
+    $stmt->bind_param('siii', $since, $won, $won, $points);
+    $stmt->execute();
+    $rank = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return animespot_board_row($mine, (int)($rank['posizione'] ?? 1));
+}
+
 /* ── Che cosa vede il client ────────────────────────────────────────────── */
 
 /** La scheda della sigla, da mostrare solo a partita finita. */
@@ -1128,8 +1286,14 @@ function animespot_full_payload(
 
     $payload = animespot_public_round($round, $track, $lang);
 
-    $payload['ok']        = true;
-    $payload['slot']      = $slot;
+    // La difficoltà che si mostra è quella della casella, non quella scritta
+    // nella traccia. Coincidono sempre, tranne subito dopo un ricalcolo delle
+    // fasce: lì una serie pescata prima si ritroverebbe l'etichetta sbagliata
+    // accanto alla riga accesa, e chi guarda crederebbe a un errore.
+    $payload['ok']              = true;
+    $payload['slot']            = $slot;
+    $payload['difficulty']      = $slot;
+    $payload['difficulty_name'] = animespot_level_name($slot, $lang);
     $payload['slots']     = animespot_series_state($series, $slot, $lang);
     $payload['next_slot'] = animespot_next_slot($series, $slot);
     $payload['options']   = $options;

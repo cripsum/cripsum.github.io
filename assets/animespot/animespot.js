@@ -69,6 +69,9 @@
             searchStrictHint: 'Solo titoli di serie, e solo da inizio parola.',
             levelNow: 'Difficoltà cambiata.',
             stepsHint: "Spegni i frammenti che non vuoi. L'ultimo resta sempre acceso.",
+            week: 'Settimana', month: 'Mese', ever: 'Sempre',
+            boardWho: 'Giocatore', boardGuessed: 'Sigle', boardRest: '% · punti',
+            boardEmpty: 'Ancora nessuno ha indovinato una sigla in questo periodo. Puoi essere il primo.',
             watch: 'Guarda la sigla',
             onThemes: 'Su AnimeThemes',
             onMal: 'Su MyAnimeList',
@@ -120,6 +123,9 @@
             searchStrictHint: 'Series titles only, and only from the start of a word.',
             levelNow: 'Difficulty changed.',
             stepsHint: 'Turn off the clips you do not want. The last one always stays on.',
+            week: 'Week', month: 'Month', ever: 'All time',
+            boardWho: 'Player', boardGuessed: 'Themes', boardRest: '% · points',
+            boardEmpty: 'Nobody has guessed a theme in this period yet. You could be the first.',
             watch: 'Watch the opening',
             onThemes: 'On AnimeThemes',
             onMal: 'On MyAnimeList',
@@ -191,6 +197,9 @@
         statsModal: document.querySelector('[data-as-stats-modal]'),
         statsBody: document.querySelector('[data-as-stats-body]'),
         rulesModal: document.querySelector('[data-as-rules-modal]'),
+        boardModal: document.querySelector('[data-as-board-modal]'),
+        boardBody: document.querySelector('[data-as-board-body]'),
+        boardPeriods: document.querySelector('[data-as-board-periods]'),
     };
 
     const skipWord = el.skip ? el.skip.querySelector('span') : null;
@@ -1835,6 +1844,142 @@
         }).catch(() => {});
     }
 
+    /* ── Classifica ────────────────────────────────────────────────────── */
+
+    let boardPeriod = 'settimana';
+    let boardRows = null;
+
+    function loadBoard(period) {
+        return request('/api/animespot/board.php?lang=' + LANG + '&period=' + encodeURIComponent(period));
+    }
+
+    /** Una riga della classifica: posto, faccia, nome e i tre numeri. */
+    function boardRow(row, mine) {
+        const line = document.createElement('div');
+        line.className = 'as-rank' + (mine ? ' as-rank--me' : '') + (row.rank <= 3 ? ' as-rank--top' : '');
+
+        const place = document.createElement('span');
+        place.className = 'as-rank__place';
+        text(place, row.rank);
+        line.appendChild(place);
+
+        const face = document.createElement('img');
+        face.className = 'as-rank__face';
+        face.src = row.avatar;
+        face.alt = '';
+        face.loading = 'lazy';
+        line.appendChild(face);
+
+        const name = document.createElement('a');
+        name.className = 'as-rank__name';
+        name.href = '/u/' + encodeURIComponent(row.username || '');
+        text(name, row.name);
+        line.appendChild(name);
+
+        // Il numero grosso è quello per cui si è in classifica; gli altri due
+        // stanno accanto perché indovinare presto e indovinare tanto sono due
+        // bravure diverse e vanno viste insieme.
+        const guessed = document.createElement('span');
+        guessed.className = 'as-rank__score';
+        text(guessed, row.guessed);
+        line.appendChild(guessed);
+
+        const rest = document.createElement('span');
+        rest.className = 'as-rank__meta';
+        text(rest, row.rate + '% · ' + row.points.toLocaleString(LANG === 'en' ? 'en-GB' : 'it-IT'));
+        line.appendChild(rest);
+
+        return line;
+    }
+
+    function renderBoard() {
+        if (!el.boardBody) return;
+
+        // I tre periodi. Il primo è la settimana e non è un caso: su "sempre"
+        // chi arriva adesso non ha nessuna speranza, e una classifica senza
+        // speranza non fa giocare nessuno.
+        renderSwitch(el.boardPeriods, [
+            ['settimana', STRINGS.week],
+            ['mese', STRINGS.month],
+            ['sempre', STRINGS.ever],
+        ], boardPeriod, (value) => { boardPeriod = value; openBoard(); });
+
+        el.boardBody.innerHTML = '';
+
+        if (boardRows === null) {
+            const wait = document.createElement('p');
+            wait.className = 'as-note';
+            text(wait, STRINGS.searching);
+            el.boardBody.appendChild(wait);
+            return;
+        }
+
+        if (!boardRows.rows.length) {
+            const empty = document.createElement('p');
+            empty.className = 'as-note';
+            text(empty, boardRows.persisted ? STRINGS.boardEmpty : STRINGS.noStats);
+            el.boardBody.appendChild(empty);
+            return;
+        }
+
+        const head = document.createElement('div');
+        head.className = 'as-rank as-rank--head';
+
+        // Le prime due colonne (posto e faccia) restano vuote: la loro
+        // intestazione sarebbe una parola per dire una cosa che si vede.
+        [
+            ['as-rank__place', ''],
+            ['as-rank__face', ''],
+            ['as-rank__name', STRINGS.boardWho],
+            ['as-rank__score', STRINGS.boardGuessed],
+            ['as-rank__meta', STRINGS.boardRest],
+        ].forEach(([cls, label]) => {
+            const cell = document.createElement('span');
+            cell.className = cls;
+            text(cell, label);
+            head.appendChild(cell);
+        });
+
+        el.boardBody.appendChild(head);
+
+        const list = document.createElement('div');
+        list.className = 'as-ranks';
+
+        const me = boardRows.me;
+        boardRows.rows.forEach((row) => list.appendChild(boardRow(row, me && row.user_id === me.user_id)));
+        el.boardBody.appendChild(list);
+
+        // Se il giocatore è fuori dai cinquanta lo si mostra comunque in fondo,
+        // staccato: è l'unica riga che gli dice se sta salendo.
+        if (me && !boardRows.rows.some((row) => row.user_id === me.user_id)) {
+            const gap = document.createElement('div');
+            gap.className = 'as-ranks__gap';
+            text(gap, '⋯');
+            el.boardBody.appendChild(gap);
+
+            const mine = document.createElement('div');
+            mine.className = 'as-ranks';
+            mine.appendChild(boardRow(me, true));
+            el.boardBody.appendChild(mine);
+        }
+    }
+
+    async function openBoard() {
+        openModal(el.boardModal);
+        boardRows = null;
+        renderBoard();
+
+        try {
+            boardRows = await loadBoard(boardPeriod);
+        } catch (error) {
+            boardRows = { rows: [], me: null, persisted: true };
+            toast(error.message || STRINGS.loadError);
+        }
+
+        renderBoard();
+    }
+
+
     /* ── Modali ────────────────────────────────────────────────────────── */
 
     function openModal(modal) {
@@ -2050,6 +2195,10 @@
 
     document.querySelectorAll('[data-as-open-stats]').forEach((node) => {
         node.addEventListener('click', openStats);
+    });
+
+    document.querySelectorAll('[data-as-open-board]').forEach((node) => {
+        node.addEventListener('click', openBoard);
     });
 
     document.querySelectorAll('[data-as-open-rules]').forEach((node) => {
