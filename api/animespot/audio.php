@@ -61,6 +61,20 @@ $track    = $current['track'];
 $unlocked = animespot_unlocked_seconds($current['round']);
 $from     = (float)($current['round']['avvio'] ?? 0);
 
+// Lo scarto che chiede il client.
+//
+// Il silenzio digitale in testa lo riconosce il server dai byte, ma certe
+// sigle hanno un'apertura che *sembra* musica — l'encoder ci spende
+// settecento byte a pacchetto — e non si sente lo stesso: è aria, non suono.
+// Da qui non c'è modo di accorgersene senza decodificare, e decodificare Opus
+// in PHP non si può. Chi può è il browser, che il pezzo lo decodifica
+// comunque: se scopre che non si sente niente lo richiede più avanti, e questo
+// è il parametro con cui lo dice. Non svela niente — quanti secondi saltare non
+// dice di che anime si tratta — ma va comunque tenuto corto.
+$shift = (float)($_GET['shift'] ?? 0);
+if (!is_finite($shift) || $shift < 0) $shift = 0.0;
+$from += min(8.0, $shift);
+
 // Da qui in poi non si tocca più la sessione: quello che serve è già in mano,
 // e il resto è rete e disco. Chiuderla adesso libera la coda.
 cripsum_release_session();

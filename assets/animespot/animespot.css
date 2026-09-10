@@ -1593,9 +1593,10 @@ body.as-page .as-input:disabled { opacity: .5; }
 
 /* ── Classifica ────────────────────────────────────────────────────────── */
 
-/* La classifica ha cinque colonne e i nomi possono essere lunghi: la finestra
-   delle statistiche starebbe stretta. */
-.as-modal__box--wide { max-width: 34rem; }
+/* Sei colonne e i nomi possono essere lunghi: la finestra delle statistiche
+   starebbe stretta. La larghezza va scritta su `width`, non su `max-width`,
+   perché è `width` che la regola generale fissa a 26rem. */
+.as-modal__box--wide { width: min(100%, 34rem); }
 
 .as-switch--three { grid-template-columns: repeat(3, 1fr); }
 
@@ -1605,28 +1606,49 @@ body.as-page .as-input:disabled { opacity: .5; }
     margin-top: .3rem;
 }
 
+/* I numeri stanno a destra e in larghezza fissa: incolonnati si confrontano
+   scorrendo l'elenco, che è quello che si fa con una classifica. */
 .as-rank {
     display: grid;
-    grid-template-columns: 1.8rem 1.6rem minmax(0, 1fr) auto auto;
+    grid-template-columns: 1.7rem 1.6rem minmax(0, 1fr) 2.6rem 2.6rem 3.6rem;
     align-items: center;
     gap: .55rem;
-    padding: .4rem .5rem;
+    padding: .42rem .55rem;
     border-radius: 8px;
     font-size: .84rem;
+    color: var(--as-muted);
+    text-decoration: none;
+    transition: background .16s ease, box-shadow .16s ease;
 }
 
-/* L'intestazione non è una riga come le altre: niente sfondo, solo le parole
-   che dicono che cosa sono i due numeri a destra. */
+/* Tutta la riga porta al profilo, non solo il nome: il bersaglio è più grosso
+   e si capisce che si può cliccare senza doverlo scrivere. */
+a.as-rank { cursor: pointer; }
+
+a.as-rank:hover {
+    background: rgba(255, 255, 255, .06);
+    box-shadow: inset 0 0 0 1px var(--as-line-hi);
+}
+
+a.as-rank:hover .as-rank__name { color: var(--as-accent); }
+
 .as-rank--head {
     padding-bottom: .2rem;
-    font-size: .64rem;
-    letter-spacing: .14em;
+    font-size: .6rem;
+    letter-spacing: .08em;
     text-transform: uppercase;
     color: var(--as-dim);
 }
 
-.as-rank--head .as-rank__score,
-.as-rank--head .as-rank__meta { color: var(--as-dim); }
+/* Le intestazioni non devono mai andare a capo: una colonna alta due righe
+   sfalsa tutte le altre. */
+.as-rank--head > * {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
+}
+
+.as-rank--head .as-rank__num { color: var(--as-dim); font-weight: 400; }
 
 .as-ranks .as-rank:nth-child(odd) { background: rgba(255, 255, 255, .022); }
 
@@ -1639,14 +1661,26 @@ body.as-page .as-input:disabled { opacity: .5; }
 
 /* I primi tre posti portano il colore acceso: è il premio che si vede da
    lontano scorrendo l'elenco. */
-.as-rank--top .as-rank__place { color: var(--as-accent); }
+.as-rank--top .as-rank__place {
+    color: var(--as-accent);
+    font-weight: 700;
+}
 
 .as-rank__face {
-    width: 1.6rem;
-    height: 1.6rem;
+    width: 1.7rem;
+    height: 1.7rem;
     border-radius: 999px;
     object-fit: cover;
     background: var(--as-panel-hi);
+}
+
+/* Nome e rombo del premium stanno insieme e non si separano mai: il rombo si
+   accorcia per ultimo, il nome prima. */
+.as-rank__who {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
 }
 
 .as-rank__name {
@@ -1654,21 +1688,30 @@ body.as-page .as-input:disabled { opacity: .5; }
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--as-text);
-    text-decoration: none;
+    transition: color .16s ease;
 }
 
-.as-rank__name:hover { color: var(--as-accent); }
+.as-rank__who .premium-badge-icon {
+    flex: 0 0 auto;
+    color: #fb7185;
+    font-size: .7rem;
+    filter: drop-shadow(0 0 2px rgba(251, 113, 133, .4));
+}
 
-.as-rank__score {
+.as-rank__num {
     font-family: var(--as-mono);
+    font-size: .74rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--as-dim);
+}
+
+/* Il numero per cui si è in classifica è quello grosso: gli altri due sono
+   contorno e devono leggersi come tale. */
+.as-rank__num--big {
+    font-size: .88rem;
     font-weight: 700;
     color: var(--as-text);
-}
-
-.as-rank__meta {
-    font-family: var(--as-mono);
-    font-size: .68rem;
-    color: var(--as-dim);
 }
 
 /* La propria riga resta riconoscibile anche in mezzo a cinquanta altre. */
@@ -1678,7 +1721,8 @@ body.as-page .as-input:disabled { opacity: .5; }
 }
 
 .as-rank--me .as-rank__name,
-.as-rank--me .as-rank__score { color: var(--as-accent); }
+.as-rank--me .as-rank__num--big,
+.as-rank--me .as-rank__place { color: var(--as-accent); }
 
 /* Lo stacco fra i primi cinquanta e la propria riga, quando si è più giù. */
 .as-ranks__gap {
@@ -1686,6 +1730,13 @@ body.as-page .as-input:disabled { opacity: .5; }
     text-align: center;
     letter-spacing: .3em;
     color: var(--as-dim);
+}
+
+/* Sul telefono i punti sono il primo dettaglio a cui si può rinunciare: senza
+   di loro le altre colonne restano leggibili invece di schiacciarsi tutte. */
+@media (max-width: 26rem) {
+    .as-rank { grid-template-columns: 1.5rem 1.5rem minmax(0, 1fr) 2.4rem 2.4rem; }
+    .as-rank > :last-child { display: none; }
 }
 
 /* ── Attribuzione ──────────────────────────────────────────────────────── */

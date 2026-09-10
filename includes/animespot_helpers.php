@@ -1508,30 +1508,86 @@ function animespot_ogg_rewrite(string $page, ?int $granule, ?int $sequence, bool
 }
 
 /**
- * I pacchetti che finiscono in una pagina, con quanto pesano.
+ * I pacchetti che stanno in una pagina, come lunghezze in byte.
  *
  * La tabella dei segmenti dice quanto è lungo ogni pezzo: un pacchetto continua
- * finché i segmenti valgono 255 e finisce al primo che vale meno. La durata di
- * ciascuno si ricava dividendo il tempo coperto dalla pagina per quanti
- * pacchetti ci sono finiti dentro — in un file prodotto da un encoder solo
- * durano tutti uguale, e questo basta per capire dov'è il silenzio.
+ * finché i segmenti valgono 255 e finisce al primo che vale meno. L'ultimo può
+ * restare aperto — prosegue nella pagina dopo — e allora `aperto` lo dice.
  */
 function animespot_ogg_packets(string $bytes, int $offset, int $segments): array
 {
-    $sizes = [];
-    $size  = 0;
+    $sizes   = [];
+    $runs    = [];
+    $size    = 0;
+    $run     = 0;
+    $aperto  = false;
 
     for ($i = 0; $i < $segments; $i++) {
         $value = ord($bytes[$offset + 27 + $i]);
         $size += $value;
+        $run++;
 
         if ($value < 255) {
             $sizes[] = $size;
+            $runs[]  = $run;
             $size = 0;
+            $run  = 0;
         }
     }
 
-    return $sizes;
+    // Segmenti avanzati senza terminatore: è un pacchetto che continua dopo.
+    if ($run > 0) {
+        $sizes[] = $size;
+        $runs[]  = $run;
+        $aperto  = true;
+    }
+
+    return ['sizes' => $sizes, 'runs' => $runs, 'aperto' => $aperto];
+}
+
+/**
+ * Rifà una pagina tenendone solo i pacchetti dal `$da`-esimo in poi.
+ *
+ * È il pezzo che permette di cominciare a metà pagina. Il formato non lo
+ * vieta: una pagina è solo una busta con dentro dei pacchetti interi, e
+ * toglierne qualcuno davanti significa riscrivere la tabella dei segmenti, il
+ * conteggio e il CRC. La posizione granulare non si tocca — è il tempo alla
+ * *fine* della pagina, e quello non cambia buttando roba dall'inizio.
+ *
+ * Serve perché il modo previsto dal formato per tagliare dentro una pagina —
+ * alzare il pre-skip dell'intestazione — funziona solo per valori piccoli: a
+ * un decimo di secondo sì, a un secondo i browser ne saltano una frazione e il
+ * resto del silenzio lo fanno sentire lo stesso.
+ */
+function animespot_ogg_split_page(string $bytes, int $offset, array $page, int $da): ?array
+{
+    $packets = animespot_ogg_packets($bytes, $offset, $page['segments']);
+    $sizes   = $packets['sizes'];
+    $runs    = $packets['runs'];
+    $totale  = count($sizes);
+
+    if ($da <= 0 || $da >= $totale) return null;
+
+    // Byte e segmenti da buttare: sono quelli dei pacchetti che precedono.
+    $saltaByte     = array_sum(array_slice($sizes, 0, $da));
+    $saltaSegmenti = array_sum(array_slice($runs, 0, $da));
+
+    $tavola = substr($bytes, $offset + 27 + $saltaSegmenti, $page['segments'] - $saltaSegmenti);
+    $dati   = substr($bytes, $offset + 27 + $page['segments'] + $saltaByte,
+                     array_sum(array_slice($sizes, $da)));
+
+    $testa = substr($bytes, $offset, 26);
+    // Non è più la continuazione di niente: il primo pacchetto comincia qui.
+    $testa[5] = chr(ord($testa[5]) & ~0x01);
+
+    $nuova = $testa . chr($page['segments'] - $saltaSegmenti) . $tavola . $dati;
+
+    return [
+        'page'    => $nuova,
+        'tenuti'  => $totale - $da,
+        'totale'  => $totale,
+        'aperto'  => $packets['aperto'],
+    ];
 }
 
 /**
@@ -1542,69 +1598,70 @@ function animespot_ogg_packets(string $bytes, int $offset, int $segments): array
  * non si sente niente, e non è una difficoltà, è un difetto.
  *
  * Il silenzio si riconosce da quanto pesa. Opus è a bitrate variabile e il
- * silenzio non costa quasi niente: dove la musica viaggia a quaranta kilobyte
- * al secondo, il silenzio ne occupa uno. Non serve decodificare niente, basta
- * guardare quanti byte occupa ogni pacchetto — quaranta volte meno non è una
- * sfumatura, è un altro contenuto.
+ * silenzio non costa quasi niente: dove la musica viaggia a settecento byte a
+ * pacchetto, il silenzio ne occupa tre. Non serve decodificare niente.
  *
  * Si taglia al massimo sei secondi: oltre non è più un attacco muto, è un
  * pezzo che comincia piano, e quello va lasciato com'è.
  */
 function animespot_ogg_audio_start(string $bytes, int $preSkip): int
 {
-    $limit  = $preSkip + 12 * 48000;
-    $offset = 0;
-    $prev   = 0;
+    $limite  = $preSkip + 12 * 48000;
+    $offset  = 0;
+    $prev    = 0;
     $packets = [];
 
     while (($page = animespot_ogg_page($bytes, $offset)) !== null) {
         $granule = $page['granule'];
+        $qui     = $offset;
         $offset += $page['length'];
 
         if ($granule <= 0) continue;
         if ($granule <= $prev) { $prev = $granule; continue; }
 
-        $sizes = animespot_ogg_packets($bytes, $offset - $page['length'], $page['segments']);
+        $sizes = animespot_ogg_packets($bytes, $qui, $page['segments'])['sizes'];
         $count = count($sizes);
 
         if ($count > 0) {
             $span = intdiv($granule - $prev, $count);
 
             foreach ($sizes as $index => $size) {
-                $at = $prev + $index * $span;
-                $packets[] = ['at' => $at, 'rate' => $span > 0 ? $size * 48000 / $span : 0];
+                $packets[] = [
+                    'at'   => $prev + $index * $span,
+                    'rate' => $span > 0 ? $size * 48000 / $span : 0,
+                ];
             }
         }
 
         $prev = $granule;
-        if ($granule >= $limit) break;
+        if ($granule >= $limite) break;
     }
 
     if (count($packets) < 4) return $preSkip;
 
-    // Il riferimento è il pacchetto più pesante dei primi dieci secondi: è
+    // Il riferimento è il pacchetto più pesante dei primi dieci secondi: sta
     // sempre dentro a quello che si scarica comunque, quindi la soglia non
     // cambia da un frammento all'altro della stessa partita.
-    $reference = 0;
+    $riferimento = 0;
     foreach ($packets as $packet) {
         if ($packet['at'] > $preSkip + 10 * 48000) break;
-        $reference = max($reference, $packet['rate']);
+        $riferimento = max($riferimento, $packet['rate']);
     }
 
-    if ($reference <= 0) return $preSkip;
+    if ($riferimento <= 0) return $preSkip;
 
-    $threshold = $reference * 0.15;
-    $ceiling   = $preSkip + 6 * 48000;
-    $total     = count($packets);
+    $soglia  = $riferimento * 0.15;
+    $tetto   = $preSkip + 6 * 48000;
+    $quanti  = count($packets);
 
     // Servono due pacchetti pieni di fila. Il primo pacchetto di un flusso
     // Opus è grosso anche quando è muto — si porta dietro l'avvio del decoder —
     // e da solo direbbe che la musica comincia subito quando invece dopo di lui
     // arriva un secondo di pacchetti da tre byte. Due di fila non capitano per
     // sbaglio.
-    for ($i = 0; $i + 1 < $total; $i++) {
-        if ($packets[$i]['rate'] >= $threshold && $packets[$i + 1]['rate'] >= $threshold) {
-            return min(max($packets[$i]['at'], $preSkip), $ceiling);
+    for ($i = 0; $i + 1 < $quanti; $i++) {
+        if ($packets[$i]['rate'] >= $soglia && $packets[$i + 1]['rate'] >= $soglia) {
+            return min(max($packets[$i]['at'], $preSkip), $tetto);
         }
     }
 
@@ -1620,13 +1677,12 @@ function animespot_ogg_audio_start(string $bytes, int $preSkip): int
  * — così il frammento è netto invece che arrotondato alla pagina — e si alza
  * il bit di fine flusso, perché il browser sappia che non deve aspettare altro.
  *
- * Il taglio in testa è più interessante. Le pagine si possono buttare solo
- * intere, ma il punto da cui si vuole partire cade quasi sempre in mezzo a una:
- * allora si tiene quella pagina e si riscrive il pre-skip dell'intestazione,
- * che è esattamente il campo con cui il formato dice "di questi campioni, i
- * primi tot buttali". Ne esce un taglio al millisecondo invece che al secondo,
- * e in più il decoder si scalda sui campioni buttati, quindi non c'è il
- * crepitio che si sente saltando in mezzo a un flusso.
+ * Il taglio in testa lavora sui pacchetti, non sulle pagine. Le pagine di
+ * queste sigle durano circa un secondo l'una: cominciare da un confine di
+ * pagina vorrebbe dire sbagliare l'attacco di mezzo secondo in media, che su
+ * un frammento da un decimo di secondo è tutto. Si tiene quindi la pagina
+ * giusta e le si tolgono davanti i pacchetti di troppo, venti millisecondi
+ * alla volta.
  *
  * Le posizioni granulari delle pagine tenute vanno traslate, o il lettore
  * mostrerebbe una traccia che parte al trentesimo secondo; e i numeri di
@@ -1666,62 +1722,73 @@ function animespot_ogg_clip(string $bytes, float $seconds, float $from = 0.0): ?
         ? $preSkip + (int)round($from * 48000)
         : animespot_ogg_audio_start($bytes, $preSkip);
 
-    // La prima pagina che arriva oltre quel punto: è quella da cui si parte, e
-    // il pre-skip nuovo butta via il pezzo di troppo che si porta dietro.
-    $audio = $offset;
-    $shift = 0;
-    $found = false;
+    // La pagina che contiene quel punto, e quanti dei suoi pacchetti buttare.
+    $audio   = $offset;
+    $shift   = 0;
+    $prima   = null;
+    $trovata = false;
 
     while (($page = animespot_ogg_page($bytes, $audio)) !== null) {
-        if ($page['granule'] > $target && ($page['flags'] & 0x01) === 0) { $found = true; break; }
+        if ($page['granule'] > $target) { $trovata = true; break; }
         if ($page['granule'] >= 0) $shift = $page['granule'];
         $audio += $page['length'];
     }
 
-    if (!$found) return null;
+    if (!$trovata) return null;
 
-    $discard = $target - $shift;
+    if ($target > $shift) {
+        $page    = animespot_ogg_page($bytes, $audio);
+        $sizes   = animespot_ogg_packets($bytes, $audio, $page['segments'])['sizes'];
+        $quanti  = count($sizes);
+        $span    = $quanti > 0 ? intdiv($page['granule'] - $shift, $quanti) : 0;
+        $da      = $span > 0 ? (int)floor(($target - $shift) / $span) : 0;
 
-    // Il pre-skip sta in due byte: se il pezzo da buttare non ci sta (pagine
-    // lunghissime, o un salto capitato male) si torna al confine di pagina,
-    // che è meno preciso ma sempre corretto.
-    if ($discard < 0 || $discard > 65535) {
-        $discard = $preSkip;
-        $shift   = 0;
-        $audio   = $offset;
+        // Una pagina che comincia con la coda di un pacchetto precedente non è
+        // decodificabile da sola: il primo pacchetto intero è il secondo.
+        if ($da === 0 && ($page['flags'] & 0x01) !== 0) $da = 1;
+
+        // Se dopo il taglio resterebbero pochi pacchetti, si comincia invece
+        // dalla pagina dopo: si perde qualche centesimo di secondo di musica e
+        // si evita una pagina spezzata minuscola, che certi decoder saltano.
+        if ($da > 0 && $quanti - $da < 8) {
+            $shift  = $page['granule'];
+            $audio += $page['length'];
+        } else {
+            $split = $da > 0 ? animespot_ogg_split_page($bytes, $audio, $page, $da) : null;
+
+            if ($split !== null) {
+                $prima = $split['page'];
+                $shift = $page['granule'] - $split['tenuti'] * $span;
+            }
+        }
     }
 
-    $headers[0] = animespot_ogg_rewrite(
-        substr_replace($headers[0], pack('v', $discard), $headStart + 10, 2),
-        null,
-        null
-    );
-
-    $end   = $discard + (int)round($seconds * 48000);
-    $body  = '';
-    $pages = count($headers);
-    $done  = false;
+    $fine  = $preSkip + (int)round($seconds * 48000);
+    $corpo = '';
+    $pagine = count($headers);
+    $chiuso = false;
 
     while (($page = animespot_ogg_page($bytes, $audio)) !== null) {
-        $raw     = substr($bytes, $audio, $page['length']);
+        $grezza  = $prima ?? substr($bytes, $audio, $page['length']);
+        $prima   = null;
         $granule = $page['granule'];
 
         // -1 su 64 bit: pagina senza fine di pacchetto, non dice niente sul
         // tempo trascorso e va tenuta senza guardarla.
-        $moved = $granule >= 0 ? $granule - $shift : $granule;
+        $spostata = $granule >= 0 ? $granule - $shift + $preSkip : $granule;
 
-        if ($granule >= 0 && $moved >= $end) {
-            $body .= animespot_ogg_rewrite($raw, $end, $pages, true);
-            $done  = true;
+        if ($granule >= 0 && $spostata >= $fine) {
+            $corpo .= animespot_ogg_rewrite($grezza, $fine, $pagine, true);
+            $chiuso = true;
             break;
         }
 
-        $body .= animespot_ogg_rewrite($raw, $granule >= 0 ? $moved : null, $pages);
+        $corpo .= animespot_ogg_rewrite($grezza, $granule >= 0 ? $spostata : null, $pagine);
         $audio += $page['length'];
-        $pages++;
+        $pagine++;
     }
 
-    return $done ? implode('', $headers) . $body : null;
+    return $chiuso ? implode('', $headers) . $corpo : null;
 }
 
 /**

@@ -70,7 +70,8 @@
             levelNow: 'Difficoltà cambiata.',
             stepsHint: "Spegni i frammenti che non vuoi. L'ultimo resta sempre acceso.",
             week: 'Settimana', month: 'Mese', ever: 'Sempre',
-            boardWho: 'Giocatore', boardGuessed: 'Sigle', boardRest: '% · punti',
+            boardWho: 'Giocatore', boardGuessed: 'Sigle', boardRate: '%', boardPoints: 'Punti',
+            boardOpen: (who) => 'Apri il profilo di ' + who,
             boardEmpty: 'Ancora nessuno ha indovinato una sigla in questo periodo. Puoi essere il primo.',
             watch: 'Guarda la sigla',
             onThemes: 'Su AnimeThemes',
@@ -124,7 +125,8 @@
             levelNow: 'Difficulty changed.',
             stepsHint: 'Turn off the clips you do not want. The last one always stays on.',
             week: 'Week', month: 'Month', ever: 'All time',
-            boardWho: 'Player', boardGuessed: 'Themes', boardRest: '% · points',
+            boardWho: 'Player', boardGuessed: 'Themes', boardRate: '%', boardPoints: 'Points',
+            boardOpen: (who) => 'Open ' + who + "'s profile",
             boardEmpty: 'Nobody has guessed a theme in this period yet. You could be the first.',
             watch: 'Watch the opening',
             onThemes: 'On AnimeThemes',
@@ -217,6 +219,12 @@
     let searchTimer = 0;
     let searchAbort = null;
     let searchedFor = null;
+
+    /* Di quanto spostare in avanti l'inizio della sigla perché si senta
+       qualcosa. Lo scopre il browser decodificando il pezzo che riceve, e vale
+       per tutta la partita: cambiarlo a ogni frammento vorrebbe dire un punto
+       di partenza diverso a ogni tentativo. */
+    let audioShift = 0;
     let busy = false;
     let segments = [];
     let revealIcon = null;
@@ -377,7 +385,15 @@
             // Durante il passaggio di testimone la fine del pezzo vecchio è
             // prevista: fermare tutto proprio lì rimetterebbe il buco che si
             // sta cercando di togliere.
-            if (el === audio && handoffsInFlight === 0) stopPlayback();
+            if (el !== audio || handoffsInFlight > 0) return;
+
+            // Finito prima di dove arrivava lo sblocco: quello che stava
+            // suonando era un pezzo vecchio. Si butta, così il prossimo play
+            // se lo riprende buono invece di rifare lo stesso troncone.
+            const limit = limitSeconds();
+            if (limit > 0 && el.currentTime < limit - 0.15) dropClip();
+
+            stopPlayback();
         });
 
         el.addEventListener('loadedmetadata', () => {
@@ -414,8 +430,21 @@
         return state ? [state.attempt, state.status, state.full ? 'full' : 'clip'].join('|') : '';
     }
 
+    /**
+     * Il pezzo che abbiamo in mano è quello giusto?
+     *
+     * Non basta che la chiave torni: dopo un passaggio di testimone andato
+     * male può restare attaccato un frammento più corto di quello che ormai è
+     * sbloccato. Suonarlo vuol dire musica che si ferma prima del dovuto e non
+     * riparte finché non si salta — era il difetto per cui bisognava saltare
+     * per sbloccare la situazione.
+     */
     function clipReady() {
-        return !!clipUrl && clipKey === currentClipKey();
+        if (!clipUrl || clipKey !== currentClipKey()) return false;
+
+        const limit = limitSeconds();
+
+        return !(clipDuration > 0 && limit > 0 && clipDuration < limit - 0.15);
     }
 
     /**
@@ -428,17 +457,71 @@
      * che finisce, e non c'è ragione di farli passare (e di tenerli in cache)
      * da noi.
      */
-    function fetchClip() {
-        const direct = state && state.full && state.answer && state.answer.audio_url;
-        if (direct) return Promise.resolve(direct);
+    /** Quanto è forte il pezzo più forte del frammento. Zero vuol dire muto. */
+    async function loudestOf(blob) {
+        if (!window.AudioContext && !window.webkitAudioContext) return 1;
 
-        return fetch('/api/animespot/audio.php?lang=' + LANG, {
-            credentials: 'same-origin',
-            cache: 'no-store',
-        }).then((response) => {
+        try {
+            const bytes = await blob.arrayBuffer();
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const decoded = await ctx.decodeAudioData(bytes);
+            const data = decoded.getChannelData(0);
+
+            let peak = 0;
+            for (let i = 0; i < data.length; i += 8) {
+                const value = data[i] < 0 ? -data[i] : data[i];
+                if (value > peak) peak = value;
+            }
+
+            ctx.close();
+            return peak;
+        } catch (error) {
+            // Se non si riesce a decodificare non si può giudicare: si tiene
+            // quello che è arrivato, che è comunque meglio di niente.
+            return 1;
+        }
+    }
+
+    /**
+     * Scarica il frammento, e se è muto lo richiede più avanti.
+     *
+     * Il server toglie il silenzio digitale guardando quanti byte occupa ogni
+     * pacchetto, e per la maggior parte delle sigle basta. Ma certe aperture
+     * sono codificate a piena qualità pur non contenendo niente di udibile:
+     * da fuori sembrano musica e non lo sono. L'unico modo di saperlo è
+     * ascoltare, e a decodificare qui è il browser — costa qualche
+     * millisecondo, e i frammenti arrivano dalla cache del server, quindi
+     * riprovare è quasi gratis.
+     */
+    async function fetchClip() {
+        // A risposta svelata il nome del file non nasconde più niente: la
+        // traccia intera si prende dal loro sito, che la serve a pezzi mentre
+        // la si ascolta invece di farla scaricare tutta prima di cominciare.
+        const direct = state && state.full && state.answer && state.answer.audio_url;
+        if (direct) return direct;
+
+        for (let attempt = 0; attempt < 7; attempt++) {
+            const response = await fetch(
+                '/api/animespot/audio.php?lang=' + LANG + (audioShift ? '&shift=' + audioShift : ''),
+                { credentials: 'same-origin', cache: 'no-store' }
+            );
+
             if (!response.ok) throw new Error('audio ' + response.status);
-            return response.blob();
-        }).then((blob) => URL.createObjectURL(blob));
+
+            const blob = await response.blob();
+
+            // Oltre i sei secondi si smette di cercare: a quel punto non è più
+            // un'apertura muta, è una sigla che comincia piano, e quella va
+            // lasciata com'è.
+            if (audioShift >= 6) return URL.createObjectURL(blob);
+
+            const peak = await loudestOf(blob);
+            if (peak >= 0.02) return URL.createObjectURL(blob);
+
+            audioShift = Math.round((audioShift + 1) * 10) / 10;
+        }
+
+        throw new Error('audio muto');
     }
 
     /** Solo gli indirizzi che abbiamo creato noi vanno liberati. */
@@ -1254,6 +1337,7 @@
             if (changed || wasTrack !== (payload.answer || null)) {
                 stopPlayback();
                 dropClip();
+                audioShift = 0;
                 selected = null;
                 if (el.input) el.input.value = '';
                 closeList();
@@ -1822,15 +1906,11 @@
         // cambio lo sta già gestendo handoff() e qui non si tocca niente.
         if (!audio.paused) return;
 
-        // A partita finita la traccia è quella intera, un mega e mezzo preso
-        // da AnimeThemes: scaricarla senza che nessuno l'abbia chiesta faceva
-        // sembrare lentissimo arrendersi. Ora parte solo se c'è da festeggiare,
-        // altrimenti aspetta che si prema sulla copertina.
-        if (state.full && !autoplayReveal) {
-            paint(0);
-            return;
-        }
-
+        // A partita finita la traccia è quella intera e arriva da AnimeThemes.
+        // Qui non si scarica niente di nostro: si dice solo al lettore qual è
+        // l'indirizzo, e da lì in poi è lui a riempirsi il buffer mentre si
+        // guarda la scheda. Senza questa riga il caricamento cominciava al
+        // click, e la traccia ci metteva un'eternità a partire.
         ensureClip().then(() => {
             paint(0);
 
@@ -1853,15 +1933,29 @@
         return request('/api/animespot/board.php?lang=' + LANG + '&period=' + encodeURIComponent(period));
     }
 
-    /** Una riga della classifica: posto, faccia, nome e i tre numeri. */
-    function boardRow(row, mine) {
-        const line = document.createElement('div');
-        line.className = 'as-rank' + (mine ? ' as-rank--me' : '') + (row.rank <= 3 ? ' as-rank--top' : '');
+    /** Il numero di una colonna, con le cifre incolonnate. */
+    function rankCell(cls, value) {
+        const cell = document.createElement('span');
+        cell.className = cls;
+        text(cell, value);
 
-        const place = document.createElement('span');
-        place.className = 'as-rank__place';
-        text(place, row.rank);
-        line.appendChild(place);
+        return cell;
+    }
+
+    /**
+     * Una riga della classifica.
+     *
+     * È tutta un collegamento al profilo, non solo il nome: il bersaglio è più
+     * grosso e si capisce che si può cliccare senza doverlo scrivere da
+     * qualche parte.
+     */
+    function boardRow(row, mine) {
+        const line = document.createElement('a');
+        line.className = 'as-rank' + (mine ? ' as-rank--me' : '') + (row.rank <= 3 ? ' as-rank--top' : '');
+        line.href = '/' + LANG + '/u/' + encodeURIComponent(row.username || '');
+        line.title = STRINGS.boardOpen(row.name);
+
+        line.appendChild(rankCell('as-rank__place', row.rank));
 
         const face = document.createElement('img');
         face.className = 'as-rank__face';
@@ -1870,24 +1964,31 @@
         face.loading = 'lazy';
         line.appendChild(face);
 
-        const name = document.createElement('a');
+        const who = document.createElement('span');
+        who.className = 'as-rank__who';
+
+        const name = document.createElement('span');
         name.className = 'as-rank__name';
-        name.href = '/u/' + encodeURIComponent(row.username || '');
         text(name, row.name);
-        line.appendChild(name);
+        who.appendChild(name);
 
-        // Il numero grosso è quello per cui si è in classifica; gli altri due
-        // stanno accanto perché indovinare presto e indovinare tanto sono due
-        // bravure diverse e vanno viste insieme.
-        const guessed = document.createElement('span');
-        guessed.className = 'as-rank__score';
-        text(guessed, row.guessed);
-        line.appendChild(guessed);
+        // Il rombo del premium è lo stesso che porta in giro tutto il sito.
+        if (row.premium) {
+            const badge = document.createElement('span');
+            badge.className = 'premium-badge-icon';
+            badge.title = 'Premium';
+            badge.appendChild(icon('gem'));
+            who.appendChild(badge);
+        }
 
-        const rest = document.createElement('span');
-        rest.className = 'as-rank__meta';
-        text(rest, row.rate + '% · ' + row.points.toLocaleString(LANG === 'en' ? 'en-GB' : 'it-IT'));
-        line.appendChild(rest);
+        line.appendChild(who);
+
+        // Tre colonne separate invece di un numero e una stringa appiccicata:
+        // incolonnate si confrontano a occhio scorrendo l'elenco, che è quello
+        // che si fa con una classifica.
+        line.appendChild(rankCell('as-rank__num as-rank__num--big', row.guessed));
+        line.appendChild(rankCell('as-rank__num', row.rate + '%'));
+        line.appendChild(rankCell('as-rank__num', row.points.toLocaleString(LANG === 'en' ? 'en-GB' : 'it-IT')));
 
         return line;
     }
@@ -1925,20 +2026,16 @@
         const head = document.createElement('div');
         head.className = 'as-rank as-rank--head';
 
-        // Le prime due colonne (posto e faccia) restano vuote: la loro
-        // intestazione sarebbe una parola per dire una cosa che si vede.
+        // Posto e faccia non hanno intestazione: sarebbe una parola per dire
+        // una cosa che si vede.
         [
             ['as-rank__place', ''],
             ['as-rank__face', ''],
-            ['as-rank__name', STRINGS.boardWho],
-            ['as-rank__score', STRINGS.boardGuessed],
-            ['as-rank__meta', STRINGS.boardRest],
-        ].forEach(([cls, label]) => {
-            const cell = document.createElement('span');
-            cell.className = cls;
-            text(cell, label);
-            head.appendChild(cell);
-        });
+            ['as-rank__who', STRINGS.boardWho],
+            ['as-rank__num as-rank__num--big', STRINGS.boardGuessed],
+            ['as-rank__num', STRINGS.boardRate],
+            ['as-rank__num', STRINGS.boardPoints],
+        ].forEach(([cls, label]) => head.appendChild(rankCell(cls, label)));
 
         el.boardBody.appendChild(head);
 
@@ -2031,6 +2128,7 @@
         stopPlayback();
         dropClip();
         closeList();
+        audioShift = 0;
         clearTimeout(suspenseTimer);
         document.body.classList.remove('as-is-suspense');
         selected = null;
