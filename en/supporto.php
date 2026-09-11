@@ -2,6 +2,7 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/bot_client.php';
 checkBan($mysqli);
 
 $isLogged = function_exists('isLoggedIn') && isLoggedIn();
@@ -125,12 +126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             ];
             
             if (function_exists('curl_init')) {
-                $ch = curl_init('https://api.cripsum.com/v1/tickets');
+                $ch = curl_init(cripsum_bot_endpoint('/v1/tickets'));
                 curl_setopt_array($ch, [
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_POST => true,
                     CURLOPT_POSTFIELDS => json_encode($ticketData),
-                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                    CURLOPT_HTTPHEADER => cripsum_bot_headers(),
                     CURLOPT_CONNECTTIMEOUT => 3,
                     CURLOPT_TIMEOUT => 6,
                     CURLOPT_SSL_VERIFYPEER => true,

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/bot_client.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -194,12 +195,12 @@ if ($method === 'GET') {
             ];
 
             if (function_exists('curl_init')) {
-                $ch = curl_init('https://api.cripsum.com/v1/tickets/reply');
+                $ch = curl_init(cripsum_bot_endpoint('/v1/tickets/reply'));
                 curl_setopt_array($ch, [
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_POST => true,
                     CURLOPT_POSTFIELDS => json_encode($botPayload),
-                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                    CURLOPT_HTTPHEADER => cripsum_bot_headers(),
                     CURLOPT_CONNECTTIMEOUT => 2,
                     CURLOPT_TIMEOUT => 3,
                     CURLOPT_SSL_VERIFYPEER => true,
@@ -308,12 +309,12 @@ if ($method === 'GET') {
         ];
 
         if (function_exists('curl_init')) {
-            $ch = curl_init('https://api.cripsum.com/v1/tickets/reply');
+            $ch = curl_init(cripsum_bot_endpoint('/v1/tickets/reply'));
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => json_encode($botPayload),
-                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_HTTPHEADER => cripsum_bot_headers(),
                 CURLOPT_CONNECTTIMEOUT => 2,
                 CURLOPT_TIMEOUT => 3,
                 CURLOPT_SSL_VERIFYPEER => true,

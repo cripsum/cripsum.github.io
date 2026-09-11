@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/discord_oauth.php';
+require_once __DIR__ . '/bot_client.php';
 
 function notifyDiscordNewPost($mysqli, $postId, $type)
 {
@@ -104,7 +105,7 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
  */
 function notifyDiscordSiteLogs(string $type, string $title, string $description, array $fields = [], ?int $userId = null, ?string $discordId = null): bool
 {
-    $endpoint = defined('CRIPSUM_BOT_ENDPOINT') ? CRIPSUM_BOT_ENDPOINT . '/v1/logs' : 'https://api.cripsum.com/v1/logs';
+    $endpoint = cripsum_bot_endpoint('/v1/logs');
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
     $username = $_SESSION['username'] ?? null;
 
@@ -123,7 +124,7 @@ function notifyDiscordSiteLogs(string $type, string $title, string $description,
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_TIMEOUT => 5,
         CURLOPT_CONNECTTIMEOUT => 3,
@@ -142,7 +143,7 @@ function notifyDiscordSiteLogs(string $type, string $title, string $description,
  */
 function notifyDiscordCandidatura(array $data): bool
 {
-    $endpoint = defined('CRIPSUM_BOT_ENDPOINT') ? CRIPSUM_BOT_ENDPOINT . '/v1/candidature' : 'https://api.cripsum.com/v1/candidature';
+    $endpoint = cripsum_bot_endpoint('/v1/candidature');
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
     $payload = array_merge([
@@ -155,7 +156,7 @@ function notifyDiscordCandidatura(array $data): bool
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_TIMEOUT => 6,
         CURLOPT_CONNECTTIMEOUT => 3,
@@ -267,10 +268,7 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
         'target_url' => $targetUrl !== '' ? $targetUrl : null,
     ];
 
-    $endpointBase = defined('CRIPSUM_BOT_ENDPOINT')
-        ? rtrim((string)CRIPSUM_BOT_ENDPOINT, '/')
-        : 'https://api.cripsum.com';
-    $ch = curl_init($endpointBase . '/v1/tickets');
+    $ch = curl_init(cripsum_bot_endpoint('/v1/tickets'));
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
@@ -278,7 +276,7 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
             $payload,
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE
         ),
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
         CURLOPT_CONNECTTIMEOUT => 3,
         CURLOPT_TIMEOUT => 8,
         CURLOPT_SSL_VERIFYPEER => true,

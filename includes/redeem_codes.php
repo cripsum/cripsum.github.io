@@ -237,3 +237,198 @@ function cripsum_redeem_code_is_available(array $entry, ?DateTimeImmutable $now 
 {
     return cripsum_redeem_code_status($entry, $now) === 'active';
 }
+
+/**
+ * Messaggi di errore del riscatto, nella lingua richiesta.
+ *
+ * @return array<string, string>
+ */
+function cripsum_redeem_code_messages(string $lang = 'it'): array
+{
+    $lang = $lang === 'en' ? 'en' : 'it';
+
+    return [
+        'it' => [
+            'err_invalid'      => 'Codice non valido, skill issue!',
+            'err_expired'      => 'Questo codice è scaduto.',
+            'err_unavailable'  => 'Questo codice non è disponibile al momento.',
+            'err_already_used' => 'Codice già riscattato!',
+            'err_char_missing' => 'Personaggio non trovato nel database.',
+            'err_char_owned'   => 'Hai già questo personaggio!',
+            'err_bad_config'   => 'Codice non configurato correttamente.',
+            'err_unknown_type' => 'Tipo codice non riconosciuto.',
+            'err_db'           => 'Errore del database, riprova più tardi.',
+            'pts_suffix'       => 'punti',
+        ],
+        'en' => [
+            'err_invalid'      => 'Invalid code, skill issue!',
+            'err_expired'      => 'This code has expired.',
+            'err_unavailable'  => 'This code is not available right now.',
+            'err_already_used' => 'Code already redeemed!',
+            'err_char_missing' => 'Character not found in the database.',
+            'err_char_owned'   => 'You already have this character!',
+            'err_bad_config'   => 'Code is not configured correctly.',
+            'err_unknown_type' => 'Unknown code type.',
+            'err_db'           => 'Database error, please try again later.',
+            'pts_suffix'       => 'points',
+        ],
+    ][$lang];
+}
+
+/**
+ * Riscatta un codice per un utente.
+ *
+ * Logica condivisa fra il riscatto dal sito (api/api_redeem_code.php, con
+ * sessione e CSRF) e quello dal bot Discord (api/bot/redeem_code.php, con
+ * chiave condivisa): l'autenticazione resta al chiamante, qui c'e' solo
+ * l'effetto sul database. Il valore restituito e' gia' la risposta JSON.
+ *
+ * @return array<string, mixed>
+ */
+function cripsum_redeem_code_apply(mysqli $mysqli, int $userId, string $code, string $lang = 'it'): array
+{
+    $lang = $lang === 'en' ? 'en' : 'it';
+    $t = cripsum_redeem_code_messages($lang);
+    $code = strtolower(trim($code));
+
+    if ($code === '' || $userId <= 0) {
+        return ['status' => 'error', 'message' => $t['err_invalid']];
+    }
+
+    $codici = cripsum_redeem_codes();
+    if (!isset($codici[$code])) {
+        return ['status' => 'error', 'message' => $t['err_invalid']];
+    }
+
+    $entry = $codici[$code];
+    $codeStatus = cripsum_redeem_code_status($entry);
+    if ($codeStatus !== 'active') {
+        return [
+            'status' => 'error',
+            'message' => $codeStatus === 'expired' ? $t['err_expired'] : $t['err_unavailable'],
+            'code' => strtoupper($codeStatus),
+        ];
+    }
+
+    $stmtCheck = $mysqli->prepare(
+        'SELECT id FROM codici_riscattati WHERE codice = ? AND user_id = ? LIMIT 1'
+    );
+    if (!$stmtCheck) {
+        return ['status' => 'error', 'message' => $t['err_db']];
+    }
+    $stmtCheck->bind_param('si', $code, $userId);
+    $stmtCheck->execute();
+    $stmtCheck->store_result();
+    $alreadyRedeemed = $stmtCheck->num_rows > 0;
+    $stmtCheck->close();
+
+    if ($alreadyRedeemed) {
+        return ['status' => 'error', 'message' => $t['err_already_used']];
+    }
+
+    if (($entry['tipo'] ?? '') === 'personaggio') {
+        $stmtP = $mysqli->prepare('SELECT * FROM personaggi WHERE nome = ? LIMIT 1');
+        if (!$stmtP) {
+            return ['status' => 'error', 'message' => $t['err_db']];
+        }
+        $stmtP->bind_param('s', $entry['nome']);
+        $stmtP->execute();
+        $personaggio = $stmtP->get_result()->fetch_assoc();
+        $stmtP->close();
+
+        if (!$personaggio) {
+            return ['status' => 'error', 'message' => $t['err_char_missing']];
+        }
+
+        $stmtChk = $mysqli->prepare(
+            'SELECT 1 FROM utenti_personaggi WHERE utente_id = ? AND personaggio_id = ? LIMIT 1'
+        );
+        if (!$stmtChk) {
+            return ['status' => 'error', 'message' => $t['err_db']];
+        }
+        $stmtChk->bind_param('ii', $userId, $personaggio['id']);
+        $stmtChk->execute();
+        $stmtChk->store_result();
+        $haChar = $stmtChk->num_rows > 0;
+        $stmtChk->close();
+
+        if ($haChar) {
+            return ['status' => 'error', 'message' => $t['err_char_owned']];
+        }
+
+        $stmtAdd = $mysqli->prepare(
+            'INSERT INTO utenti_personaggi (utente_id, personaggio_id, data, quantità)
+             VALUES (?, ?, NOW(), 1)
+             ON DUPLICATE KEY UPDATE quantità = quantità + 1'
+        );
+        if (!$stmtAdd) {
+            return ['status' => 'error', 'message' => $t['err_db']];
+        }
+        $stmtAdd->bind_param('ii', $userId, $personaggio['id']);
+        $stmtAdd->execute();
+        $stmtAdd->close();
+
+        $stmtLog = $mysqli->prepare('INSERT INTO codici_riscattati (codice, user_id) VALUES (?, ?)');
+        if ($stmtLog) {
+            $stmtLog->bind_param('si', $code, $userId);
+            $stmtLog->execute();
+            $stmtLog->close();
+        }
+
+        return [
+            'status'      => 'success',
+            'tipo'        => 'personaggio',
+            'personaggio' => $personaggio,
+            'is_new'      => true,
+        ];
+    }
+
+    if (($entry['tipo'] ?? '') === 'punti') {
+        $puntiDaAggiungere = (int)($entry['punti'] ?? 0);
+        if ($puntiDaAggiungere <= 0) {
+            return ['status' => 'error', 'message' => $t['err_bad_config']];
+        }
+
+        $stmtUpd = $mysqli->prepare('UPDATE utenti SET soldi = soldi + ? WHERE id = ?');
+        if (!$stmtUpd) {
+            return ['status' => 'error', 'message' => $t['err_db']];
+        }
+        $stmtUpd->bind_param('ii', $puntiDaAggiungere, $userId);
+        $stmtUpd->execute();
+        $stmtUpd->close();
+
+        $soldiRimasti = 0;
+        $stmtSoldi = $mysqli->prepare('SELECT soldi FROM utenti WHERE id = ? LIMIT 1');
+        if ($stmtSoldi) {
+            $stmtSoldi->bind_param('i', $userId);
+            $stmtSoldi->execute();
+            $stmtSoldi->bind_result($soldiRimasti);
+            $stmtSoldi->fetch();
+            $stmtSoldi->close();
+        }
+
+        $stmtLog = $mysqli->prepare('INSERT INTO codici_riscattati (codice, user_id) VALUES (?, ?)');
+        if ($stmtLog) {
+            $stmtLog->bind_param('si', $code, $userId);
+            $stmtLog->execute();
+            $stmtLog->close();
+        }
+
+        $desc = $entry['descrizione'] ?? null;
+        if (is_array($desc)) {
+            $desc = $desc[$lang] ?? $desc['it'] ?? "+{$puntiDaAggiungere} {$t['pts_suffix']}!";
+        } elseif ($desc === null) {
+            $desc = "+{$puntiDaAggiungere} {$t['pts_suffix']}!";
+        }
+
+        return [
+            'status'        => 'success',
+            'tipo'          => 'punti',
+            'punti'         => $puntiDaAggiungere,
+            'soldi_rimasti' => (int)$soldiRimasti,
+            'descrizione'   => $desc,
+        ];
+    }
+
+    return ['status' => 'error', 'message' => $t['err_unknown_type']];
+}
