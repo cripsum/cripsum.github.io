@@ -16,21 +16,29 @@ bot_require_method('GET');
 
 $threadId = bot_snowflake('thread_id', false);
 $ticketId = bot_text('ticket_id', 12);
-$actorDiscordId = bot_discord_id('actor_discord_id');
+
+// Senza actor_discord_id la richiesta e' del bot per se stesso — serve per la
+// trascrizione da allegare quando a chiudere il ticket e' stato il sito, dove
+// non c'e' nessun moderatore Discord a cui attribuirla. In quel caso l'unica
+// credenziale e' la chiave condivisa, gia' verificata sopra, e la trascrizione
+// finisce solo nel canale dei log dello staff.
+$actorDiscordId = bot_discord_id('actor_discord_id', false);
 
 $ticket = cripsum_ticket_find($mysqli, $ticketId, $threadId);
 if (!$ticket) {
     bot_fail('Ticket not found.', 404);
 }
 
-$actor = bot_find_user($mysqli, $actorDiscordId);
-if (!$actor) {
-    bot_fail('The acting Discord account is not linked to a Cripsum account.', 403);
-}
+if ($actorDiscordId !== '') {
+    $actor = bot_find_user($mysqli, $actorDiscordId);
+    if (!$actor) {
+        bot_fail('The acting Discord account is not linked to a Cripsum account.', 403);
+    }
 
-$isStaff = in_array((string)($actor['ruolo'] ?? ''), ['admin', 'owner'], true);
-if (!$isStaff && (int)$actor['id'] !== (int)$ticket['user_id']) {
-    bot_fail('Not allowed to read this ticket.', 403);
+    $isStaff = in_array((string)($actor['ruolo'] ?? ''), ['admin', 'owner'], true);
+    if (!$isStaff && (int)$actor['id'] !== (int)$ticket['user_id']) {
+        bot_fail('Not allowed to read this ticket.', 403);
+    }
 }
 
 $messages = array_map(static function (array $row): array {
