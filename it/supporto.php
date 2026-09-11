@@ -3,6 +3,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/bot_client.php';
+require_once '../includes/ticket_helpers.php';
 checkBan($mysqli);
 
 $isLogged = function_exists('isLoggedIn') && isLoggedIn();
@@ -28,6 +29,7 @@ if ($isLogged) {
 $message_sent = false;
 $error_message = '';
 $ticketId = '';
+$discord_thread_url = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'send_ticket') {
     $title = trim($_POST['title'] ?? '');
@@ -144,6 +146,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $decoded = json_decode($response, true);
                     if (!empty($decoded['success'])) {
                         $message_sent = true;
+
+                        // Il bot ha aperto il thread del ticket su Discord:
+                        // collegarlo fa viaggiare le risposte nei due sensi.
+                        $threadId = (string)($decoded['thread_id'] ?? '');
+                        if ($threadId !== '') {
+                            cripsum_ticket_attach_thread($mysqli, $ticketId, $threadId);
+                            $discord_thread_url = (string)($decoded['thread_url'] ?? '');
+                        }
                     } else {
                         $error_message = 'Errore del server di supporto: ' . ($decoded['error'] ?? 'Impossibile inviare.');
                     }
@@ -331,9 +341,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         Ticket Inviato!
                     </span>
                     <p style="font-size: 0.95rem; opacity: 0.9;">
-                        La tua richiesta è stata registrata con il codice <strong><?php echo htmlspecialchars($ticketId); ?></strong>. 
+                        La tua richiesta è stata registrata con il codice <strong><?php echo htmlspecialchars($ticketId); ?></strong>.
                         Lo staff l'ha ricevuta nel canale Discord e ti risponderà al più presto.
                     </p>
+                    <?php if ($discord_thread_url !== ''): ?>
+                    <p style="font-size: 0.95rem; opacity: 0.9;">
+                        Il ticket è aperto anche su <strong>Discord</strong>:
+                        <a href="<?php echo htmlspecialchars($discord_thread_url); ?>" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline; font-weight: 700;">entra nel thread</a>
+                        per parlare con lo staff in diretta. Quello che scrivi lì compare anche qui, e viceversa.
+                    </p>
+                    <?php endif; ?>
                 </div>
             <?php else: ?>
                 <?php if ($error_message): ?>

@@ -52,13 +52,24 @@ if ($checkAdminRead && $checkAdminRead->num_rows == 0) {
     $mysqli->query("ALTER TABLE site_tickets ADD COLUMN admin_read TINYINT DEFAULT 0");
 }
 
+// Ponte con Discord: thread collegato e origine del ticket.
+$checkThread = $mysqli->query("SHOW COLUMNS FROM site_tickets LIKE 'discord_thread_id'");
+if ($checkThread && $checkThread->num_rows == 0) {
+    $mysqli->query("ALTER TABLE site_tickets ADD COLUMN discord_thread_id VARCHAR(25) DEFAULT NULL");
+    $mysqli->query("ALTER TABLE site_tickets ADD INDEX idx_discord_thread (discord_thread_id)");
+}
+$checkSource = $mysqli->query("SHOW COLUMNS FROM site_tickets LIKE 'source'");
+if ($checkSource && $checkSource->num_rows == 0) {
+    $mysqli->query("ALTER TABLE site_tickets ADD COLUMN source VARCHAR(16) NOT NULL DEFAULT 'site'");
+}
+
 
 if ($method === 'GET') {
     $ticketId = $_GET['ticket_id'] ?? '';
 
     // Caso A: Dettagli e messaggi di un singolo ticket
     if ($ticketId !== '') {
-        $stmt = $mysqli->prepare("SELECT user_id, title, topic, status, created_at FROM site_tickets WHERE ticket_id = ?");
+        $stmt = $mysqli->prepare("SELECT user_id, title, topic, status, created_at, discord_thread_id FROM site_tickets WHERE ticket_id = ?");
         if (!$stmt) {
             echo json_encode(['ok' => false, 'error' => 'Errore database.']);
             exit();
@@ -159,7 +170,7 @@ if ($method === 'GET') {
             exit();
         }
 
-        $stmt = $mysqli->prepare("SELECT user_id, title, status FROM site_tickets WHERE ticket_id = ?");
+        $stmt = $mysqli->prepare("SELECT user_id, title, status, discord_thread_id FROM site_tickets WHERE ticket_id = ?");
         $stmt->bind_param("s", $ticketId);
         $stmt->execute();
         $ticket = $stmt->get_result()->fetch_assoc();
@@ -191,7 +202,11 @@ if ($method === 'GET') {
                 'sender' => $senderUsername,
                 'role' => $userRole,
                 'message' => "🔒 Lo stato del ticket è stato modificato in: **" . strtoupper($newStatus === 'closed' ? 'Chiuso' : 'Aperto') . "**.",
-                'attachment_url' => null
+                'attachment_url' => null,
+                // Se il ticket ha un thread collegato, la risposta va li' invece
+                // che nel canale.
+                'thread_id' => $ticket['discord_thread_id'] ?? null,
+                'status' => $newStatus,
             ];
 
             if (function_exists('curl_init')) {
@@ -225,7 +240,7 @@ if ($method === 'GET') {
         exit();
     }
 
-    $stmt = $mysqli->prepare("SELECT user_id, title, status FROM site_tickets WHERE ticket_id = ?");
+    $stmt = $mysqli->prepare("SELECT user_id, title, status, discord_thread_id FROM site_tickets WHERE ticket_id = ?");
     $stmt->bind_param("s", $ticketId);
     $stmt->execute();
     $ticket = $stmt->get_result()->fetch_assoc();
@@ -305,7 +320,8 @@ if ($method === 'GET') {
             'sender' => $senderUsername,
             'role' => $userRole,
             'message' => $message,
-            'attachment_url' => $fullAttachmentUrl
+            'attachment_url' => $fullAttachmentUrl,
+            'thread_id' => $ticket['discord_thread_id'] ?? null,
         ];
 
         if (function_exists('curl_init')) {
