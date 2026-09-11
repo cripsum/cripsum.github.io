@@ -83,7 +83,13 @@ $displayName = profile_display_name($profile);
 $discordConnected = !empty($profile['discord_id']) && !empty($profile['discord_username']);
 $discordAvatarUrl = $discordConnected ? profile_discord_avatar_url((string)$profile['discord_id'], $profile['discord_avatar'] ?? null, 128) : null;
 $discordDisplayName = trim((string)($profile['discord_global_name'] ?? '')) ?: trim((string)($profile['discord_username'] ?? ''));
-$connectDiscordUrl = '../auth/discord_connect.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?target_user_id=' . (int)$targetUserId : '');
+// Il return_url esplicito riporta qui a collegamento fatto, anche quando il
+// browser non manda il referer o quando si passa prima dall'accesso.
+$connectDiscordParams = ['return_url' => $_SERVER['REQUEST_URI'] ?? '/it/edit-profile'];
+if (profile_is_staff() && $targetUserId !== $currentUserId) {
+    $connectDiscordParams['target_user_id'] = (int)$targetUserId;
+}
+$connectDiscordUrl = '../auth/discord_connect.php?' . http_build_query($connectDiscordParams);
 $stamp = !empty($profile['profile_updated_at']) ? (int)strtotime((string)$profile['profile_updated_at']) : time();
 $backgroundUrl = !empty($profile['profile_banner_type']) ? '../includes/get_profile_banner.php?id=' . (int)$profile['id'] . '&t=' . $stamp : '../vid/nga.mp4';
 $backgroundType = !empty($profile['profile_banner_type']) ? (string)$profile['profile_banner_type'] : 'video/mp4';
