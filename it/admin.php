@@ -19,7 +19,7 @@ $csrfToken = admin_csrf_token();
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.7">
+    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.8">
 </head>
 
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">
@@ -149,7 +149,7 @@ $csrfToken = admin_csrf_token();
                 <div class="admin-toolbar">
                     <div>
                         <strong>Slide homepage</strong>
-                        <small>La sezione «Cosa puoi fare su Cripsum». Le frecce cambiano l'ordine in cui appaiono.</small>
+                        <small>La sezione «Cosa puoi fare su Cripsum». Trascina le righe, o usa le frecce, per cambiare l'ordine in cui appaiono.</small>
                     </div>
                     <button type="button" class="admin-btn admin-btn--primary" id="createHomeSlideBtn"><i class="fa-solid fa-plus"></i> Nuova</button>
                 </div>
@@ -292,7 +292,7 @@ $csrfToken = admin_csrf_token();
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/assets/admin-v2/admin.js?v=3.4"></script>
+    <script src="/assets/admin-v2/admin.js?v=3.5"></script>
 </body>
 
 </html>

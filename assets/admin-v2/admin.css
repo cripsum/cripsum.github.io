@@ -627,3 +627,18 @@ body.modal-open {
 .admin-row-actions--slides .admin-btn[disabled] { opacity: .4; cursor: not-allowed; }
 #homeSlidesTable .admin-badge { white-space: nowrap; }
 #homeSlidesTable code { word-break: break-all; }
+
+/* Riordino delle slide col trascinamento. La maniglia dice che si puo' fare;
+   la riga trascinata resta visibile ma in trasparenza, cosi' si vede dove sta
+   andando invece di sparire. */
+.admin-slide-grip { color: var(--admin-muted, #8b93a7); cursor: grab; padding: 0 .15rem; }
+#homeSlidesTable tr[data-slide-row] { cursor: grab; }
+#homeSlidesTable tr[data-slide-row]:active { cursor: grabbing; }
+#homeSlidesTable tr.is-dragging { opacity: .45; outline: 2px dashed rgba(var(--admin-accent-rgb), .6); }
+
+/* Sul telefono si riordina con le frecce: il trascinamento HTML5 li' non
+   funziona e la maniglia sarebbe solo un invito a una cosa che non va. */
+@media (hover: none) {
+    .admin-slide-grip { display: none; }
+    #homeSlidesTable tr[data-slide-row] { cursor: default; }
+}

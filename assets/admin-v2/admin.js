@@ -1435,9 +1435,10 @@
                     <thead><tr><th>Slide</th><th>Link</th><th>Stato</th><th>Ordine e azioni</th></tr></thead>
                     <tbody>
                         ${state.cache.homeSlides.map((s, i) => `
-                            <tr>
+                            <tr draggable="true" data-slide-row="${Number(s.id)}">
                                 <td data-label="Slide">
                                     <div class="admin-name-cell">
+                                        <span class="admin-slide-grip" title="Trascina per riordinare" aria-hidden="true"><i class="fa-solid fa-grip-vertical"></i></span>
                                         ${thumb(s.media, 'fa-solid fa-image')}
                                         <div>
                                             <div class="admin-row-title">${escapeHtml(s.titolo)}</div>
@@ -1467,9 +1468,85 @@
             $$('[data-delete-slide]', box).forEach((b) => b.addEventListener('click', () => deleteHomeSlide(Number(b.dataset.deleteSlide), find(b.dataset.deleteSlide)?.titolo)));
             $$('[data-slide-up]', box).forEach((b) => b.addEventListener('click', () => moveHomeSlide(Number(b.dataset.slideUp), -1)));
             $$('[data-slide-down]', box).forEach((b) => b.addEventListener('click', () => moveHomeSlide(Number(b.dataset.slideDown), 1)));
+
+            enableHomeSlidesDrag(box);
         } catch (error) {
             box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore', error.message);
         }
+    };
+
+    /**
+     * Riordino trascinando le righe.
+     *
+     * Le frecce restano: il trascinamento HTML5 non esiste sul telefono, e con
+     * quindici slide fare tre spostamenti con le frecce e' comunque piu' comodo
+     * che tenere premuto.
+     *
+     * La riga si sposta nel DOM mentre la trascini, cosi' si vede dove andra' a
+     * finire; l'ordine si manda al server una volta sola, quando molli.
+     */
+    const enableHomeSlidesDrag = (box) => {
+        const corpo = box.querySelector('tbody');
+        if (!corpo) return;
+
+        let trascinata = null;
+        let ordineIniziale = [];
+
+        const ordineAttuale = () => $$('[data-slide-row]', corpo).map((r) => Number(r.dataset.slideRow));
+
+        corpo.addEventListener('dragstart', (event) => {
+            const riga = event.target.closest('[data-slide-row]');
+            if (!riga) return;
+
+            trascinata = riga;
+            ordineIniziale = ordineAttuale();
+            riga.classList.add('is-dragging');
+
+            // Firefox non avvia il trascinamento se non c'e' niente nel
+            // dataTransfer.
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', riga.dataset.slideRow);
+        });
+
+        corpo.addEventListener('dragover', (event) => {
+            if (!trascinata) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+
+            const sopra = event.target.closest('[data-slide-row]');
+            if (!sopra || sopra === trascinata) return;
+
+            // Si guarda se il puntatore e' sopra o sotto la meta' della riga:
+            // senza questo, due righe vicine continuerebbero a scambiarsi di
+            // posto a ogni pixel di movimento.
+            const rect = sopra.getBoundingClientRect();
+            const sottoLaMeta = event.clientY > rect.top + rect.height / 2;
+
+            corpo.insertBefore(trascinata, sottoLaMeta ? sopra.nextSibling : sopra);
+        });
+
+        corpo.addEventListener('dragend', async () => {
+            if (!trascinata) return;
+
+            trascinata.classList.remove('is-dragging');
+            trascinata = null;
+
+            const ordine = ordineAttuale();
+            if (ordine.join() === ordineIniziale.join()) return;
+
+            try {
+                await api('reorder_home_slides.php', { method: 'POST', body: { order: ordine } });
+                showToast('Ordine aggiornato.');
+                loadHomeSlides();
+            } catch (error) {
+                showToast(error.message, true);
+                loadHomeSlides();
+            }
+        });
+
+        // Senza questo il browser rifiuta il rilascio e la riga "torna
+        // indietro" con l'animazione di annullamento.
+        corpo.addEventListener('drop', (event) => event.preventDefault());
     };
 
     /**

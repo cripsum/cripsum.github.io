@@ -207,7 +207,7 @@
     };
 
     let slides = staticSlides;
-    let index = Math.floor(Math.random() * slides.length);
+    let index = 0;
     let autoTimer = null;
     let progressTimer = null;
     let dragStartX = null;
@@ -412,7 +412,12 @@
         // senza aspettare una richiesta. Se non ci sono restano quelle scritte
         // qui dentro.
         slides = slidesFromPage() || staticSlides;
-        index = Math.floor(Math.random() * slides.length);
+
+        // Si parte sempre dalla prima. Prima si partiva da una a caso, e con
+        // l'ordine deciso dal pannello quello era il motivo per cui spostare
+        // una slide sembrava non cambiare niente: l'ordine c'era, ma ogni
+        // visita cominciava da un punto diverso.
+        index = 0;
 
         paintSlide();
         startAuto();
