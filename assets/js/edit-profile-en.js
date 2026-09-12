@@ -2037,12 +2037,12 @@
             if (!document.querySelector('link[href*="photo-cropper.css"]')) {
                 const stile = document.createElement('link');
                 stile.rel = 'stylesheet';
-                stile.href = '/assets/css/photo-cropper.css?v=1.2';
+                stile.href = '/assets/css/photo-cropper.css?v=1.3';
                 document.head.appendChild(stile);
             }
 
             const script = document.createElement('script');
-            script.src = '/assets/js/photo-cropper.js?v=1.2';
+            script.src = '/assets/js/photo-cropper.js?v=1.3';
             script.onload = () => risolvi();
             script.onerror = () => {
                 console.warn('[Cripsum] photo-cropper.js non raggiungibile: la foto viene inviata senza ritaglio.');
