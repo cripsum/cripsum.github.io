@@ -6,10 +6,25 @@
  * sopra una maschera che mostra la forma finale dell'immagine.
  */
 
-.pc-overlay {
-    position: fixed;
+/**
+ * Il selettore e' raddoppiato e le due proprieta' sono `!important` per un
+ * motivo preciso: l'editor del profilo ha in profile.css la regola
+ *
+ *     .bio-v2-body > *:not(.bio-background) { position: relative; z-index: 4; }
+ *
+ * che colpisce **ogni figlio diretto del body** — e questo pannello viene
+ * aggiunto proprio li'. Con quella regola vincente il pannello smetteva di
+ * essere fisso, finiva in fondo alla pagina nel flusso e spariva sotto al
+ * contenuto: si apriva davvero, ma non lo vedeva nessuno.
+ *
+ * Un pannello modale deve stare sopra tutto e coprire lo schermo: qui non c'e'
+ * una gerarchia da rispettare, c'e' una regola generica da scavalcare.
+ */
+.pc-overlay,
+.pc-overlay.pc-overlay {
+    position: fixed !important;
     inset: 0;
-    z-index: 22000;
+    z-index: 22000 !important;
     display: flex;
     align-items: center;
     justify-content: center;

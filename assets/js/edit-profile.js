@@ -2022,6 +2022,38 @@
         return utile > 0 ? Math.min(limiteSito, utile) : limiteSito;
     };
 
+    /**
+     * Carica a richiesta il ritagliatore, se la pagina non l'ha gia' incluso.
+     *
+     * Una sola volta: la promessa viene tenuta, cosi' due scelte ravvicinate
+     * non fanno partire due caricamenti.
+     */
+    let promessaRitagliatore = null;
+    const caricaRitagliatore = () => {
+        if (window.CripsumPhotoCropper) return Promise.resolve();
+        if (promessaRitagliatore) return promessaRitagliatore;
+
+        promessaRitagliatore = new Promise((risolvi) => {
+            if (!document.querySelector('link[href*="photo-cropper.css"]')) {
+                const stile = document.createElement('link');
+                stile.rel = 'stylesheet';
+                stile.href = '/assets/css/photo-cropper.css?v=1.2';
+                document.head.appendChild(stile);
+            }
+
+            const script = document.createElement('script');
+            script.src = '/assets/js/photo-cropper.js?v=1.2';
+            script.onload = () => risolvi();
+            script.onerror = () => {
+                console.warn('[Cripsum] photo-cropper.js non raggiungibile: la foto viene inviata senza ritaglio.');
+                risolvi();
+            };
+            document.head.appendChild(script);
+        });
+
+        return promessaRitagliatore;
+    };
+
     function previewAvatarFile(input, target) {
         const file = input.files && input.files[0];
         if (!file) return;
@@ -2237,11 +2269,12 @@
     avatarInput.addEventListener('change', async () => {
         const scelto = avatarInput.files && avatarInput.files[0];
 
-        // Se il ritagliatore non c'e' si va avanti lo stesso, ma lo si dice:
-        // muto, sembrava che il pulsante non facesse niente e non c'era modo
-        // di capire che mancava il file.
+        // Il ritagliatore normalmente arriva dal tag nella pagina. Se non c'e'
+        // — pagina non aggiornata, file non caricato — lo si carica qui invece
+        // di rinunciarci in silenzio: senza, sceglievi la foto e non succedeva
+        // assolutamente niente, senza nemmeno un errore in console.
         if (scelto && !window.CripsumPhotoCropper) {
-            console.warn('[Cripsum] photo-cropper.js non caricato: la foto viene inviata senza ritaglio.');
+            await caricaRitagliatore();
         }
 
         if (scelto && window.CripsumPhotoCropper) {

@@ -80,6 +80,16 @@
             return;
         }
 
+        /*
+         * Intestazione e barra dei pulsanti sono dei <div>, non <header> e
+         * <footer>.
+         *
+         * L'editor del profilo nasconde ogni footer della pagina con una regola
+         * "display: none !important" su .profile-editor-shell footer: la barra
+         * dei pulsanti spariva, e senza "Usa la foto" il ritaglio non si poteva
+         * confermare — la foto non veniva mai applicata. Con dei div non c'e'
+         * niente da scavalcare.
+         */
         const overlay = document.createElement('div');
         overlay.className = 'pc-overlay';
         overlay.setAttribute('role', 'dialog');
@@ -89,12 +99,12 @@
         overlay.innerHTML = `
             <div class="pc-backdrop"></div>
             <div class="pc-card">
-                <header class="pc-header">
+                <div class="pc-header">
                     <h3>${T.title()}</h3>
                     <button type="button" class="pc-close" data-pc="cancel" aria-label="${T.cancel()}">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
-                </header>
+                </div>
 
                 <div class="pc-stage">
                     <canvas class="pc-canvas" width="320" height="320"></canvas>
@@ -120,12 +130,12 @@
                     </button>
                 </div>
 
-                <footer class="pc-actions">
+                <div class="pc-actions">
                     <button type="button" class="pc-btn pc-btn--ghost" data-pc="reset">${T.reset()}</button>
                     <span class="pc-spacer"></span>
                     <button type="button" class="pc-btn pc-btn--ghost" data-pc="cancel">${T.cancel()}</button>
                     <button type="button" class="pc-btn pc-btn--primary" data-pc="confirm">${T.confirm()}</button>
-                </footer>
+                </div>
             </div>
         `;
 
