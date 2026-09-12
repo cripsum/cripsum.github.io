@@ -2237,6 +2237,13 @@
     avatarInput.addEventListener('change', async () => {
         const scelto = avatarInput.files && avatarInput.files[0];
 
+        // Se il ritagliatore non c'e' si va avanti lo stesso, ma lo si dice:
+        // muto, sembrava che il pulsante non facesse niente e non c'era modo
+        // di capire che mancava il file.
+        if (scelto && !window.CripsumPhotoCropper) {
+            console.warn('[Cripsum] photo-cropper.js non caricato: la foto viene inviata senza ritaglio.');
+        }
+
         if (scelto && window.CripsumPhotoCropper) {
             const forma = document.getElementById('avatarShapeInput')?.value
                 || document.body.dataset.avatarShape
