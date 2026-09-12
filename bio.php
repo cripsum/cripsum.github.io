@@ -277,7 +277,7 @@ $statCards = [
     <meta property="og:url" content="<?= e($profileUrl); ?>">
     <link rel="stylesheet" href="css/style-users.css?v=3">
     <link rel="stylesheet" href="css/bio-v2.css?v=20260425">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.10.3">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.11.1">
     <title><?= e($profileConfig['display_name']); ?> — Bio</title>
     <script src="js/nomePagina.js" defer></script>
     <script src="js/bio-v2.js?v=20260425" defer></script>
@@ -579,6 +579,10 @@ $statCards = [
             </section>
         </section>
     </main>
+
+    <?php /* Navigazione, ricerca utenti e segnalazione: i pulsanti del menu li
+             cercano per id, e senza questo markup non si apriva niente. */ ?>
+    <?php include __DIR__ . '/includes/profile_overlays.php'; ?>
 
     <div class="bio-toast" id="bioToast" role="status" aria-live="polite"></div>
 

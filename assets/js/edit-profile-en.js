@@ -2207,7 +2207,46 @@
     }
     initResizeHandle();
 
-    avatarInput.addEventListener('change', () => previewAvatarFile(avatarInput, $('#previewAvatar')));
+    /**
+     * Prima di accettare la foto profilo si apre il ritaglio.
+     *
+     * Il file scelto viene sostituito con quello sistemato usando un
+     * DataTransfer: l'unico modo per riscrivere un `<input type="file">`.
+     * Cosi' il form non cambia — invia sempre `avatar` — e il resto del
+     * codice (limiti, anteprima, salvataggio) non sa nemmeno che e' successo.
+     *
+     * Se il ritagliatore non c'e' o l'utente annulla, si ricade sul
+     * comportamento di prima: il file com'era, oppure nessun file.
+     */
+    avatarInput.addEventListener('change', async () => {
+        const scelto = avatarInput.files && avatarInput.files[0];
+
+        if (scelto && window.CripsumPhotoCropper) {
+            const forma = document.getElementById('avatarShapeInput')?.value
+                || document.body.dataset.avatarShape
+                || 'circle';
+
+            let sistemato = null;
+            try {
+                sistemato = await window.CripsumPhotoCropper.open(scelto, { shape: forma });
+            } catch (error) {
+                sistemato = scelto; // meglio la foto originale che nessuna foto
+            }
+
+            if (!sistemato) {
+                avatarInput.value = '';
+                return;
+            }
+
+            if (sistemato !== scelto) {
+                const dt = new DataTransfer();
+                dt.items.add(sistemato);
+                avatarInput.files = dt.files;
+            }
+        }
+
+        previewAvatarFile(avatarInput, $('#previewAvatar'));
+    });
     bannerInput.addEventListener('change', () => previewBackgroundFile(bannerInput));
     if (musicFileInput) musicFileInput.addEventListener('change', () => previewMusicFile(musicFileInput));
 

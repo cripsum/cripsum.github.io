@@ -664,7 +664,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.11.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.11.1">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -2225,6 +2225,10 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             <?php endif; ?>
         </main>
     <?php endif; ?>
+
+    <?php /* Navigazione, ricerca utenti e segnalazione: i pulsanti del menu li
+             cercano per id, e senza questo markup non si apriva niente. */ ?>
+    <?php include __DIR__ . '/includes/profile_overlays.php'; ?>
 
     <div class="profile-qr-modal" id="profileQrModal" aria-hidden="true">
         <div class="profile-qr-backdrop js-close-qr"></div>

@@ -112,6 +112,7 @@ function profile_json_script(string $id, array $data): void
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.11.0">
     <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.11.1">
+    <link rel="stylesheet" href="/assets/css/photo-cropper.css?v=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter:wght@300..900&family=Roboto:wght@300..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Fira+Code:wght@300..700&family=PT+Mono&family=Cinzel:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Bebas+Neue&family=Press+Start+2P&family=Bungee&family=Permanent+Marker&family=Creepster&family=Shojumaru&display=swap" rel="stylesheet">
@@ -121,6 +122,7 @@ function profile_json_script(string $id, array $data): void
     </script>
     <script src="/assets/js/profile.js?v=5.11.0" defer></script>
     <script src="/assets/js/profile-markdown-guide.js?v=5.10.1" defer></script>
+    <script src="/assets/js/photo-cropper.js?v=1.0" defer></script>
     <script src="/assets/js/edit-profile-en.js?v=5.11.0" defer></script>
 </head>
 
@@ -293,7 +295,7 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-field"><span>Short status</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appears near your name when you are offline.</small></label>
 
                             <div class="profile-field-grid two">
-                                <label class="profile-field"><span>Avatar</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max <?php echo $isPremium ? '10MB' : '2MB'; ?>. JPG, PNG, WEBP or GIF.</small></label>
+                                <label class="profile-field"><span>Profile picture</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max <?php echo $isPremium ? '10MB' : '2MB'; ?>. JPG, PNG, WEBP or GIF.</small></label>
                                 <label class="profile-field"><span>Profile banner</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max <?php echo $isPremium ? '50MB' : '12MB'; ?>. Photo, GIF or video. Changes the page background.</small></label>
                             </div>
 
@@ -550,7 +552,7 @@ function profile_json_script(string $id, array $data): void
                                             <option value="<?php echo $val; ?>" <?php echo ($profile['profile_ui_shape'] ?? 'circle') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
                                         <?php endforeach; ?>
                                     </select></label>
-                                <label class="profile-field"><span>Avatar PFP Shape</span><select name="profile_avatar_shape" id="avatarShapeInput">
+                                <label class="profile-field"><span>Profile picture shape</span><select name="profile_avatar_shape" id="avatarShapeInput">
                                         <?php foreach (['circle' => 'Circle', 'squircle' => 'Squircle', 'square' => 'Square', 'hexagon' => 'Hexagon', 'octagon' => 'Octagon', 'badge' => 'Gaming Badge (Shield)'] as $val => $lbl): ?>
                                             <option value="<?php echo $val; ?>" <?php echo ($profile['profile_avatar_shape'] ?? 'circle') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
                                         <?php endforeach; ?>

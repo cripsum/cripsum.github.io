@@ -87,7 +87,10 @@ function cripsum_send_reward_mail(
     string $contentIt,
     string $contentEn,
     array $rewards = [],
-    string $category = 'system'
+    // Questa funzione manda posta con un premio dentro: la categoria giusta e'
+    // "rewards". Il valore predefinito era 'system', e chi la chiamava senza
+    // pensarci si ritrovava il messaggio fra gli avvisi automatici.
+    string $category = 'rewards'
 ): array {
     $recipientIds = array_values(array_unique(array_filter(array_map('intval', $recipientIds), fn($id) => $id > 0)));
 

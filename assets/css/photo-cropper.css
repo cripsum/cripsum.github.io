@@ -1,0 +1,271 @@
+/**
+ * Cripsum™ — Ritaglio della foto profilo
+ *
+ * Stessa linea del resto dell'editor: fondo scuro sfocato, scheda con angoli
+ * morbidi, accento viola. Il riquadro di ritaglio e' un canvas quadrato con
+ * sopra una maschera che mostra la forma finale dell'immagine.
+ */
+
+.pc-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 22000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.22s ease, visibility 0s linear 0.22s;
+}
+
+.pc-overlay.is-visible {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.22s ease;
+}
+
+.pc-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 9, 18, 0.76);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+body.pc-open {
+    overflow: hidden;
+}
+
+.pc-card {
+    position: relative;
+    z-index: 1;
+    width: min(94vw, 420px);
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 1.1rem 1.2rem 1.2rem;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: linear-gradient(150deg, rgba(23, 27, 45, 0.96), rgba(12, 15, 27, 0.98));
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    color: #e8ecf8;
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pc-overlay.is-visible .pc-card {
+    transform: translateY(0) scale(1);
+}
+
+.pc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.9rem;
+}
+
+.pc-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.pc-close {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.pc-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* ── Riquadro di ritaglio ───────────────────────────────────────────── */
+.pc-stage {
+    position: relative;
+    width: 320px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0b0f1a;
+}
+
+.pc-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: none; /* il trascinamento e' nostro, non dello scroll */
+}
+
+.pc-canvas.is-dragging {
+    cursor: grabbing;
+}
+
+/* La maschera mostra cosa resta dentro. Il buco e' trasparente e il resto
+   scurito, cosi' si vede anche la parte che verra' tagliata invece di
+   indovinarla. */
+.pc-mask {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: 0 0 0 9999px rgba(8, 11, 20, 0.55);
+    border: 2px solid rgba(255, 255, 255, 0.55);
+}
+
+.pc-mask--circle   { border-radius: 50%; }
+.pc-mask--squircle { border-radius: 28%; }
+.pc-mask--square   { border-radius: 6px; }
+.pc-mask--badge    { border-radius: 30% 30% 30% 30% / 24% 24% 36% 36%; }
+
+/* Esagono e ottagono non si possono fare col raggio: si ritagliano. */
+.pc-mask--hexagon {
+    border: 0;
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+}
+
+.pc-mask--octagon {
+    border: 0;
+    clip-path: polygon(30% 2%, 70% 2%, 98% 30%, 98% 70%, 70% 98%, 30% 98%, 2% 70%, 2% 30%);
+}
+
+.pc-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.pc-hint {
+    margin: 0.75rem 0 0.9rem;
+    color: #94a3b8;
+    font-size: 0.76rem;
+    text-align: center;
+    line-height: 1.45;
+}
+
+/* ── Cursori ────────────────────────────────────────────────────────── */
+.pc-control {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.7rem;
+}
+
+.pc-control label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 5.6rem;
+    color: #aeb9ca;
+    font-size: 0.76rem;
+    font-weight: 650;
+}
+
+.pc-control input[type="range"] {
+    flex: 1 1 auto;
+    min-width: 0;
+    accent-color: #8b5cf6;
+}
+
+.pc-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.045);
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+
+.pc-icon-btn:hover {
+    background: rgba(139, 92, 246, 0.16);
+    border-color: rgba(139, 92, 246, 0.45);
+    color: #fff;
+}
+
+/* ── Azioni ─────────────────────────────────────────────────────────── */
+.pc-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.pc-spacer {
+    flex: 1 1 auto;
+}
+
+.pc-btn {
+    min-height: 2.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 11px;
+    border: 1px solid transparent;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.14s ease, background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.pc-btn:active {
+    transform: translateY(1px);
+}
+
+.pc-btn--ghost {
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.pc-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+}
+
+.pc-btn--primary {
+    color: #fff;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.32);
+}
+
+.pc-btn--primary:hover {
+    filter: brightness(1.08);
+}
+
+@media (max-width: 420px) {
+    .pc-card { padding: 0.9rem 0.9rem 1rem; }
+    .pc-stage { width: 100%; }
+    .pc-control label { min-width: 4.4rem; font-size: 0.72rem; }
+    .pc-actions { flex-wrap: wrap; }
+    .pc-spacer { display: none; }
+    .pc-btn { flex: 1 1 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pc-overlay,
+    .pc-card,
+    .pc-btn {
+        transition: none;
+    }
+}

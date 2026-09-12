@@ -8627,6 +8627,9 @@ body[data-theme="light"] .profile-report-detail-group .detail-label {
     border-radius: 11px;
     display: flex;
     align-items: center;
+    /* Senza gap l'icona resta incollata al testo: fra i figli di un flex lo
+       spazio del markup non conta. */
+    gap: 0.45rem;
     color: #aeb9ca;
     background: rgba(255, 255, 255, 0.035);
     border: 1px solid rgba(255, 255, 255, 0.075);

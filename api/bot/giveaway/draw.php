@@ -148,7 +148,10 @@ foreach ($winners as $winner) {
         "Congratulations! You won **{$giveaway['title']}** in the Cripsum Discord server.\n\n"
             . "Prize: {$rewardText}\n\nClaim it from this message.",
         $normalized['rewards'],
-        'system'
+        // Nella posta del sito il messaggio va sotto "Premi", non sotto
+        // "Sistema": con un premio da riscuotere dentro, finiva nella
+        // categoria sbagliata e si perdeva fra gli avvisi automatici.
+        'rewards'
     );
 
     $stmtWinner = $mysqli->prepare(
