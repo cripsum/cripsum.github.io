@@ -22,10 +22,13 @@ $services = status_services();
 $states = [];
 
 foreach ($services as $key => $meta) {
-    $states[$key] = $key === 'bot_api'
-        ? status_bot_api($checks)
-        : status_current($checks, $key);
+    $states[$key] = status_current($checks, $key);
 }
+
+// Lo stato del controllore e' un'informazione a parte: i controlli li scrive
+// il bot da un'altra macchina, e se smettono di arrivare quello che resta a
+// schermo e' l'ultima fotografia, non la realta'.
+$monitor = status_monitor($checks);
 
 // Il database lo sa anche la pagina stessa: se non si e' connessa, e' giu'.
 if (!$link) {
@@ -47,12 +50,7 @@ $overallCopy = [
     'unknown' => ['Stato non verificabile', 'Il controllo automatico non sta rispondendo: i dati mostrati potrebbero non essere aggiornati.'],
 ][$overall];
 
-$lastUpdate = null;
-foreach ($checks as $check) {
-    if ($lastUpdate === null || $check['age'] < $lastUpdate) {
-        $lastUpdate = $check['age'];
-    }
-}
+$lastUpdate = $monitor['age'];
 
 // Uptime complessivo: media pesata su tutti i servizi con storico.
 $totalChecks = 0;
@@ -91,14 +89,28 @@ if ($canRenderNav) {
     <title>Stato dei servizi · Cripsum</title>
     <meta name="description" content="Stato in tempo reale dei servizi Cripsum: sito, database, API e bot Discord.">
     <meta name="robots" content="noindex">
-    <link rel="icon" href="/favicon.ico">
+
+    <?php if ($canRenderNav): ?>
+        <?php /* Gli stili della navbar stanno qui dentro: senza questo include
+                 il menu esce come un elenco puntato senza formattazione. */ ?>
+        <?php include __DIR__ . '/includes/head-import.php'; ?>
+    <?php else: ?>
+        <link rel="icon" href="/img/Susremaster.png" type="image/png">
+    <?php endif; ?>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <?php /* Questo blocco viene dopo gli stili condivisi apposta: a parita' di
+             specificita' vince l'ultimo, e la pagina deve restare com'e'
+             disegnata anche con Bootstrap caricato sopra. */ ?>
     <style>
         :root {
-            --st-accent:  #2f6bff;
+            /* Lo stesso viola del resto del sito: la pagina di stato non deve
+               sembrare presa da un altro prodotto. */
+            --st-accent:  #8b5cf6;
             --st-green:   #34d399;
             --st-yellow:  #fbbf24;
             --st-red:     #f87171;
@@ -116,14 +128,32 @@ if ($canRenderNav) {
 
         * { box-sizing: border-box; }
 
-        body {
+        /* La classe serve a battere le regole di Bootstrap e di style-dark.css
+           che arrivano dall'include condiviso: senza, il fondo e il testo li
+           decidono loro. */
+        body.st-body {
             margin: 0;
             background:
-                radial-gradient(1200px 600px at 50% -10%, rgba(47, 107, 255, 0.12), transparent 60%),
+                radial-gradient(1200px 600px at 50% -10%, rgba(139, 92, 246, 0.13), transparent 60%),
                 linear-gradient(180deg, var(--st-bg), var(--st-bg-2));
+            background-attachment: fixed;
             color: var(--st-text);
             font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
             min-height: 100vh;
+        }
+
+        /* Un solo carattere su tutta la pagina. Le cifre restano incolonnate
+           con tabular-nums invece che con un monospaziato a parte, cosi' le
+           percentuali non ballano da sole a ogni aggiornamento. */
+        .st-wrap,
+        .st-wrap h1,
+        .st-wrap h2 {
+            font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        .st-num {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: 'tnum' 1;
         }
 
         .st-wrap {
@@ -131,6 +161,13 @@ if ($canRenderNav) {
             margin: 0 auto;
             padding: 2.5rem 1.1rem 4rem;
         }
+
+        /* La navbar del sito e' `position: fixed` e non occupa spazio nel
+           flusso: senza questo spazio in cima si mangiava il titolo. Vale solo
+           quando la navbar c'e' davvero — con il database irraggiungibile al
+           suo posto resta un'intestazione normale, che lo spazio se lo prende
+           da sola. */
+        body.st-has-nav .st-wrap { padding-top: 6rem; }
 
         .st-title {
             text-align: center;
@@ -164,6 +201,27 @@ if ($canRenderNav) {
         .st-banner.degraded    { border-color: rgba(251, 191, 36, .35); background: linear-gradient(180deg, rgba(251,191,36,.10), var(--st-card)); }
         .st-banner.outage      { border-color: rgba(248, 113, 113, .35); background: linear-gradient(180deg, rgba(248,113,113,.10), var(--st-card)); }
         .st-banner.unknown     { border-color: rgba(148, 163, 184, .28); }
+
+        /* Avviso sul controllore fermo. Deve stare sopra a tutto e non somigliare
+           a una scheda di servizio: quando compare, nessuno dei dati sotto vale
+           piu' niente. */
+        .st-alarm {
+            display: flex;
+            gap: .8rem;
+            align-items: flex-start;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1rem;
+            border-radius: 16px;
+            border: 1px solid rgba(251, 191, 36, .4);
+            background: linear-gradient(180deg, rgba(251, 191, 36, .12), rgba(251, 191, 36, .04));
+            color: var(--st-text);
+            font-size: .88rem;
+            line-height: 1.55;
+        }
+
+        .st-alarm i { color: var(--st-yellow); margin-top: .2rem; flex: 0 0 auto; }
+        .st-alarm strong { display: block; margin-bottom: .1rem; }
+        .st-alarm span { color: var(--st-muted); }
 
         .st-dot {
             flex: 0 0 auto;
@@ -203,7 +261,7 @@ if ($canRenderNav) {
             text-align: right;
             color: var(--st-muted-2);
             font-size: .78rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
             white-space: nowrap;
         }
 
@@ -259,7 +317,7 @@ if ($canRenderNav) {
         .st-badge.unknown     { color: var(--st-muted);  background: rgba(148,163,184,.10); border-color: rgba(148,163,184,.25); }
 
         .st-latency {
-            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
             font-size: .72rem;
             opacity: .75;
         }
@@ -344,7 +402,7 @@ if ($canRenderNav) {
         .st-incident-meta {
             color: var(--st-muted-2);
             font-size: .78rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
         }
 
         .st-empty {
@@ -386,9 +444,13 @@ if ($canRenderNav) {
             .st-badge { margin-left: 0; width: 100%; justify-content: center; }
             .st-card-head { gap: .6rem; }
 
-            /* Meno giorni invece di barre illeggibili o pagina che scorre. */
+            /* Meno giorni invece di barre illeggibili o pagina che scorre.
+               Le barre vanno dalla piu' vecchia alla piu' recente, quindi si
+               nascondono le PRIME sessanta: cosi' restano gli ultimi trenta
+               giorni. Nascondendo le ultime sessanta, come faceva prima, su
+               telefono si vedeva il mese piu' vecchio e non quello in corso. */
             .st-bars { height: 30px; }
-            .st-bar:nth-child(n+31) { display: none; }
+            .st-bar:nth-child(-n+60) { display: none; }
             .st-legend-desktop { display: none; }
         }
 
@@ -397,7 +459,7 @@ if ($canRenderNav) {
         }
     </style>
 </head>
-<body>
+<body class="st-body<?php echo $canRenderNav ? ' st-has-nav' : ''; ?>">
 
 <?php if ($canRenderNav): ?>
     <?php include __DIR__ . '/includes/navbar.php'; ?>
@@ -409,6 +471,45 @@ if ($canRenderNav) {
     <h1 class="st-title">Stato dei servizi</h1>
     <p class="st-subtitle">Controlli automatici eseguiti dall'esterno, ogni minuto.</p>
 
+    <?php if ($monitor['never']): ?>
+        <div class="st-alarm">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div>
+                <strong>Nessun controllo ricevuto</strong>
+                <span>
+                    Il controllo automatico non ha ancora scritto niente: finché non arriva il primo giro,
+                    di questi servizi non si sa nulla.
+                </span>
+            </div>
+        </div>
+    <?php elseif ($monitor['stale']): ?>
+        <div class="st-alarm">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div>
+                <strong>I controlli non stanno arrivando</strong>
+                <span>
+                    L'ultimo è di <span class="st-num"><?php echo $h(status_format_duration($monitor['age'])); ?></span> fa,
+                    e dovrebbe arrivarne uno ogni minuto. Quello che vedi qui sotto è l'ultima fotografia:
+                    può non corrispondere più a come stanno le cose adesso.
+                </span>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($monitor['skew']): ?>
+        <div class="st-alarm">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+                <strong>Orologi non allineati</strong>
+                <span>
+                    I controlli risultano registrati nel futuro: il server del sito e quello del database
+                    hanno due orari diversi. Le durate mostrate in questa pagina non sono attendibili
+                    finché non viene sistemato.
+                </span>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <section class="st-banner <?php echo $h($overall); ?>">
         <span class="st-dot <?php echo $h($overall); ?>"></span>
         <div>
@@ -417,7 +518,7 @@ if ($canRenderNav) {
         </div>
         <div class="st-banner-meta">
             <?php if ($globalUptime !== null): ?>
-                <strong><?php echo number_format($globalUptime, 2); ?>%</strong>
+                <strong class="st-num"><?php echo number_format($globalUptime, 2); ?>%</strong>
                 uptime · 90 giorni
             <?php else: ?>
                 <strong>—</strong>
@@ -440,8 +541,14 @@ if ($canRenderNav) {
                 </div>
                 <span class="st-badge <?php echo $h($state['status']); ?>">
                     <?php echo $h(status_label($state['status'])); ?>
-                    <?php if (!empty($state['latency_ms'])): ?>
-                        <span class="st-latency"><?php echo (int)$state['latency_ms']; ?> ms</span>
+                    <?php /* `!== null` e non `!empty()`: una misura di 0 ms e' un
+                             dato, ed e' quello che viene fuori da un controllo su
+                             disco locale. Con empty() spariva e sembrava un
+                             servizio mai controllato. */ ?>
+                    <?php if ($state['latency_ms'] !== null): ?>
+                        <span class="st-latency st-num">
+                            <?php echo $state['latency_ms'] > 0 ? (int)$state['latency_ms'] . ' ms' : '&lt;1 ms'; ?>
+                        </span>
                     <?php endif; ?>
                 </span>
             </div>
@@ -473,7 +580,7 @@ if ($canRenderNav) {
                 <span class="st-legend-mobile">30 giorni fa</span>
                 <span>
                     <?php if ($uptime !== null): ?>
-                        <b><?php echo number_format($uptime, 2); ?>%</b> di uptime
+                        <b class="st-num"><?php echo number_format($uptime, 2); ?>%</b> di uptime
                     <?php else: ?>
                         in attesa dei primi controlli
                     <?php endif; ?>
@@ -525,7 +632,7 @@ if ($canRenderNav) {
 
     <p class="st-note">
         <?php if ($lastUpdate !== null): ?>
-            Ultimo controllo <?php echo $h(status_format_duration($lastUpdate)); ?> fa.
+            Ultimo controllo <span class="st-num"><?php echo $h(status_format_duration($lastUpdate)); ?></span> fa.
         <?php else: ?>
             Nessun controllo ancora registrato.
         <?php endif; ?>

@@ -24,6 +24,18 @@ if (is_file($statusConfigPath)) {
 }
 unset($statusConfigPath);
 
+/**
+ * Stesso fuso di config/database.php, che questa pagina non include.
+ *
+ * Chi scrive i controlli passa da li' e si porta dietro `SET time_zone`; questa
+ * pagina apre una connessione sua, che senza la stessa riga userebbe il fuso
+ * predefinito del server MySQL. Con i due orologi disallineati l'eta' di un
+ * controllo veniva negativa — il famoso "ultimo controllo -7199 s fa" — e il
+ * controllo di freschezza non scattava mai, quindi a bot spento la pagina
+ * restava tutta verde.
+ */
+date_default_timezone_set('Europe/Rome');
+
 /** Ogni quanto il bot dovrebbe farsi vivo: oltre, si considera fermo. */
 const STATUS_STALE_SECONDS = 300;
 
@@ -77,6 +89,12 @@ function status_connect(): ?mysqli
     }
 
     @$candidate->set_charset('utf8mb4');
+
+    // La stessa riga di config/database.php: leggere e scrivere devono usare
+    // lo stesso orologio, altrimenti ogni durata calcolata qui e' sbagliata
+    // dell'offset fra i due fusi.
+    @$candidate->query("SET time_zone = '" . date('P') . "'");
+
     $link = $candidate;
 
     return $link;
@@ -131,12 +149,21 @@ function status_latest_checks(?mysqli $link): array
 
     $checks = [];
     while ($row = $result->fetch_assoc()) {
+        // Un'eta' negativa vuol dire che il controllo risulta scritto nel
+        // futuro: succede solo se chi scrive e chi legge usano due orologi
+        // diversi. Ora l'ora la mette il database in entrambi i casi, ma se
+        // ricapitasse va trattata come "appena arrivato" e non come un numero
+        // negativo mostrato all'utente — ne' come un dato eternamente fresco,
+        // che era il motivo per cui il sito restava verde con il bot spento.
+        $age = (int)$row['age'];
+
         $checks[(string)$row['service']] = [
             'status' => (string)$row['status'],
             'latency_ms' => $row['latency_ms'] !== null ? (int)$row['latency_ms'] : null,
             'error' => $row['error'],
             'checked_at' => (string)$row['checked_at'],
-            'age' => (int)$row['age'],
+            'age' => max(0, $age),
+            'clock_skew' => $age < -60,
         ];
     }
     $result->free();
@@ -242,8 +269,11 @@ function status_current(array $checks, string $service): array
 
     if ($check['age'] > STATUS_STALE_SECONDS) {
         return [
+            // Niente latenza: e' quella dell'ultimo controllo riuscito, e
+            // mostrare un numero accanto a "Sconosciuto" farebbe credere che
+            // qualcuno l'abbia misurata adesso.
             'status' => 'unknown',
-            'latency_ms' => $check['latency_ms'],
+            'latency_ms' => null,
             'error' => 'nessun controllo recente',
             'age' => $check['age'],
         ];
@@ -253,34 +283,35 @@ function status_current(array $checks, string $service): array
 }
 
 /**
- * Lo stato dell'API del bot si deduce da quanto e' fresco il dato piu' recente:
- * e' il bot stesso a registrare i controlli, quindi se smettono di arrivare
- * vuol dire che non risponde.
+ * Stato del controllore, che e' cosa diversa dallo stato dei servizi.
+ *
+ * I controlli li scrive il bot, che gira su un'altra macchina. Se smettono di
+ * arrivare, di cripsum.com non si sa piu' niente: l'ultimo dato letto resta
+ * verde ma non vale piu'. Questa distinzione va mostrata, altrimenti la pagina
+ * rassicura proprio quando non dovrebbe.
+ *
+ * @return array{age:?int, stale:bool, never:bool, skew:bool}
  */
-function status_bot_api(array $checks): array
+function status_monitor(array $checks): array
 {
     $newest = null;
+    $skew = false;
 
     foreach ($checks as $check) {
         if ($newest === null || $check['age'] < $newest) {
             $newest = $check['age'];
         }
+        if (!empty($check['clock_skew'])) {
+            $skew = true;
+        }
     }
 
-    if ($newest === null) {
-        return ['status' => 'unknown', 'latency_ms' => null, 'error' => 'nessun dato registrato', 'age' => null];
-    }
-
-    if ($newest > STATUS_STALE_SECONDS) {
-        return [
-            'status' => 'outage',
-            'latency_ms' => null,
-            'error' => 'nessun controllo da ' . status_format_duration($newest),
-            'age' => $newest,
-        ];
-    }
-
-    return ['status' => 'operational', 'latency_ms' => null, 'error' => null, 'age' => $newest];
+    return [
+        'age' => $newest,
+        'never' => $newest === null,
+        'stale' => $newest !== null && $newest > STATUS_STALE_SECONDS,
+        'skew' => $skew,
+    ];
 }
 
 /**
@@ -308,6 +339,10 @@ function status_format_duration(?int $seconds): string
 {
     if ($seconds === null) {
         return '—';
+    }
+
+    if ($seconds <= 0) {
+        return 'pochi istanti';
     }
 
     if ($seconds < 60) {

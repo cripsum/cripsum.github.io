@@ -82,6 +82,9 @@ $services['database'] = $measure(static function () {
 });
 
 // --- Spazio di archiviazione ----------------------------------------------
+// Si scrive, si rilegge e si cancella un file vero. `is_writable()` da solo
+// direbbe di si' anche con il disco pieno o la quota esaurita, che sono
+// esattamente i due modi in cui questa cosa si rompe davvero.
 $services['storage'] = $measure(static function () {
     $uploads = __DIR__ . '/../../uploads';
 
@@ -89,8 +92,24 @@ $services['storage'] = $measure(static function () {
         return 'cartella uploads mancante';
     }
 
-    if (!is_writable($uploads)) {
-        return 'cartella uploads non scrivibile';
+    $probe = $uploads . '/.healthcheck-' . bin2hex(random_bytes(6));
+    $payload = 'cripsum-health-' . microtime(true);
+
+    $written = @file_put_contents($probe, $payload, LOCK_EX);
+    if ($written === false) {
+        return 'scrittura non riuscita (permessi o disco pieno)';
+    }
+
+    if ($written !== strlen($payload)) {
+        @unlink($probe);
+        return 'scrittura parziale: disco pieno o quota esaurita';
+    }
+
+    $readBack = @file_get_contents($probe);
+    @unlink($probe);
+
+    if ($readBack !== $payload) {
+        return 'il file riletto non corrisponde a quello scritto';
     }
 
     return null;

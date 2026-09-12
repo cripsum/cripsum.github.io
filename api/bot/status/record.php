@@ -30,12 +30,20 @@ if (!$checks) {
 }
 
 $recorded = [];
-$now = date('Y-m-d H:i:s');
-$today = date('Y-m-d');
 
+/**
+ * Gli orari li mette il database, mai PHP.
+ *
+ * Con `date()` l'ora veniva dal fuso di PHP e poi finiva confrontata con NOW()
+ * di MySQL: se i due non coincidono — ed e' il caso normale, PHP sull'ora di
+ * Roma e MySQL su UTC — ogni controllo risultava scritto due ore nel futuro.
+ * La pagina mostrava "ultimo controllo -7199 s fa", e peggio: il controllo di
+ * freschezza non scattava mai, quindi con il bot fermo restava tutto verde.
+ * Con un orologio solo il problema non puo' ripresentarsi.
+ */
 $stmtCheck = $mysqli->prepare(
     'INSERT INTO service_status_checks (service, status, latency_ms, http_code, error, checked_at)
-     VALUES (?, ?, ?, ?, ?, ?)'
+     VALUES (?, ?, ?, ?, ?, NOW())'
 );
 
 if (!$stmtCheck) {
@@ -60,7 +68,7 @@ foreach (array_slice($checks, 0, 20) as $check) {
         ? mb_substr((string)$check['error'], 0, 250)
         : null;
 
-    $stmtCheck->bind_param('ssiiss', $service, $status, $latency, $httpCode, $error, $now);
+    $stmtCheck->bind_param('ssiis', $service, $status, $latency, $httpCode, $error);
     $stmtCheck->execute();
 
     // Riepilogo del giorno: si aggiorna in un colpo solo, senza rileggere.
@@ -69,7 +77,7 @@ foreach (array_slice($checks, 0, 20) as $check) {
 
     $stmtDaily = $mysqli->prepare(
         "INSERT INTO service_status_daily (service, day, checks, failures, degraded, avg_latency_ms, worst_status)
-         VALUES (?, ?, 1, ?, ?, ?, ?)
+         VALUES (?, CURDATE(), 1, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
             checks = checks + 1,
             failures = failures + VALUES(failures),
@@ -88,7 +96,7 @@ foreach (array_slice($checks, 0, 20) as $check) {
     );
 
     if ($stmtDaily) {
-        $stmtDaily->bind_param('ssiiis', $service, $today, $isFailure, $isDegraded, $latency, $status);
+        $stmtDaily->bind_param('siiis', $service, $isFailure, $isDegraded, $latency, $status);
         $stmtDaily->execute();
         $stmtDaily->close();
     }
@@ -96,7 +104,7 @@ foreach (array_slice($checks, 0, 20) as $check) {
     // Disservizi: uno aperto per servizio, chiuso quando torna operativo.
     if (auth_table_exists($mysqli, 'service_status_incidents')) {
         $stmtOpen = $mysqli->prepare(
-            'SELECT id, started_at FROM service_status_incidents
+            'SELECT id FROM service_status_incidents
              WHERE service = ? AND ended_at IS NULL
              ORDER BY id DESC LIMIT 1'
         );
@@ -112,26 +120,29 @@ foreach (array_slice($checks, 0, 20) as $check) {
         if ($status === 'outage' && !$open) {
             $stmtIncident = $mysqli->prepare(
                 "INSERT INTO service_status_incidents (service, status, started_at, error)
-                 VALUES (?, 'outage', ?, ?)"
+                 VALUES (?, 'outage', NOW(), ?)"
             );
 
             if ($stmtIncident) {
-                $stmtIncident->bind_param('sss', $service, $now, $error);
+                $stmtIncident->bind_param('ss', $service, $error);
                 $stmtIncident->execute();
                 $stmtIncident->close();
             }
         } elseif ($status !== 'outage' && $open) {
-            $duration = max(0, strtotime($now) - strtotime((string)$open['started_at']));
             $incidentId = (int)$open['id'];
 
+            // Anche la durata la calcola il database, sulle sue due date: con
+            // strtotime() su un orario scritto in un altro fuso venivano fuori
+            // disservizi di due ore che non erano mai esistiti.
             $stmtClose = $mysqli->prepare(
                 'UPDATE service_status_incidents
-                 SET ended_at = ?, duration_seconds = ?
+                 SET ended_at = NOW(),
+                     duration_seconds = GREATEST(0, TIMESTAMPDIFF(SECOND, started_at, NOW()))
                  WHERE id = ? LIMIT 1'
             );
 
             if ($stmtClose) {
-                $stmtClose->bind_param('sii', $now, $duration, $incidentId);
+                $stmtClose->bind_param('i', $incidentId);
                 $stmtClose->execute();
                 $stmtClose->close();
             }
