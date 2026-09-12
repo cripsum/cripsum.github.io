@@ -38,6 +38,12 @@
         return Math.min(Math.max(targetVolume, 0), 1);
     };
 
+    // Serve anche al blocco piu' in basso in questo file, che e' un altro
+    // IIFE e quindi non vede le costanti di questo: senza, la riproduzione
+    // automatica dell'audio moriva con "getResolvedVolume is not defined" e
+    // si portava dietro il resto di quel gestore.
+    window.getResolvedVolume = getResolvedVolume;
+
     const updateStickyBehavior = () => {
         const hero = document.querySelector('.public-profile-body .profile-smart-hero');
         const wrapper = document.querySelector('.public-profile-body .profile-smart-hero-wrapper');
@@ -1946,7 +1952,7 @@
 
         const defaultVol = Number(audio.dataset.defaultVolume || 0.18);
         const profileUrl = document.body.dataset.profileUrl || 'global';
-        const resolvedVolume = getResolvedVolume(profileUrl, defaultVol);
+        const resolvedVolume = window.getResolvedVolume(profileUrl, defaultVol);
         audio.volume = resolvedVolume;
         audio.loop = true;
         

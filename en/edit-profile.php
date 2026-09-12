@@ -126,7 +126,7 @@ function profile_json_script(string $id, array $data): void
            non c'entrava niente. 0 = il server non dichiara limiti. */
         window.serverUploadLimit = <?php echo profile_server_upload_limit(); ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.11.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.12.0" defer></script>
     <script src="/assets/js/profile-markdown-guide.js?v=5.10.1" defer></script>
     <script src="/assets/js/photo-cropper.js?v=1.0" defer></script>
     <script src="/assets/js/edit-profile-en.js?v=5.12.0" defer></script>
