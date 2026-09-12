@@ -1,200 +1,86 @@
 <?php
-require_once __DIR__ . '/secure/config.php';
-require_once __DIR__ . '/includes/functions.php';
+/**
+ * Stato dei servizi Cripsum.
+ *
+ * I dati arrivano dallo storico che il bot registra a ogni controllo
+ * (service_status_checks / _daily / _incidents): niente piu' barre verdi
+ * scritte a mano.
+ *
+ * La pagina deve reggere anche il database irraggiungibile, che e' proprio il
+ * momento in cui qualcuno la apre: per questo la connessione passa da
+ * status_connect(), che restituisce null invece di terminare l'esecuzione.
+ */
 
-// Gestione richiesta AJAX per l'aggiornamento in tempo reale
-if (isset($_GET['ajax'])) {
-    header('Content-Type: application/json');
-    
-    // 1. Real Web Server Check & Latency
-    $websiteStatus = 'operational';
-    $webLatency = 0;
-    $startTime = microtime(true);
+require_once __DIR__ . '/includes/status_helpers.php';
 
-    if (function_exists('curl_init')) {
-        $ch = curl_init('https://cripsum.com/');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 1,
-            CURLOPT_TIMEOUT => 2,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_USERAGENT => 'CripsumStatus/1.0',
-        ]);
-        $response = curl_exec($ch);
-        $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+$link = status_connect();
+$checks = status_latest_checks($link);
+$daily = status_daily($link, 90);
+$incidents = status_incidents($link, 12);
 
-        if ($response && $statusCode === 200) {
-            $webLatency = round((microtime(true) - $startTime) * 1000);
-        } else {
-            $webLatency = rand(4, 12); 
-        }
-    } else {
-        $webLatency = rand(4, 12);
-    }
+$services = status_services();
+$states = [];
 
-    // 2. Real Database Check & Latency
-    $databaseStatus = 'operational';
-    $dbLatency = 0;
-    $dbStart = microtime(true);
-
-    $mysqli = @new mysqli($db_host, $db_user, $db_pass, $db_name);
-    if ($mysqli->connect_error) {
-        $databaseStatus = 'major_outage';
-    } else {
-        $mysqli->set_charset('utf8mb4');
-        $dbLatency = round((microtime(true) - $dbStart) * 1000);
-        $mysqli->close();
-    }
-
-    // 3. Real API & Home Server Status
-    $apiStatus = 'major_outage';
-    $serverStats = null;
-    $apiLatency = 0;
-    $apiStart = microtime(true);
-
-    if (function_exists('curl_init')) {
-        $ch = curl_init('https://api.cripsum.com/v1/stats');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 2,
-            CURLOPT_TIMEOUT => 3,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_HTTPHEADER => ['Accept: application/json'],
-            CURLOPT_USERAGENT => 'CripsumStatus/1.0',
-        ]);
-        $response = curl_exec($ch);
-        $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($response && $statusCode === 200) {
-            $decoded = json_decode($response, true);
-            if (is_array($decoded) && !empty($decoded['success'])) {
-                $apiStatus = 'operational';
-                $serverStats = $decoded;
-                $apiLatency = round((microtime(true) - $apiStart) * 1000);
-            }
-        }
-    }
-
-    // Overall status
-    $overallStatus = 'operational';
-    if ($apiStatus === 'major_outage' || $databaseStatus === 'major_outage') {
-        $overallStatus = 'partial_outage';
-    }
-    if ($websiteStatus === 'major_outage') {
-        $overallStatus = 'major_outage';
-    }
-
-    echo json_encode([
-        'overallStatus' => $overallStatus,
-        'website' => ['status' => $websiteStatus, 'latency' => $webLatency],
-        'database' => ['status' => $databaseStatus, 'latency' => $dbLatency],
-        'api' => ['status' => $apiStatus, 'latency' => $apiLatency],
-        'hardware' => $serverStats
-    ]);
-    exit;
+foreach ($services as $key => $meta) {
+    $states[$key] = $key === 'bot_api'
+        ? status_bot_api($checks)
+        : status_current($checks, $key);
 }
 
-// 1. Caricamento iniziale - Web Server
-$websiteStatus = 'operational';
-$webLatency = 0;
-$startTime = microtime(true);
-if (function_exists('curl_init')) {
-    $ch = curl_init('https://cripsum.com/');
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CONNECTTIMEOUT => 1,
-        CURLOPT_TIMEOUT => 2,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_USERAGENT => 'CripsumStatus/1.0',
-    ]);
-    $response = curl_exec($ch);
-    $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    if ($response && $statusCode === 200) {
-        $webLatency = round((microtime(true) - $startTime) * 1000);
-    } else {
-        $webLatency = rand(4, 12); 
-    }
-} else {
-    $webLatency = rand(4, 12);
+// Il database lo sa anche la pagina stessa: se non si e' connessa, e' giu'.
+if (!$link) {
+    $states['database'] = [
+        'status' => 'outage',
+        'latency_ms' => null,
+        'error' => 'la pagina non riesce a connettersi',
+        'age' => 0,
+    ];
 }
 
-// 2. Caricamento iniziale - Database
-$databaseStatus = 'operational';
-$dbLatency = 0;
-$dbStart = microtime(true);
-$mysqli = @new mysqli($db_host, $db_user, $db_pass, $db_name);
-if ($mysqli->connect_error) {
-    $databaseStatus = 'major_outage';
-} else {
-    $mysqli->set_charset('utf8mb4');
-    $dbLatency = round((microtime(true) - $dbStart) * 1000);
-    $mysqli->close();
-}
+$overall = status_overall($states);
+$hasHistory = !empty($daily);
 
-// 3. Caricamento iniziale - API
-$apiStatus = 'major_outage';
-$serverStatus = 'major_outage';
-$apiLatency = 0;
-$serverStats = null;
-$apiStart = microtime(true);
+$overallCopy = [
+    'operational' => ['Tutti i sistemi sono operativi', 'Nessun problema rilevato negli ultimi controlli.'],
+    'degraded' => ['Prestazioni ridotte', 'Qualche servizio risponde più lentamente del solito.'],
+    'outage' => ['Disservizio in corso', 'Uno o più servizi non rispondono. Ci stiamo lavorando.'],
+    'unknown' => ['Stato non verificabile', 'Il controllo automatico non sta rispondendo: i dati mostrati potrebbero non essere aggiornati.'],
+][$overall];
 
-if (function_exists('curl_init')) {
-    $ch = curl_init('https://api.cripsum.com/v1/stats');
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CONNECTTIMEOUT => 2,
-        CURLOPT_TIMEOUT => 3,
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_HTTPHEADER => ['Accept: application/json'],
-        CURLOPT_USERAGENT => 'CripsumStatus/1.0',
-    ]);
-    $response = curl_exec($ch);
-    $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($response && $statusCode === 200) {
-        $decoded = json_decode($response, true);
-        if (is_array($decoded) && !empty($decoded['success'])) {
-            $apiStatus = 'operational';
-            $serverStatus = 'operational';
-            $serverStats = $decoded;
-            $apiLatency = round((microtime(true) - $apiStart) * 1000);
-        }
+$lastUpdate = null;
+foreach ($checks as $check) {
+    if ($lastUpdate === null || $check['age'] < $lastUpdate) {
+        $lastUpdate = $check['age'];
     }
 }
 
-$overallStatus = 'operational';
-if ($apiStatus === 'major_outage' || $databaseStatus === 'major_outage') {
-    $overallStatus = 'partial_outage';
+// Uptime complessivo: media pesata su tutti i servizi con storico.
+$totalChecks = 0;
+$totalFailures = 0;
+foreach ($daily as $rows) {
+    foreach ($rows as $row) {
+        $totalChecks += $row['checks'];
+        $totalFailures += $row['failures'];
+    }
 }
-if ($websiteStatus === 'major_outage') {
-    $overallStatus = 'major_outage';
+$globalUptime = $totalChecks > 0 ? (($totalChecks - $totalFailures) / $totalChecks) * 100 : null;
+
+/** I 90 giorni in ordine, dal più vecchio a oggi. */
+$days = [];
+for ($i = 89; $i >= 0; $i--) {
+    $days[] = date('Y-m-d', strtotime("-$i day"));
 }
 
-function getStatusLabel(string $status): string {
-    return match ($status) {
-        'operational' => 'Operativo',
-        'degraded_performance' => 'Prestazioni Ridotte',
-        'partial_outage' => 'Interruzione Parziale',
-        'major_outage' => 'Offline',
-        default => 'Sconosciuto'
-    };
-}
+$h = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-function formatUptime(int $seconds): string {
-    $days = floor($seconds / 86400);
-    $hours = floor(($seconds % 86400) / 3600);
-    $minutes = floor(($seconds % 3600) / 60);
+// La navbar vuole $mysqli: senza database si mostra un'intestazione ridotta
+// invece di far esplodere la pagina.
+$mysqli = $link;
+$canRenderNav = $link instanceof mysqli;
 
-    $parts = [];
-    if ($days > 0) $parts[] = $days . ($days == 1 ? ' giorno' : ' giorni');
-    if ($hours > 0) $parts[] = $hours . ($hours == 1 ? ' ora' : ' ore');
-    if ($minutes > 0) $parts[] = $minutes . ($minutes == 1 ? ' minuto' : ' minuti');
-
-    return empty($parts) ? 'Meno di un minuto' : implode(', ', $parts);
+if ($canRenderNav) {
+    require_once __DIR__ . '/config/session_init.php';
+    require_once __DIR__ . '/includes/functions.php';
 }
 ?>
 <!DOCTYPE html>
@@ -202,911 +88,458 @@ function formatUptime(int $seconds): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stato Server - Cripsum</title>
+    <title>Stato dei servizi · Cripsum</title>
+    <meta name="description" content="Stato in tempo reale dei servizi Cripsum: sito, database, API e bot Discord.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #030712;
-            --card-bg: rgba(17, 24, 39, 0.35);
-            --card-border: rgba(255, 255, 255, 0.05);
-            --card-border-hover: rgba(139, 92, 246, 0.3);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            
-            --color-green: #10b981;
-            --color-yellow: #f59e0b;
-            --color-red: #ef4444;
-            
-            --accent: #8b5cf6;
-            --accent-glow: rgba(139, 92, 246, 0.2);
+            --st-accent:  #2f6bff;
+            --st-green:   #34d399;
+            --st-yellow:  #fbbf24;
+            --st-red:     #f87171;
+            --st-grey:    #4b5563;
+            --st-bg:      #05070d;
+            --st-bg-2:    #0a0e1a;
+            --st-card:    rgba(10, 14, 27, 0.72);
+            --st-text:    #f7f8ff;
+            --st-muted:   #aab3c8;
+            --st-muted-2: #778199;
+            --st-border:  rgba(255, 255, 255, 0.12);
+            --st-radius:  22px;
+            --st-shadow:  0 24px 70px rgba(0, 0, 0, 0.36);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            margin: 0;
+            background:
+                radial-gradient(1200px 600px at 50% -10%, rgba(47, 107, 255, 0.12), transparent 60%),
+                linear-gradient(180deg, var(--st-bg), var(--st-bg-2));
+            color: var(--st-text);
+            font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 3rem 1.5rem;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(47, 107, 255, 0.1) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.5) 0%, transparent 100%);
         }
 
-        .container {
-            width: 100%;
-            max-width: 760px;
-            margin-top: 1rem;
+        .st-wrap {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 2.5rem 1.1rem 4rem;
         }
 
-        header {
+        .st-title {
             text-align: center;
-            margin-bottom: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .live-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--color-green);
-            letter-spacing: 0.08em;
-            margin-bottom: 1.2rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.03);
-            animation: pulse-border 2s infinite alternate;
-        }
-
-        .live-indicator.updating {
-            background: rgba(16, 185, 129, 0.2);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
-        }
-
-        .live-dot {
-            width: 6px;
-            height: 6px;
-            background-color: var(--color-green);
-            border-radius: 50%;
-            display: inline-block;
-            position: relative;
-        }
-
-        .live-dot::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: var(--color-green);
-            border-radius: 50%;
-            top: 0;
-            left: 0;
-            animation: live-pulse-ring 1.5s ease-out infinite;
-        }
-
-        @keyframes live-pulse-ring {
-            0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(3.5); opacity: 0; }
-        }
-
-        @keyframes pulse-border {
-            0% { border-color: rgba(16, 185, 129, 0.15); }
-            100% { border-color: rgba(16, 185, 129, 0.35); }
-        }
-
-        header h1 {
-            font-size: 2.6rem;
+            margin: 0 0 .4rem;
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
             font-weight: 800;
-            letter-spacing: -0.03em;
-            background: linear-gradient(135deg, #ffffff 40%, #a78bfa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.4rem;
-        }
-
-        header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            font-weight: 400;
-        }
-
-        .status-banner {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 1.4rem 2rem;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            margin-bottom: 2rem;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .status-banner.operational {
-            border-color: rgba(16, 185, 129, 0.2);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.03) 0%, var(--card-bg) 100%);
-        }
-
-        .status-banner.partial_outage {
-            border-color: rgba(245, 158, 11, 0.2);
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.03) 0%, var(--card-bg) 100%);
-        }
-
-        .status-banner.major_outage {
-            border-color: rgba(239, 68, 68, 0.2);
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.03) 0%, var(--card-bg) 100%);
-        }
-
-        .pulse-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            position: relative;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-
-        .pulse-dot.green { background-color: var(--color-green); box-shadow: 0 0 10px var(--color-green); }
-        .pulse-dot.yellow { background-color: var(--color-yellow); box-shadow: 0 0 10px var(--color-yellow); }
-        .pulse-dot.red { background-color: var(--color-red); box-shadow: 0 0 10px var(--color-red); }
-
-        .pulse-dot::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            top: 0;
-            left: 0;
-            box-sizing: border-box;
-            animation: pulse 2.2s cubic-bezier(0.25, 0, 0, 1) infinite;
-        }
-
-        .pulse-dot.green::after { border: 2px solid var(--color-green); }
-        .pulse-dot.yellow::after { border: 2px solid var(--color-yellow); }
-        .pulse-dot.red::after { border: 2px solid var(--color-red); }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2.8); opacity: 0; }
-        }
-
-        .status-message {
-            font-size: 1.15rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-        }
-
-        .services-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .service-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 18px;
-            padding: 1.6rem;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .service-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--card-border-hover);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 0 20px rgba(139, 92, 246, 0.08);
-        }
-
-        .service-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .service-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            letter-spacing: -0.01em;
-        }
-
-        .service-name i {
-            color: var(--text-muted);
-            font-size: 1rem;
-            transition: color 0.3s ease;
-        }
-
-        .service-card:hover .service-name i {
-            color: var(--accent);
-        }
-
-        .service-status-badge {
-            font-size: 0.8rem;
-            font-weight: 600;
-            padding: 5px 12px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .service-status-badge.operational { 
-            background: rgba(16, 185, 129, 0.08); 
-            color: var(--color-green);
-            border-color: rgba(16, 185, 129, 0.18);
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.05);
-        }
-        .service-status-badge.major_outage { 
-            background: rgba(239, 68, 68, 0.08); 
-            color: var(--color-red);
-            border-color: rgba(239, 68, 68, 0.18);
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.05);
-        }
-
-        .latency-text {
-            font-size: 0.78rem;
-            opacity: 0.6;
-            font-weight: 400;
-            font-family: 'JetBrains Mono', monospace;
-            margin-left: 4px;
-        }
-
-        .timeline-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .timeline-bars {
-            display: flex;
-            gap: 4px;
-            justify-content: space-between;
-            height: 32px;
-            align-items: flex-end;
-        }
-
-        .bar {
-            flex-grow: 1;
-            height: 24px;
-            border-radius: 4px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: bottom;
-            opacity: 0;
-            animation: pop-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .bar-green { background: linear-gradient(to top, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.65)); }
-        .bar-green:hover { background: linear-gradient(to top, rgba(16, 185, 129, 0.7), #10b981); transform: scaleY(1.25); box-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
-        
-        .bar-yellow { background: linear-gradient(to top, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.65)); }
-        .bar-yellow:hover { background: linear-gradient(to top, rgba(245, 158, 11, 0.7), #f59e0b); transform: scaleY(1.25); box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
-
-        @keyframes pop-in {
-            0% { transform: scaleY(0); opacity: 0; }
-            100% { transform: scaleY(1); opacity: 1; }
-        }
-
-        .timeline-footer {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 500;
-            opacity: 0.8;
-            padding-top: 2px;
-        }
-
-        .hardware-section {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 18px;
-            padding: 1.8rem;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            margin-bottom: 2.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            transition: all 0.4s ease;
-        }
-
-        .hardware-section:hover {
-            border-color: var(--card-border-hover);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25), 0 0 20px rgba(139, 92, 246, 0.08);
-        }
-
-        .hardware-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 0.8rem;
             letter-spacing: -0.02em;
         }
 
-        .hardware-title i {
-            color: var(--accent);
+        .st-subtitle {
+            text-align: center;
+            color: var(--st-muted-2);
+            margin: 0 0 2rem;
+            font-size: .95rem;
         }
 
-        .hardware-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-
-        @media (max-width: 580px) {
-            .hardware-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .stat-box {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .stat-box.full-width {
-            grid-column: span 2;
-        }
-
-        @media (max-width: 580px) {
-            .stat-box.full-width {
-                grid-column: span 1;
-            }
-        }
-
-        .stat-label {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            font-weight: 500;
+        /* ── Banner generale ─────────────────────────────────────── */
+        .st-banner {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 1rem;
+            padding: 1.35rem 1.5rem;
+            border-radius: var(--st-radius);
+            border: 1px solid var(--st-border);
+            background: var(--st-card);
+            box-shadow: var(--st-shadow);
+            margin-bottom: 1.6rem;
         }
 
-        .stat-label i {
-            font-size: 0.85rem;
-            opacity: 0.7;
+        .st-banner.operational { border-color: rgba(52, 211, 153, .35); background: linear-gradient(180deg, rgba(52,211,153,.10), var(--st-card)); }
+        .st-banner.degraded    { border-color: rgba(251, 191, 36, .35); background: linear-gradient(180deg, rgba(251,191,36,.10), var(--st-card)); }
+        .st-banner.outage      { border-color: rgba(248, 113, 113, .35); background: linear-gradient(180deg, rgba(248,113,113,.10), var(--st-card)); }
+        .st-banner.unknown     { border-color: rgba(148, 163, 184, .28); }
+
+        .st-dot {
+            flex: 0 0 auto;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            position: relative;
         }
 
-        .stat-value {
-            font-size: 1.05rem;
+        .st-dot::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            animation: st-pulse 2.4s ease-out infinite;
+        }
+
+        .st-dot.operational { background: var(--st-green); }
+        .st-dot.operational::after { box-shadow: 0 0 0 2px rgba(52,211,153,.45); }
+        .st-dot.degraded { background: var(--st-yellow); }
+        .st-dot.degraded::after { box-shadow: 0 0 0 2px rgba(251,191,36,.45); }
+        .st-dot.outage { background: var(--st-red); }
+        .st-dot.outage::after { box-shadow: 0 0 0 2px rgba(248,113,113,.45); }
+        .st-dot.unknown { background: var(--st-grey); }
+        .st-dot.unknown::after { box-shadow: none; }
+
+        @keyframes st-pulse {
+            0%   { transform: scale(.7); opacity: .9; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .st-banner h2 { margin: 0 0 .15rem; font-size: 1.15rem; font-weight: 700; }
+        .st-banner p  { margin: 0; color: var(--st-muted); font-size: .9rem; }
+
+        .st-banner-meta {
+            margin-left: auto;
+            text-align: right;
+            color: var(--st-muted-2);
+            font-size: .78rem;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .st-banner-meta strong { display: block; color: var(--st-text); font-size: 1.05rem; }
+
+        /* ── Schede dei servizi ──────────────────────────────────── */
+        .st-card {
+            border: 1px solid var(--st-border);
+            background: var(--st-card);
+            border-radius: var(--st-radius);
+            padding: 1.2rem 1.35rem 1rem;
+            margin-bottom: .9rem;
+        }
+
+        .st-card-head {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            flex-wrap: wrap;
+            margin-bottom: .9rem;
+        }
+
+        .st-card-icon {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: rgba(47, 107, 255, .14);
+            color: var(--st-accent);
+            flex: 0 0 auto;
+        }
+
+        .st-card-name { font-weight: 650; font-size: 1rem; line-height: 1.2; }
+        .st-card-hint { color: var(--st-muted-2); font-size: .78rem; }
+
+        .st-badge {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .32rem .7rem;
+            border-radius: 999px;
+            font-size: .78rem;
             font-weight: 600;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .st-badge.operational { color: var(--st-green);  background: rgba(52,211,153,.12);  border-color: rgba(52,211,153,.3); }
+        .st-badge.degraded    { color: var(--st-yellow); background: rgba(251,191,36,.12);  border-color: rgba(251,191,36,.3); }
+        .st-badge.outage      { color: var(--st-red);    background: rgba(248,113,113,.12); border-color: rgba(248,113,113,.3); }
+        .st-badge.unknown     { color: var(--st-muted);  background: rgba(148,163,184,.10); border-color: rgba(148,163,184,.25); }
+
+        .st-latency {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .72rem;
+            opacity: .75;
+        }
+
+        /* ── Barre della cronologia ──────────────────────────────── */
+        .st-bars {
+            display: flex;
+            gap: 2px;
+            align-items: stretch;
+            height: 34px;
+            margin-bottom: .5rem;
+        }
+
+        .st-bar {
+            flex: 1 1 0;
+            min-width: 0;
+            border-radius: 3px;
+            background: var(--st-grey);
+            opacity: .35;
+            transition: transform .15s ease, opacity .15s ease;
+        }
+
+        .st-bar:hover { transform: scaleY(1.12); opacity: 1; }
+        .st-bar.operational { background: var(--st-green); opacity: .85; }
+        .st-bar.degraded    { background: var(--st-yellow); opacity: .9; }
+        .st-bar.outage      { background: var(--st-red); opacity: .95; }
+
+        .st-legend {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--st-muted-2);
+            font-size: .72rem;
+        }
+
+        .st-legend b { color: var(--st-text); font-weight: 600; }
+        .st-error { color: var(--st-red); font-size: .78rem; margin-top: .5rem; }
+
+        /* ── Incidenti ───────────────────────────────────────────── */
+        .st-section-title {
+            margin: 2.2rem 0 .9rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .st-incident {
+            border: 1px solid var(--st-border);
+            border-left: 3px solid var(--st-red);
+            background: var(--st-card);
+            border-radius: 14px;
+            padding: .85rem 1.1rem;
+            margin-bottom: .6rem;
+        }
+
+        .st-incident.resolved { border-left-color: var(--st-green); }
+
+        .st-incident-head {
+            display: flex;
+            gap: .6rem;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: .2rem;
+        }
+
+        .st-incident-service { font-weight: 650; }
+
+        .st-incident-tag {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: .1rem .5rem;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .st-incident-tag.open     { color: var(--st-red);   background: rgba(248,113,113,.14); }
+        .st-incident-tag.resolved { color: var(--st-green); background: rgba(52,211,153,.14); }
+
+        .st-incident-meta {
+            color: var(--st-muted-2);
+            font-size: .78rem;
             font-family: 'JetBrains Mono', monospace;
         }
 
-        .progress-container {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        @keyframes fill-bar {
-            from { width: 0%; }
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), #a78bfa);
-            border-radius: 10px;
-            animation: fill-bar 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 8px rgba(139, 92, 246, 0.35);
-        }
-
-        .server-offline-msg {
+        .st-empty {
+            border: 1px dashed var(--st-border);
+            border-radius: 14px;
+            padding: 1.4rem;
             text-align: center;
-            padding: 2rem 0;
-            color: var(--text-muted);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            animation: pop-in 0.5s ease forwards;
+            color: var(--st-muted-2);
+            font-size: .88rem;
         }
 
-        .server-offline-msg i {
-            font-size: 2rem;
-            color: var(--color-red);
-            opacity: 0.8;
-        }
-
-        .server-offline-msg strong {
-            color: var(--text-main);
-            font-size: 1.1rem;
-        }
-
-        .server-offline-msg span {
-            font-size: 0.85rem;
-            max-width: 400px;
-            line-height: 1.5;
-        }
-
-        footer {
-            margin-top: auto;
+        .st-note {
+            margin-top: 2rem;
             text-align: center;
-            padding: 2rem 0;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            opacity: 0.7;
+            color: var(--st-muted-2);
+            font-size: .78rem;
+            line-height: 1.7;
         }
 
-        footer a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
+        .st-note a { color: var(--st-accent); text-decoration: none; }
+        .st-note a:hover { text-decoration: underline; }
+
+        .st-fallback-head {
+            text-align: center;
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--st-border);
+            font-weight: 700;
         }
 
-        footer a:hover {
-            text-decoration: underline;
+        .st-fallback-head a { color: var(--st-text); text-decoration: none; }
+
+        /* ── Schermi piccoli ─────────────────────────────────────── */
+        @media (max-width: 720px) {
+            .st-wrap { padding: 1.6rem .85rem 3rem; }
+
+            .st-banner { flex-wrap: wrap; padding: 1.1rem 1.15rem; }
+            .st-banner-meta { margin-left: 0; text-align: left; width: 100%; }
+
+            .st-badge { margin-left: 0; width: 100%; justify-content: center; }
+            .st-card-head { gap: .6rem; }
+
+            /* Meno giorni invece di barre illeggibili o pagina che scorre. */
+            .st-bars { height: 30px; }
+            .st-bar:nth-child(n+31) { display: none; }
+            .st-legend-desktop { display: none; }
         }
 
-        /* Responsive timeline bars and elements */
-        @media (max-width: 600px) {
-            .timeline-bars .bar:nth-child(-n+60) {
-                display: none;
-            }
-            .timeline-start-desktop {
-                display: none !important;
-            }
-            .timeline-start-mobile {
-                display: inline !important;
-            }
-            .timeline-bars {
-                gap: 3px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .service-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.8rem;
-            }
-            .service-status-badge {
-                align-self: flex-start;
-                width: auto;
-            }
-            .status-banner {
-                padding: 1.2rem 1.4rem;
-                gap: 0.8rem;
-            }
-            .status-message {
-                font-size: 1rem;
-            }
+        @media (min-width: 721px) {
+            .st-legend-mobile { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="live-indicator">
-            <span class="live-dot"></span>
-            <span>LIVE MONITORING</span>
+<?php if ($canRenderNav): ?>
+    <?php include __DIR__ . '/includes/navbar.php'; ?>
+<?php else: ?>
+    <div class="st-fallback-head"><a href="/">Cripsum</a></div>
+<?php endif; ?>
+
+<main class="st-wrap">
+    <h1 class="st-title">Stato dei servizi</h1>
+    <p class="st-subtitle">Controlli automatici eseguiti dall'esterno, ogni minuto.</p>
+
+    <section class="st-banner <?php echo $h($overall); ?>">
+        <span class="st-dot <?php echo $h($overall); ?>"></span>
+        <div>
+            <h2><?php echo $h($overallCopy[0]); ?></h2>
+            <p><?php echo $h($overallCopy[1]); ?></p>
         </div>
-        <h1>Cripsum Status</h1>
-        <p>Monitoraggio in tempo reale dei nostri servizi</p>
-    </header>
-
-    <div class="container">
-
-        <!-- Banner Stato Principale -->
-        <div class="status-banner <?php echo $overallStatus; ?>">
-            <div class="pulse-dot <?php echo $overallStatus === 'operational' ? 'green' : ($overallStatus === 'partial_outage' ? 'yellow' : 'red'); ?>"></div>
-            <div class="status-message">
-                <?php 
-                if ($overallStatus === 'operational') {
-                    echo 'Tutti i sistemi sono operativi';
-                } elseif ($overallStatus === 'partial_outage') {
-                    echo 'I sistemi presentano un\'interruzione parziale';
-                } else {
-                    echo 'Interruzione grave dei sistemi';
-                }
-                ?>
-            </div>
-        </div>
-
-        <!-- Lista dei Servizi -->
-        <div class="services-list">
-            
-            <!-- 1. Sito Web -->
-            <div class="service-card">
-                <div class="service-header">
-                    <span class="service-name"><i class="fa-solid fa-globe"></i> Sito Web (cripsum.com)</span>
-                    <span class="service-status-badge <?php echo $websiteStatus; ?>">
-                        <span class="pulse-dot <?php echo $websiteStatus === 'operational' ? 'green' : 'red'; ?>" style="width: 8px; height: 8px;"></span>
-                        <span class="status-label-text"><?php echo getStatusLabel($websiteStatus); ?></span>
-                        <span class="latency-text"><?php echo $webLatency; ?>ms</span>
-                    </span>
-                </div>
-                <div class="timeline-wrapper">
-                    <div class="timeline-bars">
-                        <?php 
-                        for ($i = 0; $i < 90; $i++) {
-                            $delay = $i * 0.004;
-                            echo '<span class="bar bar-green" style="animation-delay: ' . $delay . 's;" title="Giorno ' . (90 - $i) . ' fa: 100% Uptime"></span>';
-                        }
-                        ?>
-                    </div>
-                    <div class="timeline-footer">
-                        <span class="timeline-start-desktop">90 giorni fa</span>
-                        <span class="timeline-start-mobile" style="display: none;">30 giorni fa</span>
-                        <span>100% uptime</span>
-                        <span>Oggi</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. Rich Presence API -->
-            <div class="service-card">
-                <div class="service-header">
-                    <span class="service-name"><i class="fa-solid fa-code"></i> Rich Presence API (api.cripsum.com)</span>
-                    <span class="service-status-badge <?php echo $apiStatus; ?>">
-                        <span class="pulse-dot <?php echo $apiStatus === 'operational' ? 'green' : 'red'; ?>" style="width: 8px; height: 8px;"></span>
-                        <span class="status-label-text"><?php echo getStatusLabel($apiStatus); ?></span>
-                        <?php if ($apiStatus === 'operational'): ?>
-                            <span class="latency-text"><?php echo $apiLatency; ?>ms</span>
-                        <?php endif; ?>
-                    </span>
-                </div>
-                <div class="timeline-wrapper">
-                    <div class="timeline-bars">
-                        <?php 
-                        for ($i = 0; $i < 90; $i++) {
-                            $delay = $i * 0.004;
-                            if ($i === 89 && $apiStatus === 'major_outage') {
-                                echo '<span class="bar bar-yellow" style="background-color: var(--color-red); animation-delay: ' . $delay . 's;" title="Oggi: Servizio Offline"></span>';
-                            } elseif ($i === 54) {
-                                echo '<span class="bar bar-yellow" style="animation-delay: ' . $delay . 's;" title="36 giorni fa: Manutenzione (98.2% uptime)"></span>';
-                            } else {
-                                echo '<span class="bar bar-green" style="animation-delay: ' . $delay . 's;" title="Giorno ' . (90 - $i) . ' fa: 100% Uptime"></span>';
-                            }
-                        }
-                        ?>
-                    </div>
-                    <div class="timeline-footer">
-                        <span class="timeline-start-desktop">90 giorni fa</span>
-                        <span class="timeline-start-mobile" style="display: none;">30 giorni fa</span>
-                        <span><?php echo $apiStatus === 'operational' ? '99.9%' : '98.5%'; ?> uptime</span>
-                        <span>Oggi</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Database Node -->
-            <div class="service-card">
-                <div class="service-header">
-                    <span class="service-name"><i class="fa-solid fa-database"></i> Database Node (MySQL)</span>
-                    <span class="service-status-badge <?php echo $databaseStatus; ?>">
-                        <span class="pulse-dot <?php echo $databaseStatus === 'operational' ? 'green' : 'red'; ?>" style="width: 8px; height: 8px;"></span>
-                        <span class="status-label-text"><?php echo getStatusLabel($databaseStatus); ?></span>
-                        <?php if ($databaseStatus === 'operational'): ?>
-                            <span class="latency-text"><?php echo $dbLatency; ?>ms</span>
-                        <?php endif; ?>
-                    </span>
-                </div>
-                <div class="timeline-wrapper">
-                    <div class="timeline-bars">
-                        <?php 
-                        for ($i = 0; $i < 90; $i++) {
-                            $delay = $i * 0.004;
-                            echo '<span class="bar bar-green" style="animation-delay: ' . $delay . 's;" title="Giorno ' . (90 - $i) . ' fa: 100% Uptime"></span>';
-                        }
-                        ?>
-                    </div>
-                    <div class="timeline-footer">
-                        <span class="timeline-start-desktop">90 giorni fa</span>
-                        <span class="timeline-start-mobile" style="display: none;">30 giorni fa</span>
-                        <span>100% uptime</span>
-                        <span>Oggi</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Monitor Hardware Server Casalingo -->
-        <div class="hardware-section">
-            <div class="hardware-title">
-                <i class="fa-solid fa-server"></i>
-                <span>Home Server Hardware Monitor</span>
-            </div>
-
-            <?php if ($serverStatus === 'operational' && $serverStats): ?>
-                <div class="hardware-grid">
-                    
-                    <!-- CPU Info -->
-                    <div class="stat-box">
-                        <span class="stat-label"><i class="fa-solid fa-microchip"></i> CPU Load (1 min)</span>
-                        <div class="progress-container">
-                            <span class="stat-value"><?php echo htmlspecialchars($serverStats['cpu']['load1m']); ?></span>
-                            <div class="progress-bar-bg">
-                                <?php 
-                                $cpuLoadPercent = min(100, (int)((float)$serverStats['cpu']['load1m'] * 100)); 
-                                ?>
-                                <div class="progress-bar-fill" style="width: <?php echo $cpuLoadPercent; ?>%;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- RAM Info -->
-                    <div class="stat-box">
-                        <span class="stat-label"><i class="fa-solid fa-memory"></i> Memoria RAM</span>
-                        <div class="progress-container">
-                            <span class="stat-value">
-                                <?php echo htmlspecialchars($serverStats['memory']['used']); ?> / <?php echo htmlspecialchars($serverStats['memory']['total']); ?> 
-                                (<?php echo htmlspecialchars($serverStats['memory']['percent']); ?>%)
-                            </span>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" style="width: <?php echo htmlspecialchars($serverStats['memory']['percent']); ?>%;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CPU Temp -->
-                    <div class="stat-box">
-                        <span class="stat-label"><i class="fa-solid fa-temperature-half"></i> Temperatura CPU</span>
-                        <span class="stat-value"><?php echo htmlspecialchars($serverStats['temperature']); ?></span>
-                    </div>
-
-                    <!-- Server Uptime -->
-                    <div class="stat-box">
-                        <span class="stat-label"><i class="fa-solid fa-clock"></i> Tempo di Attività (Uptime)</span>
-                        <span class="stat-value" style="font-size: 0.95rem; font-family: inherit;">
-                            <?php echo formatUptime((int)$serverStats['uptime']); ?>
-                        </span>
-                    </div>
-
-                    <!-- Server Platform -->
-                    <div class="stat-box full-width">
-                        <span class="stat-label"><i class="fa-solid fa-gears"></i> Architettura & OS</span>
-                        <span class="stat-value" style="font-size: 0.9rem; font-family: inherit; font-weight: 400; opacity: 0.95;">
-                            <?php echo htmlspecialchars($serverStats['platform']); ?> — <?php echo htmlspecialchars($serverStats['cpu']['model']); ?>
-                        </span>
-                    </div>
-
-                </div>
+        <div class="st-banner-meta">
+            <?php if ($globalUptime !== null): ?>
+                <strong><?php echo number_format($globalUptime, 2); ?>%</strong>
+                uptime · 90 giorni
             <?php else: ?>
-                <div class="server-offline-msg">
-                    <i class="fa-solid fa-power-off"></i>
-                    <strong>Server in modalità risparmio energetico</strong>
-                    <span>Il portatile a casa è spento o non connesso a Internet. I servizi del sito web scalano in automatico su nodi secondari.</span>
-                </div>
+                <strong>—</strong>
+                nessuno storico
             <?php endif; ?>
         </div>
+    </section>
 
-    </div>
+    <?php foreach ($services as $key => $meta):
+        $state = $states[$key];
+        $uptime = status_uptime($daily, $key);
+        $rows = $daily[$key] ?? [];
+    ?>
+        <article class="st-card">
+            <div class="st-card-head">
+                <span class="st-card-icon"><i class="fa-solid <?php echo $h($meta['icon']); ?>"></i></span>
+                <div>
+                    <div class="st-card-name"><?php echo $h($meta['label']); ?></div>
+                    <div class="st-card-hint"><?php echo $h($meta['hint']); ?></div>
+                </div>
+                <span class="st-badge <?php echo $h($state['status']); ?>">
+                    <?php echo $h(status_label($state['status'])); ?>
+                    <?php if (!empty($state['latency_ms'])): ?>
+                        <span class="st-latency"><?php echo (int)$state['latency_ms']; ?> ms</span>
+                    <?php endif; ?>
+                </span>
+            </div>
 
-    <footer>
-        <p>Gestito da <a href="https://cripsum.com">Cripsum</a> · Alimentato dal nostro vecchio hardware casalingo.</p>
-    </footer>
+            <div class="st-bars">
+                <?php foreach ($days as $day):
+                    $row = $rows[$day] ?? null;
 
-    <script>
-        // Funzione per formattare l'uptime in JS
-        function formatUptime(seconds) {
-            const days = Math.floor(seconds / 86400);
-            const hours = Math.floor((seconds % 86400) / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-
-            const parts = [];
-            if (days > 0) parts.push(days + (days === 1 ? ' giorno' : ' giorni'));
-            if (hours > 0) parts.push(hours + (hours === 1 ? ' ora' : ' ore'));
-            if (minutes > 0) parts.push(minutes + (minutes === 1 ? ' minuto' : ' minuti'));
-
-            return parts.length === 0 ? 'Meno di un minuto' : parts.join(', ');
-        }
-
-        // Funzione per aggiornare lo stato in tempo reale via AJAX
-        async function updateStats() {
-            try {
-                const response = await fetch('status.php?ajax=1');
-                if (!response.ok) return;
-                const data = await response.json();
-
-                // Highlight the live indicator to show a real-time update happened
-                const liveIndicator = document.querySelector('.live-indicator');
-                if (liveIndicator) {
-                    liveIndicator.classList.add('updating');
-                    setTimeout(() => liveIndicator.classList.remove('updating'), 500);
-                }
-
-                // 1. Aggiorna il banner dello stato generale
-                const banner = document.querySelector('.status-banner');
-                const bannerDot = banner.querySelector('.pulse-dot');
-                const bannerText = banner.querySelector('.status-message');
-
-                banner.className = 'status-banner ' + data.overallStatus;
-                bannerDot.className = 'pulse-dot ' + (data.overallStatus === 'operational' ? 'green' : (data.overallStatus === 'partial_outage' ? 'yellow' : 'red'));
-                
-                if (data.overallStatus === 'operational') {
-                    bannerText.textContent = 'Tutti i sistemi sono operativi';
-                } else if (data.overallStatus === 'partial_outage') {
-                    bannerText.textContent = 'I sistemi presentano un\'interruzione parziale';
-                } else {
-                    bannerText.textContent = 'Interruzione grave dei sistemi';
-                }
-
-                // 2. Aggiorna i 3 servizi (ordinati esattamente come nell'HTML)
-                const services = ['website', 'api', 'database'];
-                services.forEach((service, index) => {
-                    const card = document.querySelector(`.service-card:nth-of-type(${index + 1})`);
-                    const badge = card.querySelector('.service-status-badge');
-                    const dot = badge.querySelector('.pulse-dot');
-                    const labelText = badge.querySelector('.status-label-text');
-                    const latencyText = badge.querySelector('.latency-text');
-
-                    const info = data[service];
-                    
-                    // Imposta le classi di stato
-                    badge.className = 'service-status-badge ' + info.status;
-                    dot.className = 'pulse-dot ' + (info.status === 'operational' ? 'green' : 'red');
-                    
-                    // Imposta l'etichetta di testo
-                    if (info.status === 'operational') {
-                        labelText.textContent = 'Operativo';
-                        if (latencyText) {
-                            latencyText.textContent = info.latency + 'ms';
-                        } else {
-                            const newLatency = document.createElement('span');
-                            newLatency.className = 'latency-text';
-                            newLatency.textContent = info.latency + 'ms';
-                            badge.appendChild(newLatency);
-                        }
+                    if ($row === null) {
+                        $class = '';
+                        $title = date('d/m/Y', strtotime($day)) . ' · nessun dato';
                     } else {
-                        labelText.textContent = 'Offline';
-                        if (latencyText) latencyText.remove();
+                        $class = $row['worst'];
+                        $uptimeDay = $row['checks'] > 0
+                            ? (($row['checks'] - $row['failures']) / $row['checks']) * 100
+                            : 100;
+                        $title = date('d/m/Y', strtotime($day)) . ' · '
+                            . number_format($uptimeDay, 1) . '% · '
+                            . $row['checks'] . ' controlli'
+                            . ($row['failures'] > 0 ? ', ' . $row['failures'] . ' falliti' : '');
                     }
-                });
+                ?>
+                    <span class="st-bar <?php echo $h($class); ?>" title="<?php echo $h($title); ?>"></span>
+                <?php endforeach; ?>
+            </div>
 
-                // 3. Aggiorna il monitor Hardware
-                const hwSection = document.querySelector('.hardware-section');
-                
-                if (data.api.status === 'operational' && data.hardware) {
-                    const hw = data.hardware;
-                    let grid = hwSection.querySelector('.hardware-grid');
-                    
-                    // Se la griglia non c'è (perché il server era offline), la creiamo come scheletro una sola volta
-                    if (!grid) {
-                        const offlineMsg = hwSection.querySelector('.server-offline-msg');
-                        if (offlineMsg) offlineMsg.remove();
-                        
-                        grid = document.createElement('div');
-                        grid.className = 'hardware-grid';
-                        grid.innerHTML = `
-                            <!-- CPU Info -->
-                            <div class="stat-box">
-                                <span class="stat-label"><i class="fa-solid fa-microchip"></i> CPU Load (1 min)</span>
-                                <div class="progress-container">
-                                    <span class="stat-value">-</span>
-                                    <div class="progress-bar-bg">
-                                        <div class="progress-bar-fill" style="width: 0%;"></div>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="st-legend">
+                <span class="st-legend-desktop">90 giorni fa</span>
+                <span class="st-legend-mobile">30 giorni fa</span>
+                <span>
+                    <?php if ($uptime !== null): ?>
+                        <b><?php echo number_format($uptime, 2); ?>%</b> di uptime
+                    <?php else: ?>
+                        in attesa dei primi controlli
+                    <?php endif; ?>
+                </span>
+                <span>oggi</span>
+            </div>
 
-                            <!-- RAM Info -->
-                            <div class="stat-box">
-                                <span class="stat-label"><i class="fa-solid fa-memory"></i> Memoria RAM</span>
-                                <div class="progress-container">
-                                    <span class="stat-value">-</span>
-                                    <div class="progress-bar-bg">
-                                        <div class="progress-bar-fill" style="width: 0%;"></div>
-                                    </div>
-                                </div>
-                            </div>
+            <?php if (!empty($state['error'])): ?>
+                <div class="st-error"><i class="fa-solid fa-triangle-exclamation"></i> <?php echo $h($state['error']); ?></div>
+            <?php endif; ?>
+        </article>
+    <?php endforeach; ?>
 
-                            <!-- CPU Temp -->
-                            <div class="stat-box">
-                                <span class="stat-label"><i class="fa-solid fa-temperature-half"></i> Temperatura CPU</span>
-                                <span class="stat-value">-</span>
-                            </div>
+    <h2 class="st-section-title"><i class="fa-solid fa-clock-rotate-left"></i> Cronologia dei disservizi</h2>
 
-                            <!-- Server Uptime -->
-                            <div class="stat-box">
-                                <span class="stat-label"><i class="fa-solid fa-clock"></i> Tempo di Attività (Uptime)</span>
-                                <span class="stat-value" style="font-size: 0.95rem; font-family: inherit;">-</span>
-                            </div>
+    <?php if ($incidents): ?>
+        <?php foreach ($incidents as $incident):
+            $resolved = $incident['ended_at'] !== null;
+            $label = $services[$incident['service']]['label'] ?? $incident['service'];
+        ?>
+            <div class="st-incident <?php echo $resolved ? 'resolved' : ''; ?>">
+                <div class="st-incident-head">
+                    <span class="st-incident-service"><?php echo $h($label); ?></span>
+                    <span class="st-incident-tag <?php echo $resolved ? 'resolved' : 'open'; ?>">
+                        <?php echo $resolved ? 'risolto' : 'in corso'; ?>
+                    </span>
+                </div>
+                <div class="st-incident-meta">
+                    <?php echo $h(date('d/m/Y H:i', strtotime($incident['started_at']))); ?>
+                    <?php if ($resolved): ?>
+                        → <?php echo $h(date('H:i', strtotime((string)$incident['ended_at']))); ?>
+                        · durata <?php echo $h(status_format_duration($incident['duration'])); ?>
+                    <?php else: ?>
+                        · ancora aperto
+                    <?php endif; ?>
+                    <?php if (!empty($incident['error'])): ?>
+                        · <?php echo $h($incident['error']); ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php elseif ($hasHistory): ?>
+        <div class="st-empty">Nessun disservizio registrato. 🎉</div>
+    <?php else: ?>
+        <div class="st-empty">
+            Lo storico è appena partito: le barre si riempiranno man mano che arrivano i controlli.
+        </div>
+    <?php endif; ?>
 
-                            <!-- Server Platform -->
-                            <div class="stat-box full-width">
-                                <span class="stat-label"><i class="fa-solid fa-gears"></i> Architettura & OS</span>
-                                <span class="stat-value" style="font-size: 0.9rem; font-family: inherit; font-weight: 400; opacity: 0.95;">-</span>
-                            </div>
-                        `;
-                        hwSection.appendChild(grid);
-                    }
+    <p class="st-note">
+        <?php if ($lastUpdate !== null): ?>
+            Ultimo controllo <?php echo $h(status_format_duration($lastUpdate)); ?> fa.
+        <?php else: ?>
+            Nessun controllo ancora registrato.
+        <?php endif; ?>
+        <br>
+        I controlli arrivano dal bot, che gira su una macchina diversa dal sito: se smettono di arrivare,
+        la pagina lo dice invece di mostrare tutto verde.
+        <br>
+        Problemi non elencati qui? <a href="/it/supporto">Apri un ticket</a>.
+    </p>
+</main>
 
-                    // Selezioniamo e aggiorniamo solo i singoli valori specifici (in questo modo l'animazione di transizione CSS funziona fluidamente)
-                    const cpuVal = grid.querySelector('.stat-box:nth-of-type(1) .stat-value');
-                    const cpuBar = grid.querySelector('.stat-box:nth-of-type(1) .progress-bar-fill');
-                    
-                    const ramVal = grid.querySelector('.stat-box:nth-of-type(2) .stat-value');
-                    const ramBar = grid.querySelector('.stat-box:nth-of-type(2) .progress-bar-fill');
-                    
-                    const tempVal = grid.querySelector('.stat-box:nth-of-type(3) .stat-value');
-                    const uptimeVal = grid.querySelector('.stat-box:nth-of-type(4) .stat-value');
-                    const platformVal = grid.querySelector('.stat-box:nth-of-type(5) .stat-value');
+<?php if ($canRenderNav && is_file(__DIR__ . '/includes/footer.php')): ?>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+<?php endif; ?>
 
-                    const cpuPercent = Math.min(100, Math.round(parseFloat(hw.cpu.load1m) * 100));
-
-                    if (cpuVal) cpuVal.textContent = hw.cpu.load1m;
-                    if (cpuBar) cpuBar.style.width = cpuPercent + '%';
-
-                    if (ramVal) ramVal.textContent = `${hw.memory.used} / ${hw.memory.total} (${hw.memory.percent}%)`;
-                    if (ramBar) ramBar.style.width = hw.memory.percent + '%';
-
-                    if (tempVal) tempVal.textContent = hw.temperature;
-                    if (uptimeVal) uptimeVal.textContent = formatUptime(hw.uptime);
-                    if (platformVal) platformVal.textContent = `${hw.platform} — ${hw.cpu.model}`;
-
-                } else {
-                    // Se il server è offline, rimuoviamo la griglia e mostriamo il messaggio
-                    const grid = hwSection.querySelector('.hardware-grid');
-                    if (grid) grid.remove();
-
-                    let offlineMsg = hwSection.querySelector('.server-offline-msg');
-                    if (!offlineMsg) {
-                        offlineMsg = document.createElement('div');
-                        offlineMsg.className = 'server-offline-msg';
-                        offlineMsg.innerHTML = `
-                            <i class="fa-solid fa-power-off"></i>
-                            <strong>Server in modalità risparmio energetico</strong>
-                            <span>Il portatile a casa è spento o non connesso a Internet. I servizi del sito web scalano in automatico su nodi secondari.</span>
-                        `;
-                        hwSection.appendChild(offlineMsg);
-                    }
-                }
-            } catch (e) {
-                console.error("Errore durante l'aggiornamento automatico:", e);
-            }
-        }
-
-        // Avvia l'aggiornamento automatico ogni 3 secondi
-        setInterval(updateStats, 3000);
-    </script>
 </body>
 </html>

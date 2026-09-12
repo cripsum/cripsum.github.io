@@ -8,13 +8,9 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
     $postId = (int)$postId;
     $type = ($type === 'rimasto') ? 'rimasto' : 'shitpost';
     
-    // Choose correct webhook URL
-    $webhookUrl = ($type === 'rimasto') ? CRIPSUM_DISCORD_RIMASTI_WEBHOOK : CRIPSUM_DISCORD_SHITPOST_WEBHOOK;
-    
-    if (empty($webhookUrl)) {
-        return false; // Webhook not configured
-    }
-    
+    // Le costanti dei webhook non servono piu': pubblica il bot. Restano
+    // definite in config/discord_oauth.php solo per compatibilita'.
+
     // Fetch post details from database
     if ($type === 'rimasto') {
         $stmt = $mysqli->prepare("
@@ -60,44 +56,41 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
     $postUrl = "https://cripsum.com/it/" . ($type === 'rimasto' ? 'rimasti' : 'shitpost') . "?post=" . $postId;
     $mediaUrl = "https://cripsum.com/api/content/get_media.php?id=" . $postId . "&type=" . $type;
     
-    // Construct Discord Embed Payload
+    // L'annuncio lo pubblica il bot, non piu' un webhook anonimo: cosi' porta
+    // nome e immagine di Poppy e resta modificabile come ogni suo messaggio.
+    // Il canale lo risolve il bot dal nome logico, con la sua configurazione.
     $payload = [
-        'embeds' => [
-            [
-                'title' => $title,
-                'description' => $desc,
-                'url' => $postUrl,
-                'color' => ($type === 'rimasto') ? 10070784 : 15728895, // Rimasto: Violet, Shitpost: Pink/Gold
-                'author' => [
-                    'name' => "Nuovo " . $postTypeLabel . " da @" . $author,
-                ],
-                'image' => [
-                    'url' => $mediaUrl,
-                ],
-                'footer' => [
-                    'text' => "Cripsum.com • " . date('d/m/Y H:i'),
-                ]
-            ]
-        ]
+        'target' => ($type === 'rimasto') ? 'rimasto' : 'shitpost',
+        'title' => $title,
+        'description' => $desc,
+        'url' => $postUrl,
+        'color' => ($type === 'rimasto') ? 10070784 : 15728895,
+        'author_name' => 'Nuovo ' . $postTypeLabel . ' da @' . $author,
+        'image' => $mediaUrl,
+        'footer_text' => 'Cripsum.com • ' . date('d/m/Y H:i'),
     ];
-    
-    // Send to Discord via cURL
-    $ch = curl_init($webhookUrl);
+
+    $ch = curl_init(cripsum_bot_endpoint('/v1/announce'));
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
+        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
         CURLOPT_TIMEOUT => 8,
         CURLOPT_CONNECTTIMEOUT => 4,
         CURLOPT_SSL_VERIFYPEER => true
     ]);
-    
+
     $response = curl_exec($ch);
-    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    
-    return $status === 204 || $status === 200;
+
+    if ($status < 200 || $status >= 300) {
+        error_log('[Discord Announce] Annuncio non pubblicato (' . $status . '): ' . (is_string($response) ? substr($response, 0, 300) : 'nessuna risposta'));
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -298,4 +291,66 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
     }
 
     return $sent;
+}
+
+/**
+ * Ringraziamento su Discord per chi ha appena comprato il Premium.
+ *
+ * Il testo e il canale li decide il modello personalizzabile sul bot
+ * (`/premiumthanks edit`): qui si dice soltanto chi e quando. Da chiamare solo
+ * quando l'attivazione e' avvenuta davvero in questa richiesta, altrimenti si
+ * ringrazia due volte la stessa persona.
+ */
+function notifyDiscordPremiumPurchase(mysqli $mysqli, int $userId): bool
+{
+    if ($userId <= 0) {
+        return false;
+    }
+
+    $stmt = $mysqli->prepare('SELECT username, discord_id FROM utenti WHERE id = ? LIMIT 1');
+    if (!$stmt) {
+        return false;
+    }
+
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$user) {
+        return false;
+    }
+
+    if (!function_exists('curl_init')) {
+        return false;
+    }
+
+    $payload = [
+        'kind' => 'premium',
+        'username' => (string)$user['username'],
+        'discord_id' => (string)($user['discord_id'] ?? ''),
+    ];
+
+    $ch = curl_init(cripsum_bot_endpoint('/v1/celebrate'));
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
+        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        CURLOPT_TIMEOUT => 6,
+        CURLOPT_CONNECTTIMEOUT => 3,
+        CURLOPT_SSL_VERIFYPEER => true,
+    ]);
+
+    $response = curl_exec($ch);
+    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($status < 200 || $status >= 300) {
+        error_log('[Discord Premium] Ringraziamento non pubblicato (' . $status . '): '
+            . (is_string($response) ? substr($response, 0, 200) : 'nessuna risposta'));
+        return false;
+    }
+
+    return true;
 }

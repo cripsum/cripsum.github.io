@@ -358,6 +358,12 @@ if ($eventType === 'checkout.session.completed') {
                     sendPremiumUpgradeNotification($mysqli, $userId, null);
                 }
 
+                // Ringraziamento su Discord: il canale e il testo li decide il
+                // modello sul bot (/premiumthanks). Se fallisce non compromette
+                // il pagamento, che e' gia' registrato.
+                require_once __DIR__ . '/../includes/discord_notify.php';
+                notifyDiscordPremiumPurchase($mysqli, (int)$userId);
+
                 stripe_complete_event($mysqli, $eventId);
             } else {
                 stripe_release_event($mysqli, $eventId);

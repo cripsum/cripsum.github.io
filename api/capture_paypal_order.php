@@ -205,6 +205,11 @@ try {
 
     $mysqli->commit();
 
+    // Ringraziamento su Discord, dopo il commit: si annuncia solo cio' che e'
+    // stato davvero salvato. Se il bot non risponde il pagamento resta valido.
+    require_once __DIR__ . '/../includes/discord_notify.php';
+    notifyDiscordPremiumPurchase($mysqli, (int)$recipientId);
+
     // Se l'utente loggato è colui che ha ricevuto il premium, aggiorna la sessione attiva
     if ($recipientId === $userId) {
         $_SESSION['is_premium'] = 1;
