@@ -62,11 +62,13 @@ function cripsum_og_default(string $kind = 'site'): array
         'site' => 'Cripsum™',
     ];
 
+    // La descrizione del sito e' quella che finisce sotto al titolo quando si
+    // incolla un link: deve dire cos'e' Cripsum, non ripetere il nome.
     $descriptions = [
         'shitpost' => 'Meme, GIF e post della community.',
         'rimasto' => 'I post più votati dalla community.',
         'profile' => 'Profilo pubblico su Cripsum™.',
-        'site' => 'Cripsum™',
+        'site' => 'Homepage di Cripsum™. Edit, meme, gambling, profili custom, tanti giochi e tanto gooning.',
     ];
 
     return [

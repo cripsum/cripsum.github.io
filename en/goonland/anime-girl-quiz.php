@@ -438,15 +438,6 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
 <html lang="it">
 
 <head>
-    <meta property="og:title" content="<?php echo gl_safe_html($ogTitle); ?>">
-    <meta property="og:description" content="<?php echo gl_safe_html($ogDescription); ?>">
-    <meta property="og:image" content="<?php echo gl_safe_html($ogImage); ?>">
-    <meta property="og:url" content="<?php echo gl_safe_html($ogUrl); ?>">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<?php echo gl_safe_html($ogTitle); ?>">
-    <meta name="twitter:description" content="<?php echo gl_safe_html($ogDescription); ?>">
-    <meta name="twitter:image" content="<?php echo gl_safe_html($ogImage); ?>">
     <?php include '../../includes/head-import.php'; ?>
     <title><?php echo gl_safe_html($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

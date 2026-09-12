@@ -30,7 +30,6 @@ $ogMeta = cripsum_og_content($mysqli, $contentType);
 
 <head>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
-    <?php cripsum_og_print($ogMeta); ?>
     <title>Cripsum™ - <?php echo cv2_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/content-v2/content-v2.css?v=2.0.6">

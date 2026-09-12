@@ -58,7 +58,6 @@ function rw_h(mixed $value): string
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ — <?php echo rw_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-    <meta name="description" content="<?php echo rw_h($ogDescription); ?>">
     <meta name="theme-color" content="#05070d">
     <meta property="og:site_name" content="Cripsum™">
     <meta property="og:type" content="website">

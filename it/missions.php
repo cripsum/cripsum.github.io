@@ -52,7 +52,6 @@ function msn_h(mixed $v): string
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ — <?php echo msn_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?php echo msn_h($ogDescription); ?>">
     <meta property="og:site_name" content="Cripsum™">
     <meta property="og:type" content="website">
     <meta property="og:title" content="<?php echo msn_h($pageTitle); ?> — Cripsum™">

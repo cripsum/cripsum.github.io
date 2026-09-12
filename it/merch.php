@@ -28,10 +28,10 @@ $products = [
 <html lang="it">
 
 <head>
+    <?php $ogDescription = 'Merch di Simonetussi.ph. il fotografo e psicologo più fico di sempre.'; ?>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Merch</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Merch di Simonetussi.ph. il fotografo e psicologo più fico di sempre.">
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.4">
     <script src="/assets/shop/shop.js?v=2.5" defer></script>
 </head>

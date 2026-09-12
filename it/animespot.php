@@ -127,10 +127,10 @@ $copy = [
 <html lang="<?php echo $lang; ?>">
 
 <head>
+    <?php $ogDescription = $copy['description']; ?>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ — Animespot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?php echo as_h($copy['description']); ?>">
     <meta name="theme-color" content="#050706">
     <meta property="og:site_name" content="Cripsum™">
     <meta property="og:type" content="website">

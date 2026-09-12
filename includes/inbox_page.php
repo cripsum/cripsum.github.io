@@ -49,10 +49,10 @@ $jsVer  = @filemtime(__DIR__ . '/../assets/inbox/inbox.js') ?: 1;
 <html lang="<?= $lang ?>">
 
 <head>
+    <?php $ogDescription = $T['og_description']; ?>
     <?php include __DIR__ . '/head-import.php'; ?>
     <title><?= inbox_e($T['page_title']) ?> - Cripsum&trade;</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?= inbox_e($T['og_description']) ?>">
     <meta property="og:url" content="https://cripsum.com/<?= $lang ?>/inbox">
 
     <link rel="stylesheet" href="/css/inbox.css?v=<?= $cssVer ?>">

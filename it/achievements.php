@@ -31,17 +31,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 <html lang="it">
 
 <head>
+    <?php $ogTitle = 'Achievement - Cripsum™'; $ogImage = '/img/default-achievement.png'; ?>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Achievement</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?php echo achievement_h($ogDescription); ?>">
-    <meta property="og:site_name" content="Cripsum™">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Achievement - Cripsum™">
-    <meta property="og:description" content="<?php echo achievement_h($ogDescription); ?>">
-    <meta property="og:image" content="https://cripsum.com/img/default-achievement.png">
-    <meta property="og:url" content="<?php echo achievement_h($ogUrl); ?>">
-    <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="/assets/achievements/achievements.css?v=2.4">
     <script src="/assets/achievements/achievements.js?v=2.4" defer></script>

@@ -619,3 +619,11 @@ body.modal-open {
         font-size: .68rem;
     }
 }
+
+/* Slide della homepage: frecce e pulsanti stanno nella stessa cella, e le
+   etichette non devono spezzarsi a meta' parola quando la colonna si stringe. */
+.admin-row-actions--slides { flex-wrap: wrap; gap: .35rem; }
+.admin-row-actions--slides .admin-btn { white-space: nowrap; }
+.admin-row-actions--slides .admin-btn[disabled] { opacity: .4; cursor: not-allowed; }
+#homeSlidesTable .admin-badge { white-space: nowrap; }
+#homeSlidesTable code { word-break: break-all; }

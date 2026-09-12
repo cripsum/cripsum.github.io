@@ -63,16 +63,14 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
 <html lang="<?php echo api_docs_h($lang); ?>">
 
 <head>
+    <?php
+    // I tag dell'anteprima li stampa head-import: qui si passano solo i valori.
+    $ogTitle = $docs['title'];
+    $ogDescription = $docs['meta'];
+    $ogUrl = 'https://cripsum.com/' . $lang . '/api-docs';
+    ?>
     <?php include __DIR__ . '/head-import.php'; ?>
     <title><?php echo api_docs_h($docs['title']); ?></title>
-    <meta name="description" content="<?php echo api_docs_h($docs['meta']); ?>">
-    <meta property="og:site_name" content="Cripsum™">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="<?php echo api_docs_h($docs['title']); ?>">
-    <meta property="og:description" content="<?php echo api_docs_h($docs['meta']); ?>">
-    <meta property="og:image" content="https://cripsum.com/img/Susremaster.png">
-    <meta property="og:url" content="https://cripsum.com/<?php echo api_docs_h($lang); ?>/api-docs">
-    <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="/assets/api-docs/api-docs.css?v=1.3">
     <script src="/assets/api-docs/api-docs.js?v=1.3" defer></script>
 </head>

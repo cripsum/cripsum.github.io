@@ -29,17 +29,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 <html lang="en">
 
 <head>
+    <?php $ogTitle = 'Character Inventory - Cripsum™'; $ogImage = '/img/waguri.jpeg'; ?>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Inventory</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?php echo inventario_h($ogDescription); ?>">
-    <meta property="og:site_name" content="Cripsum™">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Character Inventory - Cripsum™">
-    <meta property="og:description" content="<?php echo inventario_h($ogDescription); ?>">
-    <meta property="og:image" content="https://cripsum.com/img/waguri.jpeg">
-    <meta property="og:url" content="<?php echo inventario_h($ogUrl); ?>">
-    <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="/assets/inventario/inventario.css?v=3.1.6">
     <script src="/assets/inventario/inventario.js?v=3.3.0" defer></script>

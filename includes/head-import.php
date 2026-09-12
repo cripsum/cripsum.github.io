@@ -21,6 +21,48 @@
             <meta name="csrf-token" content="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
         <?php endif; ?>
 
+        <?php
+        /**
+         * Anteprima per le condivisioni, per tutte le pagine.
+         *
+         * Prima ce l'avevano diciassette pagine su centoquaranta: tutte le
+         * altre, incollate su Discord o WhatsApp, uscivano come un link nudo.
+         * Qui la riceve chiunque includa questo file, cioe' tutto il sito.
+         *
+         * Una pagina che ha un'anteprima sua la prepara **prima** dell'include,
+         * in una di queste due forme:
+         *
+         *   $ogMeta = cripsum_og_profile($mysqli, $profilo);   // gia' pronta
+         *   $ogTitle / $ogDescription / $ogImage / $ogType;     // pezzo per pezzo
+         *
+         * Va fatto prima e non dopo perche' quando una pagina dichiara due
+         * volte og:image i social prendono la prima, e la prima e' questa.
+         */
+        require_once __DIR__ . '/cripsum_og.php';
+
+        if (!isset($ogMeta) || !is_array($ogMeta)) {
+            $ogMeta = cripsum_og_default('site');
+
+            if (!empty($ogTitle)) {
+                $ogMeta['title'] = (string)$ogTitle;
+            }
+            if (!empty($ogDescription)) {
+                $ogMeta['description'] = cripsum_og_trim((string)$ogDescription);
+            }
+            if (!empty($ogImage)) {
+                $ogMeta['image'] = cripsum_og_abs((string)$ogImage);
+            }
+            if (!empty($ogUrl)) {
+                $ogMeta['url'] = (string)$ogUrl;
+            }
+            if (!empty($ogType)) {
+                $ogMeta['type'] = (string)$ogType;
+            }
+        }
+
+        cripsum_og_print($ogMeta);
+        ?>
+
         <script>
             // One-time cleanup for legacy profile drafts that serialized the
             // whole form, including its CSRF field, into localStorage.

@@ -268,9 +268,9 @@ $statCards = [
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <?php $ogDescription = 'Bio personale di ' . $profileConfig['display_name'] . ' su cripsum.com'; ?>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Bio personale di <?= e($profileConfig['display_name']); ?> su cripsum.com">
     <meta property="og:title" content="<?= e($profileConfig['display_name']); ?> — Bio">
     <meta property="og:description" content="<?= e($profileConfig['tagline']); ?>">
     <meta property="og:type" content="profile">

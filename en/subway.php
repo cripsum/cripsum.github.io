@@ -25,16 +25,10 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
 <html lang="en">
 
 <head>
+    <?php $ogTitle = 'Cripsum™ Subway Surfers'; $ogImage = '/img/og-default.jpg'; ?>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ Subway Surfers Mod & Challenge Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?= htmlspecialchars($ogDescription) ?>">
-    <meta property="og:site_name" content="Cripsum™">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Cripsum™ Subway Surfers">
-    <meta property="og:description" content="<?= htmlspecialchars($ogDescription) ?>">
-    <meta property="og:image" content="https://cripsum.com/img/Susremaster.png">
-    <meta property="og:url" content="<?= htmlspecialchars($ogUrl) ?>">
 
     <!-- The Unity build, its loader and ~40 MB of assets all come from jsDelivr. -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>

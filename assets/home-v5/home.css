@@ -653,105 +653,6 @@ body.home-v5-body {
     font-weight: 900;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Slide con contenuti veri
-
-   Lo slider non mostra piu' un elenco di pagine ma quello che la
-   gente ha appena pubblicato, quindi servono le cose che prima non
-   c'erano: l'etichetta del tipo, chi l'ha fatto, quanti cuori ha
-   preso, e i video oltre alle immagini.
-   ───────────────────────────────────────────────────────────── */
-
-.home-slide__badge {
-    display: inline-flex;
-    width: fit-content;
-    align-items: center;
-    padding: 0.3rem 0.7rem;
-    border: 1px solid rgba(var(--home-accent-rgb), 0.3);
-    border-radius: 999px;
-    color: #9bb7ff;
-    background: rgba(var(--home-accent-rgb), 0.09);
-    font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-/* Le rarita' alte del gacha si riconoscono a colpo d'occhio, come
-   nella lootbox. */
-.home-slide__badge--leggendario { color: #fcd34d; border-color: rgba(252, 211, 77, 0.4); background: rgba(252, 211, 77, 0.12); }
-.home-slide__badge--speciale    { color: #f0abfc; border-color: rgba(240, 171, 252, 0.4); background: rgba(240, 171, 252, 0.12); }
-.home-slide__badge--segreto     { color: #fca5a5; border-color: rgba(252, 165, 165, 0.42); background: rgba(252, 165, 165, 0.12); }
-.home-slide__badge--theone      { color: #fff; border-color: rgba(255, 255, 255, 0.55); background: linear-gradient(90deg, rgba(252, 211, 77, 0.25), rgba(240, 171, 252, 0.25)); }
-
-.home-slide__meta {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin-top: 0.9rem;
-}
-
-.home-slide__author {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    color: var(--home-muted);
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: color var(--home-transition);
-}
-
-.home-slide__author:hover { color: var(--home-text); }
-.home-slide__author b { color: var(--home-text); font-weight: 800; }
-
-.home-slide__author img {
-    width: 24px;
-    height: 24px;
-    border-radius: 999px;
-    object-fit: cover;
-    border: 1px solid var(--home-border);
-}
-
-.home-slide__score {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    border: 1px solid var(--home-border);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--home-muted);
-    font-size: 0.78rem;
-    font-weight: 800;
-}
-
-.home-slide__score i { color: #f472b6; }
-
-/* Stesso trattamento delle immagini: un post con un video non deve
-   sembrare una slide rotta. */
-.home-slide__media video {
-    position: relative;
-    z-index: 2;
-    display: block;
-    max-width: min(100%, 390px);
-    max-height: 390px;
-    border-radius: 14px;
-    object-fit: contain;
-    filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.42));
-}
-
-.home-tab__video {
-    display: grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 999px;
-    background: rgba(var(--home-accent-rgb), 0.18);
-    color: var(--home-text);
-    font-size: 0.7rem;
-}
-
 .home-slider__arrow:focus-visible {
     outline: 2px solid rgba(var(--home-accent-rgb), 0.8);
     outline-offset: 2px;
@@ -765,45 +666,8 @@ body.home-v5-body {
 
 @media (prefers-reduced-motion: reduce) {
     .home-slide,
-    .home-slide__media img,
-    .home-slide__media video {
+    .home-slide__media img {
         animation: none !important;
-    }
-}
-
-/* Gli alberi restano quelli di sempre, ma rispondono al passaggio del
-   mouse e al tocco invece di stare fermi come tre figure incollate.
-   Su telefono `:hover` non esiste, quindi conta `:active`. */
-.home-mood-item {
-    transition: transform var(--home-transition), border-color var(--home-transition), box-shadow var(--home-transition);
-}
-
-.home-mood-item:hover,
-.home-mood-item:active {
-    transform: translateY(-4px);
-    border-color: rgba(var(--home-accent-rgb), 0.38);
-    box-shadow: 0 26px 55px rgba(0, 0, 0, 0.34);
-}
-
-.home-mood-item:active img {
-    transform: scale(1.06);
-    filter: saturate(1.12);
-}
-
-.home-mood-item span {
-    transition: transform var(--home-transition);
-}
-
-.home-mood-item:hover span,
-.home-mood-item:active span {
-    transform: translateY(-3px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .home-mood-item,
-    .home-mood-item img,
-    .home-mood-item span {
-        transition: none;
     }
 }
 

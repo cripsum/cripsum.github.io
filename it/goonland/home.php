@@ -39,11 +39,7 @@ if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
 <html lang="it">
 
 <head>
-    <meta property="og:title" content="Cripsum™ GoonLand - Home">
-    <meta property="og:description" content="GoonLand è una sezione di Cripsum dove puoi goonare™ a volontà">
-    <meta property="og:image" content="https://cripsum.com/img/raspberry-chan16gb.png">
-    <meta property="og:url" content="https://cripsum.com/it/goonland/home">
-    <meta property="og:type" content="website">
+    <?php $ogTitle = 'Cripsum™ GoonLand - Home'; $ogDescription = 'GoonLand è una sezione di Cripsum dove puoi goonare™ a volontà'; $ogImage = '/img/raspberry-chan16gb.png'; ?>
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

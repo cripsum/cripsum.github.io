@@ -19,7 +19,7 @@ $csrfToken = admin_csrf_token();
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.6">
+    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.7">
 </head>
 
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">
@@ -49,6 +49,7 @@ $csrfToken = admin_csrf_token();
                 <button type="button" data-section="achievements"><i class="fa-solid fa-trophy"></i><span>Achievement</span></button>
                 <button type="button" data-section="messages"><i class="fa-solid fa-envelope"></i><span>Centro Messaggi</span></button>
                 <button type="button" data-section="tickets"><i class="fa-solid fa-headset"></i><span>Ticket Supporto</span></button>
+                <button type="button" data-section="homeslides"><i class="fa-solid fa-house-laptop"></i><span>Slide homepage</span></button>
                 <button type="button" data-section="shitposts"><i class="fa-solid fa-image"></i><span>Shitpost</span></button>
                 <button type="button" data-section="toprimasti"><i class="fa-solid fa-ranking-star"></i><span>Top Rimasti</span></button>
                 <button type="button" data-section="reports"><i class="fa-solid fa-flag"></i><span>Segnalazioni</span></button>
@@ -142,6 +143,17 @@ $csrfToken = admin_csrf_token();
                 </div>
                 <div id="achievementsTable" class="admin-table-card"></div>
                 <div id="achievementsPagination" class="admin-pagination"></div>
+            </section>
+
+            <section class="admin-section" id="section-homeslides" data-section-panel="homeslides">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Slide homepage</strong>
+                        <small>La sezione «Cosa puoi fare su Cripsum». Le frecce cambiano l'ordine in cui appaiono.</small>
+                    </div>
+                    <button type="button" class="admin-btn admin-btn--primary" id="createHomeSlideBtn"><i class="fa-solid fa-plus"></i> Nuova</button>
+                </div>
+                <div id="homeSlidesTable" class="admin-table-card"></div>
             </section>
 
             <section class="admin-section" id="section-shitposts" data-section-panel="shitposts">
@@ -280,7 +292,7 @@ $csrfToken = admin_csrf_token();
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/assets/admin-v2/admin.js?v=3.3"></script>
+    <script src="/assets/admin-v2/admin.js?v=3.4"></script>
 </body>
 
 </html>

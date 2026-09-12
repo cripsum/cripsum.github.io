@@ -87,12 +87,12 @@ if ($canRenderNav) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stato dei servizi · Cripsum</title>
-    <meta name="description" content="Stato in tempo reale dei servizi Cripsum: sito, database, API e bot Discord.">
     <meta name="robots" content="noindex">
 
     <?php if ($canRenderNav): ?>
         <?php /* Gli stili della navbar stanno qui dentro: senza questo include
                  il menu esce come un elenco puntato senza formattazione. */ ?>
+        <?php $ogDescription = 'Stato in tempo reale dei servizi Cripsum: sito, database, API e bot Discord.'; ?>
         <?php include __DIR__ . '/includes/head-import.php'; ?>
     <?php else: ?>
         <link rel="icon" href="/img/Susremaster.png" type="image/png">

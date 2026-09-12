@@ -25,10 +25,10 @@ $products = [
 <html lang="it">
 
 <head>
+    <?php $ogDescription = 'Shop di Cripsum™. Solo prodotti per fichi qui.'; ?>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Negozio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Shop di Cripsum™. Solo prodotti per fichi qui.">
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.4">
     <script src="/assets/shop/shop.js?v=2.5" defer></script>
 </head>

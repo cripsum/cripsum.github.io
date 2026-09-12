@@ -175,41 +175,36 @@
      * recente da mostrare, o mentre la richiesta e' in volo — la sezione non
      * deve mai restare vuota.
      */
-    const staticSlides = slideData[lang].map((slide) => ({
-        kind: 'static',
-        media: slide.media,
-        mediaVideo: false,
-        title: slide.title,
-        description: slide.description,
-        link: slide.link,
-        buttonText: slide.buttonText,
-        badge: '',
-        author: '',
-        authorUrl: '',
-        authorAvatar: '',
-        score: 0
-    }));
-
-    const feedButtonText = {
-        it: { shitpost: 'Apri il post', rimasto: 'Apri il post', gacha: 'Vai alla lootbox' },
-        en: { shitpost: 'Open the post', rimasto: 'Open the post', gacha: 'Go to the lootbox' }
-    }[lang];
-
-    const normalizeFeedItem = (item) => ({
-        kind: String(item.kind || 'post'),
-        media: String(item.media || ''),
-        mediaVideo: item.media_video === true,
-        title: String(item.title || ''),
-        description: String(item.description || ''),
-        link: String(item.url || ''),
-        buttonText: feedButtonText[item.kind] || t.open,
-        badge: String(item.badge || ''),
-        author: String(item.author || ''),
-        authorUrl: String(item.author_url || ''),
-        authorAvatar: String(item.author_avatar || ''),
-        score: Number(item.score) || 0,
-        rarity: item.rarity ? String(item.rarity) : ''
+    const normalize = (slide) => ({
+        media: String(slide.media || ''),
+        title: String(slide.title || ''),
+        description: String(slide.description || ''),
+        link: String(slide.link || ''),
+        buttonText: String(slide.buttonText || '') || t.open
     });
+
+    const staticSlides = slideData[lang].map(normalize);
+
+    /**
+     * Le slide vere arrivano dal database, stampate dentro la pagina da
+     * home_slides.php e gestite dal pannello admin. Quelle qui sopra restano
+     * come rete di sicurezza: se la tabella non c'e' ancora, o e' vuota, o il
+     * JSON e' illeggibile, la sezione resta quella di sempre invece di
+     * sparire.
+     */
+    const slidesFromPage = () => {
+        const tag = document.getElementById('homeSlidesData');
+        if (!tag) return null;
+
+        try {
+            const parsed = JSON.parse(tag.textContent || '[]');
+            if (!Array.isArray(parsed) || !parsed.length) return null;
+
+            return parsed.map(normalize).filter((slide) => slide.title && slide.media);
+        } catch {
+            return null;
+        }
+    };
 
     let slides = staticSlides;
     let index = Math.floor(Math.random() * slides.length);
@@ -245,10 +240,8 @@
         if (canAutoplay()) startAuto();
     };
 
-    const isVideoUrl = (slide) => slide.mediaVideo || /\.(mp4|webm)(\?|$)/i.test(slide.media);
-
     /**
-     * Precarica il media prima di mostrarlo.
+     * Precarica l'immagine prima di mostrarla.
      *
      * Senza questo passaggio la slide compariva vuota e l'immagine ci cadeva
      * dentro un istante dopo, con uno scatto a ogni cambio. Un errore di
@@ -256,7 +249,7 @@
      * riquadro senza figura.
      */
     const preload = (slide) => new Promise((resolve) => {
-        if (!slide.media || isVideoUrl(slide)) {
+        if (!slide.media) {
             resolve();
             return;
         }
@@ -282,9 +275,7 @@
                     data-slide="${slideIndex}"
                     aria-selected="${slideIndex === index ? 'true' : 'false'}"
                     aria-label="${escapeHtml(t.open_slide(cleanTitle(slide.title)))}">
-                ${isVideoUrl(slide)
-                    ? '<span class="home-tab__video"><i class="fa-solid fa-play"></i></span>'
-                    : `<img src="${escapeHtml(slide.media)}" alt="" loading="lazy">`}
+                <img src="${escapeHtml(slide.media)}" alt="" loading="lazy">
                 <span>${escapeHtml(cleanTitle(slide.title))}</span>
             </button>
         `).join('');
@@ -306,34 +297,6 @@
         });
     };
 
-    const slideMediaHtml = (slide) => {
-        if (!slide.media) return '';
-
-        if (isVideoUrl(slide)) {
-            return `<video src="${escapeHtml(slide.media)}" muted loop playsinline preload="metadata"></video>`;
-        }
-
-        return `<img src="${escapeHtml(slide.media)}" alt="${escapeHtml(slide.title)}" loading="lazy">`;
-    };
-
-    const slideMetaHtml = (slide) => {
-        if (!slide.author) return '';
-
-        const score = slide.score > 0
-            ? `<span class="home-slide__score"><i class="fa-solid fa-heart"></i>${slide.score}</span>`
-            : '';
-
-        return `
-            <div class="home-slide__meta">
-                <a class="home-slide__author" href="${escapeHtml(slide.authorUrl)}">
-                    ${slide.authorAvatar ? `<img src="${escapeHtml(slide.authorAvatar)}" alt="" width="24" height="24" loading="lazy">` : ''}
-                    <span>${escapeHtml(t.by)} <b>${escapeHtml(slide.author)}</b></span>
-                </a>
-                ${score}
-            </div>
-        `;
-    };
-
     const paintSlide = () => {
         const stage = $('#homeSliderStage');
         const backdrop = $('#homeSliderBackdrop');
@@ -341,19 +304,15 @@
 
         const slide = slides[index];
 
-        if (backdrop && !isVideoUrl(slide)) {
+        if (backdrop) {
             backdrop.style.backgroundImage = `url("${slide.media}")`;
         }
-
-        const badgeClass = slide.rarity ? ` home-slide__badge--${escapeHtml(slide.rarity)}` : '';
 
         stage.innerHTML = `
             <article class="home-slide is-entering">
                 <div class="home-slide__copy">
-                    ${slide.badge ? `<span class="home-slide__badge${badgeClass}">${escapeHtml(slide.badge)}</span>` : ''}
                     <h3 class="home-slide__title">${escapeHtml(slide.title)}</h3>
                     <p class="home-slide__description">${escapeHtml(slide.description)}</p>
-                    ${slideMetaHtml(slide)}
                     <a class="home-btn home-btn--primary home-slide__button" href="${escapeHtml(slide.link)}">
                         <span>${escapeHtml(slide.buttonText)}</span>
                         <i class="fa-solid fa-arrow-right"></i>
@@ -361,14 +320,10 @@
                 </div>
 
                 <div class="home-slide__media">
-                    ${slideMediaHtml(slide)}
+                    <img src="${escapeHtml(slide.media)}" alt="${escapeHtml(slide.title)}" loading="lazy">
                 </div>
             </article>
         `;
-
-        // Il video parte solo se la slide e' quella visibile, e senza audio:
-        // una homepage che si mette a suonare da sola e' insopportabile.
-        stage.querySelector('video')?.play?.().catch(() => null);
 
         requestAnimationFrame(() => {
             stage.querySelector('.home-slide')?.classList.remove('is-entering');
@@ -449,41 +404,18 @@
         resetProgress();
     };
 
-    /**
-     * Sostituisce le slide fisse con i contenuti veri, se ce ne sono.
-     *
-     * Fallisce in silenzio di proposito: un feed che non risponde deve lasciare
-     * la homepage esattamente com'era prima, non romperla.
-     */
-    const loadFeed = async () => {
-        try {
-            const response = await fetch(`/api/home/feed.php?lang=${lang}`, {
-                headers: { Accept: 'application/json' },
-                credentials: 'same-origin'
-            });
-
-            if (!response.ok) return;
-
-            const data = await response.json();
-            const items = Array.isArray(data?.items) ? data.items : [];
-            if (items.length < 3) return;
-
-            slides = items.map(normalizeFeedItem);
-            index = 0;
-            await go(0, { restart: true });
-            paintSlide();
-        } catch {
-            // si resta sulle slide fisse
-        }
-    };
-
     const initSlider = () => {
         const slider = $('#homeSlider');
         if (!$('#homeSliderStage')) return;
 
+        // Le slide del pannello admin sono gia' nella pagina: si usano subito,
+        // senza aspettare una richiesta. Se non ci sono restano quelle scritte
+        // qui dentro.
+        slides = slidesFromPage() || staticSlides;
+        index = Math.floor(Math.random() * slides.length);
+
         paintSlide();
         startAuto();
-        loadFeed();
 
         $('#homeSliderNext')?.addEventListener('click', next);
         $('#homeSliderPrev')?.addEventListener('click', prev);

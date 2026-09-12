@@ -17,7 +17,7 @@
         shitposts: { page: 1, status: 'all' },
         toprimasti: { page: 1, status: 'all' },
         reports: { page: 1, source: 'all', status: 'open' },
-        cache: { users: [], characters: [], achievements: [], messages: [], tickets: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
+        cache: { homeSlides: [], users: [], characters: [], achievements: [], messages: [], tickets: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
     };
 
     let toastTimer = null;
@@ -1405,6 +1405,156 @@
         });
     };
 
+    /* ── Slide della homepage ─────────────────────────────────────────────
+       La sezione "Cosa puoi fare su Cripsum" prima era scritta dentro
+       home.js: per aggiungere una feature bisognava toccare il codice. Qui si
+       creano, si spengono, si riordinano e si cancellano. */
+
+    const loadHomeSlides = async () => {
+        const box = $('#homeSlidesTable');
+        setLoading(box);
+
+        try {
+            const data = await api('get_home_slides.php');
+            state.cache.homeSlides = data.slides || [];
+
+            if (data.available === false) {
+                box.innerHTML = emptyState('fa-solid fa-database', 'Tabella mancante', data.message || 'Applica la migrazione.');
+                return;
+            }
+
+            if (!state.cache.homeSlides.length) {
+                box.innerHTML = emptyState('fa-solid fa-images', 'Nessuna slide', 'La homepage mostra quelle di riserva. Creane una con «Nuova».');
+                return;
+            }
+
+            const ultima = state.cache.homeSlides.length - 1;
+
+            box.innerHTML = `
+                <table class="admin-table">
+                    <thead><tr><th>Slide</th><th>Link</th><th>Stato</th><th>Ordine e azioni</th></tr></thead>
+                    <tbody>
+                        ${state.cache.homeSlides.map((s, i) => `
+                            <tr>
+                                <td data-label="Slide">
+                                    <div class="admin-name-cell">
+                                        ${thumb(s.media, 'fa-solid fa-image')}
+                                        <div>
+                                            <div class="admin-row-title">${escapeHtml(s.titolo)}</div>
+                                            <div class="admin-row-sub">${escapeHtml(s.descrizione || '—')}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Link"><code>${escapeHtml(s.link || '—')}</code></td>
+                                <td data-label="Stato">${s.attiva
+                                    ? '<span class="admin-badge admin-badge--success">Attiva</span>'
+                                    : '<span class="admin-badge">Spenta</span>'}</td>
+                                <td data-label="Ordine e azioni">
+                                    <div class="admin-row-actions admin-row-actions--slides">
+                                        <button class="admin-btn admin-btn--small" data-slide-up="${Number(s.id)}" ${i === 0 ? 'disabled' : ''} title="Sposta su" aria-label="Sposta su"><i class="fa-solid fa-arrow-up"></i></button>
+                                        <button class="admin-btn admin-btn--small" data-slide-down="${Number(s.id)}" ${i === ultima ? 'disabled' : ''} title="Sposta giù" aria-label="Sposta giù"><i class="fa-solid fa-arrow-down"></i></button>
+                                        <button class="admin-btn admin-btn--small" data-edit-slide="${Number(s.id)}"><i class="fa-solid fa-pen"></i> Modifica</button>
+                                        <button class="admin-btn admin-btn--small admin-btn--danger" data-delete-slide="${Number(s.id)}"><i class="fa-solid fa-trash"></i> Elimina</button>
+                                    </div>
+                                </td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>`;
+
+            const find = (id) => state.cache.homeSlides.find((s) => Number(s.id) === Number(id));
+
+            $$('[data-edit-slide]', box).forEach((b) => b.addEventListener('click', () => openHomeSlideForm(find(b.dataset.editSlide))));
+            $$('[data-delete-slide]', box).forEach((b) => b.addEventListener('click', () => deleteHomeSlide(Number(b.dataset.deleteSlide), find(b.dataset.deleteSlide)?.titolo)));
+            $$('[data-slide-up]', box).forEach((b) => b.addEventListener('click', () => moveHomeSlide(Number(b.dataset.slideUp), -1)));
+            $$('[data-slide-down]', box).forEach((b) => b.addEventListener('click', () => moveHomeSlide(Number(b.dataset.slideDown), 1)));
+        } catch (error) {
+            box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore', error.message);
+        }
+    };
+
+    /**
+     * Sposta una slide di un posto e rimanda su l'ordine completo.
+     *
+     * Si manda tutta la lista invece dei due id scambiati: il server rinumera
+     * da capo e non restano mai due slide sulla stessa posizione.
+     */
+    const moveHomeSlide = async (id, delta) => {
+        const ids = state.cache.homeSlides.map((s) => Number(s.id));
+        const from = ids.indexOf(Number(id));
+        const to = from + delta;
+
+        if (from < 0 || to < 0 || to >= ids.length) return;
+
+        ids.splice(to, 0, ids.splice(from, 1)[0]);
+
+        try {
+            await api('reorder_home_slides.php', { method: 'POST', body: { order: ids } });
+            loadHomeSlides();
+        } catch (error) {
+            showToast(error.message, true);
+        }
+    };
+
+    const homeSlideFormHtml = (item = {}) => `
+        <form id="homeSlideForm" class="admin-form-grid">
+            ${item.id ? `<input type="hidden" name="id" value="${Number(item.id)}">` : ''}
+            <div class="admin-field admin-field--full">
+                <label>Immagine</label>
+                <input name="media" value="${escapeHtml(item.media || '')}" placeholder="/img/waguri.jpeg oppure https://...">
+            </div>
+            <div class="admin-field admin-field--full">
+                <label>Link del bottone</label>
+                <input name="link" value="${escapeHtml(item.link || '')}" placeholder="/it/lootbox — la versione /en/ viene da sé">
+            </div>
+            <div class="admin-field"><label>Titolo (IT)</label><input name="titolo" value="${escapeHtml(item.titolo || '')}" required maxlength="120"></div>
+            <div class="admin-field"><label>Titolo (EN)</label><input name="titolo_en" value="${escapeHtml(item.titolo_en || '')}" maxlength="120" placeholder="vuoto = usa l'italiano"></div>
+            <div class="admin-field"><label>Descrizione (IT)</label><textarea name="descrizione" maxlength="400">${escapeHtml(item.descrizione || '')}</textarea></div>
+            <div class="admin-field"><label>Descrizione (EN)</label><textarea name="descrizione_en" maxlength="400" placeholder="vuoto = usa l'italiano">${escapeHtml(item.descrizione_en || '')}</textarea></div>
+            <div class="admin-field"><label>Testo bottone (IT)</label><input name="testo_bottone" value="${escapeHtml(item.testo_bottone || '')}" maxlength="60" placeholder="Apri"></div>
+            <div class="admin-field"><label>Testo bottone (EN)</label><input name="testo_bottone_en" value="${escapeHtml(item.testo_bottone_en || '')}" maxlength="60" placeholder="Open"></div>
+            <div class="admin-field admin-field--full">
+                <label><input type="checkbox" name="attiva" value="1" ${item.id && !item.attiva ? '' : 'checked'}> Mostra sulla homepage</label>
+            </div>
+        </form>`;
+
+    const openHomeSlideForm = (item = null) => {
+        openModal(
+            item ? 'Modifica slide' : 'Nuova slide',
+            item ? `ID ${item.id}` : 'Finisce in fondo, poi la sposti con le frecce',
+            homeSlideFormHtml(item || {}),
+            '<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveHomeSlideBtn">Salva</button>'
+        );
+
+        $('#saveHomeSlideBtn')?.addEventListener('click', async () => {
+            const form = $('#homeSlideForm');
+            if (!form) return;
+
+            const payload = Object.fromEntries(new FormData(form).entries());
+            // Una casella non spuntata non compare nel FormData: senza questo
+            // non si riuscirebbe mai a spegnere una slide.
+            payload.attiva = form.querySelector('[name="attiva"]').checked ? 1 : 0;
+
+            try {
+                await api('save_home_slide.php', { method: 'POST', body: payload });
+                closeModal();
+                showToast('Slide salvata.');
+                loadHomeSlides();
+            } catch (error) {
+                showToast(error.message, true);
+            }
+        });
+    };
+
+    const deleteHomeSlide = (id, titolo) => confirmBox(
+        'Eliminare la slide?',
+        `<p class="admin-muted">«${escapeHtml(titolo || '')}» sparisce dalla homepage. Se vuoi solo toglierla per un po', modificala e togli la spunta invece di eliminarla.</p>`,
+        async () => {
+            await api('delete_home_slide.php', { method: 'POST', body: { id } });
+            showToast('Slide eliminata.');
+            loadHomeSlides();
+        }
+    );
+
     const switchSection = (section) => {
         state.section = section;
         $$('[data-admin-nav] button').forEach((b) => b.classList.toggle('is-active', b.dataset.section === section));
@@ -1415,6 +1565,7 @@
         if (section === 'achievements') loadAchievements();
         if (section === 'messages') loadMessages();
         if (section === 'tickets') loadTicketsAdmin();
+        if (section === 'homeslides') loadHomeSlides();
         if (section === 'shitposts') loadShitposts();
         if (section === 'toprimasti') loadToprimasti();
         if (section === 'reports') loadReports();
@@ -1449,6 +1600,7 @@
             $('#adminRefreshBtn')?.addEventListener('click', reloadCurrent);
             $('#createCharacterBtn')?.addEventListener('click', () => openCharacterForm());
             $('#createAchievementBtn')?.addEventListener('click', () => openAchievementForm());
+            $('#createHomeSlideBtn')?.addEventListener('click', () => openHomeSlideForm());
             $('#sendNewMessageBtn')?.addEventListener('click', () => openMessageForm());
             $('#usersStatusFilter')?.addEventListener('change', (e) => { state.users.status = e.target.value; state.users.page = 1; loadUsers(); });
             $('#usersRoleFilter')?.addEventListener('change', (e) => { state.users.role = e.target.value; state.users.page = 1; loadUsers(); });

@@ -22,10 +22,10 @@ $downloads = [
 <html lang="en">
 
 <head>
+    <?php $ogDescription = 'Cripsum™ Download Center.'; ?>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Download</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Cripsum™ Download Center.">
     <link rel="stylesheet" href="/assets/shop/shop.css?v=2.4">
     <script src="/assets/shop/shop.js?v=2.5" defer></script>
 </head>

@@ -74,6 +74,9 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     }
 }
 
+require_once __DIR__ . '/../includes/home_slides.php';
+$homeSlides = home_slides_load($mysqli ?? null, 'en');
+
 function home_h($value): string
 {
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -83,7 +86,8 @@ $profileUrl = ($isLoggedIn && $currentUsername)
     ? '/u/' . rawurlencode(strtolower((string)$currentUsername))
     : 'accedi';
 
-$ogDescription = 'Cripsum™ Homepage. Edits, memes, lootboxes, profiles, and plenty of gooning.';
+$ogDescription = 'Cripsum™ Homepage. Edits, memes, gambling, custom profiles, lots of games and plenty of gooning.';
+$ogTitle = 'Cripsum™ — memes, edits, lootboxes and community profiles';
 $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en/home'), '#');
 ?>
 <!DOCTYPE html>
@@ -95,18 +99,6 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
              Il nome resta davanti, il resto spiega cos'e' senza cambiare tono. */ ?>
     <title data-i18n="meta.title">Cripsum™ — memes, edits, lootboxes and community profiles</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?php echo home_h($ogDescription); ?>" data-i18n-attr="content|meta.desc">
-    <meta property="og:site_name" content="Cripsum™">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Cripsum™">
-    <meta property="og:description" content="<?php echo home_h($ogDescription); ?>">
-    <?php /* Non piu' il logo quadrato: un'anteprima 1200x630 fatta apposta, che
-             e' il formato che Discord, WhatsApp e i social si aspettano. */ ?>
-    <meta property="og:image" content="https://cripsum.com/img/og-home.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:url" content="<?php echo home_h($ogUrl); ?>">
-    <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
     <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.0">
@@ -202,6 +194,17 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                 </div>
                 <!-- <p>Una preview delle pagine principali.</p> -->
             </div>
+
+            <?php if ($homeSlides): ?>
+                <?php /* Le slide arrivano dentro il documento invece che con una
+                         chiamata a parte: niente richiesta in piu' e niente
+                         sezione che si riempie dopo. JSON_HEX_TAG chiude la
+                         porta a un `</script>` dentro un testo salvato dal
+                         pannello. */ ?>
+                <script type="application/json" id="homeSlidesData"><?php
+                    echo json_encode($homeSlides, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+                ?></script>
+            <?php endif; ?>
 
             <div class="home-slider" id="homeSlider">
                 <div class="home-slider__backdrop" id="homeSliderBackdrop" aria-hidden="true"></div>

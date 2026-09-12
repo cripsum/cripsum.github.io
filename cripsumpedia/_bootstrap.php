@@ -1137,15 +1137,15 @@ function cp_markdown_to_html(string $markdown, mysqli $mysqli, string $lang, ?in
 function cp_render_head(string $title, string $description, string $lang, string $bodyClass = 'cp-body', ?string $ogImage = null): void
 {
     $ogImage = $ogImage ? cp_asset_url($ogImage) : '/img/sfondo-og.jpg';
+
+    // I tag dell'anteprima li stampa head-import: qui si passano solo i valori,
+    // altrimenti uscirebbero due volte e i social prenderebbero i primi.
+    $ogTitle = $title;
+    $ogDescription = $description;
 ?>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="<?= cp_h($description) ?>">
-    <meta property="og:title" content="<?= cp_h($title) ?>">
-    <meta property="og:description" content="<?= cp_h($description) ?>">
-    <meta property="og:image" content="<?= cp_h($ogImage) ?>">
-    <meta property="og:type" content="website">
     <meta name="theme-color" content="#05070d">
     <title><?= cp_h($title) ?></title>
     <link rel="icon" href="/img/Susremaster.png" type="image/png">
