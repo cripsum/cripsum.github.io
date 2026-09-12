@@ -15,15 +15,55 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     profile_json_response(['ok' => false, 'message' => 'Invalid method.'], 405);
 }
 
+/**
+ * Caricamento piu' grande di quanto il server accetti.
+ *
+ * Quando il corpo della richiesta supera `post_max_size`, PHP scarta **tutto**
+ * il `$_POST` e il `$_FILES` prima che questo file venga eseguito: restano
+ * vuoti anche se il browser ha spedito megabyte. Il token CSRF sparisce con il
+ * resto, il controllo qui sotto fallisce, e all'utente arrivava un 403
+ * "sessione scaduta" mentre il problema vero era il file troppo pesante.
+ *
+ * Si riconosce dal fatto che il browser dichiara un corpo lungo ma a noi non
+ * e' arrivato niente.
+ */
+$lunghezzaInviata = (int)($_SERVER['CONTENT_LENGTH'] ?? 0);
+
+if ($lunghezzaInviata > 0 && !$_POST && !$_FILES) {
+    $limite = profile_server_upload_limit();
+
+    profile_json_response([
+        'ok' => false,
+        'message' => $limite > 0
+            ? sprintf(
+                'File troppo pesante per il server: il massimo per un invio è %s. Prova con un file più leggero.',
+                profile_format_bytes($limite)
+            )
+            : 'File troppo pesante: il server ha rifiutato l\'invio.',
+        'server_limit' => $limite,
+    ], 413);
+}
+
 if (!profile_validate_csrf($_POST['csrf_token'] ?? null)) {
-    profile_json_response(['ok' => false, 'message' => 'Session expired. Please reload the page.'], 403);
+    // Il codice serve a distinguere questo 403 dall'altro (profilo non tuo):
+    // dal browser erano identici, e capire quale dei due fosse scattato
+    // richiedeva di indovinare.
+    profile_json_response([
+        'ok' => false,
+        'message' => 'Sessione scaduta. Ricarica la pagina e riprova.',
+        'code' => 'csrf',
+    ], 403);
 }
 
 $currentUserId = (int)$_SESSION['user_id'];
 $targetUserId = isset($_POST['target_user_id']) && profile_is_staff() ? (int)$_POST['target_user_id'] : $currentUserId;
 
 if (!profile_can_edit($targetUserId)) {
-    profile_json_response(['ok' => false, 'message' => 'You cannot edit this profile.'], 403);
+    profile_json_response([
+        'ok' => false,
+        'message' => 'Non puoi modificare questo profilo.',
+        'code' => 'not_owner',
+    ], 403);
 }
 
 $profile = profile_get_edit_profile($mysqli, $targetUserId);

@@ -2006,6 +2006,22 @@
     }
 
     // ── MEDIA UPLOAD PREVIEWS ───────────────────────────────────────────────
+    /**
+     * Il limite vero: il piu' basso fra quello del sito e quello del server.
+     *
+     * Se il file supera `post_max_size`, PHP scarta tutta la richiesta prima di
+     * leggerla — token CSRF compreso — e quello che torna e' un 403 "sessione
+     * scaduta" che non c'entra niente col problema. Meglio fermarsi qui e
+     * dirlo, invece di far caricare megabyte per niente.
+     */
+    const limiteEffettivo = (limiteSito) => {
+        const server = Number(window.serverUploadLimit) || 0;
+        // Margine per gli altri campi del form, che viaggiano nella stessa
+        // richiesta.
+        const utile = server > 0 ? Math.max(0, server - 256 * 1024) : 0;
+        return utile > 0 ? Math.min(limiteSito, utile) : limiteSito;
+    };
+
     function previewAvatarFile(input, target) {
         const file = input.files && input.files[0];
         if (!file) return;
@@ -2014,7 +2030,7 @@
             uploadManager.reject(file.name, isEnglish ? 'Only image files are allowed.' : 'Sono ammesse solo immagini.');
             return;
         }
-        const avatarLimit = (window.isPremiumUser ? 10 : 2) * 1024 * 1024;
+        const avatarLimit = limiteEffettivo((window.isPremiumUser ? 10 : 2) * 1024 * 1024);
         if (file.size > avatarLimit) {
             input.value = '';
             uploadManager.reject(
@@ -2052,7 +2068,7 @@
             uploadManager.reject(file.name, isEnglish ? 'Unsupported background format.' : 'Formato sfondo non supportato.');
             return;
         }
-        const bannerLimit = (window.isPremiumUser ? 50 : 12) * 1024 * 1024;
+        const bannerLimit = limiteEffettivo((window.isPremiumUser ? 50 : 12) * 1024 * 1024);
         if (file.size > bannerLimit) {
             input.value = '';
             uploadManager.reject(
@@ -2119,7 +2135,7 @@
             uploadManager.reject(file.name, isEnglish ? 'Use only MP3 files.' : 'Usa solo file MP3.');
             return;
         }
-        if (file.size > 12 * 1024 * 1024) {
+        if (file.size > limiteEffettivo(12 * 1024 * 1024)) {
             input.value = '';
             uploadManager.reject(file.name, isEnglish ? 'MP3 too heavy. Max 12MB.' : 'MP3 troppo pesante. Max 12MB.');
             return;
@@ -2382,7 +2398,36 @@
                 }
             }
 
-            const data = await submitProfileForm(new FormData(form), (percent) => {
+            /**
+             * Un token vecchio non deve costare tutto il lavoro fatto.
+             *
+             * Se la pagina dell'editor resta aperta mentre la sessione viene
+             * rigenerata altrove — un nuovo accesso in un'altra scheda — il
+             * token nel form non vale piu' e il salvataggio torna 403. Si
+             * chiede quello nuovo e si riprova **una volta sola**: se fallisce
+             * ancora, il problema e' un altro e l'errore va mostrato.
+             */
+            const inviaConRipresa = async (onProgress) => {
+                try {
+                    return await submitProfileForm(new FormData(form), onProgress);
+                } catch (errore) {
+                    if (errore?.code !== 'csrf') throw errore;
+
+                    const risposta = await fetch('/api/profile_csrf.php', {
+                        credentials: 'same-origin',
+                        headers: { Accept: 'application/json' }
+                    });
+                    const dati = await risposta.json().catch(() => null);
+                    if (!dati?.csrf_token) throw errore;
+
+                    form.querySelectorAll('input[name="csrf_token"]')
+                        .forEach((campo) => { campo.value = dati.csrf_token; });
+
+                    return submitProfileForm(new FormData(form), onProgress);
+                }
+            };
+
+            const data = await inviaConRipresa((percent) => {
                 setOverlayProgress(percent);
                 if (percent >= 100) {
                     if (overlayText) {
@@ -2459,7 +2504,13 @@
                     return;
                 }
                 if (xhr.status < 200 || xhr.status >= 300) {
-                    reject(new Error(data.message || (isEnglish ? 'Error saving.' : 'Errore salvataggio.')));
+                    const errore = new Error(data.message || (isEnglish ? 'Error saving.' : 'Errore salvataggio.'));
+                    // Il codice del server viaggia con l'errore: senza, chi
+                    // chiama non puo' distinguere un token scaduto (si riprova)
+                    // da un profilo non tuo (non si riprova).
+                    errore.code = data.code || null;
+                    errore.status = xhr.status;
+                    reject(errore);
                     return;
                 }
                 resolve(data);

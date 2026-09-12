@@ -119,6 +119,12 @@ function profile_json_script(string $id, array $data): void
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
         window.isPremiumUser = <?php echo (int)($profile['is_premium'] ?? 0) === 1 ? 'true' : 'false'; ?>;
+
+        /* Quanto accetta il server in un invio. Serve al controllo lato
+           browser: senza, un file oltre `post_max_size` partiva comunque, PHP
+           scartava tutta la richiesta e tornava un 403 "sessione scaduta" che
+           non c'entrava niente. 0 = il server non dichiara limiti. */
+        window.serverUploadLimit = <?php echo profile_server_upload_limit(); ?>;
     </script>
     <script src="/assets/js/profile.js?v=5.11.0" defer></script>
     <script src="/assets/js/profile-markdown-guide.js?v=5.10.1" defer></script>
@@ -295,8 +301,8 @@ function profile_json_script(string $id, array $data): void
                             <label class="profile-field"><span>Short status</span><input type="text" name="profile_status" id="statusInput" maxlength="60" value="<?php echo profile_h($profile['profile_status'] ?? ''); ?>" placeholder="editing, gaming, busy..."><small>Appears near your name when you are offline.</small></label>
 
                             <div class="profile-field-grid two">
-                                <label class="profile-field"><span>Profile picture</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max <?php echo $isPremium ? '10MB' : '2MB'; ?>. JPG, PNG, WEBP or GIF.</small></label>
-                                <label class="profile-field"><span>Profile banner</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max <?php echo $isPremium ? '50MB' : '12MB'; ?>. Photo, GIF or video. Changes the page background.</small></label>
+                                <label class="profile-field"><span>Profile picture</span><input type="file" name="avatar" id="avatarInput" accept="image/jpeg,image/png,image/webp,image/gif"><small>Max <?php echo profile_format_bytes(profile_effective_upload_limit(($isPremium ? 10 : 2) * 1024 * 1024)); ?>. JPG, PNG, WEBP or GIF.</small></label>
+                                <label class="profile-field"><span>Profile banner</span><input type="file" name="banner" id="bannerInput" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"><small>Max <?php echo profile_format_bytes(profile_effective_upload_limit(($isPremium ? 50 : 12) * 1024 * 1024)); ?>. Photo, GIF or video. Changes the page background.</small></label>
                             </div>
 
                             <label class="profile-field"><span>Profile privacy</span><select name="profile_visibility" id="visibilityInput"><?php foreach (['public' => 'Public', 'logged_in' => 'Logged in users only', 'friends' => 'Friends only', 'private' => 'Private'] as $value => $label): ?><option value="<?php echo $value; ?>" <?php echo ($profile['profile_visibility'] ?? 'public') === $value ? 'selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>

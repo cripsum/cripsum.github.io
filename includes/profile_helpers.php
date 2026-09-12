@@ -1766,3 +1766,70 @@ function profile_cleanup_unused_media(mysqli $mysqli, int $userId): void
         @unlink($uploadDir . '/' . $file);
     }
 }
+
+/**
+ * Quanti byte il **server** accetta davvero in un caricamento.
+ *
+ * Non basta il limite che decide il sito: se il corpo della richiesta supera
+ * `post_max_size`, PHP scarta tutto il `$_POST` prima ancora di eseguire una
+ * riga. Il token CSRF sparisce insieme al resto, il controllo fallisce e
+ * l'utente si vede un 403 "sessione scaduta" mentre il vero problema e' che il
+ * file era troppo grande per la configurazione del server.
+ *
+ * Vale il piu' piccolo fra i due limiti, perche' basta uno dei due a fermare
+ * il caricamento.
+ *
+ * @return int byte, o 0 se il server non dichiara limiti
+ */
+function profile_server_upload_limit(): int
+{
+    $leggi = static function (string $chiave): int {
+        $valore = trim((string)ini_get($chiave));
+        if ($valore === '' || $valore === '-1') {
+            return 0; // nessun limite dichiarato
+        }
+
+        $numero = (float)$valore;
+        switch (strtolower(substr($valore, -1))) {
+            case 'g': $numero *= 1024 * 1024 * 1024; break;
+            case 'm': $numero *= 1024 * 1024; break;
+            case 'k': $numero *= 1024; break;
+        }
+
+        return (int)$numero;
+    };
+
+    $limiti = array_filter([$leggi('post_max_size'), $leggi('upload_max_filesize')]);
+
+    return $limiti ? (int)min($limiti) : 0;
+}
+
+/**
+ * Il limite buono per un campo: il piu' basso fra quello del sito e quello del
+ * server. Inutile promettere 50 MB se poi il server ne accetta 8.
+ */
+function profile_effective_upload_limit(int $limiteSito): int
+{
+    $server = profile_server_upload_limit();
+
+    // Il corpo della richiesta porta anche gli altri campi del form: si lascia
+    // un margine, altrimenti un file esattamente al limite lo sfora lo stesso.
+    $server = $server > 0 ? max(0, $server - 256 * 1024) : 0;
+
+    return $server > 0 ? (int)min($limiteSito, $server) : $limiteSito;
+}
+
+/** Byte in una misura leggibile, per i messaggi d'errore. */
+function profile_format_bytes(int $bytes): string
+{
+    if ($bytes >= 1024 * 1024) {
+        $mb = $bytes / (1024 * 1024);
+        return rtrim(rtrim(number_format($mb, 1, ',', ''), '0'), ',') . ' MB';
+    }
+
+    if ($bytes >= 1024) {
+        return round($bytes / 1024) . ' KB';
+    }
+
+    return $bytes . ' byte';
+}
