@@ -4,8 +4,20 @@
     const lang = location.pathname.split('/').find(s => s === 'it' || s === 'en') || 'it';
 
     const t = {
-        it: { open_slide: (title) => `Apri ${title}` },
-        en: { open_slide: (title) => `Open ${title}` },
+        it: {
+            open_slide: (title) => `Apri ${title}`,
+            open: 'Apri',
+            by: 'di',
+            pause: 'Metti in pausa',
+            play: 'Riprendi',
+        },
+        en: {
+            open_slide: (title) => `Open ${title}`,
+            open: 'Open',
+            by: 'by',
+            pause: 'Pause',
+            play: 'Resume',
+        },
     }[lang];
 
     const slideData = {
@@ -141,15 +153,9 @@
         ],
     };
 
-    const slides = slideData[lang];
+
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-
-    let index = Math.floor(Math.random() * slides.length);
-    let autoTimer = null;
-    let progressTimer = null;
-    let dragStartX = null;
-    const duration = 6500;
 
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (char) => ({
         '&': '&amp;',
@@ -161,13 +167,124 @@
 
     const cleanTitle = (title) => String(title || '').replace(/[🏆📦🎬🌟💬⬇️]/g, '').trim();
 
+    /**
+     * Le slide scritte a mano restano come rete di sicurezza.
+     *
+     * Sono quello che si vedeva prima: un elenco di pagine con degli screenshot.
+     * Servono ancora quando il feed non risponde, quando non c'e' niente di
+     * recente da mostrare, o mentre la richiesta e' in volo — la sezione non
+     * deve mai restare vuota.
+     */
+    const staticSlides = slideData[lang].map((slide) => ({
+        kind: 'static',
+        media: slide.media,
+        mediaVideo: false,
+        title: slide.title,
+        description: slide.description,
+        link: slide.link,
+        buttonText: slide.buttonText,
+        badge: '',
+        author: '',
+        authorUrl: '',
+        authorAvatar: '',
+        score: 0
+    }));
+
+    const feedButtonText = {
+        it: { shitpost: 'Apri il post', rimasto: 'Apri il post', gacha: 'Vai alla lootbox' },
+        en: { shitpost: 'Open the post', rimasto: 'Open the post', gacha: 'Go to the lootbox' }
+    }[lang];
+
+    const normalizeFeedItem = (item) => ({
+        kind: String(item.kind || 'post'),
+        media: String(item.media || ''),
+        mediaVideo: item.media_video === true,
+        title: String(item.title || ''),
+        description: String(item.description || ''),
+        link: String(item.url || ''),
+        buttonText: feedButtonText[item.kind] || t.open,
+        badge: String(item.badge || ''),
+        author: String(item.author || ''),
+        authorUrl: String(item.author_url || ''),
+        authorAvatar: String(item.author_avatar || ''),
+        score: Number(item.score) || 0,
+        rarity: item.rarity ? String(item.rarity) : ''
+    });
+
+    let slides = staticSlides;
+    let index = Math.floor(Math.random() * slides.length);
+    let autoTimer = null;
+    let progressTimer = null;
+    let dragStartX = null;
+    const duration = 6500;
+
+    /**
+     * Motivi per cui la riproduzione automatica sta ferma.
+     *
+     * Sono indipendenti fra loro — il mouse sopra, la scheda in secondo piano,
+     * la sezione fuori schermo, la pausa chiesta a mano — e finche' ne resta
+     * anche uno solo non si riparte. Tenendoli in un insieme non c'e' modo che
+     * due cause che finiscono in ordine diverso facciano ripartire lo slider
+     * quando non dovrebbe.
+     */
+    const holds = new Set();
+
+    // Chi ha chiesto meno animazioni non si merita una giostra che parte da
+    // sola: le frecce e i pallini continuano a funzionare.
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+
+    const canAutoplay = () => holds.size === 0 && !reducedMotion?.matches && slides.length > 1;
+
+    const hold = (reason) => {
+        holds.add(reason);
+        stopAuto();
+    };
+
+    const release = (reason) => {
+        holds.delete(reason);
+        if (canAutoplay()) startAuto();
+    };
+
+    const isVideoUrl = (slide) => slide.mediaVideo || /\.(mp4|webm)(\?|$)/i.test(slide.media);
+
+    /**
+     * Precarica il media prima di mostrarlo.
+     *
+     * Senza questo passaggio la slide compariva vuota e l'immagine ci cadeva
+     * dentro un istante dopo, con uno scatto a ogni cambio. Un errore di
+     * caricamento non blocca niente: si va avanti e al massimo si vede il
+     * riquadro senza figura.
+     */
+    const preload = (slide) => new Promise((resolve) => {
+        if (!slide.media || isVideoUrl(slide)) {
+            resolve();
+            return;
+        }
+
+        const image = new Image();
+        image.onload = () => resolve();
+        image.onerror = () => resolve();
+        image.src = slide.media;
+
+        // Se la rete e' lenta non si resta bloccati: dopo un secondo si mostra
+        // comunque e l'immagine arrivera' quando arriva.
+        setTimeout(resolve, 1000);
+    });
+
     const renderTabs = () => {
         const tabs = $('#homeSliderTabs');
         if (!tabs) return;
 
         tabs.innerHTML = slides.map((slide, slideIndex) => `
-            <button type="button" class="home-tab ${slideIndex === index ? 'is-active' : ''}" data-slide="${slideIndex}" aria-label="${escapeHtml(t.open_slide(cleanTitle(slide.title)))}">
-                <img src="${escapeHtml(slide.media)}" alt="" loading="lazy">
+            <button type="button"
+                    role="tab"
+                    class="home-tab ${slideIndex === index ? 'is-active' : ''}"
+                    data-slide="${slideIndex}"
+                    aria-selected="${slideIndex === index ? 'true' : 'false'}"
+                    aria-label="${escapeHtml(t.open_slide(cleanTitle(slide.title)))}">
+                ${isVideoUrl(slide)
+                    ? '<span class="home-tab__video"><i class="fa-solid fa-play"></i></span>'
+                    : `<img src="${escapeHtml(slide.media)}" alt="" loading="lazy">`}
                 <span>${escapeHtml(cleanTitle(slide.title))}</span>
             </button>
         `).join('');
@@ -176,29 +293,67 @@
             button.addEventListener('click', () => {
                 const nextIndex = Number(button.dataset.slide);
                 if (!Number.isFinite(nextIndex) || nextIndex === index) return;
-                index = nextIndex;
-                renderSlider();
-                restartAuto();
+                go(nextIndex);
             });
+        });
+
+        // La linguetta attiva deve restare visibile anche quando le slide
+        // scorrono da sole e la striscia e' piu' larga dello schermo.
+        tabs.querySelector('.is-active')?.scrollIntoView({
+            behavior: reducedMotion?.matches ? 'auto' : 'smooth',
+            block: 'nearest',
+            inline: 'nearest'
         });
     };
 
-    const renderSlider = () => {
+    const slideMediaHtml = (slide) => {
+        if (!slide.media) return '';
+
+        if (isVideoUrl(slide)) {
+            return `<video src="${escapeHtml(slide.media)}" muted loop playsinline preload="metadata"></video>`;
+        }
+
+        return `<img src="${escapeHtml(slide.media)}" alt="${escapeHtml(slide.title)}" loading="lazy">`;
+    };
+
+    const slideMetaHtml = (slide) => {
+        if (!slide.author) return '';
+
+        const score = slide.score > 0
+            ? `<span class="home-slide__score"><i class="fa-solid fa-heart"></i>${slide.score}</span>`
+            : '';
+
+        return `
+            <div class="home-slide__meta">
+                <a class="home-slide__author" href="${escapeHtml(slide.authorUrl)}">
+                    ${slide.authorAvatar ? `<img src="${escapeHtml(slide.authorAvatar)}" alt="" width="24" height="24" loading="lazy">` : ''}
+                    <span>${escapeHtml(t.by)} <b>${escapeHtml(slide.author)}</b></span>
+                </a>
+                ${score}
+            </div>
+        `;
+    };
+
+    const paintSlide = () => {
         const stage = $('#homeSliderStage');
         const backdrop = $('#homeSliderBackdrop');
         if (!stage) return;
 
         const slide = slides[index];
 
-        if (backdrop) {
+        if (backdrop && !isVideoUrl(slide)) {
             backdrop.style.backgroundImage = `url("${slide.media}")`;
         }
 
+        const badgeClass = slide.rarity ? ` home-slide__badge--${escapeHtml(slide.rarity)}` : '';
+
         stage.innerHTML = `
-            <article class="home-slide">
+            <article class="home-slide is-entering">
                 <div class="home-slide__copy">
+                    ${slide.badge ? `<span class="home-slide__badge${badgeClass}">${escapeHtml(slide.badge)}</span>` : ''}
                     <h3 class="home-slide__title">${escapeHtml(slide.title)}</h3>
                     <p class="home-slide__description">${escapeHtml(slide.description)}</p>
+                    ${slideMetaHtml(slide)}
                     <a class="home-btn home-btn--primary home-slide__button" href="${escapeHtml(slide.link)}">
                         <span>${escapeHtml(slide.buttonText)}</span>
                         <i class="fa-solid fa-arrow-right"></i>
@@ -206,76 +361,186 @@
                 </div>
 
                 <div class="home-slide__media">
-                    <img src="${escapeHtml(slide.media)}" alt="${escapeHtml(slide.title)}" loading="lazy">
+                    ${slideMediaHtml(slide)}
                 </div>
             </article>
         `;
+
+        // Il video parte solo se la slide e' quella visibile, e senza audio:
+        // una homepage che si mette a suonare da sola e' insopportabile.
+        stage.querySelector('video')?.play?.().catch(() => null);
+
+        requestAnimationFrame(() => {
+            stage.querySelector('.home-slide')?.classList.remove('is-entering');
+        });
 
         renderTabs();
         resetProgress();
     };
 
-    const next = () => {
-        index = (index + 1) % slides.length;
-        renderSlider();
+    /**
+     * Cambia slide precaricando il media, e ignora i cambi che arrivano mentre
+     * uno e' gia' in corso: con la riproduzione automatica addosso a un clic
+     * capitava di vedere due transizioni sovrapposte.
+     */
+    let painting = false;
+    const go = async (nextIndex, { restart = true } = {}) => {
+        if (painting || !slides.length) return;
+
+        const target = ((nextIndex % slides.length) + slides.length) % slides.length;
+        if (target === index && slides.length > 1) return;
+
+        painting = true;
+        index = target;
+
+        await preload(slides[index]);
+        paintSlide();
+        painting = false;
+
+        // La slide dopo si scarica mentre questa si guarda: al cambio e' gia'
+        // in cache e la transizione non ha buchi.
+        if (slides.length > 1) preload(slides[(index + 1) % slides.length]);
+
+        if (restart && canAutoplay()) startAuto();
     };
 
-    const prev = () => {
-        index = (index - 1 + slides.length) % slides.length;
-        renderSlider();
-    };
+    const next = () => go(index + 1);
+    const prev = () => go(index - 1);
 
     const resetProgress = () => {
         const progress = $('#homeSliderProgress');
         if (!progress) return;
 
+        clearTimeout(progressTimer);
         progress.style.transition = 'none';
         progress.style.width = '0%';
 
-        clearTimeout(progressTimer);
+        if (!canAutoplay()) return;
+
         progressTimer = setTimeout(() => {
             progress.style.transition = `width ${duration}ms linear`;
             progress.style.width = '100%';
         }, 40);
     };
 
+    const stopAuto = () => {
+        clearInterval(autoTimer);
+        autoTimer = null;
+        clearTimeout(progressTimer);
+
+        const progress = $('#homeSliderProgress');
+        if (progress) {
+            // Si congela dov'e' invece di tornare a zero: cosi' si vede che e'
+            // in pausa e non che e' appena ripartito.
+            const width = getComputedStyle(progress).width;
+            progress.style.transition = 'none';
+            progress.style.width = width;
+        }
+
+        $('#homeSlider')?.classList.add('is-paused');
+    };
+
     const startAuto = () => {
         clearInterval(autoTimer);
-        autoTimer = setInterval(next, duration);
+        if (!canAutoplay()) return;
+
+        autoTimer = setInterval(() => go(index + 1, { restart: false }), duration);
+        $('#homeSlider')?.classList.remove('is-paused');
         resetProgress();
     };
 
-    const restartAuto = () => {
-        startAuto();
+    /**
+     * Sostituisce le slide fisse con i contenuti veri, se ce ne sono.
+     *
+     * Fallisce in silenzio di proposito: un feed che non risponde deve lasciare
+     * la homepage esattamente com'era prima, non romperla.
+     */
+    const loadFeed = async () => {
+        try {
+            const response = await fetch(`/api/home/feed.php?lang=${lang}`, {
+                headers: { Accept: 'application/json' },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const items = Array.isArray(data?.items) ? data.items : [];
+            if (items.length < 3) return;
+
+            slides = items.map(normalizeFeedItem);
+            index = 0;
+            await go(0, { restart: true });
+            paintSlide();
+        } catch {
+            // si resta sulle slide fisse
+        }
     };
 
     const initSlider = () => {
+        const slider = $('#homeSlider');
         if (!$('#homeSliderStage')) return;
 
-        renderSlider();
+        paintSlide();
         startAuto();
+        loadFeed();
 
-        $('#homeSliderNext')?.addEventListener('click', () => {
-            next();
-            restartAuto();
+        $('#homeSliderNext')?.addEventListener('click', next);
+        $('#homeSliderPrev')?.addEventListener('click', prev);
+
+        const pauseButton = $('#homeSliderPause');
+        pauseButton?.addEventListener('click', () => {
+            const paused = holds.has('manuale');
+
+            if (paused) release('manuale');
+            else hold('manuale');
+
+            pauseButton.setAttribute('aria-pressed', paused ? 'false' : 'true');
+            pauseButton.setAttribute('aria-label', paused ? t.pause : t.play);
+            pauseButton.innerHTML = paused
+                ? '<i class="fa-solid fa-pause"></i>'
+                : '<i class="fa-solid fa-play"></i>';
         });
 
-        $('#homeSliderPrev')?.addEventListener('click', () => {
-            prev();
-            restartAuto();
+        slider?.addEventListener('mouseenter', () => hold('mouse'));
+        slider?.addEventListener('mouseleave', () => release('mouse'));
+
+        // Chi naviga da tastiera resta dentro la slide finche' non ha finito:
+        // senza questo, il fuoco si sposterebbe su un bottone che nel frattempo
+        // e' stato sostituito.
+        slider?.addEventListener('focusin', () => hold('fuoco'));
+        slider?.addEventListener('focusout', (event) => {
+            if (!slider.contains(event.relatedTarget)) release('fuoco');
         });
 
-        const slider = $('#homeSlider');
-
-        slider?.addEventListener('mouseenter', () => {
-            clearInterval(autoTimer);
-            const progress = $('#homeSliderProgress');
-            if (progress) {
-                progress.style.transition = 'none';
-            }
+        slider?.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') { event.preventDefault(); next(); }
+            if (event.key === 'ArrowLeft') { event.preventDefault(); prev(); }
         });
 
-        slider?.addEventListener('mouseleave', startAuto);
+        // A scheda nascosta il timer continuerebbe a girare a vuoto, e al
+        // ritorno si troverebbero cinque slide saltate in un colpo.
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) hold('scheda');
+            else release('scheda');
+        });
+
+        // Fuori schermo non serve far girare niente.
+        if ('IntersectionObserver' in window && slider) {
+            hold('fuori-schermo');
+
+            new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) release('fuori-schermo');
+                    else hold('fuori-schermo');
+                });
+            }, { threshold: 0.25 }).observe(slider);
+        }
+
+        reducedMotion?.addEventListener?.('change', () => {
+            if (reducedMotion.matches) stopAuto();
+            else startAuto();
+        });
 
         slider?.addEventListener('pointerdown', (event) => {
             dragStartX = event.clientX;
@@ -291,8 +556,6 @@
 
             if (diff < 0) next();
             else prev();
-
-            restartAuto();
         });
 
         const tabs = $('#homeSliderTabs');
@@ -303,6 +566,71 @@
             event.preventDefault();
             tabs.scrollLeft += event.deltaY;
         }, { passive: false });
+    };
+
+    /**
+     * Quante persone ci sono nel Discord, sul bottone del riquadro finale.
+     *
+     * "Entra nel Discord · 45 online" convince molto piu' di un'icona muta.
+     * Si prova prima il widget ufficiale, che pero' va acceso nelle impostazioni
+     * del server; se e' spento si ripiega sull'invito pubblico, che risponde
+     * sempre. Se non risponde nessuno dei due il numero resta nascosto e il
+     * bottone funziona lo stesso.
+     */
+    const initDiscordCount = () => {
+        const badge = $('[data-discord-count]');
+        const link = badge?.closest('a');
+        if (!badge || !link) return;
+
+        const guildId = link.dataset.discordGuild || '';
+        const invite = (link.getAttribute('href') || '').split('/').filter(Boolean).pop();
+        const CACHE_KEY = 'cripsum_discord_online';
+        const CACHE_MS = 5 * 60 * 1000;
+
+        const show = (count) => {
+            if (!Number.isFinite(count) || count <= 0) return;
+            badge.textContent = `${count} online`;
+            badge.hidden = false;
+        };
+
+        // Discord non ama essere interrogato a ogni visita, e il numero cambia
+        // lentamente: cinque minuti di cache per scheda bastano.
+        try {
+            const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
+            if (cached && Date.now() - cached.at < CACHE_MS) {
+                show(cached.count);
+                return;
+            }
+        } catch { /* sessionStorage non disponibile: si chiede e basta */ }
+
+        const remember = (count) => {
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ count, at: Date.now() })); }
+            catch { /* niente cache, pazienza */ }
+        };
+
+        const fetchJson = async (url) => {
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) throw new Error(String(response.status));
+            return response.json();
+        };
+
+        (async () => {
+            if (guildId) {
+                try {
+                    const data = await fetchJson(`https://discord.com/api/guilds/${guildId}/widget.json`);
+                    const count = Number(data?.presence_count);
+                    if (count > 0) { show(count); remember(count); return; }
+                } catch { /* widget spento: si prova l'invito */ }
+            }
+
+            if (!invite) return;
+
+            try {
+                const data = await fetchJson(`https://discord.com/api/v10/invites/${invite}?with_counts=true`);
+                const count = Number(data?.approximate_presence_count);
+                if (count > 0) { show(count); remember(count); }
+            } catch { /* si lascia il bottone senza numero */ }
+        })();
     };
 
     const initReveal = () => {
@@ -375,6 +703,7 @@
         initBootstrapAfterLoad();
         initReveal();
         initSlider();
+        initDiscordCount();
         document.body.classList.add('home-is-ready');
     });
 })();

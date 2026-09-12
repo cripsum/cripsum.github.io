@@ -16,6 +16,13 @@ $currentUsername = $_SESSION['username'] ?? null;
 
 $isPremium = false;
 $supporters = [];
+$onlineCount = 0;
+
+/** Oltre questo silenzio non si e' piu' "online adesso". */
+const HOME_ONLINE_WINDOW_MINUTES = 5;
+
+/** Tante facce bastano: la fila e' decorativa, non un elenco da consultare. */
+const HOME_SUPPORTERS_LIMIT = 40;
 
 if (isset($mysqli) && $mysqli instanceof mysqli) {
     if ($isLoggedIn && isset($_SESSION['user_id'])) {
@@ -33,7 +40,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     // Deactivated accounts (deletion pending) drop out of the list.
     $suppActive = account_active_sql($mysqli);
     $suppActiveClause = $suppActive !== '' ? ' AND ' . $suppActive : '';
-    $stmtSupp = $mysqli->prepare("SELECT id, username, display_name, discord_use_display_name, discord_global_name, discord_username, profile_updated_at, accent_color, avatar_ring_color FROM utenti WHERE is_premium = 1 $suppActiveClause ORDER BY id DESC");
+    $stmtSupp = $mysqli->prepare("SELECT id, username, display_name, discord_use_display_name, discord_global_name, discord_username, profile_updated_at, accent_color, avatar_ring_color FROM utenti WHERE is_premium = 1 $suppActiveClause ORDER BY id DESC LIMIT " . HOME_SUPPORTERS_LIMIT);
     if ($stmtSupp) {
         $stmtSupp->execute();
         $resSupp = $stmtSupp->get_result();
@@ -41,6 +48,29 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             $supporters[] = $row;
         }
         $stmtSupp->close();
+    }
+
+    /**
+     * Quante persone stanno usando il sito adesso.
+     *
+     * `ultimo_accesso` lo aggiorna activity-beat.js, che conta solo il tempo a
+     * scheda davvero visibile: e' un numero onesto, non "quanti hanno aperto
+     * una pagina oggi". Se la colonna non c'e' resta zero e la riga non viene
+     * nemmeno stampata.
+     */
+    if (function_exists('auth_column_exists') && auth_column_exists($mysqli, 'utenti', 'ultimo_accesso')) {
+        $stmtOnline = $mysqli->prepare(
+            'SELECT COUNT(*) AS totale FROM utenti
+             WHERE ultimo_accesso >= DATE_SUB(NOW(), INTERVAL ? MINUTE)' . $suppActiveClause
+        );
+
+        if ($stmtOnline) {
+            $window = HOME_ONLINE_WINDOW_MINUTES;
+            $stmtOnline->bind_param('i', $window);
+            $stmtOnline->execute();
+            $onlineCount = (int)($stmtOnline->get_result()->fetch_assoc()['totale'] ?? 0);
+            $stmtOnline->close();
+        }
     }
 }
 
@@ -61,22 +91,28 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <title data-i18n="meta.title">Cripsum™</title>
+    <?php /* "Cripsum™" da solo non dice niente a chi ci arriva da una ricerca.
+             Il nome resta davanti, il resto spiega cos'e' senza cambiare tono. */ ?>
+    <title data-i18n="meta.title">Cripsum™ — meme, edit, lootbox e profili della community</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="<?php echo home_h($ogDescription); ?>" data-i18n-attr="content|meta.desc">
     <meta property="og:site_name" content="Cripsum™">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Cripsum™">
     <meta property="og:description" content="<?php echo home_h($ogDescription); ?>">
-    <meta property="og:image" content="https://cripsum.com/img/Susremaster.png">
+    <?php /* Non piu' il logo quadrato: un'anteprima 1200x630 fatta apposta, che
+             e' il formato che Discord, WhatsApp e i social si aspettano. */ ?>
+    <meta property="og:image" content="https://cripsum.com/img/og-home.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:url" content="<?php echo home_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=6.4">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.0">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
-    <script src="/assets/home-v5/home.js?v=5.7" defer></script>
-    <script src="/assets/news/news-popup.js?v=1.0" defer></script>
+    <script src="/assets/home-v5/home.js?v=6.0" defer></script>
+    <script src="/assets/news/news-popup.js?v=1.1" defer></script>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
@@ -105,6 +141,14 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 <h1>Benvenuto/a nel sito migliore del Congo.</h1>
                 <p>Editing, meme, lootbox, profili, achievements, post della community e tanti segreti, cosa aspetti a unirti?</p>
                 <p class="home-question">Hai più di 25 anni e possiedi un PC?</p>
+
+                <?php if ($onlineCount > 0): ?>
+                    <p class="home-online">
+                        <span class="home-online__dot" aria-hidden="true"></span>
+                        <strong><?php echo home_h(number_format($onlineCount, 0, ',', '.')); ?></strong>
+                        <?php echo $onlineCount === 1 ? 'persona in giro adesso' : 'persone in giro adesso'; ?>
+                    </p>
+                <?php endif; ?>
 
                 <div class="home-actions">
                     <?php if ($isLoggedIn && $currentUsername): ?>
@@ -164,15 +208,60 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
                 <div class="home-slider__stage" id="homeSliderStage" aria-live="polite"></div>
 
-                <div class="home-slider__controls" aria-hidden="true">
+                <?php /* Le frecce erano gia' disegnate nel CSS ma non esistevano
+                         nell'HTML: lo slider si poteva muovere solo trascinando
+                         o dalle linguette, e da tastiera per niente. */ ?>
+                <div class="home-slider__controls">
+                    <button type="button" class="home-slider__arrow" id="homeSliderPrev" aria-label="Contenuto precedente">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
                     <div class="home-slider__progress">
                         <span id="homeSliderProgress"></span>
                     </div>
+
+                    <button type="button" class="home-slider__arrow" id="homeSliderPause" aria-pressed="false" aria-label="Metti in pausa">
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+
+                    <button type="button" class="home-slider__arrow" id="homeSliderNext" aria-label="Contenuto successivo">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
                 </div>
 
-                <div class="home-slider__tabs" id="homeSliderTabs" aria-label="Seleziona contenuto"></div>
+                <div class="home-slider__tabs" id="homeSliderTabs" role="tablist" aria-label="Seleziona contenuto"></div>
             </div>
         </section>
+
+        <?php
+        /**
+         * Lo scherzo dei V-bucks cambia posto a seconda di chi sta guardando.
+         *
+         * Per chi non ha l'account la pagina deve chiudersi con l'invito a
+         * iscriversi, quindi la battuta sta prima; per chi e' gia' dentro
+         * l'invito non c'e' e la battuta puo' stare in fondo. Sta in una
+         * funzione per non ritrovarsi lo stesso pezzo di markup scritto due
+         * volte e poi modificato una sola.
+         */
+        $sezioneScherzo = static function (): void { ?>
+            <section class="home-chaos home-reveal">
+                <a class="home-btn home-btn--ghost home-chaos__btn"
+                    href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh"
+                    target="_blank"
+                    rel="noopener"
+                    onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
+                    <i class="fa-solid fa-gift"></i>
+                    <span>Clicca qui per V-bucks gratis!!!!</span>
+                </a>
+            </section>
+        <?php };
+
+        // Chi non ha ancora un account non sa cosa sia un Godo: la scheda
+        // Premium arriva dopo che ha visto cosa c'e' sul sito.
+        if (!$isLoggedIn) {
+            $sezioneScherzo();
+        }
+        ?>
 
         <!-- PREMIUM AD BLOCK & SUPPORTERS (ITALIAN) -->
         <?php if (!$isPremium): ?>
@@ -233,49 +322,16 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
             </section>
         <?php endif; ?>
 
-        <section class="home-social-section home-reveal">
-            <div class="home-section-head home-section-head--center">
-                <h2>Seguimi sui social</h2>
-            </div>
+        <?php
+        /* La sezione "Seguimi sui social" e' stata tolta: TikTok, Instagram e
+           Telegram mandavano via la gente dalla homepage e stanno gia' nel
+           footer. Il Discord invece resta, perche' e' dove la community vive
+           davvero, ma spostato nel riquadro finale dove serve a qualcosa. */
 
-            <div class="social-icons-modern">
-                <a href="https://www.tiktok.com/@cripsum" class="social-link-modern tiktok" title="TikTok" target="_blank" rel="noopener">
-                    <div class="social-icon-wrapper">
-                        <i class="fa-brands fa-tiktok"></i>
-                        <span class="social-label">TikTok</span>
-                    </div>
-                </a>
-                <a href="https://www.instagram.com/cripsum/" class="social-link-modern instagram" title="Instagram" target="_blank" rel="noopener">
-                    <div class="social-icon-wrapper">
-                        <i class="fa-brands fa-instagram"></i>
-                        <span class="social-label">Instagram</span>
-                    </div>
-                </a>
-                <a href="https://discord.gg/XdheJHVURw" class="social-link-modern discord" title="Discord" target="_blank" rel="noopener">
-                    <div class="social-icon-wrapper">
-                        <i class="fa-brands fa-discord"></i>
-                        <span class="social-label">Discord</span>
-                    </div>
-                </a>
-                <a href="https://t.me/cripsum" class="social-link-modern telegram" title="Telegram" target="_blank" rel="noopener">
-                    <div class="social-icon-wrapper">
-                        <i class="fa-brands fa-telegram"></i>
-                        <span class="social-label">Telegram</span>
-                    </div>
-                </a>
-            </div>
-        </section>
-
-        <section class="home-chaos home-reveal">
-            <a class="home-btn home-btn--ghost home-chaos__btn"
-                href="https://youtu.be/xvFZjo5PgG0?si=uPsap7ILF_8aYheh"
-                target="_blank"
-                rel="noopener"
-                onclick="if (typeof unlockAchievement === 'function') unlockAchievement(10);">
-                <i class="fa-solid fa-gift"></i>
-                <span>Clicca qui per V-bucks gratis!!!!</span>
-            </a>
-        </section>
+        if ($isLoggedIn) {
+            $sezioneScherzo();
+        }
+        ?>
 
         <?php if (!$isLoggedIn): ?>
             <section class="home-account home-reveal">
@@ -285,6 +341,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                 </div>
 
                 <div class="home-account__actions">
+                    <a href="https://discord.gg/XdheJHVURw" class="home-btn home-btn--ghost home-btn--discord"
+                        data-discord-guild="1275495488229081108" target="_blank" rel="noopener">
+                        <i class="fa-brands fa-discord"></i>
+                        <span>Discord</span>
+                        <span class="home-discord-count" data-discord-count hidden></span>
+                    </a>
                     <a href="accedi" class="home-btn home-btn--ghost">Accedi</a>
                     <a href="registrati" class="home-btn home-btn--primary">Registrati</a>
                 </div>

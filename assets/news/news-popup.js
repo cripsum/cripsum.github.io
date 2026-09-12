@@ -63,6 +63,20 @@
         catch { return 0; }
     };
 
+    /**
+     * Prima visita in assoluto: la chiave non esiste proprio.
+     *
+     * Va distinta da "visto fino a 0", perche' il changelog serve a chi il sito
+     * lo usa gia'. A chi arriva per la prima volta si aprirebbe in faccia una
+     * lista di numeri di versione prima ancora che abbia visto cos'e' Cripsum.
+     * In Safari privato getItem puo' lanciare: in quel caso si fa la cosa piu'
+     * prudente e si tratta come prima visita.
+     */
+    const lsMai = () => {
+        try { return localStorage.getItem(LS_KEY) === null; }
+        catch { return true; }
+    };
+
     const lsSet = (id) => {
         try { localStorage.setItem(LS_KEY, String(id)); }
         catch { /* Safari private: niente */ }
@@ -269,9 +283,17 @@
         try {
             const data    = await fetchNews();
             const latest  = data.latest_id || 0;
-            const seen    = lsGet();
 
-            if (latest > seen) {
+            // Chi arriva per la prima volta vede la homepage, non il changelog.
+            // Si segna comunque dove siamo arrivati, cosi' la prossima novita'
+            // vera gli si apre come a tutti gli altri. Il tasto "Novita'"
+            // nell'hero resta li' per chi lo vuole subito.
+            if (lsMai()) {
+                lsSet(latest);
+                return;
+            }
+
+            if (latest > lsGet()) {
                 setTimeout(openPopup, OPEN_DELAY);
             }
         } catch {

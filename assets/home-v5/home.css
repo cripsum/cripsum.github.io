@@ -193,6 +193,55 @@ body.home-v5-body {
     margin-top: 1.25rem;
 }
 
+/* Quante persone stanno usando il sito adesso. Una riga, non una fascia di
+   statistiche: serve a far sentire che c'e' gente, non a dare un numero da
+   consultare. */
+.home-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.85rem 0 0 !important;
+    color: var(--home-muted) !important;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.home-online strong {
+    color: var(--home-text);
+    font-weight: 900;
+}
+
+.home-online__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: #34d399;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+    animation: homeOnlinePulse 2.4s ease-out infinite;
+}
+
+@keyframes homeOnlinePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+    100% { box-shadow: 0 0 0 0.7rem rgba(52, 211, 153, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-online__dot { animation: none; }
+}
+
+/* Il Discord recuperato dal box social, nel riquadro finale dove serve a
+   qualcosa invece che a mandare via la gente. */
+.home-btn--discord i { color: #8ea1ff; }
+
+.home-discord-count {
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(52, 211, 153, 0.14);
+    color: #6ee7b7;
+    font-size: 0.74rem;
+    font-weight: 800;
+}
+
 .home-hero__art {
     position: relative;
     display: grid;
@@ -604,6 +653,160 @@ body.home-v5-body {
     font-weight: 900;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Slide con contenuti veri
+
+   Lo slider non mostra piu' un elenco di pagine ma quello che la
+   gente ha appena pubblicato, quindi servono le cose che prima non
+   c'erano: l'etichetta del tipo, chi l'ha fatto, quanti cuori ha
+   preso, e i video oltre alle immagini.
+   ───────────────────────────────────────────────────────────── */
+
+.home-slide__badge {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(var(--home-accent-rgb), 0.3);
+    border-radius: 999px;
+    color: #9bb7ff;
+    background: rgba(var(--home-accent-rgb), 0.09);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* Le rarita' alte del gacha si riconoscono a colpo d'occhio, come
+   nella lootbox. */
+.home-slide__badge--leggendario { color: #fcd34d; border-color: rgba(252, 211, 77, 0.4); background: rgba(252, 211, 77, 0.12); }
+.home-slide__badge--speciale    { color: #f0abfc; border-color: rgba(240, 171, 252, 0.4); background: rgba(240, 171, 252, 0.12); }
+.home-slide__badge--segreto     { color: #fca5a5; border-color: rgba(252, 165, 165, 0.42); background: rgba(252, 165, 165, 0.12); }
+.home-slide__badge--theone      { color: #fff; border-color: rgba(255, 255, 255, 0.55); background: linear-gradient(90deg, rgba(252, 211, 77, 0.25), rgba(240, 171, 252, 0.25)); }
+
+.home-slide__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.9rem;
+}
+
+.home-slide__author {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--home-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color var(--home-transition);
+}
+
+.home-slide__author:hover { color: var(--home-text); }
+.home-slide__author b { color: var(--home-text); font-weight: 800; }
+
+.home-slide__author img {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 1px solid var(--home-border);
+}
+
+.home-slide__score {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--home-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--home-muted);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.home-slide__score i { color: #f472b6; }
+
+/* Stesso trattamento delle immagini: un post con un video non deve
+   sembrare una slide rotta. */
+.home-slide__media video {
+    position: relative;
+    z-index: 2;
+    display: block;
+    max-width: min(100%, 390px);
+    max-height: 390px;
+    border-radius: 14px;
+    object-fit: contain;
+    filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.42));
+}
+
+.home-tab__video {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background: rgba(var(--home-accent-rgb), 0.18);
+    color: var(--home-text);
+    font-size: 0.7rem;
+}
+
+.home-slider__arrow:focus-visible {
+    outline: 2px solid rgba(var(--home-accent-rgb), 0.8);
+    outline-offset: 2px;
+}
+
+/* In pausa la barra resta ferma dov'e': serve a far capire che non
+   e' bloccata, e' in attesa. */
+.home-slider.is-paused .home-slider__progress span {
+    opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-slide,
+    .home-slide__media img,
+    .home-slide__media video {
+        animation: none !important;
+    }
+}
+
+/* Gli alberi restano quelli di sempre, ma rispondono al passaggio del
+   mouse e al tocco invece di stare fermi come tre figure incollate.
+   Su telefono `:hover` non esiste, quindi conta `:active`. */
+.home-mood-item {
+    transition: transform var(--home-transition), border-color var(--home-transition), box-shadow var(--home-transition);
+}
+
+.home-mood-item:hover,
+.home-mood-item:active {
+    transform: translateY(-4px);
+    border-color: rgba(var(--home-accent-rgb), 0.38);
+    box-shadow: 0 26px 55px rgba(0, 0, 0, 0.34);
+}
+
+.home-mood-item:active img {
+    transform: scale(1.06);
+    filter: saturate(1.12);
+}
+
+.home-mood-item span {
+    transition: transform var(--home-transition);
+}
+
+.home-mood-item:hover span,
+.home-mood-item:active span {
+    transform: translateY(-3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-mood-item,
+    .home-mood-item img,
+    .home-mood-item span {
+        transition: none;
+    }
+}
+
 /* Social old style, but cleaner */
 .home-social-section {
     margin-top: 1rem;
@@ -824,12 +1027,16 @@ body.home-v5-body .dropdown-divider {
     }
 
     .home-hero__art {
-        min-height: 300px;
-        order: -1;
+        min-height: 260px;
+        /* Su schermo stretto il titolo viene prima della foto: con `order: -1`
+           l'immagine si prendeva mezza schermata e chi arrivava doveva scorrere
+           per leggere cos'e' il sito. La foto resta subito sotto, si vede
+           comunque senza scorrere. */
+        order: 0;
     }
 
     .home-hero__art img {
-        max-height: 310px;
+        max-height: 270px;
     }
 
     .home-mood {
@@ -1044,12 +1251,49 @@ body.home-v5-body .dropdown-divider {
     right: clamp(1rem, 2.5vw, 1.55rem);
     bottom: 5.15rem;
     z-index: 4;
-    display: block;
+    /* Torna a griglia perche' adesso accanto alla barra ci sono i comandi;
+       restano invisibili finche' non servono (regola qui sotto). Il
+       contenitore non intercetta i clic, cosi' la barra non fa da tappo sopra
+       la slide: sono i singoli bottoni a riattivarli quando compaiono. */
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.6rem;
     pointer-events: none;
 }
 
+/* I comandi restano fuori dai piedi, come da scelta della V5.1: a riposo non
+   si vedono e resta la sola barra di avanzamento. Compaiono quando ci passi
+   sopra o quando arrivi con il Tab, cosi' si puo' tornare indietro e mettere
+   in pausa senza che la slide sia sempre incorniciata di bottoni. Le frecce
+   della tastiera funzionano comunque, visibili o no. */
 .home-slider__arrow {
-    display: none !important;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(4px);
+    transition: opacity var(--home-transition), transform var(--home-transition);
+}
+
+.home-slider:hover .home-slider__arrow,
+.home-slider:focus-within .home-slider__arrow {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* Un comando che prende il fuoco si vede sempre, anche senza mouse. */
+.home-slider__arrow:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* Su telefono non esiste il passaggio del mouse e lo spazio e' poco: restano
+   il trascinamento e le linguette, che li' sono piu' comode. */
+@media (hover: none) {
+    .home-slider__arrow {
+        display: none;
+    }
 }
 
 .home-slider__progress {
@@ -1332,8 +1576,10 @@ body.home-v5-body {
     }
 
     .home-hero__art {
-        order: -1;
-        min-height: 260px;
+        /* Come sopra: su telefono prima il titolo, poi la foto. Questo blocco
+           arriva dopo e senza la stessa riga rimetterebbe l'immagine davanti. */
+        order: 0;
+        min-height: 240px;
     }
 
     .home-hero__art img {
