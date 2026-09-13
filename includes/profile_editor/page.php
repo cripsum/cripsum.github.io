@@ -203,7 +203,7 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <script src="/assets/js/profile-markdown-guide.js?v=6.0.0" defer></script>
     <script src="/assets/js/photo-cropper.js?v=1.3" defer></script>
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
-    <script src="/assets/js/profile-effects.js?v=1.1.0" defer></script>
+    <script src="/assets/js/profile-effects.js?v=1.2.0" defer></script>
     <script src="/assets/js/profile-name-effects.js?v=1.1.0" defer></script>
     <script src="/assets/js/profile-editor/components.js?v=6.1.0" defer></script>
     <script src="/assets/js/profile-editor/items.js?v=6.1.0" defer></script>

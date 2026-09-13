@@ -640,9 +640,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
         }
     </style>
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
-    <script src="/assets/js/profile-effects.js?v=1.1.0" defer></script>
+    <script src="/assets/js/profile-effects.js?v=1.2.0" defer></script>
     <script src="/assets/js/profile-name-effects.js?v=1.1.0" defer></script>
-    <script src="/assets/js/profile.js?v=5.17.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.18.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <script src="/assets/js/profile-style.js?v=6.3.0" defer></script>
         <style>

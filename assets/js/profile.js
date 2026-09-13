@@ -2065,6 +2065,10 @@
             window.removeEventListener('resize', window._snapResizeHandler);
             window._snapResizeHandler = null;
         }
+        if (window._snapResizeObserver) {
+            window._snapResizeObserver.disconnect();
+            window._snapResizeObserver = null;
+        }
 
         const existingDots = document.querySelector('.profile-snap-dots');
         if (existingDots) existingDots.remove();
@@ -2118,59 +2122,95 @@
             }
         });
 
+        /*
+         * Scorrimento a schermate.
+         *
+         * Una slide piu' corta dello schermo si attraversa con un gesto. Una slide
+         * piu' alta si scorre dentro liberamente e si esce solo dai bordi, con un
+         * gesto nuovo e una spinta decisa. Prima ogni evento della rotella faceva
+         * partire una nuova animazione senza fermare le altre (il trackpad ne
+         * manda decine al secondo), e l'inerzia arrivata al bordo faceva cambiare
+         * slide piu' volte di fila: da li' gli scatti su e giu'.
+         */
         let activeIndex = 0;
-        let isScrolling = false;
-        let scrollStartTime = 0;
-        let startScrollTop = 0;
-        let targetScrollTop = 0;
-        let currentScrollDuration = 750; // ms transition duration
-        const scrollDuration = 750;
+        let animFrame = 0;
+        let anim = null;                 // { kind: 'slide' | 'inner', target }
+        let lastWheelAt = 0;
+        let gestureLocked = false;       // questo gesto ha gia' cambiato slide o toccato un bordo
+        let edgePush = 0;                // spinta accumulata verso il bordo
+        const SLIDE_MS = 750;
+        const GESTURE_GAP = 180;         // ms senza rotella: il gesto e' finito
+        const PUSH_TALL = 90;            // px di spinta per uscire da una slide alta
+        const PUSH_SHORT = 30;           // e da una normale
 
         const easeInOutCubic = (t) => {
             return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         };
 
-        const animateScroll = (timestamp) => {
-            if (!scrollStartTime) scrollStartTime = timestamp;
-            const elapsed = timestamp - scrollStartTime;
-            const progress = Math.min(elapsed / currentScrollDuration, 1);
-            const easedProgress = easeInOutCubic(progress);
+        const viewport = () => bioPage.clientHeight || window.innerHeight;
 
-            bioPage.scrollTop = startScrollTop + (targetScrollTop - startScrollTop) * easedProgress;
+        const bounds = (slide) => {
+            const start = slide.offsetTop;
+            const height = slide.offsetHeight;
+            return { start, max: Math.max(start, start + height - viewport()), tall: height > viewport() + 2 };
+        };
 
-            if (progress < 1) {
-                requestAnimationFrame(animateScroll);
-            } else {
-                isScrolling = false;
-                scrollStartTime = 0;
+        const clampInto = (pos, b) => Math.min(b.max, Math.max(b.start, pos));
+
+        /** Un'animazione sola alla volta: quella nuova sostituisce la vecchia. */
+        const animateTo = (pos, duration, kind) => {
+            cancelAnimationFrame(animFrame);
+            const from = bioPage.scrollTop;
+            anim = { kind, target: pos };
+            let startTime = 0;
+            const step = (ts) => {
+                if (!startTime) startTime = ts;
+                const p = duration > 0 ? Math.min((ts - startTime) / duration, 1) : 1;
+                const eased = kind === 'slide' ? easeInOutCubic(p) : 1 - Math.pow(1 - p, 3);
+                bioPage.scrollTop = from + (pos - from) * eased;
+                if (p < 1) {
+                    animFrame = requestAnimationFrame(step);
+                } else {
+                    anim = null;
+                    animFrame = 0;
+                }
+            };
+            animFrame = requestAnimationFrame(step);
+        };
+
+        const stopInnerAnimation = () => {
+            if (anim && anim.kind === 'inner') {
+                cancelAnimationFrame(animFrame);
+                anim = null;
+                animFrame = 0;
             }
         };
 
-        const scrollToPosition = (pos, duration = 750) => {
-            startScrollTop = bioPage.scrollTop;
-            targetScrollTop = pos;
-            isScrolling = true;
-            currentScrollDuration = duration;
-            scrollStartTime = 0;
-            requestAnimationFrame(animateScroll);
-        };
+        const slideAnimating = () => !!anim && anim.kind === 'slide';
+        const currentPos = () => (anim && anim.kind === 'inner' ? anim.target : bioPage.scrollTop);
 
         const dotsContainer = document.createElement('div');
         dotsContainer.className = 'profile-snap-dots';
         const dots = [];
 
-        const goToSlide = (index) => {
-            if (index < 0 || index >= slides.length) return;
-            
+        /**
+         * Va a una slide. Salendo in una slide piu' alta dello schermo si arriva
+         * al suo fondo, dove si era rimasti: prima si finiva in cima.
+         */
+        const goToSlide = (index, { fromBelow = false, instant = false } = {}) => {
+            if (index < 0 || index >= slides.length) return false;
+
             activeIndex = index;
-            
-            // Trigger smooth scroll animation to the target slide's actual offsetTop
-            const targetSlide = slides[activeIndex];
-            if (targetSlide) {
-                scrollToPosition(targetSlide.offsetTop, scrollDuration);
+            const b = bounds(slides[activeIndex]);
+            const target = fromBelow ? b.max : b.start;
+            if (instant) {
+                cancelAnimationFrame(animFrame);
+                anim = null;
+                bioPage.scrollTop = target;
+            } else {
+                animateTo(target, SLIDE_MS, 'slide');
             }
 
-            // Update active states
             slides.forEach((slide, idx) => {
                 slide.classList.toggle('is-active', idx === activeIndex);
             });
@@ -2178,13 +2218,14 @@
             dots.forEach((dot, idx) => {
                 dot.classList.toggle('is-active', idx === activeIndex);
             });
+            return true;
         };
 
         slides.forEach((slide, index) => {
             const dot = document.createElement('button');
             dot.type = 'button';
             dot.className = 'profile-snap-dot';
-            
+
             let label = '';
             if (index === 0) {
                 label = 'Profile';
@@ -2196,20 +2237,20 @@
                 if (sectionEl) {
                     label = sectionEl.getAttribute('data-section-title') || '';
                 }
-                
+
                 if (!label) {
                     const titleEl = slide.querySelector('h2, h3, .section-title, .bio-card-title, .bio-section-heading span, .profile-clean-heading span, .profile-spotlight-content strong, .profile-embed-header span');
                     if (titleEl) {
                         label = titleEl.textContent.trim();
                     }
                 }
-                
+
                 if (!label) {
                     let secType = '';
                     if (sectionEl) {
                         secType = sectionEl.getAttribute('data-section-type') || '';
                     }
-                    
+
                     if (secType === 'characters' || slide.querySelector('.profile-characters-section, .profile-character-grid')) {
                         label = 'Character';
                     } else if (secType === 'embeds' || slide.querySelector('.profile-embeds-section, .profile-embed-wrapper, iframe')) {
@@ -2236,7 +2277,7 @@
             dot.setAttribute('data-label', label);
 
             dot.addEventListener('click', () => {
-                if (isScrolling) return;
+                if (slideAnimating()) return;
                 goToSlide(index);
             });
 
@@ -2247,156 +2288,122 @@
         document.body.appendChild(dotsContainer);
 
         // Set initial state
-        goToSlide(0);
+        goToSlide(0, { instant: true });
 
-        // 1. Wheel Listener (Mouse & Trackpad) - Registered on window
+        // 1. Rotella e trackpad
+        const wheelDelta = (e) => {
+            if (e.deltaMode === 1) return e.deltaY * 16;          // righe
+            if (e.deltaMode === 2) return e.deltaY * viewport();  // pagine
+            return e.deltaY;
+        };
+
         const handleWheel = (e) => {
             if (window.innerWidth < 768) return;
             e.preventDefault();
 
-            const delta = e.deltaY;
-            if (Math.abs(delta) < 5) return;
+            const now = performance.now();
+            if (now - lastWheelAt > GESTURE_GAP) {
+                gestureLocked = false;
+                edgePush = 0;
+            }
+            lastWheelAt = now;
+
+            const delta = wheelDelta(e);
+            if (Math.abs(delta) < 1) return;
+
+            // Durante il cambio di slide la rotella e l'inerzia non contano, e il
+            // gesto resta bloccato finche' non si ferma.
+            if (slideAnimating()) {
+                gestureLocked = true;
+                return;
+            }
+            if (gestureLocked) return;
 
             const currentSlide = slides[activeIndex];
             if (!currentSlide) return;
+            const b = bounds(currentSlide);
+            const dir = delta > 0 ? 1 : -1;
 
-            const viewportHeight = bioPage.clientHeight || window.innerHeight;
-            const currentSlideStart = currentSlide.offsetTop;
-            const currentSlideHeight = currentSlide.offsetHeight;
-            const currentSlideEnd = currentSlideStart + currentSlideHeight;
-
-            // If a slide-change scroll is currently active, don't interrupt
-            if (isScrolling) {
-                const isChangingSlide = targetScrollTop < currentSlideStart || targetScrollTop > (currentSlideEnd - viewportHeight + 5);
-                if (isChangingSlide) return;
-            }
-
-            if (currentSlideHeight > viewportHeight) {
-                // Slide is longer than viewport!
-                const maxScrollInside = currentSlideEnd - viewportHeight;
-                let currentPos = isScrolling ? targetScrollTop : bioPage.scrollTop;
-                
-                if (delta > 0) {
-                    // Scrolling down
-                    if (currentPos < maxScrollInside - 5) {
-                        const step = Math.min(150, maxScrollInside - currentPos);
-                        scrollToPosition(currentPos + step, 200); // Faster animation for internal scrolling
+            if (b.tall) {
+                const pos = currentPos();
+                const atEdge = dir > 0 ? pos >= b.max - 1 : pos <= b.start + 1;
+                if (!atEdge) {
+                    const next = clampInto(pos + delta, b);
+                    if (Math.abs(delta) >= 40) {
+                        // Rotella del mouse: scatti lunghi, meglio un'animazione breve.
+                        animateTo(next, 180, 'inner');
                     } else {
-                        if (isScrolling) return;
-                        goToSlide(activeIndex + 1);
+                        // Trackpad: segue il dito uno a uno.
+                        stopInnerAnimation();
+                        bioPage.scrollTop = next;
                     }
-                } else {
-                    // Scrolling up
-                    if (currentPos > currentSlideStart + 5) {
-                        const step = Math.min(150, currentPos - currentSlideStart);
-                        scrollToPosition(currentPos - step, 200); // Faster animation for internal scrolling
-                    } else {
-                        if (isScrolling) return;
-                        goToSlide(activeIndex - 1);
-                    }
-                }
-            } else {
-                // Standard height slide
-                if (isScrolling) return;
-                if (delta > 0) {
-                    goToSlide(activeIndex + 1);
-                } else {
-                    goToSlide(activeIndex - 1);
+                    edgePush = 0;
+                    // Arrivato al bordo con questo gesto: per uscire ne serve un altro.
+                    if (next <= b.start + 1 || next >= b.max - 1) gestureLocked = true;
+                    return;
                 }
             }
+
+            edgePush += Math.abs(delta);
+            if (edgePush < (b.tall ? PUSH_TALL : PUSH_SHORT)) return;
+
+            edgePush = 0;
+            gestureLocked = true;
+            goToSlide(activeIndex + dir, { fromBelow: dir < 0 });
         };
 
         window._snapWheelHandler = handleWheel;
         window.addEventListener('wheel', handleWheel, { passive: false });
 
-        // 2. Touch/Swipe Listeners - Registered on window
+        // 2. Tocco (tablet): dentro una slide alta il dito scorre, dai bordi si cambia slide
         let touchStartY = 0;
-        let touchStartScrollTop = 0;
-        
+        let touchStartPos = 0;
+        let touchStartedAtTop = false;
+        let touchStartedAtBottom = false;
+
         const handleTouchStart = (e) => {
             if (window.innerWidth < 768) return;
+            stopInnerAnimation();
             touchStartY = e.touches[0].clientY;
-            touchStartScrollTop = bioPage.scrollTop;
+            touchStartPos = bioPage.scrollTop;
+            const currentSlide = slides[activeIndex];
+            if (currentSlide) {
+                const b = bounds(currentSlide);
+                touchStartedAtTop = touchStartPos <= b.start + 1;
+                touchStartedAtBottom = touchStartPos >= b.max - 1;
+            }
         };
 
         const handleTouchMove = (e) => {
             if (window.innerWidth < 768) return;
-            
-            const currentSlide = slides[activeIndex];
-            if (currentSlide) {
-                const viewportHeight = bioPage.clientHeight || window.innerHeight;
-                const currentSlideHeight = currentSlide.offsetHeight;
-                
-                if (currentSlideHeight > viewportHeight) {
-                    const touchCurrentY = e.touches[0].clientY;
-                    const diffY = touchStartY - touchCurrentY;
-                    
-                    const currentSlideStart = currentSlide.offsetTop;
-                    const currentSlideEnd = currentSlideStart + currentSlideHeight;
-                    const maxScrollInside = currentSlideEnd - viewportHeight;
-                    
-                    const targetPos = touchStartScrollTop + diffY;
-                    
-                    // If target position is inside the current tall slide, scroll naturally with finger
-                    if (targetPos >= currentSlideStart && targetPos <= maxScrollInside) {
-                        e.preventDefault();
-                        bioPage.scrollTop = targetPos;
-                        return;
-                    }
-                }
-            }
             e.preventDefault();
+            if (slideAnimating()) return;
+
+            const currentSlide = slides[activeIndex];
+            if (!currentSlide) return;
+            const b = bounds(currentSlide);
+            if (b.tall) {
+                bioPage.scrollTop = clampInto(touchStartPos + (touchStartY - e.touches[0].clientY), b);
+            }
         };
 
         const handleTouchEnd = (e) => {
             if (window.innerWidth < 768) return;
-            if (isScrolling) return;
+            if (slideAnimating()) return;
 
-            const touchEndY = e.changedTouches[0].clientY;
-            const diffY = touchStartY - touchEndY;
+            const diffY = touchStartY - e.changedTouches[0].clientY;
+            if (Math.abs(diffY) <= 50) return;
 
             const currentSlide = slides[activeIndex];
             if (!currentSlide) return;
+            const b = bounds(currentSlide);
+            const dir = diffY > 0 ? 1 : -1;
 
-            const viewportHeight = bioPage.clientHeight || window.innerHeight;
-            const currentSlideStart = currentSlide.offsetTop;
-            const currentSlideHeight = currentSlide.offsetHeight;
-            const currentSlideEnd = currentSlideStart + currentSlideHeight;
+            // In una slide alta si cambia solo se il gesto e' partito dal bordo:
+            // altrimenti il dito ha solo scorso il contenuto.
+            if (b.tall && !(dir > 0 ? touchStartedAtBottom : touchStartedAtTop)) return;
 
-            if (currentSlideHeight > viewportHeight) {
-                // Tall slide!
-                const maxScrollInside = currentSlideEnd - viewportHeight;
-                const currentPos = bioPage.scrollTop;
-
-                if (Math.abs(diffY) > 50) {
-                    if (diffY > 0) {
-                        // Swipe up (scroll down)
-                        if (currentPos < maxScrollInside - 5) {
-                            const step = Math.min(200, maxScrollInside - currentPos);
-                            scrollToPosition(currentPos + step, 300);
-                        } else {
-                            goToSlide(activeIndex + 1);
-                        }
-                    } else {
-                        // Swipe down (scroll up)
-                        if (currentPos > currentSlideStart + 5) {
-                            const step = Math.min(200, currentPos - currentSlideStart);
-                            scrollToPosition(currentPos - step, 300);
-                        } else {
-                            goToSlide(activeIndex - 1);
-                        }
-                    }
-                }
-            } else {
-                // Short slide
-                if (Math.abs(diffY) > 50) {
-                    if (diffY > 0) {
-                        goToSlide(activeIndex + 1);
-                    } else {
-                        goToSlide(activeIndex - 1);
-                    }
-                }
-            }
+            goToSlide(activeIndex + dir, { fromBelow: dir < 0 });
         };
 
         window._snapTouchStartHandler = handleTouchStart;
@@ -2407,7 +2414,7 @@
         window.addEventListener('touchmove', handleTouchMove, { passive: false });
         window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
-        // 3. Keydown Listener
+        // 3. Tastiera
         const handleKeyDown = (e) => {
             if (window.innerWidth < 768) return;
             const activeEl = document.activeElement;
@@ -2415,73 +2422,43 @@
                 return;
             }
 
-            if (isScrolling) {
-                if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) {
-                    e.preventDefault();
-                }
-                return;
-            }
+            const keys = ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '];
+            if (!keys.includes(e.key)) return;
+            e.preventDefault();
+            if (slideAnimating()) return;
 
             const currentSlide = slides[activeIndex];
             if (!currentSlide) return;
+            const b = bounds(currentSlide);
+            const dir = (e.key === 'ArrowUp' || e.key === 'PageUp') ? -1 : 1;
 
-            const viewportHeight = bioPage.clientHeight || window.innerHeight;
-            const currentSlideStart = currentSlide.offsetTop;
-            const currentSlideHeight = currentSlide.offsetHeight;
-            const currentSlideEnd = currentSlideStart + currentSlideHeight;
-            const currentScrollTop = bioPage.scrollTop;
-
-            if (currentSlideHeight > viewportHeight) {
-                const maxScrollInside = currentSlideEnd - viewportHeight;
-                if (e.key === 'ArrowDown' || e.key === ' ') {
-                    e.preventDefault();
-                    if (currentScrollTop < maxScrollInside - 5) {
-                        const step = Math.min(150, maxScrollInside - currentScrollTop);
-                        scrollToPosition(currentScrollTop + step, 200);
-                    } else {
-                        goToSlide(activeIndex + 1);
-                    }
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (currentScrollTop > currentSlideStart + 5) {
-                        const step = Math.min(150, currentScrollTop - currentSlideStart);
-                        scrollToPosition(currentScrollTop - step, 200);
-                    } else {
-                        goToSlide(activeIndex - 1);
-                    }
-                } else if (e.key === 'PageDown') {
-                    e.preventDefault();
-                    if (currentScrollTop < maxScrollInside - 5) {
-                        const step = Math.min(viewportHeight * 0.8, maxScrollInside - currentScrollTop);
-                        scrollToPosition(currentScrollTop + step, 300);
-                    } else {
-                        goToSlide(activeIndex + 1);
-                    }
-                } else if (e.key === 'PageUp') {
-                    e.preventDefault();
-                    if (currentScrollTop > currentSlideStart + 5) {
-                        const step = Math.min(viewportHeight * 0.8, currentScrollTop - currentSlideStart);
-                        scrollToPosition(currentScrollTop - step, 300);
-                    } else {
-                        goToSlide(activeIndex - 1);
-                    }
-                }
-            } else {
-                if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-                    e.preventDefault();
-                    goToSlide(activeIndex + 1);
-                } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-                    e.preventDefault();
-                    goToSlide(activeIndex - 1);
+            if (b.tall) {
+                const pos = currentPos();
+                const atEdge = dir > 0 ? pos >= b.max - 1 : pos <= b.start + 1;
+                if (!atEdge) {
+                    const stepSize = (e.key === 'PageDown' || e.key === 'PageUp') ? viewport() * 0.8 : 150;
+                    animateTo(clampInto(pos + dir * stepSize, b), 220, 'inner');
+                    return;
                 }
             }
+
+            goToSlide(activeIndex + dir, { fromBelow: dir < 0 });
         };
 
         window._snapKeyDownHandler = handleKeyDown;
         window.addEventListener('keydown', handleKeyDown);
 
-        // 4. Resize Listener
+        // 4. Resize e contenuti che cambiano altezza (immagini, embed che si caricano)
         let lastWidth = window.innerWidth;
+        const realign = () => {
+            if (window.innerWidth < 768 || anim) return;
+            const currentSlide = slides[activeIndex];
+            if (!currentSlide) return;
+            const b = bounds(currentSlide);
+            // Dentro una slide alta si resta dove si era; le altre tornano allineate.
+            bioPage.scrollTop = b.tall ? clampInto(bioPage.scrollTop, b) : b.start;
+        };
+
         const handleResize = () => {
             const currentWidth = window.innerWidth;
             // Re-init completely if we cross the mobile/desktop threshold
@@ -2491,17 +2468,20 @@
                 return;
             }
             lastWidth = currentWidth;
-
-            // Otherwise adjust active position if on desktop
-            if (currentWidth >= 768) {
-                const targetSlide = slides[activeIndex];
-                if (targetSlide) {
-                    bioPage.scrollTop = targetSlide.offsetTop;
-                }
-            }
+            realign();
         };
         window._snapResizeHandler = handleResize;
         window.addEventListener('resize', handleResize);
+
+        if (window._snapResizeObserver) window._snapResizeObserver.disconnect();
+        if ('ResizeObserver' in window) {
+            let pending = 0;
+            window._snapResizeObserver = new ResizeObserver(() => {
+                cancelAnimationFrame(pending);
+                pending = requestAnimationFrame(realign);
+            });
+            slides.forEach((slide) => window._snapResizeObserver.observe(slide));
+        }
     };
 
     initScrollSnapPagination();

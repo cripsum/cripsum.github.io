@@ -941,10 +941,10 @@
     CURSOR.trail_hearts = trail('heart');
 
     /**
-     * Animazione del gatto del sito. Finche' il file non c'e' (stringa vuota)
-     * il gattino resta l'emoji; se l'immagine non si carica torna all'emoji.
+     * Poppy in pixel art (img/poppypixelart.png ritagliata e ridotta a 174x192,
+     * 30 KB invece di 1 MB). Se l'immagine non si carica torna l'emoji.
      */
-    const CAT_IMAGE = '';
+    const CAT_IMAGE = '/img/poppypixelart-cursor.png';
 
     /** Gattino: insegue il puntatore con calma e si gira dalla parte giusta. */
     CURSOR.cat_follower = (env) => {
