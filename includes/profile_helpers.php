@@ -3,6 +3,7 @@
 // Richiede: config/session_init.php, config/database.php, includes/functions.php
 
 require_once __DIR__ . '/stats_tracker.php';
+require_once __DIR__ . '/profile_style.php';
 
 if (!function_exists('profile_h')) {
     function profile_h($value): string
@@ -1281,8 +1282,8 @@ function profile_get_youtube_embed_url(string $url): ?string
 
 function profile_format_name(string $displayName, array $styleConfig): string
 {
-    $animation = $styleConfig['animation'] ?? 'none';
-    if ($animation === 'bounce') {
+    $effect = $styleConfig['effect'] ?? $styleConfig['animation'] ?? 'none';
+    if ($effect === 'bounce') {
         $len = mb_strlen($displayName, 'UTF-8');
         $output = '';
         for ($i = 0; $i < $len; $i++) {

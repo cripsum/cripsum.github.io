@@ -152,33 +152,12 @@ if ($profile) {
 
             // `profile_name_style` is stored as one JSON column but edited as a
             // set of separate fields, so it has to be rebuilt for the preview.
-            $draftHasNameStyle = false;
-            foreach (['profile_name_color_type', 'profile_name_solid_color', 'profile_name_grad_color1',
-                      'profile_name_grad_color2', 'profile_name_grad_angle', 'profile_name_animation',
-                      'profile_name_glow_color'] as $nameField) {
-                if (isset($draft[$nameField])) {
-                    $draftHasNameStyle = true;
-                    break;
-                }
-            }
-            if ($draftHasNameStyle) {
-                $draftNameStyle = [
-                    'type' => profile_allowed_value(
-                        (string)($draft['profile_name_color_type'] ?? 'default'),
-                        ['default', 'solid', 'gradient'],
-                        'default'
-                    ),
-                    'solid_color' => profile_normalize_hex_color($draft['profile_name_solid_color'] ?? '#ffffff'),
-                    'grad_color1' => profile_normalize_hex_color($draft['profile_name_grad_color1'] ?? '#ffffff'),
-                    'grad_color2' => profile_normalize_hex_color($draft['profile_name_grad_color2'] ?? '#8b5cf6'),
-                    'grad_angle' => min(max((int)($draft['profile_name_grad_angle'] ?? 90), 0), 360),
-                    'animation' => profile_allowed_value(
-                        (string)($draft['profile_name_animation'] ?? 'none'),
-                        ['none', 'rainbow', 'glow', 'sparkles', 'fire', 'water', 'glitch', 'neon', 'bounce'],
-                        'none'
-                    ),
-                    'glow_color' => profile_normalize_hex_color($draft['profile_name_glow_color'] ?? '#8b5cf6'),
-                ];
+            $draftNameStyle = profile_name_style_from_input(
+                $draft,
+                profile_style_hex($draft['profile_text_color'] ?? null),
+                (string)($draft['profile_theme'] ?? 'dark')
+            );
+            if ($draftNameStyle !== null) {
                 $profile['profile_name_style'] = json_encode($draftNameStyle);
             }
 
@@ -401,17 +380,18 @@ function profile_render_section_heading(string $icon, string $title, ?string $su
 <?php
 }
 
-$theme = $profile ? profile_allowed_value((string)($profile['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark') : 'dark';
-$accent = $profile ? profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff') : '#0f5bff';
-$secColorRaw = $profile ? trim((string)($profile['profile_secondary_color'] ?? '')) : '';
-$secondaryColor = (preg_match('/^#[0-9a-fA-F]{6}$/', $secColorRaw)) ? strtolower($secColorRaw) : $accent;
-$cardColor = $profile ? profile_optional_hex_color($profile['profile_card_color'] ?? '') : null;
-$textColor = $profile ? profile_optional_hex_color($profile['profile_text_color'] ?? '') : null;
-$linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass') : 'glass';
-$buttonShape = $profile ? profile_allowed_value((string)($profile['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill') : 'pill';
-$cardColorCss = $cardColor ?: ($theme === 'light' ? '#ffffff' : '#080c18');
-$textColorCss = $textColor ?: 'var(--text)';
-if ($theme === 'auto') $theme = 'dark';
+// Forme, bordi, riquadri e colori arrivano tutti da includes/profile_style.php.
+$style = profile_style_resolve($profile ?: []);
+$styleVars = profile_style_css_vars($style);
+$theme = $style['theme'];
+$accent = $style['accent'];
+$secondaryColor = $style['secondary'];
+$linkStyle = $style['link_style'];
+$avatarShape = $style['avatar_shape'];
+$controlShape = $style['control_shape'];
+// Con il tema "auto" la pagina parte scura e uno script in testa al body
+// passa al chiaro se il sistema di chi visita lo preferisce.
+$themeAttr = $theme === 'auto' ? 'dark' : $theme;
 
 $rawLayout = $profile ? (string)($profile['profile_layout'] ?? 'standard') : 'standard';
 $layoutAliases = [
@@ -430,7 +410,7 @@ $layoutCss = [
 ][$layout] ?? 'standard';
 $showEmbeds = $profile ? profile_flag($profile, 'profile_show_embeds', true) : false;
 $embeds = $showEmbeds ? profile_list_embeds($mysqli, $profileId, true) : [];
-$socialsStyle = $profile ? profile_allowed_value((string)($profile['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards') : 'cards';
+$socialsStyle = $style['socials_style'];
 
 $displayName = $profile ? profile_display_name($profile) : 'Profilo';
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
@@ -492,58 +472,7 @@ $hideMeta = $isPremium && $profile ? profile_flag($profile, 'profile_hide_meta',
 $showAudioBtn = $profile ? profile_flag($profile, 'profile_show_audio_btn', true) : true;
 $audioBtnPosition = ($profile && !empty($profile['profile_audio_btn_position'])) ? $profile['profile_audio_btn_position'] : 'bottom-right';
 $audioDefaultVolume = ($profile && isset($profile['profile_audio_default_volume']) && $profile['profile_audio_default_volume'] !== '') ? (float)$profile['profile_audio_default_volume'] : 0.18;
-$borderRadius = $profile ? (int)($profile['profile_border_radius'] ?? 30) : 30;
-$cardOpacity = $profile ? (int)($profile['profile_card_opacity'] ?? 68) : 68;
-$cardBlur = $profile ? (int)($profile['profile_card_blur'] ?? 20) : 20;
-$borderOpacity = $profile ? (int)($profile['profile_border_opacity'] ?? 100) : 100;
-$borderColor = $profile ? profile_optional_hex_color($profile['profile_border_color'] ?? '') : null;
-$borderWidth = $profile ? (int)($profile['profile_border_width'] ?? 1) : 1;
 $avatarBorder = $profile ? (int)($profile['profile_avatar_border'] ?? 1) : 1;
-
-$uiShape = $profile ? ($profile['profile_ui_shape'] ?? 'circle') : 'circle';
-$avatarShape = $profile ? ($profile['profile_avatar_shape'] ?? 'circle') : 'circle';
-$socialSize = $profile ? (int)($profile['profile_social_size'] ?? 42) : 42;
-$iconSpacing = $profile ? (int)($profile['profile_icon_spacing'] ?? 8) : 8;
-$badgeSize = $profile ? (int)($profile['profile_badge_size'] ?? 24) : 24;
-$buttonSize = $profile ? (int)($profile['profile_button_size'] ?? 48) : 48;
-
-// Map UI shape to variables
-$uiShapeIcon = '50%';
-$uiShapeButton = '999px';
-$uiShapeCard = '24px';
-
-switch ($uiShape) {
-    case 'circle':
-        $uiShapeIcon = '50%';
-        $uiShapeButton = '999px';
-        $uiShapeCard = '24px';
-        break;
-    case 'rounded':
-        $uiShapeIcon = '24px';
-        $uiShapeButton = '24px';
-        $uiShapeCard = '24px';
-        break;
-    case 'soft':
-        $uiShapeIcon = '16px';
-        $uiShapeButton = '16px';
-        $uiShapeCard = '16px';
-        break;
-    case 'square-rounded':
-        $uiShapeIcon = '8px';
-        $uiShapeButton = '8px';
-        $uiShapeCard = '8px';
-        break;
-    case 'square':
-        $uiShapeIcon = '0px';
-        $uiShapeButton = '0px';
-        $uiShapeCard = '0px';
-        break;
-    case 'pill':
-        $uiShapeIcon = '999px';
-        $uiShapeButton = '999px';
-        $uiShapeCard = '999px';
-        break;
-}
 
 $visibleSocials = $showSocials ? $socials : [];
 $visibleLinks = $showLinks ? $links : [];
@@ -553,20 +482,7 @@ $visibleBlocks = $showBlocks ? $blocks : [];
 $badgesDisplay = $profile ? ($profile['profile_badges_display'] ?? 'both') : 'both';
 $badgesPosition = $profile ? ($profile['profile_badges_position'] ?? 'below_bio') : 'below_bio';
 
-$nameStyle = [];
-if ($profile && !empty($profile['profile_name_style'])) {
-    $nameStyle = json_decode($profile['profile_name_style'], true);
-}
-if (!is_array($nameStyle)) {
-    $nameStyle = [];
-}
-$nameType = $nameStyle['type'] ?? 'default';
-$nameAnim = $nameStyle['animation'] ?? 'none';
-$nameSolidColor = $nameStyle['solid_color'] ?? '#ffffff';
-$nameGradColor1 = $nameStyle['grad_color1'] ?? '#ffffff';
-$nameGradColor2 = $nameStyle['grad_color2'] ?? '#8b5cf6';
-$nameGradAngle = $nameStyle['grad_angle'] ?? 90;
-$nameGlowColor = $nameStyle['glow_color'] ?? '#8b5cf6';
+$nameStyle = profile_name_style_normalize($profile['profile_name_style'] ?? null, $style['text_color'], $theme);
 
 $showMiniBadges = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'card_only');
 $showBadgesSection = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'tab_only');
@@ -643,7 +559,7 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.12.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.13.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -690,7 +606,7 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.13.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.14.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -729,53 +645,13 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
         echo '<link href="https://fonts.googleapis.com/css2?family=' . $googleFonts[$profileFont] . '" rel="stylesheet">' . "\n";
     }
     ?>
-    <?php
-    $cornerStyle = $profile['profile_corner_style'] ?? 'circle';
-    $cornerStyleCustom = (int)($profile['profile_corner_style_custom'] ?? 8);
-    $profileCornerRadius = '100px';
-    if ($cornerStyle === 'rounded') {
-        $profileCornerRadius = '12px';
-    } elseif ($cornerStyle === 'soft') {
-        $profileCornerRadius = '6px';
-    } elseif ($cornerStyle === 'square') {
-        $profileCornerRadius = '0px';
-    } elseif ($cornerStyle === 'custom') {
-        $profileCornerRadius = $cornerStyleCustom . 'px';
-    }
-    ?>
     <style>
         .bio-v2-body {
-            --radius-lg: <?php echo $borderRadius; ?>px !important;
-            --radius-md: <?php echo round($borderRadius * 0.73); ?>px !important;
-            --radius-sm: <?php echo round($borderRadius * 0.47); ?>px !important;
-            --profile-corner-radius: <?php echo $profileCornerRadius; ?> !important;
-
-            --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
-            --profile-card-blur: <?php echo $cardBlur; ?>px !important;
-            --profile-border-opacity: <?php echo $borderOpacity / 100; ?> !important;
-            --profile-border-opacity-percent: <?php echo $borderOpacity; ?>% !important;
-            --profile-border-glow-alpha: <?php echo round(($borderOpacity / 100) * 0.34, 3); ?> !important;
-            --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) <?php echo $cardOpacity; ?>%, transparent) !important;
-            --card: var(--profile-card-bg) !important;
-            --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
-
-            <?php if ($borderColor): ?>--border: <?php echo profile_h($borderColor); ?> !important;
-            --profile-border-color: <?php echo profile_h($borderColor); ?> !important;
-            <?php endif; ?>--profile-border-width: <?php echo $borderWidth; ?>px !important;
+            <?php foreach ($styleVars as $varName => $varValue): ?>
+            <?php echo $varName; ?>: <?php echo preg_replace('/[^a-zA-Z0-9#%.,()\s-]/', '', (string)$varValue); ?> !important;
+            <?php endforeach; ?>
             --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
             font-family: var(--profile-font, "Poppins", sans-serif) !important;
-
-            --ui-shape-icon: <?php echo $uiShapeIcon; ?> !important;
-            --ui-shape-button: <?php echo $uiShapeButton; ?> !important;
-            --ui-shape-card: <?php echo $uiShapeCard; ?> !important;
-            --social-icon-size: <?php echo $socialSize; ?>px !important;
-            --social-icon-spacing: <?php echo $iconSpacing; ?>px !important;
-            --badge-size: <?php echo $badgeSize; ?>px !important;
-            --button-height: <?php echo $buttonSize; ?>px !important;
-            --profile-bg-overlay-opacity: <?php echo (float)($profile['profile_bg_overlay_opacity'] ?? 1.0); ?> !important;
-            --profile-bg-blur: <?php echo (int)($profile['profile_bg_blur'] ?? 0); ?>px !important;
-            --profile-bg-scale: <?php echo 1 + ((int)($profile['profile_bg_blur'] ?? 0) * 0.005); ?> !important;
-            --profile-bg-orbs-opacity: <?php echo (float)($profile['profile_bg_orbs_opacity'] ?? 0.45); ?> !important;
         }
 
         /* Scroll Snap Layout
@@ -1271,18 +1147,19 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
 </head>
 
 <body
-    class="bio-v2-body public-profile-body profile-border-style-<?php echo profile_h($profile['profile_border_style'] ?? 'thin'); ?><?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? ' click-to-enter-active' : ''; ?>"
+    class="bio-v2-body public-profile-body<?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? ' click-to-enter-active' : ''; ?>"
     data-logged-in="<?php echo $isLoggedIn ? '1' : '0'; ?>"
     data-user-id="<?php echo (int)($_SESSION['user_id'] ?? 0); ?>"
     data-current-user-id="<?php echo (int)($_SESSION['user_id'] ?? 0); ?>"
     data-csrf="<?php echo $socialCsrfToken; ?>"
-    data-theme="<?php echo profile_h($theme); ?>"
+    data-theme="<?php echo profile_h($themeAttr); ?>"
+    data-owner-theme="<?php echo profile_h($theme); ?>"
     data-accent="<?php echo profile_h($accent); ?>"
     data-profile-url="<?php echo profile_h($profileUrl); ?>"
     data-discord-id="<?php echo profile_h($showDiscord ? $discordId : ''); ?>"
     data-profile-effect="<?php echo profile_h($profileEffect); ?>"
     data-profile-link-style="<?php echo profile_h($linkStyle); ?>"
-    data-profile-button-shape="<?php echo profile_h($buttonShape); ?>"
+    data-control-shape="<?php echo profile_h($controlShape); ?>"
     data-profile-socials-style="<?php echo profile_h($socialsStyle); ?>"
     data-profile-layout="<?php echo profile_h($layoutCss); ?>"
     data-avatar-shape="<?php echo profile_h($avatarShape); ?>"
@@ -1300,7 +1177,21 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
     data-cursor-custom-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? '1' : '0'; ?>"
     data-cursor-custom-hover-url="<?php echo profile_h($cursorCustomHoverUrlCss); ?>"
     data-cursor-custom-hover-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? '1' : '0'; ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; <?php if ($cursorCustomUrlCss !== ''): ?>--cursor-custom-url: url('<?php echo profile_h($cursorCustomUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?> <?php if ($cursorCustomHoverUrlCss !== ''): ?>--cursor-custom-hover-url: url('<?php echo profile_h($cursorCustomHoverUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?>">
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; <?php if ($cursorCustomUrlCss !== ''): ?>--cursor-custom-url: url('<?php echo profile_h($cursorCustomUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?> <?php if ($cursorCustomHoverUrlCss !== ''): ?>--cursor-custom-hover-url: url('<?php echo profile_h($cursorCustomHoverUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?>">
+
+    <?php if ($theme === 'auto'): ?>
+        <script>
+            // Tema "auto": segue il sistema di chi visita, salvo che abbia scelto
+            // un tema a mano dal menu del profilo.
+            (function () {
+                var saved = null;
+                try { saved = localStorage.getItem('cripsum.profile.viewerTheme'); } catch (e) {}
+                if (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    document.body.setAttribute('data-theme', 'light');
+                }
+            })();
+        </script>
+    <?php endif; ?>
 
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
         <div id="clickToEnterOverlay" class="click-to-enter-overlay">
@@ -1489,10 +1380,8 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
                     <div class="bio-name-block profile-smart-name">
                         <div class="profile-name-row">
                             <h1 class="profile-display-name"
-                                data-name-type="<?php echo profile_h($nameType); ?>"
-                                data-name-anim="<?php echo profile_h($nameAnim); ?>"
-                                data-text="<?php echo profile_h($displayName); ?>"
-                                style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
+                                <?php echo profile_name_style_attributes($nameStyle); ?>
+                                data-text="<?php echo profile_h($displayName); ?>">
                                 <?php echo profile_format_name($displayName, $nameStyle); ?>
                             </h1>
                             <?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?>
@@ -1507,28 +1396,18 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
                         $profileTags = json_decode($profile['profile_tags_json'] ?? '[]', true) ?: [];
                         if (!empty($profileTags)):
                         ?>
-                            <div class="profile-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem;">
+                            <div class="profile-tags-container">
                                 <?php foreach ($profileTags as $tag):
-                                    $tagText = $tag['text'] ?? '';
+                                    $tagText = (string)($tag['text'] ?? '');
                                     if (trim($tagText) === '') continue;
-                                    $tagIcon = $tag['icon'] ?? '';
-                                    $tagColor = $tag['color'] ?? '';
-                                    $tagGradient = $tag['gradient'] ?? '';
-
-                                    $tagStyle = '';
-                                    if (!empty($tagColor)) {
-                                        if (!empty($tagGradient)) {
-                                            $tagStyle = 'background: linear-gradient(135deg, ' . $tagColor . ', ' . $tagGradient . ') !important; border-color: transparent !important; color: #fff !important;';
-                                        } else {
-                                            $tagStyle = 'background: ' . $tagColor . ' !important; border-color: transparent !important; color: #fff !important;';
-                                        }
-                                    }
+                                    $tagIcon = (string)($tag['icon'] ?? '');
+                                    $tagView = profile_tag_view($tag);
                                 ?>
-                                    <span class="profile-tag-pill" style="<?php echo $tagStyle; ?>">
-                                        <?php if (!empty($tagIcon)): ?>
+                                    <span class="<?php echo profile_h($tagView['class']); ?>"<?php echo $tagView['style'] !== '' ? ' style="' . profile_h($tagView['style']) . '"' : ''; ?>>
+                                        <?php if ($tagIcon !== ''): ?>
                                             <?php echo profile_render_icon($tagIcon, '', 'profile-tag-pill__icon'); ?>
                                         <?php endif; ?>
-                                        <?php echo profile_h($tagText); ?>
+                                        <span><?php echo profile_h($tagText); ?></span>
                                     </span>
                                 <?php endforeach; ?>
                             </div>
