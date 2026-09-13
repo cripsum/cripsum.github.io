@@ -709,7 +709,10 @@
                     <button type="button" class="pe-btn pe-btn-secondary pe-btn-sm" data-act="load">${PE.escape(t('Usa', 'Apply'))}</button>
                     <button type="button" class="pe-icon-btn pe-icon-btn-sm" data-act="more" aria-label="${PE.escape(t('Altre azioni', 'More actions'))}"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>`;
                 row.querySelector('strong').textContent = preset.nome;
-                row.querySelector('small').textContent = preset.created_at;
+                const created = new Date(String(preset.created_at || '').replace(' ', 'T'));
+                row.querySelector('small').textContent = Number.isNaN(created.getTime())
+                    ? (preset.created_at || '')
+                    : created.toLocaleString(data.lang === 'en' ? 'en-GB' : 'it-IT', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 row.querySelector('[data-act="load"]').addEventListener('click', async () => {
                     if (!window.confirm(t('Caricare questo preset? Sostituisce il profilo pubblicato e la pagina si ricarica.', 'Load this preset? It replaces your published profile and the page reloads.'))) return;
                     try {

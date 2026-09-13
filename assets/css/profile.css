@@ -7592,6 +7592,15 @@ body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .p
     }
 }
 
+/* Sotto i 1180px i layout diventano a una colonna e la card non e' piu' sticky:
+   senza questo il top di 3rem resta e la card copre la sezione successiva. */
+@media (max-width: 1180px) {
+    body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero-wrapper {
+        position: relative !important;
+        top: auto !important;
+    }
+}
+
 @media (max-width: 720px) {
     body.public-profile-body .bio-page {
         padding-top: 1.25rem !important;
