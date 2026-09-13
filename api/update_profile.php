@@ -230,9 +230,15 @@ if (is_array($tagsDecoded)) {
     foreach (array_slice($tagsDecoded, 0, 10) as $tag) {
         $tagText = profile_clean_text($tag['text'] ?? '', 40);
         if ($tagText === '') continue;
+        // 255 come le icone dei link: un file caricato supera di molto i 40
+        // caratteri di una classe Font Awesome e veniva troncato.
+        $tagIcon = profile_clean_text($tag['icon'] ?? '', 255);
+        if (!$isPremium && (preg_match('/^https?:\/\//i', $tagIcon) || str_starts_with($tagIcon, '/uploads/') || str_contains($tagIcon, '.'))) {
+            $tagIcon = '';
+        }
         $tagsArray[] = [
             'text' => $tagText,
-            'icon' => profile_clean_text($tag['icon'] ?? '', 40),
+            'icon' => $tagIcon,
             'color' => profile_optional_hex_color($tag['color'] ?? ''),
             'gradient' => profile_optional_hex_color($tag['gradient'] ?? '')
         ];
@@ -661,7 +667,7 @@ try {
             $icon = 'fa-solid fa-link';
         }
         $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
-        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '' && $url === '') continue;
         if ($title === '') throw new RuntimeException('A link must have a title.');
@@ -698,7 +704,7 @@ try {
         $imageUrl = trim((string)($row['image_url'] ?? ''));
         $techStack = profile_clean_text($row['tech_stack'] ?? '', 160);
         $status = profile_allowed_value((string)($row['status'] ?? 'active'), $allowedStatuses, 'active');
-        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '') continue;
         if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid project URL: ' . $title);
@@ -734,7 +740,7 @@ try {
         $description = profile_clean_text($row['description'] ?? '', 220);
         $url = trim((string)($row['url'] ?? ''));
         $thumb = trim((string)($row['thumbnail_url'] ?? ''));
-        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '') continue;
         if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid content URL: ' . $title);
@@ -771,7 +777,7 @@ try {
         $maxLen = ($isPremium && in_array($type, ['markdown', 'html'], true)) ? 5000 : 700;
         $body = mb_substr($body, 0, $maxLen, 'UTF-8');
         $mediaUrl = trim((string)($row['media_url'] ?? ''));
-        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
         $visible = !empty($row['is_visible']) ? 1 : 0;
 
         if ($title === '' && $body === '' && $mediaUrl === '') continue;

@@ -48,12 +48,7 @@ if ($customAlias !== null && $customAlias !== '') {
             exit;
         }
         // Redirect logged out users accessing their own profile to login
-        $lang = 'it';
-        if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
-            $lang = 'en';
-        } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && strpos(strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']), 'it') === false) {
-            $lang = 'en';
-        }
+        $lang = cripsum_preferred_lang();
         header("Location: /{$lang}/accedi");
         exit;
     } else {
@@ -614,26 +609,10 @@ if (!empty($discordServerInvite)) {
     }
 }
 
-$featuredLinks = array_values(array_filter($visibleLinks, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
-$normalLinks = array_values(array_filter($visibleLinks, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
-$featuredProjects = array_values(array_filter($visibleProjects, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
-$normalProjects = array_values(array_filter($visibleProjects, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
-$featuredContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
-$normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
-
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
 $hasDiscordSection = $showDiscord && (!empty($discordId) || !empty($widgetData));
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
+$hasRightContent = $hasStats || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
 $hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $hasDiscordSection || $hasMusic || $embeds;
-
-$spotlight = null;
-if ($featuredContents) {
-    $spotlight = ['type' => 'Contenuto', 'icon' => 'fa-solid fa-play', 'title' => $featuredContents[0]['title'], 'description' => $featuredContents[0]['description'] ?: '', 'url' => $featuredContents[0]['url'] ?: '', 'meta' => $featuredContents[0]['content_type'] ?? 'contenuto'];
-} elseif ($featuredProjects) {
-    $spotlight = ['type' => 'Progetto', 'icon' => 'fa-solid fa-layer-group', 'title' => $featuredProjects[0]['title'], 'description' => $featuredProjects[0]['description'] ?: '', 'url' => $featuredProjects[0]['url'] ?: '', 'meta' => $featuredProjects[0]['tech_stack'] ?: profile_status_label($featuredProjects[0]['status'] ?? 'active')];
-} elseif ($featuredLinks) {
-    $spotlight = ['type' => 'Link', 'icon' => $featuredLinks[0]['icon'] ?: 'fa-solid fa-link', 'title' => $featuredLinks[0]['title'], 'description' => $featuredLinks[0]['description'] ?: profile_short_url_label($featuredLinks[0]['url']), 'url' => $featuredLinks[0]['url'], 'meta' => 'in evidenza'];
-}
 
 $stats = [];
 if ($profile) {
@@ -644,15 +623,15 @@ if ($profile) {
 }
 $ogMeta = cripsum_og_profile($mysqli, $profile);
 
-$lang = 'it';
-if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
-    $lang = 'en';
-} elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && strpos(strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']), 'it') === false) {
-    $lang = 'en';
-}
+// The profile URL carries no language: use the one the visitor was browsing
+// the site in. The navbar include below reassigns $lang, so the page keeps
+// its own copy.
+$lang = cripsum_preferred_lang();
+$profileLang = $lang;
+$pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it : $en;
 ?>
 <!DOCTYPE html>
-<html lang="en" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
+<html lang="<?php echo $profileLang; ?>" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
 
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
@@ -664,7 +643,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.11.1">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.12.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -711,7 +690,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.12.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.13.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <style>
             .profile-smart-page {
@@ -1340,13 +1319,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         else include __DIR__ . '/includes/navbar.php';
         if (file_exists(__DIR__ . '/includes/impostazioni.php')) include __DIR__ . '/includes/impostazioni.php';
     }
+    $lang = $profileLang;
     ?>
 
     <?php profile_render_background($profile, $backgroundUrl, $backgroundType); ?>
     <div class="profile-effects-layer" aria-hidden="true"></div>
 
     <?php if ($isNotFound): ?>
-        <?php profile_state_page('404', 'Profile Not Found', 'This user does not exist or has changed their username.', 'Home', '/en/home'); ?>
+        <?php profile_state_page('404', $pt('Profilo non trovato', 'Profile Not Found'), $pt('Questo utente non esiste o ha cambiato username.', 'This user does not exist or has changed their username.'), 'Home', '/' . $lang . '/home'); ?>
     <?php elseif ($isDeactivated): ?>
         <?php
         // Deliberately worded like a missing profile: whether an account is
@@ -1372,7 +1352,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         profile_state_page('Private', $blockTitle, $blockText, 'Home', '/' . $lang . '/home');
         ?>
     <?php elseif ($isLoginBlocked): ?>
-        <?php profile_state_page('Login', 'Login Required', 'This profile is only visible to registered users.', 'Log In', '/en/login'); ?>
+        <?php profile_state_page('Login', $pt('Accesso richiesto', 'Login Required'), $pt('Questo profilo è visibile solo agli utenti registrati.', 'This profile is only visible to registered users.'), $pt('Accedi', 'Log In'), '/' . $lang . '/accedi'); ?>
     <?php else: ?>
         <?php
         $tiltAttrs = 'data-tilt-enabled="' . (int)($profile['tilt_enabled'] ?? 1) . '" ' .
@@ -1407,15 +1387,15 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 </button>
                                 <div class="profile-dropdown-menu">
                                     <?php if ($canEdit): ?>
-                                        <a class="profile-dropdown-item" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
+                                        <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
                                             <i class="fa-solid fa-pen"></i>
-                                            <span>Edit profile</span>
+                                            <span><?php echo $pt('Modifica profilo', 'Edit profile'); ?></span>
                                         </a>
                                     <?php endif; ?>
                                     <?php if (!$isPremium && !$isOwnProfile): ?>
                                         <a class="profile-dropdown-item profile-dropdown-item--gift" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
                                             <i class="fa-solid fa-gift"></i>
-                                            <span>Gift Premium</span>
+                                            <span><?php echo $pt('Regala Premium', 'Gift Premium'); ?></span>
                                         </a>
                                     <?php endif; ?>
                                     <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/home">
@@ -1424,23 +1404,23 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     </a>
                                     <button class="profile-dropdown-item js-open-search" type="button">
                                         <i class="fa-solid fa-search"></i>
-                                        <span>Search users</span>
+                                        <span><?php echo $pt('Cerca utenti', 'Search users'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-navigation" type="button">
                                         <i class="fa-solid fa-compass"></i>
-                                        <span>Open Navigation</span>
+                                        <span><?php echo $pt('Apri navigazione', 'Open Navigation'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-copy-profile" type="button">
                                         <i class="fa-solid fa-link"></i>
-                                        <span>Copy link</span>
+                                        <span><?php echo $pt('Copia link', 'Copy link'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-share-profile" type="button">
                                         <i class="fa-solid fa-share-nodes"></i>
-                                        <span>Share Profile</span>
+                                        <span><?php echo $pt('Condividi profilo', 'Share Profile'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-report" type="button" data-user-id="<?php echo (int)$profile['id']; ?>" data-username="<?php echo profile_h($profile['username']); ?>">
                                         <i class="fa-solid fa-flag"></i>
-                                        <span>Report Profile</span>
+                                        <span><?php echo $pt('Segnala profilo', 'Report Profile'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-qr" type="button">
                                         <i class="fa-solid fa-qrcode"></i>
@@ -1448,7 +1428,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     </button>
                                     <button class="profile-dropdown-item js-theme-toggle" type="button">
                                         <i class="fa-solid fa-moon"></i>
-                                        <span class="theme-label-text">Dark Mode</span>
+                                        <span class="theme-label-text"><?php echo $pt('Modalità scura', 'Dark Mode'); ?></span>
                                     </button>
                                 </div>
                             </div>
@@ -1546,7 +1526,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 ?>
                                     <span class="profile-tag-pill" style="<?php echo $tagStyle; ?>">
                                         <?php if (!empty($tagIcon)): ?>
-                                            <i class="<?php echo profile_h($tagIcon); ?>" style="margin-right: 4px;"></i>
+                                            <?php echo profile_render_icon($tagIcon, '', 'profile-tag-pill__icon'); ?>
                                         <?php endif; ?>
                                         <?php echo profile_h($tagText); ?>
                                     </span>
@@ -1650,8 +1630,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php if (!$hasAnyPublicContent && $isOwnProfile && !isset($_GET['preview_mode'])): ?>
                         <div class="profile-owner-nudge">
                             <i class="fa-solid fa-plus"></i>
-                            <span>Add links, badges, or content to fill out the bio.</span>
-                            <a href="/en/edit-profile">Edit</a>
+                            <span><?php echo $pt('Aggiungi link, badge o contenuti per completare il profilo.', 'Add links, badges, or content to fill out the bio.'); ?></span>
+                            <a href="/<?php echo $lang; ?>/edit-profile"><?php echo $pt('Modifica', 'Edit'); ?></a>
                         </div>
                     <?php endif; ?>
 
@@ -1768,48 +1748,25 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             <?php if ($hasRightContent): ?>
                 <section class="bio-content profile-smart-content <?php echo $layoutCss === 'center-split' ? 'profile-smart-content--split' : ''; ?>" aria-label="Contenuti profilo">
                     <?php
-                    $spotlightHtml = '';
-                    if ($spotlight) {
-                        ob_start();
-                    ?>
-                        <section class="bio-card bio-featured profile-spotlight js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="featured" data-section-title="<?php echo profile_h($spotlight['title'] ?: 'Featured'); ?>">
-                            <a class="profile-spotlight-link" href="<?php echo profile_h($spotlight['url'] ?: '#'); ?>" <?php echo $spotlight['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
-                                <span class="profile-spotlight-icon"><?php echo profile_render_icon($spotlight['icon'], 'fa-solid fa-star'); ?></span>
-                                <span class="profile-spotlight-content">
-                                    <small><?php echo profile_h($spotlight['type']); ?> Featured</small>
-                                    <strong><?php echo profile_h($spotlight['title']); ?></strong>
-                                    <?php if ($spotlight['description']): ?><em><?php echo profile_h($spotlight['description']); ?></em><?php endif; ?>
-                                    <?php if ($spotlight['meta']): ?><span><?php echo profile_h($spotlight['meta']); ?></span><?php endif; ?>
-                                </span>
-                                <?php if ($spotlight['url']): ?><i class="fa-solid fa-arrow-up-right-from-square"></i><?php endif; ?>
-                            </a>
-                        </section>
-                    <?php
-                        $spotlightHtml = ob_get_clean();
-                    }
-                    ?>
-
-                    <?php
                     $sectionsHtml = [];
 
                     // 1. Links
                     ob_start();
-                    if ($featuredLinks || $normalLinks): ?>
+                    if ($visibleLinks): ?>
                         <section class="bio-card bio-featured js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="links" data-section-title="<?php echo profile_h(profile_get_section_title('links', 'Link')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-link', 'Link', null, 'links'); ?>
-                            <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
-                                <?php foreach (array_merge($featuredLinks, $normalLinks) as $item): ?>
+                            <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count($visibleLinks); ?>">
+                                <?php foreach ($visibleLinks as $item): ?>
                                     <?php
                                     $buttonStyle = profile_allowed_value((string)($item['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
                                     $linkTitle = (string)($item['title'] ?? 'Link');
                                     ?>
-                                    <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?> <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
+                                    <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
                                         <span class="bio-featured-link__icon"><?php echo profile_render_icon($item['icon'] ?? '', 'fa-solid fa-link'); ?></span>
                                         <?php if ($buttonStyle === 'icon'): ?>
                                             <span class="profile-link-icon-label"><?php echo profile_h($linkTitle); ?></span>
                                         <?php else: ?>
                                             <span class="bio-featured-link__content">
-                                                <?php if (!empty($item['is_featured'])): ?><small>Pin</small><?php endif; ?>
                                                 <strong>
                                                     <?php echo profile_h($linkTitle); ?>
                                                     <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($item['card_tag_text'])): ?>
@@ -1877,7 +1834,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $projectImageUrl = trim((string)($project['image_url'] ?? ''));
                                     $hasProjectImage = $projectImageUrl !== '' && profile_is_safe_url($projectImageUrl, false);
                                     ?>
-                                    <a class="bio-project-card <?php echo !empty($project['is_featured']) ? 'is-pinned' : ''; ?> <?php echo $hasProjectImage ? 'has-media' : ''; ?>" href="<?php echo profile_h($project['url'] ?: '#'); ?>" <?php echo $project['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                                    <a class="bio-project-card <?php echo $hasProjectImage ? 'has-media' : ''; ?>" href="<?php echo profile_h($project['url'] ?: '#'); ?>" <?php echo $project['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
                                         <?php if ($hasProjectImage): ?>
                                             <span class="profile-card-media profile-project-media">
                                                 <img src="<?php echo profile_h($projectImageUrl); ?>" alt="<?php echo profile_h($project['title']); ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
@@ -1915,7 +1872,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $blockType = profile_allowed_value((string)($block['block_type'] ?? 'text'), $allowedTypes, 'text');
                                     $mediaUrl = trim((string)($block['media_url'] ?? ''));
                                     $mediaType = trim((string)($block['media_type'] ?? 'image'));
-                                    $isPinned = !empty($block['is_featured']);
                                     $noCardStyleClass = (!empty($block['no_card_style']) && (int)($profile['is_premium'] ?? 0) === 1) ? 'no-card-style' : '';
                                     $blockMediaPos = ($block['media_position'] ?? 'top');
                                     $blockTextAlign = ($block['text_align'] ?? 'left');
@@ -1925,7 +1881,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $blockMediaAlignClass = 'block-media-align-' . profile_h($blockMediaAlign);
                                     $blockTextAlignStyle = $blockTextAlign !== 'left' ? ' style="text-align: ' . profile_h($blockTextAlign) . ';"' : '';
                                     ?>
-                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $isPinned ? 'is-pinned' : ''; ?> <?php echo $noCardStyleClass; ?> <?php echo $blockMediaFitClass; ?> <?php echo $blockMediaAlignClass; ?>">
+                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $noCardStyleClass; ?> <?php echo $blockMediaFitClass; ?> <?php echo $blockMediaAlignClass; ?>">
                                         <?php
                                         // Build media HTML
                                         $mediaHtml = '';
@@ -1938,7 +1894,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         }
                                         // Build copy HTML
                                         $copyHtml = '';
-                                        if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)) {
+                                        if (!empty($block['title']) || !empty($block['body']) || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)) {
                                             ob_start();
                                         ?>
                                             <div class="profile-block-copy" <?php echo $blockTextAlignStyle; ?>>
@@ -1969,7 +1925,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                                         <?php endif; ?>
                                                     </div>
                                                 <?php endif; ?>
-                                                <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                             </div>
                                         <?php
                                             $copyHtml = ob_get_clean();
@@ -2001,7 +1956,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $contentThumbUrl = trim((string)($content['thumbnail_url'] ?? ''));
                                     $hasContentThumb = $contentThumbUrl !== '' && profile_is_safe_url($contentThumbUrl, false);
                                     ?>
-                                    <a class="bio-preview-card <?php echo !empty($content['is_featured']) ? 'is-pinned' : ''; ?> <?php echo $hasContentThumb ? 'has-media' : ''; ?>" href="<?php echo profile_h($content['url'] ?: '#'); ?>" <?php echo $content['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                                    <a class="bio-preview-card <?php echo $hasContentThumb ? 'has-media' : ''; ?>" href="<?php echo profile_h($content['url'] ?: '#'); ?>" <?php echo $content['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
                                         <?php if ($hasContentThumb): ?>
                                             <span class="profile-card-media profile-content-media">
                                                 <img src="<?php echo profile_h($contentThumbUrl); ?>" alt="<?php echo profile_h($content['title']); ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
@@ -2084,8 +2039,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
                                     $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;
 
-                                    $isFeaturedBadge = (int)($profile['featured_badge_id'] ?? 0) === (int)$badge['id'] && $badge['badge_source'] === 'achievement';
-
                                     $styleAttr = '';
                                     $cardClasses = [];
 
@@ -2123,9 +2076,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     } else {
                                         $rarity = function_exists('profile_badge_rarity') ? profile_badge_rarity((int)($badge['punti'] ?? 0)) : ['label' => 'Badge', 'class' => 'common'];
                                         $cardClasses[] = 'rarity-' . $rarity['class'];
-                                        if ($isFeaturedBadge) {
-                                            $cardClasses[] = 'is-featured';
-                                        }
                                         $subtitle = $rarity['label'] . ((int)($badge['punti'] ?? 0) > 0 ? ' · ' . (int)$badge['punti'] . ' punti' : '');
                                     }
 
@@ -2178,9 +2128,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
 
                     $orderedSectionsHtml = [];
-                    if (trim($spotlightHtml) !== '') {
-                        $orderedSectionsHtml[] = $spotlightHtml;
-                    }
 
                     foreach ($sectionsOrder as $secKey) {
                         $secKey = trim($secKey);
@@ -2234,9 +2181,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         <div class="profile-qr-backdrop js-close-qr"></div>
         <section class="bio-card profile-qr-card" role="dialog" aria-modal="true" aria-label="QR Profile">
             <button class="bio-small-button js-close-qr" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
-            <strong>QR Profile</strong>
+            <strong><?php echo $pt('QR del profilo', 'QR Profile'); ?></strong>
             <img class="profile-qr-image" alt="QR code of the profile" src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>" data-qr-src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>">
-            <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fa-solid fa-link"></i>Copy link</button>
+            <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fa-solid fa-link"></i><?php echo $pt('Copia link', 'Copy link'); ?></button>
         </section>
     </div>
 

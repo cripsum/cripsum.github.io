@@ -561,7 +561,7 @@ switch ($action) {
                     $icon = 'fa-solid fa-link';
                 }
                 $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
-                $featured = !empty($row['is_featured']) ? 1 : 0;
+                $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($title === '' || $url === '') continue;
                 [$tagText, $tagBg, $tagColor] = $presetTag($row);
@@ -582,7 +582,7 @@ switch ($action) {
                 $imageUrl = $presetSafeUrl($row['image_url'] ?? '');
                 $techStack = profile_clean_text($row['tech_stack'] ?? '', 160);
                 $status = profile_allowed_value((string)($row['status'] ?? 'active'), $allowedStatuses, 'active');
-                $featured = !empty($row['is_featured']) ? 1 : 0;
+                $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($title === '') continue;
                 [$tagText, $tagBg, $tagColor] = $presetTag($row);
@@ -602,7 +602,7 @@ switch ($action) {
                 $description = profile_clean_text($row['description'] ?? '', 220);
                 $url = $presetSafeUrl($row['url'] ?? '');
                 $thumbUrl = $presetSafeUrl($row['thumbnail_url'] ?? '');
-                $featured = !empty($row['is_featured']) ? 1 : 0;
+                $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($title === '') continue;
                 [$tagText, $tagBg, $tagColor] = $presetTag($row);
@@ -636,7 +636,7 @@ switch ($action) {
                     $mediaUrl = null;
                     $mType = 'text';
                 }
-                $featured = !empty($row['is_featured']) ? 1 : 0;
+                $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
                 $visible = !empty($row['is_visible']) ? 1 : 0;
                 if ($title === '' && $body === '' && $mediaUrl === null) continue;
                 [$tagText, $tagBg, $tagColor] = $presetTag($row);

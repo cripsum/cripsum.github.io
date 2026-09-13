@@ -89,7 +89,7 @@ if (!empty($returnUrl) && (strpos($returnUrl, '/') === 0 || strpos($returnUrl, '
     }
     $redirect = $returnUrl;
 } else {
-    $redirect = '/edit-profile.php' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?user_id=' . $targetUserId : '');
+    $redirect = '/' . cripsum_preferred_lang() . '/edit-profile' . (profile_is_staff() && $targetUserId !== $currentUserId ? '?user_id=' . $targetUserId : '');
 }
 header('Location: ' . $redirect);
 exit;

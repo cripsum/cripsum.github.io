@@ -23,7 +23,7 @@ unset($_SESSION['discord_oauth_state'], $_SESSION['discord_oauth_target_user_id'
 
 if ($code === '' || $state === '' || !hash_equals((string)$savedState, $state)) {
     $_SESSION['profile_flash_error'] = 'Invalid Discord OAuth state.';
-    header('Location: /en/edit-profile.php');
+    header('Location: /' . cripsum_preferred_lang() . '/edit-profile');
     exit;
 }
 
@@ -109,7 +109,7 @@ if (!empty($returnUrl)) {
     }
     $redirect = $returnUrl;
 } else {
-    $redirect = '/en/edit-profile.php' . (profile_is_staff() && $targetUserId !== (int)$_SESSION['user_id'] ? '?user_id=' . $targetUserId : '');
+    $redirect = '/' . cripsum_preferred_lang() . '/edit-profile' . (profile_is_staff() && $targetUserId !== (int)$_SESSION['user_id'] ? '?user_id=' . $targetUserId : '');
 }
 
 header('Location: ' . $redirect);
