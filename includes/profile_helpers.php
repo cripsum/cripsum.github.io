@@ -584,7 +584,7 @@ function profile_list_socials(mysqli $mysqli, int $userId, bool $onlyVisible = t
 
 function profile_list_links(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, title, description, url, icon, button_style, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_links WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, title, description, url, icon, button_style, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_links WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -595,7 +595,7 @@ function profile_list_links(mysqli $mysqli, int $userId, bool $onlyVisible = tru
 
 function profile_list_projects(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, title, description, url, image_url, tech_stack, status, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_projects WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, title, description, url, image_url, tech_stack, status, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_projects WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -606,7 +606,7 @@ function profile_list_projects(mysqli $mysqli, int $userId, bool $onlyVisible = 
 
 function profile_list_contents(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, content_type, title, description, url, thumbnail_url, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_contents WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, content_type, title, description, url, thumbnail_url, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_contents WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -618,7 +618,7 @@ function profile_list_contents(mysqli $mysqli, int $userId, bool $onlyVisible = 
 
 function profile_list_blocks(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, block_type, title, body, media_url, media_type, is_featured, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color, no_card_style, media_position, text_align, media_align, media_fit FROM utenti_profile_blocks WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY is_featured DESC, sort_order ASC, id ASC";
+    $sql = "SELECT id, block_type, title, body, media_url, media_type, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color, no_card_style, media_position, text_align, media_align, media_fit FROM utenti_profile_blocks WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     if (!$stmt) return [];
     $stmt->bind_param('i', $userId);

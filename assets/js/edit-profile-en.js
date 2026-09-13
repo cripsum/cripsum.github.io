@@ -120,7 +120,6 @@
                     <label>${isEnglish ? 'Button type' : 'Tipo tasto'}<select data-field="button_style">${options(linkButtonStyles, data.button_style || 'card')}</select></label>
                     <label class="profile-row-grid full">${isEnglish ? 'Description' : 'Descrizione'}<input data-field="description" maxlength="160" value="${escapeAttr(data.description || '')}" placeholder="Una frase breve"></label>
                     <label class="profile-row-grid full">URL<input data-field="url" value="${escapeAttr(data.url || '')}" placeholder="https://..."></label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> ${isEnglish ? 'Featured' : 'In evidenza'}</label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
                     <div class="row-card-tag-section full">
                         <div class="row-card-tag-header">
@@ -159,7 +158,6 @@
                         </div>
                     </label>
                     <label class="profile-row-grid full">Tech stack<input data-field="tech_stack" maxlength="160" value="${escapeAttr(data.tech_stack || '')}" placeholder="PHP, JS, MySQL"></label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> ${isEnglish ? 'Featured' : 'In evidenza'}</label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
                     <div class="row-card-tag-section full">
                         <div class="row-card-tag-header">
@@ -187,7 +185,6 @@
                             <button type="button" class="btn-row-media-upload" data-upload-target="thumbnail_url" ${window.isPremiumUser ? '' : 'disabled'}><i class="fa-solid fa-upload"></i></button>
                         </div>
                     </label>
-                    <label class="profile-check-line"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> ${isEnglish ? 'Featured' : 'In evidenza'}</label>
                     <label class="profile-check-line"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEnglish ? 'Visible' : 'Visibile'}</label>
                     <div class="row-card-tag-section full">
                         <div class="row-card-tag-header">
@@ -268,7 +265,6 @@
                     <!-- Settings & Layout Options -->
                     <div class="editor-sub-card" style="margin-top: 16px; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06);">
                         <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 12px;">
-                            <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_featured" ${boolAttr(data.is_featured)}> Pin</label>
                             <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="is_visible" ${boolAttr(data.is_visible ?? 1)}> ${isEng ? 'Visible' : 'Visibile'}</label>
                             ${isPrem ? `
                             <label class="profile-check-line" style="margin: 0;"><input type="checkbox" data-field="no_card_style" ${boolAttr(data.no_card_style)}> <span style="color: var(--accent); font-weight: 600;"><i class="fa-solid fa-crown"></i> ${isEng ? 'No background & border' : 'Rimuovi sfondo e bordo'}</span></label>
@@ -4193,10 +4189,14 @@
         }
 
         const isCursor = targetInput.id === 'cursorCustomUrlInput' || targetInput.id === 'cursorCustomHoverUrlInput';
+        // I media dei blocchi custom possono essere anche video.
+        const isBlockMedia = targetInput.dataset.field === 'media_url';
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         if (isCursor) {
             fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,.cur,.ani';
+        } else if (isBlockMedia) {
+            fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm';
         } else {
             fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
         }
@@ -4205,7 +4205,8 @@
             if (!fileInput.files || fileInput.files.length === 0) return;
             const file = fileInput.files[0];
 
-            const maxBytes = isCursor ? 2 * 1024 * 1024 : 25 * 1024 * 1024;
+            const isVideo = file.type.startsWith('video/');
+            const maxBytes = limiteEffettivo(isCursor ? 2 * 1024 * 1024 : (isVideo ? 50 * 1024 * 1024 : 25 * 1024 * 1024));
             if (file.size > maxBytes) {
                 uploadManager.reject(
                     file.name,
@@ -4222,6 +4223,8 @@
             if (targetUserId) formData.append('target_user_id', targetUserId);
             if (isCursor) {
                 formData.append('purpose', 'cursor');
+            } else if (isBlockMedia) {
+                formData.append('purpose', 'block');
             }
 
             uploadManager.run(file.name, file.size, '/api/upload_profile_media.php', formData, (data) => {
@@ -4229,6 +4232,14 @@
                     throw new Error((data && data.message) || (isEnglish ? 'Upload failed.' : 'Errore nel caricamento.'));
                 }
                 targetInput.value = data.url;
+                if (isBlockMedia && data.media_type) {
+                    // Il tipo scelto nel blocco segue il file caricato.
+                    const mediaSelect = targetInput.closest('.profile-row-card')?.querySelector('.media-type-ui-select');
+                    if (mediaSelect) {
+                        mediaSelect.value = data.media_type === 'video' ? 'video' : 'image';
+                        mediaSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
                 targetInput.dispatchEvent(new Event('input', { bubbles: true }));
                 targetInput.dispatchEvent(new Event('change', { bubbles: true }));
                 return isCursor && data.url.toLowerCase().endsWith('.png')

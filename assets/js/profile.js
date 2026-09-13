@@ -123,7 +123,10 @@
             if (icon) icon.className = nextTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             const labelText = btn.querySelector('.theme-label-text');
             if (labelText) {
-                labelText.textContent = nextTheme === 'light' ? 'Light Mode' : 'Dark Mode';
+                const isIt = document.documentElement.lang === 'it';
+                labelText.textContent = nextTheme === 'light'
+                    ? (isIt ? 'Modalità chiara' : 'Light Mode')
+                    : (isIt ? 'Modalità scura' : 'Dark Mode');
             }
         });
     };
@@ -2461,8 +2464,6 @@
                         label = 'Content';
                     } else if (secType === 'activity') {
                         label = 'Activity';
-                    } else if (secType === 'featured' || slide.querySelector('.profile-spotlight')) {
-                        label = 'Featured';
                     } else {
                         label = 'Section ' + index;
                     }

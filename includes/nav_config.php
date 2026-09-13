@@ -20,7 +20,13 @@ if (!function_exists('nav_lang')) {
         $uri  = $uri ?? ($_SERVER['REQUEST_URI'] ?? '/');
         $lang = explode('/', trim($uri, '/'))[0] ?? '';
 
-        return in_array($lang, ['it', 'en'], true) ? $lang : 'it';
+        if (in_array($lang, ['it', 'en'], true)) {
+            return $lang;
+        }
+
+        // Pagine senza lingua nell'URL (i profili /u/nome): quella che
+        // l'utente stava usando, ricordata da session_init.php.
+        return function_exists('cripsum_preferred_lang') ? cripsum_preferred_lang() : 'it';
     }
 
     /**

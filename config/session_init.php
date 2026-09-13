@@ -84,6 +84,51 @@ if (!defined('CRIPSUM_SKIP_SPECIAL_SESSION_REDIRECT') && isset($_SESSION['user_i
     exit();
 }
 
+/*
+ * Lingua del sito. Le pagine /it/ e /en/ la portano nell'URL, i profili
+ * (/u/nome) e le API no: senza ricordarla, dal profilo l'editor si apriva
+ * sempre in italiano anche a chi stava navigando in inglese. Il cookie viene
+ * riscritto solo quando cambia, cosi' le pagine normali non mandano un
+ * Set-Cookie a ogni richiesta.
+ */
+$cripsumRequestLang = explode('/', trim((string)(parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?? ''), '/'))[0] ?? '';
+if (in_array($cripsumRequestLang, ['it', 'en'], true)
+    && ($_COOKIE['cripsum_lang'] ?? '') !== $cripsumRequestLang
+    && !headers_sent()
+) {
+    setcookie('cripsum_lang', $cripsumRequestLang, [
+        'expires' => time() + 31536000,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $isHttps,
+        'httponly' => false,
+        'samesite' => 'Lax',
+    ]);
+    $_COOKIE['cripsum_lang'] = $cripsumRequestLang;
+}
+unset($cripsumRequestLang);
+
+if (!function_exists('cripsum_preferred_lang')) {
+    /**
+     * La lingua in cui mostrare una pagina che non la dichiara nell'URL:
+     * quella dell'ultima pagina visitata, poi quella del browser.
+     */
+    function cripsum_preferred_lang(): string
+    {
+        $cookie = (string)($_COOKIE['cripsum_lang'] ?? '');
+        if (in_array($cookie, ['it', 'en'], true)) {
+            return $cookie;
+        }
+
+        $accept = strtolower((string)($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? ''));
+        if ($accept !== '' && !str_contains($accept, 'it')) {
+            return 'en';
+        }
+
+        return 'it';
+    }
+}
+
 /**
  * Releases the exclusive lock PHP holds on the session file.
  *
