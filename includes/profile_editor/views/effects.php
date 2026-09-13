@@ -42,7 +42,7 @@ $nameEffectOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-
     data-avatar-shape="<?php echo pe_h($style['avatar_shape']); ?>"
     data-avatar-border="<?php echo $pflag('profile_avatar_border') ? '1' : '0'; ?>"
     style="--profile-ring: <?php echo pe_h(profile_style_hex($profile['avatar_ring_color'] ?? null) ?? $style['accent']); ?>; --accent-2: <?php echo pe_h($style['secondary']); ?>;">
-    <?php pe_choice('avatar_ring_style', $ringStyle, $ringOptions, ['label' => $tt('Anello', 'Ring'), 'variant' => 'tiles', 'columns' => 3, 'class' => 'pe-ring-choices', 'keywords' => 'anello ring scia battito orbita neon scintille glitch arcobaleno']); ?>
+    <?php pe_choice('avatar_ring_style', $ringStyle, $ringOptions, ['label' => $tt('Anello', 'Ring'), 'variant' => 'tiles', 'columns' => 4, 'class' => 'pe-ring-choices', 'keywords' => 'anello ring scia battito orbita bagliore glow aureola halo neon scintille glitch arcobaleno']); ?>
 </div>
 <input type="hidden" name="avatar_ring_enabled" id="peRingEnabled" value="<?php echo $ringStyle === 'none' ? '0' : '1'; ?>">
 <div data-show-if="avatar_ring_style!=none">

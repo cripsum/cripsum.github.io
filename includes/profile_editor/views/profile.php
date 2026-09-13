@@ -60,11 +60,11 @@
     'maxlength' => 60,
     'placeholder' => $tt('Es. sto editando, in pausa…', 'E.g. editing, taking a break…'),
     'counter' => true,
-    'help' => pe_h($tt('Compare vicino al nome quando non sei online.', 'Shown next to your name when you are offline.')),
+    'help' => pe_h($tt('Compare in fondo alla card al posto di "offline" quando non sei online.', 'Shown at the bottom of your card instead of "offline" when you are not online.')),
 ]); ?>
 <?php pe_toggle('profile_hide_meta', $pflag('profile_hide_meta', 0), [
-    'label' => $tt('Nascondi iscrizione e ultimo accesso', 'Hide join date and last seen'),
-    'description' => $tt('Le informazioni piccole in fondo alla card del profilo.', 'The small details at the bottom of your profile card.'),
+    'label' => $tt('Nascondi stato, iscrizione e ultimo accesso', 'Hide status, join date and last seen'),
+    'description' => $tt('La riga di informazioni in fondo alla card del profilo.', 'The row of details at the bottom of your profile card.'),
     'premium' => true,
     'keywords' => 'meta data iscrizione',
 ]); ?>

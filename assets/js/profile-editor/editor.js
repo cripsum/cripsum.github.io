@@ -350,9 +350,11 @@
     };
 
     let liveTimer = null;
+    // Un timer breve e non requestAnimationFrame: rAF si ferma quando la finestra
+    // non sta disegnando, e l'anteprima restava indietro senza motivo apparente.
     const sendLive = () => {
-        cancelAnimationFrame(liveTimer);
-        liveTimer = requestAnimationFrame(() => post({ type: 'cripsum:settings', settings: settings(), premium: !!data.premium }));
+        clearTimeout(liveTimer);
+        liveTimer = setTimeout(() => post({ type: 'cripsum:settings', settings: settings(), premium: !!data.premium }), 30);
     };
 
     const reloadPreview = () => {

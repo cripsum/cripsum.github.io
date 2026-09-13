@@ -9054,3 +9054,34 @@ body.public-profile-body .bio-stat-card .bio-stat-card__label {
         font-size: 1.2rem !important;
     }
 }
+
+/* ── Visite in alto, stato in fondo alla card ────────────────────────────────
+   Le visite restano in alto a sinistra anche con il box statistiche attivo;
+   lo stato (online, offline o personalizzato) apre la riga in fondo. */
+.profile-small-meta .bio-pill--status {
+    min-height: 0;
+    margin-right: 0.2rem;
+    padding: 0.22rem 0.58rem;
+    font-size: 0.7rem;
+}
+
+.profile-small-meta .bio-pill--status .bio-dot {
+    width: 0.46rem;
+    height: 0.46rem;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14);
+}
+
+.profile-small-meta .bio-pill--live {
+    color: rgb(158, 255, 202);
+}
+
+.bio-pill--offline {
+    color: var(--muted);
+    background: rgba(128, 132, 142, 0.08);
+    border-color: rgba(128, 132, 142, 0.26);
+}
+
+.profile-small-meta .bio-pill--offline .bio-dot {
+    background: #80848e;
+    box-shadow: 0 0 0 4px rgba(128, 132, 142, 0.14);
+}

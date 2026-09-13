@@ -195,7 +195,7 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <meta name="robots" content="noindex">
     <link rel="stylesheet" href="/assets/css/profile-editor.css?v=6.1.0">
     <link rel="stylesheet" href="/assets/css/profile-markdown-guide.css?v=6.0.0">
-    <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.0.0">
+    <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/photo-cropper.css?v=1.3">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" defer></script>
     <script src="/assets/js/profile-markdown-guide.js?v=6.0.0" defer></script>
@@ -203,7 +203,7 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
     <script src="/assets/js/profile-editor/components.js?v=6.1.0" defer></script>
     <script src="/assets/js/profile-editor/items.js?v=6.1.0" defer></script>
-    <script src="/assets/js/profile-editor/editor.js?v=6.1.0" defer></script>
+    <script src="/assets/js/profile-editor/editor.js?v=6.2.0" defer></script>
 </head>
 
 <body class="pe-body<?php echo $isPremium ? ' is-premium' : ''; ?>" style="--pe-accent: <?php echo pe_h($style['accent']); ?>; --editor-accent: <?php echo pe_h($style['accent']); ?>;">

@@ -36,16 +36,12 @@ const PROFILE_NAME_EFFECTS = ['none', 'gradient', 'rainbow', 'glow', 'sparkles',
 const PROFILE_NAME_EFFECTS_OWN_COLORS = ['gradient', 'rainbow', 'fire', 'water'];
 
 /** Anelli della foto profilo (assets/css/profile-rings.css). */
-const PROFILE_RING_STYLES = ['none', 'spin', 'pulse', 'orbit', 'dual', 'rainbow', 'neon', 'spark', 'glitch'];
+const PROFILE_RING_STYLES = ['none', 'spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch'];
 
-/** Glow e halo sono stati tolti: chi li aveva ottiene l'effetto piu' vicino. */
-const PROFILE_RING_LEGACY = ['glow' => 'neon', 'halo' => 'pulse'];
-
-/** Stile dell'anello da un valore salvato o inviato, vecchi nomi compresi. */
+/** Stile dell'anello da un valore salvato o inviato. */
 function profile_ring_normalize($style, bool $enabled = true): string
 {
     $style = is_string($style) ? strtolower(trim($style)) : '';
-    $style = PROFILE_RING_LEGACY[$style] ?? $style;
     if (!$enabled) {
         return 'none';
     }

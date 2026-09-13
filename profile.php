@@ -196,17 +196,39 @@ if ($profile) {
                 'profile_show_audio_btn',
                 'profile_bg_use_video_audio'
             ];
+            // Gli interruttori dell'editor mandano sempre il loro "0" nascosto,
+            // quindi una chiave assente vuol dire "non e' nel form", non "spento".
+            // Prima diventava 0: `profile_show_socials` non ha un interruttore
+            // nell'editor e i social sparivano dall'anteprima alla prima bozza.
             foreach ($booleans as $boolCol) {
-                $profile[$boolCol] = isset($draft[$boolCol]) ? (int)$draft[$boolCol] : 0;
+                if (isset($draft[$boolCol])) {
+                    $profile[$boolCol] = (int)$draft[$boolCol];
+                }
             }
 
-            // Re-map list JSON variables
-            $socials = isset($draft['socials_json']) ? json_decode($draft['socials_json'], true) : [];
-            $links = isset($draft['links_json']) ? json_decode($draft['links_json'], true) : [];
-            $projects = isset($draft['projects_json']) ? json_decode($draft['projects_json'], true) : [];
-            $contents = isset($draft['contents_json']) ? json_decode($draft['contents_json'], true) : [];
-            $blocks = isset($draft['blocks_json']) ? json_decode($draft['blocks_json'], true) : [];
-            $embeds = isset($draft['embeds_json']) ? json_decode($draft['embeds_json'], true) : [];
+            // Le liste della bozza contengono anche gli elementi con l'occhio
+            // chiuso: il profilo pubblico non li mostra, l'anteprima nemmeno.
+            $draftList = static function (string $key) use ($draft): array {
+                $rows = isset($draft[$key]) ? json_decode((string)$draft[$key], true) : [];
+                return array_values(array_filter(is_array($rows) ? $rows : [], static function ($row): bool {
+                    return is_array($row) && !in_array($row['is_visible'] ?? true, [false, 0, '0', ''], true);
+                }));
+            };
+            $socials = $draftList('socials_json');
+            $links = $draftList('links_json');
+            $projects = $draftList('projects_json');
+            $contents = $draftList('contents_json');
+            $blocks = $draftList('blocks_json');
+            // Come api/update_profile.php: solo link sicuri, convertiti nell'indirizzo da incorporare.
+            $draftEmbeds = [];
+            foreach ($draftList('embeds_json') as $embedRow) {
+                $embedType = profile_allowed_value((string)($embedRow['type'] ?? 'spotify'), ['spotify', 'youtube', 'custom'], 'spotify');
+                $embedUrl = trim((string)($embedRow['url'] ?? ''));
+                if ($embedUrl === '' || !profile_is_safe_url($embedUrl, true)) continue;
+                if ($embedType === 'spotify') $embedUrl = profile_get_spotify_embed_url($embedUrl) ?: $embedUrl;
+                if ($embedType === 'youtube') $embedUrl = profile_get_youtube_embed_url($embedUrl) ?: $embedUrl;
+                $draftEmbeds[] = ['type' => $embedType, 'title' => profile_clean_text($embedRow['title'] ?? '', 100), 'url' => $embedUrl];
+            }
             if (isset($draft['profile_tags_json'])) {
                 $profile['profile_tags_json'] = $draft['profile_tags_json'];
             }
@@ -422,7 +444,8 @@ $layoutCss = [
     'clean' => 'stacked',
 ][$layout] ?? 'standard';
 $showEmbeds = $profile ? profile_flag($profile, 'profile_show_embeds', true) : false;
-$embeds = $showEmbeds ? profile_list_embeds($mysqli, $profileId, true) : [];
+// In anteprima gli embed arrivano dalla bozza, come le altre liste.
+$embeds = $showEmbeds ? ($draftEmbeds ?? profile_list_embeds($mysqli, $profileId, true)) : [];
 $socialsStyle = $style['socials_style'];
 
 $displayName = $profile ? profile_display_name($profile) : 'Profilo';
@@ -566,8 +589,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.15.0">
-    <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.0.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.16.0">
+    <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -617,7 +640,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
     <script src="/assets/js/profile.js?v=5.15.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
-        <script src="/assets/js/profile-style.js?v=6.1.0" defer></script>
+        <script src="/assets/js/profile-style.js?v=6.2.0" defer></script>
         <style>
             .profile-smart-page {
                 padding-top: 1.5rem !important;
@@ -1270,17 +1293,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
             <div class="profile-smart-hero-wrapper">
                 <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile" <?php echo $tiltAttrs; ?>>
                     <div class="profile-hero-actions-top">
-                        <?php if ($showStats): ?>
-                            <?php if ($isOnline): ?>
-                                <span class="bio-pill bio-pill--live"><span class="bio-dot"></span>online</span>
-                            <?php elseif ($customStatus): ?>
-                                <span class="bio-pill"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
-                            <?php else: ?>
-                                <div></div>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <span class="bio-pill"><i class="fa-solid fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo ($lang === 'it') ? 'visite' : 'views'; ?></span>
-                        <?php endif; ?>
+                        <?php // Le visite stanno sempre qui, anche con il box statistiche attivo: lo stato va nella riga in fondo alla card. ?>
+                        <span class="bio-pill bio-pill--views"><i class="fa-solid fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo $pt('visite', 'views'); ?></span>
 
                         <?php if (!isset($_GET['preview_mode'])): ?>
                             <div class="profile-dropdown-wrap">
@@ -1618,14 +1632,15 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                             })();
                         </script>
 
+                        <?php // La riga in fondo (stato compreso) sparisce tutta con "nascondi le informazioni in fondo". ?>
                         <?php if (!$hideMeta): ?>
                             <div class="profile-small-meta">
-                                <?php if (!$showStats): ?>
-                                    <?php if ($isOnline): ?>
-                                        <span class="bio-pill bio-pill--live" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><span class="bio-dot"></span>online</span>
-                                    <?php elseif ($customStatus): ?>
-                                        <span class="bio-pill" style="margin-right: 0.4rem; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
-                                    <?php endif; ?>
+                                <?php if ($isOnline): ?>
+                                    <span class="bio-pill bio-pill--live bio-pill--status"><span class="bio-dot"></span>online</span>
+                                <?php elseif ($customStatus): ?>
+                                    <span class="bio-pill bio-pill--status"><i class="fa-solid fa-signal"></i><?php echo profile_h($customStatus); ?></span>
+                                <?php else: ?>
+                                    <span class="bio-pill bio-pill--offline bio-pill--status"><span class="bio-dot"></span>offline</span>
                                 <?php endif; ?>
                                 <span><i class="fa-solid fa-calendar"></i><?php echo date('d/m/Y', strtotime($profile['data_creazione'])); ?></span>
                                 <?php if (!$isOnline && $lastSeen): ?><span><i class="fa-solid fa-clock"></i><?php echo profile_h(profile_time_ago($lastSeen)); ?></span><?php endif; ?>
