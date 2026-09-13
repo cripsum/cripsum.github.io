@@ -2911,11 +2911,11 @@
     padding: 0.4rem 0 0;
 }
 
-/* Nome: anteprima ed effetti (versione ridotta di quelli del profilo) */
+/* Nome: anteprima e riquadri (gli effetti sono in profile-name-effects.css) */
 .pe-name-preview {
     display: grid;
     place-items: center;
-    min-height: 74px;
+    min-height: 86px;
     padding: 0.8rem;
     border-radius: var(--pe-radius-sm);
     background: radial-gradient(circle at 50% 120%, var(--pe-accent-soft), transparent 70%), var(--pe-bg);
@@ -2924,13 +2924,11 @@
 
 .pe-name-sample {
     max-width: 100%;
-    overflow: hidden;
-    color: var(--name-color, #fff);
     font-family: "Poppins", sans-serif;
     font-size: 1.6rem;
     font-weight: 700;
+    line-height: 1.2;
     white-space: nowrap;
-    text-overflow: ellipsis;
 }
 
 .pe-name-sample:empty::before {
@@ -2942,84 +2940,12 @@
 }
 
 .pe-name-art {
-    color: var(--pe-text);
     font-family: "Poppins", sans-serif;
     font-size: 1.1rem;
     font-weight: 800;
+    line-height: 1.2;
 }
 
-:is(.pe-name-sample, .pe-name-art)[data-effect="gradient"] {
-    background: linear-gradient(var(--name-angle, 90deg), var(--name-grad-1, #fff), var(--name-grad-2, var(--pe-accent)));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.pe-name-art[data-effect="gradient"] {
-    --name-grad-1: #ffffff;
-    --name-grad-2: var(--pe-accent);
-}
-
-:is(.pe-name-sample, .pe-name-art)[data-effect="rainbow"] {
-    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #9400d3, #ff0000);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: peRainbow 4s linear infinite;
-}
-
-:is(.pe-name-sample, .pe-name-art)[data-effect="glow"] {
-    text-shadow: 0 0 10px var(--name-glow-color, var(--pe-accent)), 0 0 22px var(--name-glow-color, var(--pe-accent));
-}
-
-:is(.pe-name-sample, .pe-name-art)[data-effect="neon"] {
-    text-shadow: 0 0 4px #fff, 0 0 12px var(--name-glow-color, var(--pe-accent)), 0 0 24px var(--name-glow-color, var(--pe-accent));
-}
-
-:is(.pe-name-sample, .pe-name-art)[data-effect="fire"] {
-    background: linear-gradient(0deg, #ff3300, #ff7700 50%, #ffdd00);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-:is(.pe-name-sample, .pe-name-art)[data-effect="water"] {
-    background: linear-gradient(180deg, #0044ff, #00ffcc, #0044ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-:is(.pe-name-sample, .pe-name-art)[data-effect="glitch"] {
-    text-shadow: -2px 0 #ff0055, 2px 0 #00ffff;
-}
-
-:is(.pe-name-sample, .pe-name-art)[data-effect="sparkles"] {
-    text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
-}
-
-.pe-name-art[data-effect="sparkles"]::after {
-    content: "✦";
-    margin-left: 1px;
-    color: var(--pe-premium);
-    font-size: 0.6em;
-    vertical-align: super;
-    -webkit-text-fill-color: currentColor;
-}
-
-:is(.pe-name-sample, .pe-name-art)[data-effect="bounce"] {
-    display: inline-block;
-    animation: peBounce 0.9s ease-in-out infinite alternate;
-}
-
-@keyframes peRainbow {
-    to { background-position: -200% 0; }
-}
-
-@keyframes peBounce {
-    to { transform: translateY(-3px); }
-}
 
 /* ── Anelli della foto: riquadri con l'anteprima vera ──────────────────────── */
 .pe-ring-choices .pe-choice-art {

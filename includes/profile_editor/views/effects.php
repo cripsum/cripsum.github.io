@@ -17,15 +17,19 @@ $fxArt = static fn(string $kind) => static fn($o) => $o + ['art' => '<span class
 $pageEffectOptions = array_map($fxArt('page'), $catalog['page_effects']);
 $cursorEffectOptions = array_map($fxArt('cursor'), $catalog['cursor_effects']);
 $fxColors = '--accent: ' . pe_h($style['accent']) . '; --accent-2: ' . pe_h($style['secondary']) . ';';
-$nameEffectOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-name-art" data-effect="' . $o['value'] . '">Aa</span>'], $catalog['name_effects']);
+$nameEffectOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-name-art cn-name" data-name-effect="' . pe_h($o['value']) . '" data-text="Aa">Aa</span>'], $catalog['name_effects']);
+$nameVars = '--name-color: ' . pe_h($nameStyle['color']) . '; --name-grad-1: ' . pe_h($nameStyle['grad_color1']) . '; --name-grad-2: ' . pe_h($nameStyle['grad_color2'])
+    . '; --name-angle: ' . (int)$nameStyle['grad_angle'] . 'deg; --name-glow-color: ' . pe_h($nameStyle['glow_color']) . '; --accent: ' . pe_h($style['accent']) . ';';
 ?>
 
 <?php pe_group('grp-name', $tt('Nome', 'Name'), $tt('Il nome in cima al profilo: scegli un colore oppure un effetto.', 'The name at the top of your profile: pick a color or an effect.'), ['keywords' => 'nome colore sfumatura gradient effetto animazione']); ?>
-<div class="pe-name-preview" id="peNamePreview" aria-hidden="true">
-    <span class="pe-name-sample" data-effect="<?php echo pe_h($nameStyle['effect']); ?>"><?php echo pe_h(profile_display_name($profile)); ?></span>
-</div>
+<div class="pe-name-fx" id="peNameFx" style="<?php echo $nameVars; ?>">
+    <div class="pe-name-preview" id="peNamePreview" aria-hidden="true">
+        <span class="pe-name-sample cn-name" data-name-effect="<?php echo pe_h($nameStyle['effect']); ?>" data-text="<?php echo pe_h(profile_display_name($profile)); ?>"><?php echo pe_h(profile_display_name($profile)); ?></span>
+    </div>
 
-<?php pe_choice('profile_name_effect', $nameStyle['effect'], $nameEffectOptions, ['label' => $tt('Effetto', 'Effect'), 'variant' => 'tiles', 'columns' => 5, 'class' => 'pe-name-effects']); ?>
+    <?php pe_choice('profile_name_effect', $nameStyle['effect'], $nameEffectOptions, ['label' => $tt('Effetto', 'Effect'), 'variant' => 'tiles', 'columns' => 5, 'class' => 'pe-name-effects']); ?>
+</div>
 
 <div data-show-if="profile_name_effect!=<?php echo $ownColorEffects; ?>">
     <?php pe_color('profile_name_color', $nameStyle['color'], ['label' => $tt('Colore del nome', 'Name color'), 'keywords' => 'nome colore']); ?>

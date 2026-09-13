@@ -90,6 +90,13 @@ function profile_editor_catalog(callable $tt): array
             $opt('trail_stars', $tt('Scia di stelle', 'Star trail'), true),
             $opt('trail_hearts', $tt('Scia di cuori', 'Heart trail'), true),
             $opt('cat_follower', $tt('Gattino', 'Cat follower'), true),
+            $opt('comet', $tt('Cometa', 'Comet'), true),
+            $opt('ripple', $tt('Onde', 'Ripples'), true),
+            $opt('fireflies', $tt('Lucciole', 'Fireflies'), true),
+            $opt('fireworks', $tt('Fuochi al clic', 'Click fireworks'), true),
+            $opt('bubbles', $tt('Bolle', 'Bubbles'), true),
+            $opt('pixels', 'Pixel', true),
+            $opt('snow', $tt('Neve', 'Snow'), true),
         ],
 
         'music_themes' => [

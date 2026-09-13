@@ -589,9 +589,10 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.17.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.18.0">
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
-    <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.0.0">
+    <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.1.0">
+    <link rel="stylesheet" href="/assets/css/profile-name-effects.css?v=1.0.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -639,8 +640,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
         }
     </style>
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
-    <script src="/assets/js/profile-effects.js?v=1.0.0" defer></script>
-    <script src="/assets/js/profile.js?v=5.16.0" defer></script>
+    <script src="/assets/js/profile-effects.js?v=1.1.0" defer></script>
+    <script src="/assets/js/profile-name-effects.js?v=1.0.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.17.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <script src="/assets/js/profile-style.js?v=6.2.0" defer></script>
         <style>
@@ -1406,7 +1408,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
                     <div class="bio-name-block profile-smart-name">
                         <div class="profile-name-row">
-                            <h1 class="profile-display-name"
+                            <h1 class="profile-display-name cn-name"
                                 <?php echo profile_name_style_attributes($nameStyle); ?>
                                 data-text="<?php echo profile_h($displayName); ?>">
                                 <?php echo profile_format_name($displayName, $nameStyle); ?>
@@ -2198,7 +2200,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
                 const loadedFonts = new Set();
                 let lastEffect = body.dataset.profileEffect || 'none';
-                let lastNameEffect = $('.profile-display-name')?.dataset.nameEffect || 'none';
+
                 let lastCursor = '';
 
                 const loadFont = (family) => {
@@ -2224,8 +2226,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         glow_color: s.profile_name_glow_color,
                     }, s.profile_text_color, s.profile_theme);
 
-                    nameEl.dataset.nameEffect = style.effect;
-                    nameEl.dataset.nameAnim = style.effect;
                     nameEl.style.setProperty('--name-color', style.color);
                     nameEl.style.setProperty('--name-grad-1', style.grad_color1);
                     nameEl.style.setProperty('--name-grad-2', style.grad_color2);
@@ -2236,23 +2236,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     const text = on(s, 'discord_use_display_name')
                         ? (nameEl.dataset.text || nameEl.textContent)
                         : (String(s.display_name || '').trim() || String(s.username || '').trim() || nameEl.dataset.text || '');
-                    nameEl.dataset.text = text;
-                    nameEl.textContent = '';
-                    if (style.effect === 'bounce') {
-                        Array.from(text).forEach((char, index) => {
-                            const span = document.createElement('span');
-                            span.className = char === ' ' ? 'name-char space-char' : 'name-char';
-                            span.style.setProperty('--char-index', String(index));
-                            span.textContent = char === ' ' ? '\u00a0' : char;
-                            nameEl.appendChild(span);
-                        });
-                    } else {
-                        nameEl.textContent = text;
-                    }
-                    if ((style.effect === 'sparkles') !== (lastNameEffect === 'sparkles') && window.initNameSparkles) {
-                        window.initNameSparkles();
-                    }
-                    lastNameEffect = style.effect;
+                    // Lettere e particelle degli effetti: assets/js/profile-name-effects.js
+                    window.CripsumNameEffects?.apply(nameEl, style.effect, { text });
                 };
 
                 const applyTexts = (s) => {

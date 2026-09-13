@@ -417,8 +417,6 @@ function profile_name_style_attributes(array $nameStyle): string
     ];
 
     return 'data-name-effect="' . htmlspecialchars($nameStyle['effect'], ENT_QUOTES, 'UTF-8') . '"'
-        // profile.js cerca ancora data-name-anim per le scintille.
-        . ' data-name-anim="' . htmlspecialchars($nameStyle['effect'], ENT_QUOTES, 'UTF-8') . '"'
         . ' style="' . htmlspecialchars(profile_style_inline($vars), ENT_QUOTES, 'UTF-8') . '"';
 }
 

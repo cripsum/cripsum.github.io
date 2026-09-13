@@ -1,0 +1,283 @@
+/**
+ * Cripsum™ — Effetti del nome
+ *
+ * Valgono per qualsiasi elemento `.cn-name[data-name-effect]`: il nome sul
+ * profilo, l'anteprima e i riquadri dell'editor usano le stesse regole, cosi'
+ * quello che scegli e' quello che si vede. Le misure sono in `em`, quindi
+ * l'effetto resta proporzionato a 20 come a 60 pixel.
+ *
+ * Variabili (impostate da profile_name_style_attributes() e dall'editor):
+ *   --name-color, --name-grad-1, --name-grad-2, --name-angle, --name-glow-color
+ *
+ * Le particelle di Scintille, Fuoco e Acqua e le lettere di Rimbalzo arrivano
+ * da assets/js/profile-name-effects.js.
+ */
+
+.cn-name {
+    --cn-color: var(--name-color, #ffffff);
+    --cn-glow: var(--name-glow-color, var(--accent, #8b5cf6));
+    position: relative;
+    display: inline-block;
+    color: var(--cn-color);
+}
+
+/* Effetti che colorano il testo con uno sfondo ritagliato */
+.cn-name:is([data-name-effect="gradient"], [data-name-effect="rainbow"], [data-name-effect="fire"], [data-name-effect="water"]) {
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-repeat: no-repeat;
+}
+
+/* ── Sfumatura: i tuoi due colori, con un riflesso che passa ogni tanto ───── */
+.cn-name[data-name-effect="gradient"] {
+    background-image:
+        linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.7) 50%, transparent 58%),
+        linear-gradient(var(--name-angle, 90deg), var(--name-grad-1, #ffffff), var(--name-grad-2, #8b5cf6));
+    background-size: 300% 100%, 100% 100%;
+    background-position: 120% 0, 0 0;
+    filter: drop-shadow(0 0.05em 0.2em color-mix(in srgb, var(--name-grad-2, #8b5cf6) 35%, transparent));
+    animation: cnSheen 6s ease-in-out infinite;
+}
+
+@keyframes cnSheen {
+    0%, 60% { background-position: 120% 0, 0 0; }
+    100% { background-position: -20% 0, 0 0; }
+}
+
+/* ── Arcobaleno: uno spettro morbido che scorre senza scatti ─────────────── */
+.cn-name[data-name-effect="rainbow"] {
+    background-image: linear-gradient(90deg, #ff5f7e, #ffb86b, #f9f871, #7cf2a4, #5cc8ff, #9d8cff, #ff7ad9, #ff5f7e);
+    background-size: 300% 100%;
+    background-repeat: repeat;
+    filter: drop-shadow(0 0 0.14em rgba(255, 255, 255, 0.22)) saturate(1.1);
+    animation: cnFlow 7s linear infinite;
+}
+
+@keyframes cnFlow {
+    from { background-position: 0% 0; }
+    to { background-position: 150% 0; }
+}
+
+/* ── Bagliore: il colore del nome con un alone che respira ───────────────── */
+.cn-name[data-name-effect="glow"] {
+    text-shadow:
+        0 0 0.02em rgba(255, 255, 255, 0.9),
+        0 0 0.16em var(--cn-glow),
+        0 0 0.42em color-mix(in srgb, var(--cn-glow) 65%, transparent),
+        0 0 0.9em color-mix(in srgb, var(--cn-glow) 35%, transparent);
+    animation: cnGlow 3.4s ease-in-out infinite;
+}
+
+@keyframes cnGlow {
+    50% {
+        text-shadow:
+            0 0 0.03em #ffffff,
+            0 0 0.24em var(--cn-glow),
+            0 0 0.6em color-mix(in srgb, var(--cn-glow) 80%, transparent),
+            0 0 1.25em color-mix(in srgb, var(--cn-glow) 55%, transparent);
+    }
+}
+
+/* ── Neon: tubo di vetro acceso, con qualche sfarfallio vero ─────────────── */
+.cn-name[data-name-effect="neon"] {
+    color: color-mix(in srgb, var(--cn-color) 30%, #ffffff);
+    text-shadow:
+        0 0 0.03em #ffffff,
+        0 0 0.1em var(--cn-glow),
+        0 0 0.25em var(--cn-glow),
+        0 0 0.55em var(--cn-glow),
+        0 0 1em color-mix(in srgb, var(--cn-glow) 55%, transparent);
+    animation: cnNeon 8s linear infinite;
+}
+
+@keyframes cnNeon {
+    0%, 11.9%, 12.5%, 13.1%, 57.9%, 59.5%, 100% { opacity: 1; }
+    12.2% { opacity: 0.35; }
+    12.8% { opacity: 0.7; }
+    58.5% { opacity: 0.55; }
+}
+
+/* ── Fuoco: fiamma che sale nelle lettere, bagliore caldo e braci ────────── */
+.cn-name[data-name-effect="fire"] {
+    background-image: linear-gradient(0deg, #d61f00 0%, #ff5a00 22%, #ffa200 45%, #ffe7a0 62%, #ff8a00 80%, #d61f00 100%);
+    background-size: 100% 220%;
+    background-repeat: repeat;
+    filter:
+        drop-shadow(0 -0.04em 0.08em rgba(255, 110, 0, 0.85))
+        drop-shadow(0 -0.12em 0.3em rgba(255, 50, 0, 0.45));
+    animation: cnFireRise 1.8s linear infinite, cnFireFlicker 0.9s steps(3) infinite;
+}
+
+@keyframes cnFireRise {
+    from { background-position: 0 0%; }
+    to { background-position: 0 -183%; }
+}
+
+@keyframes cnFireFlicker {
+    0%, 100% { opacity: 1; }
+    40% { opacity: 0.92; }
+}
+
+/* ── Acqua: profondita' marina con un'onda di luce che scorre ─────────────── */
+.cn-name[data-name-effect="water"] {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='none'%3E%3Cpath d='M0 42 Q25 30 50 42 T100 42 T150 42 T200 42 V100 H0z' fill='%23ffffff' fill-opacity='.28'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, #d7fbff 0%, #5ee7f7 30%, #1aa7e8 58%, #1747b8 100%);
+    background-size: 2.4em 100%, 100% 100%;
+    background-repeat: repeat-x, no-repeat;
+    filter: drop-shadow(0 0.06em 0.16em rgba(14, 165, 233, 0.5));
+    animation: cnWave 3s linear infinite, cnTide 5s ease-in-out infinite;
+}
+
+@keyframes cnWave {
+    from { background-position: 0 0, 0 0; }
+    to { background-position: 2.4em 0, 0 0; }
+}
+
+@keyframes cnTide {
+    0%, 100% { filter: drop-shadow(0 0.06em 0.16em rgba(14, 165, 233, 0.45)); }
+    50% { filter: drop-shadow(0 0.1em 0.28em rgba(34, 211, 238, 0.65)); }
+}
+
+/* ── Glitch: fermo quasi sempre, poi un colpo di interferenza ────────────── */
+.cn-name[data-name-effect="glitch"] {
+    text-shadow: -0.025em 0 rgba(255, 0, 90, 0.55), 0.025em 0 rgba(0, 240, 255, 0.55);
+    animation: cnGlitchMain 3.6s steps(1) infinite;
+}
+
+.cn-name[data-name-effect="glitch"]::before,
+.cn-name[data-name-effect="glitch"]::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    white-space: inherit;
+    text-shadow: none;
+}
+
+.cn-name[data-name-effect="glitch"]::before {
+    color: #ff2a7a;
+    animation: cnGlitchA 3.6s steps(1) infinite;
+}
+
+.cn-name[data-name-effect="glitch"]::after {
+    color: #25f4ff;
+    animation: cnGlitchB 3.6s steps(1) infinite;
+}
+
+@keyframes cnGlitchMain {
+    0%, 100% { transform: none; }
+    58% { transform: translateX(0.03em) skewX(-6deg); }
+    60% { transform: translateX(-0.04em); }
+    62% { transform: none; }
+    86% { transform: translateX(-0.02em) skewX(5deg); }
+    87% { transform: none; }
+}
+
+@keyframes cnGlitchA {
+    0%, 57%, 63%, 85%, 88%, 100% { opacity: 0; clip-path: none; transform: none; }
+    58% { opacity: 0.9; clip-path: inset(10% 0 62% 0); transform: translate(-0.06em, 0); }
+    60% { opacity: 0.9; clip-path: inset(55% 0 20% 0); transform: translate(0.05em, 0); }
+    62% { opacity: 0.8; clip-path: inset(32% 0 45% 0); transform: translate(-0.03em, 0); }
+    86% { opacity: 0.85; clip-path: inset(70% 0 8% 0); transform: translate(0.06em, 0); }
+}
+
+@keyframes cnGlitchB {
+    0%, 57%, 63%, 85%, 88%, 100% { opacity: 0; clip-path: none; transform: none; }
+    58% { opacity: 0.9; clip-path: inset(48% 0 28% 0); transform: translate(0.06em, 0); }
+    60% { opacity: 0.9; clip-path: inset(6% 0 70% 0); transform: translate(-0.05em, 0); }
+    62% { opacity: 0.75; clip-path: inset(66% 0 12% 0); transform: translate(0.04em, 0); }
+    86% { opacity: 0.8; clip-path: inset(18% 0 60% 0); transform: translate(-0.06em, 0); }
+}
+
+/* ── Scintille: un riflesso leggero e stelline che nascono sulle lettere ─── */
+.cn-name[data-name-effect="sparkles"] {
+    text-shadow: 0 0 0.3em color-mix(in srgb, var(--cn-glow) 45%, transparent);
+}
+
+/* ── Lettere che saltano: un'onda con schiacciamento, poi una pausa ──────── */
+.cn-name[data-name-effect="bounce"] .name-char {
+    display: inline-block;
+    transform-origin: 50% 100%;
+    animation: cnHop 2.6s cubic-bezier(0.3, 0.7, 0.4, 1) infinite;
+    animation-delay: calc(var(--char-index, 0) * 70ms);
+}
+
+.cn-name[data-name-effect="bounce"] .name-char.space-char {
+    width: 0.26em;
+}
+
+@keyframes cnHop {
+    0%, 38%, 100% { transform: translateY(0) scale(1, 1); }
+    6% { transform: translateY(0) scale(1.1, 0.88); }
+    16% { transform: translateY(-0.3em) scale(0.94, 1.08); }
+    26% { transform: translateY(0) scale(1.08, 0.92); }
+    32% { transform: translateY(-0.04em) scale(0.98, 1.02); }
+}
+
+/* ── Particelle (JS) ─────────────────────────────────────────────────────── */
+.cn-particle {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--size);
+    height: var(--size);
+    pointer-events: none;
+    -webkit-text-fill-color: initial;
+    z-index: 2;
+}
+
+.cn-particle--spark {
+    background: var(--c);
+    clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+    filter: drop-shadow(0 0 0.15em var(--c));
+    animation: cnSpark var(--t) ease-out forwards;
+}
+
+@keyframes cnSpark {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+    35% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(70deg); }
+    100% { opacity: 0; transform: translate(-50%, -80%) scale(0.2) rotate(160deg); }
+}
+
+.cn-particle--ember {
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff6c8 0%, #ffae00 40%, rgba(255, 60, 0, 0) 72%);
+    animation: cnEmber var(--t) ease-out forwards;
+}
+
+@keyframes cnEmber {
+    0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+    15% { opacity: 1; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), -1.1em) scale(0.2); }
+}
+
+.cn-particle--bubble {
+    border: 0.03em solid rgba(220, 250, 255, 0.85);
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.85) 0 16%, rgba(125, 230, 255, 0.18) 45%, transparent 70%);
+    animation: cnBubble var(--t) ease-in forwards;
+}
+
+@keyframes cnBubble {
+    0% { opacity: 0; transform: translate(-50%, 0) scale(0.4); }
+    20% { opacity: 0.95; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), -0.9em) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cn-name,
+    .cn-name::before,
+    .cn-name::after,
+    .cn-name .name-char,
+    .cn-particle {
+        animation: none !important;
+    }
+
+    .cn-particle {
+        display: none;
+    }
+}

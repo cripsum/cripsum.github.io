@@ -293,13 +293,6 @@ body[data-theme="light"] .bio-avatar {
     font-size: clamp(2.25rem, 5vw, 3.7rem);
     line-height: 0.95;
     letter-spacing: -0.08em;
-    color: var(--profile-text-color, #ffffff);
-}
-
-body[data-theme="light"] .bio-name-block h1 {
-    color: #0f172a;
-    background: none;
-    -webkit-text-fill-color: initial;
 }
 
 @keyframes gradientShift {
@@ -3019,12 +3012,6 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
 }
 
-.public-profile-body .bio-name-block h1,
-.profile-editor-shell .bio-name-block h1 {
-    color: var(--profile-text-color, #ffffff);
-    background: none;
-    -webkit-text-fill-color: initial;
-}
 
 .profile-link-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5911,204 +5898,9 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
 .profile-display-name {
     position: relative;
     display: inline-block;
-    color: var(--profile-text-color, #fff);
-    transition: all 0.3s ease;
 }
 
-/* 1. Name color types */
-
-/* 2. Animations / Effects */
-/* Rainbow */
-@keyframes nameRainbowShift {
-    0% {
-        background-position: 0% 0;
-        filter: hue-rotate(0deg);
-    }
-    100% {
-        background-position: -200% 0;
-        filter: hue-rotate(360deg);
-    }
-}
-
-/* Glow */
-@keyframes nameGlowPulse {
-    from {
-        text-shadow: 0 0 8px var(--name-glow-color, var(--accent)), 0 0 15px var(--name-glow-color, var(--accent)), 0 0 22px var(--name-glow-color, var(--accent));
-    }
-    to {
-        text-shadow: 0 0 16px var(--name-glow-color, var(--accent)), 0 0 28px var(--name-glow-color, var(--accent)), 0 0 40px var(--name-glow-color, var(--accent));
-    }
-}
-
-/* Fire */
-@keyframes nameFireWave {
-    0% {
-        filter: drop-shadow(0 -2px 2px rgba(255, 51, 0, 0.5)) brightness(1);
-    }
-    100% {
-        filter: drop-shadow(0 -4px 5px rgba(255, 119, 0, 0.85)) brightness(1.25);
-    }
-}
-
-/* Water */
-@keyframes nameWaterShift {
-    0%,
-    100% {
-        background-position: center 0%;
-    }
-    50% {
-        background-position: center 100%;
-    }
-}
-
-/* Glitch */
-@keyframes nameGlitchAnim1 {
-    0% {
-        clip-path: inset(20% 0 50% 0);
-        transform: translate(-3px, -2px) skew(0.5deg);
-    }
-    10% {
-        clip-path: inset(10% 0 80% 0);
-        transform: translate(3px, 2px) skew(-1deg);
-    }
-    20% {
-        clip-path: inset(80% 0 10% 0);
-        transform: translate(-3px, 2px) skew(1deg);
-    }
-    30% {
-        clip-path: inset(40% 0 40% 0);
-        transform: translate(0px, 0px) skew(0deg);
-    }
-    40% {
-        clip-path: inset(50% 0 10% 0);
-        transform: translate(2px, -2px) skew(-0.5deg);
-    }
-    50% {
-        clip-path: inset(15% 0 75% 0);
-        transform: translate(-2px, 2px) skew(0.8deg);
-    }
-    60% {
-        clip-path: inset(65% 0 15% 0);
-        transform: translate(0px, 0px) skew(0deg);
-    }
-    70% {
-        clip-path: inset(5% 0 85% 0);
-        transform: translate(-3px, -1px) skew(-1deg);
-    }
-    80% {
-        clip-path: inset(85% 0 5% 0);
-        transform: translate(3px, 1px) skew(1.2deg);
-    }
-    90% {
-        clip-path: inset(30% 0 50% 0);
-        transform: translate(-1px, -2px) skew(-0.3deg);
-    }
-    100% {
-        clip-path: inset(45% 0 45% 0);
-        transform: translate(0px, 0px) skew(0deg);
-    }
-}
-@keyframes nameGlitchAnim2 {
-    0% {
-        clip-path: inset(40% 0 30% 0);
-        transform: translate(3px, 2px) skew(-0.5deg);
-    }
-    10% {
-        clip-path: inset(75% 0 15% 0);
-        transform: translate(-3px, -2px) skew(1deg);
-    }
-    20% {
-        clip-path: inset(5% 0 85% 0);
-        transform: translate(3px, -2px) skew(-1deg);
-    }
-    30% {
-        clip-path: inset(60% 0 10% 0);
-        transform: translate(0px, 0px) skew(0deg);
-    }
-    40% {
-        clip-path: inset(10% 0 70% 0);
-        transform: translate(-2px, 2px) skew(0.5deg);
-    }
-    50% {
-        clip-path: inset(80% 0 5% 0);
-        transform: translate(2px, -2px) skew(-0.8deg);
-    }
-    60% {
-        clip-path: inset(25% 0 60% 0);
-        transform: translate(0px, 0px) skew(0deg);
-    }
-    70% {
-        clip-path: inset(85% 0 5% 0);
-        transform: translate(3px, 1px) skew(-1.2deg);
-    }
-    80% {
-        clip-path: inset(15% 0 75% 0);
-        transform: translate(-3px, -1px) skew(1deg);
-    }
-    90% {
-        clip-path: inset(50% 0 20% 0);
-        transform: translate(2px, 2px) skew(-0.3deg);
-    }
-    100% {
-        clip-path: inset(35% 0 55% 0);
-        transform: translate(0px, 0px) skew(0deg);
-    }
-}
-
-/* Neon */
-@keyframes nameNeonFlicker {
-    0%,
-    19%,
-    21%,
-    23%,
-    25%,
-    54%,
-    56%,
-    100% {
-        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--name-glow-color, var(--accent)), 0 0 30px var(--name-glow-color, var(--accent));
-        opacity: 1;
-    }
-    20%,
-    24%,
-    55% {
-        text-shadow: none;
-        opacity: 0.6;
-    }
-}
-
-/* Bounce */
-@keyframes nameLetterBounce {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(-8px);
-    }
-}
-
-/* Sparkles container & sparkle elements */
-.name-sparkle {
-    position: absolute !important;
-    width: 7px !important;
-    height: 7px !important;
-    pointer-events: none !important;
-    clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%) !important;
-    z-index: 10 !important;
-    animation: nameSparkleFade 0.8s ease-out forwards !important;
-}
-@keyframes nameSparkleFade {
-    0% {
-        transform: scale(0) rotate(0deg);
-        opacity: 0;
-    }
-    40% {
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1.2) rotate(120deg);
-        opacity: 0;
-    }
-}
+/* Effetti del nome: assets/css/profile-name-effects.css */
 
 /* Base shape variables for elements */
 .bio-social-icon {
@@ -8256,97 +8048,9 @@ body.public-profile-body .profile-tag-pill:hover {
     font-size: 0.95em;
 }
 
-/* ── Nome: un colore e un effetto ────────────────────────────────────────── */
+/* ── Nome: un colore e un effetto (effetti in profile-name-effects.css) ─── */
 .profile-display-name {
     color: var(--name-color, var(--profile-text-color, #fff));
-}
-
-.profile-display-name[data-name-effect="gradient"] {
-    background: linear-gradient(var(--name-angle, 90deg), var(--name-grad-1, #ffffff), var(--name-grad-2, #8b5cf6)) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-}
-
-.profile-display-name[data-name-effect="rainbow"] {
-    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000) !important;
-    background-size: 200% 100% !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    animation: nameRainbowShift 4s linear infinite !important;
-    will-change: background-position;
-}
-
-.profile-display-name[data-name-effect="glow"] {
-    animation: nameGlowPulse 1.8s ease-in-out infinite alternate !important;
-}
-
-.profile-display-name[data-name-effect="fire"] {
-    background: linear-gradient(0deg, #ff3300 0%, #ff7700 50%, #ffdd00 100%) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    animation: nameFireWave 1.5s ease-in-out infinite alternate !important;
-}
-
-.profile-display-name[data-name-effect="water"] {
-    background: linear-gradient(180deg, #0044ff, #00ffcc, #0044ff) !important;
-    background-size: 100% 200% !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    filter: drop-shadow(0 2px 4px rgba(0, 68, 255, 0.45));
-    animation: nameWaterShift 3.5s ease-in-out infinite !important;
-}
-
-.profile-display-name[data-name-effect="glitch"]::before,
-.profile-display-name[data-name-effect="glitch"]::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    color: var(--name-color, var(--profile-text-color, #fff));
-}
-
-.profile-display-name[data-name-effect="glitch"]::before {
-    left: 2px;
-    text-shadow: -2px 0 #ff0055;
-    clip-path: inset(40% 0 30% 0);
-    animation: nameGlitchAnim1 2s infinite steps(1) alternate-reverse;
-}
-
-.profile-display-name[data-name-effect="glitch"]::after {
-    left: -2px;
-    text-shadow: -2px 0 #00ffff, 0 1px #00ffff;
-    clip-path: inset(15% 0 65% 0);
-    animation: nameGlitchAnim2 1.5s infinite steps(1) alternate-reverse;
-}
-
-.profile-display-name[data-name-effect="neon"] {
-    text-shadow: 0 0 5px color-mix(in srgb, var(--name-color, #fff) 70%, #fff), 0 0 12px var(--name-glow-color, var(--accent)), 0 0 24px var(--name-glow-color, var(--accent)) !important;
-    animation: nameNeonFlicker 3s infinite alternate !important;
-}
-
-.profile-display-name[data-name-effect="bounce"] .name-char {
-    display: inline-block;
-    animation: nameLetterBounce 1s ease-in-out infinite alternate;
-    animation-delay: calc(var(--char-index) * 0.08s);
-}
-
-.profile-display-name[data-name-effect="bounce"] .name-char.space-char {
-    width: 0.26em;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .profile-display-name,
-    .profile-display-name::before,
-    .profile-display-name::after,
-    .profile-display-name .name-char {
-        animation: none !important;
-    }
 }
 
 /* Anteprima dell'editor: la sezione aperta nell'editor lampeggia. */

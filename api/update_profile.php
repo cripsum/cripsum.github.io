@@ -491,7 +491,7 @@ try {
 
     if ($isPremium) {
         $layoutSnap = $layoutSnapChoice;
-        $cursorEffect = profile_allowed_value((string)($_POST['profile_cursor_effect'] ?? 'none'), ['none', 'follower', 'trail', 'trail_stars', 'cat_follower', 'trail_hearts'], 'none');
+        $cursorEffect = profile_allowed_value((string)($_POST['profile_cursor_effect'] ?? 'none'), ['none', 'follower', 'trail', 'trail_stars', 'cat_follower', 'trail_hearts', 'comet', 'ripple', 'fireflies', 'fireworks', 'bubbles', 'pixels', 'snow'], 'none');
         $cursorCustomUrl = isset($_POST['profile_cursor_custom_url']) ? trim((string)$_POST['profile_cursor_custom_url']) : '';
         if ($cursorCustomUrl !== '' && !profile_is_safe_url($cursorCustomUrl, false)) {
             $cursorCustomUrl = '';

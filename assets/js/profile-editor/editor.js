@@ -322,16 +322,21 @@
         }
 
         // Anteprima del nome dentro l'editor.
+        // I colori valgono per l'anteprima e per i riquadri degli effetti.
+        const nameFx = document.getElementById('peNameFx');
+        if (nameFx) {
+            nameFx.style.setProperty('--name-color', byName('profile_name_color')?.value || '#ffffff');
+            nameFx.style.setProperty('--name-grad-1', byName('profile_name_grad_color1')?.value || '#ffffff');
+            nameFx.style.setProperty('--name-grad-2', byName('profile_name_grad_color2')?.value || '#8b5cf6');
+            nameFx.style.setProperty('--name-angle', `${byName('profile_name_grad_angle')?.value || 90}deg`);
+            nameFx.style.setProperty('--name-glow-color', byName('profile_name_glow_color')?.value || '#8b5cf6');
+            const nameAccent = PE.hex(byName('accent_color')?.value);
+            if (nameAccent) nameFx.style.setProperty('--accent', nameAccent);
+        }
         const sample = document.querySelector('#peNamePreview .pe-name-sample');
-        if (sample) {
-            const displayName = byName('display_name')?.value.trim() || byName('username')?.value.trim() || '';
-            sample.textContent = displayName;
-            sample.dataset.effect = radioValue('profile_name_effect') || 'none';
-            sample.style.setProperty('--name-color', byName('profile_name_color')?.value || '#ffffff');
-            sample.style.setProperty('--name-grad-1', byName('profile_name_grad_color1')?.value || '#ffffff');
-            sample.style.setProperty('--name-grad-2', byName('profile_name_grad_color2')?.value || '#8b5cf6');
-            sample.style.setProperty('--name-angle', `${byName('profile_name_grad_angle')?.value || 90}deg`);
-            sample.style.setProperty('--name-glow-color', byName('profile_name_glow_color')?.value || '#8b5cf6');
+        if (sample && window.CripsumNameEffects) {
+            const displayName = byName('display_name')?.value.trim() || byName('username')?.value.trim() || 'Aa';
+            window.CripsumNameEffects.apply(sample, radioValue('profile_name_effect') || 'none', { text: displayName });
         }
 
         // Forma della foto nell'editor.
@@ -1042,6 +1047,8 @@
     });
 
     const start = () => {
+        // Riquadri degli effetti del nome: lettere e particelle vere.
+        $$('.pe-name-art').forEach((art) => window.CripsumNameEffects?.apply(art, art.dataset.nameEffect, { text: 'Aa' }));
         PE.initComponents();
         PE.initItems();
         syncDerived();

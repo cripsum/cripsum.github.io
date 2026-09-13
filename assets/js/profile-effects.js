@@ -940,11 +940,31 @@
     CURSOR.trail_stars = trail('star');
     CURSOR.trail_hearts = trail('heart');
 
+    /**
+     * Animazione del gatto del sito. Finche' il file non c'e' (stringa vuota)
+     * il gattino resta l'emoji; se l'immagine non si carica torna all'emoji.
+     */
+    const CAT_IMAGE = '';
+
     /** Gattino: insegue il puntatore con calma e si gira dalla parte giusta. */
     CURSOR.cat_follower = (env) => {
         const cat = document.createElement('i');
         cat.className = 'cfx-cat';
-        cat.textContent = '🐈';
+        const useEmoji = () => {
+            cat.classList.remove('cfx-cat--image');
+            cat.textContent = '🐈';
+        };
+        if (CAT_IMAGE) {
+            const img = document.createElement('img');
+            img.src = CAT_IMAGE;
+            img.alt = '';
+            img.decoding = 'async';
+            img.addEventListener('error', useEmoji, { once: true });
+            cat.classList.add('cfx-cat--image');
+            cat.appendChild(img);
+        } else {
+            useEmoji();
+        }
         env.root.appendChild(cat);
         const pointer = createPointer(env.root, { auto: env.preview });
         let facing = 1;
@@ -963,6 +983,345 @@
             destroy() { pointer.destroy(); },
         };
     };
+
+    // ── Nuovi effetti del cursore ───────────────────────────────────────────
+    /**
+     * Base comune: canvas grande quanto il contenitore, puntatore (vero o
+     * finto) e, nelle anteprime, un "clic" ogni tanto per gli effetti che
+     * rispondono al clic.
+     */
+    const canvasCursor = (env, { ease = 40, onClick = null, clickEvery = 1.4 } = {}) => {
+        const stage = createStage(env.root, { dprMax: 2 });
+        const pointer = createPointer(env.root, { auto: env.preview });
+        let clickTimer = clickEvery * 0.5;
+        let onDown = null;
+        if (onClick && !env.preview) {
+            onDown = (event) => {
+                const rect = env.root.getBoundingClientRect();
+                onClick(event.clientX - rect.left, event.clientY - rect.top);
+            };
+            global.addEventListener('pointerdown', onDown, { passive: true });
+        }
+        return {
+            stage,
+            pointer,
+            /** Posizione attuale del puntatore, gia' aggiornata. */
+            step(dt, t) {
+                if (env.preview) pointer.update(dt, t, stage.w, stage.h, ease);
+                const x = env.preview ? pointer.state.x : pointer.state.tx;
+                const y = env.preview ? pointer.state.y : pointer.state.ty;
+                env.cursorAt?.(x, y);
+                if (onClick && env.preview) {
+                    clickTimer -= dt;
+                    if (clickTimer <= 0) {
+                        clickTimer = clickEvery;
+                        onClick(x, y);
+                    }
+                }
+                return { x, y, active: env.preview || pointer.state.seen };
+            },
+            destroy() {
+                pointer.destroy();
+                if (onDown) global.removeEventListener('pointerdown', onDown);
+            },
+        };
+    };
+
+    /** Cometa: una scia luminosa continua che si assottiglia dietro al puntatore. */
+    CURSOR.comet = (env) => {
+        const base = canvasCursor(env, { ease: 14 });
+        const u = env.preview ? 0.55 : 1;
+        const points = [];
+        const maxAge = 0.45;
+        return {
+            resize() { base.stage.resize(); },
+            tick(dt, t) {
+                const { ctx, w, h } = base.stage;
+                const colors = env.colors();
+                const p = base.step(dt, t);
+                ctx.clearRect(0, 0, w, h);
+                if (!p.active) return;
+                points.unshift({ x: p.x, y: p.y, age: 0 });
+                points.forEach((pt) => { pt.age += dt; });
+                while (points.length && points[points.length - 1].age > maxAge) points.pop();
+                if (points.length < 2) return;
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                for (let pass = 0; pass < 2; pass++) {
+                    for (let i = 1; i < points.length; i++) {
+                        const a = points[i - 1];
+                        const b = points[i];
+                        const k = 1 - b.age / maxAge;
+                        const rgb = mix(colors.b, colors.a, k);
+                        ctx.strokeStyle = rgba(pass ? mix(rgb, WHITE, 0.55) : rgb, (pass ? 0.9 : 0.35) * k);
+                        ctx.lineWidth = (pass ? 3 : 11) * u * (0.25 + 0.75 * k);
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.stroke();
+                    }
+                }
+                const head = 16 * u;
+                ctx.drawImage(glowSprite(colors.a), points[0].x - head, points[0].y - head, head * 2, head * 2);
+                ctx.globalCompositeOperation = 'source-over';
+            },
+            destroy() { base.destroy(); },
+        };
+    };
+
+    /** Onde: cerchi che si allargano mentre ti muovi, uno piu' grande quando clicchi. */
+    CURSOR.ripple = (env) => {
+        const u = env.preview ? 0.5 : 1;
+        const rings = [];
+        const addRing = (x, y, big) => rings.push({ x, y, r: (big ? 4 : 2) * u, max: (big ? 70 : 26) * u, life: 0, dur: big ? 0.9 : 0.6, big });
+        const base = canvasCursor(env, { ease: 8, onClick: (x, y) => { addRing(x, y, true); setTimeout(() => addRing(x, y, true), 120); }, clickEvery: 1.6 });
+        let lastX = null;
+        let lastY = null;
+        let travelled = 0;
+        return {
+            resize() { base.stage.resize(); },
+            tick(dt, t) {
+                const { ctx, w, h } = base.stage;
+                const colors = env.colors();
+                const p = base.step(dt, t);
+                if (p.active) {
+                    if (lastX !== null) travelled += Math.hypot(p.x - lastX, p.y - lastY);
+                    if (travelled > 38 * u) {
+                        travelled = 0;
+                        addRing(p.x, p.y, false);
+                    }
+                    lastX = p.x;
+                    lastY = p.y;
+                }
+                ctx.clearRect(0, 0, w, h);
+                for (let i = rings.length - 1; i >= 0; i--) {
+                    const ring = rings[i];
+                    ring.life += dt;
+                    const k = ring.life / ring.dur;
+                    if (k >= 1) { rings.splice(i, 1); continue; }
+                    const ease = 1 - Math.pow(1 - k, 3);
+                    ctx.strokeStyle = rgba(ring.big ? colors.soft : colors.a, (1 - k) * (ring.big ? 0.9 : 0.6));
+                    ctx.lineWidth = (ring.big ? 2.5 : 1.5) * u * (1 - k * 0.5);
+                    ctx.beginPath();
+                    ctx.arc(ring.x, ring.y, ring.r + (ring.max - ring.r) * ease, 0, TAU);
+                    ctx.stroke();
+                }
+            },
+            destroy() { base.destroy(); },
+        };
+    };
+
+    /** Lucciole: piccole luci che girano pigre attorno al puntatore. */
+    CURSOR.fireflies = (env) => {
+        const base = canvasCursor(env, { ease: 6 });
+        const u = env.preview ? 0.5 : 1;
+        const flies = Array.from({ length: env.preview ? 7 : 11 }, (_, i) => ({
+            x: 0, y: 0, placed: false,
+            radius: rand(16, 46) * u,
+            speed: rand(0.6, 1.4) * (i % 2 ? -1 : 1),
+            phase: rand(0, TAU),
+            wobble: rand(1.5, 3),
+            follow: rand(2.5, 5),
+            size: rand(5, 9) * u,
+            tone: pick(['a', 'b', 'soft']),
+        }));
+        return {
+            resize() { base.stage.resize(); },
+            tick(dt, t) {
+                const { ctx, w, h } = base.stage;
+                const colors = env.colors();
+                const p = base.step(dt, t);
+                ctx.clearRect(0, 0, w, h);
+                if (!p.active) return;
+                ctx.globalCompositeOperation = 'lighter';
+                flies.forEach((f) => {
+                    const angle = t * f.speed + f.phase;
+                    const r = f.radius * (0.75 + 0.25 * Math.sin(t * f.wobble + f.phase));
+                    const tx = p.x + Math.cos(angle) * r;
+                    const ty = p.y + Math.sin(angle * 1.3) * r * 0.7;
+                    if (!f.placed) { f.x = tx; f.y = ty; f.placed = true; }
+                    const k = 1 - Math.exp(-f.follow * dt);
+                    f.x += (tx - f.x) * k;
+                    f.y += (ty - f.y) * k;
+                    const pulse = 0.45 + 0.55 * Math.pow(0.5 + 0.5 * Math.sin(t * 3.1 + f.phase * 2), 2);
+                    const size = f.size * (1.6 + pulse);
+                    ctx.globalAlpha = 0.35 + 0.65 * pulse;
+                    ctx.drawImage(glowSprite(colors[f.tone]), f.x - size, f.y - size, size * 2, size * 2);
+                });
+                ctx.globalAlpha = 1;
+                ctx.globalCompositeOperation = 'source-over';
+            },
+            destroy() { base.destroy(); },
+        };
+    };
+
+    /** Fuochi d'artificio: al clic un'esplosione di scintille che ricadono. */
+    CURSOR.fireworks = (env) => {
+        const u = env.preview ? 0.5 : 1;
+        const sparks = [];
+        const burst = (x, y) => {
+            const colors = env.colors();
+            const palette = [colors.a, colors.b, colors.soft, [255, 214, 102], WHITE];
+            const count = env.preview ? 22 : 38;
+            for (let i = 0; i < count; i++) {
+                const angle = (TAU * i) / count + rand(-0.12, 0.12);
+                const speed = rand(80, 220) * u;
+                sparks.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 0, dur: rand(0.7, 1.2), color: pick(palette), px: x, py: y });
+            }
+        };
+        const base = canvasCursor(env, { ease: 5, onClick: burst, clickEvery: 1.5 });
+        return {
+            resize() { base.stage.resize(); },
+            tick(dt, t) {
+                const { ctx, w, h } = base.stage;
+                base.step(dt, t);
+                ctx.clearRect(0, 0, w, h);
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.lineCap = 'round';
+                for (let i = sparks.length - 1; i >= 0; i--) {
+                    const s = sparks[i];
+                    s.life += dt;
+                    if (s.life >= s.dur) { sparks.splice(i, 1); continue; }
+                    s.px = s.x;
+                    s.py = s.y;
+                    s.vx *= Math.pow(0.12, dt);
+                    s.vy = s.vy * Math.pow(0.12, dt) + 160 * u * dt;
+                    s.x += s.vx * dt;
+                    s.y += s.vy * dt;
+                    const k = 1 - s.life / s.dur;
+                    ctx.strokeStyle = rgba(s.color, k);
+                    ctx.lineWidth = 2.2 * u * k + 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(s.px - s.vx * 0.03, s.py - s.vy * 0.03);
+                    ctx.lineTo(s.x, s.y);
+                    ctx.stroke();
+                }
+                ctx.globalCompositeOperation = 'source-over';
+            },
+            destroy() { base.destroy(); },
+        };
+    };
+
+    /**
+     * Scie di oggetti che nascono lungo il percorso del puntatore: ogni tipo
+     * dice come nasce, come si muove e come si disegna.
+     */
+    const particleTrail = (kind) => (env) => {
+        const base = canvasCursor(env, { ease: 40 });
+        const u = env.preview ? 0.55 : 1;
+        const parts = [];
+        let lastX = null;
+        let lastY = null;
+        let carry = 0;
+
+        const drawFlake = (ctx, size) => {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const a = (TAU / 6) * i;
+                const cx = Math.cos(a) * size;
+                const cy = Math.sin(a) * size;
+                ctx.moveTo(0, 0);
+                ctx.lineTo(cx, cy);
+                ctx.moveTo(cx * 0.55 + Math.cos(a + 0.6) * size * 0.28, cy * 0.55 + Math.sin(a + 0.6) * size * 0.28);
+                ctx.lineTo(cx * 0.55, cy * 0.55);
+                ctx.lineTo(cx * 0.55 + Math.cos(a - 0.6) * size * 0.28, cy * 0.55 + Math.sin(a - 0.6) * size * 0.28);
+            }
+            ctx.stroke();
+        };
+
+        const KINDS = {
+            bubble: {
+                spacing: 22,
+                emit: (x, y) => ({ x, y, size: rand(4, 11) * u, vx: rand(-12, 12) * u, vy: -rand(25, 55) * u, life: 0, dur: rand(1.1, 1.9), phase: rand(0, TAU) }),
+                move: (p, dt, t) => { p.x += (p.vx + Math.sin(t * 4 + p.phase) * 14 * u) * dt; p.y += p.vy * dt; },
+                draw: (ctx, p, k, colors) => {
+                    const r = p.size * (0.7 + 0.3 * (1 - k));
+                    const grad = ctx.createLinearGradient(p.x - r, p.y - r, p.x + r, p.y + r);
+                    grad.addColorStop(0, rgba(colors.soft, 0.9 * k));
+                    grad.addColorStop(0.5, rgba([160, 240, 255], 0.6 * k));
+                    grad.addColorStop(1, rgba(colors.soft2, 0.9 * k));
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = Math.max(0.8, r * 0.14);
+                    ctx.fillStyle = rgba(WHITE, 0.06 * k);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, r, 0, TAU);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.fillStyle = rgba(WHITE, 0.85 * k);
+                    ctx.beginPath();
+                    ctx.arc(p.x - r * 0.35, p.y - r * 0.38, r * 0.2, 0, TAU);
+                    ctx.fill();
+                },
+            },
+            pixel: {
+                spacing: 9,
+                emit: (x, y) => {
+                    const grid = 6 * u;
+                    return { x: Math.round((x + rand(-10, 10) * u) / grid) * grid, y: Math.round((y + rand(-10, 10) * u) / grid) * grid, size: grid, vy: rand(10, 40) * u, life: 0, dur: rand(0.5, 0.9), tone: pick(['a', 'b', 'soft', 'white']) };
+                },
+                move: (p, dt) => { p.y += p.vy * dt; },
+                draw: (ctx, p, k, colors) => {
+                    // Si spegne a scatti, come un vecchio schermo.
+                    const stepK = Math.ceil(k * 4) / 4;
+                    ctx.fillStyle = rgba(p.tone === 'white' ? WHITE : colors[p.tone], stepK);
+                    const gy = Math.round(p.y / p.size) * p.size;
+                    ctx.fillRect(p.x - p.size / 2, gy - p.size / 2, p.size - 1, p.size - 1);
+                },
+            },
+            snow: {
+                spacing: 18,
+                emit: (x, y) => ({ x, y, size: rand(3, 7) * u, vx: rand(-15, 15) * u, vy: rand(20, 45) * u, life: 0, dur: rand(1.2, 2), rot: rand(0, TAU), vrot: rand(-1.5, 1.5), phase: rand(0, TAU) }),
+                move: (p, dt, t) => { p.x += (p.vx + Math.sin(t * 2 + p.phase) * 10 * u) * dt; p.y += p.vy * dt; p.rot += p.vrot * dt; },
+                draw: (ctx, p, k, colors) => {
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot);
+                    ctx.strokeStyle = rgba(mix(colors.soft, WHITE, 0.6), k);
+                    ctx.lineWidth = Math.max(0.8, p.size * 0.18);
+                    ctx.lineCap = 'round';
+                    drawFlake(ctx, p.size);
+                    ctx.restore();
+                },
+            },
+        };
+        const def = KINDS[kind];
+
+        return {
+            resize() { base.stage.resize(); },
+            tick(dt, t) {
+                const { ctx, w, h } = base.stage;
+                const colors = env.colors();
+                const p = base.step(dt, t);
+                if (p.active) {
+                    if (lastX === null) { lastX = p.x; lastY = p.y; }
+                    carry += Math.hypot(p.x - lastX, p.y - lastY);
+                    const spacing = def.spacing * u;
+                    const steps = Math.min(10, Math.floor(carry / spacing));
+                    for (let i = 1; i <= steps; i++) {
+                        const k = i / steps;
+                        parts.push(def.emit(lastX + (p.x - lastX) * k, lastY + (p.y - lastY) * k));
+                    }
+                    if (steps > 0) carry = 0;
+                    lastX = p.x;
+                    lastY = p.y;
+                }
+                ctx.clearRect(0, 0, w, h);
+                for (let i = parts.length - 1; i >= 0; i--) {
+                    const part = parts[i];
+                    part.life += dt;
+                    if (part.life >= part.dur) { parts.splice(i, 1); continue; }
+                    def.move(part, dt, t);
+                    def.draw(ctx, part, 1 - part.life / part.dur, colors);
+                }
+            },
+            destroy() { base.destroy(); },
+        };
+    };
+
+    CURSOR.bubbles = particleTrail('bubble');
+    CURSOR.pixels = particleTrail('pixel');
+    CURSOR.snow = particleTrail('snow');
 
     const mountCursor = (container, effect, options = {}) => {
         // Sugli schermi touch il cursore non esiste: niente effetto (come prima).

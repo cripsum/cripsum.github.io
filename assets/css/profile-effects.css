@@ -300,6 +300,21 @@ body[data-profile-effect="bg_grain"] .profile-effects-layer {
     font-size: 20px;
 }
 
+/* Il gattino con l'animazione vera al posto dell'emoji */
+.cfx-cat--image img {
+    display: block;
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+    user-select: none;
+}
+
+.cfx--preview .cfx-cat--image img {
+    width: 34px;
+    height: 34px;
+}
+
 /* Il "mouse" finto delle anteprime. */
 .cfx-arrow {
     width: 12px;
