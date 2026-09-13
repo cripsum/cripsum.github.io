@@ -19,7 +19,10 @@ $cursorEffectOptions = array_map($fxArt('cursor'), $catalog['cursor_effects']);
 $fxColors = '--accent: ' . pe_h($style['accent']) . '; --accent-2: ' . pe_h($style['secondary']) . ';';
 $nameEffectOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-name-art cn-name" data-name-effect="' . pe_h($o['value']) . '" data-text="Aa">Aa</span>'], $catalog['name_effects']);
 $nameVars = '--name-color: ' . pe_h($nameStyle['color']) . '; --name-grad-1: ' . pe_h($nameStyle['grad_color1']) . '; --name-grad-2: ' . pe_h($nameStyle['grad_color2'])
-    . '; --name-angle: ' . (int)$nameStyle['grad_angle'] . 'deg; --name-glow-color: ' . pe_h($nameStyle['glow_color']) . '; --accent: ' . pe_h($style['accent']) . ';';
+    . '; --name-angle: ' . (int)$nameStyle['grad_angle'] . 'deg; --name-glow-color: ' . pe_h($nameStyle['glow_color']) . '; --accent: ' . pe_h($style['accent']) . ';'
+    . ($nameStyle['glitch_color1'] ? ' --name-glitch-1: ' . pe_h($nameStyle['glitch_color1']) . ';' : '')
+    . ($nameStyle['glitch_color2'] ? ' --name-glitch-2: ' . pe_h($nameStyle['glitch_color2']) . ';' : '')
+    . ($nameStyle['sparkle_color'] ? ' --name-sparkle-color: ' . pe_h($nameStyle['sparkle_color']) . ';' : '');
 ?>
 
 <?php pe_group('grp-name', $tt('Nome', 'Name'), $tt('Il nome in cima al profilo: scegli un colore oppure un effetto.', 'The name at the top of your profile: pick a color or an effect.'), ['keywords' => 'nome colore sfumatura gradient effetto animazione']); ?>
@@ -45,6 +48,13 @@ $nameVars = '--name-color: ' . pe_h($nameStyle['color']) . '; --name-grad-1: ' .
 <?php pe_slider('profile_name_grad_angle', $nameStyle['grad_angle'], ['label' => $tt('Direzione della sfumatura', 'Gradient direction'), 'min' => 0, 'max' => 360, 'step' => 5, 'format' => 'deg', 'default' => 90, 'show_if' => 'profile_name_effect=gradient']); ?>
 <div data-show-if="profile_name_effect=glow|neon">
     <?php pe_color('profile_name_glow_color', $nameStyle['glow_color'], ['label' => $tt('Colore del bagliore', 'Glow color')]); ?>
+</div>
+<div class="pe-row-2" data-show-if="profile_name_effect=glitch">
+    <?php pe_color('profile_name_glitch_color1', $nameStyle['glitch_color1'], ['label' => $tt('Glitch: primo colore', 'Glitch: first color'), 'auto' => true, 'auto_label' => $tt('Classico', 'Classic'), 'auto_preview' => '#ff2a7a']); ?>
+    <?php pe_color('profile_name_glitch_color2', $nameStyle['glitch_color2'], ['label' => $tt('Glitch: secondo colore', 'Glitch: second color'), 'auto' => true, 'auto_label' => $tt('Classico', 'Classic'), 'auto_preview' => '#25f4ff']); ?>
+</div>
+<div data-show-if="profile_name_effect=sparkles">
+    <?php pe_color('profile_name_sparkle_color', $nameStyle['sparkle_color'], ['label' => $tt('Colore delle scintille', 'Sparkle color'), 'auto' => true, 'auto_label' => $tt('Misto', 'Mixed'), 'auto_preview' => '#fff4b8', 'help' => pe_h($tt('"Misto" alterna bianco, oro e i colori del profilo.', '"Mixed" alternates white, gold and your profile colors.'))]); ?>
 </div>
 <?php pe_group_end(); ?>
 

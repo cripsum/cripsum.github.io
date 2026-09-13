@@ -16,6 +16,8 @@
 .cn-name {
     --cn-color: var(--name-color, #ffffff);
     --cn-glow: var(--name-glow-color, var(--accent, #8b5cf6));
+    --cn-glitch-1: var(--name-glitch-1, #ff2a7a);
+    --cn-glitch-2: var(--name-glitch-2, #25f4ff);
     position: relative;
     display: inline-block;
     color: var(--cn-color);
@@ -48,10 +50,10 @@
 
 /* ── Arcobaleno: uno spettro morbido che scorre senza scatti ─────────────── */
 .cn-name[data-name-effect="rainbow"] {
-    background-image: linear-gradient(90deg, #ff5f7e, #ffb86b, #f9f871, #7cf2a4, #5cc8ff, #9d8cff, #ff7ad9, #ff5f7e);
+    background-image: linear-gradient(90deg, #ff0040, #ff7a00, #ffe100, #1ee85a, #00c8ff, #2f5bff, #b400ff, #ff00b8, #ff0040);
     background-size: 300% 100%;
     background-repeat: repeat;
-    filter: drop-shadow(0 0 0.14em rgba(255, 255, 255, 0.22)) saturate(1.1);
+    filter: saturate(1.35) drop-shadow(0 0 0.12em rgba(255, 255, 255, 0.18));
     animation: cnFlow 7s linear infinite;
 }
 
@@ -143,7 +145,9 @@
 
 /* ── Glitch: fermo quasi sempre, poi un colpo di interferenza ────────────── */
 .cn-name[data-name-effect="glitch"] {
-    text-shadow: -0.025em 0 rgba(255, 0, 90, 0.55), 0.025em 0 rgba(0, 240, 255, 0.55);
+    text-shadow:
+        -0.025em 0 color-mix(in srgb, var(--cn-glitch-1) 60%, transparent),
+        0.025em 0 color-mix(in srgb, var(--cn-glitch-2) 60%, transparent);
     animation: cnGlitchMain 3.6s steps(1) infinite;
 }
 
@@ -159,12 +163,12 @@
 }
 
 .cn-name[data-name-effect="glitch"]::before {
-    color: #ff2a7a;
+    color: var(--cn-glitch-1);
     animation: cnGlitchA 3.6s steps(1) infinite;
 }
 
 .cn-name[data-name-effect="glitch"]::after {
-    color: #25f4ff;
+    color: var(--cn-glitch-2);
     animation: cnGlitchB 3.6s steps(1) infinite;
 }
 
@@ -195,7 +199,7 @@
 
 /* ── Scintille: un riflesso leggero e stelline che nascono sulle lettere ─── */
 .cn-name[data-name-effect="sparkles"] {
-    text-shadow: 0 0 0.3em color-mix(in srgb, var(--cn-glow) 45%, transparent);
+    text-shadow: 0 0 0.3em color-mix(in srgb, var(--name-sparkle-color, var(--cn-glow)) 45%, transparent);
 }
 
 /* ── Lettere che saltano: un'onda con schiacciamento, poi una pausa ──────── */

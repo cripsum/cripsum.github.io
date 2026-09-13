@@ -36,6 +36,7 @@
         'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity',
         'display_name', 'username', 'bio',
         'profile_name_color', 'profile_name_effect', 'profile_name_grad_color1', 'profile_name_grad_color2', 'profile_name_grad_angle', 'profile_name_glow_color',
+        'profile_name_glitch_color1', 'profile_name_glitch_color2', 'profile_name_sparkle_color',
         'avatar_ring_style', 'avatar_ring_color', 'profile_avatar_border', 'profile_effect',
         'profile_cursor_effect', 'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center',
         'tilt_preset', 'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed',
@@ -330,6 +331,12 @@
             nameFx.style.setProperty('--name-grad-2', byName('profile_name_grad_color2')?.value || '#8b5cf6');
             nameFx.style.setProperty('--name-angle', `${byName('profile_name_grad_angle')?.value || 90}deg`);
             nameFx.style.setProperty('--name-glow-color', byName('profile_name_glow_color')?.value || '#8b5cf6');
+            // Vuoti = colori classici: la variabile va proprio tolta.
+            [['--name-glitch-1', 'profile_name_glitch_color1'], ['--name-glitch-2', 'profile_name_glitch_color2'], ['--name-sparkle-color', 'profile_name_sparkle_color']].forEach(([cssVar, field]) => {
+                const value = PE.hex(byName(field)?.value);
+                if (value) nameFx.style.setProperty(cssVar, value);
+                else nameFx.style.removeProperty(cssVar);
+            });
             const nameAccent = PE.hex(byName('accent_color')?.value);
             if (nameAccent) nameFx.style.setProperty('--accent', nameAccent);
         }

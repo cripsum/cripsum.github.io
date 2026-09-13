@@ -592,7 +592,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <link rel="stylesheet" href="/assets/css/profile.css?v=5.18.0">
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.1.0">
-    <link rel="stylesheet" href="/assets/css/profile-name-effects.css?v=1.0.0">
+    <link rel="stylesheet" href="/assets/css/profile-name-effects.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -641,10 +641,10 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     </style>
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
     <script src="/assets/js/profile-effects.js?v=1.1.0" defer></script>
-    <script src="/assets/js/profile-name-effects.js?v=1.0.0" defer></script>
+    <script src="/assets/js/profile-name-effects.js?v=1.1.0" defer></script>
     <script src="/assets/js/profile.js?v=5.17.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
-        <script src="/assets/js/profile-style.js?v=6.2.0" defer></script>
+        <script src="/assets/js/profile-style.js?v=6.3.0" defer></script>
         <style>
             .profile-smart-page {
                 padding-top: 1.5rem !important;
@@ -2224,6 +2224,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         grad_color2: s.profile_name_grad_color2,
                         grad_angle: s.profile_name_grad_angle,
                         glow_color: s.profile_name_glow_color,
+                        glitch_color1: s.profile_name_glitch_color1,
+                        glitch_color2: s.profile_name_glitch_color2,
+                        sparkle_color: s.profile_name_sparkle_color,
                     }, s.profile_text_color, s.profile_theme);
 
                     nameEl.style.setProperty('--name-color', style.color);
@@ -2231,6 +2234,10 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     nameEl.style.setProperty('--name-grad-2', style.grad_color2);
                     nameEl.style.setProperty('--name-angle', style.grad_angle + 'deg');
                     nameEl.style.setProperty('--name-glow-color', style.glow_color);
+                    [['--name-glitch-1', style.glitch_color1], ['--name-glitch-2', style.glitch_color2], ['--name-sparkle-color', style.sparkle_color]].forEach(([name, value]) => {
+                        if (value) nameEl.style.setProperty(name, value);
+                        else nameEl.style.removeProperty(name);
+                    });
 
                     // Con "usa il nome di Discord" il nome resta quello di Discord.
                     const text = on(s, 'discord_use_display_name')

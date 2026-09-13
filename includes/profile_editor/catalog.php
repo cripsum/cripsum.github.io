@@ -77,7 +77,7 @@ function profile_editor_catalog(callable $tt): array
             $opt('neon', 'Neon'),
             $opt('rainbow', $tt('Arcobaleno', 'Rainbow'), false, ['ownColors' => true]),
             $opt('sparkles', $tt('Scintille', 'Sparkles')),
-            $opt('fire', $tt('Fuoco', 'Fire'), false, ['ownColors' => true]),
+            $opt('fire', 'Fuoco e fiamme 71', false, ['ownColors' => true]),
             $opt('water', $tt('Acqua', 'Water'), false, ['ownColors' => true]),
             $opt('glitch', 'Glitch'),
             $opt('bounce', $tt('Lettere che saltano', 'Bouncing letters')),

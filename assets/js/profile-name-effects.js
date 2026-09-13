@@ -29,13 +29,16 @@
         sparkles: {
             every: 170,
             spawn(el) {
-                const colors = ['#ffffff', 'var(--cn-glow)', 'var(--accent, #8b5cf6)', '#fff4b8'];
+                // Senza --name-sparkle-color il CSS usa il colore "misto" dopo la virgola.
+                const mixed = ['#ffffff', 'var(--cn-glow)', 'var(--accent, #8b5cf6)', '#fff4b8'];
+                const base = `var(--name-sparkle-color, ${mixed[Math.floor(Math.random() * mixed.length)]})`;
+                const color = Math.random() < 0.3 ? `color-mix(in srgb, ${base} 55%, #ffffff)` : base;
                 return {
                     className: 'cn-particle cn-particle--spark',
                     x: `${rand(-4, 104)}%`,
                     y: `${rand(-10, 95)}%`,
                     size: `${rand(0.16, 0.38).toFixed(2)}em`,
-                    color: colors[Math.floor(Math.random() * colors.length)],
+                    color,
                     life: rand(700, 1100),
                 };
             },
@@ -74,7 +77,7 @@
             const span = document.createElement('span');
             span.className = char === ' ' ? 'name-char space-char' : 'name-char';
             span.style.setProperty('--char-index', String(index));
-            span.textContent = char === ' ' ? ' ' : char;
+            span.textContent = char === ' ' ? '\u00a0' : char;
             el.appendChild(span);
         });
     };
@@ -130,7 +133,7 @@
         const name = EFFECTS.includes(effect) ? effect : 'none';
         const text = options.text !== undefined
             ? String(options.text)
-            : (el.dataset.text || el.textContent.replace(/ /g, ' ').trim());
+            : (el.dataset.text || el.textContent.replace(/\u00a0/g, ' ').trim());
 
         // L'anteprima dell'editor richiama apply a ogni tasto: se nulla cambia,
         // le lettere e le particelle restano come sono e l'animazione non riparte.

@@ -20,8 +20,8 @@
 (function (global) {
     'use strict';
 
-    const BLANK = '⠀';
-    const NBSP = ' ';
+    const BLANK = '\u2800';
+    const NBSP = '\u00a0';
 
     const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
     const keepSpaces = (value) => value.replace(/ /g, NBSP);

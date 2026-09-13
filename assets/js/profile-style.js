@@ -210,6 +210,9 @@
             grad_color2: hex(d.grad_color2) || '#8b5cf6',
             grad_angle: int(d.grad_angle, 0, 360, 90),
             glow_color: hex(d.glow_color) || '#8b5cf6',
+            glitch_color1: hex(d.glitch_color1),
+            glitch_color2: hex(d.glitch_color2),
+            sparkle_color: hex(d.sparkle_color),
         };
     }
 

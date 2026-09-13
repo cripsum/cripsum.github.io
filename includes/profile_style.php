@@ -337,6 +337,10 @@ function profile_name_style_normalize($raw, ?string $textColor = null, string $t
         'grad_color2' => profile_style_hex($data['grad_color2'] ?? null) ?? '#8b5cf6',
         'grad_angle' => profile_style_int($data['grad_angle'] ?? null, 0, 360, 90),
         'glow_color' => profile_style_hex($data['glow_color'] ?? null) ?? '#8b5cf6',
+        // Vuoti = i colori classici dell'effetto (glitch ciano/magenta, scintille miste).
+        'glitch_color1' => profile_style_hex($data['glitch_color1'] ?? null),
+        'glitch_color2' => profile_style_hex($data['glitch_color2'] ?? null),
+        'sparkle_color' => profile_style_hex($data['sparkle_color'] ?? null),
     ];
 }
 
@@ -353,6 +357,9 @@ function profile_name_style_from_input(array $input, ?string $textColor = null, 
         'grad_color2' => $input['profile_name_grad_color2'] ?? null,
         'grad_angle' => $input['profile_name_grad_angle'] ?? null,
         'glow_color' => $input['profile_name_glow_color'] ?? null,
+        'glitch_color1' => $input['profile_name_glitch_color1'] ?? null,
+        'glitch_color2' => $input['profile_name_glitch_color2'] ?? null,
+        'sparkle_color' => $input['profile_name_sparkle_color'] ?? null,
     ];
 
     if (isset($input['profile_name_effect']) || isset($input['profile_name_color'])) {
@@ -415,6 +422,12 @@ function profile_name_style_attributes(array $nameStyle): string
         '--name-angle' => $nameStyle['grad_angle'] . 'deg',
         '--name-glow-color' => $nameStyle['glow_color'],
     ];
+    // Solo se scelti: senza variabile il CSS usa i colori classici.
+    foreach (['--name-glitch-1' => 'glitch_color1', '--name-glitch-2' => 'glitch_color2', '--name-sparkle-color' => 'sparkle_color'] as $var => $key) {
+        if (!empty($nameStyle[$key])) {
+            $vars[$var] = $nameStyle[$key];
+        }
+    }
 
     return 'data-name-effect="' . htmlspecialchars($nameStyle['effect'], ENT_QUOTES, 'UTF-8') . '"'
         . ' style="' . htmlspecialchars(profile_style_inline($vars), ENT_QUOTES, 'UTF-8') . '"';
