@@ -1,0 +1,318 @@
+/**
+ * Cripsum™ — Effetti della pagina e del cursore
+ *
+ * Stili del motore in assets/js/profile-effects.js. Ogni effetto vive dentro
+ * un contenitore `.pfx` (pagina) o `.cfx` (cursore), quindi funziona uguale
+ * sullo strato fisso del profilo e nei riquadri di anteprima dell'editor.
+ * I colori arrivano come --pfx-a e --pfx-b ("r, g, b"), letti da --accent e
+ * --accent-2.
+ *
+ * Il glass rain vero non passa da qui: e' RaindropFX in profile.js, con i suoi
+ * stili in profile.css (.profile-fg-drop).
+ */
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+.pfx,
+.cfx {
+    --pfx-a: 15, 91, 255;
+    --pfx-b: 139, 92, 246;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    contain: strict;
+}
+
+.pfx :is(i, canvas),
+.cfx :is(i, canvas) {
+    position: absolute;
+    display: block;
+    font-style: normal;
+}
+
+.pfx-canvas {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Disegnati a bassa risoluzione: l'ingrandimento li ammorbidisce. */
+.pfx-canvas--soft {
+    image-rendering: auto;
+}
+
+.pfx-canvas--pixel {
+    image-rendering: pixelated;
+    mix-blend-mode: overlay;
+    opacity: 0.9;
+}
+
+.pfx:is(.pfx--soft_particles, .pfx--aurora, .pfx--gradient_waves, .pfx--stars) .pfx-canvas {
+    mix-blend-mode: screen;
+}
+
+body[data-theme="light"] .pfx .pfx-canvas {
+    mix-blend-mode: normal;
+}
+
+/* Strato del profilo: le particelle e i petali passano sopra le card, le
+   texture restano sullo sfondo. */
+body[data-profile-effect="soft_particles"] .profile-effects-layer,
+body[data-profile-effect="sakura_falling"] .profile-effects-layer {
+    z-index: 1000 !important;
+}
+
+body[data-profile-effect="scanlines"] .profile-effects-layer,
+body[data-profile-effect="digital_noise"] .profile-effects-layer,
+body[data-profile-effect="bg_grain"] .profile-effects-layer {
+    z-index: 20 !important;
+}
+
+/* ── Bagliore del mouse ───────────────────────────────────────────────────── */
+.pfx-light {
+    top: 0;
+    left: 0;
+    width: min(34rem, 70vmax);
+    height: min(34rem, 70vmax);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 18%),
+        radial-gradient(circle, rgba(var(--pfx-a), 0.34) 0%, rgba(var(--pfx-b), 0.16) 38%, transparent 68%);
+    mix-blend-mode: screen;
+    will-change: transform;
+}
+
+.pfx--preview .pfx-light {
+    width: 90%;
+    height: auto;
+    aspect-ratio: 1;
+}
+
+/* ── Riflettore ───────────────────────────────────────────────────────────── */
+.pfx-spot {
+    --px: 50%;
+    --py: 35%;
+    inset: 0;
+    background:
+        radial-gradient(circle min(15rem, 30vmax) at var(--px) var(--py), rgba(255, 255, 255, 0.12), rgba(var(--pfx-a), 0.1) 45%, transparent 72%),
+        radial-gradient(circle min(34rem, 65vmax) at var(--px) var(--py), transparent 22%, rgba(3, 5, 12, 0.35) 55%, rgba(3, 5, 12, 0.72) 100%);
+}
+
+/* Nei riquadri le misure in percentuale: `circle` accetta solo lunghezze. */
+.pfx--preview .pfx-spot {
+    background:
+        radial-gradient(ellipse 22% 60% at var(--px) var(--py), rgba(255, 255, 255, 0.2), rgba(var(--pfx-a), 0.14) 45%, transparent 72%),
+        radial-gradient(ellipse 50% 130% at var(--px) var(--py), transparent 20%, rgba(3, 5, 12, 0.45) 55%, rgba(3, 5, 12, 0.82) 100%);
+}
+
+/* ── Luce ambientale ──────────────────────────────────────────────────────── */
+.pfx-blob {
+    width: 70%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    will-change: transform;
+}
+
+.pfx-blob--1 {
+    top: -20%;
+    left: -15%;
+    background: radial-gradient(circle, rgba(var(--pfx-a), 0.3), rgba(var(--pfx-a), 0.08) 45%, transparent 70%);
+    animation: pfxDriftA 26s ease-in-out infinite alternate;
+}
+
+.pfx-blob--2 {
+    right: -20%;
+    bottom: -25%;
+    background: radial-gradient(circle, rgba(var(--pfx-b), 0.28), rgba(var(--pfx-b), 0.07) 45%, transparent 70%);
+    animation: pfxDriftB 32s ease-in-out infinite alternate;
+}
+
+.pfx-blob--3 {
+    top: 30%;
+    left: 35%;
+    width: 45%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.07), rgba(var(--pfx-a), 0.06) 40%, transparent 70%);
+    animation: pfxDriftC 21s ease-in-out infinite alternate;
+}
+
+@keyframes pfxDriftA {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(18%, 12%, 0) scale(1.15); }
+    100% { transform: translate3d(6%, 26%, 0) scale(0.92); }
+}
+
+@keyframes pfxDriftB {
+    0% { transform: translate3d(0, 0, 0) scale(1.05); }
+    50% { transform: translate3d(-16%, -14%, 0) scale(0.9); }
+    100% { transform: translate3d(-28%, -4%, 0) scale(1.12); }
+}
+
+@keyframes pfxDriftC {
+    0% { transform: translate3d(0, 0, 0) scale(0.9); opacity: 0.6; }
+    100% { transform: translate3d(-30%, -20%, 0) scale(1.2); opacity: 1; }
+}
+
+/* ── Scanline ─────────────────────────────────────────────────────────────── */
+.pfx-lines {
+    inset: 0;
+    background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0 1px, transparent 1px 3px);
+    animation: pfxFlicker 5s steps(1) infinite;
+}
+
+.pfx--preview .pfx-lines {
+    background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0 1px, transparent 1px 3px);
+}
+
+.pfx-band {
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 22%;
+    background: linear-gradient(to bottom, transparent, rgba(var(--pfx-a), 0.1) 45%, rgba(255, 255, 255, 0.07) 50%, rgba(var(--pfx-b), 0.08) 55%, transparent);
+    animation: pfxScan 7s linear infinite;
+    will-change: transform;
+}
+
+.pfx-vignette {
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 120%);
+}
+
+@keyframes pfxScan {
+    from { transform: translate3d(0, -120%, 0); }
+    to { transform: translate3d(0, 560%, 0); }
+}
+
+@keyframes pfxFlicker {
+    0%, 100% { opacity: 0.8; }
+    41% { opacity: 0.68; }
+    42% { opacity: 0.85; }
+    77% { opacity: 0.74; }
+}
+
+/* ── Grana ────────────────────────────────────────────────────────────────── */
+.pfx-grain {
+    inset: -50%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 220px 220px;
+    opacity: 0.1;
+    mix-blend-mode: overlay;
+    animation: pfxGrain 0.9s steps(6) infinite;
+}
+
+/* In un riquadro piccolo la grana vera non si vedrebbe. */
+.pfx--preview .pfx-grain {
+    background-size: 90px 90px;
+    opacity: 0.32;
+}
+
+.pfx--preview .pfx-blob {
+    filter: saturate(1.4) brightness(1.5);
+}
+
+.pfx--bg_grain .pfx-vignette {
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.3) 125%);
+}
+
+@keyframes pfxGrain {
+    0% { transform: translate3d(0, 0, 0); }
+    20% { transform: translate3d(-4%, 3%, 0); }
+    40% { transform: translate3d(3%, -5%, 0); }
+    60% { transform: translate3d(-6%, -2%, 0); }
+    80% { transform: translate3d(5%, 4%, 0); }
+    100% { transform: translate3d(0, 0, 0); }
+}
+
+/* ── Glass rain: solo l'anteprima dell'editor ─────────────────────────────── */
+.pfx--glass_rain {
+    background: linear-gradient(160deg, rgba(120, 160, 210, 0.18), rgba(20, 30, 50, 0.1));
+    backdrop-filter: blur(1px);
+}
+
+.pfx-drop {
+    left: var(--x);
+    top: var(--y);
+    width: calc(10px * var(--s));
+    height: calc(12px * var(--s));
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.85) 0 12%, rgba(255, 255, 255, 0.12) 30%, rgba(160, 200, 255, 0.08) 70%);
+    box-shadow: inset -1px -1.5px 2px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);
+    animation: pfxDrop var(--t) linear infinite;
+    animation-delay: var(--d);
+}
+
+@keyframes pfxDrop {
+    0% { transform: translate3d(0, 0, 0); opacity: 0; }
+    10% { opacity: 1; }
+    40% { transform: translate3d(0, 8px, 0); }
+    55% { transform: translate3d(1px, 38px, 0); }
+    100% { transform: translate3d(2px, 120px, 0); opacity: 0; }
+}
+
+/* ── Cursore ──────────────────────────────────────────────────────────────── */
+.cfx:not(.cfx--preview) {
+    position: fixed;
+    z-index: 99998;
+}
+
+.cfx.is-waiting > :not(.cfx-arrow) {
+    opacity: 0;
+}
+
+.cfx :is(.cfx-ring, .cfx-dot, .cfx-cat, .cfx-arrow) {
+    top: 0;
+    left: 0;
+    will-change: transform;
+}
+
+.cfx-ring {
+    width: 26px;
+    height: 26px;
+    border: 2px solid rgba(var(--pfx-a), 0.9);
+    border-radius: 50%;
+    background: rgba(var(--pfx-a), 0.12);
+    box-shadow: 0 0 14px rgba(var(--pfx-a), 0.35);
+    transition: opacity 0.2s ease;
+}
+
+.cfx-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgb(var(--pfx-a));
+    box-shadow: 0 0 6px rgba(var(--pfx-a), 0.8);
+}
+
+.cfx-cat {
+    font-size: 32px;
+    line-height: 1;
+    user-select: none;
+}
+
+.cfx--preview .cfx-ring {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+}
+
+.cfx--preview .cfx-cat {
+    font-size: 20px;
+}
+
+/* Il "mouse" finto delle anteprime. */
+.cfx-arrow {
+    width: 12px;
+    height: 17px;
+    margin: -1px 0 0 -1px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 17'%3E%3Cpath d='M1 1v13.2l3.3-3.1 2.2 4.8 2.1-.9-2.2-4.7H11z' fill='%23fff' stroke='%23000' stroke-width='1.1' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+    z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pfx *,
+    .cfx * {
+        animation: none !important;
+    }
+}

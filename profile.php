@@ -589,8 +589,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.16.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.17.0">
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
+    <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.0.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -638,7 +639,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
         }
     </style>
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
-    <script src="/assets/js/profile.js?v=5.15.0" defer></script>
+    <script src="/assets/js/profile-effects.js?v=1.0.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.16.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <script src="/assets/js/profile-style.js?v=6.2.0" defer></script>
         <style>
@@ -2408,6 +2410,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         }
                         media.className = 'bio-background__media';
                         background.prepend(media);
+                        // Il glass rain legge lo sfondo: con quello nuovo va riavviato.
+                        if (body.dataset.profileEffect === 'glass_rain') window.initProfileEffects?.();
                     } else if (message.kind === 'music') {
                         const audio = document.getElementById('profileAudio');
                         if (audio && audio.getAttribute('src') !== message.url) {

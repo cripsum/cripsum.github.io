@@ -41,19 +41,19 @@ function profile_editor_catalog(callable $tt): array
 
         'page_effects' => [
             $opt('none', $tt('Nessuno', 'None')),
-            $opt('cursor_glow', $tt('Bagliore del mouse', 'Mouse glow')),
-            $opt('soft_particles', $tt('Particelle leggere', 'Soft particles')),
+            $opt('cursor_glow', $tt('Luce sul mouse', 'Mouse glow')),
+            $opt('soft_particles', $tt('Particelle', 'Particles')),
             $opt('stars', $tt('Stelle', 'Stars')),
             $opt('aurora', 'Aurora'),
             $opt('ambient', $tt('Luce ambientale', 'Ambient glow')),
-            $opt('gradient_waves', $tt('Onde sfumate', 'Gradient waves')),
+            $opt('gradient_waves', $tt('Onde', 'Waves')),
             $opt('scanlines', 'Scanlines'),
             $opt('cyber_grid', $tt('Griglia cyber', 'Cyber grid')),
-            $opt('spotlight', $tt('Riflettore sul mouse', 'Mouse spotlight'), true),
+            $opt('spotlight', $tt('Riflettore', 'Spotlight'), true),
             $opt('digital_noise', $tt('Rumore digitale', 'Digital noise'), true),
-            $opt('glass_rain', $tt('Pioggia sul vetro', 'Glass rain'), true, ['hint' => $tt('Funziona solo con uno sfondo immagine.', 'Works with image backgrounds only.')]),
+            $opt('glass_rain', $tt('Pioggia sul vetro', 'Glass rain'), true),
             $opt('sakura_falling', $tt('Petali di sakura', 'Sakura petals'), true),
-            $opt('bg_grain', $tt('Grana sullo sfondo', 'Background grain'), true),
+            $opt('bg_grain', $tt('Grana', 'Film grain'), true),
         ],
 
         'ring_styles' => [
@@ -85,7 +85,7 @@ function profile_editor_catalog(callable $tt): array
 
         'cursor_effects' => [
             $opt('none', $tt('Nessuno', 'None')),
-            $opt('follower', $tt('Cerchio che segue', 'Follower dot'), true),
+            $opt('follower', $tt('Cerchio', 'Follower'), true),
             $opt('trail', $tt('Scia di particelle', 'Particle trail'), true),
             $opt('trail_stars', $tt('Scia di stelle', 'Star trail'), true),
             $opt('trail_hearts', $tt('Scia di cuori', 'Heart trail'), true),

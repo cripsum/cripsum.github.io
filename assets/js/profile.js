@@ -839,11 +839,6 @@
         syncIcons();
     };
 
-    const handlePointerMove = (event) => {
-        document.documentElement.style.setProperty('--cursor-x', `${event.clientX}px`);
-        document.documentElement.style.setProperty('--cursor-y', `${event.clientY}px`);
-    };
-
     const handleRainResize = () => {
         if (window.currentRainInstance) {
             const canvas = document.querySelector('.profile-effects-layer canvas.raindrop-canvas');
@@ -854,12 +849,53 @@
         }
     };
 
-    const initProfileEffects = () => {
-        const effect = body.dataset.profileEffect || 'none';
-        const layer = document.querySelector('.profile-effects-layer');
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /**
+     * Sfondo del glass rain.
+     *
+     * RaindropFX legge lo sfondo una volta, come texture ferma: con un video
+     * restava bloccato sul primo fotogramma (o sull'immagine di riserva). Qui il
+     * video viene copiato su un canvas piccolo e ripassato alla libreria una
+     * decina di volte al secondo, quindi la pioggia scorre sul video che si muove.
+     */
+    const createRainVideoSource = (video) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const draw = () => {
+            const vw = video.videoWidth;
+            const vh = video.videoHeight;
+            if (!vw || !vh) return false;
+            const targetW = 640;
+            const ratio = window.innerHeight / Math.max(1, window.innerWidth);
+            const targetH = Math.round(targetW * ratio);
+            if (canvas.width !== targetW || canvas.height !== targetH) {
+                canvas.width = targetW;
+                canvas.height = targetH;
+            }
+            // "cover", come il video di sfondo
+            const scale = Math.max(targetW / vw, targetH / vh);
+            const dw = vw * scale;
+            const dh = vh * scale;
+            try {
+                ctx.drawImage(video, (targetW - dw) / 2, (targetH - dh) / 2, dw, dh);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        };
+        const ready = () => new Promise((resolve) => {
+            if (video.readyState >= 2 && draw()) { resolve(true); return; }
+            const done = () => { video.removeEventListener('loadeddata', done); resolve(draw()); };
+            video.addEventListener('loadeddata', done);
+            setTimeout(done, 3000);
+        });
+        return { canvas, draw, ready };
+    };
 
-        // Clean up previous WebGL rain if it exists
+    const stopRain = () => {
+        if (window.currentRainVideoTimer) {
+            clearInterval(window.currentRainVideoTimer);
+            window.currentRainVideoTimer = null;
+        }
         if (window.currentRainInstance) {
             try {
                 window.currentRainInstance.stop();
@@ -868,416 +904,186 @@
             }
             window.currentRainInstance = null;
         }
-        if (layer) {
-            const oldCanvas = layer.querySelector('canvas.raindrop-canvas');
-            if (oldCanvas) oldCanvas.remove();
-        }
-        // Clean up previous CSS foreground drops
-        const oldFgLayer = document.querySelector('.profile-effects-foreground-layer');
-        if (oldFgLayer) oldFgLayer.remove();
-
+        document.querySelector('.profile-effects-layer canvas.raindrop-canvas')?.remove();
+        document.querySelector('.profile-effects-foreground-layer')?.remove();
         window.removeEventListener('resize', handleRainResize);
+    };
 
-        const needsPointer = ['cursor_glow', 'spotlight'].includes(effect);
-        window.removeEventListener('pointermove', handlePointerMove);
-        if (needsPointer) {
-            window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    const startGlassRain = (layer) => {
+        // Spawn CSS foreground drops (visible ON TOP of the card)
+        // These are pure CSS — no WebGL conflicts.
+        const fgLayer = document.createElement('div');
+        fgLayer.className = 'profile-effects-foreground-layer';
+        document.body.appendChild(fgLayer);
+
+        const fgCount = 18;
+        const fgFragment = document.createDocumentFragment();
+        for (let i = 0; i < fgCount; i++) {
+            const drop = document.createElement('span');
+            drop.className = 'profile-fg-drop';
+            const size = 18 + Math.random() * 22;
+            drop.style.width = size + 'px';
+            drop.style.height = (size * 1.3) + 'px';
+            drop.style.left = (2 + Math.random() * 96) + '%';
+            drop.style.top = (-5 - Math.random() * 12) + '%';
+            drop.style.setProperty('--drop-t', (4 + Math.random() * 6) + 's');
+            drop.style.setProperty('--drop-d', (Math.random() * 8) + 's');
+            fgFragment.appendChild(drop);
+        }
+        fgLayer.appendChild(fgFragment);
+
+        const hasWebGL2 = !!window.WebGL2RenderingContext && !!document.createElement('canvas').getContext('webgl2');
+        if (!hasWebGL2) {
+            // Senza WebGL2: gocce CSS sullo sfondo.
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < 50; i += 1) {
+                const dot = document.createElement('span');
+                dot.className = `profile-effect-dot profile-effect-dot--glass_rain ${Math.random() > 0.5 ? 'profile-effect-dot--glass_rain-static' : 'profile-effect-dot--glass_rain-trickle'}`;
+                dot.style.setProperty('--x', `${Math.random() * 100}%`);
+                dot.style.setProperty('--y', `${Math.random() * 100}%`);
+                dot.style.setProperty('--s', `${0.55 + Math.random() * 1.45}`);
+                dot.style.setProperty('--d', `${Math.random() * -12}s`);
+                dot.style.setProperty('--t', `${7 + Math.random() * 11}s`);
+                fragment.appendChild(dot);
+            }
+            layer.appendChild(fragment);
+            return;
         }
 
-        if (!layer || reduceMotion) return;
+        const loadRainLibrary = () => {
+            if (window.RaindropFX) return Promise.resolve();
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = '/assets/js/raindrop-fx.js?v=4.4.10';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        };
 
+        loadRainLibrary().then(async () => {
+            if (body.dataset.profileEffect !== 'glass_rain') return;
+
+            // Single canvas for background rain (droplets + sliding drops behind card)
+            // NOTE: Only ONE RaindropFX instance is used because the library shares static
+            // Shader objects internally. Running two instances causes WebGL INVALID_OPERATION
+            // errors ("uniform location is not from the associated program") since each
+            // instance creates its own GL context but the shared shaders mix up uniform locations.
+            // Foreground drops use pure CSS instead (see .profile-fg-drop).
+            let canvas = layer.querySelector('canvas.raindrop-canvas');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.className = 'raindrop-canvas';
+                canvas.style.position = 'absolute';
+                canvas.style.top = '0';
+                canvas.style.left = '0';
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.pointerEvents = 'none';
+                canvas.style.zIndex = '1';
+                layer.appendChild(canvas);
+            }
+
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            const bgMedia = document.querySelector('.bio-background__media');
+            let bgSource = '/img/banner_standard_bg.jpg';
+            let videoSource = null;
+            if (bgMedia && bgMedia.tagName === 'IMG') {
+                bgSource = bgMedia.src;
+            } else if (bgMedia && bgMedia.tagName === 'VIDEO') {
+                videoSource = createRainVideoSource(bgMedia);
+                if (await videoSource.ready()) {
+                    bgSource = videoSource.canvas;
+                } else {
+                    videoSource = null;
+                }
+            }
+            if (body.dataset.profileEffect !== 'glass_rain') return;
+
+            try {
+                // transparentBackground=false so RaindropFX renders its native
+                // glass refraction effect (blurred background seen through wet glass).
+                const raindropFx = new window.RaindropFX({
+                    canvas: canvas,
+                    background: bgSource,
+                    transparentBackground: false,
+                    spawnInterval: [0.03, 0.12],
+                    spawnSize: [30, 65],
+                    spawnLimit: 500,
+                    dropletsPerSeconds: 500,
+                    dropletSize: [6, 18],
+                    mist: false,
+                    backgroundBlurSteps: 2,
+                    raindropShadowOffset: 0.75,
+                    raindropLightBump: 0.6
+                });
+                raindropFx.start();
+                window.currentRainInstance = raindropFx;
+                window.addEventListener('resize', handleRainResize, { passive: true });
+
+                if (videoSource) {
+                    let busy = false;
+                    window.currentRainVideoTimer = setInterval(async () => {
+                        if (busy || document.hidden || bgMedia.paused || window.currentRainInstance !== raindropFx) return;
+                        if (!videoSource.draw()) return;
+                        busy = true;
+                        try {
+                            await raindropFx.setBackground(videoSource.canvas);
+                        } catch (_) {
+                            clearInterval(window.currentRainVideoTimer);
+                            window.currentRainVideoTimer = null;
+                        }
+                        busy = false;
+                    }, 66);
+                }
+            } catch (err) {
+                console.error('Error starting RaindropFX:', err);
+            }
+        }).catch(err => {
+            console.error('Failed to load raindrop-fx library:', err);
+        });
+    };
+
+    /**
+     * Effetto della pagina. Tutti tranne il glass rain arrivano da
+     * assets/js/profile-effects.js, lo stesso motore delle anteprime
+     * dell'editor.
+     */
+    const initProfileEffects = () => {
+        const effect = body.dataset.profileEffect || 'none';
+        const layer = document.querySelector('.profile-effects-layer');
+
+        stopRain();
+        if (window.currentPageEffect) {
+            window.currentPageEffect.destroy();
+            window.currentPageEffect = null;
+        }
+        if (!layer) return;
         layer.querySelectorAll('.profile-effect-dot').forEach((dot) => dot.remove());
 
         if (effect === 'glass_rain') {
-            // Spawn CSS foreground drops (visible ON TOP of the card)
-            // These are pure CSS — no WebGL conflicts.
-            const fgLayer = document.createElement('div');
-            fgLayer.className = 'profile-effects-foreground-layer';
-            document.body.appendChild(fgLayer);
-
-            const fgCount = 18;
-            const fgFragment = document.createDocumentFragment();
-            for (let i = 0; i < fgCount; i++) {
-                const drop = document.createElement('span');
-                drop.className = 'profile-fg-drop';
-                const size = 18 + Math.random() * 22;
-                drop.style.width = size + 'px';
-                drop.style.height = (size * 1.3) + 'px';
-                drop.style.left = (2 + Math.random() * 96) + '%';
-                drop.style.top = (-5 - Math.random() * 12) + '%';
-                drop.style.setProperty('--drop-t', (4 + Math.random() * 6) + 's');
-                drop.style.setProperty('--drop-d', (Math.random() * 8) + 's');
-                fgFragment.appendChild(drop);
-            }
-            fgLayer.appendChild(fgFragment);
-
-            const hasWebGL2 = !!window.WebGL2RenderingContext && !!document.createElement('canvas').getContext('webgl2');
-            if (hasWebGL2) {
-                const loadRainLibrary = () => {
-                    if (window.RaindropFX) return Promise.resolve();
-                    return new Promise((resolve, reject) => {
-                        const script = document.createElement('script');
-                        script.src = '/assets/js/raindrop-fx.js?v=4.4.10';
-                        script.onload = resolve;
-                        script.onerror = reject;
-                        document.head.appendChild(script);
-                    });
-                };
-
-                loadRainLibrary().then(() => {
-                    if (body.dataset.profileEffect !== 'glass_rain') return;
-                    
-                    // Single canvas for background rain (droplets + sliding drops behind card)
-                    // NOTE: Only ONE RaindropFX instance is used because the library shares static
-                    // Shader objects internally. Running two instances causes WebGL INVALID_OPERATION
-                    // errors ("uniform location is not from the associated program") since each
-                    // instance creates its own GL context but the shared shaders mix up uniform locations.
-                    // Foreground drops use pure CSS instead (see .profile-fg-drop).
-                    let canvas = layer.querySelector('canvas.raindrop-canvas');
-                    if (!canvas) {
-                        canvas = document.createElement('canvas');
-                        canvas.className = 'raindrop-canvas';
-                        canvas.style.position = 'absolute';
-                        canvas.style.top = '0';
-                        canvas.style.left = '0';
-                        canvas.style.width = '100%';
-                        canvas.style.height = '100%';
-                        canvas.style.pointerEvents = 'none';
-                        canvas.style.zIndex = '1';
-                        layer.appendChild(canvas);
-                    }
-
-                    const rect = canvas.getBoundingClientRect();
-                    canvas.width = rect.width;
-                    canvas.height = rect.height;
-
-                    const bgMedia = document.querySelector('.bio-background__media');
-                    let bgSource = '/img/banner_standard_bg.jpg';
-                    if (bgMedia && bgMedia.tagName === 'IMG') {
-                        bgSource = bgMedia.src;
-                    }
-
-                    try {
-                        // transparentBackground=false so RaindropFX renders its native
-                        // glass refraction effect (blurred background seen through wet glass).
-                        // The library loads the background as a static WebGL texture, so
-                        // videos/GIFs will freeze — only static image backgrounds are supported.
-                        // The editor warns users about this limitation.
-                        const raindropFx = new window.RaindropFX({
-                            canvas: canvas,
-                            background: bgSource,
-                            transparentBackground: false,
-                            spawnInterval: [0.03, 0.12],
-                            spawnSize: [30, 65],
-                            spawnLimit: 500,
-                            dropletsPerSeconds: 500,
-                            dropletSize: [6, 18],
-                            mist: false,
-                            backgroundBlurSteps: 2,
-                            raindropShadowOffset: 0.75,
-                            raindropLightBump: 0.6
-                        });
-                        raindropFx.start();
-                        window.currentRainInstance = raindropFx;
-
-                        window.addEventListener('resize', handleRainResize, { passive: true });
-                    } catch (err) {
-                        console.error('Error starting RaindropFX:', err);
-                    }
-                }).catch(err => {
-                    console.error('Failed to load raindrop-fx library:', err);
-                });
-
-                return;
-            }
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) startGlassRain(layer);
+            return;
         }
 
-        const particleMap = {
-            soft_particles: 25,
-            stars: 40,
-            glass_rain: 50,
-            sakura_falling: 20,
-            cyber_grid: 1
-        };
-
-        const amount = particleMap[effect] || 0;
-        if (!amount) return;
-
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < amount; i += 1) {
-            const dot = document.createElement('span');
-            let extraClass = '';
-            if (effect === 'glass_rain') {
-                extraClass = Math.random() > 0.5 ? ' profile-effect-dot--glass_rain-static' : ' profile-effect-dot--glass_rain-trickle';
-            }
-            dot.className = `profile-effect-dot profile-effect-dot--${effect}${extraClass}`;
-            dot.style.setProperty('--x', `${Math.random() * 100}%`);
-            dot.style.setProperty('--y', `${Math.random() * 100}%`);
-            dot.style.setProperty('--s', `${0.55 + Math.random() * 1.45}`);
-            dot.style.setProperty('--d', `${Math.random() * -12}s`);
-            dot.style.setProperty('--t', `${7 + Math.random() * 11}s`);
-            if (effect === 'stars') {
-                const rand = Math.random();
-                const starColor = rand < 0.25 ? 'var(--accent)' : (rand < 0.40 ? 'var(--accent-2, #8b5cf6)' : '#ffffff');
-                dot.style.setProperty('--star-color', starColor);
-            }
-            fragment.appendChild(dot);
+        if (window.CripsumPageEffects) {
+            window.currentPageEffect = window.CripsumPageEffects.mount(layer, effect);
         }
-        layer.appendChild(fragment);
     };
     window.initProfileEffects = initProfileEffects;
 
+    /** Effetto del cursore: stesso motore delle anteprime dell'editor. */
     const initCursorEffects = () => {
-        // Clean up previous elements and animation frames
-        if (window.currentFollowerEl) {
-            window.currentFollowerEl.remove();
-            window.currentFollowerEl = null;
+        if (window.currentCursorEffect) {
+            window.currentCursorEffect.destroy();
+            window.currentCursorEffect = null;
         }
-        if (window.followerRafId) {
-            cancelAnimationFrame(window.followerRafId);
-            window.followerRafId = null;
-        }
-        if (window.currentTrailCanvas) {
-            window.currentTrailCanvas.remove();
-            window.currentTrailCanvas = null;
-        }
-        if (window.trailRafId) {
-            cancelAnimationFrame(window.trailRafId);
-            window.trailRafId = null;
-        }
-        if (window.trailMoveHandler) {
-            window.removeEventListener('pointermove', window.trailMoveHandler);
-            window.trailMoveHandler = null;
-        }
-        if (window.followerMoveHandler) {
-            window.removeEventListener('pointermove', window.followerMoveHandler);
-            window.followerMoveHandler = null;
-        }
-
         const cursorEffect = body.dataset.cursorEffect || 'none';
-        if (cursorEffect === 'none') return;
-
-        if (cursorEffect === 'follower') {
-            const follower = document.createElement('div');
-            follower.className = 'cursor-follower-dot';
-            follower.style.position = 'fixed';
-            follower.style.width = '20px';
-            follower.style.height = '20px';
-            follower.style.border = '2px solid var(--accent)';
-            follower.style.borderRadius = '50%';
-            follower.style.backgroundColor = 'rgba(var(--accent-rgb), 0.1)';
-            follower.style.pointerEvents = 'none';
-            follower.style.zIndex = '99999';
-            follower.style.transform = 'translate(-50%, -50%)';
-            follower.style.left = '-100px';
-            follower.style.top = '-100px';
-            document.body.appendChild(follower);
-            window.currentFollowerEl = follower;
-
-            let mouseX = -100, mouseY = -100;
-            let currentX = -100, currentY = -100;
-
-            window.followerMoveHandler = (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            };
-            window.addEventListener('pointermove', window.followerMoveHandler, { passive: true });
-
-            function tickFollower() {
-                if (currentX === -100 && currentY === -100) {
-                    currentX = mouseX;
-                    currentY = mouseY;
-                } else {
-                    currentX += (mouseX - currentX) * 0.15;
-                    currentY += (mouseY - currentY) * 0.15;
-                }
-                follower.style.left = `${currentX}px`;
-                follower.style.top = `${currentY}px`;
-                window.followerRafId = requestAnimationFrame(tickFollower);
-            }
-            tickFollower();
-        } else if (['trail', 'trail_stars', 'trail_hearts'].includes(cursorEffect)) {
-            const canvas = document.createElement('canvas');
-            canvas.className = 'cursor-trail-canvas';
-            canvas.style.position = 'fixed';
-            canvas.style.top = '0';
-            canvas.style.left = '0';
-            canvas.style.width = '100vw';
-            canvas.style.height = '100vh';
-            canvas.style.pointerEvents = 'none';
-            canvas.style.zIndex = '99998';
-            document.body.appendChild(canvas);
-            window.currentTrailCanvas = canvas;
-
-            const ctx = canvas.getContext('2d');
-            let width = window.innerWidth;
-            let height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-
-            const handleResize = () => {
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = width;
-                canvas.height = height;
-            };
-            window.addEventListener('resize', handleResize, { passive: true });
-
-            const particles = [];
-            window.trailMoveHandler = (e) => {
-                const accentColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#0f5bff';
-                if (cursorEffect === 'trail') {
-                    particles.push({
-                        x: e.clientX,
-                        y: e.clientY,
-                        size: Math.random() * 5 + 3,
-                        color: accentColor,
-                        alpha: 1,
-                        vx: (Math.random() - 0.5) * 1,
-                        vy: (Math.random() - 0.5) * 1
-                    });
-                } else if (cursorEffect === 'trail_stars') {
-                    const starColor = Math.random() > 0.4 ? accentColor : '#fbbf24';
-                    particles.push({
-                        x: e.clientX,
-                        y: e.clientY,
-                        size: Math.random() * 8 + 6,
-                        color: starColor,
-                        alpha: 1,
-                        vx: (Math.random() - 0.5) * 2,
-                        vy: Math.random() * 1.5 + 0.5,
-                        rotation: Math.random() * Math.PI * 2,
-                        vRotation: (Math.random() - 0.5) * 0.1
-                    });
-                } else if (cursorEffect === 'trail_hearts') {
-                    const heartColors = ['#ef4444', '#f43f5e', '#ec4899', accentColor];
-                    const randColor = heartColors[Math.floor(Math.random() * heartColors.length)];
-                    particles.push({
-                        x: e.clientX,
-                        y: e.clientY,
-                        size: Math.random() * 8 + 6,
-                        color: randColor,
-                        alpha: 1,
-                        vx: (Math.random() - 0.5) * 1.5,
-                        vy: -(Math.random() * 1.5 + 0.5)
-                    });
-                }
-            };
-            window.addEventListener('pointermove', window.trailMoveHandler, { passive: true });
-
-            function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius, color) {
-                let rot = Math.PI / 2 * 3;
-                let x = cx;
-                let y = cy;
-                let step = Math.PI / spikes;
-
-                ctx.beginPath();
-                ctx.moveTo(cx, cy - outerRadius);
-                for (let i = 0; i < spikes; i++) {
-                    x = cx + Math.cos(rot) * outerRadius;
-                    y = cy + Math.sin(rot) * outerRadius;
-                    ctx.lineTo(x, y);
-                    rot += step;
-
-                    x = cx + Math.cos(rot) * innerRadius;
-                    y = cy + Math.sin(rot) * innerRadius;
-                    ctx.lineTo(x, y);
-                    rot += step;
-                }
-                ctx.lineTo(cx, cy - outerRadius);
-                ctx.closePath();
-                ctx.fillStyle = color;
-                ctx.fill();
-            }
-
-            function drawHeart(ctx, x, y, size, color) {
-                ctx.beginPath();
-                const topCurveHeight = size * 0.3;
-                ctx.moveTo(x, y + topCurveHeight);
-                ctx.bezierCurveTo(
-                    x - size / 2, y - topCurveHeight,
-                    x - size, y + topCurveHeight,
-                    x, y + size
-                );
-                ctx.bezierCurveTo(
-                    x + size, y + topCurveHeight,
-                    x + size / 2, y - topCurveHeight,
-                    x, y + topCurveHeight
-                );
-                ctx.closePath();
-                ctx.fillStyle = color;
-                ctx.fill();
-            }
-
-            function tickTrail() {
-                ctx.clearRect(0, 0, width, height);
-                for (let i = particles.length - 1; i >= 0; i--) {
-                    const p = particles[i];
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.alpha -= 0.02;
-                    p.size *= 0.97;
-                    if (p.alpha <= 0 || p.size <= 0.5) {
-                        particles.splice(i, 1);
-                        continue;
-                    }
-                    ctx.save();
-                    ctx.globalAlpha = p.alpha;
-                    if (cursorEffect === 'trail') {
-                        ctx.fillStyle = p.color;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fill();
-                    } else if (cursorEffect === 'trail_stars') {
-                        ctx.translate(p.x, p.y);
-                        p.rotation += p.vRotation;
-                        ctx.rotate(p.rotation);
-                        drawStar(ctx, 0, 0, 5, p.size, p.size / 2, p.color);
-                    } else if (cursorEffect === 'trail_hearts') {
-                        drawHeart(ctx, p.x, p.y - p.size / 2, p.size, p.color);
-                    }
-                    ctx.restore();
-                }
-                window.trailRafId = requestAnimationFrame(tickTrail);
-            }
-            tickTrail();
-        } else if (cursorEffect === 'cat_follower') {
-            const cat = document.createElement('div');
-            cat.className = 'profile-cat-follower';
-            cat.innerHTML = '🐈';
-            document.body.appendChild(cat);
-            window.currentFollowerEl = cat;
-
-            let mouseX = -100, mouseY = -100;
-            let currentX = -100, currentY = -100;
-
-            window.followerMoveHandler = (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            };
-            window.addEventListener('pointermove', window.followerMoveHandler, { passive: true });
-
-            function tickCat() {
-                if (currentX === -100 && currentY === -100) {
-                    currentX = mouseX;
-                    currentY = mouseY;
-                } else {
-                    const dx = mouseX - currentX;
-                    const dy = mouseY - currentY;
-                    currentX += dx * 0.06;
-                    currentY += dy * 0.06;
-                    let scaleX = 1;
-                    if (Math.abs(dx) > 0.5) {
-                        scaleX = dx > 0 ? 1 : -1;
-                    }
-                    cat.style.transform = `translate(-50%, -50%) scaleX(${scaleX})`;
-                }
-                cat.style.left = `${currentX}px`;
-                cat.style.top = `${currentY}px`;
-                window.followerRafId = requestAnimationFrame(tickCat);
-            }
-            tickCat();
-        }
+        if (cursorEffect === 'none' || !window.CripsumCursorEffects) return;
+        window.currentCursorEffect = window.CripsumCursorEffects.mount(body, cursorEffect);
     };
     window.initCursorEffects = initCursorEffects;
 

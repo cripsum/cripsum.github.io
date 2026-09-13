@@ -10,6 +10,13 @@ $ringOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-ring-a
     . '<img class="bio-avatar" src="' . pe_h($ringAvatar) . '" alt="" loading="lazy" decoding="async"></span></span>'], $catalog['ring_styles']);
 $tiltPreset = profile_tilt_preset_for($profile);
 $pageEffect = (string)($profile['profile_effect'] ?? 'none');
+$cursorEffect = (string)($profile['profile_cursor_effect'] ?? 'none');
+// Riquadri con l'anteprima vera: il motore di profile-effects.js li anima
+// quando entrano nello schermo (editor.js).
+$fxArt = static fn(string $kind) => static fn($o) => $o + ['art' => '<span class="pe-fx-art" data-' . $kind . '-fx="' . pe_h($o['value']) . '"></span>'];
+$pageEffectOptions = array_map($fxArt('page'), $catalog['page_effects']);
+$cursorEffectOptions = array_map($fxArt('cursor'), $catalog['cursor_effects']);
+$fxColors = '--accent: ' . pe_h($style['accent']) . '; --accent-2: ' . pe_h($style['secondary']) . ';';
 $nameEffectOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-name-art" data-effect="' . $o['value'] . '">Aa</span>'], $catalog['name_effects']);
 ?>
 
@@ -55,12 +62,15 @@ $nameEffectOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-
 <?php pe_group_end(); ?>
 
 <?php pe_group('grp-page-effect', $tt('Effetto della pagina', 'Page effect'), null, ['keywords' => 'particelle stelle aurora sakura pioggia effetto sfondo']); ?>
-<?php pe_select('profile_effect', $pageEffect, $catalog['page_effects'], ['label' => $tt('Effetto', 'Effect')]); ?>
-<p class="pe-note" data-show-if="profile_effect=glass_rain"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><?php echo pe_h($tt('La pioggia sul vetro funziona solo con uno sfondo immagine.', 'Glass rain only works with an image background.')); ?></p>
+<div class="pe-fx-picker" data-fx-picker style="<?php echo $fxColors; ?>">
+    <?php pe_choice('profile_effect', $pageEffect, $pageEffectOptions, ['label' => $tt('Effetto', 'Effect'), 'variant' => 'tiles', 'columns' => 3, 'class' => 'pe-fx-choices', 'keywords' => 'particelle stelle aurora onde griglia rumore riflettore sakura pioggia grana scanline']); ?>
+</div>
 <?php pe_group_end(); ?>
 
 <?php pe_group('grp-cursor', $tt('Cursore', 'Cursor'), $tt('Il puntatore del mouse sul tuo profilo.', 'The mouse pointer on your profile.'), ['keywords' => 'mouse puntatore cursore scia', 'premium' => true]); ?>
-<?php pe_select('profile_cursor_effect', (string)($profile['profile_cursor_effect'] ?? 'none'), $catalog['cursor_effects'], ['label' => $tt('Effetto', 'Effect'), 'premium' => true]); ?>
+<div class="pe-fx-picker" data-fx-picker style="<?php echo $fxColors; ?>">
+    <?php pe_choice('profile_cursor_effect', $cursorEffect, $cursorEffectOptions, ['label' => $tt('Effetto', 'Effect'), 'variant' => 'tiles', 'columns' => 3, 'class' => 'pe-fx-choices', 'keywords' => 'cursore mouse scia stelle cuori gattino cerchio']); ?>
+</div>
 
 <div class="pe-field<?php echo $isPremium ? '' : ' is-locked'; ?>" data-search="<?php echo pe_h($tt('Immagine del cursore', 'Cursor image')); ?>" <?php echo $isPremium ? '' : 'data-premium-lock="1"'; ?>>
     <div class="pe-field-label"><span class="pe-field-title"><?php echo pe_h($tt('Immagine del cursore', 'Cursor image')); ?></span><?php echo pe_premium_chip(); ?></div>

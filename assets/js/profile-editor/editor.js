@@ -301,6 +301,14 @@
             if (secondary) ringPicker.style.setProperty('--accent-2', secondary);
         }
 
+        // Le anteprime degli effetti usano i colori del profilo.
+        const fxAccent = PE.hex(byName('accent_color')?.value);
+        const fxSecondary = PE.hex(byName('profile_secondary_color')?.value);
+        $$('[data-fx-picker]').forEach((picker) => {
+            if (fxAccent) picker.style.setProperty('--accent', fxAccent);
+            if (fxSecondary) picker.style.setProperty('--accent-2', fxSecondary);
+        });
+
         // Inclinazione: il livello scrive i quattro valori.
         const tiltPreset = radioValue('tilt_preset');
         const tiltEnabled = document.getElementById('peTiltEnabled');
@@ -984,6 +992,30 @@
     });
 
     // ── Avvio ───────────────────────────────────────────────────────────────
+    // ── Anteprime degli effetti di pagina e cursore ─────────────────────────
+    // Ogni riquadro fa girare l'effetto vero, ma solo mentre si vede: fuori
+    // dallo schermo (o con l'area Effetti chiusa) il motore si ferma.
+    const fxMounts = new Map();
+    const fxArts = $$('.pe-fx-art');
+    const mountFx = (art) => {
+        if (fxMounts.has(art)) return;
+        const page = art.dataset.pageFx;
+        const effect = page || art.dataset.cursorFx;
+        const engine = page ? window.CripsumPageEffects : window.CripsumCursorEffects;
+        if (!effect || effect === 'none' || !engine) return;
+        fxMounts.set(art, engine.mount(art, effect, { preview: true }));
+    };
+    const unmountFx = (art) => {
+        fxMounts.get(art)?.destroy();
+        fxMounts.delete(art);
+    };
+    if (fxArts.length && 'IntersectionObserver' in window) {
+        const fxObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => (entry.isIntersecting ? mountFx(entry.target) : unmountFx(entry.target)));
+        }, { rootMargin: '80px' });
+        fxArts.forEach((art) => fxObserver.observe(art));
+    }
+
     // ── Anteprima della scheda del browser ──────────────────────────────────
     const tabPreviewTitle = document.getElementById('peTabPreviewTitle');
     let stopTabPreview = () => {};
