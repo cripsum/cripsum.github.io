@@ -98,6 +98,9 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
     foreach (profile_style_columns_from_input($_POST + $profile, $profile) as $col => $value) {
         $presetData[$col] = $value;
     }
+    if (isset($_POST['profile_layout_choice'])) {
+        [$presetData['profile_layout'], $presetData['profile_layout_snap']] = profile_layout_from_input($_POST, (int)($profile['is_premium'] ?? 0) === 1);
+    }
 
     // Save layout structures as serialized lists
     $presetData['socials_json'] = $_POST['socials_json'] ?? '[]';
@@ -580,6 +583,11 @@ switch ($action) {
             // 3. Projects list restoration
             $mysqli->query("DELETE FROM utenti_projects WHERE utente_id = " . $targetUserId);
             $projectRows = json_decode($presetData['projects_json'] ?? '[]', true) ?: [];
+            // L'icona sta in una colonna che esiste solo dopo la migration: si
+            // scrive a parte, dopo l'inserimento.
+            $setProjectIcon = profile_item_icons_available($mysqli) ? $mysqli->prepare("UPDATE utenti_projects SET icon = ? WHERE id = ?") : null;
+            $setContentIcon = profile_item_icons_available($mysqli) ? $mysqli->prepare("UPDATE utenti_contents SET icon = ? WHERE id = ?") : null;
+            $presetIsPremium = (int)(profile_get_edit_profile($mysqli, $targetUserId)['is_premium'] ?? 0) === 1;
             $insertProject = $mysqli->prepare("INSERT INTO utenti_projects (utente_id, title, description, url, image_url, tech_stack, status, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $allowedStatuses = ['active', 'paused', 'finished', 'idea'];
             foreach ($projectRows as $i => $row) {
@@ -595,6 +603,12 @@ switch ($action) {
                 [$tagText, $tagBg, $tagColor] = $presetTag($row);
                 $insertProject->bind_param('issssssiiisss', $targetUserId, $title, $description, $url, $imageUrl, $techStack, $status, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
                 $insertProject->execute();
+                if ($setProjectIcon) {
+                    $itemIcon = profile_item_icon_value($row['icon'] ?? '', $presetIsPremium);
+                    $itemId = (int)$mysqli->insert_id;
+                    $setProjectIcon->bind_param('si', $itemIcon, $itemId);
+                    $setProjectIcon->execute();
+                }
             }
             $insertProject->close();
 
@@ -615,6 +629,12 @@ switch ($action) {
                 [$tagText, $tagBg, $tagColor] = $presetTag($row);
                 $insertContent->bind_param('isssssiiisss', $targetUserId, $cType, $title, $description, $url, $thumbUrl, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
                 $insertContent->execute();
+                if ($setContentIcon) {
+                    $itemIcon = profile_item_icon_value($row['icon'] ?? '', $presetIsPremium);
+                    $itemId = (int)$mysqli->insert_id;
+                    $setContentIcon->bind_param('si', $itemIcon, $itemId);
+                    $setContentIcon->execute();
+                }
             }
             $insertContent->close();
 

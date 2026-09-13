@@ -161,6 +161,11 @@ if ($profile) {
                 $profile['profile_name_style'] = json_encode($draftNameStyle);
             }
 
+            // Il layout arriva dall'editor come una scelta unica fra cinque.
+            if (isset($draft['profile_layout_choice'])) {
+                [$profile['profile_layout'], $profile['profile_layout_snap']] = profile_layout_from_input($draft, $isPremium);
+            }
+
             // Re-map booleans
             $booleans = [
                 'tilt_enabled',
@@ -608,6 +613,7 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
     </style>
     <script src="/assets/js/profile.js?v=5.14.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
+        <script src="/assets/js/profile-style.js?v=6.0.0" defer></script>
         <style>
             .profile-smart-page {
                 padding-top: 1.5rem !important;
@@ -1154,6 +1160,7 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
     data-csrf="<?php echo $socialCsrfToken; ?>"
     data-theme="<?php echo profile_h($themeAttr); ?>"
     data-owner-theme="<?php echo profile_h($theme); ?>"
+    <?php if (isset($_GET['preview_mode']) && $canEdit): ?>data-preview-premium="<?php echo $isPremium ? '1' : '0'; ?>"<?php endif; ?>
     data-accent="<?php echo profile_h($accent); ?>"
     data-profile-url="<?php echo profile_h($profileUrl); ?>"
     data-discord-id="<?php echo profile_h($showDiscord ? $discordId : ''); ?>"
@@ -1720,7 +1727,7 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
                                                 <span class="profile-card-media__fallback"><i class="fa-solid fa-image"></i></span>
                                             </span>
                                         <?php else: ?>
-                                            <span class="bio-project-card__icon"><i class="fa-solid fa-layer-group"></i></span>
+                                            <span class="bio-project-card__icon"><?php echo profile_render_icon($project['icon'] ?? '', 'fa-solid fa-layer-group'); ?></span>
                                         <?php endif; ?>
                                         <strong>
                                             <?php echo profile_h($project['title']); ?>
@@ -1842,7 +1849,7 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
                                                 <span class="profile-card-media__fallback"><i class="fa-solid fa-play"></i></span>
                                             </span>
                                         <?php else: ?>
-                                            <span class="bio-preview-card__icon"><i class="fa-solid fa-play"></i></span>
+                                            <span class="bio-preview-card__icon"><?php echo profile_render_icon($content['icon'] ?? '', 'fa-solid fa-play'); ?></span>
                                         <?php endif; ?>
                                         <span class="bio-preview-card__label"><?php echo profile_h($content['content_type']); ?></span>
                                         <strong>
@@ -2154,311 +2161,272 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
                 return url.replace(/[()]/g, (ch) => (ch === '(' ? '%28' : '%29'));
             }
 
-            window.addEventListener('message', function(event) {
-                // The editor hosts this page in a same-origin iframe; ignore
-                // anything else that manages to post into it.
-                if (event.origin !== window.location.origin) return;
-                if (!event.data) return;
-                const data = event.data;
-                if (data.type === 'update-css-variables') {
-                    const body = document.querySelector('.bio-v2-body');
-                    if (body) {
-                        for (const [key, value] of Object.entries(data.variables)) {
-                            body.style.setProperty(key, value, 'important');
-                        }
+            /*
+             * Anteprima dell'editor. L'editor manda tutti i valori del form a
+             * ogni modifica ({type: 'cripsum:settings'}); qui si applica subito
+             * cio' che non richiede di ridisegnare la pagina. Il resto arriva
+             * con il ricaricamento dalla bozza ({type: 'cripsum:reload'}).
+             */
+            (function previewBridge() {
+                const body = document.body;
+                const $ = (selector) => document.querySelector(selector);
+                const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+                const loadedFonts = new Set();
+                let lastEffect = body.dataset.profileEffect || 'none';
+                let lastNameEffect = $('.profile-display-name')?.dataset.nameEffect || 'none';
+                let lastCursor = '';
+
+                const loadFont = (family) => {
+                    if (!family || ['Poppins', 'Minecraft', 'Gang of Three'].includes(family) || loadedFonts.has(family)) return;
+                    loadedFonts.add(family);
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(family).replace(/%20/g, '+') + '&display=swap';
+                    document.head.appendChild(link);
+                };
+
+                const on = (s, name) => s[name] === '1';
+
+                const applyName = (s) => {
+                    const nameEl = $('.profile-display-name');
+                    if (!nameEl || !window.CripsumProfileStyle) return;
+                    const style = window.CripsumProfileStyle.nameStyle({
+                        color: s.profile_name_color,
+                        effect: s.profile_name_effect,
+                        grad_color1: s.profile_name_grad_color1,
+                        grad_color2: s.profile_name_grad_color2,
+                        grad_angle: s.profile_name_grad_angle,
+                        glow_color: s.profile_name_glow_color,
+                    }, s.profile_text_color, s.profile_theme);
+
+                    nameEl.dataset.nameEffect = style.effect;
+                    nameEl.dataset.nameAnim = style.effect;
+                    nameEl.style.setProperty('--name-color', style.color);
+                    nameEl.style.setProperty('--name-grad-1', style.grad_color1);
+                    nameEl.style.setProperty('--name-grad-2', style.grad_color2);
+                    nameEl.style.setProperty('--name-angle', style.grad_angle + 'deg');
+                    nameEl.style.setProperty('--name-glow-color', style.glow_color);
+
+                    // Con "usa il nome di Discord" il nome resta quello di Discord.
+                    const text = on(s, 'discord_use_display_name')
+                        ? (nameEl.dataset.text || nameEl.textContent)
+                        : (String(s.display_name || '').trim() || String(s.username || '').trim() || nameEl.dataset.text || '');
+                    nameEl.dataset.text = text;
+                    nameEl.textContent = '';
+                    if (style.effect === 'bounce') {
+                        Array.from(text).forEach((char, index) => {
+                            const span = document.createElement('span');
+                            span.className = char === ' ' ? 'name-char space-char' : 'name-char';
+                            span.style.setProperty('--char-index', String(index));
+                            span.textContent = char === ' ' ? '\u00a0' : char;
+                            nameEl.appendChild(span);
+                        });
+                    } else {
+                        nameEl.textContent = text;
                     }
-                } else if (data.type === 'update-attributes') {
-                    const body = document.querySelector('.bio-v2-body');
-                    if (body) {
-                        for (const [key, value] of Object.entries(data.attributes)) {
-                            if (key.startsWith('data-') && !key.startsWith('data-tilt-')) {
-                                body.setAttribute(key, value);
-                                if (key === 'data-cursor-custom-url' || key === 'data-cursor-custom-center' || key === 'data-cursor-custom-hover-url' || key === 'data-cursor-custom-hover-center') {
-                                    const urlVal = previewCssUrl(body.getAttribute('data-cursor-custom-url'));
-                                    const centerVal = body.getAttribute('data-cursor-custom-center') === '1';
-                                    if (urlVal) {
-                                        const hotspot = centerVal ? ' 32 32' : '';
-                                        body.style.setProperty('--cursor-custom-url', `url('${urlVal}')${hotspot}, auto`);
-                                    } else {
-                                        body.style.removeProperty('--cursor-custom-url');
-                                    }
+                    if ((style.effect === 'sparkles') !== (lastNameEffect === 'sparkles') && window.initNameSparkles) {
+                        window.initNameSparkles();
+                    }
+                    lastNameEffect = style.effect;
+                };
 
-                                    const hoverUrlVal = previewCssUrl(body.getAttribute('data-cursor-custom-hover-url'));
-                                    const hoverCenterVal = body.getAttribute('data-cursor-custom-hover-center') === '1';
-                                    if (hoverUrlVal) {
-                                        const hotspot = hoverCenterVal ? ' 32 32' : '';
-                                        body.style.setProperty('--cursor-custom-hover-url', `url('${hoverUrlVal}')${hotspot}, auto`);
-                                    } else {
-                                        body.style.removeProperty('--cursor-custom-hover-url');
-                                    }
-
-                                    if (window.initCustomCursorImage) {
-                                        window.initCustomCursorImage();
-                                    }
-                                } else if (key === 'data-layout-snap') {
-                                    if (window.initScrollSnapPagination) {
-                                        window.initScrollSnapPagination();
-                                    }
-                                }
-                            } else if (key === 'style') {
-                                for (const [styleKey, styleVal] of Object.entries(value)) {
-                                    body.style.setProperty(styleKey, styleVal);
-                                }
-                            }
+                const applyTexts = (s) => {
+                    const username = $('.bio-username');
+                    if (username && s.username !== undefined) username.textContent = '@' + (String(s.username).trim() || 'username');
+                    if (s.bio !== undefined) {
+                        let bio = $('.bio-tagline');
+                        const value = String(s.bio);
+                        if (!bio && value.trim() !== '') {
+                            bio = document.createElement('p');
+                            bio.className = 'bio-tagline';
+                            $('.bio-username')?.after(bio);
                         }
-
-                        // Real-time floating audio button updates in preview
-                        const showBtn = data.attributes['data-show-audio-btn'];
-                        const useVideoAudio = data.attributes['data-bg-use-video-audio'];
-                        const btnPos = data.attributes['data-audio-btn-position'];
-                        const container = document.querySelector('[data-floating-audio]');
-                        if (container) {
-                            const isBgVideo = !!document.getElementById('profileBgVideo');
-                            const currentShowBtn = showBtn !== undefined ? showBtn : (body.getAttribute('data-show-audio-btn') || '1');
-                            const currentUseVideoAudio = useVideoAudio !== undefined ? useVideoAudio : (body.getAttribute('data-bg-use-video-audio') || '0');
-
-                            const shouldShowFloatingBtn = (currentShowBtn === '1' || (currentUseVideoAudio === '1' && isBgVideo));
-
-                            const mainPlayer = document.querySelector('[data-audio-player]');
-                            const isMainPlayerVisible = mainPlayer && mainPlayer.style.display !== 'none';
-
-                            container.style.setProperty('display', (shouldShowFloatingBtn && !isMainPlayerVisible) ? 'flex' : 'none', 'important');
-
-                            if (useVideoAudio !== undefined) {
-                                container.setAttribute('data-bg-use-video-audio', useVideoAudio);
-                            }
-                        }
-
-                        if (btnPos) {
-                            container.className = 'profile-floating-audio-btn-container position-' + btnPos;
-                            container.style.setProperty('position', 'fixed', 'important');
-                            container.style.setProperty('z-index', '999999', 'important');
-                            container.style.setProperty('transform', 'none', 'important');
-                            container.style.setProperty('flex-direction', btnPos.includes('left') ? 'row' : 'row-reverse', 'important');
-
-                            container.style.setProperty('top', btnPos.startsWith('top') ? '24px' : 'auto', 'important');
-                            container.style.setProperty('bottom', btnPos.startsWith('bottom') ? '24px' : 'auto', 'important');
-                            container.style.setProperty('left', btnPos.includes('left') ? '24px' : 'auto', 'important');
-                            container.style.setProperty('right', btnPos.includes('right') ? '24px' : 'auto', 'important');
-                        }
-                        if (window.initCursorEffects) {
-                            window.initCursorEffects();
-                        }
-                        if (data.attributes['data-profile-border-style']) {
-                            body.classList.forEach((className) => {
-                                if (className.startsWith('profile-border-style-')) {
-                                    body.classList.remove(className);
-                                }
+                        if (bio) {
+                            bio.textContent = '';
+                            value.split('\n').forEach((line, i) => {
+                                if (i > 0) bio.appendChild(document.createElement('br'));
+                                bio.appendChild(document.createTextNode(line));
                             });
-                            body.classList.add('profile-border-style-' + data.attributes['data-profile-border-style']);
+                            bio.hidden = value.trim() === '';
                         }
                     }
-                    if (data.attributes['data-profile-layout']) {
-                        const page = document.getElementById('bioPage');
-                        if (page) {
-                            page.classList.forEach((className) => {
-                                if (className.startsWith('layout-')) {
-                                    page.classList.remove(className);
-                                }
-                            });
-                            const layoutMap = {
-                                compact: 'center-split',
-                                showcase: 'right-tabs',
-                                clean: 'stacked',
-                                'left-tabs': 'standard',
-                                'right-tabs': 'right-tabs',
-                                stacked: 'stacked',
-                                'center-split': 'center-split',
-                                standard: 'standard'
-                            };
-                            const nextLayout = layoutMap[data.attributes['data-profile-layout']] || 'standard';
-                            page.classList.add('layout-' + nextLayout);
-                            page.classList.toggle('profile-smart-page--single', !document.querySelector('.profile-smart-content'));
-                        }
+                };
+
+                const applyRing = (s) => {
+                    const wrap = $('.bio-avatar-wrap');
+                    if (!wrap) return;
+                    const style = String(s.avatar_ring_style || 'spin').replace(/[^a-z0-9_-]/gi, '');
+                    const enabled = style !== 'none';
+                    Array.from(wrap.classList).forEach((c) => { if (c.startsWith('ring-style-')) wrap.classList.remove(c); });
+                    wrap.classList.add('ring-style-' + style);
+                    wrap.classList.toggle('ring-disabled', !enabled);
+                    if (s.avatar_ring_color) {
+                        wrap.style.setProperty('--profile-ring', s.avatar_ring_color);
+                        body.style.setProperty('--profile-ring', s.avatar_ring_color);
                     }
-                    const cards = document.querySelectorAll('.js-tilt-card');
-                    cards.forEach(card => {
-                        for (const [key, value] of Object.entries(data.attributes)) {
-                            if (key.startsWith('data-tilt-')) {
-                                card.setAttribute(key, value);
-                            }
-                        }
-                        if (card.getAttribute('data-tilt-enabled') === '0') {
-                            card.style.transform = 'none';
-                            const glare = card.querySelector('.js-tilt-glare');
-                            if (glare) glare.style.display = 'none';
-                        }
+                    let ring = wrap.querySelector('.bio-avatar-ring');
+                    if (enabled && !ring) {
+                        ring = document.createElement('div');
+                        ring.className = 'bio-avatar-ring';
+                        wrap.prepend(ring);
+                    } else if (!enabled && ring) {
+                        ring.remove();
+                    }
+                    body.dataset.avatarBorder = on(s, 'profile_avatar_border') ? '1' : '0';
+                };
+
+                const applyCursor = (s, premium) => {
+                    const url = premium ? previewCssUrl(s.profile_cursor_custom_url) : '';
+                    const hover = premium ? previewCssUrl(s.profile_cursor_custom_hover_url) : '';
+                    body.dataset.cursorEffect = premium ? (s.profile_cursor_effect || 'none') : 'none';
+                    body.dataset.cursorCustomUrl = url;
+                    body.dataset.cursorCustomCenter = premium && on(s, 'profile_cursor_custom_center') ? '1' : '0';
+                    body.dataset.cursorCustomHoverUrl = hover;
+                    body.dataset.cursorCustomHoverCenter = premium && on(s, 'profile_cursor_custom_hover_center') ? '1' : '0';
+                    if (url) body.style.setProperty('--cursor-custom-url', `url('${url}')${on(s, 'profile_cursor_custom_center') ? ' 32 32' : ''}, auto`);
+                    else body.style.removeProperty('--cursor-custom-url');
+                    if (hover) body.style.setProperty('--cursor-custom-hover-url', `url('${hover}')${on(s, 'profile_cursor_custom_hover_center') ? ' 32 32' : ''}, auto`);
+                    else body.style.removeProperty('--cursor-custom-hover-url');
+                    if (!url) body.removeAttribute('data-cursor-custom-url');
+                    if (!hover) body.removeAttribute('data-cursor-custom-hover-url');
+
+                    const key = [body.dataset.cursorEffect, url, hover].join('|');
+                    if (key !== lastCursor) {
+                        lastCursor = key;
+                        window.initCursorEffects?.();
+                        window.initCustomCursorImage?.();
+                    }
+                };
+
+                const applyTilt = (s) => {
+                    const enabled = s.tilt_enabled === '0' ? '0' : '1';
+                    $$('.js-tilt-card').forEach((card) => {
+                        card.dataset.tiltEnabled = enabled;
+                        if (s.tilt_max !== undefined) card.dataset.tiltMax = s.tilt_max;
+                        if (s.tilt_glare !== undefined) card.dataset.tiltGlare = s.tilt_glare;
+                        if (s.tilt_zoom !== undefined) card.dataset.tiltZoom = s.tilt_zoom;
+                        if (s.tilt_speed !== undefined) card.dataset.tiltSpeed = s.tilt_speed;
+                        if (enabled === '0') card.style.transform = 'none';
                     });
-                } else if (data.type === 'update-text') {
-                    for (const [selector, text] of Object.entries(data.texts)) {
-                        const el = document.querySelector(selector);
-                        if (el) {
-                            if (selector === '.profile-display-name') {
-                                el.setAttribute('data-text', text);
-                                el.textContent = text;
-                            } else if (selector === '.bio-tagline') {
-                                el.innerHTML = text.replace(/\n/g, '<br>');
-                            } else if (selector.includes('profile-audio-player strong')) {
-                                el.innerHTML = `<i class="fa-solid fa-music"></i>` + text;
-                            } else {
-                                el.textContent = text;
-                            }
-                        } else if (selector === '.bio-tagline' && text.trim() !== '') {
-                            const nameBlock = document.querySelector('.bio-name-block');
-                            if (nameBlock) {
-                                const newBio = document.createElement('p');
-                                newBio.className = 'bio-tagline';
-                                newBio.innerHTML = text.replace(/\n/g, '<br>');
-                                nameBlock.appendChild(newBio);
-                            }
-                        }
+                };
+
+                const applyAudio = (s, premium) => {
+                    body.dataset.musicTheme = premium ? (s.profile_music_theme || 'default') : 'default';
+                    const player = $('[data-audio-player]');
+                    const showPlayer = on(s, 'profile_show_audio_player');
+                    const audio = document.getElementById('profileAudio');
+                    const hasMusic = !!(audio && (audio.getAttribute('src') || audio.currentSrc));
+                    if (player) player.style.display = hasMusic && showPlayer ? '' : 'none';
+
+                    const title = $('.profile-audio-player strong');
+                    if (title) title.innerHTML = '<i class="fa-solid fa-music"></i>' + String(s.profile_music_title || 'Profile Song').replace(/[<>&]/g, '');
+                    const artist = $('.profile-artist-span');
+                    if (artist) {
+                        artist.textContent = s.profile_music_artist || '';
+                        artist.style.display = s.profile_music_artist ? '' : 'none';
                     }
-                } else if (data.type === 'update-avatar-src') {
-                    const avatar = document.querySelector('.bio-avatar');
-                    if (avatar) {
-                        avatar.src = data.src;
+
+                    const floating = $('[data-floating-audio]');
+                    if (floating) {
+                        const position = String(s.profile_audio_btn_position || 'bottom-right');
+                        const show = !showPlayer && (on(s, 'profile_show_audio_btn') || on(s, 'profile_bg_use_video_audio'));
+                        floating.className = 'profile-floating-audio-btn-container position-' + position;
+                        floating.style.setProperty('display', show ? 'flex' : 'none', 'important');
+                        floating.style.setProperty('top', position.startsWith('top') ? '24px' : 'auto', 'important');
+                        floating.style.setProperty('bottom', position.startsWith('bottom') ? '24px' : 'auto', 'important');
+                        floating.style.setProperty('left', position.includes('left') ? '24px' : 'auto', 'important');
+                        floating.style.setProperty('right', position.includes('right') ? '24px' : 'auto', 'important');
+                        floating.style.setProperty('flex-direction', position.includes('left') ? 'row' : 'row-reverse', 'important');
                     }
-                } else if (data.type === 'update-background-media') {
-                    const background = document.querySelector('.bio-background');
-                    if (background) {
+                    if (audio && s.profile_audio_default_volume !== undefined) {
+                        const volume = Math.max(0, Math.min(1, Number(s.profile_audio_default_volume)));
+                        if (Number.isFinite(volume)) audio.volume = volume;
+                    }
+                };
+
+                const applySettings = (s, premium) => {
+                    if (window.CripsumProfileStyle) window.CripsumProfileStyle.apply(body, s);
+                    if (s.profile_font) {
+                        loadFont(s.profile_font);
+                        body.style.setProperty('--profile-font', `'${String(s.profile_font).replace(/'/g, '')}', sans-serif`, 'important');
+                    }
+
+                    const effect = s.profile_effect || 'none';
+                    body.dataset.bgGrain = premium && effect === 'bg_grain' ? '1' : '0';
+                    if (effect !== lastEffect) {
+                        body.dataset.profileEffect = effect;
+                        lastEffect = effect;
+                        $$('.profile-effects-layer .profile-effect-dot').forEach((dot) => dot.remove());
+                        window.initProfileEffects?.();
+                    }
+
+                    applyName(s);
+                    applyTexts(s);
+                    applyRing(s);
+                    applyCursor(s, premium);
+                    applyTilt(s);
+                    applyAudio(s, premium);
+                };
+
+                const applyMedia = (message) => {
+                    if (message.kind === 'avatar') {
+                        const avatar = $('.bio-avatar');
+                        if (avatar) avatar.src = message.url;
+                    } else if (message.kind === 'background') {
+                        const background = $('.bio-background');
+                        if (!background) return;
                         background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
                         let media;
-                        if (data.fileType.startsWith('video/')) {
+                        if (String(message.fileType).startsWith('video/')) {
                             media = document.createElement('video');
-                            media.className = 'bio-background__media';
-                            media.autoplay = true;
-                            media.muted = true;
-                            media.loop = true;
-                            media.playsInline = true;
-                            const source = document.createElement('source');
-                            source.src = data.url;
-                            source.type = data.fileType;
-                            media.appendChild(source);
-                        } else if (data.fileType.startsWith('image/')) {
+                            Object.assign(media, { autoplay: true, muted: true, loop: true, playsInline: true, src: message.url });
+                        } else {
                             media = document.createElement('img');
-                            media.className = 'bio-background__media';
-                            media.src = data.url;
+                            media.src = message.url;
                             media.alt = '';
                         }
-                        if (media) {
-                            background.prepend(media);
-                        }
-                    }
-                } else if (data.type === 'update-music-player') {
-                    const player = document.querySelector('[data-audio-player]');
-                    const audio = document.getElementById('profileAudio');
-                    if (player) {
-                        if (data.hasMusic && data.showPlayer) {
-                            player.style.removeProperty('display');
-                        } else {
-                            player.style.display = 'none';
-                        }
-                    }
-                    if (audio && data.src) {
-                        const newSrc = data.src || '';
-                        if (audio.getAttribute('src') !== newSrc) {
-                            audio.src = newSrc;
+                        media.className = 'bio-background__media';
+                        background.prepend(media);
+                    } else if (message.kind === 'music') {
+                        const audio = document.getElementById('profileAudio');
+                        if (audio && audio.getAttribute('src') !== message.url) {
+                            audio.src = message.url;
                             audio.load();
                         }
+                        const player = $('[data-audio-player]');
+                        if (player && body.dataset.previewShowPlayer !== '0') player.style.removeProperty('display');
                     }
-                    if (audio && typeof data.defaultVolume !== 'undefined') {
-                        audio.volume = data.defaultVolume;
-                        const mainSlider = document.getElementById('profileVolumeSlider');
-                        if (mainSlider) mainSlider.value = String(data.defaultVolume);
-                        const floatSlider = document.querySelector('.profile-floating-audio-slider');
-                        if (floatSlider) floatSlider.value = String(data.defaultVolume);
-                    }
-                    const floatBtn = document.querySelector('[data-floating-audio]');
-                    if (floatBtn) {
-                        const showBtn = document.body.getAttribute('data-show-audio-btn') !== '0';
-                        if (data.hasMusic && !data.showPlayer && showBtn) {
-                            floatBtn.style.setProperty('display', 'flex', 'important');
-                        } else {
-                            floatBtn.style.setProperty('display', 'none', 'important');
-                        }
-                    }
-                    const titleEl = document.querySelector('.profile-audio-player strong');
-                    if (titleEl) {
-                        titleEl.innerHTML = `<i class="fa-solid fa-music"></i>` + (data.title || 'Profile Song');
-                    }
-                    const artistEl = document.querySelector('.profile-artist-span');
-                    if (artistEl) {
-                        if (data.artist) {
-                            artistEl.textContent = data.artist;
-                            artistEl.style.removeProperty('display');
-                        } else {
-                            artistEl.style.display = 'none';
-                        }
-                    }
-                } else if (data.type === 'update-name-style') {
-                    // Name colour/gradient/animation live without a reload.
-                    const nameEl = document.querySelector('.profile-display-name');
-                    if (nameEl) {
-                        const style = data.style || {};
-                        nameEl.setAttribute('data-name-type', style.type || 'default');
-                        nameEl.setAttribute('data-name-anim', style.animation || 'none');
-                        nameEl.style.setProperty('--name-color1', style.solid_color || '#ffffff');
-                        nameEl.style.setProperty('--name-color2', style.grad_color1 || '#ffffff');
-                        nameEl.style.setProperty('--name-color3', style.grad_color2 || '#8b5cf6');
-                        nameEl.style.setProperty('--name-angle', (parseInt(style.grad_angle, 10) || 0) + 'deg');
-                        nameEl.style.setProperty('--name-glow-color', style.glow_color || '#8b5cf6');
+                };
 
-                        const text = String(data.text ?? nameEl.getAttribute('data-text') ?? '');
-                        nameEl.setAttribute('data-text', text);
-                        if (style.animation === 'bounce') {
-                            // Mirror profile_format_name(): one span per letter.
-                            nameEl.textContent = '';
-                            Array.from(text).forEach((char, index) => {
-                                const span = document.createElement('span');
-                                span.className = char === ' ' ? 'name-char space-char' : 'name-char';
-                                span.style.setProperty('--char-index', String(index));
-                                span.textContent = char === ' ' ? ' ' : char;
-                                nameEl.appendChild(span);
-                            });
-                        } else {
-                            nameEl.textContent = text;
-                        }
-                    }
-                } else if (data.type === 'update-avatar-ring') {
-                    const wrap = document.querySelector('.bio-avatar-wrap');
-                    if (wrap) {
-                        const style = String(data.ringStyle || 'spin');
-                        const enabled = !!data.enabled && style !== 'none';
-                        Array.from(wrap.classList).forEach((className) => {
-                            if (className.startsWith('ring-style-')) wrap.classList.remove(className);
-                        });
-                        wrap.classList.add('ring-style-' + style.replace(/[^a-z0-9_-]/gi, ''));
-                        wrap.classList.toggle('ring-disabled', !enabled);
-                        if (data.ringColor) wrap.style.setProperty('--profile-ring', data.ringColor);
+                const focusSection = (section) => {
+                    const el = $(`[data-section-type="${CSS.escape(String(section || ''))}"]`);
+                    if (!el || el.offsetParent === null) return;
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.remove('profile-preview-flash');
+                    void el.offsetWidth;
+                    el.classList.add('profile-preview-flash');
+                };
 
-                        let ring = wrap.querySelector('.bio-avatar-ring');
-                        if (enabled && !ring) {
-                            ring = document.createElement('div');
-                            ring.className = 'bio-avatar-ring';
-                            wrap.prepend(ring);
-                        } else if (!enabled && ring) {
-                            ring.remove();
-                        }
-                    }
-                } else if (data.type === 'update-visibility') {
-                    // Show/hide toggles apply instantly instead of waiting for a
-                    // full preview refresh.
-                    Object.entries(data.sections || {}).forEach(([selector, visible]) => {
+                window.addEventListener('message', (event) => {
+                    // L'editor ospita questa pagina in un iframe della stessa
+                    // origine; tutto il resto viene ignorato.
+                    if (event.origin !== window.location.origin || !event.data || typeof event.data !== 'object') return;
+                    const message = event.data;
+                    if (message.type === 'cripsum:settings' && message.settings) {
+                        body.dataset.previewShowPlayer = message.settings.profile_show_audio_player === '1' ? '1' : '0';
+                        applySettings(message.settings, !!message.premium && body.dataset.previewPremium === '1');
+                    } else if (message.type === 'cripsum:media') {
+                        applyMedia(message);
+                    } else if (message.type === 'cripsum:focus') {
+                        focusSection(message.section);
+                    } else if (message.type === 'cripsum:reload') {
                         try {
-                            document.querySelectorAll(selector).forEach((el) => {
-                                el.style.setProperty('display', visible ? '' : 'none', visible ? '' : 'important');
-                            });
-                        } catch (_) {
-                            // An unusable selector must not break the rest.
-                        }
-                    });
-                } else if (data.type === 'reload') {
-                    try {
-                        sessionStorage.setItem('cripsum.preview.scroll', String(previewScrollTop()));
-                    } catch (_) {}
-                    window.location.reload();
-                }
-            });
+                            sessionStorage.setItem('cripsum.preview.scroll', String(previewScrollTop()));
+                        } catch (_) {}
+                        window.location.reload();
+                    }
+                });
+            })();
         </script>
     <?php endif; ?>
     <script src="/assets/social/social-api.js?v=1.5" defer></script>

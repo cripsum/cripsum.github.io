@@ -80,7 +80,7 @@
             border_color: borderColor,
             border_color_auto: borderColorAuto,
             border_opacity: borderOpacity,
-            border_glow: borderStyle === 'glow',
+            border_glow: borderStyle === 'glow' || borderStyle === '1',
             link_style: LINK_STYLES.includes(p.profile_link_style) ? p.profile_link_style : 'glass',
             socials_style: p.profile_socials_style === 'icons' ? 'icons' : 'cards',
             social_size: int(p.profile_social_size, 32, 72, 42),
