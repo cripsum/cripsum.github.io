@@ -170,7 +170,7 @@
     };
 
     const openGuide = (trigger) => {
-        const row = trigger.closest('.profile-row-card');
+        const row = trigger.closest('.pe-item, .profile-row-card');
         activeTextarea = row?.querySelector('.block-body-textarea') || null;
         lastTrigger = trigger;
         ensureModal();
@@ -187,11 +187,6 @@
         openGuide(trigger);
     });
 
-    document.addEventListener('change', (event) => {
-        if (!event.target.matches('.block-type-select')) return;
-        const trigger = event.target.closest('.profile-row-card')?.querySelector('[data-open-markdown-guide]');
-        if (trigger) trigger.hidden = event.target.value !== 'markdown';
-    });
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && modal?.classList.contains('is-open')) closeGuide();

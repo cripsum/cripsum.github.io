@@ -102,7 +102,10 @@
         document.documentElement.style.setProperty('--profile-accent', safeAccent);
     };
 
-    const setTheme = (theme, animate = false) => {
+    // `persist` solo quando il visitatore sceglie a mano: salvarlo anche al
+    // caricamento faceva vincere per sempre il tema del primo profilo visto,
+    // e il tema scelto dal proprietario non si vedeva piu'.
+    const setTheme = (theme, animate = false, persist = false) => {
         let nextTheme = theme;
         if (nextTheme === 'auto') {
             nextTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
@@ -117,13 +120,18 @@
         }
 
         body.dataset.theme = nextTheme;
-        localStorage.setItem('cripsum.profile.viewerTheme', nextTheme);
+        if (persist) {
+            try { localStorage.setItem('cripsum.profile.viewerTheme', nextTheme); } catch (_) {}
+        }
         document.querySelectorAll('.js-theme-toggle').forEach(btn => {
             const icon = btn.querySelector('i');
             if (icon) icon.className = nextTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             const labelText = btn.querySelector('.theme-label-text');
             if (labelText) {
-                labelText.textContent = nextTheme === 'light' ? 'Light Mode' : 'Dark Mode';
+                const isIt = document.documentElement.lang === 'it';
+                labelText.textContent = nextTheme === 'light'
+                    ? (isIt ? 'Modalità chiara' : 'Light Mode')
+                    : (isIt ? 'Modalità scura' : 'Dark Mode');
             }
         });
     };
@@ -183,8 +191,11 @@
         document.querySelectorAll('.js-theme-toggle').forEach((button) => {
             button.addEventListener('click', () => {
                 const nextTheme = body.dataset.theme === 'light' ? 'dark' : 'light';
-                setTheme(nextTheme, true);
-                showToast(nextTheme === 'light' ? 'Light theme activated.' : 'Dark theme activated.');
+                setTheme(nextTheme, true, true);
+                const isIt = document.documentElement.lang === 'it';
+                showToast(nextTheme === 'light'
+                    ? (isIt ? 'Tema chiaro attivato.' : 'Light theme activated.')
+                    : (isIt ? 'Tema scuro attivato.' : 'Dark theme activated.'));
             });
         });
     };
@@ -1872,7 +1883,9 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         setAccent(body.dataset.accent || '#0f5bff');
-        setTheme(localStorage.getItem('cripsum.profile.viewerTheme') || body.dataset.theme || 'dark');
+        let viewerTheme = null;
+        try { viewerTheme = localStorage.getItem('cripsum.profile.viewerTheme'); } catch (_) {}
+        setTheme(viewerTheme || body.dataset.ownerTheme || body.dataset.theme || 'dark');
         initActions();
         initNavbarDropdownAlignment();
         initDropdownFallback();
@@ -2461,8 +2474,6 @@
                         label = 'Content';
                     } else if (secType === 'activity') {
                         label = 'Activity';
-                    } else if (secType === 'featured' || slide.querySelector('.profile-spotlight')) {
-                        label = 'Featured';
                     } else {
                         label = 'Section ' + index;
                     }

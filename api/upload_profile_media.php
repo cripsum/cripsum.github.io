@@ -62,23 +62,40 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
 
 $file = $_FILES['file'];
 
+// `cursor`: immagini e .cur/.ani ridotti a 64x64.
+// `block`: i media dei blocchi custom, che possono essere anche video.
+// Qualsiasi altro valore: solo immagini (icone, copertine, miniature).
 $purpose = trim($_POST['purpose'] ?? '');
+
+$allowedVideoMimes = [
+    'video/mp4' => 'mp4',
+    'video/webm' => 'webm',
+];
+
+$tmpPath = $file['tmp_name'];
+if (!is_uploaded_file($tmpPath)) {
+    echo json_encode(['ok' => false, 'message' => 'File non valido.']);
+    exit;
+}
+
+// Il tipo si legge prima del limite di peso: il limite dei video vale solo
+// per i file che sono davvero video.
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$mimeType = finfo_file($finfo, $tmpPath);
+finfo_close($finfo);
+$isBlockVideo = $purpose === 'block' && array_key_exists($mimeType, $allowedVideoMimes);
 
 if ($purpose === 'cursor') {
     $maxBytes = 2 * 1024 * 1024; // 2 MB for cursors
+} elseif ($isBlockVideo) {
+    $maxBytes = 50 * 1024 * 1024; // 50 MB, come gli sfondi video
 } else {
     $maxBytes = 25 * 1024 * 1024; // 25 MB
 }
 
 if ($file['size'] <= 0 || $file['size'] > $maxBytes) {
-    $maxMb = $purpose === 'cursor' ? '2MB' : '25MB';
+    $maxMb = profile_format_bytes($maxBytes);
     echo json_encode(['ok' => false, 'message' => "Il file è troppo pesante. Il limite massimo è {$maxMb}."]);
-    exit;
-}
-
-$tmpPath = $file['tmp_name'];
-if (!is_uploaded_file($tmpPath)) {
-    echo json_encode(['ok' => false, 'message' => 'File non valido.']);
     exit;
 }
 
@@ -90,10 +107,6 @@ $allowedMimes = [
     'image/webp' => 'webp',
     'image/gif' => 'gif'
 ];
-
-$finfo = finfo_open(FILEINFO_MIME_TYPE);
-$mimeType = finfo_file($finfo, $tmpPath);
-finfo_close($finfo);
 
 $origName = strtolower($file['name']);
 $origExt = pathinfo($origName, PATHINFO_EXTENSION);
@@ -137,9 +150,20 @@ if ($purpose === 'cursor') {
     } else {
         $ext = 'png'; // resized images will be png
     }
+} elseif ($isBlockVideo) {
+    // Il contenitore dichiarato dal nome deve combaciare con quello letto dal
+    // file: un .mp4 che in realta' e' altro non passa.
+    if (!in_array($origExt, ['mp4', 'webm'], true)) {
+        echo json_encode(['ok' => false, 'message' => 'Formato video non supportato. Formati validi: MP4, WEBM.']);
+        exit;
+    }
+    $ext = $allowedVideoMimes[$mimeType];
 } else {
     if (!array_key_exists($mimeType, $allowedMimes)) {
-        echo json_encode(['ok' => false, 'message' => 'Formato file non supportato. Formati validi: JPG, PNG, WEBP, GIF.']);
+        $message = $purpose === 'block'
+            ? 'Formato file non supportato. Formati validi: JPG, PNG, WEBP, GIF, MP4, WEBM.'
+            : 'Formato file non supportato. Formati validi: JPG, PNG, WEBP, GIF.';
+        echo json_encode(['ok' => false, 'message' => $message]);
         exit;
     }
     $ext = $allowedMimes[$mimeType];
@@ -205,7 +229,15 @@ if ($purpose === 'cursor') {
     if (move_uploaded_file($tmpPath, $targetPath)) {
         // Return relative URL that starts with /uploads/profile_media/
         $relativeUrl = '/uploads/profile_media/user_' . $userId . '/' . $fileName;
-        echo json_encode(['ok' => true, 'url' => $relativeUrl, 'size' => @filesize($targetPath) ?: 0, 'name' => $fileName]);
+        echo json_encode([
+            'ok' => true,
+            'url' => $relativeUrl,
+            'size' => @filesize($targetPath) ?: 0,
+            'name' => $fileName,
+            // Il blocco usa questo per mostrare <video> o <img> senza
+            // indovinare dall'estensione.
+            'media_type' => $isBlockVideo ? 'video' : ($ext === 'gif' ? 'gif' : 'image'),
+        ]);
     } else {
         echo json_encode(['ok' => false, 'message' => 'Impossibile salvare il file sul server.']);
     }

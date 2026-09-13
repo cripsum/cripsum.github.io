@@ -48,12 +48,7 @@ if ($customAlias !== null && $customAlias !== '') {
             exit;
         }
         // Redirect logged out users accessing their own profile to login
-        $lang = 'it';
-        if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
-            $lang = 'en';
-        } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && strpos(strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']), 'it') === false) {
-            $lang = 'en';
-        }
+        $lang = cripsum_preferred_lang();
         header("Location: /{$lang}/accedi");
         exit;
     } else {
@@ -157,34 +152,18 @@ if ($profile) {
 
             // `profile_name_style` is stored as one JSON column but edited as a
             // set of separate fields, so it has to be rebuilt for the preview.
-            $draftHasNameStyle = false;
-            foreach (['profile_name_color_type', 'profile_name_solid_color', 'profile_name_grad_color1',
-                      'profile_name_grad_color2', 'profile_name_grad_angle', 'profile_name_animation',
-                      'profile_name_glow_color'] as $nameField) {
-                if (isset($draft[$nameField])) {
-                    $draftHasNameStyle = true;
-                    break;
-                }
-            }
-            if ($draftHasNameStyle) {
-                $draftNameStyle = [
-                    'type' => profile_allowed_value(
-                        (string)($draft['profile_name_color_type'] ?? 'default'),
-                        ['default', 'solid', 'gradient'],
-                        'default'
-                    ),
-                    'solid_color' => profile_normalize_hex_color($draft['profile_name_solid_color'] ?? '#ffffff'),
-                    'grad_color1' => profile_normalize_hex_color($draft['profile_name_grad_color1'] ?? '#ffffff'),
-                    'grad_color2' => profile_normalize_hex_color($draft['profile_name_grad_color2'] ?? '#8b5cf6'),
-                    'grad_angle' => min(max((int)($draft['profile_name_grad_angle'] ?? 90), 0), 360),
-                    'animation' => profile_allowed_value(
-                        (string)($draft['profile_name_animation'] ?? 'none'),
-                        ['none', 'rainbow', 'glow', 'sparkles', 'fire', 'water', 'glitch', 'neon', 'bounce'],
-                        'none'
-                    ),
-                    'glow_color' => profile_normalize_hex_color($draft['profile_name_glow_color'] ?? '#8b5cf6'),
-                ];
+            $draftNameStyle = profile_name_style_from_input(
+                $draft,
+                profile_style_hex($draft['profile_text_color'] ?? null),
+                (string)($draft['profile_theme'] ?? 'dark')
+            );
+            if ($draftNameStyle !== null) {
                 $profile['profile_name_style'] = json_encode($draftNameStyle);
+            }
+
+            // Il layout arriva dall'editor come una scelta unica fra cinque.
+            if (isset($draft['profile_layout_choice'])) {
+                [$profile['profile_layout'], $profile['profile_layout_snap']] = profile_layout_from_input($draft, $isPremium);
             }
 
             // Re-map booleans
@@ -406,17 +385,18 @@ function profile_render_section_heading(string $icon, string $title, ?string $su
 <?php
 }
 
-$theme = $profile ? profile_allowed_value((string)($profile['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark') : 'dark';
-$accent = $profile ? profile_normalize_hex_color($profile['accent_color'] ?? '#0f5bff') : '#0f5bff';
-$secColorRaw = $profile ? trim((string)($profile['profile_secondary_color'] ?? '')) : '';
-$secondaryColor = (preg_match('/^#[0-9a-fA-F]{6}$/', $secColorRaw)) ? strtolower($secColorRaw) : $accent;
-$cardColor = $profile ? profile_optional_hex_color($profile['profile_card_color'] ?? '') : null;
-$textColor = $profile ? profile_optional_hex_color($profile['profile_text_color'] ?? '') : null;
-$linkStyle = $profile ? profile_allowed_value((string)($profile['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass') : 'glass';
-$buttonShape = $profile ? profile_allowed_value((string)($profile['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill') : 'pill';
-$cardColorCss = $cardColor ?: ($theme === 'light' ? '#ffffff' : '#080c18');
-$textColorCss = $textColor ?: 'var(--text)';
-if ($theme === 'auto') $theme = 'dark';
+// Forme, bordi, riquadri e colori arrivano tutti da includes/profile_style.php.
+$style = profile_style_resolve($profile ?: []);
+$styleVars = profile_style_css_vars($style);
+$theme = $style['theme'];
+$accent = $style['accent'];
+$secondaryColor = $style['secondary'];
+$linkStyle = $style['link_style'];
+$avatarShape = $style['avatar_shape'];
+$controlShape = $style['control_shape'];
+// Con il tema "auto" la pagina parte scura e uno script in testa al body
+// passa al chiaro se il sistema di chi visita lo preferisce.
+$themeAttr = $theme === 'auto' ? 'dark' : $theme;
 
 $rawLayout = $profile ? (string)($profile['profile_layout'] ?? 'standard') : 'standard';
 $layoutAliases = [
@@ -435,7 +415,7 @@ $layoutCss = [
 ][$layout] ?? 'standard';
 $showEmbeds = $profile ? profile_flag($profile, 'profile_show_embeds', true) : false;
 $embeds = $showEmbeds ? profile_list_embeds($mysqli, $profileId, true) : [];
-$socialsStyle = $profile ? profile_allowed_value((string)($profile['profile_socials_style'] ?? 'cards'), ['cards', 'icons'], 'cards') : 'cards';
+$socialsStyle = $style['socials_style'];
 
 $displayName = $profile ? profile_display_name($profile) : 'Profilo';
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
@@ -497,58 +477,7 @@ $hideMeta = $isPremium && $profile ? profile_flag($profile, 'profile_hide_meta',
 $showAudioBtn = $profile ? profile_flag($profile, 'profile_show_audio_btn', true) : true;
 $audioBtnPosition = ($profile && !empty($profile['profile_audio_btn_position'])) ? $profile['profile_audio_btn_position'] : 'bottom-right';
 $audioDefaultVolume = ($profile && isset($profile['profile_audio_default_volume']) && $profile['profile_audio_default_volume'] !== '') ? (float)$profile['profile_audio_default_volume'] : 0.18;
-$borderRadius = $profile ? (int)($profile['profile_border_radius'] ?? 30) : 30;
-$cardOpacity = $profile ? (int)($profile['profile_card_opacity'] ?? 68) : 68;
-$cardBlur = $profile ? (int)($profile['profile_card_blur'] ?? 20) : 20;
-$borderOpacity = $profile ? (int)($profile['profile_border_opacity'] ?? 100) : 100;
-$borderColor = $profile ? profile_optional_hex_color($profile['profile_border_color'] ?? '') : null;
-$borderWidth = $profile ? (int)($profile['profile_border_width'] ?? 1) : 1;
 $avatarBorder = $profile ? (int)($profile['profile_avatar_border'] ?? 1) : 1;
-
-$uiShape = $profile ? ($profile['profile_ui_shape'] ?? 'circle') : 'circle';
-$avatarShape = $profile ? ($profile['profile_avatar_shape'] ?? 'circle') : 'circle';
-$socialSize = $profile ? (int)($profile['profile_social_size'] ?? 42) : 42;
-$iconSpacing = $profile ? (int)($profile['profile_icon_spacing'] ?? 8) : 8;
-$badgeSize = $profile ? (int)($profile['profile_badge_size'] ?? 24) : 24;
-$buttonSize = $profile ? (int)($profile['profile_button_size'] ?? 48) : 48;
-
-// Map UI shape to variables
-$uiShapeIcon = '50%';
-$uiShapeButton = '999px';
-$uiShapeCard = '24px';
-
-switch ($uiShape) {
-    case 'circle':
-        $uiShapeIcon = '50%';
-        $uiShapeButton = '999px';
-        $uiShapeCard = '24px';
-        break;
-    case 'rounded':
-        $uiShapeIcon = '24px';
-        $uiShapeButton = '24px';
-        $uiShapeCard = '24px';
-        break;
-    case 'soft':
-        $uiShapeIcon = '16px';
-        $uiShapeButton = '16px';
-        $uiShapeCard = '16px';
-        break;
-    case 'square-rounded':
-        $uiShapeIcon = '8px';
-        $uiShapeButton = '8px';
-        $uiShapeCard = '8px';
-        break;
-    case 'square':
-        $uiShapeIcon = '0px';
-        $uiShapeButton = '0px';
-        $uiShapeCard = '0px';
-        break;
-    case 'pill':
-        $uiShapeIcon = '999px';
-        $uiShapeButton = '999px';
-        $uiShapeCard = '999px';
-        break;
-}
 
 $visibleSocials = $showSocials ? $socials : [];
 $visibleLinks = $showLinks ? $links : [];
@@ -558,20 +487,7 @@ $visibleBlocks = $showBlocks ? $blocks : [];
 $badgesDisplay = $profile ? ($profile['profile_badges_display'] ?? 'both') : 'both';
 $badgesPosition = $profile ? ($profile['profile_badges_position'] ?? 'below_bio') : 'below_bio';
 
-$nameStyle = [];
-if ($profile && !empty($profile['profile_name_style'])) {
-    $nameStyle = json_decode($profile['profile_name_style'], true);
-}
-if (!is_array($nameStyle)) {
-    $nameStyle = [];
-}
-$nameType = $nameStyle['type'] ?? 'default';
-$nameAnim = $nameStyle['animation'] ?? 'none';
-$nameSolidColor = $nameStyle['solid_color'] ?? '#ffffff';
-$nameGradColor1 = $nameStyle['grad_color1'] ?? '#ffffff';
-$nameGradColor2 = $nameStyle['grad_color2'] ?? '#8b5cf6';
-$nameGradAngle = $nameStyle['grad_angle'] ?? 90;
-$nameGlowColor = $nameStyle['glow_color'] ?? '#8b5cf6';
+$nameStyle = profile_name_style_normalize($profile['profile_name_style'] ?? null, $style['text_color'], $theme);
 
 $showMiniBadges = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'card_only');
 $showBadgesSection = $showBadges && ($badgesDisplay === 'both' || $badgesDisplay === 'tab_only');
@@ -614,26 +530,10 @@ if (!empty($discordServerInvite)) {
     }
 }
 
-$featuredLinks = array_values(array_filter($visibleLinks, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
-$normalLinks = array_values(array_filter($visibleLinks, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
-$featuredProjects = array_values(array_filter($visibleProjects, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
-$normalProjects = array_values(array_filter($visibleProjects, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
-$featuredContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) === 1));
-$normalContents = array_values(array_filter($visibleContents, fn($item) => (int)($item['is_featured'] ?? 0) !== 1));
-
 $hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
 $hasDiscordSection = $showDiscord && (!empty($discordId) || !empty($widgetData));
-$hasRightContent = $hasStats || $featuredLinks || $normalLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
+$hasRightContent = $hasStats || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
 $hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $hasDiscordSection || $hasMusic || $embeds;
-
-$spotlight = null;
-if ($featuredContents) {
-    $spotlight = ['type' => 'Contenuto', 'icon' => 'fa-solid fa-play', 'title' => $featuredContents[0]['title'], 'description' => $featuredContents[0]['description'] ?: '', 'url' => $featuredContents[0]['url'] ?: '', 'meta' => $featuredContents[0]['content_type'] ?? 'contenuto'];
-} elseif ($featuredProjects) {
-    $spotlight = ['type' => 'Progetto', 'icon' => 'fa-solid fa-layer-group', 'title' => $featuredProjects[0]['title'], 'description' => $featuredProjects[0]['description'] ?: '', 'url' => $featuredProjects[0]['url'] ?: '', 'meta' => $featuredProjects[0]['tech_stack'] ?: profile_status_label($featuredProjects[0]['status'] ?? 'active')];
-} elseif ($featuredLinks) {
-    $spotlight = ['type' => 'Link', 'icon' => $featuredLinks[0]['icon'] ?: 'fa-solid fa-link', 'title' => $featuredLinks[0]['title'], 'description' => $featuredLinks[0]['description'] ?: profile_short_url_label($featuredLinks[0]['url']), 'url' => $featuredLinks[0]['url'], 'meta' => 'in evidenza'];
-}
 
 $stats = [];
 if ($profile) {
@@ -644,15 +544,15 @@ if ($profile) {
 }
 $ogMeta = cripsum_og_profile($mysqli, $profile);
 
-$lang = 'it';
-if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
-    $lang = 'en';
-} elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && strpos(strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']), 'it') === false) {
-    $lang = 'en';
-}
+// The profile URL carries no language: use the one the visitor was browsing
+// the site in. The navbar include below reassigns $lang, so the page keeps
+// its own copy.
+$lang = cripsum_preferred_lang();
+$profileLang = $lang;
+$pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it : $en;
 ?>
 <!DOCTYPE html>
-<html lang="en" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
+<html lang="<?php echo $profileLang; ?>" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
 
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
@@ -664,7 +564,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.11.1">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.14.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -711,8 +611,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.12.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.14.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
+        <script src="/assets/js/profile-style.js?v=6.0.0" defer></script>
         <style>
             .profile-smart-page {
                 padding-top: 1.5rem !important;
@@ -750,53 +651,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         echo '<link href="https://fonts.googleapis.com/css2?family=' . $googleFonts[$profileFont] . '" rel="stylesheet">' . "\n";
     }
     ?>
-    <?php
-    $cornerStyle = $profile['profile_corner_style'] ?? 'circle';
-    $cornerStyleCustom = (int)($profile['profile_corner_style_custom'] ?? 8);
-    $profileCornerRadius = '100px';
-    if ($cornerStyle === 'rounded') {
-        $profileCornerRadius = '12px';
-    } elseif ($cornerStyle === 'soft') {
-        $profileCornerRadius = '6px';
-    } elseif ($cornerStyle === 'square') {
-        $profileCornerRadius = '0px';
-    } elseif ($cornerStyle === 'custom') {
-        $profileCornerRadius = $cornerStyleCustom . 'px';
-    }
-    ?>
     <style>
         .bio-v2-body {
-            --radius-lg: <?php echo $borderRadius; ?>px !important;
-            --radius-md: <?php echo round($borderRadius * 0.73); ?>px !important;
-            --radius-sm: <?php echo round($borderRadius * 0.47); ?>px !important;
-            --profile-corner-radius: <?php echo $profileCornerRadius; ?> !important;
-
-            --profile-card-opacity: <?php echo $cardOpacity / 100; ?> !important;
-            --profile-card-blur: <?php echo $cardBlur; ?>px !important;
-            --profile-border-opacity: <?php echo $borderOpacity / 100; ?> !important;
-            --profile-border-opacity-percent: <?php echo $borderOpacity; ?>% !important;
-            --profile-border-glow-alpha: <?php echo round(($borderOpacity / 100) * 0.34, 3); ?> !important;
-            --profile-card-bg: color-mix(in srgb, var(--profile-card-color, <?php echo $theme === 'light' ? '#ffffff' : '#080c18'; ?>) <?php echo $cardOpacity; ?>%, transparent) !important;
-            --card: var(--profile-card-bg) !important;
-            --card-strong: color-mix(in srgb, <?php echo !empty($profile['profile_card_color']) ? $profile['profile_card_color'] : ($theme === 'light' ? '#ffffff' : '#080c18'); ?> <?php echo min(100, $cardOpacity + 20); ?>%, transparent) !important;
-
-            <?php if ($borderColor): ?>--border: <?php echo profile_h($borderColor); ?> !important;
-            --profile-border-color: <?php echo profile_h($borderColor); ?> !important;
-            <?php endif; ?>--profile-border-width: <?php echo $borderWidth; ?>px !important;
+            <?php foreach ($styleVars as $varName => $varValue): ?>
+            <?php echo $varName; ?>: <?php echo preg_replace('/[^a-zA-Z0-9#%.,()\s-]/', '', (string)$varValue); ?> !important;
+            <?php endforeach; ?>
             --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
             font-family: var(--profile-font, "Poppins", sans-serif) !important;
-
-            --ui-shape-icon: <?php echo $uiShapeIcon; ?> !important;
-            --ui-shape-button: <?php echo $uiShapeButton; ?> !important;
-            --ui-shape-card: <?php echo $uiShapeCard; ?> !important;
-            --social-icon-size: <?php echo $socialSize; ?>px !important;
-            --social-icon-spacing: <?php echo $iconSpacing; ?>px !important;
-            --badge-size: <?php echo $badgeSize; ?>px !important;
-            --button-height: <?php echo $buttonSize; ?>px !important;
-            --profile-bg-overlay-opacity: <?php echo (float)($profile['profile_bg_overlay_opacity'] ?? 1.0); ?> !important;
-            --profile-bg-blur: <?php echo (int)($profile['profile_bg_blur'] ?? 0); ?>px !important;
-            --profile-bg-scale: <?php echo 1 + ((int)($profile['profile_bg_blur'] ?? 0) * 0.005); ?> !important;
-            --profile-bg-orbs-opacity: <?php echo (float)($profile['profile_bg_orbs_opacity'] ?? 0.45); ?> !important;
         }
 
         /* Scroll Snap Layout
@@ -1292,18 +1153,20 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 </head>
 
 <body
-    class="bio-v2-body public-profile-body profile-border-style-<?php echo profile_h($profile['profile_border_style'] ?? 'thin'); ?><?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? ' click-to-enter-active' : ''; ?>"
+    class="bio-v2-body public-profile-body<?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? ' click-to-enter-active' : ''; ?>"
     data-logged-in="<?php echo $isLoggedIn ? '1' : '0'; ?>"
     data-user-id="<?php echo (int)($_SESSION['user_id'] ?? 0); ?>"
     data-current-user-id="<?php echo (int)($_SESSION['user_id'] ?? 0); ?>"
     data-csrf="<?php echo $socialCsrfToken; ?>"
-    data-theme="<?php echo profile_h($theme); ?>"
+    data-theme="<?php echo profile_h($themeAttr); ?>"
+    data-owner-theme="<?php echo profile_h($theme); ?>"
+    <?php if (isset($_GET['preview_mode']) && $canEdit): ?>data-preview-premium="<?php echo $isPremium ? '1' : '0'; ?>"<?php endif; ?>
     data-accent="<?php echo profile_h($accent); ?>"
     data-profile-url="<?php echo profile_h($profileUrl); ?>"
     data-discord-id="<?php echo profile_h($showDiscord ? $discordId : ''); ?>"
     data-profile-effect="<?php echo profile_h($profileEffect); ?>"
     data-profile-link-style="<?php echo profile_h($linkStyle); ?>"
-    data-profile-button-shape="<?php echo profile_h($buttonShape); ?>"
+    data-control-shape="<?php echo profile_h($controlShape); ?>"
     data-profile-socials-style="<?php echo profile_h($socialsStyle); ?>"
     data-profile-layout="<?php echo profile_h($layoutCss); ?>"
     data-avatar-shape="<?php echo profile_h($avatarShape); ?>"
@@ -1321,7 +1184,21 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     data-cursor-custom-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? '1' : '0'; ?>"
     data-cursor-custom-hover-url="<?php echo profile_h($cursorCustomHoverUrlCss); ?>"
     data-cursor-custom-hover-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? '1' : '0'; ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; --accent-2: <?php echo profile_h($secondaryColor); ?>; --profile-card-color: <?php echo profile_h($cardColorCss); ?>; --profile-text-color: <?php echo profile_h($textColorCss); ?>; <?php if ($cursorCustomUrlCss !== ''): ?>--cursor-custom-url: url('<?php echo profile_h($cursorCustomUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?> <?php if ($cursorCustomHoverUrlCss !== ''): ?>--cursor-custom-hover-url: url('<?php echo profile_h($cursorCustomHoverUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?>">
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; <?php if ($cursorCustomUrlCss !== ''): ?>--cursor-custom-url: url('<?php echo profile_h($cursorCustomUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?> <?php if ($cursorCustomHoverUrlCss !== ''): ?>--cursor-custom-hover-url: url('<?php echo profile_h($cursorCustomHoverUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?>">
+
+    <?php if ($theme === 'auto'): ?>
+        <script>
+            // Tema "auto": segue il sistema di chi visita, salvo che abbia scelto
+            // un tema a mano dal menu del profilo.
+            (function () {
+                var saved = null;
+                try { saved = localStorage.getItem('cripsum.profile.viewerTheme'); } catch (e) {}
+                if (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    document.body.setAttribute('data-theme', 'light');
+                }
+            })();
+        </script>
+    <?php endif; ?>
 
     <?php if ($profile && profile_flag($profile, 'profile_click_to_enter', false)): ?>
         <div id="clickToEnterOverlay" class="click-to-enter-overlay">
@@ -1340,13 +1217,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         else include __DIR__ . '/includes/navbar.php';
         if (file_exists(__DIR__ . '/includes/impostazioni.php')) include __DIR__ . '/includes/impostazioni.php';
     }
+    $lang = $profileLang;
     ?>
 
     <?php profile_render_background($profile, $backgroundUrl, $backgroundType); ?>
     <div class="profile-effects-layer" aria-hidden="true"></div>
 
     <?php if ($isNotFound): ?>
-        <?php profile_state_page('404', 'Profile Not Found', 'This user does not exist or has changed their username.', 'Home', '/en/home'); ?>
+        <?php profile_state_page('404', $pt('Profilo non trovato', 'Profile Not Found'), $pt('Questo utente non esiste o ha cambiato username.', 'This user does not exist or has changed their username.'), 'Home', '/' . $lang . '/home'); ?>
     <?php elseif ($isDeactivated): ?>
         <?php
         // Deliberately worded like a missing profile: whether an account is
@@ -1372,7 +1250,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         profile_state_page('Private', $blockTitle, $blockText, 'Home', '/' . $lang . '/home');
         ?>
     <?php elseif ($isLoginBlocked): ?>
-        <?php profile_state_page('Login', 'Login Required', 'This profile is only visible to registered users.', 'Log In', '/en/login'); ?>
+        <?php profile_state_page('Login', $pt('Accesso richiesto', 'Login Required'), $pt('Questo profilo è visibile solo agli utenti registrati.', 'This profile is only visible to registered users.'), $pt('Accedi', 'Log In'), '/' . $lang . '/accedi'); ?>
     <?php else: ?>
         <?php
         $tiltAttrs = 'data-tilt-enabled="' . (int)($profile['tilt_enabled'] ?? 1) . '" ' .
@@ -1407,15 +1285,15 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                 </button>
                                 <div class="profile-dropdown-menu">
                                     <?php if ($canEdit): ?>
-                                        <a class="profile-dropdown-item" href="/it/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
+                                        <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/edit-profile<?php echo profile_is_staff() && !$isOwnProfile ? '?user_id=' . (int)$profile['id'] : ''; ?>">
                                             <i class="fa-solid fa-pen"></i>
-                                            <span>Edit profile</span>
+                                            <span><?php echo $pt('Modifica profilo', 'Edit profile'); ?></span>
                                         </a>
                                     <?php endif; ?>
                                     <?php if (!$isPremium && !$isOwnProfile): ?>
                                         <a class="profile-dropdown-item profile-dropdown-item--gift" href="/<?php echo $lang; ?>/checkout-premium.php?gift_to=<?php echo urlencode($profile['username']); ?>">
                                             <i class="fa-solid fa-gift"></i>
-                                            <span>Gift Premium</span>
+                                            <span><?php echo $pt('Regala Premium', 'Gift Premium'); ?></span>
                                         </a>
                                     <?php endif; ?>
                                     <a class="profile-dropdown-item" href="/<?php echo $lang; ?>/home">
@@ -1424,23 +1302,23 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     </a>
                                     <button class="profile-dropdown-item js-open-search" type="button">
                                         <i class="fa-solid fa-search"></i>
-                                        <span>Search users</span>
+                                        <span><?php echo $pt('Cerca utenti', 'Search users'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-navigation" type="button">
                                         <i class="fa-solid fa-compass"></i>
-                                        <span>Open Navigation</span>
+                                        <span><?php echo $pt('Apri navigazione', 'Open Navigation'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-copy-profile" type="button">
                                         <i class="fa-solid fa-link"></i>
-                                        <span>Copy link</span>
+                                        <span><?php echo $pt('Copia link', 'Copy link'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-share-profile" type="button">
                                         <i class="fa-solid fa-share-nodes"></i>
-                                        <span>Share Profile</span>
+                                        <span><?php echo $pt('Condividi profilo', 'Share Profile'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-report" type="button" data-user-id="<?php echo (int)$profile['id']; ?>" data-username="<?php echo profile_h($profile['username']); ?>">
                                         <i class="fa-solid fa-flag"></i>
-                                        <span>Report Profile</span>
+                                        <span><?php echo $pt('Segnala profilo', 'Report Profile'); ?></span>
                                     </button>
                                     <button class="profile-dropdown-item js-open-qr" type="button">
                                         <i class="fa-solid fa-qrcode"></i>
@@ -1448,7 +1326,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     </button>
                                     <button class="profile-dropdown-item js-theme-toggle" type="button">
                                         <i class="fa-solid fa-moon"></i>
-                                        <span class="theme-label-text">Dark Mode</span>
+                                        <span class="theme-label-text"><?php echo $pt('Modalità scura', 'Dark Mode'); ?></span>
                                     </button>
                                 </div>
                             </div>
@@ -1509,10 +1387,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <div class="bio-name-block profile-smart-name">
                         <div class="profile-name-row">
                             <h1 class="profile-display-name"
-                                data-name-type="<?php echo profile_h($nameType); ?>"
-                                data-name-anim="<?php echo profile_h($nameAnim); ?>"
-                                data-text="<?php echo profile_h($displayName); ?>"
-                                style="--name-color1: <?php echo profile_h($nameSolidColor); ?>; --name-color2: <?php echo profile_h($nameGradColor1); ?>; --name-color3: <?php echo profile_h($nameGradColor2); ?>; --name-angle: <?php echo profile_h($nameGradAngle); ?>deg; --name-glow-color: <?php echo profile_h($nameGlowColor); ?>;">
+                                <?php echo profile_name_style_attributes($nameStyle); ?>
+                                data-text="<?php echo profile_h($displayName); ?>">
                                 <?php echo profile_format_name($displayName, $nameStyle); ?>
                             </h1>
                             <?php if ($badgesPosition === 'right_of_name') echo $renderMiniBadgesHtml; ?>
@@ -1527,28 +1403,18 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                         $profileTags = json_decode($profile['profile_tags_json'] ?? '[]', true) ?: [];
                         if (!empty($profileTags)):
                         ?>
-                            <div class="profile-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem;">
+                            <div class="profile-tags-container">
                                 <?php foreach ($profileTags as $tag):
-                                    $tagText = $tag['text'] ?? '';
+                                    $tagText = (string)($tag['text'] ?? '');
                                     if (trim($tagText) === '') continue;
-                                    $tagIcon = $tag['icon'] ?? '';
-                                    $tagColor = $tag['color'] ?? '';
-                                    $tagGradient = $tag['gradient'] ?? '';
-
-                                    $tagStyle = '';
-                                    if (!empty($tagColor)) {
-                                        if (!empty($tagGradient)) {
-                                            $tagStyle = 'background: linear-gradient(135deg, ' . $tagColor . ', ' . $tagGradient . ') !important; border-color: transparent !important; color: #fff !important;';
-                                        } else {
-                                            $tagStyle = 'background: ' . $tagColor . ' !important; border-color: transparent !important; color: #fff !important;';
-                                        }
-                                    }
+                                    $tagIcon = (string)($tag['icon'] ?? '');
+                                    $tagView = profile_tag_view($tag);
                                 ?>
-                                    <span class="profile-tag-pill" style="<?php echo $tagStyle; ?>">
-                                        <?php if (!empty($tagIcon)): ?>
-                                            <i class="<?php echo profile_h($tagIcon); ?>" style="margin-right: 4px;"></i>
+                                    <span class="<?php echo profile_h($tagView['class']); ?>"<?php echo $tagView['style'] !== '' ? ' style="' . profile_h($tagView['style']) . '"' : ''; ?>>
+                                        <?php if ($tagIcon !== ''): ?>
+                                            <?php echo profile_render_icon($tagIcon, '', 'profile-tag-pill__icon'); ?>
                                         <?php endif; ?>
-                                        <?php echo profile_h($tagText); ?>
+                                        <span><?php echo profile_h($tagText); ?></span>
                                     </span>
                                 <?php endforeach; ?>
                             </div>
@@ -1650,8 +1516,8 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     <?php if (!$hasAnyPublicContent && $isOwnProfile && !isset($_GET['preview_mode'])): ?>
                         <div class="profile-owner-nudge">
                             <i class="fa-solid fa-plus"></i>
-                            <span>Add links, badges, or content to fill out the bio.</span>
-                            <a href="/en/edit-profile">Edit</a>
+                            <span><?php echo $pt('Aggiungi link, badge o contenuti per completare il profilo.', 'Add links, badges, or content to fill out the bio.'); ?></span>
+                            <a href="/<?php echo $lang; ?>/edit-profile"><?php echo $pt('Modifica', 'Edit'); ?></a>
                         </div>
                     <?php endif; ?>
 
@@ -1768,48 +1634,25 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
             <?php if ($hasRightContent): ?>
                 <section class="bio-content profile-smart-content <?php echo $layoutCss === 'center-split' ? 'profile-smart-content--split' : ''; ?>" aria-label="Contenuti profilo">
                     <?php
-                    $spotlightHtml = '';
-                    if ($spotlight) {
-                        ob_start();
-                    ?>
-                        <section class="bio-card bio-featured profile-spotlight js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="featured" data-section-title="<?php echo profile_h($spotlight['title'] ?: 'Featured'); ?>">
-                            <a class="profile-spotlight-link" href="<?php echo profile_h($spotlight['url'] ?: '#'); ?>" <?php echo $spotlight['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
-                                <span class="profile-spotlight-icon"><?php echo profile_render_icon($spotlight['icon'], 'fa-solid fa-star'); ?></span>
-                                <span class="profile-spotlight-content">
-                                    <small><?php echo profile_h($spotlight['type']); ?> Featured</small>
-                                    <strong><?php echo profile_h($spotlight['title']); ?></strong>
-                                    <?php if ($spotlight['description']): ?><em><?php echo profile_h($spotlight['description']); ?></em><?php endif; ?>
-                                    <?php if ($spotlight['meta']): ?><span><?php echo profile_h($spotlight['meta']); ?></span><?php endif; ?>
-                                </span>
-                                <?php if ($spotlight['url']): ?><i class="fa-solid fa-arrow-up-right-from-square"></i><?php endif; ?>
-                            </a>
-                        </section>
-                    <?php
-                        $spotlightHtml = ob_get_clean();
-                    }
-                    ?>
-
-                    <?php
                     $sectionsHtml = [];
 
                     // 1. Links
                     ob_start();
-                    if ($featuredLinks || $normalLinks): ?>
+                    if ($visibleLinks): ?>
                         <section class="bio-card bio-featured js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="links" data-section-title="<?php echo profile_h(profile_get_section_title('links', 'Link')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-link', 'Link', null, 'links'); ?>
-                            <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count(array_merge($featuredLinks, $normalLinks)); ?>">
-                                <?php foreach (array_merge($featuredLinks, $normalLinks) as $item): ?>
+                            <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count($visibleLinks); ?>">
+                                <?php foreach ($visibleLinks as $item): ?>
                                     <?php
                                     $buttonStyle = profile_allowed_value((string)($item['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
                                     $linkTitle = (string)($item['title'] ?? 'Link');
                                     ?>
-                                    <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?> <?php echo !empty($item['is_featured']) ? 'is-pinned' : ''; ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
+                                    <a class="bio-featured-link profile-link-button button-style-<?php echo profile_h($buttonStyle); ?>" href="<?php echo profile_h($item['url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo profile_h($linkTitle); ?>">
                                         <span class="bio-featured-link__icon"><?php echo profile_render_icon($item['icon'] ?? '', 'fa-solid fa-link'); ?></span>
                                         <?php if ($buttonStyle === 'icon'): ?>
                                             <span class="profile-link-icon-label"><?php echo profile_h($linkTitle); ?></span>
                                         <?php else: ?>
                                             <span class="bio-featured-link__content">
-                                                <?php if (!empty($item['is_featured'])): ?><small>Pin</small><?php endif; ?>
                                                 <strong>
                                                     <?php echo profile_h($linkTitle); ?>
                                                     <?php if ((int)($profile['is_premium'] ?? 0) === 1 && !empty($item['card_tag_text'])): ?>
@@ -1877,14 +1720,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $projectImageUrl = trim((string)($project['image_url'] ?? ''));
                                     $hasProjectImage = $projectImageUrl !== '' && profile_is_safe_url($projectImageUrl, false);
                                     ?>
-                                    <a class="bio-project-card <?php echo !empty($project['is_featured']) ? 'is-pinned' : ''; ?> <?php echo $hasProjectImage ? 'has-media' : ''; ?>" href="<?php echo profile_h($project['url'] ?: '#'); ?>" <?php echo $project['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                                    <a class="bio-project-card <?php echo $hasProjectImage ? 'has-media' : ''; ?>" href="<?php echo profile_h($project['url'] ?: '#'); ?>" <?php echo $project['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
                                         <?php if ($hasProjectImage): ?>
                                             <span class="profile-card-media profile-project-media">
                                                 <img src="<?php echo profile_h($projectImageUrl); ?>" alt="<?php echo profile_h($project['title']); ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
                                                 <span class="profile-card-media__fallback"><i class="fa-solid fa-image"></i></span>
                                             </span>
                                         <?php else: ?>
-                                            <span class="bio-project-card__icon"><i class="fa-solid fa-layer-group"></i></span>
+                                            <span class="bio-project-card__icon"><?php echo profile_render_icon($project['icon'] ?? '', 'fa-solid fa-layer-group'); ?></span>
                                         <?php endif; ?>
                                         <strong>
                                             <?php echo profile_h($project['title']); ?>
@@ -1915,7 +1758,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $blockType = profile_allowed_value((string)($block['block_type'] ?? 'text'), $allowedTypes, 'text');
                                     $mediaUrl = trim((string)($block['media_url'] ?? ''));
                                     $mediaType = trim((string)($block['media_type'] ?? 'image'));
-                                    $isPinned = !empty($block['is_featured']);
                                     $noCardStyleClass = (!empty($block['no_card_style']) && (int)($profile['is_premium'] ?? 0) === 1) ? 'no-card-style' : '';
                                     $blockMediaPos = ($block['media_position'] ?? 'top');
                                     $blockTextAlign = ($block['text_align'] ?? 'left');
@@ -1925,7 +1767,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $blockMediaAlignClass = 'block-media-align-' . profile_h($blockMediaAlign);
                                     $blockTextAlignStyle = $blockTextAlign !== 'left' ? ' style="text-align: ' . profile_h($blockTextAlign) . ';"' : '';
                                     ?>
-                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $isPinned ? 'is-pinned' : ''; ?> <?php echo $noCardStyleClass; ?> <?php echo $blockMediaFitClass; ?> <?php echo $blockMediaAlignClass; ?>">
+                                    <article class="profile-block-card profile-block-<?php echo profile_h($blockType); ?> <?php echo $noCardStyleClass; ?> <?php echo $blockMediaFitClass; ?> <?php echo $blockMediaAlignClass; ?>">
                                         <?php
                                         // Build media HTML
                                         $mediaHtml = '';
@@ -1938,7 +1780,7 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                         }
                                         // Build copy HTML
                                         $copyHtml = '';
-                                        if (!empty($block['title']) || !empty($block['body']) || $isPinned || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)) {
+                                        if (!empty($block['title']) || !empty($block['body']) || (!empty($block['card_tag_text']) && (int)($profile['is_premium'] ?? 0) === 1)) {
                                             ob_start();
                                         ?>
                                             <div class="profile-block-copy" <?php echo $blockTextAlignStyle; ?>>
@@ -1969,7 +1811,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                                         <?php endif; ?>
                                                     </div>
                                                 <?php endif; ?>
-                                                <?php if ($isPinned): ?><small>Pin</small><?php endif; ?>
                                             </div>
                                         <?php
                                             $copyHtml = ob_get_clean();
@@ -2001,14 +1842,14 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     $contentThumbUrl = trim((string)($content['thumbnail_url'] ?? ''));
                                     $hasContentThumb = $contentThumbUrl !== '' && profile_is_safe_url($contentThumbUrl, false);
                                     ?>
-                                    <a class="bio-preview-card <?php echo !empty($content['is_featured']) ? 'is-pinned' : ''; ?> <?php echo $hasContentThumb ? 'has-media' : ''; ?>" href="<?php echo profile_h($content['url'] ?: '#'); ?>" <?php echo $content['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                                    <a class="bio-preview-card <?php echo $hasContentThumb ? 'has-media' : ''; ?>" href="<?php echo profile_h($content['url'] ?: '#'); ?>" <?php echo $content['url'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
                                         <?php if ($hasContentThumb): ?>
                                             <span class="profile-card-media profile-content-media">
                                                 <img src="<?php echo profile_h($contentThumbUrl); ?>" alt="<?php echo profile_h($content['title']); ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
                                                 <span class="profile-card-media__fallback"><i class="fa-solid fa-play"></i></span>
                                             </span>
                                         <?php else: ?>
-                                            <span class="bio-preview-card__icon"><i class="fa-solid fa-play"></i></span>
+                                            <span class="bio-preview-card__icon"><?php echo profile_render_icon($content['icon'] ?? '', 'fa-solid fa-play'); ?></span>
                                         <?php endif; ?>
                                         <span class="bio-preview-card__label"><?php echo profile_h($content['content_type']); ?></span>
                                         <strong>
@@ -2084,8 +1925,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 
                                     $badgeImage = !empty($badge['img_url']) ? (preg_match('/^https?:\/\//i', $badge['img_url']) ? $badge['img_url'] : '/img/' . ltrim((string)$badge['img_url'], '/')) : null;
 
-                                    $isFeaturedBadge = (int)($profile['featured_badge_id'] ?? 0) === (int)$badge['id'] && $badge['badge_source'] === 'achievement';
-
                                     $styleAttr = '';
                                     $cardClasses = [];
 
@@ -2123,9 +1962,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                                     } else {
                                         $rarity = function_exists('profile_badge_rarity') ? profile_badge_rarity((int)($badge['punti'] ?? 0)) : ['label' => 'Badge', 'class' => 'common'];
                                         $cardClasses[] = 'rarity-' . $rarity['class'];
-                                        if ($isFeaturedBadge) {
-                                            $cardClasses[] = 'is-featured';
-                                        }
                                         $subtitle = $rarity['label'] . ((int)($badge['punti'] ?? 0) > 0 ? ' · ' . (int)$badge['punti'] . ' punti' : '');
                                     }
 
@@ -2178,9 +2014,6 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                     $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
 
                     $orderedSectionsHtml = [];
-                    if (trim($spotlightHtml) !== '') {
-                        $orderedSectionsHtml[] = $spotlightHtml;
-                    }
 
                     foreach ($sectionsOrder as $secKey) {
                         $secKey = trim($secKey);
@@ -2234,9 +2067,9 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
         <div class="profile-qr-backdrop js-close-qr"></div>
         <section class="bio-card profile-qr-card" role="dialog" aria-modal="true" aria-label="QR Profile">
             <button class="bio-small-button js-close-qr" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
-            <strong>QR Profile</strong>
+            <strong><?php echo $pt('QR del profilo', 'QR Profile'); ?></strong>
             <img class="profile-qr-image" alt="QR code of the profile" src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>" data-qr-src="/api/profile_qr.php?url=<?php echo rawurlencode($profileUrl); ?>">
-            <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fa-solid fa-link"></i>Copy link</button>
+            <button class="bio-button bio-button--primary js-copy-profile" type="button"><i class="fa-solid fa-link"></i><?php echo $pt('Copia link', 'Copy link'); ?></button>
         </section>
     </div>
 
@@ -2328,311 +2161,272 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
                 return url.replace(/[()]/g, (ch) => (ch === '(' ? '%28' : '%29'));
             }
 
-            window.addEventListener('message', function(event) {
-                // The editor hosts this page in a same-origin iframe; ignore
-                // anything else that manages to post into it.
-                if (event.origin !== window.location.origin) return;
-                if (!event.data) return;
-                const data = event.data;
-                if (data.type === 'update-css-variables') {
-                    const body = document.querySelector('.bio-v2-body');
-                    if (body) {
-                        for (const [key, value] of Object.entries(data.variables)) {
-                            body.style.setProperty(key, value, 'important');
-                        }
+            /*
+             * Anteprima dell'editor. L'editor manda tutti i valori del form a
+             * ogni modifica ({type: 'cripsum:settings'}); qui si applica subito
+             * cio' che non richiede di ridisegnare la pagina. Il resto arriva
+             * con il ricaricamento dalla bozza ({type: 'cripsum:reload'}).
+             */
+            (function previewBridge() {
+                const body = document.body;
+                const $ = (selector) => document.querySelector(selector);
+                const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+                const loadedFonts = new Set();
+                let lastEffect = body.dataset.profileEffect || 'none';
+                let lastNameEffect = $('.profile-display-name')?.dataset.nameEffect || 'none';
+                let lastCursor = '';
+
+                const loadFont = (family) => {
+                    if (!family || ['Poppins', 'Minecraft', 'Gang of Three'].includes(family) || loadedFonts.has(family)) return;
+                    loadedFonts.add(family);
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(family).replace(/%20/g, '+') + '&display=swap';
+                    document.head.appendChild(link);
+                };
+
+                const on = (s, name) => s[name] === '1';
+
+                const applyName = (s) => {
+                    const nameEl = $('.profile-display-name');
+                    if (!nameEl || !window.CripsumProfileStyle) return;
+                    const style = window.CripsumProfileStyle.nameStyle({
+                        color: s.profile_name_color,
+                        effect: s.profile_name_effect,
+                        grad_color1: s.profile_name_grad_color1,
+                        grad_color2: s.profile_name_grad_color2,
+                        grad_angle: s.profile_name_grad_angle,
+                        glow_color: s.profile_name_glow_color,
+                    }, s.profile_text_color, s.profile_theme);
+
+                    nameEl.dataset.nameEffect = style.effect;
+                    nameEl.dataset.nameAnim = style.effect;
+                    nameEl.style.setProperty('--name-color', style.color);
+                    nameEl.style.setProperty('--name-grad-1', style.grad_color1);
+                    nameEl.style.setProperty('--name-grad-2', style.grad_color2);
+                    nameEl.style.setProperty('--name-angle', style.grad_angle + 'deg');
+                    nameEl.style.setProperty('--name-glow-color', style.glow_color);
+
+                    // Con "usa il nome di Discord" il nome resta quello di Discord.
+                    const text = on(s, 'discord_use_display_name')
+                        ? (nameEl.dataset.text || nameEl.textContent)
+                        : (String(s.display_name || '').trim() || String(s.username || '').trim() || nameEl.dataset.text || '');
+                    nameEl.dataset.text = text;
+                    nameEl.textContent = '';
+                    if (style.effect === 'bounce') {
+                        Array.from(text).forEach((char, index) => {
+                            const span = document.createElement('span');
+                            span.className = char === ' ' ? 'name-char space-char' : 'name-char';
+                            span.style.setProperty('--char-index', String(index));
+                            span.textContent = char === ' ' ? '\u00a0' : char;
+                            nameEl.appendChild(span);
+                        });
+                    } else {
+                        nameEl.textContent = text;
                     }
-                } else if (data.type === 'update-attributes') {
-                    const body = document.querySelector('.bio-v2-body');
-                    if (body) {
-                        for (const [key, value] of Object.entries(data.attributes)) {
-                            if (key.startsWith('data-') && !key.startsWith('data-tilt-')) {
-                                body.setAttribute(key, value);
-                                if (key === 'data-cursor-custom-url' || key === 'data-cursor-custom-center' || key === 'data-cursor-custom-hover-url' || key === 'data-cursor-custom-hover-center') {
-                                    const urlVal = previewCssUrl(body.getAttribute('data-cursor-custom-url'));
-                                    const centerVal = body.getAttribute('data-cursor-custom-center') === '1';
-                                    if (urlVal) {
-                                        const hotspot = centerVal ? ' 32 32' : '';
-                                        body.style.setProperty('--cursor-custom-url', `url('${urlVal}')${hotspot}, auto`);
-                                    } else {
-                                        body.style.removeProperty('--cursor-custom-url');
-                                    }
+                    if ((style.effect === 'sparkles') !== (lastNameEffect === 'sparkles') && window.initNameSparkles) {
+                        window.initNameSparkles();
+                    }
+                    lastNameEffect = style.effect;
+                };
 
-                                    const hoverUrlVal = previewCssUrl(body.getAttribute('data-cursor-custom-hover-url'));
-                                    const hoverCenterVal = body.getAttribute('data-cursor-custom-hover-center') === '1';
-                                    if (hoverUrlVal) {
-                                        const hotspot = hoverCenterVal ? ' 32 32' : '';
-                                        body.style.setProperty('--cursor-custom-hover-url', `url('${hoverUrlVal}')${hotspot}, auto`);
-                                    } else {
-                                        body.style.removeProperty('--cursor-custom-hover-url');
-                                    }
-
-                                    if (window.initCustomCursorImage) {
-                                        window.initCustomCursorImage();
-                                    }
-                                } else if (key === 'data-layout-snap') {
-                                    if (window.initScrollSnapPagination) {
-                                        window.initScrollSnapPagination();
-                                    }
-                                }
-                            } else if (key === 'style') {
-                                for (const [styleKey, styleVal] of Object.entries(value)) {
-                                    body.style.setProperty(styleKey, styleVal);
-                                }
-                            }
+                const applyTexts = (s) => {
+                    const username = $('.bio-username');
+                    if (username && s.username !== undefined) username.textContent = '@' + (String(s.username).trim() || 'username');
+                    if (s.bio !== undefined) {
+                        let bio = $('.bio-tagline');
+                        const value = String(s.bio);
+                        if (!bio && value.trim() !== '') {
+                            bio = document.createElement('p');
+                            bio.className = 'bio-tagline';
+                            $('.bio-username')?.after(bio);
                         }
-
-                        // Real-time floating audio button updates in preview
-                        const showBtn = data.attributes['data-show-audio-btn'];
-                        const useVideoAudio = data.attributes['data-bg-use-video-audio'];
-                        const btnPos = data.attributes['data-audio-btn-position'];
-                        const container = document.querySelector('[data-floating-audio]');
-                        if (container) {
-                            const isBgVideo = !!document.getElementById('profileBgVideo');
-                            const currentShowBtn = showBtn !== undefined ? showBtn : (body.getAttribute('data-show-audio-btn') || '1');
-                            const currentUseVideoAudio = useVideoAudio !== undefined ? useVideoAudio : (body.getAttribute('data-bg-use-video-audio') || '0');
-
-                            const shouldShowFloatingBtn = (currentShowBtn === '1' || (currentUseVideoAudio === '1' && isBgVideo));
-
-                            const mainPlayer = document.querySelector('[data-audio-player]');
-                            const isMainPlayerVisible = mainPlayer && mainPlayer.style.display !== 'none';
-
-                            container.style.setProperty('display', (shouldShowFloatingBtn && !isMainPlayerVisible) ? 'flex' : 'none', 'important');
-
-                            if (useVideoAudio !== undefined) {
-                                container.setAttribute('data-bg-use-video-audio', useVideoAudio);
-                            }
-                        }
-
-                        if (btnPos) {
-                            container.className = 'profile-floating-audio-btn-container position-' + btnPos;
-                            container.style.setProperty('position', 'fixed', 'important');
-                            container.style.setProperty('z-index', '999999', 'important');
-                            container.style.setProperty('transform', 'none', 'important');
-                            container.style.setProperty('flex-direction', btnPos.includes('left') ? 'row' : 'row-reverse', 'important');
-
-                            container.style.setProperty('top', btnPos.startsWith('top') ? '24px' : 'auto', 'important');
-                            container.style.setProperty('bottom', btnPos.startsWith('bottom') ? '24px' : 'auto', 'important');
-                            container.style.setProperty('left', btnPos.includes('left') ? '24px' : 'auto', 'important');
-                            container.style.setProperty('right', btnPos.includes('right') ? '24px' : 'auto', 'important');
-                        }
-                        if (window.initCursorEffects) {
-                            window.initCursorEffects();
-                        }
-                        if (data.attributes['data-profile-border-style']) {
-                            body.classList.forEach((className) => {
-                                if (className.startsWith('profile-border-style-')) {
-                                    body.classList.remove(className);
-                                }
+                        if (bio) {
+                            bio.textContent = '';
+                            value.split('\n').forEach((line, i) => {
+                                if (i > 0) bio.appendChild(document.createElement('br'));
+                                bio.appendChild(document.createTextNode(line));
                             });
-                            body.classList.add('profile-border-style-' + data.attributes['data-profile-border-style']);
+                            bio.hidden = value.trim() === '';
                         }
                     }
-                    if (data.attributes['data-profile-layout']) {
-                        const page = document.getElementById('bioPage');
-                        if (page) {
-                            page.classList.forEach((className) => {
-                                if (className.startsWith('layout-')) {
-                                    page.classList.remove(className);
-                                }
-                            });
-                            const layoutMap = {
-                                compact: 'center-split',
-                                showcase: 'right-tabs',
-                                clean: 'stacked',
-                                'left-tabs': 'standard',
-                                'right-tabs': 'right-tabs',
-                                stacked: 'stacked',
-                                'center-split': 'center-split',
-                                standard: 'standard'
-                            };
-                            const nextLayout = layoutMap[data.attributes['data-profile-layout']] || 'standard';
-                            page.classList.add('layout-' + nextLayout);
-                            page.classList.toggle('profile-smart-page--single', !document.querySelector('.profile-smart-content'));
-                        }
+                };
+
+                const applyRing = (s) => {
+                    const wrap = $('.bio-avatar-wrap');
+                    if (!wrap) return;
+                    const style = String(s.avatar_ring_style || 'spin').replace(/[^a-z0-9_-]/gi, '');
+                    const enabled = style !== 'none';
+                    Array.from(wrap.classList).forEach((c) => { if (c.startsWith('ring-style-')) wrap.classList.remove(c); });
+                    wrap.classList.add('ring-style-' + style);
+                    wrap.classList.toggle('ring-disabled', !enabled);
+                    if (s.avatar_ring_color) {
+                        wrap.style.setProperty('--profile-ring', s.avatar_ring_color);
+                        body.style.setProperty('--profile-ring', s.avatar_ring_color);
                     }
-                    const cards = document.querySelectorAll('.js-tilt-card');
-                    cards.forEach(card => {
-                        for (const [key, value] of Object.entries(data.attributes)) {
-                            if (key.startsWith('data-tilt-')) {
-                                card.setAttribute(key, value);
-                            }
-                        }
-                        if (card.getAttribute('data-tilt-enabled') === '0') {
-                            card.style.transform = 'none';
-                            const glare = card.querySelector('.js-tilt-glare');
-                            if (glare) glare.style.display = 'none';
-                        }
+                    let ring = wrap.querySelector('.bio-avatar-ring');
+                    if (enabled && !ring) {
+                        ring = document.createElement('div');
+                        ring.className = 'bio-avatar-ring';
+                        wrap.prepend(ring);
+                    } else if (!enabled && ring) {
+                        ring.remove();
+                    }
+                    body.dataset.avatarBorder = on(s, 'profile_avatar_border') ? '1' : '0';
+                };
+
+                const applyCursor = (s, premium) => {
+                    const url = premium ? previewCssUrl(s.profile_cursor_custom_url) : '';
+                    const hover = premium ? previewCssUrl(s.profile_cursor_custom_hover_url) : '';
+                    body.dataset.cursorEffect = premium ? (s.profile_cursor_effect || 'none') : 'none';
+                    body.dataset.cursorCustomUrl = url;
+                    body.dataset.cursorCustomCenter = premium && on(s, 'profile_cursor_custom_center') ? '1' : '0';
+                    body.dataset.cursorCustomHoverUrl = hover;
+                    body.dataset.cursorCustomHoverCenter = premium && on(s, 'profile_cursor_custom_hover_center') ? '1' : '0';
+                    if (url) body.style.setProperty('--cursor-custom-url', `url('${url}')${on(s, 'profile_cursor_custom_center') ? ' 32 32' : ''}, auto`);
+                    else body.style.removeProperty('--cursor-custom-url');
+                    if (hover) body.style.setProperty('--cursor-custom-hover-url', `url('${hover}')${on(s, 'profile_cursor_custom_hover_center') ? ' 32 32' : ''}, auto`);
+                    else body.style.removeProperty('--cursor-custom-hover-url');
+                    if (!url) body.removeAttribute('data-cursor-custom-url');
+                    if (!hover) body.removeAttribute('data-cursor-custom-hover-url');
+
+                    const key = [body.dataset.cursorEffect, url, hover].join('|');
+                    if (key !== lastCursor) {
+                        lastCursor = key;
+                        window.initCursorEffects?.();
+                        window.initCustomCursorImage?.();
+                    }
+                };
+
+                const applyTilt = (s) => {
+                    const enabled = s.tilt_enabled === '0' ? '0' : '1';
+                    $$('.js-tilt-card').forEach((card) => {
+                        card.dataset.tiltEnabled = enabled;
+                        if (s.tilt_max !== undefined) card.dataset.tiltMax = s.tilt_max;
+                        if (s.tilt_glare !== undefined) card.dataset.tiltGlare = s.tilt_glare;
+                        if (s.tilt_zoom !== undefined) card.dataset.tiltZoom = s.tilt_zoom;
+                        if (s.tilt_speed !== undefined) card.dataset.tiltSpeed = s.tilt_speed;
+                        if (enabled === '0') card.style.transform = 'none';
                     });
-                } else if (data.type === 'update-text') {
-                    for (const [selector, text] of Object.entries(data.texts)) {
-                        const el = document.querySelector(selector);
-                        if (el) {
-                            if (selector === '.profile-display-name') {
-                                el.setAttribute('data-text', text);
-                                el.textContent = text;
-                            } else if (selector === '.bio-tagline') {
-                                el.innerHTML = text.replace(/\n/g, '<br>');
-                            } else if (selector.includes('profile-audio-player strong')) {
-                                el.innerHTML = `<i class="fa-solid fa-music"></i>` + text;
-                            } else {
-                                el.textContent = text;
-                            }
-                        } else if (selector === '.bio-tagline' && text.trim() !== '') {
-                            const nameBlock = document.querySelector('.bio-name-block');
-                            if (nameBlock) {
-                                const newBio = document.createElement('p');
-                                newBio.className = 'bio-tagline';
-                                newBio.innerHTML = text.replace(/\n/g, '<br>');
-                                nameBlock.appendChild(newBio);
-                            }
-                        }
+                };
+
+                const applyAudio = (s, premium) => {
+                    body.dataset.musicTheme = premium ? (s.profile_music_theme || 'default') : 'default';
+                    const player = $('[data-audio-player]');
+                    const showPlayer = on(s, 'profile_show_audio_player');
+                    const audio = document.getElementById('profileAudio');
+                    const hasMusic = !!(audio && (audio.getAttribute('src') || audio.currentSrc));
+                    if (player) player.style.display = hasMusic && showPlayer ? '' : 'none';
+
+                    const title = $('.profile-audio-player strong');
+                    if (title) title.innerHTML = '<i class="fa-solid fa-music"></i>' + String(s.profile_music_title || 'Profile Song').replace(/[<>&]/g, '');
+                    const artist = $('.profile-artist-span');
+                    if (artist) {
+                        artist.textContent = s.profile_music_artist || '';
+                        artist.style.display = s.profile_music_artist ? '' : 'none';
                     }
-                } else if (data.type === 'update-avatar-src') {
-                    const avatar = document.querySelector('.bio-avatar');
-                    if (avatar) {
-                        avatar.src = data.src;
+
+                    const floating = $('[data-floating-audio]');
+                    if (floating) {
+                        const position = String(s.profile_audio_btn_position || 'bottom-right');
+                        const show = !showPlayer && (on(s, 'profile_show_audio_btn') || on(s, 'profile_bg_use_video_audio'));
+                        floating.className = 'profile-floating-audio-btn-container position-' + position;
+                        floating.style.setProperty('display', show ? 'flex' : 'none', 'important');
+                        floating.style.setProperty('top', position.startsWith('top') ? '24px' : 'auto', 'important');
+                        floating.style.setProperty('bottom', position.startsWith('bottom') ? '24px' : 'auto', 'important');
+                        floating.style.setProperty('left', position.includes('left') ? '24px' : 'auto', 'important');
+                        floating.style.setProperty('right', position.includes('right') ? '24px' : 'auto', 'important');
+                        floating.style.setProperty('flex-direction', position.includes('left') ? 'row' : 'row-reverse', 'important');
                     }
-                } else if (data.type === 'update-background-media') {
-                    const background = document.querySelector('.bio-background');
-                    if (background) {
+                    if (audio && s.profile_audio_default_volume !== undefined) {
+                        const volume = Math.max(0, Math.min(1, Number(s.profile_audio_default_volume)));
+                        if (Number.isFinite(volume)) audio.volume = volume;
+                    }
+                };
+
+                const applySettings = (s, premium) => {
+                    if (window.CripsumProfileStyle) window.CripsumProfileStyle.apply(body, s);
+                    if (s.profile_font) {
+                        loadFont(s.profile_font);
+                        body.style.setProperty('--profile-font', `'${String(s.profile_font).replace(/'/g, '')}', sans-serif`, 'important');
+                    }
+
+                    const effect = s.profile_effect || 'none';
+                    body.dataset.bgGrain = premium && effect === 'bg_grain' ? '1' : '0';
+                    if (effect !== lastEffect) {
+                        body.dataset.profileEffect = effect;
+                        lastEffect = effect;
+                        $$('.profile-effects-layer .profile-effect-dot').forEach((dot) => dot.remove());
+                        window.initProfileEffects?.();
+                    }
+
+                    applyName(s);
+                    applyTexts(s);
+                    applyRing(s);
+                    applyCursor(s, premium);
+                    applyTilt(s);
+                    applyAudio(s, premium);
+                };
+
+                const applyMedia = (message) => {
+                    if (message.kind === 'avatar') {
+                        const avatar = $('.bio-avatar');
+                        if (avatar) avatar.src = message.url;
+                    } else if (message.kind === 'background') {
+                        const background = $('.bio-background');
+                        if (!background) return;
                         background.querySelectorAll('.bio-background__media, video').forEach((node) => node.remove());
                         let media;
-                        if (data.fileType.startsWith('video/')) {
+                        if (String(message.fileType).startsWith('video/')) {
                             media = document.createElement('video');
-                            media.className = 'bio-background__media';
-                            media.autoplay = true;
-                            media.muted = true;
-                            media.loop = true;
-                            media.playsInline = true;
-                            const source = document.createElement('source');
-                            source.src = data.url;
-                            source.type = data.fileType;
-                            media.appendChild(source);
-                        } else if (data.fileType.startsWith('image/')) {
+                            Object.assign(media, { autoplay: true, muted: true, loop: true, playsInline: true, src: message.url });
+                        } else {
                             media = document.createElement('img');
-                            media.className = 'bio-background__media';
-                            media.src = data.url;
+                            media.src = message.url;
                             media.alt = '';
                         }
-                        if (media) {
-                            background.prepend(media);
-                        }
-                    }
-                } else if (data.type === 'update-music-player') {
-                    const player = document.querySelector('[data-audio-player]');
-                    const audio = document.getElementById('profileAudio');
-                    if (player) {
-                        if (data.hasMusic && data.showPlayer) {
-                            player.style.removeProperty('display');
-                        } else {
-                            player.style.display = 'none';
-                        }
-                    }
-                    if (audio && data.src) {
-                        const newSrc = data.src || '';
-                        if (audio.getAttribute('src') !== newSrc) {
-                            audio.src = newSrc;
+                        media.className = 'bio-background__media';
+                        background.prepend(media);
+                    } else if (message.kind === 'music') {
+                        const audio = document.getElementById('profileAudio');
+                        if (audio && audio.getAttribute('src') !== message.url) {
+                            audio.src = message.url;
                             audio.load();
                         }
+                        const player = $('[data-audio-player]');
+                        if (player && body.dataset.previewShowPlayer !== '0') player.style.removeProperty('display');
                     }
-                    if (audio && typeof data.defaultVolume !== 'undefined') {
-                        audio.volume = data.defaultVolume;
-                        const mainSlider = document.getElementById('profileVolumeSlider');
-                        if (mainSlider) mainSlider.value = String(data.defaultVolume);
-                        const floatSlider = document.querySelector('.profile-floating-audio-slider');
-                        if (floatSlider) floatSlider.value = String(data.defaultVolume);
-                    }
-                    const floatBtn = document.querySelector('[data-floating-audio]');
-                    if (floatBtn) {
-                        const showBtn = document.body.getAttribute('data-show-audio-btn') !== '0';
-                        if (data.hasMusic && !data.showPlayer && showBtn) {
-                            floatBtn.style.setProperty('display', 'flex', 'important');
-                        } else {
-                            floatBtn.style.setProperty('display', 'none', 'important');
-                        }
-                    }
-                    const titleEl = document.querySelector('.profile-audio-player strong');
-                    if (titleEl) {
-                        titleEl.innerHTML = `<i class="fa-solid fa-music"></i>` + (data.title || 'Profile Song');
-                    }
-                    const artistEl = document.querySelector('.profile-artist-span');
-                    if (artistEl) {
-                        if (data.artist) {
-                            artistEl.textContent = data.artist;
-                            artistEl.style.removeProperty('display');
-                        } else {
-                            artistEl.style.display = 'none';
-                        }
-                    }
-                } else if (data.type === 'update-name-style') {
-                    // Name colour/gradient/animation live without a reload.
-                    const nameEl = document.querySelector('.profile-display-name');
-                    if (nameEl) {
-                        const style = data.style || {};
-                        nameEl.setAttribute('data-name-type', style.type || 'default');
-                        nameEl.setAttribute('data-name-anim', style.animation || 'none');
-                        nameEl.style.setProperty('--name-color1', style.solid_color || '#ffffff');
-                        nameEl.style.setProperty('--name-color2', style.grad_color1 || '#ffffff');
-                        nameEl.style.setProperty('--name-color3', style.grad_color2 || '#8b5cf6');
-                        nameEl.style.setProperty('--name-angle', (parseInt(style.grad_angle, 10) || 0) + 'deg');
-                        nameEl.style.setProperty('--name-glow-color', style.glow_color || '#8b5cf6');
+                };
 
-                        const text = String(data.text ?? nameEl.getAttribute('data-text') ?? '');
-                        nameEl.setAttribute('data-text', text);
-                        if (style.animation === 'bounce') {
-                            // Mirror profile_format_name(): one span per letter.
-                            nameEl.textContent = '';
-                            Array.from(text).forEach((char, index) => {
-                                const span = document.createElement('span');
-                                span.className = char === ' ' ? 'name-char space-char' : 'name-char';
-                                span.style.setProperty('--char-index', String(index));
-                                span.textContent = char === ' ' ? ' ' : char;
-                                nameEl.appendChild(span);
-                            });
-                        } else {
-                            nameEl.textContent = text;
-                        }
-                    }
-                } else if (data.type === 'update-avatar-ring') {
-                    const wrap = document.querySelector('.bio-avatar-wrap');
-                    if (wrap) {
-                        const style = String(data.ringStyle || 'spin');
-                        const enabled = !!data.enabled && style !== 'none';
-                        Array.from(wrap.classList).forEach((className) => {
-                            if (className.startsWith('ring-style-')) wrap.classList.remove(className);
-                        });
-                        wrap.classList.add('ring-style-' + style.replace(/[^a-z0-9_-]/gi, ''));
-                        wrap.classList.toggle('ring-disabled', !enabled);
-                        if (data.ringColor) wrap.style.setProperty('--profile-ring', data.ringColor);
+                const focusSection = (section) => {
+                    const el = $(`[data-section-type="${CSS.escape(String(section || ''))}"]`);
+                    if (!el || el.offsetParent === null) return;
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.remove('profile-preview-flash');
+                    void el.offsetWidth;
+                    el.classList.add('profile-preview-flash');
+                };
 
-                        let ring = wrap.querySelector('.bio-avatar-ring');
-                        if (enabled && !ring) {
-                            ring = document.createElement('div');
-                            ring.className = 'bio-avatar-ring';
-                            wrap.prepend(ring);
-                        } else if (!enabled && ring) {
-                            ring.remove();
-                        }
-                    }
-                } else if (data.type === 'update-visibility') {
-                    // Show/hide toggles apply instantly instead of waiting for a
-                    // full preview refresh.
-                    Object.entries(data.sections || {}).forEach(([selector, visible]) => {
+                window.addEventListener('message', (event) => {
+                    // L'editor ospita questa pagina in un iframe della stessa
+                    // origine; tutto il resto viene ignorato.
+                    if (event.origin !== window.location.origin || !event.data || typeof event.data !== 'object') return;
+                    const message = event.data;
+                    if (message.type === 'cripsum:settings' && message.settings) {
+                        body.dataset.previewShowPlayer = message.settings.profile_show_audio_player === '1' ? '1' : '0';
+                        applySettings(message.settings, !!message.premium && body.dataset.previewPremium === '1');
+                    } else if (message.type === 'cripsum:media') {
+                        applyMedia(message);
+                    } else if (message.type === 'cripsum:focus') {
+                        focusSection(message.section);
+                    } else if (message.type === 'cripsum:reload') {
                         try {
-                            document.querySelectorAll(selector).forEach((el) => {
-                                el.style.setProperty('display', visible ? '' : 'none', visible ? '' : 'important');
-                            });
-                        } catch (_) {
-                            // An unusable selector must not break the rest.
-                        }
-                    });
-                } else if (data.type === 'reload') {
-                    try {
-                        sessionStorage.setItem('cripsum.preview.scroll', String(previewScrollTop()));
-                    } catch (_) {}
-                    window.location.reload();
-                }
-            });
+                            sessionStorage.setItem('cripsum.preview.scroll', String(previewScrollTop()));
+                        } catch (_) {}
+                        window.location.reload();
+                    }
+                });
+            })();
         </script>
     <?php endif; ?>
     <script src="/assets/social/social-api.js?v=1.5" defer></script>

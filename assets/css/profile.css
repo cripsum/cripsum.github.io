@@ -118,7 +118,7 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-orb {
     width: 26rem;
     height: 26rem;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     filter: blur(60px);
     opacity: var(--profile-bg-orbs-opacity, 0.45) !important;
     animation: bioFloat 9s ease-in-out infinite alternate;
@@ -233,7 +233,7 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-dot {
     width: 0.52rem;
     height: 0.52rem;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     background: #22c55e;
     box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.12);
 }
@@ -250,7 +250,7 @@ body[data-theme="light"] .bio-background__overlay {
 .bio-avatar-ring {
     position: absolute;
     inset: -8px;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 50%;
     background: conic-gradient(from 90deg, transparent, var(--accent), #8b5cf6, transparent 70%);
     animation: bioSpin 8s linear infinite;
     opacity: 0.95;
@@ -260,7 +260,7 @@ body[data-theme="light"] .bio-background__overlay {
     position: relative;
     width: 124px;
     height: 124px;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 50%;
     object-fit: cover;
     border: 4px solid var(--profile-ring, rgba(3, 7, 18, 0.82));
     background: rgba(255, 255, 255, 0.06);
@@ -676,7 +676,7 @@ body[data-theme="light"] .bio-name-block h1 {
 .bio-audio input[type="range"] {
     width: 100%;
     height: 6px;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     appearance: none;
     -webkit-appearance: none;
     background: rgba(255, 255, 255, 0.14);
@@ -688,7 +688,7 @@ body[data-theme="light"] .bio-name-block h1 {
     width: 17px;
     height: 17px;
     border: 0;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     appearance: none;
     -webkit-appearance: none;
     background: var(--accent);
@@ -699,7 +699,7 @@ body[data-theme="light"] .bio-name-block h1 {
     width: 17px;
     height: 17px;
     border: 0;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     background: var(--accent);
     box-shadow: 0 0 0 6px rgba(var(--accent-rgb), 0.16);
 }
@@ -1190,7 +1190,7 @@ body[data-theme="light"] .bio-name-block h1 {
     width: 17px;
     height: 17px;
     border: 3px solid rgba(5, 7, 13, 0.96);
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     background: #80848e;
 }
 
@@ -2026,7 +2026,11 @@ body[data-theme="light"] .bio-background img.bio-background__media {
     z-index: 3 !important;
 }
 
-.bio-v2-body > *:not(.bio-background) {
+/* Layers that float above the page (overlays, cursors, tooltips) keep their
+   own fixed positioning and z-index: they are excluded here and in the
+   public-profile flex fix below, which used to turn them into `relative` /
+   `absolute` boxes stacked under the profile card. */
+.bio-v2-body > *:not(.bio-background):not(:is(.profile-nav-overlay, .profile-report-modal, .profile-qr-modal, .profile-snap-dots, .click-to-enter-overlay, [style*="position: fixed"])) {
     position: relative;
     z-index: 4;
 }
@@ -2220,65 +2224,6 @@ body[data-theme="light"] .bio-background img.bio-background__media {
     gap: 0.85rem;
 }
 
-.profile-spotlight {
-    padding: 0.8rem;
-}
-
-.profile-spotlight-link {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 0.9rem;
-    color: var(--text);
-    text-decoration: none;
-}
-
-.profile-spotlight-icon {
-    display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 18px;
-    color: #fff;
-    background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.95), rgba(139, 92, 246, 0.9));
-    box-shadow: 0 14px 30px rgba(var(--accent-rgb), 0.2);
-}
-
-.profile-spotlight-content {
-    min-width: 0;
-}
-
-.profile-spotlight-content small,
-.profile-spotlight-content strong,
-.profile-spotlight-content em,
-.profile-spotlight-content span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.profile-spotlight-content small,
-.profile-spotlight-content span {
-    color: var(--accent);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-.profile-spotlight-content strong {
-    margin-top: 0.12rem;
-    font-size: 1.05rem;
-}
-
-.profile-spotlight-content em {
-    margin-top: 0.2rem;
-    color: var(--muted);
-    font-size: 0.86rem;
-    font-style: normal;
-    white-space: nowrap;
-}
-
 .profile-clean-section {
     padding: 1rem;
 }
@@ -2328,22 +2273,6 @@ body[data-theme="light"] .bio-background img.bio-background__media {
     border-color: rgba(var(--accent-rgb), 0.5);
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
     outline: none;
-}
-
-.profile-badge-card.is-featured::after,
-.is-pinned::after {
-    content: "PIN";
-    position: absolute;
-    top: 0.55rem;
-    right: 0.55rem;
-    padding: 0.22rem 0.42rem;
-    border: 1px solid rgba(var(--accent-rgb), 0.36);
-    border-radius: var(--ui-shape-button, 999px);
-    color: var(--accent);
-    background: rgba(var(--accent-rgb), 0.1);
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
 }
 
 .profile-badge-art {
@@ -2489,14 +2418,6 @@ body[data-theme="light"] .bio-background img.bio-background__media {
     .profile-badge-grid,
     .profile-toggle-grid {
         grid-template-columns: 1fr;
-    }
-
-    .profile-spotlight-link {
-        grid-template-columns: auto 1fr;
-    }
-
-    .profile-spotlight-link > i {
-        display: none;
     }
 }
 
@@ -3233,7 +3154,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 }
 
 .profile-smart-hero::-webkit-scrollbar-thumb {
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     background: rgba(var(--accent-rgb), 0.35);
 }
 
@@ -3272,8 +3193,7 @@ body[data-theme="light"].bio-v2-body .dropdown-menu button {
 }
 
 .public-profile-body .bio-button--primary,
-.profile-editor-shell .bio-button--primary,
-.profile-spotlight-icon {
+.profile-editor-shell .bio-button--primary {
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
 }
 
@@ -3374,27 +3294,6 @@ body[data-profile-link-style="neon"] .profile-link-button {
     box-shadow: 0 0 22px rgba(var(--accent-rgb), 0.16), inset 0 0 18px rgba(var(--accent-rgb), 0.08);
 }
 
-body[data-profile-button-shape="pill"] .profile-link-button,
-body[data-profile-button-shape="pill"] .bio-social,
-body[data-profile-button-shape="pill"] .bio-button,
-body[data-profile-button-shape="pill"] .bio-icon-button {
-    border-radius: var(--ui-shape-button, 999px);
-}
-
-body[data-profile-button-shape="rounded"] .profile-link-button,
-body[data-profile-button-shape="rounded"] .bio-social,
-body[data-profile-button-shape="rounded"] .bio-button,
-body[data-profile-button-shape="rounded"] .bio-icon-button {
-    border-radius: 18px;
-}
-
-body[data-profile-button-shape="sharp"] .profile-link-button,
-body[data-profile-button-shape="sharp"] .bio-social,
-body[data-profile-button-shape="sharp"] .bio-button,
-body[data-profile-button-shape="sharp"] .bio-icon-button {
-    border-radius: 8px;
-}
-
 .profile-social-compact {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -3486,8 +3385,6 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
 .bio-social small,
 .profile-link-button strong,
 .profile-link-button em,
-.profile-spotlight-content strong,
-.profile-spotlight-content em,
 .bio-project-card strong,
 .bio-project-card p,
 .bio-preview-card strong,
@@ -3649,8 +3546,7 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
         text-align: center !important;
     }
 
-    .profile-link-button > i.fa-chevron-right,
-    .profile-spotlight-link > i {
+    .profile-link-button > i.fa-chevron-right {
         display: none !important;
     }
 
@@ -3731,28 +3627,6 @@ body[data-profile-button-shape="sharp"] .bio-icon-button {
     .profile-discord-left .ds-activity-state,
     .profile-discord-left .ds-activity-time {
         font-size: 0.72rem;
-    }
-
-    .profile-spotlight-link {
-        gap: 0.62rem;
-    }
-
-    .profile-spotlight-icon {
-        width: 2.35rem;
-        height: 2.35rem;
-        border-radius: 14px;
-    }
-
-    .profile-spotlight-content strong {
-        font-size: 0.92rem;
-    }
-
-    .profile-spotlight-content em {
-        white-space: normal;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
     }
 
     .profile-stats-compact {
@@ -4381,7 +4255,7 @@ body[data-profile-effect="cursor_glow"] .profile-effects-layer::before {
     top: 0;
     width: 24rem;
     height: 24rem;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 50%;
     transform: translate3d(var(--cursor-x, 50vw), var(--cursor-y, 50vh), 0) translate(-50%, -50%);
     background: radial-gradient(circle, color-mix(in srgb, var(--accent) 26%, transparent) 0%, color-mix(in srgb, var(--accent-2, #8b5cf6) 12%, transparent) 45%, transparent 70%) !important;
     filter: blur(20px) !important;
@@ -4398,7 +4272,7 @@ body[data-profile-effect="spotlight"] .profile-effects-layer::before {
     top: 0;
     width: 38rem;
     height: 38rem;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 50%;
     transform: translate3d(var(--cursor-x, 50vw), var(--cursor-y, 50vh), 0) translate(-50%, -50%);
     background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, color-mix(in srgb, var(--accent) 18%, transparent) 40%, transparent 70%) !important;
     mix-blend-mode: screen !important;
@@ -5558,7 +5432,7 @@ body[data-theme="light"] .profile-select-menu {
     width: 4px;
 }
 .profile-character-picker::-webkit-scrollbar-thumb {
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     background: rgba(var(--accent-rgb), 0.35);
 }
 
@@ -5612,7 +5486,7 @@ body[data-theme="light"] .profile-select-menu {
     place-items: center;
     width: 1.4rem;
     height: 1.4rem;
-    border-radius: var(--ui-shape-button, 999px);
+    border-radius: 999px;
     font-size: 0.62rem;
     color: #fff;
     background: var(--accent);
@@ -7345,32 +7219,9 @@ body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
 }
 
 /* 1. Name color types */
-.profile-display-name[data-name-type="solid"] {
-    color: var(--name-color1, #fff) !important;
-}
-
-.profile-display-name[data-name-type="gradient"] {
-    background: linear-gradient(var(--name-angle, 90deg), var(--name-color2, #ffffff), var(--name-color3, #8b5cf6)) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    display: inline-block;
-}
 
 /* 2. Animations / Effects */
 /* Rainbow */
-.profile-display-name[data-name-anim="rainbow"] {
-    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000) !important;
-    background-size: 200% 100% !important;
-    background-repeat: repeat !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    display: inline-block;
-    animation: nameRainbowShift 4s linear infinite !important;
-    will-change: background-position;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-}
 @keyframes nameRainbowShift {
     0% {
         background-position: 0% 0;
@@ -7383,10 +7234,6 @@ body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
 }
 
 /* Glow */
-.profile-display-name[data-name-anim="glow"] {
-    text-shadow: 0 0 10px var(--name-glow-color, var(--accent)), 0 0 20px var(--name-glow-color, var(--accent)) !important;
-    animation: nameGlowPulse 1.8s ease-in-out infinite alternate !important;
-}
 @keyframes nameGlowPulse {
     from {
         text-shadow: 0 0 8px var(--name-glow-color, var(--accent)), 0 0 15px var(--name-glow-color, var(--accent)), 0 0 22px var(--name-glow-color, var(--accent));
@@ -7397,13 +7244,6 @@ body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
 }
 
 /* Fire */
-.profile-display-name[data-name-anim="fire"] {
-    background: linear-gradient(0deg, #ff3300 0%, #ff7700 50%, #ffdd00 100%) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    display: inline-block;
-    animation: nameFireWave 1.5s ease-in-out infinite alternate !important;
-}
 @keyframes nameFireWave {
     0% {
         filter: drop-shadow(0 -2px 2px rgba(255, 51, 0, 0.5)) brightness(1);
@@ -7414,18 +7254,6 @@ body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
 }
 
 /* Water */
-.profile-display-name[data-name-anim="water"] {
-    background: linear-gradient(180deg, #0044ff, #00ffcc, #0044ff) !important;
-    background-size: 100% 200% !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    display: inline-block;
-    animation: nameWaterShift 3.5s ease-in-out infinite !important;
-    filter: drop-shadow(0 2px 4px rgba(0, 68, 255, 0.45));
-    will-change: background-position;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-}
 @keyframes nameWaterShift {
     0%,
     100% {
@@ -7437,36 +7265,6 @@ body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
 }
 
 /* Glitch */
-.profile-display-name[data-name-anim="glitch"] {
-    position: relative;
-    display: inline-block;
-    color: var(--profile-text-color, #fff) !important;
-    -webkit-text-fill-color: var(--profile-text-color, #fff) !important;
-}
-.profile-display-name[data-name-anim="glitch"]::before,
-.profile-display-name[data-name-anim="glitch"]::after {
-    content: attr(data-text) !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: transparent !important;
-    color: var(--profile-text-color, #fff) !important;
-    -webkit-text-fill-color: var(--profile-text-color, #fff) !important;
-}
-.profile-display-name[data-name-anim="glitch"]::before {
-    left: 2px !important;
-    text-shadow: -2px 0 #ff0055 !important;
-    clip-path: inset(40% 0 30% 0) !important;
-    animation: nameGlitchAnim1 2s infinite steps(1) alternate-reverse !important;
-}
-.profile-display-name[data-name-anim="glitch"]::after {
-    left: -2px !important;
-    text-shadow: -2px 0 #00ffff, 0 1px #00ffff !important;
-    clip-path: inset(15% 0 65% 0) !important;
-    animation: nameGlitchAnim2 1.5s infinite steps(1) alternate-reverse !important;
-}
 @keyframes nameGlitchAnim1 {
     0% {
         clip-path: inset(20% 0 50% 0);
@@ -7561,11 +7359,6 @@ body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
 }
 
 /* Neon */
-.profile-display-name[data-name-anim="neon"] {
-    color: #fff !important;
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--name-glow-color, var(--accent)), 0 0 30px var(--name-glow-color, var(--accent)) !important;
-    animation: nameNeonFlicker 3s infinite alternate !important;
-}
 @keyframes nameNeonFlicker {
     0%,
     19%,
@@ -7587,22 +7380,6 @@ body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
 }
 
 /* Bounce */
-.profile-display-name[data-name-anim="bounce"] .name-char {
-    display: inline-block !important;
-    animation: nameLetterBounce 1s ease-in-out infinite alternate !important;
-    animation-delay: calc(var(--char-index) * 0.08s) !important;
-    color: inherit;
-    -webkit-text-fill-color: currentColor !important;
-}
-.profile-display-name[data-name-type="gradient"] .name-char {
-    background: linear-gradient(var(--name-angle, 90deg), var(--name-color2, #ffffff), var(--name-color3, #8b5cf6)) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-}
-.profile-display-name[data-name-anim="bounce"] .name-char.space-char {
-    width: 0.26em !important;
-}
 @keyframes nameLetterBounce {
     0% {
         transform: translateY(0);
@@ -7810,6 +7587,15 @@ body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .p
 
     body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero-wrapper,
     body.public-profile-body .profile-smart-page .profile-smart-hero-wrapper {
+        position: relative !important;
+        top: auto !important;
+    }
+}
+
+/* Sotto i 1180px i layout diventano a una colonna e la card non e' piu' sticky:
+   senza questo il top di 3rem resta e la card copre la sezione successiva. */
+@media (max-width: 1180px) {
+    body.public-profile-body .profile-smart-page:not(.profile-smart-page--single) .profile-smart-hero-wrapper {
         position: relative !important;
         top: auto !important;
     }
@@ -8852,128 +8638,20 @@ body[data-theme="light"] .profile-report-btn-cancel {
 }
 
 /* Global Corner Radius overrides for secondary components */
-.bio-social-icon {
-    border-radius: var(--profile-corner-radius, 50%) !important;
-}
-.bio-social__icon,
-.bio-featured-link__icon,
-.bio-project-card__icon,
-.bio-preview-card__icon {
-    border-radius: var(--profile-corner-radius, 14px) !important;
-}
-.profile-mini-badge {
-    border-radius: var(--profile-corner-radius, var(--ui-shape-button, 999px)) !important;
-}
-.bio-pill,
-.bio-badge {
-    border-radius: var(--profile-corner-radius, var(--ui-shape-button, 999px)) !important;
-}
-.bio-small-button,
-.bio-icon-button {
-    border-radius: var(--profile-corner-radius, var(--ui-shape-button, 999px)) !important;
-}
-.bio-audio input[type="range"],
-.bio-audio input[type="range"]::-webkit-slider-thumb,
-.bio-audio input[type="range"]::-moz-range-thumb {
-    border-radius: var(--profile-corner-radius, var(--ui-shape-button, 999px)) !important;
-}
-.ds-avatar {
-    border-radius: var(--profile-corner-radius, 18px) !important;
-}
 
 /* Border Styles Customizations */
 
 /* border-style: none */
-.profile-border-style-none .bio-card {
-    border: none !important;
-}
-.profile-border-style-none .bio-card::before {
-    display: none !important;
-}
-.profile-border-style-none .bio-social,
-.profile-border-style-none .bio-featured-link,
-.profile-border-style-none .bio-project-card,
-.profile-border-style-none .bio-preview-card,
-.profile-border-style-none .bio-audio,
-.profile-border-style-none .bio-discord-panel,
-.profile-border-style-none .profile-block-card {
-    border: none !important;
-}
-.profile-border-style-none .bio-social::after,
-.profile-border-style-none .bio-featured-link::after,
-.profile-border-style-none .bio-project-card::after,
-.profile-border-style-none .bio-preview-card::after {
-    display: none !important;
-}
 
 /* border-style: glow */
-.profile-border-style-glow .bio-card {
-    border: 1px solid var(--profile-accent) !important;
-    box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.35), 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1))) !important;
-}
-.profile-border-style-glow .bio-card::before {
-    display: none !important;
-}
-.profile-border-style-glow .bio-social,
-.profile-border-style-glow .bio-featured-link,
-.profile-border-style-glow .bio-project-card,
-.profile-border-style-glow .bio-preview-card,
-.profile-border-style-glow .bio-audio,
-.profile-border-style-glow .bio-discord-panel,
-.profile-border-style-glow .profile-block-card {
-    border: 1px solid var(--profile-accent) !important;
-}
-.profile-border-style-glow .bio-social::after,
-.profile-border-style-glow .bio-featured-link::after,
-.profile-border-style-glow .bio-project-card::after,
-.profile-border-style-glow .bio-preview-card::after {
-    display: none !important;
-}
-.profile-border-style-glow .bio-social:hover,
-.profile-border-style-glow .bio-featured-link:hover,
-.profile-border-style-glow .bio-project-card:hover,
-.profile-border-style-glow .bio-preview-card:hover {
-    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.5), 0 16px 42px rgba(0, 0, 0, 0.18) !important;
-}
 
 /* border-style: gradient (Premium Masked Gradient) */
-.profile-border-style-gradient .bio-card {
-    border: 1px solid transparent !important;
-    background: linear-gradient(var(--profile-card-bg, var(--card)), var(--profile-card-bg, var(--card))) padding-box,
-        linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
-}
-.profile-border-style-gradient .bio-card::before {
-    display: none !important;
-}
-.profile-border-style-gradient .bio-social,
-.profile-border-style-gradient .bio-featured-link,
-.profile-border-style-gradient .bio-project-card,
-.profile-border-style-gradient .bio-preview-card,
-.profile-border-style-gradient .bio-audio,
-.profile-border-style-gradient .bio-discord-panel,
-.profile-border-style-gradient .profile-block-card {
-    border: 1px solid transparent !important;
-    background: linear-gradient(var(--profile-card-bg, rgba(255, 255, 255, 0.055)), var(--profile-card-bg, rgba(255, 255, 255, 0.055))) padding-box,
-        linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
-}
-.profile-border-style-gradient .bio-social::after,
-.profile-border-style-gradient .bio-featured-link::after,
-.profile-border-style-gradient .bio-project-card::after,
-.profile-border-style-gradient .bio-preview-card::after {
-    display: none !important;
-}
-.profile-border-style-gradient .bio-social:hover,
-.profile-border-style-gradient .bio-featured-link:hover,
-.profile-border-style-gradient .bio-project-card:hover,
-.profile-border-style-gradient .bio-preview-card:hover {
-    background: linear-gradient(rgba(var(--accent-rgb), 0.1), rgba(var(--accent-rgb), 0.1)) padding-box, linear-gradient(135deg, var(--profile-accent), var(--accent-2, #8b5cf6)) border-box !important;
-    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18) !important;
-}
 
 /* Tag / Pills Styles */
 .profile-tag-pill {
     display: inline-flex;
     align-items: center;
+    gap: 0.35rem;
     padding: 0.35rem 0.85rem;
     font-size: 0.8rem;
     font-weight: 550;
@@ -9247,62 +8925,6 @@ body[data-profile-link-style="gradient"] .profile-link-icon-label {
     color: rgba(255, 255, 255, 0.84) !important;
 }
 
-.profile-border-style-glow .bio-card,
-.profile-border-style-glow .bio-social,
-.profile-border-style-glow .bio-featured-link,
-.profile-border-style-glow .bio-project-card,
-.profile-border-style-glow .bio-preview-card,
-.profile-border-style-glow .bio-audio,
-.profile-border-style-glow .bio-discord-panel,
-.profile-border-style-glow .profile-block-card {
-    border-width: var(--profile-border-width, 1px) !important;
-    border-style: solid !important;
-    border-color: color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent) !important;
-}
-
-.profile-border-style-glow .bio-card {
-    box-shadow: 0 0 calc(16px + var(--profile-border-width, 1px)) rgba(var(--accent-rgb), var(--profile-border-glow-alpha, 0.34)),
-        0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1))) !important;
-}
-
-.profile-border-style-glow .bio-card::before,
-.profile-border-style-gradient .bio-card::before {
-    display: none !important;
-}
-
-.profile-border-style-gradient .bio-card,
-.profile-border-style-gradient .bio-social,
-.profile-border-style-gradient .bio-featured-link,
-.profile-border-style-gradient .bio-project-card,
-.profile-border-style-gradient .bio-preview-card,
-.profile-border-style-gradient .bio-audio,
-.profile-border-style-gradient .bio-discord-panel,
-.profile-border-style-gradient .profile-block-card {
-    border-width: var(--profile-border-width, 1px) !important;
-    border-style: solid !important;
-    border-color: transparent !important;
-    background: var(--profile-surface-layer, linear-gradient(var(--card), var(--card))) padding-box,
-        linear-gradient(
-                135deg,
-                color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent),
-                color-mix(in srgb, var(--accent-2, #8b5cf6) var(--profile-border-opacity-percent, 100%), transparent)
-            )
-            border-box !important;
-}
-
-.profile-border-style-gradient .bio-social:hover,
-.profile-border-style-gradient .bio-featured-link:hover,
-.profile-border-style-gradient .bio-project-card:hover,
-.profile-border-style-gradient .bio-preview-card:hover {
-    background: var(--profile-surface-layer, linear-gradient(rgba(var(--accent-rgb), 0.1), rgba(var(--accent-rgb), 0.1))) padding-box,
-        linear-gradient(
-                135deg,
-                color-mix(in srgb, var(--profile-border-color, var(--profile-accent)) var(--profile-border-opacity-percent, 100%), transparent),
-                color-mix(in srgb, var(--accent-2, #8b5cf6) var(--profile-border-opacity-percent, 100%), transparent)
-            )
-            border-box !important;
-}
-
 @media (max-width: 1180px) {
     .profile-smart-page.layout-center-split,
     .profile-smart-page.layout-standard,
@@ -9451,11 +9073,16 @@ body.public-profile-body .bio-page {
    centres accurately.  The bio-page uses margin-block:auto; any sibling
    that occupies flex space (navbar, modals, toasts, scripts, settings modal)
    would eat from that auto-margin and shift the card upward.
-   position:absolute removes them from the flex flow without breaking their
-   own fixed/absolute positioning (overlays already use position:fixed inline). */
-body.public-profile-body > *:not(.bio-page):not(.bio-background):not(.profile-effects-layer):not(.profile-effects-foreground-layer):not(.profile-floating-audio-btn-container) {
+   position:absolute removes them from the flex flow. Floating layers are
+   left alone: they are already out of the flow as `fixed`, and forcing them
+   to `absolute` pinned them to the top of the document, under the card. */
+body.public-profile-body > *:not(.bio-page):not(.bio-background):not(.profile-effects-layer):not(.profile-effects-foreground-layer):not(.profile-floating-audio-btn-container):not(:is(.profile-nav-overlay, .profile-report-modal, .profile-qr-modal, .profile-snap-dots, .click-to-enter-overlay, [style*="position: fixed"])) {
     position: absolute !important;
     pointer-events: auto;
+}
+
+body.public-profile-body > :is(.profile-nav-overlay, .profile-report-modal, .profile-qr-modal) {
+    position: fixed;
 }
 
 body.public-profile-body.profile-fits-viewport {
@@ -9477,7 +9104,6 @@ body.public-profile-body .profile-effects-foreground-layer {
 }
 
 /* Premium Custom Blocks & Card Style Reset */
-.profile-block-card.is-pinned,
 .profile-block-card.profile-block-markdown,
 .profile-block-card.profile-block-html {
     grid-column: 1 / -1;
@@ -9671,8 +9297,7 @@ body.public-profile-body .profile-effects-foreground-layer {
         box-sizing: border-box !important;
     }
     .profile-block-grid .profile-block-card.profile-block-markdown,
-    .profile-block-grid .profile-block-card.profile-block-html,
-    .profile-block-grid .profile-block-card.is-pinned {
+    .profile-block-grid .profile-block-card.profile-block-html {
         flex: 0 0 100% !important;
         max-width: 100% !important;
     }
@@ -9901,4 +9526,268 @@ body.public-profile-body.click-to-enter-active {
 
 .profile-floating-audio-slider::-webkit-slider-thumb:hover {
     transform: scale(1.25);
+}
+
+/* ==========================================================================
+   SISTEMA DI STILE v6
+   Una sola fonte per forme, bordi e riquadri. I valori arrivano da
+   includes/profile_style.php (e da assets/js/profile-style.js in anteprima)
+   come variabili sul <body>; qui sotto i default, poi dove si applicano.
+
+   Riquadri   .bio-card                        raggio surface, bordo pieno
+   Box        .bio-stat-card                   raggio item, bordo pieno
+   Elementi   card dentro i riquadri           raggio item, bordo sottile
+   Controlli  pulsanti, link, social, tag      raggio control, bordo sottile
+   Icone      riquadri delle icone             raggio icon
+   ========================================================================== */
+
+:root {
+    --p-radius-surface: 30px;
+    --p-radius-item: 21px;
+    --p-radius-control: 999px;
+    --p-radius-icon: 50%;
+    --p-border-width: 1px;
+    --p-border-color: rgba(255, 255, 255, 0.12);
+    --p-item-border-width: 1px;
+    --p-item-border-color: rgba(255, 255, 255, 0.09);
+    --p-border-glow: 0 0 0 transparent;
+    /* Basi dei colori "automatici" (nessun colore scelto): seguono il tema. */
+    --p-card-base: #080c18;
+    --p-border-base: #ffffff;
+}
+
+body[data-theme="light"] {
+    --p-card-base: #ffffff;
+    --p-border-base: #111827;
+}
+
+/* Riquadri */
+body.public-profile-body .bio-card {
+    border: var(--p-border-width) solid var(--p-border-color) !important;
+    border-radius: var(--p-radius-surface) !important;
+    box-shadow: var(--p-border-glow), 0 24px 48px -12px rgba(0, 0, 0, calc(0.45 * var(--profile-card-opacity, 1))) !important;
+}
+
+/* La vecchia riga d'accento disegnava un bordo anche con spessore 0: ora il
+   bordo e' solo quello scelto nell'editor. */
+body.public-profile-body .bio-card::before {
+    display: none !important;
+}
+
+/* Box delle statistiche: stanno fuori dai riquadri e ne seguono bordi e
+   sfondo, con il raggio degli elementi perche' sono piu' piccoli. */
+body.public-profile-body .bio-stat-card {
+    border: var(--p-border-width) solid var(--p-border-color) !important;
+    border-radius: var(--p-radius-item) !important;
+    background: var(--card) !important;
+    backdrop-filter: blur(var(--profile-card-blur, 20px)) !important;
+    -webkit-backdrop-filter: blur(var(--profile-card-blur, 20px)) !important;
+    box-shadow: var(--p-border-glow), 0 16px 42px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Elementi dentro i riquadri */
+body.public-profile-body :is(.bio-project-card, .bio-preview-card, .profile-block-card:not(.no-card-style), .profile-badge-card, .profile-character-card, .profile-embed-wrapper, .bio-audio, .bio-discord-panel, .ds-card) {
+    border-width: var(--p-item-border-width) !important;
+    border-style: solid !important;
+    border-radius: var(--p-radius-item) !important;
+}
+
+/* Il colore resta quello proprio per i badge custom e per le rarita'. */
+body.public-profile-body :is(.bio-project-card, .bio-preview-card, .profile-block-card:not(.no-card-style), .profile-badge-card:not(.custom-badge-card), .profile-character-card, .profile-embed-wrapper, .bio-audio, .bio-discord-panel):not(.rarity-legendary, .rarity-epic, .rarity-rare) {
+    border-color: var(--p-item-border-color) !important;
+}
+
+body.public-profile-body :is(.profile-block-card, .profile-embed-wrapper) :is(img, video, iframe) {
+    border-radius: calc(var(--p-radius-item) * 0.7);
+}
+
+/* Controlli */
+body.public-profile-body :is(.bio-social, .profile-link-button, .bio-button, .bio-small-button, .bio-icon-button, .bio-pill, .bio-badge, .profile-mini-badge, .profile-activity-pill, .profile-card-tag, .profile-floating-audio-btn-container, .profile-floating-audio-btn) {
+    border-radius: var(--p-radius-control) !important;
+}
+
+body.public-profile-body :is(.bio-social, .profile-link-button) {
+    border-width: var(--p-item-border-width) !important;
+    border-style: solid !important;
+}
+
+body.public-profile-body .bio-social {
+    border-color: var(--p-item-border-color) !important;
+}
+
+/* Il colore del bordo dei link lo decide il loro stile (glass, pieno,
+   contorno, neon); qui solo spessore e altezza. */
+body.public-profile-body .profile-link-button:not(.button-style-icon) {
+    min-height: var(--button-height, 48px);
+}
+
+/* Icone */
+body.public-profile-body :is(.bio-social__icon, .bio-featured-link__icon, .bio-project-card__icon, .bio-preview-card__icon, .profile-badge-art, .bio-social-icon) {
+    border-radius: var(--p-radius-icon) !important;
+}
+
+/* ── Foto profilo: forma sua, indipendente dai controlli ─────────────────── */
+body.public-profile-body[data-avatar-shape="circle"] :is(.bio-avatar-wrap, .bio-avatar, .bio-avatar-ring),
+body.public-profile-body:not([data-avatar-shape]) :is(.bio-avatar-wrap, .bio-avatar, .bio-avatar-ring) {
+    border-radius: 50% !important;
+    clip-path: none !important;
+}
+
+/* ── Tag del profilo ─────────────────────────────────────────────────────── */
+.profile-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: 0.85rem;
+}
+
+body.public-profile-body .profile-tag-pill {
+    --tag-bg: rgba(var(--accent-rgb), 0.12);
+    --tag-fg: var(--profile-text-color, var(--text));
+    --tag-border: rgba(var(--accent-rgb), 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 1.9rem;
+    padding: 0.3rem 0.8rem;
+    border: var(--p-item-border-width, 1px) solid var(--tag-border) !important;
+    border-radius: var(--p-radius-control) !important;
+    background: var(--tag-bg) !important;
+    color: var(--tag-fg) !important;
+    font-size: 0.78rem;
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    box-shadow: none;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.public-profile-body .profile-tag-pill.is-colored {
+    --tag-bg: var(--tag-color);
+    --tag-border: transparent;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--tag-color) 28%, transparent);
+}
+
+body.public-profile-body .profile-tag-pill.is-gradient {
+    --tag-border: transparent;
+    background: linear-gradient(135deg, var(--tag-color), var(--tag-color-2)) !important;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--tag-color) 26%, transparent);
+}
+
+body.public-profile-body .profile-tag-pill:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+}
+
+.profile-tag-pill__icon,
+.profile-tag-pill .profile-custom-icon-wrap {
+    font-size: 0.95em;
+}
+
+/* ── Nome: un colore e un effetto ────────────────────────────────────────── */
+.profile-display-name {
+    color: var(--name-color, var(--profile-text-color, #fff));
+}
+
+.profile-display-name[data-name-effect="gradient"] {
+    background: linear-gradient(var(--name-angle, 90deg), var(--name-grad-1, #ffffff), var(--name-grad-2, #8b5cf6)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+.profile-display-name[data-name-effect="rainbow"] {
+    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000) !important;
+    background-size: 200% 100% !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: nameRainbowShift 4s linear infinite !important;
+    will-change: background-position;
+}
+
+.profile-display-name[data-name-effect="glow"] {
+    animation: nameGlowPulse 1.8s ease-in-out infinite alternate !important;
+}
+
+.profile-display-name[data-name-effect="fire"] {
+    background: linear-gradient(0deg, #ff3300 0%, #ff7700 50%, #ffdd00 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: nameFireWave 1.5s ease-in-out infinite alternate !important;
+}
+
+.profile-display-name[data-name-effect="water"] {
+    background: linear-gradient(180deg, #0044ff, #00ffcc, #0044ff) !important;
+    background-size: 100% 200% !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 68, 255, 0.45));
+    animation: nameWaterShift 3.5s ease-in-out infinite !important;
+}
+
+.profile-display-name[data-name-effect="glitch"]::before,
+.profile-display-name[data-name-effect="glitch"]::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--name-color, var(--profile-text-color, #fff));
+}
+
+.profile-display-name[data-name-effect="glitch"]::before {
+    left: 2px;
+    text-shadow: -2px 0 #ff0055;
+    clip-path: inset(40% 0 30% 0);
+    animation: nameGlitchAnim1 2s infinite steps(1) alternate-reverse;
+}
+
+.profile-display-name[data-name-effect="glitch"]::after {
+    left: -2px;
+    text-shadow: -2px 0 #00ffff, 0 1px #00ffff;
+    clip-path: inset(15% 0 65% 0);
+    animation: nameGlitchAnim2 1.5s infinite steps(1) alternate-reverse;
+}
+
+.profile-display-name[data-name-effect="neon"] {
+    text-shadow: 0 0 5px color-mix(in srgb, var(--name-color, #fff) 70%, #fff), 0 0 12px var(--name-glow-color, var(--accent)), 0 0 24px var(--name-glow-color, var(--accent)) !important;
+    animation: nameNeonFlicker 3s infinite alternate !important;
+}
+
+.profile-display-name[data-name-effect="bounce"] .name-char {
+    display: inline-block;
+    animation: nameLetterBounce 1s ease-in-out infinite alternate;
+    animation-delay: calc(var(--char-index) * 0.08s);
+}
+
+.profile-display-name[data-name-effect="bounce"] .name-char.space-char {
+    width: 0.26em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-display-name,
+    .profile-display-name::before,
+    .profile-display-name::after,
+    .profile-display-name .name-char {
+        animation: none !important;
+    }
+}
+
+/* Anteprima dell'editor: la sezione aperta nell'editor lampeggia. */
+@keyframes profilePreviewFlash {
+    0%, 100% { outline-color: rgba(var(--accent-rgb), 0); }
+    30% { outline-color: rgba(var(--accent-rgb), 0.7); }
+}
+
+.profile-preview-flash {
+    outline: 3px solid transparent;
+    outline-offset: 4px;
+    animation: profilePreviewFlash 1.4s ease 1;
 }

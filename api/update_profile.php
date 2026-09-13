@@ -84,7 +84,9 @@ $secondaryColor = profile_normalize_hex_color($_POST['profile_secondary_color'] 
 $cardColorDb = profile_optional_hex_color($_POST['profile_card_color'] ?? '');
 $textColorDb = profile_optional_hex_color($_POST['profile_text_color'] ?? '');
 $linkStyle = profile_allowed_value((string)($_POST['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass');
-$buttonShape = profile_allowed_value((string)($_POST['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill');
+// Forme, bordo e nome passano da profile_style.php, come la lettura.
+$styleColumns = profile_style_columns_from_input($_POST, $profile);
+$buttonShape = $styleColumns['profile_button_shape'];
 $font = profile_allowed_value((string)($_POST['profile_font'] ?? 'Poppins'), [
     'Poppins', 'Inter', 'Roboto', 'Outfit', 'Playfair Display', 
     'Space Grotesk', 'Syne', 'Montserrat', 'Fira Code', 'PT Mono', 
@@ -102,12 +104,11 @@ if ($cardOpacity < 0 || $cardOpacity > 100) $cardOpacity = 68;
 $cardBlur = (int)($_POST['profile_card_blur'] ?? 20);
 if ($cardBlur < 0 || $cardBlur > 40) $cardBlur = 20;
 $borderColorDb = profile_optional_hex_color($_POST['profile_border_color'] ?? '');
-$borderWidth = (int)($_POST['profile_border_width'] ?? 1);
-if ($borderWidth < 0 || $borderWidth > 5) $borderWidth = 1;
+$borderWidth = $styleColumns['profile_border_width'];
 $borderOpacity = (int)($_POST['profile_border_opacity'] ?? 100);
 if ($borderOpacity < 0 || $borderOpacity > 100) $borderOpacity = 100;
 
-$uiShape = profile_allowed_value((string)($_POST['profile_ui_shape'] ?? 'circle'), ['circle', 'rounded', 'soft', 'square-rounded', 'square', 'pill'], 'circle');
+$uiShape = $styleColumns['profile_ui_shape'];
 $avatarShape = profile_allowed_value((string)($_POST['profile_avatar_shape'] ?? 'circle'), ['circle', 'squircle', 'square', 'hexagon', 'octagon', 'badge'], 'circle');
 $socialSize = (int)($_POST['profile_social_size'] ?? 42);
 if ($socialSize < 32 || $socialSize > 72) $socialSize = 42;
@@ -119,15 +120,8 @@ $buttonSize = (int)($_POST['profile_button_size'] ?? 48);
 if ($buttonSize < 32 || $buttonSize > 80) $buttonSize = 48;
 
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
-$rawLayout = (string)($_POST['profile_layout'] ?? 'standard');
-$layoutAliases = [
-    'left-tabs' => 'standard',
-    'right-tabs' => 'showcase',
-    'stacked' => 'clean',
-    'center-split' => 'compact',
-];
-$rawLayout = $layoutAliases[$rawLayout] ?? $rawLayout;
-$layout = profile_allowed_value($rawLayout, ['standard', 'compact', 'showcase', 'clean'], 'standard');
+// L'editor sceglie uno fra cinque layout; "a schermate" e' standard + snap.
+[$layout, $layoutSnapChoice] = profile_layout_from_input($_POST, $isPremium);
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'friends', 'private'], 'public');
 $discordId = trim((string)($_POST['discord_id'] ?? ''));
 $discordIdDb = $discordId !== '' ? $discordId : null;
@@ -158,16 +152,7 @@ $avatarRingStyle = profile_allowed_value((string)($_POST['avatar_ring_style'] ??
 $avatarRingColor = profile_normalize_hex_color($_POST['avatar_ring_color'] ?? $accentColor);
 $avatarBorder = profile_bool_from_post('profile_avatar_border', true);
 
-$nameStyleConfig = [
-    'type' => profile_allowed_value((string)($_POST['profile_name_color_type'] ?? 'default'), ['default', 'solid', 'gradient'], 'default'),
-    'solid_color' => profile_normalize_hex_color($_POST['profile_name_solid_color'] ?? '#ffffff'),
-    'grad_color1' => profile_normalize_hex_color($_POST['profile_name_grad_color1'] ?? '#ffffff'),
-    'grad_color2' => profile_normalize_hex_color($_POST['profile_name_grad_color2'] ?? '#8b5cf6'),
-    'grad_angle' => min(max((int)($_POST['profile_name_grad_angle'] ?? 90), 0), 360),
-    'animation' => profile_allowed_value((string)($_POST['profile_name_animation'] ?? 'none'), ['none', 'rainbow', 'glow', 'sparkles', 'fire', 'water', 'glitch', 'neon', 'bounce'], 'none'),
-    'glow_color' => profile_normalize_hex_color($_POST['profile_name_glow_color'] ?? '#8b5cf6')
-];
-$profileNameStyleJson = json_encode($nameStyleConfig);
+$profileNameStyleJson = $styleColumns['profile_name_style'];
 $showStats = profile_bool_from_post('profile_show_stats', true);
 $showSocials = profile_bool_from_post('profile_show_socials', true);
 $showLinks = profile_bool_from_post('profile_show_links', true);
@@ -230,9 +215,15 @@ if (is_array($tagsDecoded)) {
     foreach (array_slice($tagsDecoded, 0, 10) as $tag) {
         $tagText = profile_clean_text($tag['text'] ?? '', 40);
         if ($tagText === '') continue;
+        // 255 come le icone dei link: un file caricato supera di molto i 40
+        // caratteri di una classe Font Awesome e veniva troncato.
+        $tagIcon = profile_clean_text($tag['icon'] ?? '', 255);
+        if (!$isPremium && (preg_match('/^https?:\/\//i', $tagIcon) || str_starts_with($tagIcon, '/uploads/') || str_contains($tagIcon, '.'))) {
+            $tagIcon = '';
+        }
         $tagsArray[] = [
             'text' => $tagText,
-            'icon' => profile_clean_text($tag['icon'] ?? '', 40),
+            'icon' => $tagIcon,
             'color' => profile_optional_hex_color($tag['color'] ?? ''),
             'gradient' => profile_optional_hex_color($tag['gradient'] ?? '')
         ];
@@ -247,9 +238,11 @@ $profileTabAnimationSpeed = min(max((int)($_POST['profile_tab_animation_speed'] 
 $profileTabAnimationText = profile_clean_text($_POST['profile_tab_animation_text'] ?? '', 120);
 $profileTabAnimationTextDb = $profileTabAnimationText !== '' ? $profileTabAnimationText : null;
 
-$profileCornerStyle = profile_allowed_value((string)($_POST['profile_corner_style'] ?? 'circle'), ['circle', 'rounded', 'soft', 'square', 'custom'], 'circle');
-$profileCornerStyleCustom = min(max((int)($_POST['profile_corner_style_custom'] ?? 8), 0), 100);
-$profileBorderStyle = profile_allowed_value((string)($_POST['profile_border_style'] ?? 'thin'), ['none', 'thin', 'glow', 'gradient'], 'thin');
+// Lo stile angoli non esiste piu': i raggi derivano da forma e arrotondamento.
+// Le colonne restano, con valori neutri.
+$profileCornerStyle = 'circle';
+$profileCornerStyleCustom = 8;
+$profileBorderStyle = $styleColumns['profile_border_style'];
 
 $oldInvite = $profile['discord_server_invite'] ?? '';
 $discordServerCache = $profile['discord_server_cache'] ?? null;
@@ -497,7 +490,7 @@ try {
     $stmt->close();
 
     if ($isPremium) {
-        $layoutSnap = profile_bool_from_post('profile_layout_snap', false) ? 1 : 0;
+        $layoutSnap = $layoutSnapChoice;
         $cursorEffect = profile_allowed_value((string)($_POST['profile_cursor_effect'] ?? 'none'), ['none', 'follower', 'trail', 'trail_stars', 'cat_follower', 'trail_hearts'], 'none');
         $cursorCustomUrl = isset($_POST['profile_cursor_custom_url']) ? trim((string)$_POST['profile_cursor_custom_url']) : '';
         if ($cursorCustomUrl !== '' && !profile_is_safe_url($cursorCustomUrl, false)) {
@@ -661,7 +654,7 @@ try {
             $icon = 'fa-solid fa-link';
         }
         $buttonStyle = profile_allowed_value((string)($row['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
-        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '' && $url === '') continue;
         if ($title === '') throw new RuntimeException('A link must have a title.');
@@ -690,6 +683,10 @@ try {
     $stmt->execute();
     $stmt->close();
 
+    // L'icona sta in una colonna che esiste solo dopo la migration: si
+    // scrive a parte, dopo l'inserimento.
+    $setProjectIcon = profile_item_icons_available($mysqli) ? $mysqli->prepare("UPDATE utenti_projects SET icon = ? WHERE id = ?") : null;
+    $setContentIcon = profile_item_icons_available($mysqli) ? $mysqli->prepare("UPDATE utenti_contents SET icon = ? WHERE id = ?") : null;
     $insertProject = $mysqli->prepare("INSERT INTO utenti_projects (utente_id, title, description, url, image_url, tech_stack, status, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($projectRows as $i => $row) {
         $title = profile_clean_text($row['title'] ?? '', 70);
@@ -698,7 +695,7 @@ try {
         $imageUrl = trim((string)($row['image_url'] ?? ''));
         $techStack = profile_clean_text($row['tech_stack'] ?? '', 160);
         $status = profile_allowed_value((string)($row['status'] ?? 'active'), $allowedStatuses, 'active');
-        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '') continue;
         if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid project URL: ' . $title);
@@ -719,6 +716,12 @@ try {
 
         $insertProject->bind_param('issssssiiisss', $targetUserId, $title, $description, $url, $imageUrl, $techStack, $status, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
         if (!$insertProject->execute()) throw new RuntimeException('Error saving project.');
+        if ($setProjectIcon) {
+            $itemIcon = profile_item_icon_value($row['icon'] ?? '', $isPremium);
+            $itemId = (int)$mysqli->insert_id;
+            $setProjectIcon->bind_param('si', $itemIcon, $itemId);
+            $setProjectIcon->execute();
+        }
     }
     $insertProject->close();
 
@@ -734,7 +737,7 @@ try {
         $description = profile_clean_text($row['description'] ?? '', 220);
         $url = trim((string)($row['url'] ?? ''));
         $thumb = trim((string)($row['thumbnail_url'] ?? ''));
-        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
         $visible = !empty($row['is_visible']) ? 1 : 0;
         if ($title === '') continue;
         if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid content URL: ' . $title);
@@ -755,6 +758,12 @@ try {
 
         $insertContent->bind_param('isssssiiisss', $targetUserId, $type, $title, $description, $url, $thumb, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
         if (!$insertContent->execute()) throw new RuntimeException('Error saving content.');
+        if ($setContentIcon) {
+            $itemIcon = profile_item_icon_value($row['icon'] ?? '', $isPremium);
+            $itemId = (int)$mysqli->insert_id;
+            $setContentIcon->bind_param('si', $itemIcon, $itemId);
+            $setContentIcon->execute();
+        }
     }
     $insertContent->close();
 
@@ -771,7 +780,7 @@ try {
         $maxLen = ($isPremium && in_array($type, ['markdown', 'html'], true)) ? 5000 : 700;
         $body = mb_substr($body, 0, $maxLen, 'UTF-8');
         $mediaUrl = trim((string)($row['media_url'] ?? ''));
-        $featured = !empty($row['is_featured']) ? 1 : 0;
+        $featured = 0; // il pin non esiste piu': la colonna resta solo per compatibilita'
         $visible = !empty($row['is_visible']) ? 1 : 0;
 
         if ($title === '' && $body === '' && $mediaUrl === '') continue;
