@@ -148,7 +148,7 @@ if (!$isPremium && !in_array($profileEffect, $allowedFreeEffects, true)) {
     $profileEffect = 'none';
 }
 $avatarRingEnabled = profile_bool_from_post('avatar_ring_enabled', true);
-$avatarRingStyle = profile_allowed_value((string)($_POST['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin');
+$avatarRingStyle = profile_ring_normalize($_POST['avatar_ring_style'] ?? 'spin');
 $avatarRingColor = profile_normalize_hex_color($_POST['avatar_ring_color'] ?? $accentColor);
 $avatarBorder = profile_bool_from_post('profile_avatar_border', true);
 
@@ -538,6 +538,16 @@ try {
         $cursorCustomHoverUrlDb = null;
         $cursorCustomHoverCenter = 0;
     }
+
+    // La scelta delle statistiche vale per tutti i piani e vive dentro la
+    // configurazione delle sezioni. Un client che non la manda la conserva.
+    if (array_key_exists('profile_stats_json', $_POST)) {
+        $statsKeys = profile_stats_clean_keys((string)$_POST['profile_stats_json'], $isPremium);
+    } else {
+        $currentStats = profile_stats_selection($profile);
+        $statsKeys = $currentStats['explicit'] ? profile_stats_clean_keys($currentStats['keys'], $isPremium) : null;
+    }
+    $sectionsConfig = profile_stats_merge_config($sectionsConfig, $statsKeys);
 
     $stmtPremium = $mysqli->prepare("
         UPDATE utenti

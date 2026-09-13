@@ -602,8 +602,11 @@
             if (TYPES[key]) count = countFor(key);
             if (key === 'characters') count = PE.characters?.selected().length ?? null;
             if (key === 'badges') count = PE.badges?.selected().length ?? null;
+            if (key === 'stats') count = PE.stats?.selected().length ?? null;
             const parts = [];
-            if (count !== null) {
+            if (count !== null && key === 'stats') {
+                parts.push(count === 0 ? t('Nessuna statistica', 'No stats') : (count === 1 ? t('1 statistica', '1 stat') : t(`${count} statistiche`, `${count} stats`)));
+            } else if (count !== null) {
                 parts.push(count === 0 ? t('Vuota', 'Empty') : (count === 1 ? t('1 elemento', '1 item') : t(`${count} elementi`, `${count} items`)));
             } else {
                 parts.push(t('Automatica', 'Automatic'));
@@ -745,13 +748,133 @@
         render: renderBadges,
     };
 
+    // ── Statistiche ─────────────────────────────────────────────────────────
+    const statsData = data.stats || { catalog: [], groups: {}, selected: [], limit: 4, limitPremium: 8, explicit: false };
+    const statsChosen = document.getElementById('peStatsChosen');
+    const statsCatalogEl = document.getElementById('peStatsCatalog');
+    const statByKey = new Map((statsData.catalog || []).map((s) => [s.key, s]));
+    const statsDefault = (statsData.selected || []).slice();
+    let selectedStats = statsDefault.slice();
+    // Una scelta mai salvata resta "le quattro di sempre" finche' non la tocchi.
+    let statsTouched = !!statsData.explicit;
+
+    const statValueHtml = (s) => (s.value !== null && s.value !== undefined
+        ? `<small class="pe-stat-value">${escape(s.value)}</small>`
+        : `<small class="pe-stat-value is-empty">${escape(t('Nessun dato', 'No data'))}</small>`);
+
+    const statsChanged = () => {
+        statsTouched = true;
+        renderStats();
+        PE.changed?.({ structural: true });
+    };
+
+    const renderStats = () => {
+        if (!statsChosen || !statsCatalogEl) return;
+        selectedStats = selectedStats.filter((key) => statByKey.has(key)).slice(0, statsData.limit);
+        const count = document.getElementById('peStatsCount');
+        if (count) {
+            const extra = !data.premium && statsData.limitPremium > statsData.limit
+                ? t(` · con Premium fino a ${statsData.limitPremium}`, ` · up to ${statsData.limitPremium} with Premium`)
+                : '';
+            count.textContent = t(`${selectedStats.length} di ${statsData.limit} sul profilo`, `${selectedStats.length} of ${statsData.limit} on your profile`) + extra;
+        }
+
+        statsChosen.innerHTML = selectedStats.length
+            ? ''
+            : `<p class="pe-empty-inline">${escape(t('Nessuna statistica: il box non comparirà sul profilo.', 'No stats: the box will not appear on your profile.'))}</p>`;
+        selectedStats.forEach((key) => {
+            const s = statByKey.get(key);
+            const chip = document.createElement('div');
+            chip.className = 'pe-stat-chip';
+            chip.dataset.key = key;
+            chip.innerHTML = `<span class="pe-drag" title="${escape(t('Trascina per spostare', 'Drag to move'))}"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
+                <span class="pe-stat-icon"><i class="${escape(s.icon)}" aria-hidden="true"></i></span>
+                <span class="pe-stat-text"><span class="pe-stat-label"></span>${statValueHtml(s)}</span>
+                <button type="button" class="pe-icon-btn pe-icon-btn-sm" aria-label="${escape(t('Togli', 'Remove'))}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`;
+            chip.querySelector('.pe-stat-label').textContent = s.label;
+            chip.querySelector('button').addEventListener('click', () => {
+                selectedStats = selectedStats.filter((x) => x !== key);
+                statsChanged();
+            });
+            statsChosen.appendChild(chip);
+        });
+
+        statsCatalogEl.innerHTML = '';
+        Object.entries(statsData.groups || {}).forEach(([groupKey, groupLabel]) => {
+            const items = (statsData.catalog || []).filter((s) => s.group === groupKey);
+            if (!items.length) return;
+            const group = document.createElement('div');
+            group.className = 'pe-stats-group';
+            group.innerHTML = `<h5></h5><div class="pe-stats-options"></div>`;
+            group.querySelector('h5').textContent = groupLabel;
+            const options = group.querySelector('.pe-stats-options');
+            items.forEach((s) => {
+                const selected = selectedStats.includes(s.key);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'pe-stat-option' + (selected ? ' is-selected' : '');
+                btn.setAttribute('aria-pressed', String(selected));
+                btn.innerHTML = `<span class="pe-stat-icon"><i class="${escape(s.icon)}" aria-hidden="true"></i></span>
+                    <span class="pe-stat-text"><span class="pe-stat-label"></span>${statValueHtml(s)}</span>
+                    <i class="fa-solid ${selected ? 'fa-check' : 'fa-plus'} pe-stat-toggle" aria-hidden="true"></i>`;
+                btn.querySelector('.pe-stat-label').textContent = s.label;
+                btn.addEventListener('click', () => {
+                    if (selectedStats.includes(s.key)) {
+                        selectedStats = selectedStats.filter((x) => x !== s.key);
+                    } else if (selectedStats.length >= statsData.limit) {
+                        if (!data.premium && statsData.limitPremium > statsData.limit) {
+                            PE.upsell(t(`Più di ${statsData.limit} statistiche`, `More than ${statsData.limit} stats`));
+                        } else {
+                            PE.toast(t(`Puoi mostrare al massimo ${statsData.limit} statistiche: togline una prima.`, `You can show at most ${statsData.limit} stats: remove one first.`), { type: 'error' });
+                        }
+                        return;
+                    } else {
+                        selectedStats.push(s.key);
+                    }
+                    statsChanged();
+                });
+                options.appendChild(btn);
+            });
+            statsCatalogEl.appendChild(group);
+        });
+        PE.refreshSectionSummaries();
+    };
+
+    PE.stats = {
+        selected: () => selectedStats.slice(),
+        /** Valore del campo: vuoto finche' la scelta di sempre non viene toccata. */
+        value: () => (statsTouched ? JSON.stringify(selectedStats) : ''),
+        set: (value) => {
+            if (value === '' || value === null || value === undefined) {
+                selectedStats = statsDefault.slice();
+                statsTouched = !!statsData.explicit;
+            } else {
+                selectedStats = Array.isArray(value) ? value.slice() : [];
+                statsTouched = true;
+            }
+            renderStats();
+        },
+        render: renderStats,
+    };
+
     // ── Avvio ───────────────────────────────────────────────────────────────
     PE.initItems = () => {
         Object.keys(TYPES).forEach((typeKey) => PE.items.load(typeKey, (data.items || {})[typeKey] || []));
         renderCharacters();
         renderBadges();
+        renderStats();
 
         if (window.Sortable) {
+            if (statsChosen) {
+                Sortable.create(statsChosen, {
+                    handle: '.pe-drag', animation: 180, ghostClass: 'is-ghost', draggable: '.pe-stat-chip',
+                    onEnd: () => {
+                        selectedStats = $$('.pe-stat-chip', statsChosen).map((el) => el.dataset.key);
+                        statsTouched = true;
+                        PE.changed?.({ structural: true });
+                    },
+                });
+            }
             $$('.pe-items').forEach((list) => Sortable.create(list, {
                 handle: '.pe-drag', animation: 180, ghostClass: 'is-ghost', draggable: '.pe-item',
                 onEnd: () => PE.changed?.({ structural: true }),

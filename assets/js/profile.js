@@ -2205,35 +2205,11 @@
         const speed = parseInt(body.dataset.tabAnimationSpeed ?? 1000, 10);
         const text = body.dataset.tabAnimationText ?? '';
 
-        if (anim === 'static') return;
+        if (anim === 'static' || !window.CripsumTabTitle) return;
 
-        let interval = null;
-        if (anim === 'marquee') {
-            let marqueeText = (text || title) + '   ';
-            interval = setInterval(() => {
-                marqueeText = marqueeText.substring(1) + marqueeText.substring(0, 1);
-                document.title = marqueeText;
-            }, speed);
-        } else if (anim === 'bounce') {
-            let bounceText = text || title;
-            let pos = 0;
-            let direction = 1;
-            const paddingMax = 6;
-            interval = setInterval(() => {
-                let spaces = ' '.repeat(pos);
-                document.title = spaces + bounceText;
-                pos += direction;
-                if (pos >= paddingMax || pos <= 0) direction = -direction;
-            }, speed);
-        } else if (anim === 'pulse') {
-            let state = false;
-            const t1 = title;
-            const t2 = text || (title + ' ♡');
-            interval = setInterval(() => {
-                document.title = state ? t1 : t2;
-                state = !state;
-            }, speed);
-        }
+        // Fotogrammi e tempi stanno in profile-tab-title.js, condiviso con
+        // l'anteprima della scheda nell'editor.
+        window.CripsumTabTitle.start({ title, animation: anim, speed, text });
     };
     initTabTitleAnimation();
 

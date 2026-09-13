@@ -24,7 +24,7 @@ $sectionItemsLabel = [
 $sectionDescriptions = [
     'links' => $tt('Pulsanti grandi verso i tuoi siti.', 'Big buttons pointing to your sites.'),
     'embeds' => $tt('Playlist Spotify, video YouTube e widget.', 'Spotify playlists, YouTube videos and widgets.'),
-    'stats' => $tt('Visite, badge e personaggi: si aggiornano da sole.', 'Views, badges and characters: they update by themselves.'),
+    'stats' => $tt('Tempo sul sito, collezione, giochi e altro: scegli cosa mostrare.', 'Time on site, collection, games and more: choose what to show.'),
     'projects' => $tt('Una vetrina dei tuoi progetti.', 'A showcase of your projects.'),
     'blocks' => $tt('Testo, immagini o video, come preferisci.', 'Text, images or video, however you like.'),
     'contents' => $tt('Edit, video e post da mettere in mostra.', 'Edits, videos and posts to show off.'),
@@ -69,7 +69,17 @@ $sectionDescriptions = [
                     </button>
                 <?php endif; ?>
 
-                <?php if ($sectionKey === 'stats' || $sectionKey === 'activity'): ?>
+                <?php if ($sectionKey === 'stats'): ?>
+                    <div class="pe-stats" id="peStats">
+                        <p class="pe-help pe-stats-count" id="peStatsCount"></p>
+                        <div class="pe-stats-chosen" id="peStatsChosen"></div>
+                        <h4 class="pe-subhead"><?php echo pe_h($tt('Tutte le statistiche', 'All stats')); ?></h4>
+                        <p class="pe-help"><?php echo pe_h($tt('Accanto a ognuna c\'è il tuo valore di adesso. Si aggiornano da sole.', 'Each one shows your current value. They update by themselves.')); ?></p>
+                        <div class="pe-stats-catalog" id="peStatsCatalog"></div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($sectionKey === 'activity'): ?>
                     <p class="pe-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><?php echo pe_h($sectionDescriptions[$sectionKey]); ?></p>
                 <?php endif; ?>
 

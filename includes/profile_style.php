@@ -35,6 +35,37 @@ const PROFILE_NAME_EFFECTS = ['none', 'gradient', 'rainbow', 'glow', 'sparkles',
 /** Effetti che disegnano il nome con colori propri e ignorano "Colore nome". */
 const PROFILE_NAME_EFFECTS_OWN_COLORS = ['gradient', 'rainbow', 'fire', 'water'];
 
+/** Anelli della foto profilo (assets/css/profile-rings.css). */
+const PROFILE_RING_STYLES = ['none', 'spin', 'pulse', 'orbit', 'dual', 'rainbow', 'neon', 'spark', 'glitch'];
+
+/** Glow e halo sono stati tolti: chi li aveva ottiene l'effetto piu' vicino. */
+const PROFILE_RING_LEGACY = ['glow' => 'neon', 'halo' => 'pulse'];
+
+/** Stile dell'anello da un valore salvato o inviato, vecchi nomi compresi. */
+function profile_ring_normalize($style, bool $enabled = true): string
+{
+    $style = is_string($style) ? strtolower(trim($style)) : '';
+    $style = PROFILE_RING_LEGACY[$style] ?? $style;
+    if (!$enabled) {
+        return 'none';
+    }
+    return in_array($style, PROFILE_RING_STYLES, true) ? $style : 'spin';
+}
+
+/** Lo stile dell'anello di un profilo. */
+function profile_ring_style(array $p): string
+{
+    return profile_ring_normalize($p['avatar_ring_style'] ?? 'spin', (int)($p['avatar_ring_enabled'] ?? 1) === 1);
+}
+
+/** Gli strati dell'anello: ogni stile accende quelli che gli servono. */
+function profile_ring_inner_html(): string
+{
+    return '<i class="ring-glow"><i class="ring-layer"></i></i>'
+        . '<i class="ring-layer ring-a"></i><i class="ring-layer ring-b"></i><i class="ring-layer ring-c"></i>'
+        . '<i class="ring-track"><i class="ring-dot"></i><i class="ring-dot"></i><i class="ring-dot"></i><i class="ring-dot"></i></i>';
+}
+
 function profile_style_int($value, int $min, int $max, int $default): int
 {
     if ($value === null || $value === '' || !is_numeric($value)) {

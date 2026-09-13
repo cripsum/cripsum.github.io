@@ -91,6 +91,14 @@ $tabAnimation = (string)($profile['profile_tab_animation'] ?? 'static');
     ['value' => 'bounce', 'label' => $tt('Rimbalza', 'Bouncing')],
     ['value' => 'pulse', 'label' => $tt('Alterna', 'Alternating')],
 ], ['label' => $tt('Animazione', 'Animation')]); ?>
+<div class="pe-tab-preview" aria-hidden="true">
+    <span class="pe-tab-preview__tab">
+        <img src="/img/Susremaster.png" alt="" width="16" height="16">
+        <span class="pe-tab-preview__title" id="peTabPreviewTitle" data-default-title="<?php echo pe_h('Cripsum™ - ' . profile_display_name($profile)); ?>"></span>
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </span>
+    <span class="pe-tab-preview__caption"><?php echo pe_h($tt('Anteprima della scheda', 'Tab preview')); ?></span>
+</div>
 <?php pe_text('profile_tab_animation_text', $pv('profile_tab_animation_text'), [
     'label' => $tt('Testo alternativo', 'Alternate text'),
     'maxlength' => 120,
@@ -98,5 +106,13 @@ $tabAnimation = (string)($profile['profile_tab_animation'] ?? 'static');
     'show_if' => 'profile_tab_animation=marquee|pulse',
     'help' => pe_h($tt('Scorre o si alterna con il titolo.', 'Scrolls or alternates with the title.')),
 ]); ?>
-<?php pe_slider('profile_tab_animation_speed', (int)($profile['profile_tab_animation_speed'] ?? 1000), ['label' => $tt('Velocità', 'Speed'), 'min' => 200, 'max' => 5000, 'step' => 100, 'format' => 'ms', 'show_if' => 'profile_tab_animation!=static']); ?>
+<?php pe_slider('profile_tab_animation_speed', (int)($profile['profile_tab_animation_speed'] ?? 1000), [
+    'label' => $tt('Velocità', 'Speed'),
+    'min' => 200,
+    'max' => 5000,
+    'step' => 100,
+    'format' => 'ms',
+    'show_if' => 'profile_tab_animation!=static',
+    'help' => pe_h($tt('Scorre: tempo per ogni lettera. Rimbalza: durata di un rimbalzo. Alterna: tempo di ogni testo.', 'Scrolling: time per letter. Bouncing: length of one bounce. Alternating: time for each text.')),
+]); ?>
 <?php pe_group_end(); ?>

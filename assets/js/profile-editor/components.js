@@ -458,9 +458,9 @@
         PE.$$('select.pe-select', root).forEach((select) => {
             if (select.dataset.ready) return;
             select.dataset.ready = '1';
-            const hasPremium = PE.$$('option[data-premium]', select).length > 0;
+            // Tutte le tendine usano lo stesso menu: quella nativa si apriva con
+            // l'aspetto del sistema operativo, diversa da tutto il resto.
             const fontPreview = select.hasAttribute('data-font-preview');
-            if (!hasPremium && !fontPreview) return; // la select nativa basta
 
             const wrap = document.createElement('div');
             wrap.className = 'pe-selectmenu';

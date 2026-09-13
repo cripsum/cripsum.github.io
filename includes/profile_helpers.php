@@ -4,6 +4,7 @@
 
 require_once __DIR__ . '/stats_tracker.php';
 require_once __DIR__ . '/profile_style.php';
+require_once __DIR__ . '/profile_stats.php';
 
 if (!function_exists('profile_h')) {
     function profile_h($value): string

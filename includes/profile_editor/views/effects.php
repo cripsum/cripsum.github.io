@@ -2,7 +2,12 @@
 /** Area "Effetti": nome, foto profilo, pagina, cursore, inclinazione. */
 
 $ownColorEffects = implode('|', PROFILE_NAME_EFFECTS_OWN_COLORS);
-$ringStyle = (int)($profile['avatar_ring_enabled'] ?? 1) === 1 ? (string)($profile['avatar_ring_style'] ?? 'spin') : 'none';
+$ringStyle = profile_ring_style($profile);
+$ringAvatar = profile_avatar_url($profile, 128);
+// Ogni riquadro mostra l'anello vero, sulla tua foto e nella tua forma.
+$ringOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-ring-art"><span class="bio-avatar-wrap" data-ring="' . pe_h($o['value']) . '">'
+    . '<span class="bio-avatar-ring">' . profile_ring_inner_html() . '</span>'
+    . '<img class="bio-avatar" src="' . pe_h($ringAvatar) . '" alt="" loading="lazy" decoding="async"></span></span>'], $catalog['ring_styles']);
 $tiltPreset = profile_tilt_preset_for($profile);
 $pageEffect = (string)($profile['profile_effect'] ?? 'none');
 $nameEffectOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-name-art" data-effect="' . $o['value'] . '">Aa</span>'], $catalog['name_effects']);
@@ -33,7 +38,12 @@ $nameEffectOptions = array_map(static fn($o) => $o + ['art' => '<span class="pe-
 <?php pe_group_end(); ?>
 
 <?php pe_group('grp-ring', $tt('Foto profilo', 'Profile photo'), $tt('L\'anello animato attorno alla foto. La forma della foto è in Aspetto.', 'The animated ring around your photo. The photo shape is in Style.'), ['keywords' => 'anello ring avatar pfp bordo']); ?>
-<?php pe_select('avatar_ring_style', $ringStyle, $catalog['ring_styles'], ['label' => $tt('Anello', 'Ring')]); ?>
+<div class="pe-ring-picker" id="peRingPicker"
+    data-avatar-shape="<?php echo pe_h($style['avatar_shape']); ?>"
+    data-avatar-border="<?php echo $pflag('profile_avatar_border') ? '1' : '0'; ?>"
+    style="--profile-ring: <?php echo pe_h(profile_style_hex($profile['avatar_ring_color'] ?? null) ?? $style['accent']); ?>; --accent-2: <?php echo pe_h($style['secondary']); ?>;">
+    <?php pe_choice('avatar_ring_style', $ringStyle, $ringOptions, ['label' => $tt('Anello', 'Ring'), 'variant' => 'tiles', 'columns' => 3, 'class' => 'pe-ring-choices', 'keywords' => 'anello ring scia battito orbita neon scintille glitch arcobaleno']); ?>
+</div>
 <input type="hidden" name="avatar_ring_enabled" id="peRingEnabled" value="<?php echo $ringStyle === 'none' ? '0' : '1'; ?>">
 <div data-show-if="avatar_ring_style!=none">
     <?php pe_color('avatar_ring_color', profile_style_hex($profile['avatar_ring_color'] ?? null) ?? $style['accent'], ['label' => $tt('Colore dell\'anello', 'Ring color')]); ?>

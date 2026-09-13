@@ -101,6 +101,12 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
     if (isset($_POST['profile_layout_choice'])) {
         [$presetData['profile_layout'], $presetData['profile_layout_snap']] = profile_layout_from_input($_POST, (int)($profile['is_premium'] ?? 0) === 1);
     }
+    if (isset($_POST['profile_stats_json'])) {
+        $presetData['profile_sections_config'] = profile_stats_merge_config(
+            is_string($presetData['profile_sections_config'] ?? null) ? $presetData['profile_sections_config'] : null,
+            profile_stats_clean_keys((string)$_POST['profile_stats_json'], (int)($profile['is_premium'] ?? 0) === 1)
+        );
+    }
 
     // Save layout structures as serialized lists
     $presetData['socials_json'] = $_POST['socials_json'] ?? '[]';

@@ -58,15 +58,13 @@ function profile_editor_catalog(callable $tt): array
 
         'ring_styles' => [
             $opt('none', $tt('Nessuno', 'None')),
-            $opt('spin', $tt('Rotazione', 'Spin')),
-            $opt('pulse', 'Pulse'),
-            $opt('orbit', 'Orbit'),
-            $opt('glow', 'Glow'),
-            $opt('dual', $tt('Doppio giro', 'Dual')),
+            $opt('spin', $tt('Scia', 'Comet')),
+            $opt('pulse', $tt('Battito', 'Pulse')),
+            $opt('orbit', $tt('Orbita', 'Orbit')),
+            $opt('dual', $tt('Doppio', 'Dual')),
             $opt('rainbow', $tt('Arcobaleno', 'Rainbow')),
-            $opt('halo', 'Halo'),
             $opt('neon', 'Neon'),
-            $opt('spark', 'Spark'),
+            $opt('spark', $tt('Scintille', 'Sparks')),
             $opt('glitch', 'Glitch'),
         ],
 

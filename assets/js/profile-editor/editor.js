@@ -63,6 +63,7 @@
         set('characters_json', PE.characters.selected());
         set('profile_sections_order', PE.sections.order().join(','));
         set('profile_sections_config', PE.sections.config());
+        set('profile_stats_json', PE.stats.value());
     };
 
     /** Il form cosi' com'e', con i JSON aggiornati. */
@@ -140,6 +141,8 @@
         PE.items.load('tags', json('profile_tags_json', '[]'));
         PE.badges.set(json('badges_json', '[]'));
         PE.characters.set(json('characters_json', '[]'));
+        const statsRaw = (values.get('profile_stats_json') || [''])[0] || '';
+        PE.stats.set(statsRaw === '' ? '' : json('profile_stats_json', '[]'));
         PE.sections.apply(((values.get('profile_sections_order') || [''])[0] || '').split(',').filter(Boolean), json('profile_sections_config', '{}'));
         PE.syncAll();
         syncDerived();
@@ -282,9 +285,21 @@
 
     const syncDerived = (changed = null) => {
         // Anello: "Nessuno" spegne l'anello.
-        const ring = byName('avatar_ring_style');
+        const ringValue = radioValue('avatar_ring_style');
         const ringEnabled = document.getElementById('peRingEnabled');
-        if (ring && ringEnabled) ringEnabled.value = ring.value === 'none' ? '0' : '1';
+        if (ringValue && ringEnabled) ringEnabled.value = ringValue === 'none' ? '0' : '1';
+
+        // I riquadri degli anelli usano la forma, la cornice e i colori scelti.
+        const ringPicker = document.getElementById('peRingPicker');
+        if (ringPicker) {
+            ringPicker.dataset.avatarShape = radioValue('profile_avatar_shape') || 'circle';
+            const frame = form.querySelector('input[type="checkbox"][name="profile_avatar_border"]');
+            ringPicker.dataset.avatarBorder = frame && !frame.checked ? '0' : '1';
+            const ringColor = PE.hex(byName('avatar_ring_color')?.value) || PE.hex(byName('accent_color')?.value);
+            if (ringColor) ringPicker.style.setProperty('--profile-ring', ringColor);
+            const secondary = PE.hex(byName('profile_secondary_color')?.value);
+            if (secondary) ringPicker.style.setProperty('--accent-2', secondary);
+        }
 
         // Inclinazione: il livello scrive i quattro valori.
         const tiltPreset = radioValue('tilt_preset');
@@ -967,6 +982,31 @@
     });
 
     // ── Avvio ───────────────────────────────────────────────────────────────
+    // ── Anteprima della scheda del browser ──────────────────────────────────
+    const tabPreviewTitle = document.getElementById('peTabPreviewTitle');
+    let stopTabPreview = () => {};
+    let tabPreviewKey = '';
+    const updateTabPreview = () => {
+        if (!tabPreviewTitle || !window.CripsumTabTitle) return;
+        const options = {
+            title: byName('profile_tab_title')?.value.trim() || tabPreviewTitle.dataset.defaultTitle || 'Cripsum™',
+            animation: radioValue('profile_tab_animation') || 'static',
+            speed: Number(byName('profile_tab_animation_speed')?.value || 1000),
+            text: byName('profile_tab_animation_text')?.value || '',
+        };
+        const key = JSON.stringify(options);
+        if (key === tabPreviewKey) return;
+        tabPreviewKey = key;
+        stopTabPreview();
+        stopTabPreview = window.CripsumTabTitle.start(options, (frame) => { tabPreviewTitle.textContent = frame; });
+    };
+    form.addEventListener('input', (event) => {
+        if (/^profile_tab_/.test(event.target?.name || '')) updateTabPreview();
+    });
+    form.addEventListener('change', (event) => {
+        if (/^profile_tab_/.test(event.target?.name || '')) updateTabPreview();
+    });
+
     const start = () => {
         PE.initComponents();
         PE.initItems();
@@ -978,6 +1018,7 @@
         renderStatus();
         updateChecklist();
         loadPresets();
+        updateTabPreview();
 
         const initialView = (location.hash || '').replace('#', '') || (() => { try { return sessionStorage.getItem(storageKey('view')); } catch (_) { return null; } })();
         if (initialView) showView(initialView);

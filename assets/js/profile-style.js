@@ -14,6 +14,20 @@
     const LINK_STYLES = ['glass', 'solid', 'outline', 'neon'];
     const NAME_EFFECTS = ['none', 'gradient', 'rainbow', 'glow', 'sparkles', 'fire', 'water', 'glitch', 'neon', 'bounce'];
     const NAME_EFFECTS_OWN_COLORS = ['gradient', 'rainbow', 'fire', 'water'];
+    const RING_STYLES = ['none', 'spin', 'pulse', 'orbit', 'dual', 'rainbow', 'neon', 'spark', 'glitch'];
+    const RING_LEGACY = { glow: 'neon', halo: 'pulse' };
+    /** Gemello di profile_ring_inner_html(). */
+    const RING_INNER_HTML = '<i class="ring-glow"><i class="ring-layer"></i></i>'
+        + '<i class="ring-layer ring-a"></i><i class="ring-layer ring-b"></i><i class="ring-layer ring-c"></i>'
+        + '<i class="ring-track"><i class="ring-dot"></i><i class="ring-dot"></i><i class="ring-dot"></i><i class="ring-dot"></i></i>';
+
+    /** Gemello di profile_ring_normalize(). */
+    const ringStyle = (style, enabled = true) => {
+        let value = String(style || '').toLowerCase().trim();
+        value = RING_LEGACY[value] || value;
+        if (!enabled) return 'none';
+        return RING_STYLES.includes(value) ? value : 'spin';
+    };
 
     const hex = (value) => {
         const v = String(value ?? '').trim();
@@ -228,6 +242,9 @@
     global.CripsumProfileStyle = {
         NAME_EFFECTS,
         NAME_EFFECTS_OWN_COLORS,
+        RING_STYLES,
+        RING_INNER_HTML,
+        ringStyle,
         resolve,
         cssVars,
         nameStyle,

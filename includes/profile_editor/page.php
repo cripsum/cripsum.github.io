@@ -81,6 +81,10 @@ foreach (array_keys($catalog['sections']) as $sectionKey) {
     }
 }
 
+// Statistiche del profilo: catalogo con i valori di adesso e scelta attuale.
+$statsSelection = profile_stats_selection($profile);
+$statsCatalog = profile_stats_editor_catalog($mysqli, $profile, $editorLang);
+
 $csrf = profile_csrf_token();
 $flashSuccess = $_SESSION['profile_flash_success'] ?? '';
 $flashError = $_SESSION['profile_flash_error'] ?? '';
@@ -157,6 +161,16 @@ $editorData = [
     'displayedCharacters' => $displayedCharacterIds,
     'sectionsOrder' => $sectionsOrder,
     'sectionsConfig' => (object)$sectionsConfig,
+    'stats' => [
+        'catalog' => $statsCatalog,
+        'groups' => profile_stats_groups($editorLang),
+        'selected' => profile_stats_clean_keys($statsSelection['keys'], $isPremium),
+        // Senza una scelta salvata il profilo usa le quattro di sempre (zeri
+        // nascosti): l'editor la salva solo se l'utente la tocca.
+        'explicit' => $statsSelection['explicit'],
+        'limit' => profile_stats_limit($isPremium),
+        'limitPremium' => PROFILE_STATS_LIMIT_PREMIUM,
+    ],
     'hasServerMusic' => $hasUploadedMusic || trim((string)($profile['profile_music_url'] ?? '')) !== '',
     'flash' => ['success' => $flashSuccess, 'error' => $flashError],
     'tiltPreset' => profile_tilt_preset_for($profile),
@@ -179,15 +193,17 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <title><?php echo pe_h($tt('Modifica profilo', 'Edit profile')); ?> · Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="/assets/css/profile-editor.css?v=6.0.0">
+    <link rel="stylesheet" href="/assets/css/profile-editor.css?v=6.1.0">
     <link rel="stylesheet" href="/assets/css/profile-markdown-guide.css?v=6.0.0">
+    <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.0.0">
     <link rel="stylesheet" href="/assets/css/photo-cropper.css?v=1.3">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" defer></script>
     <script src="/assets/js/profile-markdown-guide.js?v=6.0.0" defer></script>
     <script src="/assets/js/photo-cropper.js?v=1.3" defer></script>
-    <script src="/assets/js/profile-editor/components.js?v=6.0.0" defer></script>
-    <script src="/assets/js/profile-editor/items.js?v=6.0.0" defer></script>
-    <script src="/assets/js/profile-editor/editor.js?v=6.0.0" defer></script>
+    <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
+    <script src="/assets/js/profile-editor/components.js?v=6.1.0" defer></script>
+    <script src="/assets/js/profile-editor/items.js?v=6.1.0" defer></script>
+    <script src="/assets/js/profile-editor/editor.js?v=6.1.0" defer></script>
 </head>
 
 <body class="pe-body<?php echo $isPremium ? ' is-premium' : ''; ?>" style="--pe-accent: <?php echo pe_h($style['accent']); ?>; --editor-accent: <?php echo pe_h($style['accent']); ?>;">
@@ -204,7 +220,7 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <form id="profileEditForm" class="pe-app" method="post" enctype="multipart/form-data" action="/api/update_profile.php" novalidate>
         <input type="hidden" name="csrf_token" value="<?php echo pe_h($csrf); ?>">
         <input type="hidden" name="target_user_id" value="<?php echo $targetUserId; ?>">
-        <?php foreach (['socials_json', 'links_json', 'projects_json', 'contents_json', 'blocks_json', 'badges_json', 'characters_json', 'embeds_json', 'profile_tags_json', 'profile_sections_order', 'profile_sections_config'] as $hiddenJson): ?>
+        <?php foreach (['socials_json', 'links_json', 'projects_json', 'contents_json', 'blocks_json', 'badges_json', 'characters_json', 'embeds_json', 'profile_tags_json', 'profile_sections_order', 'profile_sections_config', 'profile_stats_json'] as $hiddenJson): ?>
             <input type="hidden" name="<?php echo $hiddenJson; ?>" data-json-field="<?php echo $hiddenJson; ?>">
         <?php endforeach; ?>
 

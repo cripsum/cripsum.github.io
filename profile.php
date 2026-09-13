@@ -166,6 +166,14 @@ if ($profile) {
                 [$profile['profile_layout'], $profile['profile_layout_snap']] = profile_layout_from_input($draft, $isPremium);
             }
 
+            // Le statistiche scelte stanno dentro la configurazione delle sezioni.
+            if (isset($draft['profile_stats_json'])) {
+                $profile['profile_sections_config'] = profile_stats_merge_config(
+                    $profile['profile_sections_config'] ?? null,
+                    profile_stats_clean_keys($draft['profile_stats_json'], $isPremium)
+                );
+            }
+
             // Re-map booleans
             $booleans = [
                 'tilt_enabled',
@@ -444,8 +452,7 @@ if ($hasMusic && $musicTitle === '') {
     }
 }
 $profileEffect = $profile ? profile_allowed_value((string)($profile['profile_effect'] ?? 'none'), ['none', 'cursor_glow', 'soft_particles', 'scanlines', 'ambient', 'aurora', 'gradient_waves', 'stars', 'spotlight', 'digital_noise', 'glass_rain', 'sakura_falling', 'cyber_grid', 'bg_grain'], 'none') : 'none';
-$avatarRingEnabled = $profile ? ((int)($profile['avatar_ring_enabled'] ?? 1) === 1) : true;
-$avatarRingStyle = $profile ? profile_allowed_value((string)($profile['avatar_ring_style'] ?? 'spin'), ['spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch', 'none'], 'spin') : 'spin';
+$avatarRingStyle = $profile ? profile_ring_style($profile) : 'spin';
 $avatarRingColor = $profile ? profile_normalize_hex_color($profile['avatar_ring_color'] ?: $accent) : $accent;
 
 $showStats = $profile ? profile_flag($profile, 'profile_show_stats', true) : false;
@@ -530,26 +537,21 @@ if (!empty($discordServerInvite)) {
     }
 }
 
-$hasStats = $showStats && $profile && ((int)$profile['profile_views'] > 0 || (int)$profile['num_achievement'] > 0 || (int)$profile['num_personaggi'] > 0 || (int)$profile['total_personaggi'] > 0);
-$hasDiscordSection = $showDiscord && (!empty($discordId) || !empty($widgetData));
-$hasRightContent = $hasStats || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
-$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $hasDiscordSection || $hasMusic || $embeds;
-
-$stats = [];
-if ($profile) {
-    if ((int)$profile['profile_views'] > 0) $stats[] = ['icon' => 'fa-solid fa-eye', 'value' => profile_compact_number($profile['profile_views']), 'label' => 'Views'];
-    if ((int)$profile['num_achievement'] > 0) $stats[] = ['icon' => 'fa-solid fa-trophy', 'value' => profile_compact_number($profile['num_achievement']), 'label' => 'Badges'];
-    if ((int)$profile['num_personaggi'] > 0) $stats[] = ['icon' => 'fa-solid fa-user-astronaut', 'value' => profile_compact_number($profile['num_personaggi']), 'label' => 'Characters'];
-    if ((int)$profile['total_personaggi'] > 0) $stats[] = ['icon' => 'fa-solid fa-dice-d20', 'value' => profile_compact_number($profile['total_personaggi']), 'label' => 'Pulls'];
-}
-$ogMeta = cripsum_og_profile($mysqli, $profile);
-
 // The profile URL carries no language: use the one the visitor was browsing
 // the site in. The navbar include below reassigns $lang, so the page keeps
 // its own copy.
 $lang = cripsum_preferred_lang();
 $profileLang = $lang;
 $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it : $en;
+
+// Le statistiche scelte dal proprietario (includes/profile_stats.php).
+$stats = ($showStats && $profile) ? profile_stats_cards($mysqli, $profile, $profileLang) : [];
+$hasStats = $stats !== [];
+$hasDiscordSection = $showDiscord && (!empty($discordId) || !empty($widgetData));
+$hasRightContent = $hasStats || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
+$hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $hasDiscordSection || $hasMusic || $embeds;
+
+$ogMeta = cripsum_og_profile($mysqli, $profile);
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $profileLang; ?>" <?php echo ($profile && profile_flag($profile, 'profile_click_to_enter', false)) ? 'class="click-to-enter-active"' : ''; ?>>
@@ -557,14 +559,15 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <?php
-    $pageTitle = 'Cripsum™ - ' . ($profile ? ($profile['display_name'] ?? $profile['username'] ?? 'Profilo') : 'Profilo');
+    $pageTitle = 'Cripsum™ - ' . ($profile ? profile_display_name($profile) : 'Profilo');
     if ($profile && !empty($profile['profile_tab_title'])) {
         $pageTitle = $profile['profile_tab_title'];
     }
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.14.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=5.15.0">
+    <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.0.0">
     <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
     <style>
         .profile-dropdown-item--gift,
@@ -611,9 +614,10 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
             }
         }
     </style>
-    <script src="/assets/js/profile.js?v=5.14.0" defer></script>
+    <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.15.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
-        <script src="/assets/js/profile-style.js?v=6.0.0" defer></script>
+        <script src="/assets/js/profile-style.js?v=6.1.0" defer></script>
         <style>
             .profile-smart-page {
                 padding-top: 1.5rem !important;
@@ -1333,9 +1337,9 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
                         <?php endif; ?>
                     </div>
 
-                    <div class="bio-avatar-wrap profile-smart-avatar ring-style-<?php echo profile_h($avatarRingStyle); ?> <?php echo (!$avatarRingEnabled || $avatarRingStyle === 'none') ? 'ring-disabled' : ''; ?> <?php echo (!$isOwnProfile) ? 'user-card-trigger' : ''; ?>"
+                    <div class="bio-avatar-wrap profile-smart-avatar<?php echo (!$isOwnProfile) ? ' user-card-trigger' : ''; ?>" data-ring="<?php echo profile_h($avatarRingStyle); ?>"
                         <?php echo (!$isOwnProfile) ? 'data-user-id="' . (int)$profile['id'] . '" data-username="' . profile_h($profile['username']) . '" style="cursor: pointer; --profile-ring: ' . profile_h($avatarRingColor) . ';"' : 'style="--profile-ring: ' . profile_h($avatarRingColor) . ';"'; ?>>
-                        <?php if ($avatarRingEnabled && $avatarRingStyle !== 'none'): ?><div class="bio-avatar-ring"></div><?php endif; ?>
+                        <div class="bio-avatar-ring" aria-hidden="true"><?php echo profile_ring_inner_html(); ?></div>
                         <img class="bio-avatar" src="<?php echo profile_h(profile_avatar_url($profile, 256)); ?>" alt="Avatar di <?php echo profile_h($profile['username']); ?>" loading="eager" data-richpresence-pfp<?php echo (int)($profile['discord_use_avatar'] ?? 0) === 1 && !empty($profile['discord_id']) ? ' data-live-discord-avatar data-discord-id="' . profile_h($profile['discord_id']) . '" data-avatar-size="256"' : ''; ?>>
                     </div>
 
@@ -1701,9 +1705,13 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
                     // 3. Stats
                     ob_start();
                     if ($hasStats): ?>
-                        <div class="bio-stats-grid profile-stats-compact js-reveal" data-section-type="stats" data-section-title="<?php echo profile_h(profile_get_section_title('stats', 'Stats')); ?>">
-                            <?php foreach (array_slice($stats, 0, 4) as $stat): ?>
-                                <article class="bio-stat-card"><i class="<?php echo profile_h($stat['icon']); ?>"></i><strong><?php echo profile_h($stat['value']); ?></strong><span><?php echo profile_h($stat['label']); ?></span></article>
+                        <div class="bio-stats-grid profile-stats-compact js-reveal" data-count="<?php echo count($stats); ?>" data-section-type="stats" data-section-title="<?php echo profile_h(profile_get_section_title('stats', $pt('Statistiche', 'Stats'))); ?>">
+                            <?php foreach ($stats as $stat): ?>
+                                <article class="bio-stat-card" data-stat="<?php echo profile_h($stat['key']); ?>" data-format="<?php echo profile_h($stat['format']); ?>">
+                                    <span class="bio-stat-card__icon"><i class="<?php echo profile_h($stat['icon']); ?>" aria-hidden="true"></i></span>
+                                    <strong class="bio-stat-card__value"><?php echo profile_h($stat['value']); ?><?php if ($stat['unit'] !== ''): ?><small><?php echo profile_h($stat['unit']); ?></small><?php endif; ?></strong>
+                                    <span class="bio-stat-card__label"><?php echo profile_h($stat['label']); ?></span>
+                                </article>
                             <?php endforeach; ?>
                         </div>
                     <?php endif;
@@ -2255,23 +2263,21 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
                 const applyRing = (s) => {
                     const wrap = $('.bio-avatar-wrap');
                     if (!wrap) return;
-                    const style = String(s.avatar_ring_style || 'spin').replace(/[^a-z0-9_-]/gi, '');
-                    const enabled = style !== 'none';
-                    Array.from(wrap.classList).forEach((c) => { if (c.startsWith('ring-style-')) wrap.classList.remove(c); });
-                    wrap.classList.add('ring-style-' + style);
-                    wrap.classList.toggle('ring-disabled', !enabled);
+                    const styles = window.CripsumProfileStyle;
+                    if (!styles) return;
+                    wrap.dataset.ring = styles.ringStyle(s.avatar_ring_style, s.avatar_ring_style !== 'none');
                     if (s.avatar_ring_color) {
                         wrap.style.setProperty('--profile-ring', s.avatar_ring_color);
                         body.style.setProperty('--profile-ring', s.avatar_ring_color);
                     }
                     let ring = wrap.querySelector('.bio-avatar-ring');
-                    if (enabled && !ring) {
+                    if (!ring) {
                         ring = document.createElement('div');
                         ring.className = 'bio-avatar-ring';
+                        ring.setAttribute('aria-hidden', 'true');
                         wrap.prepend(ring);
-                    } else if (!enabled && ring) {
-                        ring.remove();
                     }
+                    if (!ring.querySelector('.ring-layer')) ring.innerHTML = styles.RING_INNER_HTML;
                     body.dataset.avatarBorder = on(s, 'profile_avatar_border') ? '1' : '0';
                 };
 

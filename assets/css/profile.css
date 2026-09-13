@@ -247,15 +247,6 @@ body[data-theme="light"] .bio-background__overlay {
     place-items: center;
 }
 
-.bio-avatar-ring {
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    background: conic-gradient(from 90deg, transparent, var(--accent), #8b5cf6, transparent 70%);
-    animation: bioSpin 8s linear infinite;
-    opacity: 0.95;
-}
-
 .bio-avatar {
     position: relative;
     width: 124px;
@@ -269,12 +260,6 @@ body[data-theme="light"] .bio-background__overlay {
 
 body[data-theme="light"] .bio-avatar {
     border-color: var(--profile-ring, rgba(255, 255, 255, 0.88));
-}
-
-@keyframes bioSpin {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 .bio-name-block {
@@ -1045,115 +1030,6 @@ body[data-theme="light"] .bio-name-block h1 {
 }
 
 /* Discord status v2 */
-.public-profile-body .profile-smart-avatar .bio-avatar-ring,
-.profile-editor-shell .profile-preview-avatar-ring .bio-avatar-ring {
-    background: transparent !important;
-    box-shadow: 0 0 34px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 46%, transparent);
-}
-.public-profile-body .profile-smart-avatar .bio-avatar-ring::before,
-.profile-editor-shell .profile-preview-avatar-ring .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), var(--accent-2, #8b5cf6), transparent 72%);
-}
-
-.public-profile-body .ring-style-glow .bio-avatar-ring,
-.profile-editor-shell .ring-style-glow .bio-avatar-ring {
-    background: var(--profile-ring-active, var(--profile-ring, var(--accent))) !important;
-    box-shadow: 0 0 28px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 72%, transparent),
-        0 0 58px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 38%, transparent) !important;
-}
-
-.public-profile-body .ring-style-pulse .bio-avatar-ring,
-.profile-editor-shell .ring-style-pulse .bio-avatar-ring {
-    background: radial-gradient(circle, color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 58%, transparent), transparent 68%) !important;
-}
-
-.public-profile-body .ring-style-orbit .bio-avatar-ring,
-.profile-editor-shell .ring-style-orbit .bio-avatar-ring {
-    background: transparent !important;
-}
-.public-profile-body .ring-style-orbit .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-orbit .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 50% 4px, var(--profile-ring-active, var(--profile-ring, var(--accent))) 0 8px, transparent 9px),
-        conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), transparent 62%) !important;
-}
-
-.public-profile-body .ring-style-dual .bio-avatar-ring,
-.profile-editor-shell .ring-style-dual .bio-avatar-ring {
-    background: transparent !important;
-}
-.public-profile-body .ring-style-dual .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-dual .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: conic-gradient(
-        from 0deg,
-        transparent 0 20%,
-        var(--profile-ring-active, var(--profile-ring, var(--accent))) 32%,
-        transparent 44% 58%,
-        var(--accent-2, #8b5cf6) 70%,
-        transparent 82%
-    ) !important;
-}
-
-.public-profile-body .ring-style-halo .bio-avatar-ring,
-.profile-editor-shell .ring-style-halo .bio-avatar-ring {
-    background: radial-gradient(circle, color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 46%, transparent), transparent 64%) !important;
-}
-
-.public-profile-body .ring-style-neon .bio-avatar-ring,
-.profile-editor-shell .ring-style-neon .bio-avatar-ring {
-    background: transparent !important;
-    border-color: var(--profile-ring-active, var(--profile-ring, var(--accent))) !important;
-    box-shadow: 0 0 18px var(--profile-ring-active, var(--profile-ring, var(--accent))),
-        inset 0 0 18px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 42%, transparent) !important;
-}
-
-.public-profile-body .ring-style-spark .bio-avatar-ring,
-.profile-editor-shell .ring-style-spark .bio-avatar-ring {
-    background: transparent !important;
-}
-.public-profile-body .ring-style-spark .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-spark .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 50% 4px, #fff 0 4px, transparent 5px),
-        radial-gradient(circle at 86% 35%, var(--profile-ring-active, var(--profile-ring, var(--accent))) 0 5px, transparent 6px),
-        radial-gradient(circle at 17% 72%, var(--accent-2, #8b5cf6) 0 4px, transparent 5px),
-        conic-gradient(from 90deg, transparent, color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 72%, transparent), transparent 70%) !important;
-}
-
-.public-profile-body .ring-style-glitch .bio-avatar-ring,
-.profile-editor-shell .ring-style-glitch .bio-avatar-ring {
-    background: transparent !important;
-}
-.public-profile-body .ring-style-glitch .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-glitch .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: linear-gradient(
-            90deg,
-            transparent 0 18%,
-            var(--profile-ring-active, var(--profile-ring, var(--accent))) 18% 28%,
-            transparent 28% 42%,
-            var(--accent-2, #8b5cf6) 42% 52%,
-            transparent 52%
-        ),
-        conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), transparent 65%) !important;
-}
 .ds-card {
     border: 1px solid var(--border);
     border-radius: var(--radius-md, 18px);
@@ -2528,54 +2404,6 @@ body[data-theme="light"] .profile-row-grid select option {
 /* V3.0.1: non sovrascrivere --profile-ring qui.
    Il colore viene ereditato dal body o messo inline sul wrapper avatar. */
 
-.bio-avatar-ring {
-    background: conic-gradient(from 90deg, transparent, var(--profile-ring), #8b5cf6, transparent 72%);
-}
-
-.ring-disabled .bio-avatar-ring {
-    display: none;
-}
-
-.ring-style-pulse .bio-avatar-ring {
-    animation: profileRingPulse 1.8s ease-in-out infinite;
-}
-
-.ring-style-orbit .bio-avatar-ring {
-    background: radial-gradient(circle at 50% 0%, var(--profile-ring) 0 8px, transparent 9px), conic-gradient(from 90deg, transparent, rgba(var(--accent-rgb), 0.9), transparent 62%);
-    animation: bioSpin 3.8s linear infinite;
-}
-
-.ring-style-glow .bio-avatar-ring {
-    background: var(--profile-ring);
-    filter: blur(16px);
-    opacity: 0.48;
-    animation: profileRingGlow 2.4s ease-in-out infinite;
-}
-
-@keyframes profileRingPulse {
-    0%,
-    100% {
-        transform: scale(0.96);
-        opacity: 0.62;
-    }
-    50% {
-        transform: scale(1.07);
-        opacity: 1;
-    }
-}
-
-@keyframes profileRingGlow {
-    0%,
-    100% {
-        opacity: 0.34;
-        transform: scale(0.97);
-    }
-    50% {
-        opacity: 0.62;
-        transform: scale(1.04);
-    }
-}
-
 .profile-audio-player {
     margin: 1rem 0 0.8rem;
     text-align: left;
@@ -2717,10 +2545,6 @@ body[data-theme="light"] .profile-row-grid select option {
 
 .profile-inline-toggle {
     min-height: 100%;
-}
-
-.profile-preview-avatar-ring {
-    --profile-ring: var(--accent);
 }
 
 @media (max-width: 720px) {
@@ -3454,10 +3278,6 @@ body[data-profile-link-style="neon"] .profile-link-button {
         border-width: 3px;
     }
 
-    .profile-smart-avatar .bio-avatar-ring {
-        inset: -5px;
-    }
-
     .profile-smart-name {
         margin-bottom: 0.5rem;
     }
@@ -4052,185 +3872,17 @@ body[data-profile-link-style="neon"] .profile-link-button {
 /* V3.0.1: fix glow colore.
    Evita self-reference di --profile-ring, che impediva al colore salvato di applicarsi. */
 
-.bio-avatar-ring {
-    background: conic-gradient(from 90deg, transparent, var(--profile-ring, var(--accent)), var(--accent-2, #8b5cf6), transparent 72%) !important;
-    box-shadow: 0 0 32px color-mix(in srgb, var(--profile-ring, var(--accent)) 42%, transparent);
-}
-
 /* Spin style */
-.ring-style-spin .bio-avatar-ring {
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden;
-}
-.ring-style-spin .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: conic-gradient(from 90deg, transparent, var(--profile-ring, var(--accent)), var(--accent-2, #8b5cf6), transparent 72%) !important;
-    animation: bioSpin 7s linear infinite !important;
-}
-
-.ring-style-pulse .bio-avatar-ring {
-    background: radial-gradient(circle, color-mix(in srgb, var(--profile-ring, var(--accent)) 58%, transparent), transparent 68%) !important;
-    animation: profileRingPulse 1.8s ease-in-out infinite;
-}
 
 /* Orbit style */
-.ring-style-orbit .bio-avatar-ring {
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden;
-}
-.ring-style-orbit .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 50% 4px, var(--profile-ring, var(--accent)) 0 8px, transparent 9px),
-        conic-gradient(from 90deg, transparent, var(--profile-ring, var(--accent)), transparent 62%) !important;
-    animation: bioSpin 3.8s linear infinite !important;
-}
-
-.ring-style-glow .bio-avatar-ring {
-    background: var(--profile-ring, var(--accent)) !important;
-    filter: blur(16px);
-    opacity: 0.48;
-    animation: profileRingGlow 2.4s ease-in-out infinite;
-}
 
 /* Dual style */
-.ring-style-dual .bio-avatar-ring {
-    inset: -10px;
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden;
-}
-.ring-style-dual .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: conic-gradient(from 0deg, transparent 0 20%, var(--profile-ring, var(--accent)) 32%, transparent 44% 58%, var(--accent-2, #8b5cf6) 70%, transparent 82%) !important;
-    animation: bioSpin 5.5s linear infinite !important;
-}
-
-.ring-style-dual .bio-avatar-ring::after,
-.ring-style-neon .bio-avatar-ring::after,
-.ring-style-spark .bio-avatar-ring::after {
-    content: "";
-    position: absolute;
-    inset: 7px;
-    border-radius: inherit;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
 
 /* Rainbow style */
-.ring-style-rainbow .bio-avatar-ring {
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden;
-}
-.ring-style-rainbow .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: conic-gradient(from 0deg, #ff004c, #ff7a00, #fff300, #35ff00, #00ffd5, #0077ff, #7a00ff, #ff00d4, #ff004c) !important;
-    animation: bioSpin 4.6s linear infinite !important;
-}
-
-.ring-style-halo .bio-avatar-ring {
-    background: radial-gradient(circle, color-mix(in srgb, var(--profile-ring, var(--accent)) 46%, transparent), transparent 64%) !important;
-    filter: blur(10px);
-    opacity: 0.66;
-    animation: profileRingHalo 3.1s ease-in-out infinite;
-}
-
-.ring-style-neon .bio-avatar-ring {
-    background: transparent !important;
-    border: 2px solid var(--profile-ring, var(--accent));
-    box-shadow: 0 0 18px var(--profile-ring, var(--accent)), inset 0 0 18px color-mix(in srgb, var(--profile-ring, var(--accent)) 42%, transparent);
-    animation: profileRingNeon 2.6s ease-in-out infinite;
-}
 
 /* Spark style */
-.ring-style-spark .bio-avatar-ring {
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden;
-}
-.ring-style-spark .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 50% 4px, #fff 0 4px, transparent 5px), radial-gradient(circle at 86% 35%, var(--profile-ring, var(--accent)) 0 5px, transparent 6px),
-        radial-gradient(circle at 17% 72%, var(--accent-2, #8b5cf6) 0 4px, transparent 5px),
-        conic-gradient(from 90deg, transparent, color-mix(in srgb, var(--profile-ring, var(--accent)) 72%, transparent), transparent 70%) !important;
-    animation: bioSpin 3.2s linear infinite !important;
-}
 
 /* Glitch style */
-.ring-style-glitch .bio-avatar-ring {
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden;
-}
-.ring-style-glitch .bio-avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: linear-gradient(90deg, transparent 0 18%, var(--profile-ring, var(--accent)) 18% 28%, transparent 28% 42%, var(--accent-2, #8b5cf6) 42% 52%, transparent 52%),
-        conic-gradient(from 90deg, transparent, var(--profile-ring, var(--accent)), transparent 65%) !important;
-    animation: profileRingGlitch 1.2s steps(2, end) infinite !important;
-}
-
-@keyframes profileRingHalo {
-    0%,
-    100% {
-        opacity: 0.4;
-        transform: scale(0.98);
-    }
-    50% {
-        opacity: 0.74;
-        transform: scale(1.08);
-    }
-}
-
-@keyframes profileRingNeon {
-    0%,
-    100% {
-        opacity: 0.72;
-        filter: brightness(1);
-    }
-    50% {
-        opacity: 1;
-        filter: brightness(1.35);
-    }
-}
-
-@keyframes profileRingGlitch {
-    0%,
-    100% {
-        transform: translate(0, 0) rotate(0deg);
-        opacity: 0.9;
-    }
-    20% {
-        transform: translate(2px, -1px) rotate(8deg);
-    }
-    40% {
-        transform: translate(-2px, 1px) rotate(-8deg);
-    }
-    60% {
-        transform: translate(1px, 2px) rotate(4deg);
-    }
-    80% {
-        transform: translate(-1px, -2px) rotate(-4deg);
-    }
-}
 
 /* Better profile effects */
 /* Premium custom page effects overlay layering */
@@ -4980,89 +4632,13 @@ body[data-profile-effect="scanlines"] .profile-effects-layer::after {
 @media (prefers-reduced-motion: reduce) {
     .profile-effect-dot,
     body[data-profile-effect] .profile-effects-layer::before,
-    body[data-profile-effect] .profile-effects-layer::after,
-    .bio-avatar-ring {
+    body[data-profile-effect] .profile-effects-layer::after {
         animation: none !important;
     }
 }
 
 /* V3.0.1 - fix definitivo colore glow/anello PFP */
 .public-profile-body .profile-smart-avatar {
-    --profile-ring-active: var(--profile-ring, var(--accent));
-}
-
-.public-profile-body .profile-smart-avatar .bio-avatar-ring,
-.profile-editor-shell .profile-preview-avatar-ring .bio-avatar-ring {
-    background: conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), var(--accent-2, #8b5cf6), transparent 72%);
-    box-shadow: 0 0 34px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 46%, transparent);
-}
-
-.public-profile-body .ring-style-glow .bio-avatar-ring,
-.profile-editor-shell .ring-style-glow .bio-avatar-ring {
-    background: var(--profile-ring-active, var(--profile-ring, var(--accent))) !important;
-    box-shadow: 0 0 28px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 72%, transparent),
-        0 0 58px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 38%, transparent) !important;
-}
-
-.public-profile-body .ring-style-pulse .bio-avatar-ring,
-.profile-editor-shell .ring-style-pulse .bio-avatar-ring {
-    background: radial-gradient(circle, color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 58%, transparent), transparent 68%) !important;
-}
-
-.public-profile-body .ring-style-orbit .bio-avatar-ring,
-.profile-editor-shell .ring-style-orbit .bio-avatar-ring {
-    background: radial-gradient(circle at 50% 0%, var(--profile-ring-active, var(--profile-ring, var(--accent))) 0 8px, transparent 9px),
-        conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), transparent 62%) !important;
-}
-
-.public-profile-body .ring-style-dual .bio-avatar-ring,
-.profile-editor-shell .ring-style-dual .bio-avatar-ring {
-    background: conic-gradient(
-        from 0deg,
-        transparent 0 20%,
-        var(--profile-ring-active, var(--profile-ring, var(--accent))) 32%,
-        transparent 44% 58%,
-        var(--accent-2, #8b5cf6) 70%,
-        transparent 82%
-    ) !important;
-}
-
-.public-profile-body .ring-style-halo .bio-avatar-ring,
-.profile-editor-shell .ring-style-halo .bio-avatar-ring {
-    background: radial-gradient(circle, color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 46%, transparent), transparent 64%) !important;
-}
-
-.public-profile-body .ring-style-neon .bio-avatar-ring,
-.profile-editor-shell .ring-style-neon .bio-avatar-ring {
-    background: transparent !important;
-    border-color: var(--profile-ring-active, var(--profile-ring, var(--accent))) !important;
-    box-shadow: 0 0 18px var(--profile-ring-active, var(--profile-ring, var(--accent))),
-        inset 0 0 18px color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 42%, transparent) !important;
-}
-
-.public-profile-body .ring-style-spark .bio-avatar-ring,
-.profile-editor-shell .ring-style-spark .bio-avatar-ring {
-    background: radial-gradient(circle at 50% 0%, #fff 0 4px, transparent 5px),
-        radial-gradient(circle at 86% 35%, var(--profile-ring-active, var(--profile-ring, var(--accent))) 0 5px, transparent 6px),
-        radial-gradient(circle at 17% 72%, var(--accent-2, #8b5cf6) 0 4px, transparent 5px),
-        conic-gradient(from 90deg, transparent, color-mix(in srgb, var(--profile-ring-active, var(--profile-ring, var(--accent))) 72%, transparent), transparent 70%) !important;
-}
-
-.public-profile-body .ring-style-glitch .bio-avatar-ring,
-.profile-editor-shell .ring-style-glitch .bio-avatar-ring {
-    background: linear-gradient(
-            90deg,
-            transparent 0 18%,
-            var(--profile-ring-active, var(--profile-ring, var(--accent))) 18% 28%,
-            transparent 28% 42%,
-            var(--accent-2, #8b5cf6) 42% 52%,
-            transparent 52%
-        ),
-        conic-gradient(from 90deg, transparent, var(--profile-ring-active, var(--profile-ring, var(--accent))), transparent 65%) !important;
-}
-
-/* Preview: il JS mette --profile-ring sul wrapper, qui lo usiamo come active */
-.profile-editor-shell .profile-preview-avatar-ring {
     --profile-ring-active: var(--profile-ring, var(--accent));
 }
 
@@ -6873,343 +6449,6 @@ body[data-theme="light"] .profile-custom-tooltip.pos-bottom::after {
     will-change: left;
 }
 
-/* ==========================================
-   PREMIUM CUSTOM AVATAR RING EFFECTS
-   ========================================== */
-
-/* Base properties for all rings */
-.public-profile-body .bio-avatar-wrap .bio-avatar-ring,
-.profile-editor-shell .bio-avatar-wrap .bio-avatar-ring,
-.public-profile-body .profile-smart-avatar .bio-avatar-ring,
-.profile-editor-shell .profile-preview-avatar-ring .bio-avatar-ring {
-    inset: -6px !important;
-    border-radius: 999px !important;
-    padding: 0 !important;
-    border: none !important;
-    background: none !important;
-    box-shadow: none !important;
-    filter: none !important;
-    opacity: 1 !important;
-    animation: none !important;
-    transition: all 0.3s ease !important;
-}
-
-/* Remove legacy pseudo-elements */
-.public-profile-body .ring-style-dual .bio-avatar-ring::after,
-.profile-editor-shell .ring-style-dual .bio-avatar-ring::after,
-.public-profile-body .ring-style-neon .bio-avatar-ring::after,
-.profile-editor-shell .ring-style-neon .bio-avatar-ring::after,
-.public-profile-body .ring-style-spark .bio-avatar-ring::after,
-.profile-editor-shell .ring-style-spark .bio-avatar-ring::after {
-    display: none !important;
-    content: none !important;
-}
-
-/* 1. Glow: Soft, breathing background aura */
-.public-profile-body .ring-style-glow .bio-avatar-ring,
-.profile-editor-shell .ring-style-glow .bio-avatar-ring {
-    background: var(--profile-ring, var(--accent)) !important;
-    filter: blur(14px) !important;
-    opacity: 0.65 !important;
-    animation: premiumRingGlow 3s ease-in-out infinite alternate !important;
-}
-@keyframes premiumRingGlow {
-    0% {
-        transform: scale(0.96);
-        opacity: 0.5;
-    }
-    100% {
-        transform: scale(1.06);
-        opacity: 0.8;
-    }
-}
-
-/* 2. Spin: Clean, modern rotating gradient */
-.public-profile-body .ring-style-spin .bio-avatar-ring,
-.profile-editor-shell .ring-style-spin .bio-avatar-ring {
-    background: transparent !important;
-    animation: none !important;
-    box-shadow: none !important;
-    overflow: hidden !important;
-}
-.public-profile-body .ring-style-spin.bio-avatar-wrap,
-.profile-editor-shell .ring-style-spin.bio-avatar-wrap {
-    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--profile-ring, var(--accent)) 30%, transparent));
-}
-.public-profile-body .ring-style-spin .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-spin .bio-avatar-ring::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: -25% !important;
-    border-radius: 50% !important;
-    background: conic-gradient(from 0deg, var(--profile-ring, var(--accent)), var(--accent-2, #8b5cf6), var(--profile-ring, var(--accent))) !important;
-    animation: premiumRingSpin 6s linear infinite !important;
-}
-@keyframes premiumRingSpin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* 3. Pulse: Breathing expanding outer shockwave */
-.public-profile-body .ring-style-pulse .bio-avatar-ring,
-.profile-editor-shell .ring-style-pulse .bio-avatar-ring {
-    background: none !important;
-    border: 2px solid var(--profile-ring, var(--accent)) !important;
-    animation: premiumRingPulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite !important;
-}
-body[data-avatar-shape="hexagon"] .ring-style-pulse .bio-avatar-ring,
-body[data-avatar-shape="octagon"] .ring-style-pulse .bio-avatar-ring,
-body[data-avatar-shape="badge"] .ring-style-pulse .bio-avatar-ring {
-    border: none !important;
-    background: var(--profile-ring, var(--accent)) !important;
-}
-@keyframes premiumRingPulse {
-    0% {
-        transform: scale(0.98);
-        opacity: 1;
-        box-shadow: 0 0 0 0 color-mix(in srgb, var(--profile-ring, var(--accent)) 60%, transparent);
-    }
-    100% {
-        transform: scale(1.15);
-        opacity: 0;
-        box-shadow: 0 0 0 12px transparent;
-    }
-}
-
-/* 4. Orbit: Clean thin ring with an orbiting bright bead */
-.public-profile-body .ring-style-orbit .bio-avatar-ring,
-.profile-editor-shell .ring-style-orbit .bio-avatar-ring {
-    background: transparent !important;
-    border: none !important;
-    animation: none !important;
-    overflow: hidden !important;
-}
-.public-profile-body .ring-style-orbit.bio-avatar-wrap,
-.profile-editor-shell .ring-style-orbit.bio-avatar-wrap {
-    filter: drop-shadow(0 0 8px var(--profile-ring, var(--accent)));
-}
-.public-profile-body .ring-style-orbit .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-orbit .bio-avatar-ring::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: 0 !important;
-    border-radius: 50% !important;
-    background: radial-gradient(circle at 50% 6px, #ffffff 0 3px, transparent 4px),
-        conic-gradient(from 0deg, var(--profile-ring, var(--accent)), transparent 40%, transparent 90%, var(--profile-ring, var(--accent))) !important;
-    animation: premiumRingSpin 3s linear infinite !important;
-}
-body[data-avatar-shape="hexagon"] .ring-style-orbit .bio-avatar-ring::before,
-body[data-avatar-shape="octagon"] .ring-style-orbit .bio-avatar-ring::before,
-body[data-avatar-shape="badge"] .ring-style-orbit .bio-avatar-ring::before {
-    inset: 8px !important;
-}
-
-/* 5. Dual: Two dashed segments spinning in opposite directions */
-.public-profile-body .ring-style-dual .bio-avatar-ring,
-.profile-editor-shell .ring-style-dual .bio-avatar-ring {
-    background: transparent !important;
-    border: none !important;
-    animation: none !important;
-    overflow: hidden !important;
-    box-shadow: none !important;
-}
-.public-profile-body .ring-style-dual.bio-avatar-wrap,
-.profile-editor-shell .ring-style-dual.bio-avatar-wrap {
-    filter: drop-shadow(0 0 8px var(--profile-ring, var(--accent)));
-}
-.public-profile-body .ring-style-dual .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-dual .bio-avatar-ring::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: -25% !important;
-    border-radius: 50% !important;
-    background: conic-gradient(from 0deg, var(--profile-ring, var(--accent)) 0 90deg, transparent 90deg 180deg, var(--accent-2, #8b5cf6) 180deg 270deg, transparent 270deg 360deg) !important;
-    animation: premiumRingSpin 8s linear infinite !important;
-}
-
-/* 6. Rainbow: Ultra-smooth slowly cycling color wave */
-.public-profile-body .ring-style-rainbow .bio-avatar-ring,
-.profile-editor-shell .ring-style-rainbow .bio-avatar-ring {
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden !important;
-    box-shadow: none !important;
-}
-.public-profile-body .ring-style-rainbow.bio-avatar-wrap,
-.profile-editor-shell .ring-style-rainbow.bio-avatar-wrap {
-    filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.45));
-}
-.public-profile-body .ring-style-rainbow .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-rainbow .bio-avatar-ring::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: -25% !important;
-    border-radius: 50% !important;
-    background: conic-gradient(from 0deg, #ff0055, #ffdd00, #00ff66, #00ffff, #0055ff, #9900ff, #ff0055) !important;
-    animation: premiumRingSpin 10s linear infinite !important;
-}
-
-/* 7. Halo: Clean blurred halo light beam */
-.public-profile-body .ring-style-halo .bio-avatar-ring,
-.profile-editor-shell .ring-style-halo .bio-avatar-ring {
-    background: radial-gradient(circle, transparent 55%, var(--profile-ring, var(--accent)) 68%, transparent 72%) !important;
-    filter: blur(4px) !important;
-    animation: premiumRingHalo 4s ease-in-out infinite alternate !important;
-}
-@keyframes premiumRingHalo {
-    0% {
-        transform: scale(0.97);
-        opacity: 0.6;
-    }
-    100% {
-        transform: scale(1.05);
-        opacity: 0.95;
-    }
-}
-
-/* 8. Neon: Sharp cyber glowing border */
-.public-profile-body .ring-style-neon.bio-avatar-wrap,
-.profile-editor-shell .ring-style-neon.bio-avatar-wrap {
-    animation: premiumRingNeonPulse 2.5s ease-in-out infinite alternate !important;
-}
-.public-profile-body .ring-style-neon .bio-avatar-ring,
-.profile-editor-shell .ring-style-neon .bio-avatar-ring {
-    background: transparent !important;
-    border: 2px solid var(--profile-ring, var(--accent)) !important;
-    box-shadow: none !important;
-}
-body[data-avatar-shape="hexagon"] .ring-style-neon .bio-avatar-ring,
-body[data-avatar-shape="octagon"] .ring-style-neon .bio-avatar-ring,
-body[data-avatar-shape="badge"] .ring-style-neon .bio-avatar-ring {
-    background: var(--profile-ring, var(--accent)) !important;
-    border: none !important;
-    inset: 2px !important;
-}
-@keyframes premiumRingNeonPulse {
-    0% {
-        opacity: 0.85;
-        filter: drop-shadow(0 0 8px var(--profile-ring, var(--accent)));
-    }
-    100% {
-        opacity: 1;
-        filter: drop-shadow(0 0 20px var(--profile-ring, var(--accent)));
-    }
-}
-
-/* 9. Sparkle: Twinkling spark stars */
-.public-profile-body .ring-style-spark .bio-avatar-ring,
-.profile-editor-shell .ring-style-spark .bio-avatar-ring {
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden !important;
-    box-shadow: none !important;
-}
-.public-profile-body .ring-style-spark.bio-avatar-wrap,
-.profile-editor-shell .ring-style-spark.bio-avatar-wrap {
-    filter: drop-shadow(0 0 8px var(--profile-ring, var(--accent)));
-}
-.public-profile-body .ring-style-spark .bio-avatar-ring::before,
-.profile-editor-shell .ring-style-spark .bio-avatar-ring::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: -25% !important;
-    border-radius: 50% !important;
-    background: conic-gradient(from 0deg, var(--profile-ring, var(--accent)), transparent, var(--profile-ring, var(--accent))) !important;
-    animation: premiumRingSpin 4s linear infinite !important;
-}
-.public-profile-body .ring-style-spark .bio-avatar-ring::after,
-.profile-editor-shell .ring-style-spark .bio-avatar-ring::after {
-    display: block !important;
-    content: "✦" !important;
-    position: absolute !important;
-    top: -5px !important;
-    left: 45% !important;
-    font-size: 10px !important;
-    color: #fff !important;
-    text-shadow: 0 0 8px var(--profile-ring, var(--accent)) !important;
-    animation: premiumSparkleTwinkle 1.5s ease-in-out infinite alternate, premiumRingSpin 4s linear infinite !important;
-}
-body[data-avatar-shape="hexagon"] .ring-style-spark .bio-avatar-ring::after,
-body[data-avatar-shape="octagon"] .ring-style-spark .bio-avatar-ring::after,
-body[data-avatar-shape="badge"] .ring-style-spark .bio-avatar-ring::after {
-    top: 4px !important;
-    left: 50% !important;
-}
-@keyframes premiumSparkleTwinkle {
-    0% {
-        opacity: 0.3;
-        transform: scale(0.7) rotate(0deg);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1.3) rotate(180deg);
-    }
-}
-
-/* 10. Glitch: Cyberpunk offset flickering lines */
-.public-profile-body .ring-style-glitch .bio-avatar-ring,
-.profile-editor-shell .ring-style-glitch .bio-avatar-ring {
-    background: transparent !important;
-    border: 2px solid var(--profile-ring, var(--accent)) !important;
-    animation: premiumRingGlitch 1.5s steps(2, end) infinite !important;
-}
-body[data-avatar-shape="hexagon"] .ring-style-glitch .bio-avatar-ring,
-body[data-avatar-shape="octagon"] .ring-style-glitch .bio-avatar-ring,
-body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring {
-    border: none !important;
-    background: transparent !important;
-    animation: none !important;
-    overflow: hidden !important;
-}
-body[data-avatar-shape="hexagon"] .ring-style-glitch .bio-avatar-ring::before,
-body[data-avatar-shape="octagon"] .ring-style-glitch .bio-avatar-ring::before,
-body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: 2px !important;
-    background: var(--profile-ring, var(--accent)) !important;
-    animation: premiumRingGlitchPolygon 1.5s steps(2, end) infinite !important;
-}
-@keyframes premiumRingGlitch {
-    0%,
-    95%,
-    100% {
-        transform: scale(1);
-        border-color: var(--profile-ring, var(--accent));
-        filter: none;
-    }
-    96% {
-        transform: scale(1.02) translate(-2px, 1px);
-        border-color: #ff0055;
-        filter: hue-rotate(90deg);
-    }
-    98% {
-        transform: scale(0.98) translate(1px, -2px);
-        border-color: #00ffff;
-        filter: hue-rotate(180deg);
-    }
-}
-@keyframes premiumRingGlitchPolygon {
-    0%,
-    95%,
-    100% {
-        transform: scale(1);
-        background: var(--profile-ring, var(--accent));
-        filter: none;
-    }
-    96% {
-        transform: scale(1.02) translate(-2px, 1px);
-        background: #ff0055;
-        filter: hue-rotate(90deg);
-    }
-    98% {
-        transform: scale(0.98) translate(1px, -2px);
-        background: #00ffff;
-        filter: hue-rotate(180deg);
-    }
-}
-
 /* Premium Custom Display Name Effects */
 .profile-display-name {
     position: relative;
@@ -7413,74 +6652,6 @@ body[data-avatar-shape="badge"] .ring-style-glitch .bio-avatar-ring::before {
     }
 }
 
-/* ==========================================================================
-   AVATAR POLYGONS & EFFECTS
-   ========================================================================== */
-/* Squircle */
-body[data-avatar-shape="squircle"] .bio-avatar-wrap {
-    border-radius: 30% !important;
-}
-body[data-avatar-shape="squircle"] .bio-avatar {
-    border-radius: 30% !important;
-    clip-path: none !important;
-}
-body[data-avatar-shape="squircle"] .bio-avatar-ring {
-    border-radius: 30% !important;
-    clip-path: none !important;
-}
-
-/* Square */
-body[data-avatar-shape="square"] .bio-avatar-wrap {
-    border-radius: 0% !important;
-}
-body[data-avatar-shape="square"] .bio-avatar {
-    border-radius: 0% !important;
-    clip-path: none !important;
-}
-body[data-avatar-shape="square"] .bio-avatar-ring {
-    border-radius: 0% !important;
-    clip-path: none !important;
-}
-
-/* Hexagon */
-body[data-avatar-shape="hexagon"] .bio-avatar-wrap {
-    border-radius: 0 !important;
-}
-body[data-avatar-shape="hexagon"] .bio-avatar {
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
-    border-radius: 0 !important;
-}
-body[data-avatar-shape="hexagon"] .bio-avatar-ring {
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
-    border-radius: 0 !important;
-}
-
-/* Octagon */
-body[data-avatar-shape="octagon"] .bio-avatar-wrap {
-    border-radius: 0 !important;
-}
-body[data-avatar-shape="octagon"] .bio-avatar {
-    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%) !important;
-    border-radius: 0 !important;
-}
-body[data-avatar-shape="octagon"] .bio-avatar-ring {
-    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%) !important;
-    border-radius: 0 !important;
-}
-
-/* Badge */
-body[data-avatar-shape="badge"] .bio-avatar-wrap {
-    border-radius: 0 !important;
-}
-body[data-avatar-shape="badge"] .bio-avatar {
-    clip-path: polygon(50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%, 0% 15%) !important;
-    border-radius: 0 !important;
-}
-body[data-avatar-shape="badge"] .bio-avatar-ring {
-    clip-path: polygon(50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%, 0% 15%) !important;
-    border-radius: 0 !important;
-}
-
 /* Base shape variables for elements */
 .bio-social-icon {
     border-radius: var(--ui-shape-icon, 50%) !important;
@@ -7502,35 +6673,6 @@ body[data-avatar-shape="badge"] .bio-avatar-ring {
 .bio-button {
     border-radius: var(--ui-shape-button, 999px);
     min-height: var(--button-height, 48px);
-}
-
-/* Neon ring attached to the border */
-.ring-style-neon .bio-avatar-ring {
-    inset: 2px !important;
-}
-
-/* When pfp border is disabled (data-avatar-border="0") */
-body[data-avatar-border="0"] .bio-avatar-ring {
-    inset: 4px !important;
-}
-
-body[data-avatar-border="0"] .ring-style-neon .bio-avatar-ring {
-    inset: 2px !important;
-}
-
-body[data-avatar-border="0"] .bio-avatar {
-    border-width: 0 !important;
-}
-
-/* Restore unclipped circular blurs for Glow and Halo styles on polygons */
-body[data-avatar-shape="hexagon"] .ring-style-glow .bio-avatar-ring,
-body[data-avatar-shape="octagon"] .ring-style-glow .bio-avatar-ring,
-body[data-avatar-shape="badge"] .ring-style-glow .bio-avatar-ring,
-body[data-avatar-shape="hexagon"] .ring-style-halo .bio-avatar-ring,
-body[data-avatar-shape="octagon"] .ring-style-halo .bio-avatar-ring,
-body[data-avatar-shape="badge"] .ring-style-halo .bio-avatar-ring {
-    clip-path: none !important;
-    border-radius: 50% !important;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -9627,11 +8769,6 @@ body.public-profile-body :is(.bio-social__icon, .bio-featured-link__icon, .bio-p
 }
 
 /* ── Foto profilo: forma sua, indipendente dai controlli ─────────────────── */
-body.public-profile-body[data-avatar-shape="circle"] :is(.bio-avatar-wrap, .bio-avatar, .bio-avatar-ring),
-body.public-profile-body:not([data-avatar-shape]) :is(.bio-avatar-wrap, .bio-avatar, .bio-avatar-ring) {
-    border-radius: 50% !important;
-    clip-path: none !important;
-}
 
 /* ── Tag del profilo ─────────────────────────────────────────────────────── */
 .profile-tags-container {
@@ -9790,4 +8927,130 @@ body.public-profile-body .profile-tag-pill:hover {
     outline: 3px solid transparent;
     outline-offset: 4px;
     animation: profilePreviewFlash 1.4s ease 1;
+}
+
+/* ── Statistiche ─────────────────────────────────────────────────────────────
+   Da una a otto card scelte dal proprietario: la griglia si adatta al numero
+   invece di lasciare buchi. Icona in un bollino, cifra con unita' piccola,
+   etichetta sotto. */
+body.public-profile-body .profile-stats-compact {
+    --stats-cols: 4;
+    grid-template-columns: repeat(var(--stats-cols), minmax(0, 1fr)) !important;
+    gap: 0.65rem !important;
+}
+
+body.public-profile-body .profile-stats-compact[data-count="1"] { --stats-cols: 1; }
+body.public-profile-body .profile-stats-compact[data-count="2"] { --stats-cols: 2; }
+body.public-profile-body .profile-stats-compact:is([data-count="3"], [data-count="5"], [data-count="6"]) { --stats-cols: 3; }
+
+body.public-profile-body .profile-stats-compact .bio-stat-card {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 6.6rem !important;
+    padding: 0.85rem !important;
+}
+
+body.public-profile-body .profile-stats-compact[data-count="1"] .bio-stat-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 0 !important;
+}
+
+/* `.bio-stat-card span { display: block }` arriva da piu' in alto. */
+body.public-profile-body .bio-stat-card .bio-stat-card__icon,
+.bio-stat-card__icon {
+    display: grid !important;
+    flex: none;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    margin-bottom: 0.7rem;
+    border-radius: var(--p-radius-icon, 50%);
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.14);
+    box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.22);
+}
+
+.profile-stats-compact[data-count="1"] .bio-stat-card__icon {
+    margin-bottom: 0;
+}
+
+body.public-profile-body .bio-stat-card .bio-stat-card__icon i {
+    margin: 0 !important;
+    font-size: 0.92rem !important;
+    color: inherit;
+}
+
+body.public-profile-body .bio-stat-card .bio-stat-card__value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.18rem;
+    max-width: 100%;
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem) !important;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+.bio-stat-card__value small {
+    color: var(--muted);
+    font-size: 0.55em;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+/* Le statistiche di testo (una sezione, un personaggio) vanno a capo. */
+body.public-profile-body .bio-stat-card[data-format="text"] .bio-stat-card__value {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 1.02rem !important;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+body.public-profile-body .bio-stat-card .bio-stat-card__label {
+    display: block;
+    margin-top: auto !important;
+    padding-top: 0.35rem;
+    color: var(--muted);
+    font-size: 0.74rem !important;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.profile-stats-compact[data-count="1"] .bio-stat-card__label {
+    margin-top: 0.2rem !important;
+    padding-top: 0;
+}
+
+@media (max-width: 720px) {
+    body.public-profile-body .profile-stats-compact:not([data-count="1"]) {
+        --stats-cols: 2;
+    }
+
+    body.public-profile-body .profile-stats-compact:not([data-count="1"]) .bio-stat-card:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+
+    body.public-profile-body .profile-stats-compact .bio-stat-card {
+        min-height: 5.4rem !important;
+        padding: 0.7rem !important;
+    }
+
+    .bio-stat-card__icon {
+        width: 1.8rem;
+        height: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    body.public-profile-body .bio-stat-card .bio-stat-card__value {
+        font-size: 1.2rem !important;
+    }
 }
