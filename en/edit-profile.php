@@ -110,7 +110,7 @@ function profile_json_script(string $id, array $data): void
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Edit profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.12.0">
+    <link class="profile-css-file" rel="stylesheet" href="/assets/css/profile.css?v=5.13.0">
     <link rel="stylesheet" href="/assets/css/editor-premium.css?v=5.11.1">
     <link rel="stylesheet" href="/assets/css/photo-cropper.css?v=1.3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -126,7 +126,7 @@ function profile_json_script(string $id, array $data): void
            non c'entrava niente. 0 = il server non dichiara limiti. */
         window.serverUploadLimit = <?php echo profile_server_upload_limit(); ?>;
     </script>
-    <script src="/assets/js/profile.js?v=5.13.0" defer></script>
+    <script src="/assets/js/profile.js?v=5.14.0" defer></script>
     <script src="/assets/js/profile-markdown-guide.js?v=5.10.1" defer></script>
     <script src="/assets/js/photo-cropper.js?v=1.3" defer></script>
     <script src="/assets/js/edit-profile-en.js?v=5.13.0" defer></script>

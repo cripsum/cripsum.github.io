@@ -84,7 +84,9 @@ $secondaryColor = profile_normalize_hex_color($_POST['profile_secondary_color'] 
 $cardColorDb = profile_optional_hex_color($_POST['profile_card_color'] ?? '');
 $textColorDb = profile_optional_hex_color($_POST['profile_text_color'] ?? '');
 $linkStyle = profile_allowed_value((string)($_POST['profile_link_style'] ?? 'glass'), ['glass', 'solid', 'outline', 'neon'], 'glass');
-$buttonShape = profile_allowed_value((string)($_POST['profile_button_shape'] ?? 'pill'), ['pill', 'rounded', 'sharp'], 'pill');
+// Forme, bordo e nome passano da profile_style.php, come la lettura.
+$styleColumns = profile_style_columns_from_input($_POST, $profile);
+$buttonShape = $styleColumns['profile_button_shape'];
 $font = profile_allowed_value((string)($_POST['profile_font'] ?? 'Poppins'), [
     'Poppins', 'Inter', 'Roboto', 'Outfit', 'Playfair Display', 
     'Space Grotesk', 'Syne', 'Montserrat', 'Fira Code', 'PT Mono', 
@@ -102,12 +104,11 @@ if ($cardOpacity < 0 || $cardOpacity > 100) $cardOpacity = 68;
 $cardBlur = (int)($_POST['profile_card_blur'] ?? 20);
 if ($cardBlur < 0 || $cardBlur > 40) $cardBlur = 20;
 $borderColorDb = profile_optional_hex_color($_POST['profile_border_color'] ?? '');
-$borderWidth = (int)($_POST['profile_border_width'] ?? 1);
-if ($borderWidth < 0 || $borderWidth > 5) $borderWidth = 1;
+$borderWidth = $styleColumns['profile_border_width'];
 $borderOpacity = (int)($_POST['profile_border_opacity'] ?? 100);
 if ($borderOpacity < 0 || $borderOpacity > 100) $borderOpacity = 100;
 
-$uiShape = profile_allowed_value((string)($_POST['profile_ui_shape'] ?? 'circle'), ['circle', 'rounded', 'soft', 'square-rounded', 'square', 'pill'], 'circle');
+$uiShape = $styleColumns['profile_ui_shape'];
 $avatarShape = profile_allowed_value((string)($_POST['profile_avatar_shape'] ?? 'circle'), ['circle', 'squircle', 'square', 'hexagon', 'octagon', 'badge'], 'circle');
 $socialSize = (int)($_POST['profile_social_size'] ?? 42);
 if ($socialSize < 32 || $socialSize > 72) $socialSize = 42;
@@ -158,16 +159,7 @@ $avatarRingStyle = profile_allowed_value((string)($_POST['avatar_ring_style'] ??
 $avatarRingColor = profile_normalize_hex_color($_POST['avatar_ring_color'] ?? $accentColor);
 $avatarBorder = profile_bool_from_post('profile_avatar_border', true);
 
-$nameStyleConfig = [
-    'type' => profile_allowed_value((string)($_POST['profile_name_color_type'] ?? 'default'), ['default', 'solid', 'gradient'], 'default'),
-    'solid_color' => profile_normalize_hex_color($_POST['profile_name_solid_color'] ?? '#ffffff'),
-    'grad_color1' => profile_normalize_hex_color($_POST['profile_name_grad_color1'] ?? '#ffffff'),
-    'grad_color2' => profile_normalize_hex_color($_POST['profile_name_grad_color2'] ?? '#8b5cf6'),
-    'grad_angle' => min(max((int)($_POST['profile_name_grad_angle'] ?? 90), 0), 360),
-    'animation' => profile_allowed_value((string)($_POST['profile_name_animation'] ?? 'none'), ['none', 'rainbow', 'glow', 'sparkles', 'fire', 'water', 'glitch', 'neon', 'bounce'], 'none'),
-    'glow_color' => profile_normalize_hex_color($_POST['profile_name_glow_color'] ?? '#8b5cf6')
-];
-$profileNameStyleJson = json_encode($nameStyleConfig);
+$profileNameStyleJson = $styleColumns['profile_name_style'];
 $showStats = profile_bool_from_post('profile_show_stats', true);
 $showSocials = profile_bool_from_post('profile_show_socials', true);
 $showLinks = profile_bool_from_post('profile_show_links', true);
@@ -253,9 +245,11 @@ $profileTabAnimationSpeed = min(max((int)($_POST['profile_tab_animation_speed'] 
 $profileTabAnimationText = profile_clean_text($_POST['profile_tab_animation_text'] ?? '', 120);
 $profileTabAnimationTextDb = $profileTabAnimationText !== '' ? $profileTabAnimationText : null;
 
-$profileCornerStyle = profile_allowed_value((string)($_POST['profile_corner_style'] ?? 'circle'), ['circle', 'rounded', 'soft', 'square', 'custom'], 'circle');
-$profileCornerStyleCustom = min(max((int)($_POST['profile_corner_style_custom'] ?? 8), 0), 100);
-$profileBorderStyle = profile_allowed_value((string)($_POST['profile_border_style'] ?? 'thin'), ['none', 'thin', 'glow', 'gradient'], 'thin');
+// Lo stile angoli non esiste piu': i raggi derivano da forma e arrotondamento.
+// Le colonne restano, con valori neutri.
+$profileCornerStyle = 'circle';
+$profileCornerStyleCustom = 8;
+$profileBorderStyle = $styleColumns['profile_border_style'];
 
 $oldInvite = $profile['discord_server_invite'] ?? '';
 $discordServerCache = $profile['discord_server_cache'] ?? null;

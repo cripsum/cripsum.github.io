@@ -92,6 +92,13 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         $presetData[$boolCol] = isset($_POST[$boolCol]) ? (int)$_POST[$boolCol] : 0;
     }
 
+    // Forme, bordo e nome come nel salvataggio del profilo. Prima il nome
+    // veniva preso dal profilo salvato, perche' l'editor lo manda in campi
+    // separati e non come `profile_name_style`.
+    foreach (profile_style_columns_from_input($_POST + $profile, $profile) as $col => $value) {
+        $presetData[$col] = $value;
+    }
+
     // Save layout structures as serialized lists
     $presetData['socials_json'] = $_POST['socials_json'] ?? '[]';
     $presetData['links_json'] = $_POST['links_json'] ?? '[]';
