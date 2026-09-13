@@ -594,9 +594,39 @@ function profile_list_links(mysqli $mysqli, int $userId, bool $onlyVisible = tru
     return $rows ?: [];
 }
 
+/**
+ * Le card di progetti e contenuti hanno una colonna `icon` solo dopo
+ * migrations/2026-09-13_profile_item_icons.sql. Finche' manca, l'icona non si
+ * salva e il profilo usa quelle di sempre.
+ */
+function profile_item_icons_available(mysqli $mysqli): bool
+{
+    static $available = null;
+    if ($available === null) {
+        $available = function_exists('auth_column_exists')
+            && auth_column_exists($mysqli, 'utenti_projects', 'icon')
+            && auth_column_exists($mysqli, 'utenti_contents', 'icon');
+    }
+    return $available;
+}
+
+/** L'icona di una card da salvare: classe Font Awesome o, solo per i Premium, un'immagine. */
+function profile_item_icon_value($raw, bool $isPremium): ?string
+{
+    $icon = profile_clean_text(is_string($raw) ? $raw : '', 255);
+    if (!$isPremium && (preg_match('/^https?:\/\//i', $icon) || str_starts_with($icon, '/uploads/') || str_contains($icon, '.'))) {
+        $icon = '';
+    }
+    if ($icon !== '' && (str_starts_with($icon, '/') || preg_match('/^https?:/i', $icon)) && !profile_is_safe_url($icon, true)) {
+        $icon = '';
+    }
+    return $icon !== '' ? $icon : null;
+}
+
 function profile_list_projects(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, title, description, url, image_url, tech_stack, status, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_projects WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
+    $iconCol = profile_item_icons_available($mysqli) ? 'icon' : 'NULL AS icon';
+    $sql = "SELECT id, title, description, url, image_url, $iconCol, tech_stack, status, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_projects WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -607,7 +637,8 @@ function profile_list_projects(mysqli $mysqli, int $userId, bool $onlyVisible = 
 
 function profile_list_contents(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
 {
-    $sql = "SELECT id, content_type, title, description, url, thumbnail_url, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_contents WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
+    $iconCol = profile_item_icons_available($mysqli) ? 'icon' : 'NULL AS icon';
+    $sql = "SELECT id, content_type, title, description, url, thumbnail_url, $iconCol, sort_order, is_visible, card_tag_text, card_tag_bg, card_tag_color FROM utenti_contents WHERE utente_id = ?" . ($onlyVisible ? " AND is_visible = 1" : "") . " ORDER BY sort_order ASC, id ASC";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('i', $userId);
     $stmt->execute();
@@ -1589,6 +1620,15 @@ function profile_render_icon(?string $icon, string $default = 'fa-solid fa-link'
             '</span>';
     }
 
+    // Tutto cio' che non e' un'immagine valida deve essere una classe Font Awesome:
+    // un percorso o un URL non accettato torna all'icona di default.
+    if (!preg_match('/^[a-z0-9 _-]+$/i', $icon)) {
+        if (!preg_match('/^[a-z0-9 _-]+$/i', trim($default))) {
+            return '';
+        }
+        $icon = trim($default);
+    }
+
     return '<i class="' . profile_h($icon) . ' ' . profile_h($class) . '"></i>';
 }
 
@@ -1722,8 +1762,8 @@ function profile_cleanup_unused_media(mysqli $mysqli, int $userId): void
          FROM utenti WHERE id = ?",
         "SELECT title, body, media_url FROM utenti_profile_blocks WHERE utente_id = ?",
         "SELECT title, description, url, icon FROM utenti_links WHERE utente_id = ?",
-        "SELECT title, description, url, image_url FROM utenti_projects WHERE utente_id = ?",
-        "SELECT title, description, url, thumbnail_url FROM utenti_contents WHERE utente_id = ?",
+        "SELECT title, description, url, image_url" . (profile_item_icons_available($mysqli) ? ', icon' : '') . " FROM utenti_projects WHERE utente_id = ?",
+        "SELECT title, description, url, thumbnail_url" . (profile_item_icons_available($mysqli) ? ', icon' : '') . " FROM utenti_contents WHERE utente_id = ?",
         "SELECT label, url, icon FROM utenti_social WHERE utente_id = ?",
         "SELECT title, url FROM utenti_embeds WHERE utente_id = ?",
         // Saved presets keep their own copy of every media reference.

@@ -153,7 +153,8 @@ function profile_style_resolve(array $p): array
         'border_color' => $borderColor,
         'border_color_auto' => $borderColorAuto,
         'border_opacity' => $borderOpacity,
-        'border_glow' => $borderStyle === 'glow',
+        // L'editor manda l'interruttore come 1/0, il database tiene 'glow'.
+        'border_glow' => in_array($borderStyle, ['glow', '1'], true),
         'link_style' => in_array($p['profile_link_style'] ?? '', PROFILE_STYLE_LINK_STYLES, true) ? $p['profile_link_style'] : 'glass',
         'socials_style' => ($p['profile_socials_style'] ?? '') === 'icons' ? 'icons' : 'cards',
         'social_size' => profile_style_int($p['profile_social_size'] ?? null, 32, 72, 42),
@@ -371,7 +372,7 @@ function profile_style_columns_from_input(array $input, array $current = []): ar
     return [
         'profile_ui_shape' => $controlShape,
         'profile_button_shape' => profile_style_button_shape_for($controlShape),
-        'profile_border_style' => $borderStyleIn === 'glow' ? 'glow' : 'solid',
+        'profile_border_style' => in_array($borderStyleIn, ['glow', '1'], true) ? 'glow' : 'solid',
         'profile_border_width' => $borderWidth,
         'profile_name_style' => json_encode($nameStyle),
     ];
@@ -392,6 +393,36 @@ function profile_name_style_attributes(array $nameStyle): string
         // profile.js cerca ancora data-name-anim per le scintille.
         . ' data-name-anim="' . htmlspecialchars($nameStyle['effect'], ENT_QUOTES, 'UTF-8') . '"'
         . ' style="' . htmlspecialchars(profile_style_inline($vars), ENT_QUOTES, 'UTF-8') . '"';
+}
+
+/**
+ * Layout come lo sceglie l'editor: uno fra cinque. "A schermate" (scroll snap)
+ * nel database e' ancora layout standard + profile_layout_snap = 1.
+ */
+function profile_layout_choice_for(array $p): array
+{
+    if ((int)($p['profile_layout_snap'] ?? 0) === 1) {
+        return ['scrollsnap'];
+    }
+    $layout = (string)($p['profile_layout'] ?? 'standard');
+    $layout = ['left-tabs' => 'standard', 'right-tabs' => 'showcase', 'stacked' => 'clean', 'center-split' => 'compact'][$layout] ?? $layout;
+    return [in_array($layout, ['standard', 'compact', 'showcase', 'clean'], true) ? $layout : 'standard'];
+}
+
+/**
+ * [layout, snap] da salvare. Accetta la scelta unica dell'editor nuovo
+ * (`profile_layout_choice`) e, in sua assenza, i due campi di prima.
+ */
+function profile_layout_from_input(array $input, bool $isPremium): array
+{
+    $choice = $input['profile_layout_choice'] ?? null;
+    if ($choice === null) {
+        [$choice] = profile_layout_choice_for($input);
+    }
+    if ($choice === 'scrollsnap') {
+        return $isPremium ? ['standard', 1] : ['standard', 0];
+    }
+    return [in_array($choice, ['standard', 'compact', 'showcase', 'clean'], true) ? $choice : 'standard', 0];
 }
 
 /** Testo leggibile sopra un colore: scuro sui colori chiari, bianco sugli altri. */

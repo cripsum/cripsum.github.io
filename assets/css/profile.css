@@ -9770,3 +9770,15 @@ body.public-profile-body .profile-tag-pill:hover {
         animation: none !important;
     }
 }
+
+/* Anteprima dell'editor: la sezione aperta nell'editor lampeggia. */
+@keyframes profilePreviewFlash {
+    0%, 100% { outline-color: rgba(var(--accent-rgb), 0); }
+    30% { outline-color: rgba(var(--accent-rgb), 0.7); }
+}
+
+.profile-preview-flash {
+    outline: 3px solid transparent;
+    outline-offset: 4px;
+    animation: profilePreviewFlash 1.4s ease 1;
+}

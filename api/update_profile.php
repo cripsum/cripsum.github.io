@@ -120,15 +120,8 @@ $buttonSize = (int)($_POST['profile_button_size'] ?? 48);
 if ($buttonSize < 32 || $buttonSize > 80) $buttonSize = 48;
 
 $theme = profile_allowed_value((string)($_POST['profile_theme'] ?? 'dark'), ['dark', 'light', 'auto'], 'dark');
-$rawLayout = (string)($_POST['profile_layout'] ?? 'standard');
-$layoutAliases = [
-    'left-tabs' => 'standard',
-    'right-tabs' => 'showcase',
-    'stacked' => 'clean',
-    'center-split' => 'compact',
-];
-$rawLayout = $layoutAliases[$rawLayout] ?? $rawLayout;
-$layout = profile_allowed_value($rawLayout, ['standard', 'compact', 'showcase', 'clean'], 'standard');
+// L'editor sceglie uno fra cinque layout; "a schermate" e' standard + snap.
+[$layout, $layoutSnapChoice] = profile_layout_from_input($_POST, $isPremium);
 $visibility = profile_allowed_value((string)($_POST['profile_visibility'] ?? 'public'), ['public', 'logged_in', 'friends', 'private'], 'public');
 $discordId = trim((string)($_POST['discord_id'] ?? ''));
 $discordIdDb = $discordId !== '' ? $discordId : null;
@@ -497,7 +490,7 @@ try {
     $stmt->close();
 
     if ($isPremium) {
-        $layoutSnap = profile_bool_from_post('profile_layout_snap', false) ? 1 : 0;
+        $layoutSnap = $layoutSnapChoice;
         $cursorEffect = profile_allowed_value((string)($_POST['profile_cursor_effect'] ?? 'none'), ['none', 'follower', 'trail', 'trail_stars', 'cat_follower', 'trail_hearts'], 'none');
         $cursorCustomUrl = isset($_POST['profile_cursor_custom_url']) ? trim((string)$_POST['profile_cursor_custom_url']) : '';
         if ($cursorCustomUrl !== '' && !profile_is_safe_url($cursorCustomUrl, false)) {
@@ -690,6 +683,10 @@ try {
     $stmt->execute();
     $stmt->close();
 
+    // L'icona sta in una colonna che esiste solo dopo la migration: si
+    // scrive a parte, dopo l'inserimento.
+    $setProjectIcon = profile_item_icons_available($mysqli) ? $mysqli->prepare("UPDATE utenti_projects SET icon = ? WHERE id = ?") : null;
+    $setContentIcon = profile_item_icons_available($mysqli) ? $mysqli->prepare("UPDATE utenti_contents SET icon = ? WHERE id = ?") : null;
     $insertProject = $mysqli->prepare("INSERT INTO utenti_projects (utente_id, title, description, url, image_url, tech_stack, status, is_featured, is_visible, sort_order, card_tag_text, card_tag_bg, card_tag_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($projectRows as $i => $row) {
         $title = profile_clean_text($row['title'] ?? '', 70);
@@ -719,6 +716,12 @@ try {
 
         $insertProject->bind_param('issssssiiisss', $targetUserId, $title, $description, $url, $imageUrl, $techStack, $status, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
         if (!$insertProject->execute()) throw new RuntimeException('Error saving project.');
+        if ($setProjectIcon) {
+            $itemIcon = profile_item_icon_value($row['icon'] ?? '', $isPremium);
+            $itemId = (int)$mysqli->insert_id;
+            $setProjectIcon->bind_param('si', $itemIcon, $itemId);
+            $setProjectIcon->execute();
+        }
     }
     $insertProject->close();
 
@@ -755,6 +758,12 @@ try {
 
         $insertContent->bind_param('isssssiiisss', $targetUserId, $type, $title, $description, $url, $thumb, $featured, $visible, $i, $tagText, $tagBg, $tagColor);
         if (!$insertContent->execute()) throw new RuntimeException('Error saving content.');
+        if ($setContentIcon) {
+            $itemIcon = profile_item_icon_value($row['icon'] ?? '', $isPremium);
+            $itemId = (int)$mysqli->insert_id;
+            $setContentIcon->bind_param('si', $itemIcon, $itemId);
+            $setContentIcon->execute();
+        }
     }
     $insertContent->close();
 
