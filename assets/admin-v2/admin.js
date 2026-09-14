@@ -9,7 +9,7 @@
     const state = {
         section: 'dashboard',
         q: '',
-        users: { page: 1, status: 'all', role: 'all', sort: 'data_creazione', dir: 'DESC' },
+        users: { page: 1, status: 'all', role: 'all', sort: 'data_creazione', dir: 'DESC', online: false },
         characters: { page: 1 },
         achievements: { page: 1 },
         messages: { page: 1 },
@@ -114,6 +114,26 @@
     const statusBadge = (isBanned) => isBanned == 1
         ? '<span class="admin-badge admin-badge--danger"><i class="fa-solid fa-ban"></i>Bannato</span>'
         : '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Attivo</span>';
+
+    const timeAgo = (seconds) => {
+        const s = Math.max(0, Number(seconds) || 0);
+        if (s < 60) return 'adesso';
+        if (s < 3600) return `${Math.floor(s / 60)} min fa`;
+        if (s < 86400) return `${Math.floor(s / 3600)} h fa`;
+        if (s < 86400 * 30) return `${Math.floor(s / 86400)} g fa`;
+        if (s < 86400 * 365) return `${Math.floor(s / (86400 * 30))} mesi fa`;
+        return `${Math.floor(s / (86400 * 365))} anni fa`;
+    };
+
+    const presenceBadge = (user) => {
+        if (user.is_online) {
+            return '<span class="admin-badge admin-badge--success"><span class="admin-online-dot" aria-hidden="true"></span>Online</span>';
+        }
+        if (user.seconds_since_active === null || user.seconds_since_active === undefined) {
+            return '<span class="admin-muted admin-presence">Mai visto</span>';
+        }
+        return `<span class="admin-muted admin-presence" title="${escapeHtml(formatDateTime(user.ultimo_accesso))}">Visto ${timeAgo(user.seconds_since_active)}</span>`;
+    };
 
     const premiumBadge = (isPremium) => Number(isPremium) === 1
         ? '<span class="admin-badge admin-badge--warning" style="margin-left: 5px; font-size: 0.65rem; padding: 2px 6px;"><i class="fa-solid fa-gem" style="color: #eab308; margin-right: 4px;"></i>Premium</span>'
@@ -299,7 +319,7 @@
         <tr>
             <td data-label="Utente">
                 <div class="admin-cell-user">
-                    <img class="admin-avatar" src="${escapeHtml(user.avatar_url)}" alt="">
+                    <span class="admin-avatar-wrap${user.is_online ? ' is-online' : ''}"><img class="admin-avatar" src="${escapeHtml(user.avatar_url)}" alt=""></span>
                     <div class="admin-cell-text">
                         <div class="admin-row-title">${escapeHtml(user.username)} ${premiumBadge(user.is_premium)}</div>
                         <div class="admin-row-sub">#${Number(user.id)} · ${escapeHtml(user.email)}</div>
@@ -307,7 +327,7 @@
                 </div>
             </td>
             <td data-label="Ruolo">${roleBadge(user.ruolo)}</td>
-            <td data-label="Stato">${statusBadge(user.isBannato)}</td>
+            <td data-label="Stato"><div class="admin-status-stack">${statusBadge(user.isBannato)}${presenceBadge(user)}</div></td>
             <td data-label="Stats"><span class="admin-muted">Pull</span> <b>${compactNumber(user.pull_count)}</b><br><span class="admin-muted">Badge</span> <b>${compactNumber(user.achievement_count)}</b></td>
             <td data-label="Data" class="admin-nowrap">${formatDate(user.data_creazione)}</td>
             <td data-label="Azioni"><div class="admin-row-actions">
@@ -320,9 +340,21 @@
         </tr>
     `;
 
-    const loadUsers = async () => {
+    const renderOnlineToggle = (data) => {
+        const button = $('#usersOnlineToggle');
+        if (!button) return;
+        button.hidden = data && data.online_available === false;
+        button.classList.toggle('is-active', state.users.online);
+        button.setAttribute('aria-pressed', state.users.online ? 'true' : 'false');
+        const count = $('#usersOnlineCount');
+        if (count && data) count.textContent = compactNumber(data.online_count);
+    };
+
+    // `silent` e' l'aggiornamento automatico della lista online: niente
+    // scheletro di caricamento, altrimenti la tabella lampeggia ogni 30 secondi.
+    const loadUsers = async ({ silent = false } = {}) => {
         const box = $('#usersTable');
-        setLoading(box);
+        if (!silent) setLoading(box);
         try {
             const params = new URLSearchParams({
                 q: state.q,
@@ -331,22 +363,37 @@
                 page: state.users.page,
                 sort: state.users.sort,
                 dir: state.users.dir,
+                online: state.users.online ? 1 : 0,
                 limit: 20
             });
             const data = await api(`get_users.php?${params}`);
             state.cache.users = data.users || [];
+            renderOnlineToggle(data);
             box.innerHTML = state.cache.users.length ? `
                 <table class="admin-table">
                     <thead><tr><th>Utente</th><th>Ruolo</th><th>Stato</th><th>Stats</th><th>Data</th><th>Azioni</th></tr></thead>
                     <tbody>${state.cache.users.map(userRow).join('')}</tbody>
                 </table>
-            ` : emptyState('fa-solid fa-users', 'Nessun utente trovato', 'Prova a cambiare ricerca o filtri.');
+            ` : state.users.online
+                ? emptyState('fa-solid fa-moon', 'Nessuno online', 'Nessun utente attivo negli ultimi 3 minuti con questi filtri.')
+                : emptyState('fa-solid fa-users', 'Nessun utente trovato', 'Prova a cambiare ricerca o filtri.');
             bindUserActions(box);
             pagination('#usersPagination', data.pagination, (page) => { state.users.page = page; loadUsers(); });
         } catch (error) {
+            if (silent) return;
             box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore utenti', error.message);
         }
     };
+
+    // Con la vista online accesa la lista si aggiorna da sola, ma solo se la
+    // sezione e' aperta, la scheda e' visibile e non c'e' una modale aperta.
+    const ONLINE_REFRESH_MS = 30000;
+    setInterval(() => {
+        if (!state.users.online || state.section !== 'users') return;
+        if (document.visibilityState !== 'visible') return;
+        if (document.querySelector('.admin-modal.show, .admin-modal.is-open')) return;
+        loadUsers({ silent: true });
+    }, ONLINE_REFRESH_MS);
 
     const bindUserActions = (root) => {
         $$('[data-action]', root).forEach((btn) => {
@@ -1681,6 +1728,7 @@
             $('#sendNewMessageBtn')?.addEventListener('click', () => openMessageForm());
             $('#usersStatusFilter')?.addEventListener('change', (e) => { state.users.status = e.target.value; state.users.page = 1; loadUsers(); });
             $('#usersRoleFilter')?.addEventListener('change', (e) => { state.users.role = e.target.value; state.users.page = 1; loadUsers(); });
+            $('#usersOnlineToggle')?.addEventListener('click', () => { state.users.online = !state.users.online; state.users.page = 1; renderOnlineToggle(null); loadUsers(); });
             $('#shitpostsStatusFilter')?.addEventListener('change', (e) => { state.shitposts.status = e.target.value; state.shitposts.page = 1; loadShitposts(); });
             $('#toprimastiStatusFilter')?.addEventListener('change', (e) => { state.toprimasti.status = e.target.value; state.toprimasti.page = 1; loadToprimasti(); });
             $('#reportsSourceFilter')?.addEventListener('change', (e) => { state.reports.source = e.target.value; state.reports.page = 1; loadReports(); });

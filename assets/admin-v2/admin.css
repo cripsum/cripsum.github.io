@@ -642,3 +642,19 @@ body.modal-open {
     .admin-slide-grip { display: none; }
     #homeSlidesTable tr[data-slide-row] { cursor: default; }
 }
+
+/* Utenti online: bottone filtro, pallino sull'avatar e stato nella tabella. */
+.admin-online-dot { display: inline-block; width: .55rem; height: .55rem; border-radius: 999px; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.18); flex: none; }
+.admin-btn--online b { min-width: 1.4rem; padding: .05rem .4rem; border-radius: 999px; background: rgba(255,255,255,.1); font-size: .78rem; text-align: center; }
+.admin-btn--online.is-active { color: #b7ffd4; border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.14); }
+.admin-btn--online.is-active b { background: rgba(34,197,94,.28); }
+.admin-btn--online.is-active .admin-online-dot { animation: adminOnlinePulse 1.8s ease-in-out infinite; }
+@keyframes adminOnlinePulse { 50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); } }
+.admin-avatar-wrap { position: relative; display: inline-flex; flex: none; }
+.admin-avatar-wrap.is-online::after { content: ''; position: absolute; right: -2px; bottom: -2px; width: .7rem; height: .7rem; border-radius: 999px; background: #22c55e; border: 2px solid var(--admin-bg-2); }
+.admin-status-stack { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; }
+.admin-presence { font-size: .76rem; font-weight: 800; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-btn--online.is-active .admin-online-dot { animation: none; }
+}

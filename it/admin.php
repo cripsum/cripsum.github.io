@@ -19,7 +19,7 @@ $csrfToken = admin_csrf_token();
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.8">
+    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.9">
 </head>
 
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">
@@ -110,6 +110,11 @@ $csrfToken = admin_csrf_token();
                         <small>Gestisci account, ban, ruoli, inventario e achievement.</small>
                     </div>
                     <div class="admin-toolbar-actions">
+                        <button type="button" class="admin-btn admin-btn--online" id="usersOnlineToggle" aria-pressed="false" title="Utenti attivi negli ultimi 3 minuti">
+                            <span class="admin-online-dot" aria-hidden="true"></span>
+                            <span>Online ora</span>
+                            <b id="usersOnlineCount">—</b>
+                        </button>
                         <select id="usersStatusFilter" class="admin-input">
                             <option value="all">Tutti</option>
                             <option value="active">Attivi</option>
@@ -292,7 +297,7 @@ $csrfToken = admin_csrf_token();
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/assets/admin-v2/admin.js?v=3.5"></script>
+    <script src="/assets/admin-v2/admin.js?v=3.6"></script>
 </body>
 
 </html>
