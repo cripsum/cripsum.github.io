@@ -1,10 +1,9 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 
-// Online = un battito di attività negli ultimi 3 minuti: la stessa soglia di
-// amici e chat, così il pannello dice online le stesse persone che vede un
-// utente. Il battito parte ogni 25 secondi solo da una scheda in uso.
-const ADMIN_ONLINE_WINDOW_SECONDS = 180;
+// Online e ultimo accesso si leggono come nella pagina del profilo: stessa
+// colonna `utenti.ultimo_accesso` e stessa soglia, USER_ONLINE_WINDOW_SECONDS
+// (includes/functions.php, caricato dal bootstrap).
 
 try {
     if (!admin_table_exists($mysqli, 'utenti')) {
@@ -37,7 +36,7 @@ try {
 
     // Il confronto si fa tutto in MySQL: `ultimo_accesso` lo scrive NOW(), e
     // l'orologio di PHP potrebbe avere un altro fuso.
-    $onlineSql = 'u.ultimo_accesso >= DATE_SUB(NOW(), INTERVAL ' . ADMIN_ONLINE_WINDOW_SECONDS . ' SECOND)';
+    $onlineSql = 'u.ultimo_accesso > DATE_SUB(NOW(), INTERVAL ' . (int)USER_ONLINE_WINDOW_SECONDS . ' SECOND)';
 
     $where = [];
     $params = [];
@@ -68,11 +67,6 @@ try {
 
     if ($onlineOnly) {
         $where[] = $hasLastSeen ? $onlineSql : '0 = 1';
-        // Chi e' attivo adesso in cima, a prescindere dall'ordinamento scelto.
-        if ($hasLastSeen) {
-            $orderBy = 'u.ultimo_accesso';
-            $dir = 'DESC';
-        }
     }
 
     $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -121,7 +115,7 @@ try {
                $achievementCountSql AS achievement_count
         FROM utenti u
         $whereSql
-        ORDER BY $orderBy $dir
+        ORDER BY $orderBy $dir, u.id DESC
         LIMIT $limit OFFSET $offset
     ";
 
@@ -136,7 +130,7 @@ try {
         $row['avatar_url'] = admin_avatar_url((int)$row['id']);
         $secondsSince = $row['seconds_since_active'];
         $row['seconds_since_active'] = $secondsSince === null ? null : max(0, (int)$secondsSince);
-        $row['is_online'] = $secondsSince !== null && (int)$secondsSince < ADMIN_ONLINE_WINDOW_SECONDS;
+        $row['is_online'] = $secondsSince !== null && (int)$secondsSince < USER_ONLINE_WINDOW_SECONDS;
         $users[] = $row;
     }
     $stmt->close();
@@ -145,6 +139,7 @@ try {
         'users' => $users,
         'online_count' => $onlineCount,
         'online_available' => $hasLastSeen,
+        'online_window' => (int)USER_ONLINE_WINDOW_SECONDS,
         'pagination' => ['page' => $page, 'limit' => $limit, 'total' => $total, 'pages' => max(1, (int)ceil($total / $limit))]
     ]);
 } catch (Throwable $e) {

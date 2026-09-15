@@ -19,7 +19,7 @@ $csrfToken = admin_csrf_token();
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=2.9">
+    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=3.0">
 </head>
 
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">
@@ -110,7 +110,7 @@ $csrfToken = admin_csrf_token();
                         <small>Gestisci account, ban, ruoli, inventario e achievement.</small>
                     </div>
                     <div class="admin-toolbar-actions">
-                        <button type="button" class="admin-btn admin-btn--online" id="usersOnlineToggle" aria-pressed="false" title="Utenti attivi negli ultimi 3 minuti">
+                        <button type="button" class="admin-btn admin-btn--online" id="usersOnlineToggle" aria-pressed="false" title="Utenti attivi negli ultimi 30 secondi, come sul profilo">
                             <span class="admin-online-dot" aria-hidden="true"></span>
                             <span>Online ora</span>
                             <b id="usersOnlineCount">—</b>
@@ -125,6 +125,12 @@ $csrfToken = admin_csrf_token();
                             <option value="utente">Utenti</option>
                             <option value="admin">Admin</option>
                             <option value="owner">Owner</option>
+                        </select>
+                        <select id="usersSortFilter" class="admin-input" aria-label="Ordina utenti">
+                            <option value="data_creazione:DESC">Registrati di recente</option>
+                            <option value="data_creazione:ASC">Registrati da più tempo</option>
+                            <option value="ultimo_accesso:DESC">Ultimo accesso più recente</option>
+                            <option value="ultimo_accesso:ASC">Ultimo accesso meno recente</option>
                         </select>
                     </div>
                 </div>
@@ -297,7 +303,7 @@ $csrfToken = admin_csrf_token();
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/assets/admin-v2/admin.js?v=3.6"></script>
+    <script src="/assets/admin-v2/admin.js?v=3.7"></script>
 </body>
 
 </html>

@@ -653,7 +653,7 @@ body.modal-open {
 .admin-avatar-wrap { position: relative; display: inline-flex; flex: none; }
 .admin-avatar-wrap.is-online::after { content: ''; position: absolute; right: -2px; bottom: -2px; width: .7rem; height: .7rem; border-radius: 999px; background: #22c55e; border: 2px solid var(--admin-bg-2); }
 .admin-status-stack { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; }
-.admin-presence { font-size: .76rem; font-weight: 800; white-space: nowrap; }
+.admin-text-online { color: #b7ffd4; }
 
 @media (prefers-reduced-motion: reduce) {
     .admin-btn--online.is-active .admin-online-dot { animation: none; }

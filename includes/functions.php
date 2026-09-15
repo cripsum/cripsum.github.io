@@ -941,11 +941,22 @@ function updateUserSettings($mysqli, $userId, $username, $email, $password, $nsf
     }
 }
 
+/**
+ * Quanto puo' essere vecchio `utenti.ultimo_accesso` per dire online un
+ * utente. Il battito di attivita' parte ogni 25 secondi da una scheda in uso:
+ * 30 secondi reggono un battito in ritardo, non una scheda chiusa.
+ *
+ * La usano il profilo e il pannello admin, cosi' dicono online le stesse persone.
+ */
+if (!defined('USER_ONLINE_WINDOW_SECONDS')) {
+    define('USER_ONLINE_WINDOW_SECONDS', 30);
+}
+
 function isUserOnline($mysqli, $user_id)
 {
     $ultimo_accesso = null;
 
-    $time_limit = date('Y-m-d H:i:s', strtotime('-30 seconds'));
+    $time_limit = date('Y-m-d H:i:s', strtotime('-' . USER_ONLINE_WINDOW_SECONDS . ' seconds'));
     $stmt = $mysqli->prepare("SELECT ultimo_accesso FROM utenti WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();

@@ -115,24 +115,35 @@
         ? '<span class="admin-badge admin-badge--danger"><i class="fa-solid fa-ban"></i>Bannato</span>'
         : '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Attivo</span>';
 
+    // I secondi arrivano gia' calcolati da MySQL: non dipendono dall'orologio
+    // ne' dal fuso di chi guarda il pannello.
     const timeAgo = (seconds) => {
         const s = Math.max(0, Number(seconds) || 0);
+        const plural = (n, one, many) => `${n} ${n === 1 ? one : many} fa`;
         if (s < 60) return 'adesso';
         if (s < 3600) return `${Math.floor(s / 60)} min fa`;
         if (s < 86400) return `${Math.floor(s / 3600)} h fa`;
-        if (s < 86400 * 30) return `${Math.floor(s / 86400)} g fa`;
-        if (s < 86400 * 365) return `${Math.floor(s / (86400 * 30))} mesi fa`;
-        return `${Math.floor(s / (86400 * 365))} anni fa`;
+        if (s < 86400 * 30) return plural(Math.floor(s / 86400), 'giorno', 'giorni');
+        if (s < 86400 * 365) return plural(Math.floor(s / (86400 * 30)), 'mese', 'mesi');
+        return plural(Math.floor(s / (86400 * 365)), 'anno', 'anni');
     };
 
-    const presenceBadge = (user) => {
-        if (user.is_online) {
-            return '<span class="admin-badge admin-badge--success"><span class="admin-online-dot" aria-hidden="true"></span>Online</span>';
-        }
+    // `ultimo_accesso` e' gia' nell'ora del sito: si riformatta la stringa
+    // cosi' com'e', senza passare da Date, che la sposterebbe nel fuso del browser.
+    const formatStamp = (value) => {
+        const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+        return match ? `${match[3]}/${match[2]}/${match[1]} ${match[4]}:${match[5]}` : '—';
+    };
+
+    const onlineBadge = (user) => user.is_online
+        ? '<span class="admin-badge admin-badge--success"><span class="admin-online-dot" aria-hidden="true"></span>Online</span>'
+        : '';
+
+    const lastSeenCell = (user) => {
         if (user.seconds_since_active === null || user.seconds_since_active === undefined) {
-            return '<span class="admin-muted admin-presence">Mai visto</span>';
+            return '<span class="admin-muted">Mai</span>';
         }
-        return `<span class="admin-muted admin-presence" title="${escapeHtml(formatDateTime(user.ultimo_accesso))}">Visto ${timeAgo(user.seconds_since_active)}</span>`;
+        return `<b class="${user.is_online ? 'admin-text-online' : ''}">${timeAgo(user.seconds_since_active)}</b><div class="admin-row-sub">${formatStamp(user.ultimo_accesso)}</div>`;
     };
 
     const premiumBadge = (isPremium) => Number(isPremium) === 1
@@ -327,9 +338,10 @@
                 </div>
             </td>
             <td data-label="Ruolo">${roleBadge(user.ruolo)}</td>
-            <td data-label="Stato"><div class="admin-status-stack">${statusBadge(user.isBannato)}${presenceBadge(user)}</div></td>
+            <td data-label="Stato"><div class="admin-status-stack">${statusBadge(user.isBannato)}${onlineBadge(user)}</div></td>
             <td data-label="Stats"><span class="admin-muted">Pull</span> <b>${compactNumber(user.pull_count)}</b><br><span class="admin-muted">Badge</span> <b>${compactNumber(user.achievement_count)}</b></td>
-            <td data-label="Data" class="admin-nowrap">${formatDate(user.data_creazione)}</td>
+            <td data-label="Ultimo accesso" class="admin-nowrap">${lastSeenCell(user)}</td>
+            <td data-label="Registrato" class="admin-nowrap">${formatDate(user.data_creazione)}</td>
             <td data-label="Azioni"><div class="admin-row-actions">
                 <button class="admin-btn admin-btn--small" data-action="details" data-id="${Number(user.id)}"><i class="fa-solid fa-eye"></i> Dettagli</button>
                 <button class="admin-btn admin-btn--small" data-action="edit" data-id="${Number(user.id)}"><i class="fa-solid fa-pen"></i> Modifica</button>
@@ -371,11 +383,11 @@
             renderOnlineToggle(data);
             box.innerHTML = state.cache.users.length ? `
                 <table class="admin-table">
-                    <thead><tr><th>Utente</th><th>Ruolo</th><th>Stato</th><th>Stats</th><th>Data</th><th>Azioni</th></tr></thead>
+                    <thead><tr><th>Utente</th><th>Ruolo</th><th>Stato</th><th>Stats</th><th>Ultimo accesso</th><th>Registrato</th><th>Azioni</th></tr></thead>
                     <tbody>${state.cache.users.map(userRow).join('')}</tbody>
                 </table>
             ` : state.users.online
-                ? emptyState('fa-solid fa-moon', 'Nessuno online', 'Nessun utente attivo negli ultimi 3 minuti con questi filtri.')
+                ? emptyState('fa-solid fa-moon', 'Nessuno online', `Nessun utente attivo negli ultimi ${Number(data.online_window) || 30} secondi con questi filtri.`)
                 : emptyState('fa-solid fa-users', 'Nessun utente trovato', 'Prova a cambiare ricerca o filtri.');
             bindUserActions(box);
             pagination('#usersPagination', data.pagination, (page) => { state.users.page = page; loadUsers(); });
@@ -1728,7 +1740,14 @@
             $('#sendNewMessageBtn')?.addEventListener('click', () => openMessageForm());
             $('#usersStatusFilter')?.addEventListener('change', (e) => { state.users.status = e.target.value; state.users.page = 1; loadUsers(); });
             $('#usersRoleFilter')?.addEventListener('change', (e) => { state.users.role = e.target.value; state.users.page = 1; loadUsers(); });
-            $('#usersOnlineToggle')?.addEventListener('click', () => { state.users.online = !state.users.online; state.users.page = 1; renderOnlineToggle(null); loadUsers(); });
+            $('#usersSortFilter')?.addEventListener('change', (e) => {
+                const [sort, dir] = e.target.value.split(':');
+                state.users.sort = sort;
+                state.users.dir = dir === 'ASC' ? 'ASC' : 'DESC';
+                state.users.page = 1;
+                loadUsers();
+            });
+            $('#usersOnlineToggle')?.addEventListener('click',() => { state.users.online = !state.users.online; state.users.page = 1; renderOnlineToggle(null); loadUsers(); });
             $('#shitpostsStatusFilter')?.addEventListener('change', (e) => { state.shitposts.status = e.target.value; state.shitposts.page = 1; loadShitposts(); });
             $('#toprimastiStatusFilter')?.addEventListener('change', (e) => { state.toprimasti.status = e.target.value; state.toprimasti.page = 1; loadToprimasti(); });
             $('#reportsSourceFilter')?.addEventListener('change', (e) => { state.reports.source = e.target.value; state.reports.page = 1; loadReports(); });
