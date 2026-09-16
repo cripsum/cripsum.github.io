@@ -48,7 +48,14 @@ if ($isHttps && isset($_COOKIE['cripsum_session'])) {
     unset($_COOKIE['cripsum_session']);
 }
 
-if (session_status() === PHP_SESSION_NONE) {
+/*
+ * Le chiamate da server a server (il Presence Bot, api/bot/bootstrap.php) non
+ * mandano cookie: aprire la sessione creava un file nuovo a ogni richiesta,
+ * lasciato su disco due settimane. Con il bot che chiama piu' volte al minuto
+ * erano migliaia di file al giorno per l'hosting, senza alcun uso. Le letture
+ * di $_SESSION piu' sotto trovano semplicemente niente.
+ */
+if (session_status() === PHP_SESSION_NONE && !defined('CRIPSUM_STATELESS_REQUEST')) {
     session_start();
 }
 

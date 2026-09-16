@@ -9,6 +9,11 @@ declare(strict_types=1);
  * usa per parlare con il bot (includes/bot_client.php).
  */
 
+// Il bot non ha cookie: niente sessione, vedi config/session_init.php.
+if (!defined('CRIPSUM_STATELESS_REQUEST')) {
+    define('CRIPSUM_STATELESS_REQUEST', true);
+}
+
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
 require_once __DIR__ . '/../../includes/security_helpers.php';
