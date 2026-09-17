@@ -51,6 +51,7 @@ $copy = [
         'clips'      => 'Frammenti',
         'listen'     => 'Ascolto',
         'searchMode' => 'Ricerca',
+        'names'      => 'Nomi',
         'volume'     => 'Volume',
         'help'       => 'Aiuto',
         'rules'      => 'Come si gioca',
@@ -64,7 +65,7 @@ $copy = [
         'search'     => 'Di che anime è?',
         'skip'       => 'Salta',
         'clipsHint'  => 'Spegni i frammenti che non vuoi. L\'ultimo resta sempre acceso.',
-        'credit'     => 'Sigle e video da <a href="https://animethemes.moe" target="_blank" rel="noopener noreferrer">AnimeThemes</a>, notorietà e titoli da <a href="https://kitsu.io" target="_blank" rel="noopener noreferrer">Kitsu</a>.',
+        'credit'     => 'Sigle e video da <a href="https://animethemes.moe" target="_blank" rel="noopener noreferrer">AnimeThemes</a>, notorietà e titoli da <a href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a>.',
         'missing'    => 'Il catalogo delle sigle non è ancora stato importato: mancano le tabelle <code>animespot_*</code> o sono vuote.',
         'rulesList'  => [
             'Parte l\'inizio di una sigla — opening o ending — e devi capire di quale anime è.',
@@ -76,6 +77,7 @@ $copy = [
             'Le cinque difficoltà si possono girare a mano quando si vuole: tornando su una già chiusa si ritrova quella sigla lì, non una nuova.',
             'La difficoltà decide quanto è conosciuto l\'anime da cui esce la sigla, non le regole.',
             'L\'epoca restringe il mazzo a un decennio: i classici prima del Duemila, oppure gli anni 2000, 2010 o 2020.',
+            'Gli anime si possono vedere col titolo giapponese (Shingeki no Kyojin) o con quello occidentale (Attack on Titan). La ricerca li trova comunque da tutti e due.',
             'Ad anteprima il frammento non parte dall\'inizio ma da un punto in mezzo alla sigla: si perde l\'attacco, che è la parte che riconoscono tutti.',
             'Puoi spegnere i frammenti che non ti servono: partire da due secondi vale meno punti ma è più facile.',
             'Le sigle sono sempre a caso e non ci sono limiti: si gioca quanto si vuole.',
@@ -90,6 +92,7 @@ $copy = [
         'clips'      => 'Clips',
         'listen'     => 'Playback',
         'searchMode' => 'Search',
+        'names'      => 'Titles',
         'volume'     => 'Volume',
         'help'       => 'Help',
         'rules'      => 'How to play',
@@ -103,7 +106,7 @@ $copy = [
         'search'     => 'Name that anime',
         'skip'       => 'Skip',
         'clipsHint'  => 'Turn off the clips you do not want. The last one always stays on.',
-        'credit'     => 'Themes and videos from <a href="https://animethemes.moe" target="_blank" rel="noopener noreferrer">AnimeThemes</a>, popularity and titles from <a href="https://kitsu.io" target="_blank" rel="noopener noreferrer">Kitsu</a>.',
+        'credit'     => 'Themes and videos from <a href="https://animethemes.moe" target="_blank" rel="noopener noreferrer">AnimeThemes</a>, popularity and titles from <a href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a>.',
         'missing'    => 'The theme catalogue has not been imported yet: the <code>animespot_*</code> tables are missing or empty.',
         'rulesList'  => [
             'You hear the beginning of a theme — an opening or an ending — and work out which anime it belongs to.',
@@ -115,6 +118,7 @@ $copy = [
             'You can move between the five difficulties whenever you like: going back to one you already finished shows that theme again, not a new one.',
             'Difficulty changes how well known the anime behind the theme is, not the rules.',
             'The era narrows the pool to one decade: classics before 2000, or the 2000s, 2010s and 2020s.',
+            'Anime can be shown by their Japanese title (Shingeki no Kyojin) or their Western one (Attack on Titan). Search finds them by either.',
             'On preview playback the clip does not start at the beginning but somewhere in the middle of the theme: you lose the intro, which is the part everyone recognises.',
             'You can turn off the clips you do not need: starting at two seconds is worth fewer points but is easier.',
             'Themes are always random and there is no limit: play as much as you like.',
@@ -259,6 +263,11 @@ $copy = [
                 <div>
                     <h2 class="as-group__title"><?php echo as_h($copy['searchMode']); ?></h2>
                     <div class="as-switch" data-as-search></div>
+                </div>
+
+                <div>
+                    <h2 class="as-group__title"><?php echo as_h($copy['names']); ?></h2>
+                    <div class="as-switch" data-as-names></div>
                 </div>
 
                 <div>

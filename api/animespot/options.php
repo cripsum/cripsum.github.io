@@ -59,6 +59,7 @@ $options = animespot_clean_options([
     'passi'      => isset($input['steps']) && is_array($input['steps']) ? $input['steps'] : $current['passi'],
     'avvio'      => isset($input['start']) ? (string)$input['start'] : $current['avvio'],
     'ricerca'    => isset($input['search']) ? (string)$input['search'] : $current['ricerca'],
+    'nomi'       => isset($input['names']) ? (string)$input['names'] : $current['nomi'],
 ]);
 
 animespot_options_save($options);

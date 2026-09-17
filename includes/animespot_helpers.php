@@ -144,6 +144,30 @@ function animespot_era_name(int $era, string $lang = 'it'): string
     return $names[$lang][$era] ?? $names['it'][$era] ?? (string)$era;
 }
 
+/**
+ * Con quale nome mostrare un anime.
+ *
+ * Il catalogo lo chiama con la traslitterazione del titolo giapponese, che è
+ * il nome principale su AnimeThemes: "Shingeki no Kyojin". Chi l'ha conosciuto
+ * come "Attack on Titan" quel nome non lo riconosce, e in un gioco in cui
+ * bisogna *nominare* la serie è un ostacolo che non c'entra con la difficoltà.
+ *
+ * La scelta sta nelle opzioni. Dove il titolo occidentale non esiste — per
+ * "Bocchi the Rock!" o "Steins;Gate" non c'è un altro nome — si mostra quello
+ * giapponese in tutti e due i modi, che è la cosa giusta.
+ */
+function animespot_display_name(array $row, ?array $options = null): string
+{
+    $options ??= animespot_options();
+    $nome = (string)($row['nome'] ?? '');
+
+    if (($options['nomi'] ?? 'jp') !== 'en') return $nome;
+
+    $occidentale = trim((string)($row['nome_en'] ?? ''));
+
+    return $occidentale !== '' ? $occidentale : $nome;
+}
+
 /* ── Catalogo ───────────────────────────────────────────────────────────── */
 
 /**
@@ -174,6 +198,14 @@ function animespot_active_where(mysqli $mysqli, string $alias = 'a'): string
  * settantatré nel catalogo, e senza tetto "impossibile" diventava indovinare
  * *quale* delle sue ending fosse questa.
  */
+/** La colonna dei titoli occidentali, o una stringa vuota se non c'è ancora. */
+function animespot_name_column(mysqli $mysqli, string $alias = 'a'): string
+{
+    if (!auth_column_exists($mysqli, ANIMESPOT_TABLE_ANIME, 'nome_en')) return "'' AS nome_en";
+
+    return '`' . $alias . '`.`nome_en`';
+}
+
 function animespot_playable_where(mysqli $mysqli, string $alias = 't'): string
 {
     if (!auth_column_exists($mysqli, ANIMESPOT_TABLE_TRACKS, 'attivo')) return '';
@@ -281,7 +313,8 @@ function animespot_track(mysqli $mysqli, int $id): ?array
     $stmt = $mysqli->prepare(
         'SELECT t.id, t.theme_id, t.anime_id, t.tipo, t.slug, t.ordinale, t.canzone_id, t.canzone,'
         . ' t.artisti, t.audio, t.audio_bytes, t.video, t.difficolta,'
-        . ' a.nome AS anime, a.slug AS anime_slug, a.anno, a.stagione, a.formato, a.mal_id, a.cover_url'
+        . ' a.nome AS anime, ' . animespot_name_column($mysqli) . ' AS anime_en,'
+        . ' a.slug AS anime_slug, a.anno, a.stagione, a.formato, a.mal_id, a.cover_url'
         . ' FROM `' . ANIMESPOT_TABLE_TRACKS . '` t'
         . ' JOIN `' . ANIMESPOT_TABLE_ANIME . '` a ON a.id = t.anime_id'
         . ' WHERE t.id = ? LIMIT 1'
@@ -468,7 +501,7 @@ function animespot_search(mysqli $mysqli, string $query, int $limit = 10, string
         : 't.norm LIKE ?';
 
     $sql =
-        'SELECT a.id, a.nome, a.anno, a.formato, a.cover_url,'
+        'SELECT a.id, a.nome, ' . animespot_name_column($mysqli) . ' AS nome_en, a.anno, a.formato, a.cover_url,'
         . ' MIN(' . $score . ') AS rilevanza,'
         . ' SUBSTRING_INDEX(GROUP_CONCAT(t.testo ORDER BY ' . $score . ','
         . '   FIELD(t.tipo, \'principale\', \'inglese\', \'sinonimo\', \'giapponese\', \'canzone\')'
@@ -476,7 +509,7 @@ function animespot_search(mysqli $mysqli, string $query, int $limit = 10, string
         . ' FROM `' . ANIMESPOT_TABLE_TITLES . '` t'
         . ' JOIN `' . ANIMESPOT_TABLE_ANIME . '` a ON a.id = t.anime_id'
         . ' WHERE (' . $where . ')' . animespot_active_where($mysqli)
-        . ' GROUP BY a.id, a.nome, a.anno, a.formato, a.cover_url, a.popolarita'
+        . ' GROUP BY a.id, a.nome, nome_en, a.anno, a.formato, a.cover_url, a.popolarita'
         . ' ORDER BY rilevanza ASC, a.popolarita DESC, a.nome ASC'
         . ' LIMIT ?';
 
@@ -491,10 +524,12 @@ function animespot_search(mysqli $mysqli, string $query, int $limit = 10, string
     $stmt->execute();
     $result = $stmt->get_result();
 
+    $options = animespot_options();
     $rows = [];
+
     while ($row = $result->fetch_assoc()) {
         $found = (string)$row['trovato'];
-        $name  = (string)$row['nome'];
+        $name  = animespot_display_name($row, $options);
 
         $rows[] = [
             'id'      => (int)$row['id'],
@@ -518,8 +553,12 @@ function animespot_anime(mysqli $mysqli, int $animeId): ?array
 {
     if ($animeId <= 0 || !animespot_catalog_ready($mysqli)) return null;
 
+    static $cache = [];
+    if (array_key_exists($animeId, $cache)) return $cache[$animeId];
+
     $stmt = $mysqli->prepare(
-        'SELECT id, nome, anno, cover_url FROM `' . ANIMESPOT_TABLE_ANIME . '` WHERE id = ? LIMIT 1'
+        'SELECT id, nome, ' . animespot_name_column($mysqli, 'animespot_anime') . ' AS nome_en, anno, cover_url'
+        . ' FROM `' . ANIMESPOT_TABLE_ANIME . '` WHERE id = ? LIMIT 1'
     );
     if (!$stmt) return null;
 
@@ -528,7 +567,7 @@ function animespot_anime(mysqli $mysqli, int $animeId): ?array
     $row = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    return $row ?: null;
+    return $cache[$animeId] = ($row ?: null);
 }
 
 /**
@@ -602,6 +641,7 @@ function animespot_clean_options(array $raw): array
 
     $start  = (string)($raw['avvio'] ?? 'inizio');
     $search = (string)($raw['ricerca'] ?? 'facile');
+    $nomi   = (string)($raw['nomi'] ?? 'jp');
 
     return [
         'difficolta' => $level,
@@ -609,6 +649,7 @@ function animespot_clean_options(array $raw): array
         'passi'      => array_values($steps),
         'avvio'      => $start === 'anteprima' ? 'anteprima' : 'inizio',
         'ricerca'    => $search === 'stretta' ? 'stretta' : 'facile',
+        'nomi'       => $nomi === 'en' ? 'en' : 'jp',
     ];
 }
 
@@ -999,7 +1040,7 @@ function animespot_apply_guess(array $round, ?array $guess, bool $correct): arra
         $entry = [
             'type'  => $correct ? 'correct' : 'wrong',
             'id'    => (int)$guess['id'],
-            'nome'  => (string)$guess['nome'],
+            'nome'  => animespot_display_name($guess),
             'cover' => (string)($guess['cover_url'] ?? ''),
         ];
 
@@ -1344,7 +1385,7 @@ function animespot_reveal(array $track): array
 
     return [
         'anime_id'  => (int)$track['anime_id'],
-        'anime'     => (string)$track['anime'],
+        'anime'     => animespot_display_name(['nome' => $track['anime'], 'nome_en' => $track['anime_en'] ?? '']),
         'anno'      => $track['anno'] !== null ? (int)$track['anno'] : null,
         'stagione'  => (string)$track['stagione'],
         'formato'   => (string)$track['formato'],
@@ -1364,10 +1405,26 @@ function animespot_reveal(array $track): array
 }
 
 /** Il payload che vede il client: la risposta compare solo a partita finita. */
-function animespot_public_round(array $round, array $track, string $lang = 'it'): array
+function animespot_public_round(array $round, array $track, string $lang = 'it', ?mysqli $mysqli = null): array
 {
     $finished = $round['status'] !== 'playing';
     $ladder   = animespot_ladder($round['passi']);
+
+    // I tentativi già fatti portano il nome scritto quando sono stati fatti:
+    // cambiando lingua dei titoli a metà partita resterebbero indietro, e
+    // vedere "Shingeki no Kyojin" fra i tentativi e "Attack on Titan" nella
+    // risposta sembra un errore. Si rileggono.
+    $guesses = $round['guesses'];
+
+    if ($mysqli !== null) {
+        $options = animespot_options();
+
+        foreach ($guesses as $index => $guess) {
+            if (empty($guess['id'])) continue;
+            $anime = animespot_anime($mysqli, (int)$guess['id']);
+            if ($anime !== null) $guesses[$index]['nome'] = animespot_display_name($anime, $options);
+        }
+    }
 
     return [
         'status'          => $round['status'],
@@ -1382,7 +1439,7 @@ function animespot_public_round(array $round, array $track, string $lang = 'it')
         'step_index'      => array_values($round['passi']),
         'unlocked'        => animespot_unlocked_seconds($round),
         'full'            => $finished,
-        'guesses'         => $round['guesses'],
+        'guesses'         => $guesses,
         'points'          => animespot_points($round),
         'answer'          => $finished ? animespot_reveal($track) : null,
     ];
@@ -1407,7 +1464,7 @@ function animespot_full_payload(
 ): array {
     $options = animespot_options();
 
-    $payload = animespot_public_round($round, $track, $lang);
+    $payload = animespot_public_round($round, $track, $lang, $mysqli);
 
     // La difficoltà che si mostra è quella della casella, non quella scritta
     // nella traccia. Coincidono sempre, tranne subito dopo un ricalcolo delle

@@ -66,6 +66,10 @@
             searchEasy: 'Facile',
             searchEasyHint: 'Cerca ovunque nel titolo e anche fra i titoli delle canzoni.',
             searchStrict: 'Stretta',
+            namesJp: 'Giapponesi',
+            namesJpHint: 'Shingeki no Kyojin — il titolo originale, traslitterato.',
+            namesEn: 'Occidentali',
+            namesEnHint: 'Attack on Titan — il titolo con cui è uscito da noi, dove esiste.',
             searchStrictHint: 'Solo titoli di serie, e solo da inizio parola.',
             levelNow: 'Difficoltà cambiata.',
             stepsHint: "Spegni i frammenti che non vuoi. L'ultimo resta sempre acceso.",
@@ -121,6 +125,10 @@
             searchEasy: 'Easy',
             searchEasyHint: 'Matches anywhere in the title, and song titles too.',
             searchStrict: 'Strict',
+            namesJp: 'Japanese',
+            namesJpHint: 'Shingeki no Kyojin — the original title, romanised.',
+            namesEn: 'Western',
+            namesEnHint: 'Attack on Titan — the title it was released under, where there is one.',
             searchStrictHint: 'Series titles only, and only from the start of a word.',
             levelNow: 'Difficulty changed.',
             stepsHint: 'Turn off the clips you do not want. The last one always stays on.',
@@ -192,6 +200,7 @@
         eras: root.querySelector('[data-as-eras]'),
         playback: root.querySelector('[data-as-playback]'),
         search: root.querySelector('[data-as-search]'),
+        names: root.querySelector('[data-as-names]'),
         volume: root.querySelector('[data-as-volume]'),
         reveal: root.querySelector('[data-as-reveal]'),
         toast: root.querySelector('[data-as-toast]'),
@@ -234,6 +243,7 @@
     let clipLoading = null;
     let clipDuration = 0;
     let clipSeconds = 0;
+    let clipToken = 0;
     let rafId = 0;
     let starting = false;
     let autoplayReveal = false;
@@ -535,8 +545,26 @@
         if (clipLoading && clipKey === key) return clipLoading;
 
         clipKey = key;
+
+        // Due scaricamenti possono accavallarsi: il gettone serve a non far
+        // azzerare da quello vecchio, quando finisce, il riferimento a quello
+        // nuovo che sta ancora arrivando.
+        const token = ++clipToken;
+
         clipLoading = fetchClip()
             .then((url) => {
+                // Fra la richiesta e la risposta si può aver saltato, e allora
+                // questo pezzo è già vecchio. Attaccarlo lo stesso vorrebbe
+                // dire sentire il frammento corto di prima e vederlo fermare a
+                // mezzo secondo quando ormai se ne sono sbloccati otto: era
+                // proprio il difetto per cui saltando in fretta la musica
+                // restava indietro.
+                if (currentClipKey() !== key) {
+                    releaseClip(url);
+                    if (clipKey === key) clipKey = '';
+                    return;
+                }
+
                 releaseClip(clipUrl);
                 clipUrl = url;
                 clipDuration = 0;
@@ -549,7 +577,7 @@
                 throw error;
             })
             .finally(() => {
-                clipLoading = null;
+                if (token === clipToken) clipLoading = null;
             });
 
         return clipLoading;
@@ -789,6 +817,22 @@
         return 0;
     }
 
+    /**
+     * Si assicura di avere in mano il pezzo che serve *adesso*.
+     *
+     * Scaricarne uno può prendere un secondo, e in quel secondo si può saltare
+     * una o due volte: quello che arriva non è più quello giusto e viene
+     * buttato. Qui si riprova, fino a quando lo stato smette di cambiare sotto
+     * i piedi.
+     */
+    async function readyClip() {
+        for (let giro = 0; giro < 4; giro++) {
+            const key = currentClipKey();
+            await ensureClip();
+            if (currentClipKey() === key && clipUrl) return;
+        }
+    }
+
     async function play(silent) {
         if (!state || starting) return;
 
@@ -815,14 +859,14 @@
         setPlayBusy(true);
 
         try {
-            await ensureClip();
+            await readyClip();
             await startPlayback(from);
         } catch (error) {
             // Un secondo tentativo con il pezzo riscaricato da zero copre i
             // guasti di passaggio: prima di dire che non parte, si riprova.
             try {
                 dropClip();
-                await ensureClip();
+                await readyClip();
                 await startPlayback(from);
             } catch (retryError) {
                 if (!silent) toast(STRINGS.audioError);
@@ -1310,6 +1354,11 @@
             ['facile', STRINGS.searchEasy, STRINGS.searchEasyHint],
             ['stretta', STRINGS.searchStrict, STRINGS.searchStrictHint],
         ], state.options.ricerca, (value) => sendOption({ search: value }));
+
+        renderSwitch(el.names, [
+            ['jp', STRINGS.namesJp, STRINGS.namesJpHint],
+            ['en', STRINGS.namesEn, STRINGS.namesEnHint],
+        ], state.options.nomi, (value) => sendOption({ names: value }));
     }
 
     /**
@@ -1324,6 +1373,7 @@
         if (busy || !state) return;
 
         const wasSearch = state.options && state.options.ricerca;
+        const wasNames = state.options && state.options.nomi;
         const wasTrack = state.answer || null;
 
         try {
@@ -1355,7 +1405,9 @@
             // La ricerca cambia subito: quello che è già scritto nel campo va
             // ricercato con le regole nuove, o l'elenco resta quello di prima
             // e sembra che l'interruttore non serva a niente.
-            if (state.options.ricerca !== wasSearch) {
+            // Anche cambiare la lingua dei titoli rifà l'elenco: quello a
+            // schermo porta ancora i nomi di prima.
+            if (state.options.ricerca !== wasSearch || state.options.nomi !== wasNames) {
                 searchedFor = null;
                 if (el.input && el.input.value && state.status === 'playing') openList(el.input.value);
             }
