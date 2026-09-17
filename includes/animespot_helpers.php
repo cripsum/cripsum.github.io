@@ -147,6 +147,41 @@ function animespot_era_name(int $era, string $lang = 'it'): string
 /* ── Catalogo ───────────────────────────────────────────────────────────── */
 
 /**
+ * La condizione SQL che tiene fuori gli anime che nessuno conosce.
+ *
+ * Il catalogo di AnimeThemes contiene tutto: anche l'OAV di tre puntate uscito
+ * nel 1993 e visto da duecento persone. Giocabile vuol dire un'altra cosa —
+ * che sia una serie di cui qualcuno ha sentito parlare — e chi lo è ce l'ha
+ * scritto in `attivo`. Fuori dal mazzo, quegli anime restano comunque nel
+ * catalogo: servono ancora a riconoscere il titolo di una canzone e a non
+ * perdere il collegamento fra due serie che usano la stessa sigla.
+ */
+function animespot_active_where(mysqli $mysqli, string $alias = 'a'): string
+{
+    // La colonna arriva con una migration, e le migration di questo progetto
+    // si applicano a mano: finché non c'è si gioca con tutto il catalogo,
+    // com'era prima, invece di rispondere errori.
+    if (!auth_column_exists($mysqli, ANIMESPOT_TABLE_ANIME, 'attivo')) return '';
+
+    return ' AND `' . $alias . '`.`attivo` = 1';
+}
+
+/**
+ * Lo stesso filtro, ma sulle sigle.
+ *
+ * Non basta che l'anime sia conosciuto: di una serie lunghissima entrano in
+ * gioco solo le sei sigle più riconoscibili. Detective Conan ne ha
+ * settantatré nel catalogo, e senza tetto "impossibile" diventava indovinare
+ * *quale* delle sue ending fosse questa.
+ */
+function animespot_playable_where(mysqli $mysqli, string $alias = 't'): string
+{
+    if (!auth_column_exists($mysqli, ANIMESPOT_TABLE_TRACKS, 'attivo')) return '';
+
+    return ' AND `' . $alias . '`.`attivo` = 1';
+}
+
+/**
  * La condizione SQL che tiene solo gli anime di un'epoca.
  *
  * Torna una stringa da incollare nella query e non un parametro perché gli
@@ -210,7 +245,7 @@ function animespot_counts(mysqli $mysqli, int $era = 0): array
         'SELECT t.difficolta, COUNT(*) AS n'
         . ' FROM `' . ANIMESPOT_TABLE_TRACKS . '` t'
         . ' JOIN `' . ANIMESPOT_TABLE_ANIME . '` a ON a.id = t.anime_id'
-        . ' WHERE 1' . animespot_era_where($era)
+        . ' WHERE 1' . animespot_playable_where($mysqli) . animespot_era_where($era)
         . ' GROUP BY t.difficolta'
     );
     if (!$result) return $cache[$era] = $counts;
@@ -262,41 +297,108 @@ function animespot_track(mysqli $mysqli, int $id): ?array
 }
 
 /**
+ * Quanti anime diversi hanno almeno una sigla di questa difficoltà.
+ *
+ * È il numero su cui si sorteggia, e non coincide con quante sigle ci sono:
+ * nella fascia più alta stanno milleseicento sigle ma solo quattrocento anime,
+ * perché le serie lunghissime ci portano dentro decine di ending a testa.
+ */
+function animespot_anime_count(mysqli $mysqli, int $level, int $era = 0): int
+{
+    static $cache = [];
+    $key = $level . ':' . $era;
+    if (isset($cache[$key])) return $cache[$key];
+
+    if (!animespot_catalog_ready($mysqli)) return $cache[$key] = 0;
+
+    $stmt = $mysqli->prepare(
+        'SELECT COUNT(DISTINCT t.anime_id) AS n FROM `' . ANIMESPOT_TABLE_TRACKS . '` t'
+        . ' JOIN `' . ANIMESPOT_TABLE_ANIME . '` a ON a.id = t.anime_id'
+        . ' WHERE t.difficolta = ?' . animespot_playable_where($mysqli) . animespot_era_where($era)
+    );
+    if (!$stmt) return $cache[$key] = 0;
+
+    $stmt->bind_param('i', $level);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return $cache[$key] = (int)($row['n'] ?? 0);
+}
+
+/**
  * Pesca una sigla a caso a una certa difficoltà.
  *
- * Il salto casuale con OFFSET su una colonna indicizzata costa poco e non
- * obbliga a tenere in memoria quattordicimila righe a ogni partita. Le sigle
- * appena uscite si evitano riprovando: dopo qualche tentativo ci si arrende,
- * perché in un mazzo piccolo insistere vorrebbe dire non pescare più niente.
+ * Si sorteggia prima l'anime e poi una delle sue sigle, non la sigla
+ * direttamente. La differenza conta: Detective Conan ha settantacinque ending
+ * nella fascia più alta e One Piece sessanta sigle in tutto, quindi pescando
+ * fra le sigle uscirebbero ogni due partite. Pescando fra gli anime, Conan
+ * vale quanto ogni altra serie della sua fascia — e quando esce, esce una
+ * delle sue settantacinque.
+ *
+ * Il salto casuale con OFFSET costa poco e non obbliga a tenere in memoria
+ * migliaia di righe a ogni partita. Quello che è appena uscito si evita
+ * riprovando: dopo qualche tentativo ci si arrende, perché in un mazzo piccolo
+ * insistere vorrebbe dire non pescare più niente.
  */
 function animespot_pick(mysqli $mysqli, int $level, int $era = 0, array $avoid = []): ?array
 {
-    $counts = animespot_counts($mysqli, $era);
-    $total  = $counts[$level] ?? 0;
+    $total = animespot_anime_count($mysqli, $level, $era);
     if ($total <= 0) return null;
 
-    $stmt = $mysqli->prepare(
-        'SELECT t.id FROM `' . ANIMESPOT_TABLE_TRACKS . '` t'
+    $scelta = $mysqli->prepare(
+        'SELECT t.anime_id FROM `' . ANIMESPOT_TABLE_TRACKS . '` t'
         . ' JOIN `' . ANIMESPOT_TABLE_ANIME . '` a ON a.id = t.anime_id'
-        . ' WHERE t.difficolta = ?' . animespot_era_where($era)
-        . ' ORDER BY t.id LIMIT 1 OFFSET ?'
+        . ' WHERE t.difficolta = ?' . animespot_playable_where($mysqli) . animespot_era_where($era)
+        . ' GROUP BY t.anime_id ORDER BY t.anime_id LIMIT 1 OFFSET ?'
     );
-    if (!$stmt) return null;
+    if (!$scelta) return null;
 
-    $chosen = 0;
+    $recentiAnime = animespot_recent_anime();
+    $animeId = 0;
+
     for ($try = 0; $try < 12; $try++) {
         $offset = random_int(0, $total - 1);
-        $stmt->bind_param('ii', $level, $offset);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $scelta->bind_param('ii', $level, $offset);
+        $scelta->execute();
+        $row = $scelta->get_result()->fetch_assoc();
         if (!$row) continue;
 
-        $chosen = (int)$row['id'];
-        if (!in_array($chosen, $avoid, true)) break;
+        $animeId = (int)$row['anime_id'];
+        if (!in_array($animeId, $recentiAnime, true)) break;
     }
-    $stmt->close();
+    $scelta->close();
 
-    return $chosen > 0 ? animespot_track($mysqli, $chosen) : null;
+    if ($animeId <= 0) return null;
+
+    // Fra le sigle di quell'anime a questa difficoltà, una a caso — saltando
+    // quelle appena uscite. Sono poche righe, quindi RAND() qui non pesa.
+    $sigle = $mysqli->prepare(
+        'SELECT id FROM `' . ANIMESPOT_TABLE_TRACKS . '`'
+        . ' WHERE anime_id = ? AND difficolta = ?' . animespot_playable_where($mysqli, 'animespot_tracce')
+        . ' ORDER BY RAND()'
+    );
+    if (!$sigle) return null;
+
+    $sigle->bind_param('ii', $animeId, $level);
+    $sigle->execute();
+    $result = $sigle->get_result();
+
+    $prima = 0;
+    $scelto = 0;
+
+    while ($row = $result->fetch_assoc()) {
+        $id = (int)$row['id'];
+        if ($prima === 0) $prima = $id;
+        if (!in_array($id, $avoid, true)) { $scelto = $id; break; }
+    }
+    $sigle->close();
+
+    // Tutte già uscite da poco: si ripiega sulla prima, che è comunque meglio
+    // di non dare niente.
+    if ($scelto === 0) $scelto = $prima;
+
+    return $scelto > 0 ? animespot_track($mysqli, $scelto) : null;
 }
 
 /* ── Ricerca ────────────────────────────────────────────────────────────── */
@@ -373,7 +475,7 @@ function animespot_search(mysqli $mysqli, string $query, int $limit = 10, string
         . '   SEPARATOR \'\\n\'), \'\\n\', 1) AS trovato'
         . ' FROM `' . ANIMESPOT_TABLE_TITLES . '` t'
         . ' JOIN `' . ANIMESPOT_TABLE_ANIME . '` a ON a.id = t.anime_id'
-        . ' WHERE ' . $where
+        . ' WHERE (' . $where . ')' . animespot_active_where($mysqli)
         . ' GROUP BY a.id, a.nome, a.anno, a.formato, a.cover_url, a.popolarita'
         . ' ORDER BY rilevanza ASC, a.popolarita DESC, a.nome ASC'
         . ' LIMIT ?';
@@ -624,17 +726,38 @@ function animespot_recent(): array
     return is_array($recent) ? array_map('intval', $recent) : [];
 }
 
-function animespot_remember(int $trackId, int $poolSize): void
+/**
+ * Gli ultimi anime usciti.
+ *
+ * Si tiene memoria degli anime e non solo delle sigle perché la pesca lavora
+ * sugli anime: senza, una serie con quaranta ending tornerebbe fuori subito
+ * con un'altra delle sue, e per chi gioca è la stessa noia.
+ */
+function animespot_recent_anime(): array
+{
+    $recent = $_SESSION['animespot']['recenti_anime'] ?? [];
+
+    return is_array($recent) ? array_map('intval', $recent) : [];
+}
+
+function animespot_remember(array $track, int $poolSize): void
 {
     $recent   = animespot_recent();
-    $recent[] = $trackId;
+    $recent[] = (int)$track['id'];
+
+    $anime   = animespot_recent_anime();
+    $anime[] = (int)$track['anime_id'];
 
     $keep = max(1, min(ANIMESPOT_RECENT_MEMORY, (int)floor($poolSize / 2)));
 
     if (!isset($_SESSION['animespot']) || !is_array($_SESSION['animespot'])) {
         $_SESSION['animespot'] = [];
     }
-    $_SESSION['animespot']['recenti'] = array_slice($recent, -$keep);
+
+    $_SESSION['animespot']['recenti']       = array_slice($recent, -$keep);
+    // Gli anime si ricordano meno a lungo delle sigle: sono molti di meno, e
+    // una memoria troppo lunga finirebbe per escludere mezza fascia.
+    $_SESSION['animespot']['recenti_anime'] = array_slice($anime, -max(1, (int)floor($keep / 3)));
 }
 
 /* ── La serie ───────────────────────────────────────────────────────────── */
@@ -706,7 +829,7 @@ function animespot_series_draw(mysqli $mysqli, int $era): array
 
         $tracks[$slot] = (int)$track['id'];
         $avoid[] = (int)$track['id'];
-        animespot_remember((int)$track['id'], max(1, array_sum(animespot_counts($mysqli, $era))));
+        animespot_remember($track, max(1, array_sum(animespot_counts($mysqli, $era))));
     }
 
     return $tracks;
@@ -790,7 +913,7 @@ function animespot_bootstrap(mysqli $mysqli, bool $restart = false, bool $advanc
         if ($track === null) $track = animespot_pick($mysqli, $slot, 0, animespot_recent());
         if ($track !== null) {
             $series['tracce'][$slot] = (int)$track['id'];
-            animespot_remember((int)$track['id'], max(1, array_sum(animespot_counts($mysqli, $options['era']))));
+            animespot_remember($track, max(1, array_sum(animespot_counts($mysqli, $options['era']))));
         }
     }
 
