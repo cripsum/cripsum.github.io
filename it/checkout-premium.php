@@ -214,7 +214,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
         <section class="form-card form-reveal">
             <div class="form-card__header">
                 <h1>Cripsum™ Premium</h1>
-                <p>Personalizza il tuo profilo con layout animati, musica e badge, ricevi subito 25.000 Godos, riscatta 500 Godos bonus ogni giorno nelle Lootbox e raddoppia (x2) i Godos di tutte le missioni daily e weekly!</p>
+                <p>Personalizza il tuo profilo con layout animati, musica e badge, ricevi subito 25.000 Godos, riscatta 500 Godos bonus ogni giorno nelle Lootbox, raddoppia (x2) i Godos di tutte le missioni daily e weekly e apri il tuo Cripsum Rewind quando vuoi, non solo nella settimana in cui è libero per tutti!</p>
             </div>
 
             <?php if ($errorMsg): ?>

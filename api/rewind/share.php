@@ -52,6 +52,16 @@ if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
 $userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
+// Stessa porta della pagina e di get.php. Questo controllo qui mancava: chi
+// aveva già un Rewind generato — per esempio durante la settimana libera —
+// poteva continuare a pubblicarlo e spubblicarlo chiamando l'endpoint a mano
+// anche mesi dopo, senza mai passare dalla pagina.
+if (!rewind_user_can_view($mysqli)) {
+    http_response_code(403);
+    echo json_encode(['error' => rewind_locked_message($lang), 'code' => 'PREMIUM_ONLY']);
+    exit;
+}
+
 $periodKey = (string)($input['period'] ?? 'all');
 if (!preg_match('/^(all|r365|\d{4})$/', $periodKey)) {
     $periodKey = 'all';

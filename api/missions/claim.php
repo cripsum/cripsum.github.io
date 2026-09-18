@@ -15,6 +15,7 @@ require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/stats_tracker.php';
+require_once '../../includes/mission_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -166,6 +167,11 @@ try {
             "missions_claimed" => 1,
             "godos_earned"     => $punti,
         ]);
+
+        // «Riscatta 3 ricompense» è a sua volta una missione. Non si innesca
+        // da sola: il tracker aggiorna solo le missioni non ancora riscattate,
+        // quindi quella appena incassata qui sopra è già fuori dal giro.
+        trackMissionProgress($mysqli, $userId, 'claim_mission');
     } catch (Throwable $trackErr) {
         error_log("[Stats missions/claim] " . $trackErr->getMessage());
     }

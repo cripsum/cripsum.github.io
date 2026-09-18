@@ -32,13 +32,13 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
 $userId = (int)$_SESSION['user_id'];
 checkBan($mysqli);
 
-// Accesso anticipato: finché il Rewind non è aperto a tutti, la pagina
-// risponde solo allo staff. Le statistiche intanto continuano a essere
-// raccolte per chiunque, così all'apertura non sarà vuota.
-if (!rewind_user_can_view()) {
-    $_SESSION['error_message'] = rewind_locked_message($lang);
-    header('Location: /' . $lang . '/home');
-    exit();
+// Il Rewind è una funzione Premium, aperta a tutti una settimana l'anno.
+// Chi non può entrare non viene più rimandato in home di nascosto: vede una
+// schermata che spiega cosa c'è dietro e quando si apre. Le statistiche
+// intanto continuano a essere raccolte per chiunque.
+if (!rewind_user_can_view($mysqli)) {
+    require_once '../includes/rewind_locked.php';
+    rewind_render_locked_page($lang); // stampa la pagina e termina
 }
 
 $pageTitle = 'Cripsum Rewind';

@@ -16,6 +16,7 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/pullspot_helpers.php';
 require_once __DIR__ . '/../../includes/stats_tracker.php';
+require_once __DIR__ . '/../../includes/mission_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -97,6 +98,21 @@ if ($wasPlaying && $game['status'] !== 'playing') {
     }
 
     stats_track_many($mysqli, $userId, $tracked);
+
+    // Le missioni leggono gli stessi fatti, ma non passano da stats_track:
+    // una partita persa fa comunque avanzare «gioca 3 round».
+    try {
+        trackMissionProgress($mysqli, $userId, 'play_pullspot');
+
+        if ($game['status'] === 'won') {
+            trackMissionProgress($mysqli, $userId, 'win_pullspot');
+            if (count($game['guesses']) === 1) {
+                trackMissionProgress($mysqli, $userId, 'pullspot_first_try');
+            }
+        }
+    } catch (Throwable $trackErr) {
+        error_log('[MissionTracking pullspot] ' . $trackErr->getMessage());
+    }
 }
 
 $payload = pullspot_public_state($game, $character);

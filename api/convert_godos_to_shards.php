@@ -2,6 +2,8 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/stats_tracker.php';
+require_once '../includes/mission_tracker.php';
 
 $contentType = strtolower((string)($_SERVER['CONTENT_TYPE'] ?? ''));
 $accept = strtolower((string)($_SERVER['HTTP_ACCEPT'] ?? ''));
@@ -94,6 +96,16 @@ try {
     $stmtUpdate->close();
 
     $mysqli->commit();
+
+    // ── Missioni e statistiche ───────────────────────────────────────────
+    // Gli Shards guadagnati qui non passavano da nessuna parte: nel Rewind
+    // `shards_earned` restava a zero anche per chi convertiva ogni giorno.
+    try {
+        stats_track($mysqli, $userId, 'shards_earned', $shardsToBuy);
+        trackMissionProgress($mysqli, $userId, 'convert_shards');
+    } catch (Throwable $trackErr) {
+        error_log('[Tracking convert_godos_to_shards] ' . $trackErr->getMessage());
+    }
 
     $payload = [
         'status' => 'success',

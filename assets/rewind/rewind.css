@@ -1599,3 +1599,43 @@ body.rw-page {
 .rw-records--4 .rw-record__body { min-height: clamp(68px, 10vw, 86px); }
 .rw-records--4 .rw-record__desc { -webkit-line-clamp: 1; line-clamp: 1; }
 .rw-records--4 { gap: 8px; }
+
+/* =============================================================
+   SCHERMATA DI BLOCCO (includes/rewind_locked.php)
+
+   Chi non ha il Premium fuori dalla settimana libera vede questa al posto
+   del racconto. Non e' una slide: non scorre, non ha frecce, e vive per
+   conto suo senza che rewind.js venga nemmeno caricato.
+   ============================================================= */
+
+.rw-locked {
+    position: relative;
+    z-index: 1;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(20px, 5vw, 40px) 16px;
+}
+
+.rw-locked__inner {
+    width: 100%;
+    max-width: 620px;
+}
+
+.rw-locked__tag { margin: 18px 0 0; }
+
+.rw-locked__gate {
+    margin-top: 16px;
+    font-size: clamp(0.94rem, 1.6vw, 1.05rem);
+}
+
+.rw-locked__cdlabel { margin-bottom: 8px; }
+
+/* Quattro riquadri su una riga anche sul telefono: i numeri sono corti e
+   una griglia auto-fit li manderebbe a capo per niente. */
+.rw-locked__cd {
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 0;
+}

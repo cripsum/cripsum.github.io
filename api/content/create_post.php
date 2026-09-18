@@ -96,6 +96,19 @@ try {
         }
     }
 
+    // ── Missioni e statistiche ───────────────────────────────────────────
+    // Conta la pubblicazione, non l'approvazione: l'utente ha fatto la sua
+    // parte, e non deve aspettare un admin per vedersi avanzare la missione.
+    try {
+        trackMissionProgress(
+            $mysqli,
+            (int)$user['id'],
+            $type === 'shitpost' ? 'create_shitpost' : 'create_post'
+        );
+    } catch (Throwable $trackErr) {
+        error_log('[MissionTracking create_post] ' . $trackErr->getMessage());
+    }
+
     cv2_ok([
         'message' => $approved ? 'Post pubblicato.' : 'Post inviato. Sarà visibile dopo approvazione.',
         'post_id' => $postId,

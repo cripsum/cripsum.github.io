@@ -23,6 +23,14 @@ try {
         if (!$stmt->execute()) cv2_fail('Non sono riuscito a commentare.', 500);
         $stmt->close();
 
+
+        // Missioni: il commento è appena stato salvato, il tipo dice dove.
+        try {
+            trackMissionProgress($mysqli, (int)$user['id'], 'comment_post');
+        } catch (Throwable $trackErr) {
+            error_log('[MissionTracking comment_post] ' . $trackErr->getMessage());
+        }
+
         cv2_ok(['message' => 'Commento inviato.']);
     }
 
@@ -33,6 +41,14 @@ try {
     $stmt->bind_param('iis', $id, $user['id'], $comment);
     if (!$stmt->execute()) cv2_fail('Non sono riuscito a commentare.', 500);
     $stmt->close();
+
+
+    // Missioni: il commento è appena stato salvato, il tipo dice dove.
+    try {
+        trackMissionProgress($mysqli, (int)$user['id'], 'comment_post');
+    } catch (Throwable $trackErr) {
+        error_log('[MissionTracking comment_post] ' . $trackErr->getMessage());
+    }
 
     cv2_ok(['message' => 'Commento inviato.']);
 } catch (Throwable $e) {

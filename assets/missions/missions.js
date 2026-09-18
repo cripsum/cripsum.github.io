@@ -37,6 +37,20 @@
             days_suffix:      'g',
             toast_done:       'Missione completata!',
             toast_pts:        (n) => `+${n} punti`,
+            cat: {
+                lootbox:      'Lootbox',
+                rarity:       'Rarità',
+                chat:         'Chat',
+                social:       'Social',
+                profilo:      'Profilo',
+                edit:         'Edit',
+                visita:       'Esplora',
+                streak:       'Streak',
+                giochi:       'Giochi',
+                contenuti:    'Contenuti',
+                progressione: 'Progressi',
+                economia:     'Economia',
+            },
         },
         en: {
             err_unknown:      'Unknown error',
@@ -59,6 +73,20 @@
             days_suffix:      'd',
             toast_done:       'Mission completed!',
             toast_pts:        (n) => `+${n} pts`,
+            cat: {
+                lootbox:      'Lootbox',
+                rarity:       'Rarity',
+                chat:         'Chat',
+                social:       'Social',
+                profilo:      'Profile',
+                edit:         'Edits',
+                visita:       'Explore',
+                streak:       'Streak',
+                giochi:       'Games',
+                contenuti:    'Content',
+                progressione: 'Progress',
+                economia:     'Economy',
+            },
         },
     }[lang];
 
@@ -201,6 +229,20 @@
         }[diff] || diff;
         const diffIcon   = { facile: 'fa-seedling', media: 'fa-bolt', difficile: 'fa-skull', epica: 'fa-crown' }[diff] || 'fa-star';
 
+        // Da quando il pool tocca tutto il sito, «vinci 1 duello» e «apri
+        // CripsumPedia» stanno sulla stessa griglia: la categoria dice a colpo
+        // d'occhio in che parte del sito si va a parare.
+        const cat      = m.categoria || '';
+        const catLabel = t.cat[cat] || '';
+        const catIcon  = {
+            lootbox: 'fa-box-open',  rarity:       'fa-gem',
+            chat:    'fa-comments',  social:       'fa-user-group',
+            profilo: 'fa-user',      edit:         'fa-film',
+            visita:  'fa-compass',   streak:       'fa-calendar-check',
+            giochi:  'fa-gamepad',   contenuti:    'fa-pen-nib',
+            progressione: 'fa-medal', economia:    'fa-coins',
+        }[cat] || 'fa-tag';
+
         // Stato bottone claim
         let btnClass, btnIcon, btnText;
         if (claimed) {
@@ -235,16 +277,22 @@
                 <div class="msn-card__meta">
                     <h3 class="msn-card__title">${esc(m.titolo)}</h3>
                     <p class="msn-card__desc">${esc(m.descrizione)}</p>
-                    <span class="msn-badge">
-                        <i class="fa-solid ${diffIcon}"></i>
-                        ${diffLabel}
-                    </span>
+                    <div class="msn-badges">
+                        <span class="msn-badge">
+                            <i class="fa-solid ${diffIcon}"></i>
+                            ${diffLabel}
+                        </span>
+                        ${catLabel ? `<span class="msn-badge msn-badge--cat">
+                            <i class="fa-solid ${catIcon}"></i>
+                            ${esc(catLabel)}
+                        </span>` : ''}
+                    </div>
                 </div>
             </div>
 
             <div class="msn-card__progress-wrap">
                 <div class="msn-progress-header">
-                    <span>Progresso</span>
+                    <span>${t.progress}</span>
                     <span class="msn-progress-count">${m.progresso} / ${m.obiettivo}</span>
                 </div>
                 <div class="msn-progress-track">
@@ -262,7 +310,7 @@
                     type="button"
                     class="msn-btn-claim ${btnClass}"
                     data-claim-id="${m.user_mission_id}"
-                    aria-label="Riscatta missione ${esc(m.titolo)}"
+                    aria-label="${esc(t.aria_claim(m.titolo))}"
                     ${(claimed || !completed) ? 'disabled' : ''}
                 >
                     <i class="fa-solid ${btnIcon}"></i>

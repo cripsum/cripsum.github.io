@@ -31,6 +31,7 @@ if (!isset($_SESSION['user_id'])) {
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/stats_tracker.php';
+require_once __DIR__ . '/../includes/mission_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -184,6 +185,19 @@ if ($shouldFlush) {
 }
 
 $_SESSION['stats_hb_page'] = $pageKey;
+
+// ── Missioni di esplorazione ─────────────────────────────────
+// Qui la sezione corrente si conosce già: le missioni «apri CripsumPedia» o
+// «visita 5 sezioni diverse» non hanno bisogno di un aggancio in ogni pagina
+// del sito, gli basta questo. trackSectionVisit() conta ogni sezione una
+// volta al giorno, quindi i battiti successivi non toccano il database.
+// Deve stare prima del rilascio della sessione, perché è lì che tiene il
+// promemoria di cosa ha già contato.
+try {
+    trackSectionVisit($mysqli, $userId, $pageKey);
+} catch (Throwable $trackErr) {
+    error_log('[MissionTracking update_activity] ' . $trackErr->getMessage());
+}
 
 // La sessione non serve più: liberiamo il lock così le altre richieste
 // della stessa scheda non si mettono in coda dietro a questa.

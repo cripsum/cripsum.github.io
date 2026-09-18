@@ -393,6 +393,18 @@ html[data-cnav-theme="light"] {
     line-height: 1.5;
 }
 
+/* Segno in coda alla riga, al posto del contatore: lo usa la voce Rewind
+   per dire che la funzione e' Premium. Non e' un allarme come il badge
+   rosso, quindi sta sul tono dorato ed e' solo un'icona. */
+.cnav-row__mark {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--cn-staff);
+    opacity: 0.85;
+}
+
 /* ── Sezioni ─────────────────────────────────────────────── */
 
 .cnav-sect + .cnav-sect {

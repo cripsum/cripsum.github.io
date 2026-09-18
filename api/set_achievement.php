@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/stats_tracker.php';
+require_once __DIR__ . '/../includes/mission_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -95,6 +96,7 @@ try {
     // il contatore non riesce a scrivere.
     try {
         stats_track($mysqli, $userId, 'achievements_unlocked');
+        trackMissionProgress($mysqli, $userId, 'unlock_achievement');
     } catch (Throwable $trackErr) {
         error_log('[Stats set_achievement] ' . $trackErr->getMessage());
     }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/game_config.php';
 require_once __DIR__ . '/stats_tracker.php';
+require_once __DIR__ . '/mission_tracker.php';
 
 
 
@@ -511,6 +512,18 @@ function gd_finish(mysqli $m, array $match, int $winner, int $loser): void
         }
         if ($loser !== $botId) {
             stats_track_many($m, $loser, ['duels_played' => 1, 'duels_lost' => 1]);
+        }
+
+        // Missioni: «gioca 2 duelli» vale anche per chi le prende, «vinci 1
+        // duello» no. Il bot resta fuori da entrambe.
+        if (function_exists('trackMissionProgress')) {
+            if ($winner !== $botId) {
+                trackMissionProgress($m, $winner, 'play_duel');
+                trackMissionProgress($m, $winner, 'win_duel');
+            }
+            if ($loser !== $botId) {
+                trackMissionProgress($m, $loser, 'play_duel');
+            }
         }
     } catch (Throwable $trackErr) {
         error_log('[Stats gd_finish] ' . $trackErr->getMessage());

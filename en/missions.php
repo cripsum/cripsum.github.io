@@ -59,11 +59,11 @@ function msn_h(mixed $v): string
     <meta property="og:url" content="<?php echo msn_h($ogUrl); ?>">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet" href="/assets/missions/missions.css?v=1.2">
+    <link rel="stylesheet" href="<?php echo cripsum_asset('/assets/missions/missions.css'); ?>">
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
     </script>
-    <script src="/assets/missions/missions.js?v=1.3" defer></script>
+    <script src="<?php echo cripsum_asset('/assets/missions/missions.js'); ?>" defer></script>
 </head>
 
 <body class="msn-page">

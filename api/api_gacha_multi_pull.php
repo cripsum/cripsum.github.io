@@ -411,23 +411,38 @@ try {
         $raritySecretPlus = ['segreto', 'theone'];
 
 
+        // I conteggi si sommano prima e si mandano una volta sola. Il ciclo
+        // chiamava trackMissionProgress fino a cinquanta volte, e ogni
+        // chiamata è una transazione con SELECT ... FOR UPDATE: sulla
+        // multi-pull da dieci erano cinquanta transazioni per un risultato
+        // identico a cinque.
+        $missionCounts = ['lootbox_open' => count($pulls)];
+
         foreach ($pulls as $pull) {
             $pullRarity = strtolower(trim($pull['personaggio']['rarità'] ?? ''));
 
-            trackMissionProgress($mysqli, $userId, 'lootbox_open');
-
             if (in_array($pullRarity, $rarityRarePlus, true)) {
-                trackMissionProgress($mysqli, $userId, 'get_rarity_rare');
+                $missionCounts['get_rarity_rare'] = ($missionCounts['get_rarity_rare'] ?? 0) + 1;
             }
             if (in_array($pullRarity, $rarityEpicPlus, true)) {
-                trackMissionProgress($mysqli, $userId, 'get_rarity_epic');
+                $missionCounts['get_rarity_epic'] = ($missionCounts['get_rarity_epic'] ?? 0) + 1;
             }
             if (in_array($pullRarity, $raritySpecialPlus, true)) {
-                trackMissionProgress($mysqli, $userId, 'get_rarity_special');
+                $missionCounts['get_rarity_special'] = ($missionCounts['get_rarity_special'] ?? 0) + 1;
             }
             if (in_array($pullRarity, $raritySecretPlus, true)) {
-                trackMissionProgress($mysqli, $userId, 'get_rarity_secret');
+                $missionCounts['get_rarity_secret'] = ($missionCounts['get_rarity_secret'] ?? 0) + 1;
             }
+            if (!empty($pull['is_new'])) {
+                $missionCounts['gacha_new_char'] = ($missionCounts['gacha_new_char'] ?? 0) + 1;
+            }
+        }
+
+        // Una multi-pull è una multi-pull: conta una volta, non dieci.
+        $missionCounts['gacha_multi_pull'] = 1;
+
+        foreach ($missionCounts as $evento => $quantita) {
+            trackMissionProgress($mysqli, $userId, $evento, $quantita);
         }
 
         // ── Statistiche Rewind ────────────────────────────────────────────

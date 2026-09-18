@@ -145,6 +145,7 @@ if ($chatId > 0) {
         // impedire la consegna di un messaggio già salvato.
         try {
             trackMissionProgress($mysqli, $userId, 'send_message');
+            trackMissionProgress($mysqli, $userId, 'send_group_message');
             stats_track($mysqli, $userId, 'msg_group');
         } catch (Throwable $trackErr) {
             error_log('[Tracking send_message group] ' . $trackErr->getMessage());
@@ -300,6 +301,7 @@ try {
     // ── Tracking (missioni + statistiche Rewind) ──────────────────────
     try {
         trackMissionProgress($mysqli, $userId, 'send_message');
+        trackMissionProgress($mysqli, $userId, 'send_private_message');
         stats_track($mysqli, $userId, 'msg_private');
     } catch (Throwable $trackErr) {
         error_log('[Tracking send_message private] ' . $trackErr->getMessage());

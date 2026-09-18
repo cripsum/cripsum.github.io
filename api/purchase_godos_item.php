@@ -3,6 +3,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/stats_tracker.php';
+require_once '../includes/mission_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -137,6 +138,7 @@ try {
     // altrove, `utenti.soldi` conserva solo il saldo attuale.
     try {
         stats_track($mysqli, $userId, 'godos_spent', $costo);
+        trackMissionProgress($mysqli, $userId, 'shop_purchase');
     } catch (Throwable $trackErr) {
         error_log('[Stats purchase_godos_item] ' . $trackErr->getMessage());
     }

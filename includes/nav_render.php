@@ -109,7 +109,14 @@ if (!function_exists('nav_bootstrap')) {
             ? '/includes/get_pfp.php?id=' . $userId . '&v=' . floor(time() / 300)
             : '';
 
-        $ctx['can_rewind'] = $isLoggedIn && function_exists('rewind_user_can_view') && rewind_user_can_view();
+        // Il Rewind ora si vede sempre: la voce compare a chiunque sia
+        // loggato, e la gemma dice che per aprirlo serve il Premium (fuori
+        // dalla settimana in cui è libero per tutti). Prima la voce spariva
+        // del tutto, e chi non poteva entrare non sapeva che esistesse.
+        $ctx['can_rewind']    = $isLoggedIn;
+        $ctx['rewind_locked'] = $isLoggedIn
+            && function_exists('rewind_user_can_view')
+            && !rewind_user_can_view($mysqli instanceof mysqli ? $mysqli : null);
 
         return $ctx;
     }
@@ -150,6 +157,11 @@ if (!function_exists('nav_bootstrap')) {
         $badge = '';
         if (!empty($item['badge'])) {
             $badge = '<span class="cnav-row__badge">' . (int)$item['badge'] . '</span>';
+        } elseif (!empty($item['mark'])) {
+            // Segno in coda alla riga al posto del contatore: serve alla voce
+            // Rewind, che si vede sempre ma non sempre si apre.
+            $badge = '<span class="cnav-row__mark"><i class="fa-solid '
+                . nav_e($item['mark']) . '" aria-hidden="true"></i></span>';
         }
 
         $current = $uri !== '' && nav_is_current((string)$item['href'], $uri);
@@ -157,6 +169,7 @@ if (!function_exists('nav_bootstrap')) {
         return '<a class="cnav-row' . ($current ? ' is-current' : '') . '"'
             . ' role="menuitem" style="--i:' . $index . '"'
             . ($current ? ' aria-current="page"' : '')
+            . (!empty($item['tip']) ? ' data-cnav-tip="' . nav_e($item['tip']) . '"' : '')
             . ' href="' . nav_e($item['href']) . '">'
             . '<span class="cnav-row__ico">' . nav_icon($item) . '</span>'
             . '<span class="cnav-row__label">' . nav_e($item['label']) . '</span>'
@@ -225,7 +238,8 @@ if (!function_exists('nav_bootstrap')) {
         $panel = nav_account_panel($ctx['lang'], $t, [
             'ruolo'       => $ctx['ruolo'],
             'nsfw'        => $ctx['nsfw'],
-            'can_rewind'  => $ctx['can_rewind'],
+            'can_rewind'    => $ctx['can_rewind'],
+            'rewind_locked' => $ctx['rewind_locked'] ?? false,
             'unread_chat' => $ctx['unreadChat'],
             'missions'    => $ctx['missions'],
             'friends'     => $ctx['friends'],

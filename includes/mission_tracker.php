@@ -25,21 +25,90 @@ require_once __DIR__ . '/stats_tracker.php';
 
 // Ogni evento ha un alias human-readable (solo per log/debug).
 const MISSION_EVENTS = [
-    'lootbox_open'      => 'Apertura lootbox',
-    'send_message'      => 'Messaggio inviato',
-    'use_global_chat'   => 'Chat globale usata',
-    'visit_profile'     => 'Profilo visitato',
-    'add_like'          => 'Like aggiunto',
-    'edit_profile'      => 'Profilo modificato',
+    // ── Gacha e collezione ────────────────────────────────────
+    'lootbox_open'       => 'Apertura lootbox',
+    'gacha_multi_pull'   => 'Multi-pull da 10',
+    'gacha_new_char'     => 'Personaggio mai posseduto',
+    'get_rarity_rare'    => 'Rarity: raro ottenuto',
+    'get_rarity_epic'    => 'Rarity: epico ottenuto',
+    'get_rarity_special' => 'Rarity: speciale ottenuto',
+    'get_rarity_secret'  => 'Rarity: segreto ottenuto',
+
+    // ── Chat e social ─────────────────────────────────────────
+    'send_message'         => 'Messaggio inviato',
+    'send_private_message' => 'Messaggio privato inviato',
+    'send_group_message'   => 'Messaggio di gruppo inviato',
+    'use_global_chat'      => 'Chat globale usata',
+    'add_friend'           => 'Amicizia stretta',
+    'visit_profile'        => 'Profilo visitato',
+
+    // ── Contenuti ─────────────────────────────────────────────
+    'add_like'          => 'Reazione aggiunta',
+    'like_shitpost'     => 'Like a uno shitpost',
+    'vote_rimasti'      => 'Voto a un Top Rimasti',
+    'create_post'       => 'Post pubblicato',
+    'create_shitpost'   => 'Shitpost pubblicato',
+    'comment_post'      => 'Commento lasciato',
     'view_edit'         => 'Edit visualizzato',
     'download_content'  => 'Contenuto scaricato',
-    'get_rarity_rare'   => 'Rarity: raro ottenuto',
-    'get_rarity_epic'   => 'Rarity: epico ottenuto',
-    'get_rarity_special' => 'Rarity: speciale ottenuto',
-    'get_rarity_secret' => 'Rarity: segreto ottenuto',
-    'daily_login'       => 'Login giornaliero',
-    'view_page'         => 'Pagina visitata',
+
+    // ── Giochi ────────────────────────────────────────────────
+    'play_subway'          => 'Corsa su Subway',
+    'play_pullspot'        => 'Round di Pullspot',
+    'win_pullspot'         => 'Pullspot indovinato',
+    'pullspot_first_try'   => 'Pullspot al primo tentativo',
+    'play_animespot'       => 'Sigla di Animespot giocata',
+    'win_animespot'        => 'Sigla indovinata',
+    'animespot_first_try'  => 'Sigla al primo tentativo',
+    'play_duel'            => 'Duello giocato',
+    'win_duel'             => 'Duello vinto',
+    'upgrade_character'    => 'Personaggio potenziato',
+
+    // ── Profilo, progressione ed economia ─────────────────────
+    'edit_profile'       => 'Profilo modificato',
+    'unlock_achievement' => 'Achievement sbloccato',
+    'claim_mission'      => 'Ricompensa missione riscattata',
+    'shop_purchase'      => 'Acquisto al negozio',
+    'convert_shards'     => 'Godos convertiti in Shards',
+
+    // ── Presenza ──────────────────────────────────────────────
+    'daily_login'   => 'Login giornaliero',
+    'view_page'     => 'Pagina visitata',
+    'visit_section' => 'Sezione del sito aperta',
 ];
+
+/**
+ * Sezioni del sito che valgono una missione «vai a vedere».
+ *
+ * La chiave è quella di STATS_PAGE_KEYS (stats_page_key_from_path), il valore
+ * è l'evento missione. L'aggancio è uno solo, in api/update_activity.php: il
+ * battito di presenza conosce già la sezione su cui sta l'utente, quindi
+ * queste missioni non richiedono di toccare nemmeno una pagina del sito.
+ *
+ * Chi arriva qui è già passato dalla whitelist di stats_page_key_from_path,
+ * quindi la chiave non è mai una stringa arbitraria del client.
+ */
+const MISSION_SECTION_EVENTS = [
+    'cripsumpedia'  => 'visit_cripsumpedia',
+    'rimasti'       => 'visit_rimasti',
+    'tiktokpedia'   => 'visit_tiktokpedia',
+    'inventario'    => 'visit_inventario',
+    'achievements'  => 'visit_achievements',
+    'negozio'       => 'visit_negozio',
+];
+
+/**
+ * Vero se l'evento può far avanzare una missione.
+ *
+ * Gli eventi di sezione non stanno in MISSION_EVENTS perché sono generati
+ * dalla mappa qui sopra: tenerli in due posti vorrebbe dire dimenticarsene
+ * in uno dei due alla prossima sezione aggiunta.
+ */
+function mission_event_exists(string $evento): bool
+{
+    return array_key_exists($evento, MISSION_EVENTS)
+        || in_array($evento, MISSION_SECTION_EVENTS, true);
+}
 
 
 // ─────────────────────────────────────────────────────────────
@@ -68,7 +137,7 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
         return [];
     }
 
-    if (!array_key_exists($evento, MISSION_EVENTS)) {
+    if (!mission_event_exists($evento)) {
         // Evento non registrato — ignora silenziosamente
         return [];
     }
@@ -79,9 +148,16 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
     // punti del sito che già invocano questa funzione.
     trackStatsForMissionEvent($mysqli, $userId, $evento, $quantita);
 
-    // Inizializza le missioni per oggi/questa settimana se non ancora fatto in questa sessione
+    // Inizializza le missioni per oggi/questa settimana se non ancora fatto in
+    // questa sessione.
+    //
+    // La chiave porta l'id utente perché alcuni eventi riguardano qualcun
+    // altro: accettare un'amicizia fa avanzare anche le missioni di chi l'ha
+    // chiesta. Con una chiave sola, il primo dei due a passare di qui
+    // impediva la generazione delle missioni dell'altro, e il suo progresso
+    // finiva nel vuoto.
     if (isset($_SESSION)) {
-        $initKey = 'missions_initialized_' . date('Ymd');
+        $initKey = 'missions_initialized_' . $userId . '_' . date('Ymd');
         if (empty($_SESSION[$initKey])) {
             ensureUserMissions($mysqli, $userId, 'daily');
             ensureUserMissions($mysqli, $userId, 'weekly');
@@ -219,6 +295,63 @@ function trackDailyLogin(mysqli $mysqli, int $userId): void
 
 
 // ─────────────────────────────────────────────────────────────
+//  HELPER — SEZIONI VISITATE
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Traccia l'apertura di una sezione del sito.
+ *
+ * Chiamata da api/update_activity.php, che è l'unico posto dove la sezione
+ * corrente si conosce già senza doverla ricavare: il battito di presenza gira
+ * su ogni pagina e ha già passato il percorso da stats_page_key_from_path().
+ *
+ * Il battito arriva ogni 25 secondi, quindi senza un freno questa funzione
+ * scriverebbe sul database centoquaranta volte l'ora per utente. La sezione
+ * conta una volta sola al giorno: la lista di quelle già viste sta in
+ * sessione, come per trackDailyLogin(). Su due dispositivi contemporanei la
+ * stessa sezione può contare due volte — è il prezzo di non fare una lettura
+ * a ogni battito, e riguarda missioni da trenta punti.
+ *
+ * @param string $pageKey chiave di STATS_PAGE_KEYS
+ */
+function trackSectionVisit(mysqli $mysqli, int $userId, string $pageKey): void
+{
+    if ($userId <= 0 || $pageKey === '' || $pageKey === 'altro' || !isset($_SESSION)) {
+        return;
+    }
+
+    $seenKey = 'mission_sections_' . date('Ymd');
+    $seen    = $_SESSION[$seenKey] ?? null;
+
+    if (!is_array($seen)) {
+        // Le liste dei giorni passati non servono più: farebbero crescere la
+        // sessione di una voce al giorno per sempre.
+        foreach (array_keys($_SESSION) as $key) {
+            if (is_string($key) && str_starts_with($key, 'mission_sections_')) {
+                unset($_SESSION[$key]);
+            }
+        }
+        $seen = [];
+    }
+
+    if (isset($seen[$pageKey])) {
+        return;
+    }
+
+    $seen[$pageKey]       = true;
+    $_SESSION[$seenKey]   = $seen;
+
+    // «Visita N sezioni diverse»: ogni sezione nuova della giornata vale uno.
+    trackMissionProgress($mysqli, $userId, 'visit_section', 1);
+
+    // Le sezioni che hanno una missione dedicata valgono anche quella.
+    if (isset(MISSION_SECTION_EVENTS[$pageKey])) {
+        trackMissionProgress($mysqli, $userId, MISSION_SECTION_EVENTS[$pageKey], 1);
+    }
+}
+
+
+// ─────────────────────────────────────────────────────────────
 //  INTERNAL HELPER
 // ─────────────────────────────────────────────────────────────
 
@@ -243,11 +376,16 @@ function _getMissionWeeklyPeriodForTracker(): string
 /**
  * Traduce un evento missione nella metrica corrispondente del Rewind.
  *
- * Non tutti gli eventi hanno un equivalente: `daily_login` e `view_page` sono
- * già coperti altrove (l'heartbeat conta presenza e visualizzazioni), e
- * `send_message` non compare qui perché il tracker non sa distinguere chat
- * globale, privata e di gruppo — quei tre casi chiamano stats_track()
- * direttamente dai rispettivi endpoint.
+ * Qui sta solo quello che nessun altro conta. Chi manca, manca apposta:
+ * `daily_login` e `view_page` li copre l'heartbeat; i tre sapori di messaggio,
+ * le partite dei giochi, le amicizie, gli achievement e i personaggi nuovi
+ * chiamano stats_track() dai rispettivi endpoint, dove si sa distinguere una
+ * chat privata da una di gruppo e una vittoria da una sconfitta. Aggiungerli
+ * anche qui vorrebbe dire contarli due volte.
+ *
+ * Le cinque righe in fondo invece coprono metriche che fino ad ora nessuno
+ * scriveva: commenti, post, voti e letture della CripsumPedia esistevano in
+ * STATS_METRICS ma restavano a zero nel Rewind.
  */
 function trackStatsForMissionEvent(mysqli $mysqli, int $userId, string $evento, int $quantita): void
 {
@@ -263,6 +401,12 @@ function trackStatsForMissionEvent(mysqli $mysqli, int $userId, string $evento, 
         'get_rarity_epic'    => 'gacha_epic',
         'get_rarity_special' => 'gacha_special',
         'get_rarity_secret'  => 'gacha_secret',
+
+        'comment_post'        => 'comments_made',
+        'create_post'         => 'posts_created',
+        'create_shitpost'     => 'shitposts_created',
+        'vote_rimasti'        => 'votes_cast',
+        'visit_cripsumpedia'  => 'pedia_reads',
     ];
 
     if (!isset($map[$evento])) {

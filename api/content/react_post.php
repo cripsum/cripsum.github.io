@@ -61,6 +61,7 @@ try {
         if ($active) {
             try {
                 trackMissionProgress($mysqli, (int)$user['id'], 'add_like');
+                trackMissionProgress($mysqli, (int)$user['id'], 'vote_rimasti');
             } catch (Throwable $trackErr) {
                 error_log('[MissionTracking react_post rimasto] ' . $trackErr->getMessage());
             }
@@ -104,6 +105,7 @@ try {
     if ($active) {
         try {
             trackMissionProgress($mysqli, (int)$user['id'], 'add_like');
+            trackMissionProgress($mysqli, (int)$user['id'], 'like_shitpost');
         } catch (Throwable $trackErr) {
             error_log('[MissionTracking react_post shitpost] ' . $trackErr->getMessage());
         }

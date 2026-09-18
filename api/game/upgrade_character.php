@@ -70,6 +70,14 @@ try {
 
         $mysqli->commit();
 
+        // Missioni: «potenzia 1 personaggio». Dopo il commit e non bloccante,
+        // il potenziamento è già andato a buon fine.
+        try {
+            trackMissionProgress($mysqli, $uid, 'upgrade_character');
+        } catch (Throwable $trackErr) {
+            error_log('[MissionTracking upgrade_character] ' . $trackErr->getMessage());
+        }
+
         // Controlla e assegna gli achievement per i personaggi a livello MAX
         $cnt_stmt = $mysqli->prepare('SELECT COUNT(*) AS max_lvl_count FROM utenti_personaggi WHERE utente_id = ? AND livello = 6');
         $cnt_stmt->bind_param('i', $uid);

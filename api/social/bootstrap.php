@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/social_functions.php';
 require_once __DIR__ . '/../../includes/stats_tracker.php';
+require_once __DIR__ . '/../../includes/mission_tracker.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

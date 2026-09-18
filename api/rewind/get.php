@@ -41,9 +41,21 @@ checkBan($mysqli);
 
 // Stessa porta della pagina: senza questo controllo il payload sarebbe
 // raggiungibile lo stesso chiamando l'endpoint a mano.
-if (!rewind_user_can_view()) {
+$access = rewind_access($mysqli);
+if (!$access['can_view']) {
     http_response_code(403);
-    echo json_encode(['error' => rewind_locked_message($lang), 'code' => 'NOT_RELEASED']);
+    echo json_encode([
+        'error'        => rewind_locked_message($lang),
+        'code'         => 'PREMIUM_ONLY',
+        // Il front-end disegna la schermata di blocco con questi: senza,
+        // dovrebbe conoscere le date della finestra libera per conto suo.
+        'window'       => [
+            'label'    => rewind_free_window_label($lang),
+            'opens_at' => (int)($access['window']['start'] ?? 0),
+            'ends_at'  => (int)($access['window']['end'] ?? 0),
+        ],
+        'checkout_url' => '/' . $lang . '/checkout-premium',
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 

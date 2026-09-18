@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/content_v2_helpers.php';
+require_once __DIR__ . '/../../includes/mission_tracker.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 

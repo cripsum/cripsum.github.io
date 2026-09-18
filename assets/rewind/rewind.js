@@ -2207,6 +2207,17 @@
                 const response = await fetch('/api/rewind/get.php?lang=' + lang, { credentials: 'include' });
                 const result = await response.json();
 
+                // Il Rewind e' Premium fuori dalla settimana libera. Chi apre
+                // la pagina di norma incontra gia' la schermata di blocco
+                // servita dal PHP; qui si arriva solo se il permesso e' caduto
+                // mentre la scheda era aperta — per esempio alla chiusura
+                // della finestra libera a mezzanotte. Ricaricare la porta a
+                // quella schermata invece che a un errore rosso.
+                if (response.status === 403 && result.code === 'PREMIUM_ONLY') {
+                    location.reload();
+                    return;
+                }
+
                 if (response.status === 503) throw new Error(T.unavailable);
                 if (!response.ok || !result.ok) throw new Error(result.error || T.error);
 

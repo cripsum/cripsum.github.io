@@ -30,7 +30,9 @@ $rwCopy = $rwIsEn
         'title'         => 'Stats and Rewind',
         'desc'          => 'Cripsum Rewind turns your time on the site into a story. These settings decide what goes into it.',
         'open'          => 'Open my Rewind',
-        'soon'          => 'Cripsum Rewind is still being built. Your stats are already being collected, so there will be something to show when it opens.',
+        'locked'        => 'Cripsum Rewind is a Premium feature.',
+        'locked_window' => 'It opens for everyone once a year, from %s. Your stats are collected in the meantime either way.',
+        'locked_cta'    => 'Get Premium',
         'unavailable'   => 'This feature is not available yet.',
 
         'prefs_title'   => 'What gets collected',
@@ -51,7 +53,9 @@ $rwCopy = $rwIsEn
         'title'         => 'Statistiche e Rewind',
         'desc'          => 'Cripsum Rewind racconta il tuo tempo sul sito. Da qui decidi cosa ci finisce dentro.',
         'open'          => 'Apri il mio Rewind',
-        'soon'          => 'Cripsum Rewind è ancora in lavorazione. Le tue statistiche vengono già raccolte, così all\'apertura ci sarà qualcosa da guardare.',
+        'locked'        => 'Cripsum Rewind è una funzione Premium.',
+        'locked_window' => 'Si apre a tutti una volta l\'anno, dal %s. Le tue statistiche vengono raccolte comunque, intanto.',
+        'locked_cta'    => 'Passa a Premium',
         'unavailable'   => 'Questa funzione non è ancora disponibile.',
 
         'prefs_title'   => 'Cosa viene raccolto',
@@ -90,17 +94,28 @@ $rwH = static fn($v): string => htmlspecialchars((string)$v, ENT_QUOTES | ENT_SU
 
         <?php else: ?>
 
-            <?php if (rewind_user_can_view()): ?>
+            <?php if (rewind_user_can_view($mysqli)): ?>
                 <a class="auth-btn auth-btn--primary" href="/<?php echo $rwLang; ?>/rewind"
                    style="width:auto;padding:10px 22px;">
                     <i class="fa-solid fa-play"></i>
                     <span><?php echo $rwH($rwCopy['open']); ?></span>
                 </a>
             <?php else: ?>
+                <?php $rwDates = rewind_free_window_label($rwLang); ?>
                 <div class="auth-alert">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                    <span><?php echo $rwH($rwCopy['soon']); ?></span>
+                    <i class="fa-solid fa-gem"></i>
+                    <span>
+                        <?php echo $rwH($rwCopy['locked']); ?>
+                        <?php if ($rwDates !== ''): ?>
+                            <?php echo $rwH(sprintf($rwCopy['locked_window'], $rwDates)); ?>
+                        <?php endif; ?>
+                    </span>
                 </div>
+                <a class="auth-btn auth-btn--primary" href="/<?php echo $rwLang; ?>/checkout-premium"
+                   style="width:auto;padding:10px 22px;margin-top:.75rem;">
+                    <i class="fa-solid fa-gem"></i>
+                    <span><?php echo $rwH($rwCopy['locked_cta']); ?></span>
+                </a>
             <?php endif; ?>
 
             <form method="post" class="auth-form" style="margin-top:1.25rem;">

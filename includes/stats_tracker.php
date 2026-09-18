@@ -1129,37 +1129,245 @@ function stats_get_totals(mysqli $mysqli, int $userId): array
 }
 
 // ─────────────────────────────────────────────────────────────
-//  ACCESSO ANTICIPATO
+//  CHI PUÒ APRIRE IL REWIND
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Il Rewind è visibile solo allo staff finché non viene aperto a tutti.
+ * Il Rewind è una funzione Premium, con una settimana aperta a tutti.
  *
- * Il tracciamento gira già per chiunque: è proprio il punto. Quando la
- * pagina verrà aperta, le persone troveranno mesi di dati alle spalle invece
- * di un riepilogo vuoto — che è il motivo per cui questa porta resta chiusa.
+ * La pagina è visibile a chiunque — la voce di menu c'è, il link funziona —
+ * ma il racconto si apre solo se una di queste è vera:
  *
- * Per aprirla a tutti basta mettere questa costante a true: non c'è altro da
- * cambiare, i controlli passano tutti da rewind_user_can_view().
+ *   - sei staff;
+ *   - sei Premium, in qualsiasi giorno dell'anno;
+ *   - siamo dentro la finestra libera, una settimana l'anno.
+ *
+ * Il tracciamento invece gira per tutti, sempre, e non passa mai da qui:
+ * chi diventa Premium a novembre deve trovare l'anno intero alle spalle, non
+ * da novembre in poi. È il motivo per cui le statistiche si raccoglievano
+ * anche quando la pagina era chiusa a tutti tranne lo staff.
  */
+
+/** Interruttore d'emergenza: true apre il Rewind a chiunque, subito. */
 const REWIND_OPEN_TO_EVERYONE = false;
 
-/** Vero se l'utente corrente può aprire il proprio Rewind. */
-function rewind_user_can_view(): bool
+/**
+ * Finestra aperta a tutti, come MM-GG, estremi inclusi.
+ *
+ * Se la fine viene prima dell'inizio la finestra scavalca il capodanno e
+ * rewind_free_window() se ne accorge da sola.
+ */
+const REWIND_FREE_WINDOW_START = '09-23';
+const REWIND_FREE_WINDOW_END   = '09-30';
+
+/**
+ * Estremi della finestra libera più vicina al momento dato.
+ *
+ * Torna sempre una finestra sola: quella in corso se ci siamo dentro,
+ * altrimenti la prossima. Le date sono a mezzanotte sull'orologio del
+ * server, che il progetto tiene su Europe/Rome.
+ *
+ * @return array{start:int, end:int, active:bool, year:int}
+ */
+function rewind_free_window(?int $now = null): array
 {
+    $now = $now ?? time();
+    $year = (int)date('Y', $now);
+
+    // La finestra che scavalca il capodanno (es. 28-12 → 03-01) può essere
+    // quella cominciata l'anno scorso: si guarda anche indietro di un anno.
+    $crossesYear = REWIND_FREE_WINDOW_END < REWIND_FREE_WINDOW_START;
+
+    for ($offset = $crossesYear ? -1 : 0; $offset <= 1; $offset++) {
+        $startYear = $year + $offset;
+        $endYear   = $crossesYear ? $startYear + 1 : $startYear;
+
+        $start = strtotime($startYear . '-' . REWIND_FREE_WINDOW_START . ' 00:00:00');
+        $end   = strtotime($endYear . '-' . REWIND_FREE_WINDOW_END . ' 23:59:59');
+
+        if ($start === false || $end === false) {
+            continue; // costanti scritte male: nessuna finestra, si resta Premium
+        }
+
+        if ($now <= $end) {
+            return [
+                'start'  => $start,
+                'end'    => $end,
+                'active' => $now >= $start,
+                'year'   => $startYear,
+            ];
+        }
+    }
+
+    // Non dovrebbe succedere: il ciclo arriva sempre all'anno prossimo.
+    return ['start' => 0, 'end' => 0, 'active' => false, 'year' => $year];
+}
+
+/** Vero se in questo momento il Rewind è aperto a tutti. */
+function rewind_free_window_active(?int $now = null): bool
+{
+    return rewind_free_window($now)['active'];
+}
+
+/**
+ * Perché questo utente può (o non può) aprire il Rewind.
+ *
+ * @return array{can_view:bool, reason:string, is_premium:bool, window:array}
+ */
+function rewind_access(?mysqli $mysqli = null): array
+{
+    $window = rewind_free_window();
+    $premium = rewind_is_premium($mysqli);
+
+    $decide = static fn(bool $can, string $reason): array => [
+        'can_view'   => $can,
+        'reason'     => $reason,
+        'is_premium' => $premium,
+        'window'     => $window,
+    ];
+
     if (REWIND_OPEN_TO_EVERYONE) {
-        return true;
+        return $decide(true, 'open');
     }
 
     $role = $_SESSION['ruolo'] ?? '';
+    if ($role === 'admin' || $role === 'owner') {
+        return $decide(true, 'staff');
+    }
 
-    return $role === 'admin' || $role === 'owner';
+    if ($premium) {
+        return $decide(true, 'premium');
+    }
+
+    if (!empty($window['active'])) {
+        return $decide(true, 'free_window');
+    }
+
+    return $decide(false, 'locked');
 }
 
-/** Messaggio mostrato a chi arriva sulla pagina prima dell'apertura. */
+/**
+ * Vero se l'utente corrente può aprire il proprio Rewind.
+ *
+ * La firma non è cambiata da quando il Rewind era riservato allo staff: tutti
+ * i controlli del sito passano di qui e continuano a funzionare così com'erano.
+ */
+function rewind_user_can_view(?mysqli $mysqli = null): bool
+{
+    return rewind_access($mysqli)['can_view'];
+}
+
+/**
+ * Vero se l'utente in sessione è Premium.
+ *
+ * `$_SESSION['is_premium']` viene scritto al login e all'acquisto, ma **non**
+ * quando qualcuno ti regala il Premium: chi lo riceve resterebbe fuori dal
+ * proprio Rewind fino al logout successivo. Per questo, quando la sessione
+ * dice di no, il valore viene riletto dal database — non più di una volta
+ * all'ora, come già fa stats_tracking_allowed() per le preferenze.
+ *
+ * Chi è già Premium in sessione non fa nessuna interrogazione: il Premium sul
+ * sito non scade, quindi un sì non torna mai a essere un no.
+ */
+function rewind_is_premium(?mysqli $mysqli = null): bool
+{
+    if (!isset($_SESSION['user_id'])) {
+        return false;
+    }
+
+    if ((int)($_SESSION['is_premium'] ?? 0) === 1) {
+        return true;
+    }
+
+    $mysqli = $mysqli ?? ($GLOBALS['mysqli'] ?? null);
+    if (!$mysqli instanceof mysqli) {
+        return false;
+    }
+
+    $checkedAt = (int)($_SESSION['rewind_premium_checked_at'] ?? 0);
+    if ($checkedAt > 0 && (time() - $checkedAt) < 3600) {
+        return false;
+    }
+
+    $_SESSION['rewind_premium_checked_at'] = time();
+
+    try {
+        $stmt = $mysqli->prepare('SELECT is_premium FROM utenti WHERE id = ? LIMIT 1');
+        if (!$stmt) {
+            return false;
+        }
+
+        $userId = (int)$_SESSION['user_id'];
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        $premium = (int)($row['is_premium'] ?? 0) === 1;
+        if ($premium) {
+            $_SESSION['is_premium'] = 1;
+        }
+
+        return $premium;
+    } catch (Throwable $e) {
+        error_log('[rewind_is_premium] ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** Messaggio mostrato a chi arriva sulla pagina senza poterla aprire. */
 function rewind_locked_message(string $lang = 'it'): string
 {
-    return $lang === 'en'
-        ? 'Cripsum Rewind is still being built. It is collecting your stats in the meantime, so there will be something to show when it opens.'
-        : 'Cripsum Rewind è ancora in lavorazione. Intanto sta raccogliendo le tue statistiche, così all\'apertura ci sarà qualcosa da guardare.';
+    $window = rewind_free_window();
+    $isEn   = $lang === 'en';
+
+    if (empty($window['start'])) {
+        return $isEn
+            ? 'Cripsum Rewind is a Premium feature.'
+            : 'Cripsum Rewind è una funzione Premium.';
+    }
+
+    $dates = rewind_free_window_label($lang);
+
+    return $isEn
+        ? 'Cripsum Rewind is a Premium feature. It opens for everyone from ' . $dates . '.'
+        : 'Cripsum Rewind è una funzione Premium. Torna aperto a tutti dal ' . $dates . '.';
+}
+
+/**
+ * La finestra libera scritta per essere letta, es. «23 al 30 settembre».
+ *
+ * I nomi dei mesi sono scritti a mano perché strftime() è deprecato da PHP 8.1
+ * e IntlDateFormatter non è detto che ci sia sul server.
+ */
+function rewind_free_window_label(string $lang = 'it'): string
+{
+    $window = rewind_free_window();
+    if (empty($window['start'])) {
+        return '';
+    }
+
+    static $mesi = [
+        'it' => [1 => 'gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
+            'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'],
+        'en' => [1 => 'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'],
+    ];
+
+    $key = $lang === 'en' ? 'en' : 'it';
+
+    $startDay   = (int)date('j', $window['start']);
+    $endDay     = (int)date('j', $window['end']);
+    $startMonth = $mesi[$key][(int)date('n', $window['start'])];
+    $endMonth   = $mesi[$key][(int)date('n', $window['end'])];
+
+    if ($key === 'en') {
+        return $startMonth === $endMonth
+            ? $startMonth . ' ' . $startDay . '–' . $endDay
+            : $startMonth . ' ' . $startDay . ' – ' . $endMonth . ' ' . $endDay;
+    }
+
+    return $startMonth === $endMonth
+        ? $startDay . ' al ' . $endDay . ' ' . $startMonth
+        : $startDay . ' ' . $startMonth . ' al ' . $endDay . ' ' . $endMonth;
 }

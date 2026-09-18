@@ -67,6 +67,7 @@ if (!function_exists('nav_lang')) {
                 'missions'       => 'Missioni',
                 'private_chat'   => 'Chat Privata',
                 'rewind'         => 'Il tuo Rewind',
+                'rewind_premium' => 'Funzione Premium',
                 'friends'        => 'Amici',
                 'achievements'   => 'Achievements',
                 'sec_play'       => 'Gioco',
@@ -127,6 +128,7 @@ if (!function_exists('nav_lang')) {
                 'missions'       => 'Missions',
                 'private_chat'   => 'Private Chat',
                 'rewind'         => 'Your Rewind',
+                'rewind_premium' => 'Premium feature',
                 'friends'        => 'Friends',
                 'achievements'   => 'Achievements',
                 'sec_play'       => 'Play',
@@ -335,7 +337,17 @@ if (!function_exists('nav_lang')) {
 
         $extra = [];
         if (!empty($ctx['can_rewind'])) {
-            $extra[] = ['icon' => 'fa-clock-rotate-left', 'label' => $t['rewind'], 'href' => "/$lang/rewind"];
+            // La gemma compare a chi il Rewind non può ancora aprirlo: la voce
+            // resta cliccabile e porta alla schermata che spiega perché.
+            $locked = !empty($ctx['rewind_locked']);
+
+            $extra[] = [
+                'icon'  => 'fa-clock-rotate-left',
+                'label' => $t['rewind'],
+                'href'  => "/$lang/rewind",
+                'mark'  => $locked ? 'fa-gem' : null,
+                'tip'   => $locked ? $t['rewind_premium'] : null,
+            ];
         }
         if ($extra) {
             $sections[] = ['id' => 'extra', 'label' => null, 'layout' => 'rows', 'items' => $extra];

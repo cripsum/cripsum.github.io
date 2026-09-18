@@ -61,6 +61,11 @@ try {
     try {
         stats_track($mysqli, $userId, 'friends_added');
         stats_track($mysqli, $senderId, 'friends_added');
+
+        // Anche le missioni valgono per entrambi: chi ha mandato la richiesta
+        // ha fatto la sua parte, e non può sapere quando verrà accettata.
+        trackMissionProgress($mysqli, $userId, 'add_friend');
+        trackMissionProgress($mysqli, $senderId, 'add_friend');
     } catch (Throwable $trackErr) {
         error_log('[Stats accept_friend_request] ' . $trackErr->getMessage());
     }

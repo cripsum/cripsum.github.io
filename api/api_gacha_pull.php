@@ -578,6 +578,11 @@ try {
             trackMissionProgress($mysqli, $userId, 'get_rarity_secret');
         }
 
+        // Personaggio mai posseduto prima.
+        if ($isNew) {
+            trackMissionProgress($mysqli, $userId, 'gacha_new_char');
+        }
+
         // ── Statistiche Rewind ────────────────────────────────────────────
         // Le rarità arrivano già dal tracker delle missioni; qui restano i
         // dati che nessuna missione osserva: pull, spesa, pity e 50/50.

@@ -278,6 +278,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Unlock premium profile customization</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Daily claim of 500 Godos in Lootbox</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Double Godos (2x) on Daily & Weekly missions</span></div>
+                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Cripsum Rewind any day, not just one week a year</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Exclusive premium gem tag next to your name</span></div>
                         <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Featured in the homepage Supporters list</span></div>
                     </div>

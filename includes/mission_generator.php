@@ -9,6 +9,8 @@
 
 defined('ABSPATH') || define('ABSPATH', true); // protezione accesso diretto
 
+require_once __DIR__ . '/security_helpers.php'; // auth_column_exists()
+
 // ─────────────────────────────────────────────────────────────
 //  COSTANTI CONFIGURAZIONE
 // ─────────────────────────────────────────────────────────────
@@ -16,6 +18,31 @@ defined('ABSPATH') || define('ABSPATH', true); // protezione accesso diretto
 define('MISSIONS_DAILY_COUNT',  5);   // quante daily assegnare per giorno
 define('MISSIONS_WEEKLY_COUNT', 3);   // quante weekly assegnare per settimana
 define('MISSIONS_MAX_PER_CATEGORIA', 2); // max missioni della stessa categoria per selezione
+
+/**
+ * Composizione per difficoltà di una selezione.
+ *
+ * Con un pool di ottanta missioni lo shuffle puro può servire cinque missioni
+ * difficili di fila a chi ha appena aperto l'account, o cinque banalità a chi
+ * gioca da mesi. La giornata parte sempre da due cose facili e finisce con una
+ * difficile; la settimana sale da media a epica.
+ *
+ * Se il pool non ha abbastanza missioni di una difficoltà, lo slot viene
+ * riempito con quello che c'è: la quota è una preferenza, non un requisito.
+ */
+define('MISSIONS_DAILY_MIX',  ['facile', 'facile', 'media', 'media', 'difficile']);
+define('MISSIONS_WEEKLY_MIX', ['media', 'difficile', 'epica']);
+
+/**
+ * Per quanti giorni una missione già assegnata resta fuori dal sorteggio.
+ *
+ * Senza memoria, con cinque estrazioni al giorno su un pool di cinquanta
+ * daily, la stessa missione ricapita in media ogni dieci giorni — ma la
+ * casualità essendo quella che è, capita anche tre giorni di fila, e sembra
+ * che il sistema sia rotto.
+ */
+define('MISSIONS_DAILY_MEMORY_DAYS',  3);
+define('MISSIONS_WEEKLY_MEMORY_DAYS', 14);
 
 
 // ─────────────────────────────────────────────────────────────
@@ -102,7 +129,8 @@ function ensureUserMissions(mysqli $mysqli, int $userId, string $tipo): array
     }
 
     // ── 2. Genera nuove missioni ─────────────────────────────
-    $selected = selectMissionsFromPool($mysqli, $tipo, $count);
+    $recent   = fetchRecentMissionIds($mysqli, $userId, $tipo, $periodo);
+    $selected = selectMissionsFromPool($mysqli, $tipo, $count, $recent);
 
     if (empty($selected)) {
         // Pool vuoto o troppo pochi — ritorna vuoto senza crashare
@@ -122,70 +150,190 @@ function ensureUserMissions(mysqli $mysqli, int $userId, string $tipo): array
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Seleziona N missioni dal pool con:
- *  - shuffle casuale (Fisher-Yates via shuffle() di PHP)
- *  - filtro incompatibilità (via slug JSON)
- *  - filtro per categoria (max MISSIONS_MAX_PER_CATEGORIA per tipo)
+ * Seleziona N missioni dal pool.
+ *
+ * L'ordine dei filtri conta, e va dal più morbido al più rigido:
+ *
+ *  1. si tolgono le missioni viste di recente — ma solo se dopo ne restano
+ *     abbastanza, altrimenti il filtro si disattiva da solo;
+ *  2. il pool viene mescolato tenendo conto del `peso`, così le missioni del
+ *     ciclo principale escono più spesso di quelle di nicchia;
+ *  3. si riempie uno slot per volta seguendo la quota di difficoltà, e per
+ *     ogni slot si prende la prima candidata che non sia incompatibile con le
+ *     già scelte e non sfori il tetto per categoria;
+ *  4. gli slot rimasti vuoti (difficoltà esaurita) si riempiono con qualsiasi
+ *     candidata valida.
  *
  * @param mysqli $mysqli
- * @param string $tipo   'daily' | 'weekly'
- * @param int    $count  quante missioni selezionare
+ * @param string $tipo    'daily' | 'weekly'
+ * @param int    $count   quante missioni selezionare
+ * @param int[]  $exclude id di missioni viste di recente, da evitare
  * @return array  Array di righe missions (id, slug, categoria, incompatibili, ...)
  */
-function selectMissionsFromPool(mysqli $mysqli, string $tipo, int $count): array
+function selectMissionsFromPool(mysqli $mysqli, string $tipo, int $count, array $exclude = []): array
 {
-    // Fetch tutto il pool attivo per questo tipo
     $pool = fetchMissionPool($mysqli, $tipo);
 
     if (empty($pool)) {
         return [];
     }
 
-    // Shuffle casuale
-    shuffle($pool);
+    // ── 1. Memoria delle ultime estrazioni ───────────────────
+    // Il filtro salta se lascerebbe il pool troppo magro per comporre una
+    // selezione decente: meglio ripetere una missione che darne tre.
+    if (!empty($exclude)) {
+        $excludeMap = array_flip(array_map('intval', $exclude));
+        $filtered   = array_values(array_filter(
+            $pool,
+            static fn(array $m): bool => !isset($excludeMap[(int)$m['id']])
+        ));
 
-    $selected        = [];
-    $selectedSlugs   = [];
-    $categoryCounts  = [];
-
-    foreach ($pool as $mission) {
-        if (count($selected) >= $count) {
-            break;
+        if (count($filtered) >= $count * 2) {
+            $pool = $filtered;
         }
+    }
 
-        $slug      = $mission['slug'];
-        $categoria = $mission['categoria'];
+    // ── 2. Mescolata pesata ──────────────────────────────────
+    shuffleMissionPoolByWeight($pool);
 
-        // ── A. Controlla incompatibilità con già selezionate ──
-        $incompatibili = json_decode($mission['incompatibili'] ?? '[]', true);
-        if (!is_array($incompatibili)) {
-            $incompatibili = [];
-        }
+    // ── 3. Slot per difficoltà, poi ── 4. riempimento libero ─
+    $mix = $tipo === 'daily' ? MISSIONS_DAILY_MIX : MISSIONS_WEEKLY_MIX;
 
-        $hasConflict = false;
-        foreach ($incompatibili as $incompSlug) {
-            if (in_array($incompSlug, $selectedSlugs, true)) {
-                $hasConflict = true;
-                break;
+    // La quota è scritta per i conteggi di default: se qualcuno li cambia,
+    // si allunga ripetendo l'ultima difficoltà o si accorcia.
+    while (count($mix) < $count) {
+        $mix[] = end($mix) ?: 'facile';
+    }
+    $mix = array_slice($mix, 0, $count);
+
+    $selected       = [];
+    $selectedSlugs  = [];
+    $bannedSlugs    = [];
+    $categoryCounts = [];
+    $taken          = [];
+
+    $pick = static function (?string $difficolta) use (
+        &$pool, &$selected, &$selectedSlugs, &$bannedSlugs, &$categoryCounts, &$taken
+    ): bool {
+        foreach ($pool as $index => $mission) {
+            if (isset($taken[$index])) {
+                continue;
             }
-        }
-        if ($hasConflict) {
-            continue;
+            if ($difficolta !== null && ($mission['difficolta'] ?? '') !== $difficolta) {
+                continue;
+            }
+            if (!missionFitsSelection($mission, $selectedSlugs, $bannedSlugs, $categoryCounts)) {
+                continue;
+            }
+
+            $taken[$index]   = true;
+            $selected[]      = $mission;
+            $selectedSlugs[] = $mission['slug'];
+
+            // Da qui in avanti nessuno di questi slug può più entrare.
+            foreach (missionIncompatibleSlugs($mission) as $slug) {
+                $bannedSlugs[$slug] = true;
+            }
+
+            $categoria = $mission['categoria'];
+            $categoryCounts[$categoria] = ($categoryCounts[$categoria] ?? 0) + 1;
+
+            return true;
         }
 
-        // ── B. Controlla il limite per categoria ──────────────
-        $catCount = $categoryCounts[$categoria] ?? 0;
-        if ($catCount >= MISSIONS_MAX_PER_CATEGORIA) {
-            continue;
-        }
+        return false;
+    };
 
-        // ── C. Aggiunge alla selezione ────────────────────────
-        $selected[]                  = $mission;
-        $selectedSlugs[]             = $slug;
-        $categoryCounts[$categoria]  = $catCount + 1;
+    $unfilled = 0;
+    foreach ($mix as $difficolta) {
+        if (!$pick($difficolta)) {
+            $unfilled++;
+        }
+    }
+
+    for ($i = 0; $i < $unfilled; $i++) {
+        if (!$pick(null)) {
+            break; // il pool non ha più niente di compatibile
+        }
     }
 
     return $selected;
+}
+
+/**
+ * Vero se la missione può entrare nella selezione così com'è messa ora.
+ *
+ * L'incompatibilità va guardata in tutte e due le direzioni, e non è un
+ * dettaglio: nel pool è quasi sempre dichiarata da una parte sola. Se
+ * `daily_gacha_multi_1` dice di non stare con `daily_lootbox_open_3` ma non
+ * viceversa, controllare solo la lista della candidata le fa uscire insieme
+ * ogni volta che la seconda viene pescata per prima — cioè metà delle volte.
+ *
+ * @param array<string,bool> $bannedSlugs slug vietati dalle già selezionate
+ */
+function missionFitsSelection(array $mission, array $selectedSlugs, array $bannedSlugs, array $categoryCounts): bool
+{
+    if (($categoryCounts[$mission['categoria']] ?? 0) >= MISSIONS_MAX_PER_CATEGORIA) {
+        return false;
+    }
+
+    // Direzione 1: qualcuno già dentro ha dichiarato questa come incompatibile.
+    if (isset($bannedSlugs[$mission['slug']])) {
+        return false;
+    }
+
+    // Direzione 2: questa dichiara incompatibile qualcuno già dentro.
+    foreach (missionIncompatibleSlugs($mission) as $incompSlug) {
+        if (in_array($incompSlug, $selectedSlugs, true)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Lista di slug incompatibili di una missione, sempre come array di stringhe.
+ *
+ * Il campo è un testo JSON scritto a mano nella migration: se qualcuno ci
+ * mette dentro qualcosa di storto, qui diventa una lista vuota invece di far
+ * fallire la generazione della giornata.
+ *
+ * @return string[]
+ */
+function missionIncompatibleSlugs(array $mission): array
+{
+    $decoded = json_decode((string)($mission['incompatibili'] ?? '[]'), true);
+
+    if (!is_array($decoded)) {
+        return [];
+    }
+
+    return array_values(array_filter($decoded, 'is_string'));
+}
+
+/**
+ * Mescola il pool tenendo conto del peso di ogni missione.
+ *
+ * È il campionamento pesato di Efraimidis e Spirakis: a ogni riga si dà la
+ * chiave u^(1/peso) con u casuale in (0,1], e si ordina per chiave
+ * decrescente. Il risultato è un ordine casuale in cui una missione di peso 3
+ * ha tre volte le probabilità di una di peso 1 di trovarsi davanti — senza
+ * mai escludere nessuno, che è il motivo per cui non basterebbe ordinare per
+ * peso e poi mescolare a gruppi.
+ */
+function shuffleMissionPoolByWeight(array &$pool): void
+{
+    $max = mt_getrandmax();
+
+    foreach ($pool as &$mission) {
+        $peso = max(1, (int)($mission['peso'] ?? 1));
+        $u    = mt_rand(1, $max) / $max; // (0, 1]
+        $mission['_sort_key'] = $peso === 1 ? $u : pow($u, 1 / $peso);
+    }
+    unset($mission);
+
+    usort($pool, static fn(array $a, array $b): int => $b['_sort_key'] <=> $a['_sort_key']);
 }
 
 
@@ -195,12 +343,19 @@ function selectMissionsFromPool(mysqli $mysqli, string $tipo, int $count): array
 
 /**
  * Recupera tutto il pool di missioni attive per un tipo.
+ *
+ * `peso` è arrivato con l'espansione del pool: finché la migration non è
+ * stata applicata la colonna non esiste, e in quel caso vale 1 per tutti —
+ * cioè esattamente il comportamento di prima.
  */
 function fetchMissionPool(mysqli $mysqli, string $tipo): array
 {
+    $peso = auth_column_exists($mysqli, 'missions', 'peso') ? 'peso' : '1 AS peso';
+
     $stmt = $mysqli->prepare("
         SELECT id, slug, categoria, titolo, titolo_en, descrizione, descrizione_en,
-               icona, obiettivo, punti_reward, difficolta, evento_trigger, incompatibili
+               icona, obiettivo, punti_reward, difficolta, evento_trigger, incompatibili,
+               {$peso}
         FROM missions
         WHERE tipo = ? AND attiva = 1
         ORDER BY id ASC
@@ -214,6 +369,49 @@ function fetchMissionPool(mysqli $mysqli, string $tipo): array
     }
     $stmt->close();
     return $rows;
+}
+
+/**
+ * Missioni già assegnate a questo utente nei periodi immediatamente passati.
+ *
+ * Serve a non riproporre le stesse tre missioni giorno dopo giorno. Non è un
+ * divieto: selectMissionsFromPool() lo ignora se restringerebbe troppo il
+ * pool, e un errore qui non deve impedire la generazione.
+ *
+ * @return int[] id di missions
+ */
+function fetchRecentMissionIds(mysqli $mysqli, int $userId, string $tipo, string $periodo): array
+{
+    $days = $tipo === 'daily' ? MISSIONS_DAILY_MEMORY_DAYS : MISSIONS_WEEKLY_MEMORY_DAYS;
+
+    try {
+        $stmt = $mysqli->prepare("
+            SELECT DISTINCT mission_id
+            FROM user_missions
+            WHERE user_id = ?
+              AND tipo    = ?
+              AND periodo >= DATE_SUB(?, INTERVAL ? DAY)
+              AND periodo <  ?
+        ");
+        if (!$stmt) {
+            return [];
+        }
+
+        $stmt->bind_param('issis', $userId, $tipo, $periodo, $days, $periodo);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $ids = [];
+        while ($row = $result->fetch_assoc()) {
+            $ids[] = (int)$row['mission_id'];
+        }
+        $stmt->close();
+
+        return $ids;
+    } catch (Throwable $e) {
+        error_log('[fetchRecentMissionIds] ' . $e->getMessage());
+        return [];
+    }
 }
 
 /**

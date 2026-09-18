@@ -492,7 +492,24 @@ body.msn-page {
     color: var(--_diff-color, var(--msn-accent));
     border: 1px solid rgba(var(--_diff-rgb, var(--msn-accent-rgb)), 0.28);
     white-space: nowrap;
+}
+
+/* La difficoltà e la categoria stanno sulla stessa riga e vanno a capo
+   insieme: su schermo stretto il titolo di una missione lunga può spingere
+   la seconda etichetta fuori, e preferiamo che scenda. */
+.msn-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
     margin-top: 0.4rem;
+}
+
+/* La categoria non deve rubare la scena alla difficoltà, che è il dato che
+   conta: stesso corpo, colore neutro. */
+.msn-badge--cat {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--msn-muted);
+    border-color: var(--msn-border);
 }
 
 /* ─────────────────────────────────────────────────────────────

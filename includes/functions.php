@@ -471,10 +471,17 @@ function getPremiumGiftEmailTemplate($recipientUsername, $senderUsername)
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="vertical-align: top; width: 30px; font-size: 18px;">🏅</td>
-                                        <td style="color: #f8fafc; font-size: 14px; line-height: 1.5;">
+                                        <td style="vertical-align: top; width: 30px; font-size: 18px; padding-bottom: 15px;">🏅</td>
+                                        <td style="color: #f8fafc; font-size: 14px; padding-bottom: 15px; line-height: 1.5;">
                                             <strong style="color: #ffffff;">Badge Premium</strong><br>
                                             <span style="color: #94a3b8;">Un luccicante badge Premium a forma di diamante visualizzato con orgoglio sul tuo profilo.</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="vertical-align: top; width: 30px; font-size: 18px;">⏪</td>
+                                        <td style="color: #f8fafc; font-size: 14px; line-height: 1.5;">
+                                            <strong style="color: #ffffff;">Cripsum Rewind</strong><br>
+                                            <span style="color: #94a3b8;">Il racconto del tuo anno sul sito, quando vuoi: per tutti gli altri si apre solo una settimana all'anno.</span>
                                         </td>
                                     </tr>
                                 </table>
@@ -550,6 +557,24 @@ function isOwner()
 function isPremium()
 {
     return isset($_SESSION['is_premium']) && (int)$_SESSION['is_premium'] === 1;
+}
+
+/**
+ * Indirizzo di un asset con la versione presa dal file stesso.
+ *
+ * I `?v=1.2` scritti a mano vanno aggiornati a ogni modifica, e prima o poi
+ * ci si dimentica: il browser continua a servire il vecchio file e sembra che
+ * le modifiche non siano state applicate. Qui la versione è la data di
+ * modifica del file, quindi cambia da sola quando il file cambia e resta
+ * stabile finché non cambia.
+ *
+ * @param string $path percorso assoluto dalla radice del sito, es. /assets/x.js
+ */
+function cripsum_asset(string $path): string
+{
+    $stamp = @filemtime(__DIR__ . '/..' . $path);
+
+    return $path . '?v=' . ($stamp !== false ? $stamp : '1');
 }
 
 
@@ -1357,6 +1382,7 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "- **Bonus di 25.000 Godos**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
             "- **Riscatto Lootbox**: Riscatta 500 Godos extra bonus ogni giorno nelle Lootbox.\n" .
             "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i Godos delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
+            "- **Cripsum Rewind**: Apri il racconto del tuo anno quando vuoi, non solo nella settimana in cui è libero per tutti.\n" .
             "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
             "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
             "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
@@ -1372,6 +1398,7 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "- **25.000 Godos Bonus**: Added directly to your balance to pull in the gacha.\n" .
             "- **Lootbox Daily Claim**: Redeem 500 extra bonus Godos every day in your Lootbox.\n" .
             "- **Mission Boost**: Double Godos (x2) earned on all Daily & Weekly missions.\n" .
+            "- **Cripsum Rewind**: Open the story of your year any day you like, not just during the one week it is free for everyone.\n" .
             "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
             "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
             "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
@@ -1390,6 +1417,7 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "- **Bonus di 25.000 Godos**: Aggiunti direttamente al tuo bilancio per effettuare pull nel gacha.\n" .
             "- **Riscatto Lootbox**: Riscatta 500 Godos extra bonus ogni giorno nelle Lootbox.\n" .
             "- **Boost Missioni**: Guadagni raddoppiati (x2) su tutti i Godos delle missioni Giornaliere e Settimanali (Daily & Weekly).\n" .
+            "- **Cripsum Rewind**: Apri il racconto del tuo anno quando vuoi, non solo nella settimana in cui è libero per tutti.\n" .
             "- **Effetti e Cursori Personalizzati**: Personalizza il cursore del mouse nel tuo profilo.\n" .
             "- **Layout Snap & Background Grain**: Nuovi stili grafici e grana di sfondo avanzata per il tuo profilo.\n" .
             "- **Temi Musicali Personalizzati**: Aggiungi colonne sonore personalizzate alla tua pagina profilo.\n" .
@@ -1405,6 +1433,7 @@ function sendPremiumUpgradeNotification($mysqli, $recipientId, $senderUsername =
             "- **25.000 Godos Bonus**: Added directly to your balance to pull in the gacha.\n" .
             "- **Lootbox Daily Claim**: Redeem 500 extra bonus Godos every day in your Lootbox.\n" .
             "- **Mission Boost**: Double Godos (x2) earned on all Daily & Weekly missions.\n" .
+            "- **Cripsum Rewind**: Open the story of your year any day you like, not just during the one week it is free for everyone.\n" .
             "- **Custom Mouse Cursors & Effects**: Customize the cursor on your profile page.\n" .
             "- **Layout Snap & Background Grain**: New advanced styling grids and background effects.\n" .
             "- **Custom Music Themes**: Add background soundtracks to your profile page.\n" .
