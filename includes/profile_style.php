@@ -43,8 +43,11 @@ const PROFILE_NAME_EFFECTS_OWN_COLORS = ['gradient', 'rainbow', 'fire', 'water']
  * nel profilo e il caricatore JS): bastava dimenticarne uno e il font si
  * salvava ma non arrivava mai al browser. Adesso leggono tutti di qui.
  *
- * - `css`    quello che va dopo `family=` su fonts.googleapis.com/css2;
- *            null per i due font che stanno nel repository.
+ * - `css`    quello che va dopo `family=` su fonts.googleapis.com/css2, o
+ *            null per chi non va chiesto a Google: i due font che stanno nel
+ *            repository e Poppins, che head-import.php carica gia' su tutte
+ *            le pagine. Chiedendolo di nuovo con altri pesi, nell'editor
+ *            diventava visibilmente diverso dal Poppins del resto del sito.
  * - `group`  come li raggruppa la tendina dell'editor.
  * - `stack`  la famiglia di riserva mentre il font carica, o se non carica.
  *
@@ -62,7 +65,7 @@ function profile_font_catalog(): array
 
     return $catalog = [
         // Senza grazie
-        'Poppins'            => $f('Poppins:wght@300;400;500;600;700;800', false, 'sans'),
+        'Poppins'            => $f(null, false, 'sans'),
         'Inter'              => $f('Inter:wght@300;400;500;600;700;800', false, 'sans'),
         'Roboto'             => $f('Roboto:wght@300;400;500;700', false, 'sans'),
         'Outfit'             => $f('Outfit:wght@300;400;500;600;700;800', false, 'sans'),

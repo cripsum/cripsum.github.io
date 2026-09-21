@@ -354,14 +354,10 @@
         const avatarEditor = document.querySelector('.pe-avatar-editor');
         if (avatarEditor) avatarEditor.dataset.avatarShape = radioValue('profile_avatar_shape') || 'circle';
 
-        // Le schermate esistono solo con il layout "A schermate": altrove i
-        // controlli non avrebbero effetto, quindi non si vedono nemmeno.
-        const sectionsList = document.getElementById('peSections');
-        if (sectionsList) {
-            const isSnap = radioValue('profile_layout_choice') === 'scrollsnap';
-            sectionsList.classList.toggle('is-snap', isSnap);
-            const note = document.getElementById('peScreenNote');
-            if (note) note.hidden = !isSnap;
+        // Le schermate esistono solo con il layout "A schermate": cambiando
+        // layout il riquadro compare o sparisce.
+        if (changed?.name === 'profile_layout_choice' || changed === null) {
+            PE.screens?.render();
         }
 
         // Anteprima del contatore delle visite, accanto ai due interruttori.

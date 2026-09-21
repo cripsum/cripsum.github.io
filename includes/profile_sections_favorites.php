@@ -62,7 +62,7 @@ function profile_render_favorites_section(string $kind, array $items, string $ti
 ?>
     <section class="bio-card profile-favorites-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="<?php echo profile_h($sectionKey); ?>" data-section-title="<?php echo profile_h($title); ?>">
         <?php profile_render_section_heading($meta['icon'], $meta['title'], null, $sectionKey); ?>
-        <div class="profile-favorites-grid" data-count="<?php echo count($items); ?>">
+        <div class="profile-favorites-grid" data-count="<?php echo count($items); ?>" data-section-items>
             <?php foreach ($items as $item): ?>
                 <?php
                 $itemTitle = (string)($item['title'] ?? '');
@@ -79,18 +79,18 @@ function profile_render_favorites_section(string $kind, array $items, string $ti
                     title="<?php echo profile_h($itemTitle); ?>">
                     <span class="profile-favorite-art<?php echo $image === '' ? ' is-empty' : ''; ?>">
                         <?php if ($image !== ''): ?>
-                            <img src="<?php echo profile_h($image); ?>" alt="" loading="lazy" decoding="async">
+                            <img src="<?php echo profile_h($image); ?>" alt="" loading="lazy" decoding="async"
+                                onerror="this.parentElement.classList.add('is-empty'); this.remove();">
                         <?php else: ?>
                             <i class="<?php echo profile_h($meta['icon']); ?>" aria-hidden="true"></i>
-                        <?php endif; ?>
-                        <?php if ($itemMeta !== ''): ?>
-                            <span class="profile-favorite-meta"><?php echo profile_h($itemMeta); ?></span>
                         <?php endif; ?>
                     </span>
                     <span class="profile-favorite-info">
                         <strong><?php echo profile_h($itemTitle); ?></strong>
                         <?php if ($subtitle !== ''): ?><small><?php echo profile_h($subtitle); ?></small><?php endif; ?>
+                        <?php if ($itemMeta !== ''): ?><span class="profile-favorite-meta"><?php echo profile_h($itemMeta); ?></span><?php endif; ?>
                     </span>
+                    <?php if ($url !== ''): ?><i class="fa-solid fa-chevron-right profile-favorite-go" aria-hidden="true"></i><?php endif; ?>
                 </<?php echo $tag; ?>>
             <?php endforeach; ?>
         </div>

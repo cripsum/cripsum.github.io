@@ -733,24 +733,34 @@ const PROFILE_SECTION_KEYS = [
 ];
 
 /**
- * Le sezioni raggruppate per schermata, per il layout "A schermate".
- *
- * Ogni sezione con `join` acceso nella sua configurazione resta nella
- * schermata di quella prima; le altre ne aprono una nuova. L'ordine e' quello
- * salvato in `profile_sections_order`.
- *
- * Il risultato finisce in un attributo del <body> e lo legge profile.js, che
- * i riquadri delle sezioni ce li ha gia' davanti: cosi' il markup delle
- * sezioni non cambia di una virgola.
- *
- * @return string "links,stats|blocks|badges,activity"
+ * Dove vive la composizione delle schermate dentro `profile_sections_config`.
+ * Le sezioni hanno tutte chiavi semplici: due trattini bassi non collidono.
  */
-function profile_snap_screens_attr(array $profile): string
-{
-    if ((int)($profile['is_premium'] ?? 0) !== 1 || (int)($profile['profile_layout_snap'] ?? 0) !== 1) {
-        return '';
-    }
+const PROFILE_SCREENS_KEY = '__screens';
 
+/** Le sezioni che si possono spezzare fra schermate diverse, elemento per elemento. */
+const PROFILE_SPLITTABLE_SECTIONS = [
+    'links', 'embeds', 'projects', 'contents', 'blocks',
+    'fav_games', 'fav_watch', 'fav_music', 'fav_read',
+];
+
+/**
+ * Le schermate del layout "A schermate".
+ *
+ * Una schermata e' una lista di "pezzi": `['s' => sezione]` per la sezione
+ * intera, `['s' => sezione, 'i' => [0, 2]]` per una parte, cioe' solo alcuni
+ * dei suoi elementi. Cosi' gli stessi blocchi custom possono stare su due
+ * schermate lontane, che era l'unica cosa che il modello di prima — un
+ * interruttore "unisci a quella sopra" per sezione — non sapeva fare.
+ *
+ * Quello che non e' nominato finisce in fondo, una sezione per schermata, e
+ * gli elementi lasciati fuori da tutte le parti tornano nella prima: nessun
+ * contenuto sparisce perche' la configurazione e' rimasta indietro.
+ *
+ * @return array<int,array<int,array{s:string,i?:array<int,int>}>>
+ */
+function profile_screens_resolve(array $profile): array
+{
     $config = json_decode((string)($profile['profile_sections_config'] ?? ''), true);
     $config = is_array($config) ? $config : [];
 
@@ -764,18 +774,106 @@ function profile_snap_screens_attr(array $profile): string
         }
     }
 
-    $screens = [];
+    $screens = profile_screens_sanitize($config[PROFILE_SCREENS_KEY] ?? null);
+
+    // Niente schermate salvate: si ricava dal vecchio interruttore `join`,
+    // cosi' chi lo aveva gia' usato non si ritrova il profilo rimescolato.
+    if (!$screens) {
+        foreach ($order as $key) {
+            if (!$screens || empty($config[$key]['join'])) {
+                $screens[] = [['s' => $key]];
+            } else {
+                $screens[count($screens) - 1][] = ['s' => $key];
+            }
+        }
+        return $screens;
+    }
+
+    // Una sezione mai nominata (nuova, o aggiunta dopo) prende una schermata
+    // in fondo invece di sparire dal profilo.
+    $placed = [];
+    foreach ($screens as $slots) {
+        foreach ($slots as $slot) {
+            $placed[$slot['s']] = true;
+        }
+    }
     foreach ($order as $key) {
-        // La prima sezione apre sempre la prima schermata, qualunque cosa dica
-        // la sua configurazione.
-        if (!$screens || empty($config[$key]['join'])) {
-            $screens[] = [$key];
-        } else {
-            $screens[count($screens) - 1][] = $key;
+        if (!isset($placed[$key])) {
+            $screens[] = [['s' => $key]];
         }
     }
 
-    return implode('|', array_map(static fn(array $group): string => implode(',', $group), $screens));
+    return $screens;
+}
+
+/**
+ * Ripulisce la struttura delle schermate come arriva dal database o dal form.
+ *
+ * @return array<int,array<int,array{s:string,i?:array<int,int>}>>
+ */
+function profile_screens_sanitize($raw): array
+{
+    if (is_string($raw)) {
+        $raw = json_decode($raw, true);
+    }
+    if (!is_array($raw)) {
+        return [];
+    }
+
+    $screens = [];
+    $seen = [];
+    foreach (array_slice($raw, 0, 40) as $slots) {
+        if (!is_array($slots)) continue;
+        $clean = [];
+        foreach (array_slice($slots, 0, 40) as $slot) {
+            if (!is_array($slot)) continue;
+            $key = is_string($slot['s'] ?? null) ? trim($slot['s']) : '';
+            if (!in_array($key, PROFILE_SECTION_KEYS, true)) continue;
+
+            $part = ['s' => $key];
+            // Gli indici hanno senso solo dove gli elementi si possono
+            // spezzare: altrove la sezione va tutta insieme.
+            if (isset($slot['i']) && is_array($slot['i']) && in_array($key, PROFILE_SPLITTABLE_SECTIONS, true)) {
+                $indexes = [];
+                foreach (array_slice($slot['i'], 0, 200) as $index) {
+                    if (!is_int($index) && !ctype_digit((string)$index)) continue;
+                    $index = (int)$index;
+                    if ($index >= 0 && !in_array($index, $indexes, true)) {
+                        $indexes[] = $index;
+                    }
+                }
+                $part['i'] = $indexes;
+            }
+
+            // Una sezione intera due volte sarebbe lo stesso contenuto
+            // stampato due volte: si tiene la prima.
+            if (!isset($part['i'])) {
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+            }
+            $clean[] = $part;
+        }
+        if ($clean) {
+            $screens[] = $clean;
+        }
+    }
+
+    return $screens;
+}
+
+/**
+ * Le schermate pronte per l'attributo del <body>, che legge profile.js.
+ *
+ * Il markup delle sezioni non cambia: e' il JS a ricomporle, perche' lo
+ * scorrimento a schermate vive comunque solo li'.
+ */
+function profile_snap_screens_attr(array $profile): string
+{
+    if ((int)($profile['is_premium'] ?? 0) !== 1 || (int)($profile['profile_layout_snap'] ?? 0) !== 1) {
+        return '';
+    }
+    $screens = profile_screens_resolve($profile);
+    return $screens ? (string)json_encode($screens, JSON_UNESCAPED_SLASHES) : '';
 }
 
 /** I quattro tipi di preferiti e la sezione del profilo a cui appartengono. */

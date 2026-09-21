@@ -1713,6 +1713,135 @@
         });
     };
 
+    /**
+     * Ricompone le sezioni secondo le schermate scelte (layout a scorrimento).
+     *
+     * `data-snap-screens` arriva da profile.php:
+     *   [ [ {s:"blocks", i:[0]}, {s:"stats"} ], [ {s:"links"} ], [ {s:"blocks", i:[1,2]} ] ]
+     * Una sezione puo' comparire piu' volte con elementi diversi: e' cosi' che
+     * due blocchi custom finiscono su due schermate lontane. Il server manda
+     * ogni sezione una volta sola, con tutti i suoi elementi; qui si spezza.
+     *
+     * Gira prima di anelli, inclinazione e comparse, cosi' i pezzi nuovi sono
+     * gia' nella pagina quando quelli si agganciano.
+     */
+    const applyScreenComposition = () => {
+        const raw = body.dataset.snapScreens;
+        if (!raw) return;
+
+        let screens;
+        try { screens = JSON.parse(raw); } catch (_) { return; }
+        if (!Array.isArray(screens) || !screens.length) return;
+
+        const content = document.querySelector('.profile-smart-content');
+        if (!content) return;
+
+        const originals = new Map();
+        content.querySelectorAll('[data-section-type]').forEach((el) => {
+            const key = el.dataset.sectionType;
+            if (key && !originals.has(key)) originals.set(key, el);
+        });
+        if (!originals.size) return;
+
+        const itemsOf = (el) => el.querySelector('[data-section-items]');
+
+        // Gli elementi si fotografano e si tolgono PRIMA di distribuirli:
+        // spostandoli man mano, gli indici della configurazione non
+        // corrisponderebbero piu' a niente.
+        const snapshots = new Map();
+        screens.forEach((slots) => (slots || []).forEach((slot) => {
+            if (!slot || !Array.isArray(slot.i) || snapshots.has(slot.s)) return;
+            const original = originals.get(slot.s);
+            const box = original && itemsOf(original);
+            if (!box) return;
+            snapshots.set(slot.s, Array.from(box.children));
+            box.textContent = '';
+        }));
+
+        const built = [];
+        const firstPart = new Map();
+        const taken = new Map();
+
+        screens.forEach((slots, screenIndex) => {
+            (slots || []).forEach((slot) => {
+                const original = slot && originals.get(slot.s);
+                if (!original) return;
+
+                const isFirst = !firstPart.has(slot.s);
+                let el = original;
+                if (!isFirst) {
+                    el = original.cloneNode(true);
+                    const box = itemsOf(el);
+                    if (box) box.textContent = '';
+                }
+
+                const snapshot = snapshots.get(slot.s);
+                if (snapshot && Array.isArray(slot.i)) {
+                    const box = itemsOf(el);
+                    const mine = taken.get(slot.s) || new Set();
+                    slot.i.forEach((index) => {
+                        const node = snapshot[index];
+                        if (!node || mine.has(index)) return;
+                        mine.add(index);
+                        box?.appendChild(node);
+                    });
+                    taken.set(slot.s, mine);
+                }
+
+                if (isFirst) firstPart.set(slot.s, el);
+                el.dataset.snapScreen = String(screenIndex);
+                built.push(el);
+            });
+        });
+
+        // Un elemento che nessuna parte ha richiesto torna nella prima: una
+        // configurazione rimasta indietro non deve far sparire contenuti.
+        snapshots.forEach((snapshot, key) => {
+            const mine = taken.get(key) || new Set();
+            const box = itemsOf(firstPart.get(key) || originals.get(key));
+            snapshot.forEach((node, index) => {
+                if (!mine.has(index) && box) box.appendChild(node);
+            });
+        });
+
+        // Le parti rimaste senza elementi non lasciano un riquadro vuoto.
+        const kept = built.filter((el) => {
+            const box = itemsOf(el);
+            if (!box || !snapshots.has(el.dataset.sectionType)) return true;
+            return box.children.length > 0;
+        });
+
+        kept.forEach((el) => {
+            const box = itemsOf(el);
+            if (box) {
+                const count = box.children.length;
+                // Contatori che decidono le colonne: dopo lo spezzettamento
+                // vanno rifatti, o una parte con due schede si impagina come
+                // se ne avesse otto.
+                if (box.hasAttribute('data-count')) box.dataset.count = String(count);
+                if (box.classList.contains('profile-link-grid')) {
+                    box.className = box.className.replace(/\bprofile-link-count-\d+\b/g, '').trim() + ' profile-link-count-' + count;
+                }
+            }
+            // Anche le sezioni senza elenco (statistiche, badge, attivita')
+            // vanno rimesse in fila: saltarle le lasciava dov'erano, e
+            // l'ordine delle schermate non tornava.
+            content.appendChild(el);
+        });
+
+        // Quello che le schermate non nominano resta in fondo, dov'era.
+        originals.forEach((el) => {
+            if (!el.dataset.snapScreen) content.appendChild(el);
+        });
+    };
+
+    /*
+     * Subito, non al DOMContentLoaded: lo scorrimento a schermate parte in
+     * fondo a questo file e avvolge le sezioni. Se le schermate si
+     * ricomponessero dopo, non troverebbe piu' niente da spezzare.
+     */
+    applyScreenComposition();
+
     document.addEventListener('DOMContentLoaded', () => {
         setAccent(body.dataset.accent || '#0f5bff');
         let viewerTheme = null;
@@ -2133,22 +2262,14 @@
         activeBody.classList.add('snap-active');
 
         /*
-         * Quali sezioni stanno nella stessa schermata.
+         * A quale schermata appartiene ogni pezzo.
          *
-         * data-snap-screens arriva da profile.php ("links,stats|blocks|...")
-         * e dice a quale schermata appartiene ogni sezione. Prima ogni
-         * sezione era per forza una schermata a se': chi voleva un blocco
-         * libero e le statistiche insieme non poteva.
+         * Lo dice `data-snap-screen`, che applyScreenComposition() ha gia'
+         * scritto su ogni sezione (e su ogni parte, quando una sezione e'
+         * spezzata fra schermate diverse). Qui si raggruppano i pezzi
+         * consecutivi che portano lo stesso numero: prima ogni sezione era
+         * per forza una schermata a se'.
          */
-        const screenOfSection = new Map();
-        (activeBody.dataset.snapScreens || '').split('|').forEach((group, index) => {
-            group.split(',').forEach((key) => {
-                const clean = key.trim();
-                if (clean) screenOfSection.set(clean, index);
-            });
-        });
-
-        // Wrap slides in profile-snap-slide-wrapper
         const slides = [];
         let openWrapper = null;
         let openScreen = null;
@@ -2164,9 +2285,8 @@
                 return;
             }
 
-            const sectionKey = slide.dataset.sectionType || '';
-            // Una sezione che non conosciamo fa schermata a se', come prima.
-            const screen = screenOfSection.has(sectionKey) ? screenOfSection.get(sectionKey) : null;
+            // Un pezzo senza numero fa schermata a se', come prima.
+            const screen = slide.dataset.snapScreen !== undefined ? slide.dataset.snapScreen : null;
 
             if (openWrapper && screen !== null && screen === openScreen) {
                 openWrapper.appendChild(slide);

@@ -50,13 +50,27 @@ $sectionDescriptions = [
     'fav_read' => $tt('Libri, manga e light novel che consigli.', 'Books, manga and light novels you recommend.'),
 ];
 ?>
-<p class="pe-note pe-screen-note" id="peScreenNote" hidden>
-    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-    <?php echo pe_h($tt(
-        'Con il layout a schermate, ogni sezione ne apre una nuova. Usa le forbici per tenerne più di una nella stessa schermata.',
-        'With the full-screen layout, each section opens a new screen. Use the scissors to keep more than one in the same screen.'
-    )); ?>
-</p>
+<?php /* Composizione delle schermate: si vede solo con il layout a scorrimento,
+         dove è l'unica cosa che decide ordine e raggruppamento. */ ?>
+<section class="pe-screens" id="peScreens" data-search="<?php echo pe_h($tt('schermate scorrimento layout ordine', 'screens scroll layout order')); ?>" hidden>
+    <header class="pe-screens-head">
+        <div>
+            <h4><i class="fa-solid fa-layer-group" aria-hidden="true"></i><?php echo pe_h($tt('Schermate', 'Screens')); ?></h4>
+            <p class="pe-help"><?php echo pe_h($tt(
+                'Ogni riquadro è una schermata intera. Trascina le sezioni da una schermata all\'altra; una sezione può stare anche in due schermate diverse, con elementi diversi.',
+                'Each box is one full screen. Drag sections from one screen to another; a section can even live on two different screens, with different items.'
+            )); ?></p>
+        </div>
+    </header>
+    <div class="pe-screens-list" id="peScreensList"></div>
+    <button type="button" class="pe-add" id="peScreenAdd">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i><span><?php echo pe_h($tt('Nuova schermata', 'New screen')); ?></span>
+    </button>
+    <p class="pe-help pe-screens-foot"><?php echo pe_h($tt(
+        'Le sezioni vuote o nascoste non compaiono qui: non occupano una schermata.',
+        'Empty or hidden sections are not listed here: they do not take up a screen.'
+    )); ?></p>
+</section>
 
 <div class="pe-sections" id="peSections">
     <?php foreach ($sectionsOrder as $sectionKey):
@@ -66,18 +80,6 @@ $sectionDescriptions = [
         $headerLocked = !$isPremium;
     ?>
         <article class="pe-section" data-section="<?php echo $sectionKey; ?>" data-search="<?php echo pe_h($section['label'] . ' ' . $sectionDescriptions[$sectionKey]); ?>" id="sec-<?php echo $sectionKey; ?>">
-            <?php /* Con il layout "A schermate": questa sezione apre una
-                     schermata nuova o resta in quella di sopra. Il valore vive
-                     in profile_sections_config, accanto a titolo e icona. */ ?>
-            <div class="pe-screen-row" data-screen-row>
-                <input type="hidden" data-section-join="<?php echo $sectionKey; ?>" value="<?php echo !empty($config['join']) ? '1' : '0'; ?>">
-                <span class="pe-screen-line" aria-hidden="true"></span>
-                <button type="button" class="pe-screen-toggle" data-screen-toggle>
-                    <i class="fa-solid fa-scissors" aria-hidden="true"></i>
-                    <span class="pe-screen-label"></span>
-                </button>
-                <span class="pe-screen-line" aria-hidden="true"></span>
-            </div>
             <header class="pe-section-head">
                 <span class="pe-drag" title="<?php echo pe_h($tt('Trascina per spostare', 'Drag to move')); ?>"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
                 <button type="button" class="pe-section-toggle" aria-expanded="false" aria-controls="sec-body-<?php echo $sectionKey; ?>">

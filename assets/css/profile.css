@@ -459,7 +459,8 @@ body[data-theme="light"] .bio-avatar {
 .bio-social:active,
 .bio-featured-link:active,
 .bio-project-card:active,
-.bio-preview-card:active {
+.bio-preview-card:active,
+a.profile-favorite-card:active {
     transform: translateY(0) scale(0.98);
 }
 
@@ -510,7 +511,8 @@ body[data-theme="light"] .bio-avatar {
 .bio-social,
 .bio-featured-link,
 .bio-project-card,
-.bio-preview-card {
+.bio-preview-card,
+.profile-favorite-card {
     text-decoration: none;
     color: var(--text);
     border: 1px solid var(--border);
@@ -534,7 +536,8 @@ body[data-theme="light"] .bio-avatar {
 .bio-social::after,
 .bio-featured-link::after,
 .bio-project-card::after,
-.bio-preview-card::after {
+.bio-preview-card::after,
+a.profile-favorite-card::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -547,14 +550,16 @@ body[data-theme="light"] .bio-avatar {
 .bio-social:hover::after,
 .bio-featured-link:hover::after,
 .bio-project-card:hover::after,
-.bio-preview-card:hover::after {
+.bio-preview-card:hover::after,
+a.profile-favorite-card:hover::after {
     transform: translateX(120%);
 }
 
 .bio-social:hover,
 .bio-featured-link:hover,
 .bio-project-card:hover,
-.bio-preview-card:hover {
+.bio-preview-card:hover,
+a.profile-favorite-card:hover {
     transform: translateY(-3px);
     border-color: rgba(var(--accent-rgb), 0.45);
     background: rgba(var(--accent-rgb), 0.1);
@@ -2784,6 +2789,7 @@ body[data-theme="light"] .bio-social,
 body[data-theme="light"] .bio-featured-link,
 body[data-theme="light"] .bio-project-card,
 body[data-theme="light"] .bio-preview-card,
+body[data-theme="light"] .profile-favorite-card,
 body[data-theme="light"] .profile-block-card,
 body[data-theme="light"] .profile-activity-pill,
 body[data-theme="light"] .profile-row-card,
@@ -3676,7 +3682,9 @@ body[data-profile-link-style="neon"] .profile-link-button {
 .profile-block-copy strong,
 .profile-block-copy p,
 .profile-badge-info strong,
-.profile-badge-info p {
+.profile-badge-info p,
+.profile-favorite-info strong,
+.profile-favorite-info small {
     overflow-wrap: anywhere;
 }
 
@@ -3945,7 +3953,8 @@ body[data-profile-link-style="neon"] .profile-link-button {
     .bio-project-card,
     .bio-preview-card,
     .profile-block-card,
-    .profile-badge-card {
+    .profile-badge-card,
+    .profile-favorite-card {
         min-height: auto !important;
         padding: 0.68rem !important;
         border-radius: 18px !important;
@@ -4835,38 +4844,56 @@ body[data-theme="light"] .profile-select-menu {
 
 /* ══ Preferiti ═════════════════════════════════════════════════════════════
    Giochi, anime/serie/film, canzoni e libri: quattro sezioni, una scheda
-   sola. La copertina tiene il formato 2:3 dei poster; le copertine dei
-   dischi sono quadrate e si adattano da sole con object-fit. */
-/* Quattro colonne fisse, non `auto-fit`: con due soli preferiti le colonne
-   elastiche diventavano due poster giganti, sproporzionati accanto alle altre
-   sezioni. Cosi' le schede hanno sempre la stessa misura. */
+   sola. La scheda è una riga come quelle di link e contenuti — copertina a
+   sinistra, titolo e sottotitolo accanto — e non un poster in una griglia
+   fissa: con uno o due preferiti quella griglia lasciava mezzo riquadro
+   vuoto, e la scheda non aveva né sfondo né bordo come le altre.
+
+   Superficie, hover, riflesso e bordo arrivano dalle stesse regole di
+   .bio-preview-card: cambia solo l'impaginazione qui sotto. */
 .profile-favorites-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.72rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+/* Un preferito solo non sta in mezza riga: prende tutta la larghezza. */
+.profile-favorites-grid[data-count="1"] {
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .profile-favorite-card {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.8rem;
     min-width: 0;
-    color: inherit;
-    text-decoration: none;
+    min-height: 5.4rem;
+    padding: 0.7rem;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
 }
 
 .profile-favorite-art {
     position: relative;
     display: flex;
+    flex: none;
     align-items: center;
     justify-content: center;
+    width: 3.1rem;
     aspect-ratio: 2 / 3;
     overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm, 12px);
-    background: rgba(var(--accent-rgb), 0.1);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
-    transition: transform 0.22s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)), box-shadow 0.22s ease, border-color 0.22s ease;
+    border-radius: calc(var(--p-radius-item, 14px) * 0.55);
+    color: var(--muted-2);
+    background: rgba(var(--accent-rgb), 0.12);
+    font-size: 1rem;
+}
+
+/* Le copertine dei dischi sono quadrate: in un riquadro 2:3 venivano
+   tagliate sopra e sotto. */
+[data-section-type="fav_music"] .profile-favorite-art {
+    width: 3.4rem;
+    aspect-ratio: 1;
 }
 
 .profile-favorite-art img {
@@ -4875,82 +4902,61 @@ body[data-theme="light"] .profile-select-menu {
     object-fit: cover;
 }
 
-.profile-favorite-art.is-empty {
-    color: var(--muted-2);
-    font-size: 1.4rem;
-}
-
-a.profile-favorite-card:hover .profile-favorite-art,
-a.profile-favorite-card:focus-visible .profile-favorite-art {
-    border-color: rgba(var(--accent-rgb), 0.55);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34);
-    transform: translateY(-3px);
-}
-
-/* Anno o formato, appoggiato in basso sulla copertina. */
-.profile-favorite-meta {
-    position: absolute;
-    right: 0.35rem;
-    bottom: 0.35rem;
-    max-width: calc(100% - 0.7rem);
-    overflow: hidden;
-    padding: 0.14rem 0.4rem;
-    border-radius: 999px;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.62);
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    backdrop-filter: blur(4px);
-}
-
 .profile-favorite-info {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+    flex: 1;
     min-width: 0;
 }
 
 .profile-favorite-info strong {
     display: block;
-    overflow: hidden;
     color: var(--text);
-    font-size: 0.82rem;
+    font-size: 0.92rem;
     font-weight: 700;
     line-height: 1.25;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .profile-favorite-info small {
     display: block;
-    overflow: hidden;
-    margin-top: 0.1rem;
     color: var(--muted);
-    font-size: 0.72rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 0.8rem;
 }
 
-@media (max-width: 900px) {
-    .profile-favorites-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+/* Anno o formato: una pillola sotto il titolo, come l'etichetta dei
+   contenuti. Sulla copertina, grande tre centimetri, non si leggeva. */
+.profile-favorite-meta {
+    align-self: flex-start;
+    margin-top: 0.18rem;
+    padding: 0.16rem 0.45rem;
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
+    border-radius: var(--ui-shape-button, 999px);
+    color: var(--accent);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
 }
 
-@media (max-width: 520px) {
+.profile-favorite-go {
+    flex: none;
+    color: var(--muted-2);
+    font-size: 0.78rem;
+    transition: transform var(--transition), color var(--transition);
+}
+
+a.profile-favorite-card:hover .profile-favorite-go {
+    color: var(--accent);
+    transform: translateX(2px);
+}
+
+@media (max-width: 720px) {
     .profile-favorites-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
         gap: 0.6rem;
     }
 }
-
-@media (prefers-reduced-motion: reduce) {
-
-    a.profile-favorite-card:hover .profile-favorite-art,
-    a.profile-favorite-card:focus-visible .profile-favorite-art {
-        transform: none;
-    }
 }
 
 .profile-character-card {
@@ -7671,7 +7677,8 @@ body[data-theme="light"] .profile-report-btn-cancel {
 .bio-social:hover,
 .bio-featured-link:hover,
 .bio-project-card:hover,
-.bio-preview-card:hover {
+.bio-preview-card:hover,
+a.profile-favorite-card:hover {
     transform: translateY(-4px) !important;
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24) !important;
 }
@@ -8547,14 +8554,14 @@ body.public-profile-body .bio-stat-card {
 }
 
 /* Elementi dentro i riquadri */
-body.public-profile-body :is(.bio-project-card, .bio-preview-card, .profile-block-card:not(.no-card-style), .profile-badge-card, .profile-character-card, .profile-embed-wrapper, .bio-audio, .bio-discord-panel, .ds-card) {
+body.public-profile-body :is(.bio-project-card, .bio-preview-card, .profile-block-card:not(.no-card-style), .profile-badge-card, .profile-character-card, .profile-embed-wrapper, .profile-favorite-card, .bio-audio, .bio-discord-panel, .ds-card) {
     border-width: var(--p-item-border-width) !important;
     border-style: solid !important;
     border-radius: var(--p-radius-item) !important;
 }
 
 /* Il colore resta quello proprio per i badge custom e per le rarita'. */
-body.public-profile-body :is(.bio-project-card, .bio-preview-card, .profile-block-card:not(.no-card-style), .profile-badge-card:not(.custom-badge-card), .profile-character-card, .profile-embed-wrapper, .bio-audio, .bio-discord-panel):not(.rarity-legendary, .rarity-epic, .rarity-rare) {
+body.public-profile-body :is(.bio-project-card, .bio-preview-card, .profile-block-card:not(.no-card-style), .profile-badge-card:not(.custom-badge-card), .profile-character-card, .profile-embed-wrapper, .profile-favorite-card, .bio-audio, .bio-discord-panel):not(.rarity-legendary, .rarity-epic, .rarity-rare) {
     border-color: var(--p-item-border-color) !important;
 }
 

@@ -774,8 +774,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
         </style>
     <?php endif; ?>
     <?php
-    // Poppins arriva gia' da head-import.php: caricarlo due volte non serve.
-    $fontStylesheet = $profileFont === 'Poppins' ? '' : profile_font_stylesheet_url($profileFont);
+    // Vuoto per i font che non vanno chiesti a Google: quelli del repository e
+    // Poppins, che head-import.php carica gia' su tutte le pagine.
+    $fontStylesheet = profile_font_stylesheet_url($profileFont);
     if ($fontStylesheet !== '') {
         echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
         echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
@@ -787,7 +788,11 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
             <?php foreach ($styleVars as $varName => $varValue): ?>
             <?php echo $varName; ?>: <?php echo preg_replace('/[^a-zA-Z0-9#%.,()\s-]/', '', (string)$varValue); ?> !important;
             <?php endforeach; ?>
-            --profile-font: <?php echo profile_h(profile_font_css_family($profileFont)); ?> !important;
+            <?php /* Niente profile_h() qui: dentro <style> le entita' HTML non
+                     vengono decodificate, e gli apici del nome diventavano
+                     &#039; — regola invalida, font mai applicato. Il valore
+                     esce da profile_font_catalog(), non dall'utente. */ ?>
+            --profile-font: <?php echo profile_font_css_family($profileFont); ?> !important;
             font-family: var(--profile-font, "Poppins", sans-serif) !important;
         }
 
@@ -1490,7 +1495,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     if ($visibleLinks): ?>
                         <section class="bio-card bio-featured js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="links" data-section-title="<?php echo profile_h(profile_get_section_title('links', 'Link')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-link', 'Link', null, 'links'); ?>
-                            <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count($visibleLinks); ?>">
+                            <div class="bio-featured-grid profile-link-grid profile-link-count-<?php echo count($visibleLinks); ?>" data-section-items>
                                 <?php foreach ($visibleLinks as $item): ?>
                                     <?php
                                     $buttonStyle = profile_allowed_value((string)($item['button_style'] ?? 'card'), ['card', 'compact', 'icon'], 'card');
@@ -1526,7 +1531,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     if ($embeds): ?>
                         <section class="bio-card profile-embeds-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="embeds" data-section-title="<?php echo profile_h(profile_get_section_title('embeds', 'Embed')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-share-from-square', 'Embed', null, 'embeds'); ?>
-                            <div class="profile-embeds-grid">
+                            <div class="profile-embeds-grid" data-section-items>
                                 <?php foreach ($embeds as $embed): ?>
                                     <?php
                                     $embedUrl = $embed['url'];
@@ -1567,7 +1572,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     if ($visibleProjects): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="projects" data-section-title="<?php echo profile_h(profile_get_section_title('projects', 'Projects')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-cubes', 'Projects', null, 'projects'); ?>
-                            <div class="bio-project-grid">
+                            <div class="bio-project-grid" data-section-items>
                                 <?php foreach ($visibleProjects as $project): ?>
                                     <?php
                                     $projectImageUrl = trim((string)($project['image_url'] ?? ''));
@@ -1604,7 +1609,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     if ($visibleBlocks): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="blocks" data-section-title="<?php echo profile_h(profile_get_section_title('blocks', '')); ?>">
                             <?php profile_render_section_heading('', '', null, 'blocks'); ?>
-                            <div class="profile-block-grid">
+                            <div class="profile-block-grid" data-section-items>
                                 <?php foreach ($visibleBlocks as $block): ?>
                                     <?php
                                     $allowedTypes = ['text', 'image', 'gif', 'video', 'markdown', 'html'];
@@ -1689,7 +1694,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     if ($visibleContents): ?>
                         <section class="bio-card bio-details profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="contents" data-section-title="<?php echo profile_h(profile_get_section_title('contents', 'Content')); ?>">
                             <?php profile_render_section_heading('fa-solid fa-circle-play', 'Content', null, 'contents'); ?>
-                            <div class="bio-preview-grid">
+                            <div class="bio-preview-grid" data-section-items>
                                 <?php foreach ($visibleContents as $content): ?>
                                     <?php
                                     $contentThumbUrl = trim((string)($content['thumbnail_url'] ?? ''));

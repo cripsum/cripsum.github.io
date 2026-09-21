@@ -3548,101 +3548,190 @@
     box-shadow: 0 8px 24px color-mix(in srgb, var(--pe-premium) 30%, transparent);
 }
 
-/* ── Schermate del layout "A schermate" ───────────────────────────────────── */
-/* I separatori esistono solo con quel layout: altrove non farebbero niente. */
-.pe-screen-row {
+/* ── Schermate del layout a scorrimento ───────────────────────────────────
+   Ogni riquadro è una schermata del profilo, e dentro ci stanno le sezioni
+   che la compongono. Si trascinano da una schermata all'altra; la stessa
+   sezione può stare in due schermate con elementi diversi. */
+.pe-screens {
+    margin-bottom: 1.1rem;
+    padding: 0.9rem;
+    border: 1px solid var(--pe-line);
+    border-radius: var(--pe-radius);
+    background: var(--pe-surface-2);
+}
+
+.pe-screens[hidden] {
     display: none;
 }
 
-.pe-sections.is-snap .pe-screen-row {
+.pe-screens-head h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 0.25rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.pe-screens-head h4 i {
+    color: var(--pe-accent-text);
+    font-size: 0.85rem;
+}
+
+.pe-screens-head .pe-help {
+    margin: 0 0 0.8rem;
+}
+
+.pe-screens-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.55rem;
+}
+
+.pe-screen {
+    border: 1px solid var(--pe-line);
+    border-radius: 14px;
+    background: var(--pe-surface);
+}
+
+.pe-screen.is-ghost {
+    opacity: 0.45;
+}
+
+.pe-screen-head {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.55rem 0.35rem;
+}
+
+.pe-screen-head strong {
+    flex: 1;
+    color: var(--pe-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.pe-screen-head .pe-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.76rem;
+}
+
+.pe-screen-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-height: 2.6rem;
+    padding: 0 0.55rem 0.55rem;
+}
+
+/* Una schermata vuota deve comunque essere un bersaglio per il trascinamento. */
+.pe-screen-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.4rem;
+    margin: 0;
+    border: 1px dashed var(--pe-line);
+    border-radius: 10px;
+    color: var(--pe-muted);
+    font-size: 0.78rem;
+}
+
+.pe-screen-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--pe-line);
+    border-radius: 10px;
+    background: var(--pe-surface-2);
+}
+
+.pe-screen-chip.is-ghost {
+    opacity: 0.45;
+}
+
+.pe-screen-chip .pe-drag {
+    cursor: grab;
+}
+
+.pe-screen-chip-icon {
+    width: 1.1rem;
+    color: var(--pe-accent-text);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+.pe-screen-chip-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.pe-screen-chip-text strong {
+    overflow: hidden;
+    font-size: 0.83rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pe-screen-chip-text small {
+    color: var(--pe-muted);
+    font-size: 0.7rem;
+}
+
+.pe-screens-foot {
+    margin: 0;
+}
+
+/* Scelta degli elementi di una parte. */
+.pe-chip-items {
+    min-width: 200px;
+    max-width: 280px;
+}
+
+.pe-chip-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.15rem 0 0.4rem;
-}
-
-.pe-screen-row[hidden] {
-    display: none !important;
-}
-
-.pe-screen-line {
-    flex: 1;
-    height: 1px;
-    background: var(--pe-line);
-}
-
-.pe-screen-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    flex: none;
-    padding: 0.16rem 0.55rem;
-    border: 1px solid var(--pe-line);
-    border-radius: 999px;
-    color: var(--pe-muted);
-    background: var(--pe-surface-2);
-    font: 700 0.66rem/1 "Inter", system-ui, sans-serif;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    padding: 0.35rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
     cursor: pointer;
-    transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease;
 }
 
-.pe-screen-toggle:hover {
-    color: var(--pe-text);
-    border-color: var(--pe-accent);
+.pe-chip-item:hover {
+    background: var(--pe-surface-3);
 }
 
-.pe-screen-toggle i {
-    font-size: 0.62rem;
+.pe-chip-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Unita a quella di sopra: la forbice si chiude e il segno diventa una graffa. */
-.pe-screen-toggle[aria-pressed="true"] {
-    color: var(--pe-accent-text);
-    border-color: color-mix(in srgb, var(--pe-accent) 40%, transparent);
-    background: color-mix(in srgb, var(--pe-accent) 12%, transparent);
+.pe-menu-title {
+    margin: 0.35rem 0 0.15rem;
+    padding: 0 0.5rem;
+    color: var(--pe-muted);
+    font: 700 0.68rem/1.4 "Inter", system-ui, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
-.pe-screen-toggle[aria-pressed="true"] i {
-    transform: rotate(90deg);
-}
-
-/* Le sezioni che condividono una schermata restano attaccate, con una
-   barretta a sinistra che le tiene insieme a vista. */
-.pe-sections.is-snap .pe-section.is-joined,
-.pe-sections.is-snap .pe-section.is-group-start {
-    position: relative;
-}
-
-.pe-sections.is-snap .pe-section.is-joined::before,
-.pe-sections.is-snap .pe-section.is-group-start::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: -0.5rem;
-    left: -0.55rem;
-    width: 2px;
-    border-radius: 2px;
-    background: color-mix(in srgb, var(--pe-accent) 45%, transparent);
-}
-
-.pe-sections.is-snap .pe-section.is-group-start::before {
-    top: 0.5rem;
-    border-radius: 2px 2px 0 0;
-}
-
-.pe-sections.is-snap .pe-section.is-group-end::before {
-    bottom: 0.5rem;
-    border-radius: 0 0 2px 2px;
-}
-
-.pe-screen-note {
-    margin-bottom: 0.8rem;
-}
-
-.pe-screen-note[hidden] {
-    display: none;
+/* Con le schermate attive l'ordine si decide lì: qui il trascinamento è
+   spento, per non avere due ordini che si contraddicono. */
+.pe-sections.is-snap .pe-section-head > .pe-drag {
+    opacity: 0.25;
+    cursor: not-allowed;
 }
 
 /* ── Ricerca su fonti esterne (preferiti e brano) ─────────────────────────── */

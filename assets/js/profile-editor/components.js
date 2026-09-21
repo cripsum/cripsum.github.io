@@ -699,19 +699,36 @@
             const searchable = select.hasAttribute('data-searchable');
 
             /*
-             * Il font di un'opzione si carica solo quando la sua riga entra
-             * davvero nella lista: con quaranta font, caricarli tutti
+             * Il font di un'opzione si carica quando la sua riga si avvicina
+             * al bordo della lista: con quaranta font, caricarli tutti
              * all'apertura voleva dire quaranta fogli di stile in un colpo.
+             *
+             * L'osservatore guarda dentro la lista (`root`), non la finestra,
+             * e si accende solo dopo che il menu e' davvero nella pagina:
+             * osservare righe ancora staccate dal documento non faceva
+             * scattare niente, e si vedevano tutti i nomi nel font di riserva.
              */
-            const fontLazyLoader = () => {
-                if (!fontPreview || !('IntersectionObserver' in window)) return null;
-                return new IntersectionObserver((entries, obs) => {
+            const makeFontLoader = (listEl) => {
+                if (!fontPreview) return null;
+                const options = PE.$$('.pe-listbox-option', listEl);
+
+                // Le prime righe partono subito: sono quelle che si vedono
+                // aprendo il menu, e non devono dipendere dall'osservatore.
+                options.slice(0, 14).forEach((el) => PE.loadFont(el.dataset.value));
+
+                if (!('IntersectionObserver' in window)) {
+                    options.forEach((el) => PE.loadFont(el.dataset.value));
+                    return null;
+                }
+                const obs = new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
                         if (!entry.isIntersecting) return;
                         PE.loadFont(entry.target.dataset.value);
                         obs.unobserve(entry.target);
                     });
-                }, { root: null, rootMargin: '120px' });
+                }, { root: listEl, rootMargin: '200px' });
+                options.slice(14).forEach((el) => obs.observe(el));
+                return obs;
             };
 
             const open = () => {
@@ -719,7 +736,9 @@
                 list.className = 'pe-listbox';
                 list.setAttribute('role', 'listbox');
 
-                const observer = fontLazyLoader();
+                // L'osservatore nasce dopo che il menu e' nella pagina, e si
+                // rifa' a ogni ricerca perche' le righe sono nuove.
+                let observer = null;
                 let lastGroup = null;
 
                 const build = (query = '') => {
@@ -751,11 +770,7 @@
                         const locked = option.dataset.locked === '1';
                         item.innerHTML = `<span></span>${option.dataset.premium ? `<i class="fa-solid fa-crown ${locked ? 'is-locked' : ''}" aria-label="Premium"></i>` : ''}${option.selected ? '<i class="fa-solid fa-check pe-listbox-check" aria-hidden="true"></i>' : ''}`;
                         item.querySelector('span').textContent = option.textContent;
-                        if (fontPreview) {
-                            item.style.fontFamily = PE.fontFamily(option.value);
-                            if (observer) observer.observe(item);
-                            else PE.loadFont(option.value);
-                        }
+                        if (fontPreview) item.style.fontFamily = PE.fontFamily(option.value);
                         item.addEventListener('click', () => {
                             if (locked) {
                                 PE.closePopover();
@@ -797,13 +812,18 @@
                     searchWrap.appendChild(search);
                     holder.appendChild(searchWrap);
                     holder.appendChild(list);
-                    search.addEventListener('input', () => build(search.value));
+                    search.addEventListener('input', () => {
+                        build(search.value);
+                        observer?.disconnect();
+                        observer = makeFontLoader(list);
+                    });
                 }
 
                 const pop = PE.openPopover(trigger, holder, {
                     className: searchable ? 'pe-popover-list pe-popover-search' : 'pe-popover-list',
                     onClose: () => observer?.disconnect(),
                 });
+                observer = makeFontLoader(list);
                 if (pop) {
                     pop.style.minWidth = `${trigger.offsetWidth}px`;
                     if (search) search.focus();

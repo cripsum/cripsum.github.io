@@ -504,14 +504,20 @@ try {
             } else {
                 $sanitized = [];
                 foreach ($decoded as $key => $conf) {
+                    // La composizione delle schermate non e' una sezione: ha
+                    // una forma sua e un suo controllo.
+                    if ($key === PROFILE_SCREENS_KEY) {
+                        $screens = profile_screens_sanitize($conf);
+                        if ($screens) {
+                            $sanitized[PROFILE_SCREENS_KEY] = $screens;
+                        }
+                        continue;
+                    }
+                    if (!is_array($conf)) continue;
                     $sanitized[$key] = [
                         'hidden' => !empty($conf['hidden']) ? 1 : 0,
                         'title' => isset($conf['title']) ? profile_clean_text($conf['title'], 80) : '',
                         'icon' => isset($conf['icon']) ? profile_clean_text($conf['icon'], 255) : '',
-                        // `join`: con il layout a schermate questa sezione sta
-                        // nella stessa schermata di quella prima, invece di
-                        // aprirne una nuova.
-                        'join' => !empty($conf['join']) ? 1 : 0,
                     ];
                 }
                 $sectionsConfig = json_encode($sanitized);
