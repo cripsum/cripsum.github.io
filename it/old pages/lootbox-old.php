@@ -1,7 +1,7 @@
 <?php
-require_once '../config/session_init.php';
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once '../../config/session_init.php';
+require_once '../../config/database.php';
+require_once '../../includes/functions.php';
 checkBan($mysqli);
 
 
@@ -20,20 +20,20 @@ checkPermissions($mysqli, 'utente');
 //     exit();
 // }
 
-require_once '../api/api_personaggi.php';
+require_once '../../api/api_personaggi.php';
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <?php include '../includes/head-import.php'; ?>
+    <?php include '../../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=7" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
 <body class="">
-    <?php include '../includes/navbar-lootbox.php'; ?>
+    <?php include '../../includes/navbar-lootbox.php'; ?>
     <div class="stars" id="stars"></div>
 
     <!-- TO DO
@@ -130,7 +130,7 @@ require_once '../api/api_personaggi.php';
         </script>
         <div class="container">
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="handleDoubleClick()" onclick="pullaPersonaggio(); apriNormale()" />
+            <img src="../../img/cassa.png" alt="Cassa" id="cassa" class="fadein" ondblclick="handleDoubleClick()" onclick="pullaPersonaggio(); apriNormale()" />
 
             <div id="baglioreWrapper">
                 <div class="bagliore" id="bagliore"></div>
@@ -283,7 +283,7 @@ require_once '../api/api_personaggi.php';
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
-        <script src="../js/unlockAchievement-it.js"></script>
+        <script src="../../js/unlockAchievement-it.js"></script>
         <script>
             const cassa = document.getElementById("cassa");
             const nomePersonaggio = document.getElementById("nomePersonaggio");
@@ -1567,7 +1567,7 @@ require_once '../api/api_personaggi.php';
                 }
             });
         </script>
-        
+
 </body>
 
 </html>
