@@ -276,12 +276,35 @@ function pe_select(string $name, $value, array $options, array $o = []): void
     $id = $o['input_id'] ?? pe_id($name);
     echo '<div' . pe_wrap_attrs($o, 'pe-field') . '>';
     echo pe_label_row($o, $id);
-    echo '<select class="pe-select" name="' . pe_h($name) . '" id="' . pe_h($id) . '"' . (!empty($o['font_preview']) ? ' data-font-preview' : '') . pe_disabled($o) . '>';
+    echo '<select class="pe-select" name="' . pe_h($name) . '" id="' . pe_h($id) . '"' . (!empty($o['font_preview']) ? ' data-font-preview' : '') . (!empty($o['searchable']) ? ' data-searchable' : '') . pe_disabled($o) . '>';
+    // `groups` intesta le voci nella tendina (i font sono quaranta: senza
+    // gruppi era un elenco unico lungo due schermate).
+    $groups = is_array($o['groups'] ?? null) ? $o['groups'] : [];
     foreach ($options as $opt) {
         $locked = !empty($opt['premium']) && !pe_is_premium();
-        echo '<option value="' . pe_h($opt['value']) . '"' . ((string)$value === (string)$opt['value'] ? ' selected' : '') . (!empty($opt['premium']) ? ' data-premium="1"' : '') . ($locked ? ' data-locked="1"' : '') . '>' . pe_h($opt['label']) . '</option>';
+        $group = (string)($opt['group'] ?? '');
+        echo '<option value="' . pe_h($opt['value']) . '"' . ((string)$value === (string)$opt['value'] ? ' selected' : '') . (!empty($opt['premium']) ? ' data-premium="1"' : '') . ($locked ? ' data-locked="1"' : '')
+            . ($group !== '' ? ' data-group="' . pe_h($groups[$group] ?? $group) . '"' : '')
+            . (!empty($opt['css']) ? ' data-font-css="' . pe_h((string)$opt['css']) . '"' : '')
+            . (!empty($opt['stack']) ? ' data-font-stack="' . pe_h((string)$opt['stack']) . '"' : '')
+            . '>' . pe_h($opt['label']) . '</option>';
     }
     echo '</select>';
+    echo pe_help($o);
+    echo '</div>';
+}
+
+/**
+ * Immagine: file caricato o URL, con anteprima. Come il campo delle righe
+ * ripetibili in items.js, ma legato a un campo del form con il suo `name`.
+ */
+function pe_media(string $name, string $value, array $o = []): void
+{
+    echo '<div' . pe_wrap_attrs($o, 'pe-field') . '>';
+    echo pe_label_row($o);
+    echo '<div class="pe-media-url" data-media-url data-purpose="' . pe_h($o['purpose'] ?? 'icon') . '" data-accept="' . pe_h($o['accept'] ?? 'image/jpeg,image/png,image/webp,image/gif') . '">';
+    echo '<input type="hidden" name="' . pe_h($name) . '" value="' . pe_h($value) . '"' . pe_disabled($o) . '>';
+    echo '</div>';
     echo pe_help($o);
     echo '</div>';
 }

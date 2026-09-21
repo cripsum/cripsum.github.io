@@ -35,6 +35,142 @@ const PROFILE_NAME_EFFECTS = ['none', 'gradient', 'rainbow', 'glow', 'sparkles',
 /** Effetti che disegnano il nome con colori propri e ignorano "Colore nome". */
 const PROFILE_NAME_EFFECTS_OWN_COLORS = ['gradient', 'rainbow', 'fire', 'water'];
 
+/**
+ * Font del profilo: una sola lista per tutti.
+ *
+ * Prima le famiglie erano scritte a mano in quattro posti (il catalogo
+ * dell'editor, la whitelist del salvataggio, la mappa dei link di Google Fonts
+ * nel profilo e il caricatore JS): bastava dimenticarne uno e il font si
+ * salvava ma non arrivava mai al browser. Adesso leggono tutti di qui.
+ *
+ * - `css`    quello che va dopo `family=` su fonts.googleapis.com/css2;
+ *            null per i due font che stanno nel repository.
+ * - `group`  come li raggruppa la tendina dell'editor.
+ * - `stack`  la famiglia di riserva mentre il font carica, o se non carica.
+ *
+ * @return array<string,array{css:?string,premium:bool,group:string,stack:string}>
+ */
+function profile_font_catalog(): array
+{
+    static $catalog = null;
+    if ($catalog !== null) {
+        return $catalog;
+    }
+
+    $f = static fn(?string $css, bool $premium, string $group, string $stack = 'sans-serif'): array
+        => ['css' => $css, 'premium' => $premium, 'group' => $group, 'stack' => $stack];
+
+    return $catalog = [
+        // Senza grazie
+        'Poppins'            => $f('Poppins:wght@300;400;500;600;700;800', false, 'sans'),
+        'Inter'              => $f('Inter:wght@300;400;500;600;700;800', false, 'sans'),
+        'Roboto'             => $f('Roboto:wght@300;400;500;700', false, 'sans'),
+        'Outfit'             => $f('Outfit:wght@300;400;500;600;700;800', false, 'sans'),
+        'Montserrat'         => $f('Montserrat:ital,wght@0,100..900;1,100..900', false, 'sans'),
+        'DM Sans'            => $f('DM+Sans:ital,opsz,wght@0,9..40,300..900;1,9..40,300..900', false, 'sans'),
+        'Manrope'            => $f('Manrope:wght@300..800', false, 'sans'),
+        'Plus Jakarta Sans'  => $f('Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800', false, 'sans'),
+        'Nunito'             => $f('Nunito:ital,wght@0,300..900;1,300..900', false, 'sans'),
+        'Sora'               => $f('Sora:wght@300..800', true, 'sans'),
+        'Space Grotesk'      => $f('Space+Grotesk:wght@300..700', true, 'sans'),
+        'Syne'               => $f('Syne:wght@400..800', true, 'sans'),
+        'Rubik'              => $f('Rubik:ital,wght@0,300..900;1,300..900', true, 'sans'),
+
+        // Con grazie
+        'Playfair Display'   => $f('Playfair+Display:ital,wght@0,400..900;1,400..900', true, 'serif', 'serif'),
+        'Cinzel'             => $f('Cinzel:wght@400..900', true, 'serif', 'serif'),
+        'Cormorant Garamond' => $f('Cormorant+Garamond:ital,wght@0,300..700;1,300..700', true, 'serif', 'serif'),
+        'Instrument Serif'   => $f('Instrument+Serif:ital@0;1', true, 'serif', 'serif'),
+        'DM Serif Display'   => $f('DM+Serif+Display:ital@0;1', true, 'serif', 'serif'),
+
+        // Da titolo
+        'Bebas Neue'         => $f('Bebas+Neue', true, 'display'),
+        'Anton'              => $f('Anton', true, 'display'),
+        'Archivo Black'      => $f('Archivo+Black', true, 'display'),
+        'Unbounded'          => $f('Unbounded:wght@300..900', true, 'display'),
+        'Righteous'          => $f('Righteous', true, 'display'),
+        'Bungee'             => $f('Bungee', true, 'display'),
+        'Monoton'            => $f('Monoton', true, 'display'),
+        'Shojumaru'          => $f('Shojumaru', true, 'display'),
+        'Creepster'          => $f('Creepster', true, 'display'),
+
+        // Videogiochi e pixel
+        'Minecraft'          => $f(null, true, 'pixel'),
+        'Gang of Three'      => $f(null, true, 'pixel'),
+        'Press Start 2P'     => $f('Press+Start+2P', true, 'pixel'),
+        'Silkscreen'         => $f('Silkscreen:wght@400;700', true, 'pixel'),
+        'VT323'              => $f('VT323', true, 'pixel', 'monospace'),
+        'Orbitron'           => $f('Orbitron:wght@400..900', true, 'pixel'),
+        'Chakra Petch'       => $f('Chakra+Petch:wght@400;500;600;700', true, 'pixel'),
+        'Audiowide'          => $f('Audiowide', true, 'pixel'),
+        'Zen Dots'           => $f('Zen+Dots', true, 'pixel'),
+        'Tourney'            => $f('Tourney:wght@300..800', true, 'pixel'),
+
+        // A larghezza fissa
+        'Fira Code'          => $f('Fira+Code:wght@300..700', true, 'mono', 'monospace'),
+        'PT Mono'            => $f('PT+Mono', true, 'mono', 'monospace'),
+
+        // Scritti a mano
+        'Permanent Marker'   => $f('Permanent+Marker', true, 'hand', 'cursive'),
+        'Caveat'             => $f('Caveat:wght@400..700', true, 'hand', 'cursive'),
+        'Gloria Hallelujah'  => $f('Gloria+Hallelujah', true, 'hand', 'cursive'),
+    ];
+}
+
+/** I gruppi della tendina dei font, nell'ordine in cui compaiono. */
+function profile_font_groups(string $lang = 'it'): array
+{
+    $it = $lang !== 'en';
+    return [
+        'sans'    => $it ? 'Senza grazie' : 'Sans serif',
+        'serif'   => $it ? 'Con grazie' : 'Serif',
+        'display' => $it ? 'Da titolo' : 'Display',
+        'pixel'   => $it ? 'Videogiochi e pixel' : 'Gaming & pixel',
+        'mono'    => $it ? 'A larghezza fissa' : 'Monospace',
+        'hand'    => $it ? 'Scritti a mano' : 'Handwritten',
+    ];
+}
+
+/** I font che puo' usare chi non ha il Premium. */
+function profile_font_free_families(): array
+{
+    return array_keys(array_filter(profile_font_catalog(), static fn(array $f): bool => !$f['premium']));
+}
+
+/**
+ * Il font da usare davvero: uno della lista, e per chi non ha il Premium uno
+ * di quelli liberi. Fuori da qui nessuno normalizza i font a mano.
+ */
+function profile_font_normalize($font, bool $isPremium = true): string
+{
+    $font = is_string($font) ? trim($font) : '';
+    $catalog = profile_font_catalog();
+    if (!isset($catalog[$font])) {
+        return 'Poppins';
+    }
+    if (!$isPremium && $catalog[$font]['premium']) {
+        return 'Poppins';
+    }
+    return $font;
+}
+
+/** Il link a Google Fonts per un font, o '' se non serve (locale o assente). */
+function profile_font_stylesheet_url(string $font): string
+{
+    $entry = profile_font_catalog()[$font] ?? null;
+    if ($entry === null || $entry['css'] === null) {
+        return '';
+    }
+    return 'https://fonts.googleapis.com/css2?family=' . $entry['css'] . '&display=swap';
+}
+
+/** La famiglia da mettere in `--profile-font`, riserva compresa. */
+function profile_font_css_family(string $font): string
+{
+    $entry = profile_font_catalog()[$font] ?? null;
+    return "'" . str_replace("'", '', $font) . "', " . ($entry['stack'] ?? 'sans-serif');
+}
+
 /** Anelli della foto profilo (assets/css/profile-rings.css). */
 const PROFILE_RING_STYLES = ['none', 'spin', 'pulse', 'orbit', 'glow', 'dual', 'rainbow', 'halo', 'neon', 'spark', 'glitch'];
 

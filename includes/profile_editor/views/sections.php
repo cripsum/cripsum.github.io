@@ -20,6 +20,19 @@ $sectionItemsLabel = [
     'projects' => $tt('Aggiungi progetto', 'Add project'),
     'contents' => $tt('Aggiungi contenuto', 'Add content'),
     'blocks' => $tt('Aggiungi blocco', 'Add block'),
+    'fav_games' => $tt('Aggiungi a mano', 'Add by hand'),
+    'fav_watch' => $tt('Aggiungi a mano', 'Add by hand'),
+    'fav_music' => $tt('Aggiungi a mano', 'Add by hand'),
+    'fav_read' => $tt('Aggiungi a mano', 'Add by hand'),
+];
+
+// Le sezioni dei preferiti si riempiono cercando il titolo: il pulsante
+// grande e' la ricerca, "Aggiungi a mano" resta per quello che non si trova.
+$sectionSearchLabel = [
+    'fav_games' => $tt('Cerca un gioco', 'Find a game'),
+    'fav_watch' => $tt('Cerca un anime, una serie o un film', 'Find an anime, series or film'),
+    'fav_music' => $tt('Cerca una canzone', 'Find a song'),
+    'fav_read' => $tt('Cerca un libro, un manga o una light novel', 'Find a book, manga or light novel'),
 ];
 $sectionDescriptions = [
     'links' => $tt('Pulsanti grandi verso i tuoi siti.', 'Big buttons pointing to your sites.'),
@@ -31,8 +44,20 @@ $sectionDescriptions = [
     'characters' => $tt('I personaggi del tuo inventario, fino a 12.', 'Characters from your inventory, up to 12.'),
     'badges' => $tt('Scegli quali badge mostrare e in che ordine.', 'Choose which badges to show and in what order.'),
     'activity' => $tt('Le ultime cose che hai fatto sul sito.', 'The latest things you did on the site.'),
+    'fav_games' => $tt('I giochi a cui tieni di più, con la copertina.', 'The games you care about most, with cover art.'),
+    'fav_watch' => $tt('Anime, serie TV e film, con la locandina.', 'Anime, TV series and films, with posters.'),
+    'fav_music' => $tt('Le canzoni che ti rappresentano, con la copertina.', 'The songs that describe you, with cover art.'),
+    'fav_read' => $tt('Libri, manga e light novel che consigli.', 'Books, manga and light novels you recommend.'),
 ];
 ?>
+<p class="pe-note pe-screen-note" id="peScreenNote" hidden>
+    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+    <?php echo pe_h($tt(
+        'Con il layout a schermate, ogni sezione ne apre una nuova. Usa le forbici per tenerne più di una nella stessa schermata.',
+        'With the full-screen layout, each section opens a new screen. Use the scissors to keep more than one in the same screen.'
+    )); ?>
+</p>
+
 <div class="pe-sections" id="peSections">
     <?php foreach ($sectionsOrder as $sectionKey):
         $section = $catalog['sections'][$sectionKey];
@@ -41,6 +66,18 @@ $sectionDescriptions = [
         $headerLocked = !$isPremium;
     ?>
         <article class="pe-section" data-section="<?php echo $sectionKey; ?>" data-search="<?php echo pe_h($section['label'] . ' ' . $sectionDescriptions[$sectionKey]); ?>" id="sec-<?php echo $sectionKey; ?>">
+            <?php /* Con il layout "A schermate": questa sezione apre una
+                     schermata nuova o resta in quella di sopra. Il valore vive
+                     in profile_sections_config, accanto a titolo e icona. */ ?>
+            <div class="pe-screen-row" data-screen-row>
+                <input type="hidden" data-section-join="<?php echo $sectionKey; ?>" value="<?php echo !empty($config['join']) ? '1' : '0'; ?>">
+                <span class="pe-screen-line" aria-hidden="true"></span>
+                <button type="button" class="pe-screen-toggle" data-screen-toggle>
+                    <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+                    <span class="pe-screen-label"></span>
+                </button>
+                <span class="pe-screen-line" aria-hidden="true"></span>
+            </div>
             <header class="pe-section-head">
                 <span class="pe-drag" title="<?php echo pe_h($tt('Trascina per spostare', 'Drag to move')); ?>"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
                 <button type="button" class="pe-section-toggle" aria-expanded="false" aria-controls="sec-body-<?php echo $sectionKey; ?>">
@@ -61,9 +98,15 @@ $sectionDescriptions = [
             </header>
 
             <div class="pe-section-body" id="sec-body-<?php echo $sectionKey; ?>" hidden>
+                <?php if (isset($sectionSearchLabel[$sectionKey])): ?>
+                    <button type="button" class="pe-btn pe-btn-primary pe-search-media" data-search-media="<?php echo $sectionKey; ?>" data-search-kind="<?php echo pe_h($section['favorite']); ?>">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span><?php echo pe_h($sectionSearchLabel[$sectionKey]); ?></span>
+                    </button>
+                <?php endif; ?>
+
                 <?php if (isset($sectionItemsLabel[$sectionKey])): ?>
                     <div class="pe-items" data-items="<?php echo $sectionKey; ?>"></div>
-                    <button type="button" class="pe-add" data-add-item="<?php echo $sectionKey; ?>">
+                    <button type="button" class="pe-add<?php echo isset($sectionSearchLabel[$sectionKey]) ? ' pe-add-secondary' : ''; ?>" data-add-item="<?php echo $sectionKey; ?>">
                         <i class="fa-solid fa-plus" aria-hidden="true"></i><span><?php echo pe_h($sectionItemsLabel[$sectionKey]); ?></span>
                         <span class="pe-add-limit" data-limit-for="<?php echo $sectionKey; ?>"></span>
                     </button>

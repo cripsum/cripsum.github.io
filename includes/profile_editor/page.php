@@ -53,6 +53,13 @@ unset($_SESSION['profile_draft'][$targetUserId]);
 $GLOBALS['pe'] = ['lang' => $editorLang, 'premium' => $isPremium];
 
 $catalog = profile_editor_catalog($tt);
+// Senza la migration v7 la tabella dei preferiti non c'e': le quattro sezioni
+// spariscono dall'editor invece di offrire un salvataggio che fallirebbe.
+if (!profile_favorites_available($mysqli)) {
+    foreach (array_keys(PROFILE_FAVORITE_KINDS) as $favSection) {
+        unset($catalog['sections'][$favSection]);
+    }
+}
 $style = profile_style_resolve($profile);
 $nameStyle = profile_name_style_normalize($profile['profile_name_style'] ?? null, $style['text_color'], $style['theme']);
 [$layoutChoice] = profile_layout_choice_for($profile);
@@ -63,6 +70,21 @@ $projects = profile_list_projects($mysqli, $targetUserId, false);
 $contents = profile_list_contents($mysqli, $targetUserId, false);
 $blocks = profile_list_blocks($mysqli, $targetUserId, false);
 $embeds = profile_list_embeds($mysqli, $targetUserId, false);
+// I preferiti stanno in una tabella sola, ma l'editor li mostra come quattro
+// liste: qui si dividono per sezione, come le vede chi modifica.
+$favoritesByKind = profile_list_favorites($mysqli, $targetUserId, false);
+$favoriteItems = [];
+foreach (PROFILE_FAVORITE_KINDS as $favSection => $favKind) {
+    $favoriteItems[$favSection] = array_map(static fn(array $row): array => [
+        'title' => (string)($row['title'] ?? ''),
+        'subtitle' => (string)($row['subtitle'] ?? ''),
+        'meta' => (string)($row['meta'] ?? ''),
+        'image_url' => (string)($row['image_url'] ?? ''),
+        'url' => (string)($row['url'] ?? ''),
+        'source' => (string)($row['source'] ?? ''),
+        'is_visible' => (int)($row['is_visible'] ?? 1),
+    ], $favoritesByKind[$favKind] ?? []);
+}
 $tags = json_decode($profile['profile_tags_json'] ?? '[]', true);
 $tags = is_array($tags) ? $tags : [];
 $availableBadges = profile_list_all_user_badges($mysqli, $targetUserId);
@@ -72,7 +94,7 @@ $displayedCharacterIds = array_map(static fn($c) => (int)$c['id'], profile_list_
 $sectionsConfig = json_decode($profile['profile_sections_config'] ?? '', true);
 $sectionsConfig = is_array($sectionsConfig) ? $sectionsConfig : [];
 $sectionsOrder = array_values(array_intersect(
-    array_map('trim', explode(',', (string)($profile['profile_sections_order'] ?: 'links,embeds,stats,projects,blocks,contents,characters,badges,activity'))),
+    array_map('trim', explode(',', (string)($profile['profile_sections_order'] ?: 'links,embeds,stats,projects,blocks,contents,fav_games,fav_watch,fav_music,fav_read,characters,badges,activity'))),
     array_keys($catalog['sections'])
 ));
 foreach (array_keys($catalog['sections']) as $sectionKey) {
@@ -149,7 +171,8 @@ $editorData = [
         'blocks' => $blocks,
         'embeds' => $embeds,
         'tags' => $tags,
-    ],
+    ] + $favoriteItems,
+    'favoritesAvailable' => profile_favorites_available($mysqli),
     'badges' => $availableBadges,
     'characters' => array_map(static fn($c) => [
         'id' => (int)$c['id'],
@@ -193,7 +216,7 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <title><?php echo pe_h($tt('Modifica profilo', 'Edit profile')); ?> · Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="/assets/css/profile-editor.css?v=6.3.0">
+    <link rel="stylesheet" href="/assets/css/profile-editor.css?v=7.0.0">
     <link rel="stylesheet" href="/assets/css/profile-markdown-guide.css?v=6.0.0">
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.1.0">
@@ -205,9 +228,9 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
     <script src="/assets/js/profile-effects.js?v=1.2.0" defer></script>
     <script src="/assets/js/profile-name-effects.js?v=1.1.0" defer></script>
-    <script src="/assets/js/profile-editor/components.js?v=6.1.0" defer></script>
-    <script src="/assets/js/profile-editor/items.js?v=6.1.0" defer></script>
-    <script src="/assets/js/profile-editor/editor.js?v=6.5.0" defer></script>
+    <script src="/assets/js/profile-editor/components.js?v=7.0.0" defer></script>
+    <script src="/assets/js/profile-editor/items.js?v=7.0.0" defer></script>
+    <script src="/assets/js/profile-editor/editor.js?v=7.0.0" defer></script>
 </head>
 
 <body class="pe-body<?php echo $isPremium ? ' is-premium' : ''; ?>" style="--pe-accent: <?php echo pe_h($style['accent']); ?>; --editor-accent: <?php echo pe_h($style['accent']); ?>;">
@@ -224,7 +247,7 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <form id="profileEditForm" class="pe-app" method="post" enctype="multipart/form-data" action="/api/update_profile.php" novalidate>
         <input type="hidden" name="csrf_token" value="<?php echo pe_h($csrf); ?>">
         <input type="hidden" name="target_user_id" value="<?php echo $targetUserId; ?>">
-        <?php foreach (['socials_json', 'links_json', 'projects_json', 'contents_json', 'blocks_json', 'badges_json', 'characters_json', 'embeds_json', 'profile_tags_json', 'profile_sections_order', 'profile_sections_config', 'profile_stats_json'] as $hiddenJson): ?>
+        <?php foreach (['socials_json', 'links_json', 'projects_json', 'contents_json', 'blocks_json', 'badges_json', 'characters_json', 'embeds_json', 'favorites_json', 'profile_tags_json', 'profile_sections_order', 'profile_sections_config', 'profile_stats_json'] as $hiddenJson): ?>
             <input type="hidden" name="<?php echo $hiddenJson; ?>" data-json-field="<?php echo $hiddenJson; ?>">
         <?php endforeach; ?>
 
@@ -357,6 +380,20 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
             <div class="pe-upsell-actions">
                 <a class="pe-btn pe-btn-primary" href="/<?php echo $editorLang; ?>/checkout-premium.php" data-leave-editor><?php echo pe_h($tt('Passa a Premium · €2.99 una tantum', 'Go Premium · €2.99 one-time')); ?></a>
                 <button type="button" class="pe-btn pe-btn-ghost" data-close-dialog><?php echo pe_h($tt('Non ora', 'Not now')); ?></button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Conferme: al posto della finestra grigia del browser, che ignorava
+         l'aspetto dell'editor e non si poteva scrivere in due lingue. -->
+    <dialog class="pe-dialog pe-confirm" id="peConfirm" aria-labelledby="peConfirmTitle">
+        <div class="pe-confirm-box">
+            <span class="pe-confirm-icon" id="peConfirmIcon" aria-hidden="true"><i class="fa-solid fa-circle-question"></i></span>
+            <h2 id="peConfirmTitle"></h2>
+            <p id="peConfirmText"></p>
+            <div class="pe-confirm-actions">
+                <button type="button" class="pe-btn pe-btn-ghost" id="peConfirmCancel"></button>
+                <button type="button" class="pe-btn pe-btn-primary" id="peConfirmOk"></button>
             </div>
         </div>
     </dialog>

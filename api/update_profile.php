@@ -87,16 +87,9 @@ $linkStyle = profile_allowed_value((string)($_POST['profile_link_style'] ?? 'gla
 // Forme, bordo e nome passano da profile_style.php, come la lettura.
 $styleColumns = profile_style_columns_from_input($_POST, $profile);
 $buttonShape = $styleColumns['profile_button_shape'];
-$font = profile_allowed_value((string)($_POST['profile_font'] ?? 'Poppins'), [
-    'Poppins', 'Inter', 'Roboto', 'Outfit', 'Playfair Display', 
-    'Space Grotesk', 'Syne', 'Montserrat', 'Fira Code', 'PT Mono', 
-    'Cinzel', 'Rubik', 'Bebas Neue', 'Minecraft', 'Gang of Three',
-    'Press Start 2P', 'Bungee', 'Permanent Marker', 'Creepster', 'Shojumaru'
-], 'Poppins');
-$allowedFreeFonts = ['Poppins', 'Inter', 'Roboto', 'Outfit', 'Montserrat'];
-if (!$isPremium && !in_array($font, $allowedFreeFonts, true)) {
-    $font = 'Poppins';
-}
+// La lista dei font sta in profile_font_catalog() (includes/profile_style.php),
+// insieme a quali sono Premium: qui non si duplica piu' niente.
+$font = profile_font_normalize($_POST['profile_font'] ?? 'Poppins', $isPremium);
 $borderRadius = (int)($_POST['profile_border_radius'] ?? 30);
 if ($borderRadius < 0 || $borderRadius > 40) $borderRadius = 30;
 $cardOpacity = (int)($_POST['profile_card_opacity'] ?? 68);
@@ -349,6 +342,9 @@ function profile_decode_rows(string $key): array
     return is_array($rows) ? $rows : [];
 }
 
+// Il tetto vero e' per sezione (4, 8 con il Premium) e si applica piu' sotto:
+// qui si taglia solo la lista in arrivo, che non ha motivo di essere lunga.
+$favoriteRows = array_slice(profile_decode_rows('favorites_json'), 0, 64);
 $socialRows = profile_decode_rows('socials_json');
 $linkRows = profile_decode_rows('links_json');
 $projectRows = profile_decode_rows('projects_json');
@@ -512,6 +508,10 @@ try {
                         'hidden' => !empty($conf['hidden']) ? 1 : 0,
                         'title' => isset($conf['title']) ? profile_clean_text($conf['title'], 80) : '',
                         'icon' => isset($conf['icon']) ? profile_clean_text($conf['icon'], 255) : '',
+                        // `join`: con il layout a schermate questa sezione sta
+                        // nella stessa schermata di quella prima, invece di
+                        // aprirne una nuova.
+                        'join' => !empty($conf['join']) ? 1 : 0,
                     ];
                 }
                 $sectionsConfig = json_encode($sanitized);
@@ -557,6 +557,50 @@ try {
     $stmtPremium->bind_param('ississiisii', $layoutSnap, $cursorEffect, $cursorCustomUrlDb, $bgGrain, $musicTheme, $sectionsConfig, $hideMeta, $cursorCustomCenter, $cursorCustomHoverUrlDb, $cursorCustomHoverCenter, $targetUserId);
     if (!$stmtPremium->execute()) throw new RuntimeException('Error updating premium settings.');
     $stmtPremium->close();
+
+    /*
+     * Colonne della migration v7 (migrations/2026-09-20_profile_v7.sql).
+     * Si scrive solo quello che esiste davvero: finche' la migration non gira
+     * il salvataggio funziona come prima invece di fallire tutto.
+     */
+    $musicCover = trim((string)($_POST['profile_music_cover'] ?? ''));
+    if (!$isPremium || !profile_is_safe_url($musicCover, false)) {
+        $musicCover = '';
+    }
+    // Togliendo il brano se ne va anche la copertina.
+    if ($removeMusicUpload && $musicUrlDb === null && empty($musicUpload['has_file'])) {
+        $musicCover = '';
+    }
+
+    $v7Values = [
+        'profile_music_cover' => ['s', $musicCover !== '' ? $musicCover : null],
+        'profile_views_label' => ['i', profile_bool_from_post('profile_views_label', true)],
+        'profile_views_pill' => ['i', profile_bool_from_post('profile_views_pill', true)],
+        'profile_show_fav_games' => ['i', profile_bool_from_post('profile_show_fav_games', true)],
+        'profile_show_fav_watch' => ['i', profile_bool_from_post('profile_show_fav_watch', true)],
+        'profile_show_fav_music' => ['i', profile_bool_from_post('profile_show_fav_music', true)],
+        'profile_show_fav_read' => ['i', profile_bool_from_post('profile_show_fav_read', true)],
+    ];
+
+    $v7Set = [];
+    $v7Types = '';
+    $v7Params = [];
+    foreach ($v7Values as $column => [$type, $value]) {
+        if (!profile_v7_column_available($mysqli, $column)) continue;
+        $v7Set[] = '`' . $column . '` = ?';
+        $v7Types .= $type;
+        $v7Params[] = $value;
+    }
+
+    if ($v7Set) {
+        $stmtV7 = $mysqli->prepare('UPDATE utenti SET ' . implode(', ', $v7Set) . ' WHERE id = ?');
+        if (!$stmtV7) throw new RuntimeException('Error updating profile extras.');
+        $v7Types .= 'i';
+        $v7Params[] = $targetUserId;
+        $stmtV7->bind_param($v7Types, ...$v7Params);
+        if (!$stmtV7->execute()) throw new RuntimeException('Error updating profile extras.');
+        $stmtV7->close();
+    }
 
     if (!empty($avatarUpload['has_file']) && isset($avatarUpload['tmp_path'], $avatarUpload['mime'], $avatarUpload['ext'])) {
         $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $targetUserId;
@@ -864,6 +908,60 @@ try {
         if (!$insertEmbed->execute()) throw new RuntimeException('Error saving embed.');
     }
     $insertEmbed->close();
+
+    /*
+     * Preferiti: giochi, anime/serie/film, canzoni, libri/manga/LN.
+     *
+     * Una tabella sola per tutte e quattro le sezioni, distinte da `kind`, e
+     * il tetto (quattro, otto con il Premium) si conta per sezione. Arriva
+     * dall'editor con la copertina gia' scelta dalla ricerca esterna: qui si
+     * ricontrolla che sia un indirizzo accettabile, come per ogni altro media
+     * che l'utente puo' incollare.
+     */
+    if (profile_favorites_available($mysqli)) {
+        $stmt = $mysqli->prepare("DELETE FROM utenti_profile_favorites WHERE utente_id = ?");
+        $stmt->bind_param('i', $targetUserId);
+        if (!$stmt->execute()) throw new RuntimeException('Error cleaning favorites.');
+        $stmt->close();
+
+        $favoriteLimit = profile_favorites_limit($isPremium);
+        $favoriteCounts = array_fill_keys(array_values(PROFILE_FAVORITE_KINDS), 0);
+        $allowedKinds = array_values(PROFILE_FAVORITE_KINDS);
+
+        $insertFavorite = $mysqli->prepare(
+            "INSERT INTO utenti_profile_favorites (utente_id, kind, title, subtitle, image_url, url, meta, source, sort_order, is_visible)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        foreach ($favoriteRows as $i => $row) {
+            $kind = profile_allowed_value((string)($row['kind'] ?? ''), $allowedKinds, '');
+            if ($kind === '') continue;
+            if ($favoriteCounts[$kind] >= $favoriteLimit) continue;
+
+            $title = profile_clean_text($row['title'] ?? '', 120);
+            if ($title === '') continue;
+
+            $subtitle = profile_clean_text($row['subtitle'] ?? '', 120);
+            $meta = profile_clean_text($row['meta'] ?? '', 80);
+            $source = profile_clean_text($row['source'] ?? '', 60);
+            $image = trim((string)($row['image_url'] ?? ''));
+            $url = trim((string)($row['url'] ?? ''));
+            if (!profile_is_safe_url($image, false)) throw new RuntimeException('Invalid favorite cover: ' . $title);
+            if (!profile_is_safe_url($url, false)) throw new RuntimeException('Invalid favorite URL: ' . $title);
+
+            $subtitleDb = $subtitle !== '' ? $subtitle : null;
+            $imageDb = $image !== '' ? $image : null;
+            $urlDb = $url !== '' ? $url : null;
+            $metaDb = $meta !== '' ? $meta : null;
+            $sourceDb = $source !== '' ? $source : null;
+            $visible = !empty($row['is_visible']) ? 1 : 0;
+            $sort = $favoriteCounts[$kind];
+
+            $insertFavorite->bind_param('isssssssii', $targetUserId, $kind, $title, $subtitleDb, $imageDb, $urlDb, $metaDb, $sourceDb, $sort, $visible);
+            if (!$insertFavorite->execute()) throw new RuntimeException('Error saving favorite.');
+            $favoriteCounts[$kind]++;
+        }
+        $insertFavorite->close();
+    }
 
     if ($musicUrlDb || !empty($musicUpload['has_file'])) {
         profile_record_activity($mysqli, $targetUserId, 'music', 'Updated profile song', $musicUrlDb ?: null);

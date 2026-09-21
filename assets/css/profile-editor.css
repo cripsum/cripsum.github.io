@@ -1691,6 +1691,68 @@
     max-height: 320px;
 }
 
+/* Tendina con ricerca (i font): il campo resta fermo, scorre solo l'elenco. */
+.pe-popover-search {
+    max-height: min(420px, calc(100dvh - 32px));
+    overflow: hidden;
+}
+
+.pe-listbox-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-height: 0;
+    max-height: min(400px, calc(100dvh - 48px));
+}
+
+.pe-listbox-search {
+    position: relative;
+    flex: none;
+}
+
+.pe-listbox-search i {
+    position: absolute;
+    top: 50%;
+    left: 0.6rem;
+    color: var(--pe-muted);
+    font-size: 0.78rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.pe-listbox-search .pe-input {
+    padding-left: 1.9rem;
+}
+
+.pe-listbox-search .pe-input::-webkit-search-cancel-button {
+    filter: grayscale(1);
+}
+
+.pe-listbox-wrap .pe-listbox {
+    min-height: 0;
+    overflow: auto;
+}
+
+.pe-listbox-group {
+    padding: 0.5rem 0.6rem 0.2rem;
+    color: var(--pe-muted);
+    font: 700 0.68rem/1 "Inter", system-ui, sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.pe-listbox-group:first-child {
+    padding-top: 0.15rem;
+}
+
+.pe-listbox-empty {
+    margin: 0;
+    padding: 0.7rem 0.6rem;
+    color: var(--pe-muted);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
 /* Icone */
 .pe-body .pe-icon-trigger {
     display: flex;
@@ -2317,6 +2379,12 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+/* Con il layout a schermate resta il posto, a sinistra, per la barretta che
+   tiene insieme le sezioni della stessa schermata. */
+.pe-sections.is-snap {
+    padding-left: 0.6rem;
 }
 
 .pe-section {
@@ -3478,6 +3546,362 @@
     color: #1a1406 !important;
     background: var(--pe-premium);
     box-shadow: 0 8px 24px color-mix(in srgb, var(--pe-premium) 30%, transparent);
+}
+
+/* ── Schermate del layout "A schermate" ───────────────────────────────────── */
+/* I separatori esistono solo con quel layout: altrove non farebbero niente. */
+.pe-screen-row {
+    display: none;
+}
+
+.pe-sections.is-snap .pe-screen-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.15rem 0 0.4rem;
+}
+
+.pe-screen-row[hidden] {
+    display: none !important;
+}
+
+.pe-screen-line {
+    flex: 1;
+    height: 1px;
+    background: var(--pe-line);
+}
+
+.pe-screen-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex: none;
+    padding: 0.16rem 0.55rem;
+    border: 1px solid var(--pe-line);
+    border-radius: 999px;
+    color: var(--pe-muted);
+    background: var(--pe-surface-2);
+    font: 700 0.66rem/1 "Inter", system-ui, sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.pe-screen-toggle:hover {
+    color: var(--pe-text);
+    border-color: var(--pe-accent);
+}
+
+.pe-screen-toggle i {
+    font-size: 0.62rem;
+}
+
+/* Unita a quella di sopra: la forbice si chiude e il segno diventa una graffa. */
+.pe-screen-toggle[aria-pressed="true"] {
+    color: var(--pe-accent-text);
+    border-color: color-mix(in srgb, var(--pe-accent) 40%, transparent);
+    background: color-mix(in srgb, var(--pe-accent) 12%, transparent);
+}
+
+.pe-screen-toggle[aria-pressed="true"] i {
+    transform: rotate(90deg);
+}
+
+/* Le sezioni che condividono una schermata restano attaccate, con una
+   barretta a sinistra che le tiene insieme a vista. */
+.pe-sections.is-snap .pe-section.is-joined,
+.pe-sections.is-snap .pe-section.is-group-start {
+    position: relative;
+}
+
+.pe-sections.is-snap .pe-section.is-joined::before,
+.pe-sections.is-snap .pe-section.is-group-start::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: -0.5rem;
+    left: -0.55rem;
+    width: 2px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--pe-accent) 45%, transparent);
+}
+
+.pe-sections.is-snap .pe-section.is-group-start::before {
+    top: 0.5rem;
+    border-radius: 2px 2px 0 0;
+}
+
+.pe-sections.is-snap .pe-section.is-group-end::before {
+    bottom: 0.5rem;
+    border-radius: 0 0 2px 2px;
+}
+
+.pe-screen-note {
+    margin-bottom: 0.8rem;
+}
+
+.pe-screen-note[hidden] {
+    display: none;
+}
+
+/* ── Ricerca su fonti esterne (preferiti e brano) ─────────────────────────── */
+.pe-search-media {
+    width: 100%;
+    height: 44px;
+    margin-bottom: 0.7rem;
+}
+
+/* Con la ricerca sopra, "aggiungi a mano" e' la seconda scelta. */
+.pe-add-secondary {
+    opacity: 0.75;
+}
+
+.pe-add-secondary:hover {
+    opacity: 1;
+}
+
+.pe-mediasearch {
+    width: min(620px, calc(100vw - 24px));
+    max-width: none;
+}
+
+.pe-mediasearch-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: min(640px, calc(100dvh - 64px));
+    padding: 1.1rem 1.1rem 1rem;
+    border: 1px solid var(--pe-line-strong);
+    border-radius: 20px;
+    background: var(--pe-surface-2);
+    box-shadow: var(--pe-shadow);
+}
+
+.pe-mediasearch-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.pe-mediasearch-head h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.pe-mediasearch-input {
+    position: relative;
+    flex: none;
+}
+
+.pe-mediasearch-input i {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    color: var(--pe-muted);
+    font-size: 0.85rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.pe-mediasearch-input .pe-input {
+    height: 44px;
+    padding-left: 2.2rem;
+}
+
+.pe-mediasearch-status {
+    flex: none;
+    margin: 0;
+    color: var(--pe-muted);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+.pe-mediasearch-status[hidden] {
+    display: none;
+}
+
+.pe-mediasearch.is-busy .pe-mediasearch-status {
+    opacity: 0.7;
+}
+
+.pe-mediasearch-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 0.6rem;
+    min-height: 0;
+    overflow: auto;
+    padding-right: 0.15rem;
+}
+
+.pe-mediasearch-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0;
+    border: 0;
+    color: var(--pe-text);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pe-mediasearch-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border: 1px solid var(--pe-line);
+    border-radius: 10px;
+    color: var(--pe-muted);
+    background: var(--pe-surface-3);
+    transition: border-color 0.16s ease, transform 0.16s var(--pe-ease);
+}
+
+.pe-mediasearch-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pe-mediasearch-card:hover .pe-mediasearch-art,
+.pe-mediasearch-card:focus-visible .pe-mediasearch-art {
+    border-color: var(--pe-accent);
+    transform: translateY(-2px);
+}
+
+.pe-mediasearch-info {
+    display: block;
+    min-width: 0;
+}
+
+.pe-mediasearch-info strong {
+    display: block;
+    overflow: hidden;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pe-mediasearch-info small {
+    display: block;
+    overflow: hidden;
+    color: var(--pe-muted);
+    font-size: 0.7rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Conferme ─────────────────────────────────────────────────────────────── */
+.pe-confirm {
+    width: min(420px, calc(100vw - 32px));
+    max-width: none;
+}
+
+.pe-confirm-box {
+    padding: 1.5rem 1.4rem 1.2rem;
+    border: 1px solid var(--pe-line-strong);
+    border-radius: 20px;
+    background: var(--pe-surface-2);
+    box-shadow: var(--pe-shadow);
+    text-align: center;
+}
+
+.pe-confirm-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    margin-bottom: 0.85rem;
+    border-radius: 14px;
+    color: var(--pe-accent-text);
+    background: color-mix(in srgb, var(--pe-accent) 16%, transparent);
+    font-size: 1.1rem;
+}
+
+.pe-confirm.is-danger .pe-confirm-icon {
+    color: var(--pe-danger, #ff6b6b);
+    background: color-mix(in srgb, var(--pe-danger, #ff6b6b) 16%, transparent);
+}
+
+.pe-confirm-box h2 {
+    margin: 0 0 0.4rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.pe-confirm-box p {
+    margin: 0;
+    color: var(--pe-muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.pe-confirm-box p[hidden] {
+    display: none;
+}
+
+.pe-confirm-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+}
+
+.pe-confirm-actions .pe-btn {
+    flex: 1;
+    height: 42px;
+}
+
+.pe-confirm.is-danger .pe-confirm-actions .pe-btn-primary {
+    background: var(--pe-danger, #ff6b6b);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--pe-danger, #ff6b6b) 28%, transparent);
+}
+
+/* Anteprima del contatore delle visite, accanto ai suoi due interruttori. */
+.pe-views-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 62px;
+    margin-bottom: 0.6rem;
+    padding: 0.8rem;
+    border: 1px dashed var(--pe-line);
+    border-radius: var(--pe-radius);
+    background: var(--pe-surface-3);
+}
+
+.pe-views-preview .bio-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2rem;
+    padding: 0.38rem 0.72rem;
+    border: 1px solid color-mix(in srgb, var(--pe-accent) 30%, transparent);
+    border-radius: 999px;
+    color: var(--pe-text);
+    background: color-mix(in srgb, var(--pe-text) 6%, transparent);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transition: padding 0.16s var(--pe-ease), background 0.16s ease, border-color 0.16s ease;
+}
+
+.pe-views-preview .bio-pill--bare {
+    min-height: 0;
+    padding: 0;
+    border-color: transparent;
+    background: none;
+}
+
+.pe-views-preview .profile-views-label[hidden] {
+    display: none;
 }
 
 /* ── Avvisi e caricamenti ──────────────────────────────────────────────────── */

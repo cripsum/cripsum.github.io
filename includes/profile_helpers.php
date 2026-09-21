@@ -240,6 +240,68 @@ function profile_deletion_select_sql(mysqli $mysqli): string
     return $available ? 'u.deletion_requested_at,' : 'NULL AS deletion_requested_at,';
 }
 
+/**
+ * Le colonne di `utenti` aggiunte dalla migration del profilo v7, con il
+ * valore da usare al loro posto finche' la migration non e' stata eseguita.
+ *
+ * @return array<string,string> colonna => valore di ripiego in SQL
+ */
+function profile_v7_columns(): array
+{
+    return [
+        'profile_music_cover' => 'NULL',
+        'profile_views_label' => '1',
+        'profile_views_pill' => '1',
+        'profile_show_fav_games' => '1',
+        'profile_show_fav_watch' => '1',
+        'profile_show_fav_music' => '1',
+        'profile_show_fav_read' => '1',
+    ];
+}
+
+/**
+ * Le colonne di `utenti` aggiunte dalla migration del profilo v7 (copertina
+ * del brano, aspetto delle visite, interruttori dei preferiti).
+ *
+ * Come profile_deletion_select_sql(): se la migration non e' ancora stata
+ * eseguita, al posto della colonna si mette il valore di prima. Cosi' il
+ * profilo continua a funzionare come ha sempre fatto, senza query rotte.
+ */
+function profile_v7_select_sql(mysqli $mysqli, string $prefix = ''): string
+{
+    static $cache = [];
+    if (isset($cache[$prefix])) {
+        return $cache[$prefix];
+    }
+
+    $columns = profile_v7_columns();
+
+    $parts = [];
+    foreach ($columns as $column => $fallback) {
+        $exists = function_exists('auth_column_exists') && auth_column_exists($mysqli, 'utenti', $column);
+        $parts[] = $exists ? ($prefix . $column) : ($fallback . ' AS ' . $column);
+    }
+
+    return $cache[$prefix] = implode(",\n            ", $parts) . ',';
+}
+
+/** Una singola colonna della migration v7 esiste? (per le UPDATE) */
+function profile_v7_column_available(mysqli $mysqli, string $column): bool
+{
+    return function_exists('auth_column_exists') && auth_column_exists($mysqli, 'utenti', $column);
+}
+
+/** Le quattro sezioni dei preferiti esistono solo dopo la migration v7. */
+function profile_favorites_available(mysqli $mysqli): bool
+{
+    static $available = null;
+    if ($available === null) {
+        $available = function_exists('auth_table_exists')
+            && auth_table_exists($mysqli, 'utenti_profile_favorites');
+    }
+    return $available;
+}
+
 function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
 {
     $byId = ctype_digit($identifier);
@@ -353,6 +415,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             u.profile_bg_orbs_opacity,
             u.profile_bg_use_video_audio,
             " . profile_deletion_select_sql($mysqli) . "
+            " . profile_v7_select_sql($mysqli, 'u.') . "
             COALESCE(ach.num_achievement, 0) AS num_achievement,
             COALESCE(inv.num_personaggi, 0) AS num_personaggi,
             COALESCE(inv.total_personaggi, 0) AS total_personaggi
@@ -502,6 +565,7 @@ function profile_get_public_profile_by_alias(mysqli $mysqli, string $alias): ?ar
             u.profile_bg_orbs_opacity,
             u.profile_bg_use_video_audio,
             " . profile_deletion_select_sql($mysqli) . "
+            " . profile_v7_select_sql($mysqli, 'u.') . "
             COALESCE(ach.num_achievement, 0) AS num_achievement,
             COALESCE(inv.num_personaggi, 0) AS num_personaggi,
             COALESCE(inv.total_personaggi, 0) AS total_personaggi
@@ -536,7 +600,7 @@ function profile_get_public_profile_by_alias(mysqli $mysqli, string $alias): ?ar
 
 function profile_get_edit_profile(mysqli $mysqli, int $userId): ?array
 {
-    $stmt = $mysqli->prepare("SELECT id, username, is_premium, profile_layout_snap, profile_music_theme, profile_cursor_effect, profile_cursor_custom_url, profile_cursor_custom_center, profile_cursor_custom_hover_url, profile_cursor_custom_hover_center, profile_bg_grain, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_blocks, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_show_characters, profile_updated_at, profile_enter_text, profile_click_to_enter, profile_socials_style, profile_show_embeds, profile_sections_order, profile_badges_display, profile_badges_position, discord_server_invite, discord_server_cache, discord_server_cache_time, profile_font, profile_border_radius, profile_card_opacity, profile_card_blur, profile_border_opacity, profile_border_color, profile_border_width, profile_name_style, profile_ui_shape, profile_avatar_shape, profile_social_size, profile_icon_spacing, profile_badge_size, profile_button_size, profile_avatar_border, custom_alias, tilt_enabled, tilt_max, tilt_glare, tilt_zoom, tilt_speed, profile_tags_json, profile_tab_title, profile_tab_animation, profile_tab_animation_speed, profile_tab_animation_text, profile_corner_style, profile_corner_style_custom, profile_border_style, profile_sections_config, profile_cursor_custom_center, profile_cursor_custom_hover_url, profile_cursor_custom_hover_center, profile_hide_meta, profile_show_audio_btn, profile_audio_btn_position, profile_audio_default_volume, profile_bg_overlay_opacity, profile_bg_blur, profile_bg_orbs_opacity, profile_bg_use_video_audio FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT " . profile_v7_select_sql($mysqli) . " id, username, is_premium, profile_layout_snap, profile_music_theme, profile_cursor_effect, profile_cursor_custom_url, profile_cursor_custom_center, profile_cursor_custom_hover_url, profile_cursor_custom_hover_center, profile_bg_grain, display_name, bio, data_creazione, ruolo, profile_banner_type, accent_color, profile_secondary_color, profile_card_color, profile_text_color, profile_link_style, profile_button_shape, profile_theme, profile_layout, profile_visibility, discord_id, discord_username, discord_global_name, discord_avatar, discord_use_avatar, discord_use_display_name, discord_connected_at, profile_status, profile_show_stats, profile_show_socials, profile_show_links, profile_show_projects, profile_show_contents, profile_show_blocks, profile_show_badges, profile_show_activity, profile_show_discord, profile_music_url, profile_music_mime, profile_music_title, profile_music_artist, profile_show_audio_player, profile_effect, avatar_ring_enabled, avatar_ring_style, avatar_ring_color, profile_views, featured_badge_id, featured_project_id, featured_content_id, profile_show_characters, profile_updated_at, profile_enter_text, profile_click_to_enter, profile_socials_style, profile_show_embeds, profile_sections_order, profile_badges_display, profile_badges_position, discord_server_invite, discord_server_cache, discord_server_cache_time, profile_font, profile_border_radius, profile_card_opacity, profile_card_blur, profile_border_opacity, profile_border_color, profile_border_width, profile_name_style, profile_ui_shape, profile_avatar_shape, profile_social_size, profile_icon_spacing, profile_badge_size, profile_button_size, profile_avatar_border, custom_alias, tilt_enabled, tilt_max, tilt_glare, tilt_zoom, tilt_speed, profile_tags_json, profile_tab_title, profile_tab_animation, profile_tab_animation_speed, profile_tab_animation_text, profile_corner_style, profile_corner_style_custom, profile_border_style, profile_sections_config, profile_cursor_custom_center, profile_cursor_custom_hover_url, profile_cursor_custom_hover_center, profile_hide_meta, profile_show_audio_btn, profile_audio_btn_position, profile_audio_default_volume, profile_bg_overlay_opacity, profile_bg_blur, profile_bg_orbs_opacity, profile_bg_use_video_audio FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $profile = $stmt->get_result()->fetch_assoc();
@@ -659,6 +723,111 @@ function profile_list_blocks(mysqli $mysqli, int $userId, bool $onlyVisible = tr
     $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
     return $rows ?: [];
+}
+
+/** Le sezioni del profilo, nell'ordine predefinito. */
+const PROFILE_SECTION_KEYS = [
+    'links', 'embeds', 'stats', 'projects', 'blocks', 'contents',
+    'fav_games', 'fav_watch', 'fav_music', 'fav_read',
+    'characters', 'badges', 'activity',
+];
+
+/**
+ * Le sezioni raggruppate per schermata, per il layout "A schermate".
+ *
+ * Ogni sezione con `join` acceso nella sua configurazione resta nella
+ * schermata di quella prima; le altre ne aprono una nuova. L'ordine e' quello
+ * salvato in `profile_sections_order`.
+ *
+ * Il risultato finisce in un attributo del <body> e lo legge profile.js, che
+ * i riquadri delle sezioni ce li ha gia' davanti: cosi' il markup delle
+ * sezioni non cambia di una virgola.
+ *
+ * @return string "links,stats|blocks|badges,activity"
+ */
+function profile_snap_screens_attr(array $profile): string
+{
+    if ((int)($profile['is_premium'] ?? 0) !== 1 || (int)($profile['profile_layout_snap'] ?? 0) !== 1) {
+        return '';
+    }
+
+    $config = json_decode((string)($profile['profile_sections_config'] ?? ''), true);
+    $config = is_array($config) ? $config : [];
+
+    $order = array_values(array_filter(
+        array_map('trim', explode(',', (string)($profile['profile_sections_order'] ?? ''))),
+        static fn(string $key): bool => in_array($key, PROFILE_SECTION_KEYS, true)
+    ));
+    foreach (PROFILE_SECTION_KEYS as $key) {
+        if (!in_array($key, $order, true)) {
+            $order[] = $key;
+        }
+    }
+
+    $screens = [];
+    foreach ($order as $key) {
+        // La prima sezione apre sempre la prima schermata, qualunque cosa dica
+        // la sua configurazione.
+        if (!$screens || empty($config[$key]['join'])) {
+            $screens[] = [$key];
+        } else {
+            $screens[count($screens) - 1][] = $key;
+        }
+    }
+
+    return implode('|', array_map(static fn(array $group): string => implode(',', $group), $screens));
+}
+
+/** I quattro tipi di preferiti e la sezione del profilo a cui appartengono. */
+const PROFILE_FAVORITE_KINDS = [
+    'fav_games' => 'game',
+    'fav_watch' => 'watch',
+    'fav_music' => 'music',
+    'fav_read' => 'read',
+];
+
+/** Quanti preferiti per sezione: quattro, otto con il Premium. */
+function profile_favorites_limit(bool $isPremium): int
+{
+    return $isPremium ? 8 : 4;
+}
+
+/**
+ * I preferiti di un utente, divisi per tipo.
+ *
+ * Senza la migration v7 la tabella non esiste: si restituiscono liste vuote e
+ * le quattro sezioni non compaiono nemmeno, invece di far saltare la query.
+ *
+ * @return array<string,array<int,array<string,mixed>>> tipo => righe
+ */
+function profile_list_favorites(mysqli $mysqli, int $userId, bool $onlyVisible = true): array
+{
+    $empty = array_fill_keys(array_values(PROFILE_FAVORITE_KINDS), []);
+    if (!profile_favorites_available($mysqli)) {
+        return $empty;
+    }
+
+    $sql = 'SELECT id, kind, title, subtitle, image_url, url, meta, source, sort_order, is_visible
+            FROM utenti_profile_favorites
+            WHERE utente_id = ?' . ($onlyVisible ? ' AND is_visible = 1' : '') . '
+            ORDER BY sort_order ASC, id ASC';
+
+    $stmt = $mysqli->prepare($sql);
+    if (!$stmt) {
+        return $empty;
+    }
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    $byKind = $empty;
+    foreach ($rows as $row) {
+        $kind = (string)($row['kind'] ?? '');
+        if (!isset($byKind[$kind])) continue;
+        $byKind[$kind][] = $row;
+    }
+    return $byKind;
 }
 
 function profile_media_type_from_url(?string $url, string $fallback = 'image'): string

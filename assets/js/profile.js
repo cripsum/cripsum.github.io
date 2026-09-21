@@ -739,13 +739,33 @@
             }
         };
 
+        // Il pieno della barra e la parte gia' scaricata sono due variabili
+        // CSS: prima la barra restava tutta grigia e l'unico segno del punto
+        // raggiunto era il pallino del cursore.
+        const paintProgress = (percent) => {
+            progressSlider.style.setProperty('--audio-progress', `${Math.max(0, Math.min(100, percent))}%`);
+        };
+
+        const paintBuffered = () => {
+            const activeAudio = window.getActiveAudioElement();
+            const track = progressSlider.closest('.bio-audio__track');
+            if (!activeAudio || !track) return;
+            const { buffered, duration } = activeAudio;
+            if (!buffered || buffered.length === 0 || !Number.isFinite(duration) || duration <= 0) return;
+            const end = buffered.end(buffered.length - 1);
+            track.style.setProperty('--audio-buffered', `${Math.min(100, (end / duration) * 100)}%`);
+        };
+
         const syncProgress = () => {
             const activeAudio = window.getActiveAudioElement();
             if (!activeAudio) return;
             if (!dragging && Number.isFinite(activeAudio.duration) && activeAudio.duration > 0) {
-                progressSlider.value = String((activeAudio.currentTime / activeAudio.duration) * 100);
+                const percent = (activeAudio.currentTime / activeAudio.duration) * 100;
+                progressSlider.value = String(percent);
+                paintProgress(percent);
                 if (currentTime) currentTime.textContent = formatTime(activeAudio.currentTime);
             }
+            paintBuffered();
         };
 
         elements.forEach(el => {
@@ -757,6 +777,11 @@
             el.addEventListener('timeupdate', () => {
                 if (el === window.getActiveAudioElement()) {
                     syncProgress();
+                }
+            });
+            el.addEventListener('progress', () => {
+                if (el === window.getActiveAudioElement()) {
+                    paintBuffered();
                 }
             });
             el.addEventListener('play', () => {
@@ -824,6 +849,7 @@
         progressSlider.addEventListener('pointerup', seek);
         progressSlider.addEventListener('change', seek);
         progressSlider.addEventListener('input', () => {
+            paintProgress(Number(progressSlider.value));
             const activeAudio = window.getActiveAudioElement();
             if (!activeAudio) return;
             if (!Number.isFinite(activeAudio.duration) || activeAudio.duration <= 0) return;
@@ -2106,21 +2132,65 @@
         // Activate snap mode – CSS depends on this class
         activeBody.classList.add('snap-active');
 
+        /*
+         * Quali sezioni stanno nella stessa schermata.
+         *
+         * data-snap-screens arriva da profile.php ("links,stats|blocks|...")
+         * e dice a quale schermata appartiene ogni sezione. Prima ogni
+         * sezione era per forza una schermata a se': chi voleva un blocco
+         * libero e le statistiche insieme non poteva.
+         */
+        const screenOfSection = new Map();
+        (activeBody.dataset.snapScreens || '').split('|').forEach((group, index) => {
+            group.split(',').forEach((key) => {
+                const clean = key.trim();
+                if (clean) screenOfSection.set(clean, index);
+            });
+        });
+
         // Wrap slides in profile-snap-slide-wrapper
         const slides = [];
+        let openWrapper = null;
+        let openScreen = null;
+
         rawSlides.forEach(slide => {
             if (slide.classList.contains('profile-smart-hero-wrapper')) {
                 slide.classList.add('profile-snap-slide-wrapper');
                 slide.classList.add('profile-snap-slide');
                 slides.push(slide);
-            } else {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'profile-snap-slide-wrapper profile-snap-slide';
-                slide.parentNode.insertBefore(wrapper, slide);
-                wrapper.appendChild(slide);
-                slides.push(wrapper);
+                // La card del profilo resta una schermata sua.
+                openWrapper = null;
+                openScreen = null;
+                return;
             }
+
+            const sectionKey = slide.dataset.sectionType || '';
+            // Una sezione che non conosciamo fa schermata a se', come prima.
+            const screen = screenOfSection.has(sectionKey) ? screenOfSection.get(sectionKey) : null;
+
+            if (openWrapper && screen !== null && screen === openScreen) {
+                openWrapper.appendChild(slide);
+                openWrapper.classList.add('is-multi');
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'profile-snap-slide-wrapper profile-snap-slide';
+            slide.parentNode.insertBefore(wrapper, slide);
+            wrapper.appendChild(slide);
+            slides.push(wrapper);
+            openWrapper = wrapper;
+            openScreen = screen;
         });
+
+        // Raggruppando, tutte le sezioni possono finire in una schermata sola:
+        // con la card del profilo fanno due, ma se resta una sola schermata lo
+        // scorrimento a schermate non ha piu' senso.
+        if (slides.length <= 1) {
+            activeBody.classList.remove('snap-active');
+            cleanupSlides();
+            return;
+        }
 
         /*
          * Scorrimento a schermate.

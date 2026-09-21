@@ -38,10 +38,11 @@
         'profile_name_color', 'profile_name_effect', 'profile_name_grad_color1', 'profile_name_grad_color2', 'profile_name_grad_angle', 'profile_name_glow_color',
         'profile_name_glitch_color1', 'profile_name_glitch_color2', 'profile_name_sparkle_color',
         'avatar_ring_style', 'avatar_ring_color', 'profile_avatar_border', 'profile_effect',
+        'profile_views_label', 'profile_views_pill',
         'profile_cursor_effect', 'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center',
         'tilt_preset', 'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed',
         'profile_music_theme', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume', 'profile_show_audio_player',
-        'profile_music_title', 'profile_music_artist',
+        'profile_music_title', 'profile_music_artist', 'profile_music_cover',
         // Solo interni all'editor, non cambiano la pagina.
         'music_source', 'profile_tab_title', 'profile_tab_animation', 'profile_tab_animation_text', 'profile_tab_animation_speed',
         'custom_alias', 'profile_visibility',
@@ -59,6 +60,8 @@
         set('contents_json', PE.items.collect('contents'));
         set('blocks_json', PE.items.collect('blocks'));
         set('embeds_json', PE.items.collect('embeds'));
+        // Le quattro liste dei preferiti viaggiano insieme, con `kind`.
+        set('favorites_json', PE.items.collectFavorites());
         set('profile_tags_json', PE.items.collect('tags').slice(0, 10));
         set('badges_json', PE.badges.selected());
         set('characters_json', PE.characters.selected());
@@ -139,6 +142,7 @@
         PE.items.load('contents', json('contents_json', '[]'));
         PE.items.load('blocks', json('blocks_json', '[]'));
         PE.items.load('embeds', json('embeds_json', '[]'));
+        PE.items.loadFavorites(json('favorites_json', '[]'));
         PE.items.load('tags', json('profile_tags_json', '[]'));
         PE.badges.set(json('badges_json', '[]'));
         PE.characters.set(json('characters_json', '[]'));
@@ -350,6 +354,24 @@
         const avatarEditor = document.querySelector('.pe-avatar-editor');
         if (avatarEditor) avatarEditor.dataset.avatarShape = radioValue('profile_avatar_shape') || 'circle';
 
+        // Le schermate esistono solo con il layout "A schermate": altrove i
+        // controlli non avrebbero effetto, quindi non si vedono nemmeno.
+        const sectionsList = document.getElementById('peSections');
+        if (sectionsList) {
+            const isSnap = radioValue('profile_layout_choice') === 'scrollsnap';
+            sectionsList.classList.toggle('is-snap', isSnap);
+            const note = document.getElementById('peScreenNote');
+            if (note) note.hidden = !isSnap;
+        }
+
+        // Anteprima del contatore delle visite, accanto ai due interruttori.
+        const viewsPreview = document.getElementById('peViewsPreview');
+        if (viewsPreview) {
+            const checked = (name) => !!form.querySelector(`input[type="checkbox"][name="${name}"]`)?.checked;
+            viewsPreview.classList.toggle('bio-pill--bare', !checked('profile_views_pill'));
+            viewsPreview.querySelector('.profile-views-label').hidden = !checked('profile_views_label');
+        }
+
         // L'accento dell'editor segue quello del profilo.
         const accent = PE.hex(byName('accent_color')?.value);
         if (accent) {
@@ -493,10 +515,79 @@
         if (name) name.textContent = file.name;
         const title = byName('profile_music_title');
         if (title && !title.value.trim()) title.value = file.name.replace(/\.mp3$/i, '');
-        const remove = document.getElementById('peRemoveMusic');
-        if (remove) remove.checked = false;
+        setMusicFileState(true);
         post({ type: 'cripsum:media', kind: 'music', url: media.music, title: title?.value || '' });
         PE.changed();
+    });
+
+    /** La card del file: nome, etichetta del pulsante e tasto Elimina. */
+    const setMusicFileState = (hasFile, fileName = '') => {
+        const card = document.getElementById('peMusicCard');
+        const name = document.getElementById('peMusicName');
+        const pick = document.getElementById('peMusicPick');
+        const del = document.getElementById('peMusicDelete');
+        if (card) card.dataset.hasFile = hasFile ? '1' : '0';
+        if (name && !hasFile) name.textContent = t('Nessun file', 'No file');
+        if (name && hasFile && fileName) name.textContent = fileName;
+        if (pick) pick.textContent = hasFile ? t('Sostituisci', 'Replace') : t('Scegli', 'Choose');
+        if (del) del.hidden = !hasFile;
+    };
+
+    document.getElementById('peMusicDelete')?.addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        const ok = await PE.confirm(
+            t('Il file caricato viene cancellato subito, senza aspettare Pubblica.', 'The uploaded file is deleted right away, without waiting for Publish.'),
+            { title: t('Eliminare l\'audio del profilo?', 'Delete your profile audio?'), confirmLabel: t('Elimina', 'Delete'), danger: true }
+        );
+        if (!ok) return;
+
+        button.disabled = true;
+        try {
+            const body = new FormData();
+            body.set('csrf_token', form.querySelector('input[name="csrf_token"]').value);
+            body.set('target_user_id', String(data.targetUserId));
+            const response = await fetch('/api/profile/delete_music.php', { method: 'POST', body, credentials: 'same-origin' });
+            const json = await response.json().catch(() => ({}));
+            if (!response.ok || !json.ok) throw new Error(json.message || t('Non riesco a eliminare il file.', 'Cannot delete the file.'));
+
+            // Il file scelto ma non ancora inviato va tolto anche dal form.
+            if (musicInput) musicInput.value = '';
+            media.music = null;
+            const cover = byName('profile_music_cover');
+            if (cover && cover.value) {
+                cover.value = '';
+                const wrap = cover.closest('[data-media-url]');
+                if (wrap) PE.syncMediaUrl(wrap);
+            }
+            setMusicFileState(false);
+            PE.toast(t('MP3 eliminato.', 'MP3 deleted.'), { type: 'success' });
+            PE.changed({ structural: true });
+        } catch (error) {
+            PE.toast(error.message, { type: 'error' });
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    // Cerca il brano su iTunes e riempie titolo, artista e copertina.
+    document.getElementById('peMusicLookup')?.addEventListener('click', () => {
+        PE.mediaSearch?.open('music', {
+            title: t('Cerca una canzone', 'Find a song'),
+            onPick: (item) => {
+                const title = byName('profile_music_title');
+                const artist = byName('profile_music_artist');
+                if (title) { title.value = (item.title || '').slice(0, 80); title.peSyncCounter?.(); }
+                if (artist) artist.value = (item.subtitle || '').slice(0, 80);
+                const cover = byName('profile_music_cover');
+                if (cover && item.image && data.premium) {
+                    cover.value = item.image;
+                    const wrap = cover.closest('[data-media-url]');
+                    if (wrap) PE.syncMediaUrl(wrap);
+                }
+                PE.changed();
+                PE.toast(t('Brano compilato.', 'Song filled in.'), { type: 'success' });
+            },
+        });
     });
 
     // ── Aree e navigazione ──────────────────────────────────────────────────
@@ -672,8 +763,12 @@
         if (p) applySettings({ accent_color: p.accent_color, profile_secondary_color: p.profile_secondary_color });
     }));
 
-    document.getElementById('peResetAppearance')?.addEventListener('click', () => {
-        if (!window.confirm(t('Riportare colori, forme, bordi e sfondo ai valori predefiniti? Potrai annullare.', 'Reset colors, shapes, borders and background to defaults? You can undo it.'))) return;
+    document.getElementById('peResetAppearance')?.addEventListener('click', async () => {
+        const ok = await PE.confirm(
+            t('Colori, forme, bordi e sfondo tornano come erano all\'inizio. Potrai annullare.', 'Colors, shapes, borders and background go back to how they started. You can undo it.'),
+            { title: t('Ripristinare l\'aspetto?', 'Reset the style?'), confirmLabel: t('Ripristina', 'Reset'), icon: 'fa-solid fa-rotate-left' }
+        );
+        if (!ok) return;
         applySettings({
             profile_theme: 'dark', accent_color: '#0f5bff', profile_secondary_color: '#8b5cf6', profile_text_color: '', profile_layout_choice: 'standard',
             profile_border_radius: 30, profile_ui_shape: 'pill', profile_avatar_shape: 'circle', profile_card_color: '', profile_card_opacity: 68, profile_card_blur: 20,
@@ -751,7 +846,11 @@
                     ? (preset.created_at || '')
                     : created.toLocaleString(data.lang === 'en' ? 'en-GB' : 'it-IT', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 row.querySelector('[data-act="load"]').addEventListener('click', async () => {
-                    if (!window.confirm(t('Caricare questo preset? Sostituisce il profilo pubblicato e la pagina si ricarica.', 'Load this preset? It replaces your published profile and the page reloads.'))) return;
+                    const ok = await PE.confirm(
+                        t('Sostituisce il profilo pubblicato e la pagina si ricarica.', 'It replaces your published profile and the page reloads.'),
+                        { title: t('Usare questo preset?', 'Apply this preset?'), confirmLabel: t('Usa il preset', 'Apply preset'), icon: 'fa-solid fa-wand-magic-sparkles' }
+                    );
+                    if (!ok) return;
                     try {
                         await presetRequest('load', { preset_id: preset.id });
                         publishedSnapshot = snapshot();
@@ -779,8 +878,14 @@
                                     inlineName(row, preset.nome, async (name) => { await presetRequest('rename', { preset_id: preset.id, preset_name: name }); loadPresets(); });
                                     return;
                                 }
-                                if (act === 'delete' && !window.confirm(t('Eliminare il preset? Non si può annullare.', 'Delete this preset? This cannot be undone.'))) return;
-                                if (act === 'update' && !window.confirm(t('Sovrascrivere il preset con il profilo attuale?', 'Overwrite the preset with your current profile?'))) return;
+                                if (act === 'delete' && !await PE.confirm(
+                                    t('Il preset sparisce per sempre.', 'The preset is gone for good.'),
+                                    { title: t('Eliminare il preset?', 'Delete this preset?'), confirmLabel: t('Elimina', 'Delete'), danger: true }
+                                )) return;
+                                if (act === 'update' && !await PE.confirm(
+                                    t('Il preset salvato viene sostituito dal profilo di adesso.', 'The saved preset is replaced by your profile as it is now.'),
+                                    { title: t('Sovrascrivere il preset?', 'Overwrite the preset?'), confirmLabel: t('Sovrascrivi', 'Overwrite'), icon: 'fa-solid fa-floppy-disk' }
+                                )) return;
                                 const json = await presetRequest(act, { preset_id: preset.id, preset_name: preset.nome }, { withForm: act === 'update' });
                                 PE.toast(json.message || t('Fatto.', 'Done.'), { type: 'success' });
                                 loadPresets();
@@ -992,15 +1097,21 @@
             event.returnValue = '';
         }
     });
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', async (event) => {
         const link = event.target.closest('[data-leave-editor]');
         if (!link) return;
         if (snapshot() === publishedSnapshot) { leaving = true; return; }
-        if (window.confirm(t('Hai modifiche non pubblicate. La bozza resta, ma il profilo pubblico non cambia. Uscire comunque?', 'You have unpublished changes. The draft is kept, but your public profile won\'t change. Leave anyway?'))) {
-            leaving = true;
-        } else {
-            event.preventDefault();
-        }
+        // Il dialogo e' asincrono: il clic va fermato subito e, se si esce
+        // davvero, il link si segue a mano.
+        event.preventDefault();
+        const ok = await PE.confirm(
+            t('La bozza resta dove\'e\', ma il profilo pubblico non cambia finche\' non premi Pubblica.', 'The draft stays where it is, but your public profile will not change until you press Publish.'),
+            { title: t('Uscire senza pubblicare?', 'Leave without publishing?'), confirmLabel: t('Esci', 'Leave'), cancelLabel: t('Resta', 'Stay'), icon: 'fa-solid fa-door-open' }
+        );
+        if (!ok) return;
+        leaving = true;
+        if (link.target === '_blank') window.open(link.href, '_blank', 'noopener');
+        else window.location.href = link.href;
     });
 
     // ── Avvio ───────────────────────────────────────────────────────────────

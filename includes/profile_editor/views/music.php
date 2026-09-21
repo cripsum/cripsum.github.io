@@ -19,12 +19,14 @@ $musicThemeOptions = array_map(static fn($o) => $o + ['art' => '<span class="art
             <strong id="peMusicName"><?php echo $hasUploadedMusic ? pe_h($tt('MP3 caricato', 'Uploaded MP3')) : pe_h($tt('Nessun file', 'No file')); ?></strong>
             <small><?php echo pe_h($tt('Solo MP3, fino a ', 'MP3 only, up to ') . profile_format_bytes($uploadLimits['music'])); ?></small>
         </span>
-        <label class="pe-btn pe-btn-secondary pe-btn-sm" for="peMusicInput"><?php echo pe_h($hasUploadedMusic ? $tt('Sostituisci', 'Replace') : $tt('Scegli', 'Choose')); ?></label>
+        <label class="pe-btn pe-btn-secondary pe-btn-sm" for="peMusicInput" id="peMusicPick"><?php echo pe_h($hasUploadedMusic ? $tt('Sostituisci', 'Replace') : $tt('Scegli', 'Choose')); ?></label>
+        <?php // Il file si cancella subito con questo pulsante: prima serviva
+              // un interruttore che faceva effetto solo alla pubblicazione. ?>
+        <button type="button" class="pe-btn pe-btn-ghost pe-btn-sm pe-btn-danger-ghost" id="peMusicDelete" <?php echo $hasUploadedMusic ? '' : 'hidden'; ?>>
+            <i class="fa-solid fa-trash" aria-hidden="true"></i><span><?php echo pe_h($tt('Elimina', 'Delete')); ?></span>
+        </button>
         <input type="file" name="profile_music_file" id="peMusicInput" accept="audio/mpeg,.mp3" hidden>
     </div>
-    <?php if ($hasUploadedMusic): ?>
-        <?php pe_toggle('remove_profile_music_upload', false, ['label' => $tt('Rimuovi l\'MP3 caricato', 'Remove the uploaded MP3'), 'input_id' => 'peRemoveMusic']); ?>
-    <?php endif; ?>
 </div>
 
 <div data-show-if="music_source=link">
@@ -37,10 +39,28 @@ $musicThemeOptions = array_map(static fn($o) => $o + ['art' => '<span class="art
     ]); ?>
 </div>
 
-<div class="pe-row-2">
-    <?php pe_text('profile_music_title', $pv('profile_music_title'), ['label' => $tt('Titolo', 'Title'), 'maxlength' => 80, 'placeholder' => $tt('Nome della canzone', 'Song name')]); ?>
-    <?php pe_text('profile_music_artist', $pv('profile_music_artist'), ['label' => $tt('Artista', 'Artist'), 'maxlength' => 80]); ?>
+<?php // Titolo, artista e copertina in un colpo, dalla ricerca di iTunes.
+      // Compilarli a mano voleva dire andare a cercare la copertina altrove. ?>
+<div class="pe-field" data-search="<?php echo pe_h($tt('cerca brano titolo artista copertina', 'search song title artist cover')); ?>">
+    <button type="button" class="pe-goto" id="peMusicLookup">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <?php echo pe_h($tt('Cerca il brano e riempi titolo, artista e copertina', 'Find the song and fill in title, artist and cover')); ?>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+    </button>
 </div>
+
+<div class="pe-row-2">
+    <?php pe_text('profile_music_title', $pv('profile_music_title'), ['label' => $tt('Titolo', 'Title'), 'maxlength' => 80, 'placeholder' => $tt('Nome della canzone', 'Song name'), 'input_id' => 'peMusicTitle']); ?>
+    <?php pe_text('profile_music_artist', $pv('profile_music_artist'), ['label' => $tt('Artista', 'Artist'), 'maxlength' => 80, 'input_id' => 'peMusicArtist']); ?>
+</div>
+
+<?php pe_media('profile_music_cover', (string)($profile['profile_music_cover'] ?? ''), [
+    'label' => $tt('Copertina', 'Cover art'),
+    'premium' => true,
+    'purpose' => 'cover',
+    'keywords' => 'copertina cover immagine disco vinile',
+    'help' => pe_h($tt('Compare nel player. Con lo stile Vinile diventa l\'etichetta del disco e gira insieme a lui.', 'It shows in the player. With the Vinyl style it becomes the record label and spins with it.')),
+]); ?>
 <?php pe_group_end(); ?>
 
 <?php pe_group('grp-playback', $tt('Riproduzione', 'Playback'), null, ['keywords' => 'player volume pulsante audio']); ?>

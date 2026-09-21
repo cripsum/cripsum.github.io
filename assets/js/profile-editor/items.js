@@ -313,6 +313,64 @@
         },
     };
 
+    /*
+     * Preferiti: quattro sezioni con la stessa scheda (copertina, titolo,
+     * sottotitolo, link). Si riempiono cercando il titolo su fonti esterne,
+     * ma ogni campo resta modificabile a mano: se una fonte sbaglia il titolo
+     * o non ha la copertina, si corregge senza uscire dall'editor.
+     */
+    const FAVORITE_SECTIONS = {
+        fav_games: {
+            label: t('gioco', 'game'),
+            icon: 'fa-solid fa-gamepad',
+            empty: t('Nessun gioco. Cerca quelli che hai consumato di più.', 'No games yet. Search the ones you played to death.'),
+            subtitlePlaceholder: t('Piattaforma o studio', 'Platform or studio'),
+        },
+        fav_watch: {
+            label: t('titolo', 'title'),
+            icon: 'fa-solid fa-clapperboard',
+            empty: t('Niente qui. Cerca un anime, una serie o un film.', 'Nothing here yet. Search an anime, series or film.'),
+            subtitlePlaceholder: t('Anime, serie TV, film…', 'Anime, TV series, film…'),
+        },
+        fav_music: {
+            label: t('canzone', 'song'),
+            icon: 'fa-solid fa-headphones',
+            empty: t('Nessuna canzone. Cerca quelle che ti rappresentano.', 'No songs yet. Search the ones that describe you.'),
+            subtitlePlaceholder: t('Artista', 'Artist'),
+        },
+        fav_read: {
+            label: t('titolo', 'title'),
+            icon: 'fa-solid fa-book-open',
+            empty: t('Niente qui. Cerca un libro, un manga o una light novel.', 'Nothing here yet. Search a book, manga or light novel.'),
+            subtitlePlaceholder: t('Autore', 'Author'),
+        },
+    };
+
+    Object.entries(FAVORITE_SECTIONS).forEach(([key, conf]) => {
+        TYPES[key] = {
+            label: conf.label,
+            empty: conf.empty,
+            defaults: () => ({ title: '', subtitle: '', meta: '', image_url: '', url: '', source: '', is_visible: 1 }),
+            body: (item) => `
+                ${field(t('Titolo', 'Title'), text('title', item.title, { max: 120 }))}
+                ${row2(
+                    field(conf.subtitlePlaceholder, text('subtitle', item.subtitle, { max: 120 }), { full: false }),
+                    field(t('Anno o formato', 'Year or format'), text('meta', item.meta, { max: 80, placeholder: t('Es. 2023', 'E.g. 2023') }), { full: false })
+                )}
+                ${field(t('Copertina', 'Cover'), media('image_url', item.image_url, { purpose: 'cover' }), { help: escape(t('Riempita dalla ricerca. Puoi sostituirla con una tua.', 'Filled in by the search. You can replace it with your own.')) })}
+                ${field(t('Link', 'Link'), text('url', item.url, { type: 'url', placeholder: 'https://…' }), { help: escape(t('Dove porta la scheda. Facoltativo.', 'Where the card leads. Optional.')) })}
+                <input type="hidden" data-field="source" value="${escape(item.source || '')}">`,
+            summary: (row, item) => ({
+                image: item.image_url,
+                icon: conf.icon,
+                title: item.title || t('Senza titolo', 'Untitled'),
+                subtitle: [item.subtitle, item.meta].filter(Boolean).join(' · '),
+                warn: !item.title,
+            }),
+            collect: (item) => (item.title ? item : null),
+        };
+    });
+
     // ── Card di un elemento ─────────────────────────────────────────────────
     const readItem = (row) => {
         const item = {};
@@ -489,8 +547,11 @@
         }
         const max = limits[typeKey];
         $$(`[data-limit-for="${typeKey}"]`).forEach((el) => {
-            // Il contatore serve solo dove il limite si sente: piano Base.
-            el.textContent = max && !data.premium ? `${count}/${max}` : '';
+            // Il contatore serve dove il limite si sente: piano Base ovunque, e
+            // nei preferiti anche con il Premium, perche' otto e' poco e si
+            // arriva in fondo davvero.
+            const always = typeKey.startsWith('fav_');
+            el.textContent = max && (always || !data.premium) ? `${count}/${max}` : '';
         });
         $$(`[data-add-item="${typeKey}"]`).forEach((btn) => btn.classList.toggle('is-full', !!max && count >= max));
         PE.refreshSectionSummaries?.();
@@ -519,6 +580,18 @@
             PE.changed?.({ structural: true });
         },
 
+        /** Aggiunge una riga gia' compilata (la scelta dalla ricerca esterna). */
+        addFrom(typeKey, values) {
+            const list = listFor(typeKey);
+            if (!list || !canAdd(typeKey)) return null;
+            const row = makeRow(typeKey, { ...TYPES[typeKey].defaults(), ...values });
+            list.appendChild(row);
+            refreshList(typeKey);
+            row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            PE.changed?.({ structural: true });
+            return row;
+        },
+
         collect(typeKey) {
             const list = listFor(typeKey);
             if (!list) return [];
@@ -529,9 +602,62 @@
             }).filter(Boolean);
         },
 
+        /**
+         * Le quattro liste dei preferiti in un elenco solo, con `kind`: il
+         * database le tiene in una tabella sola, distinte da quel campo.
+         */
+        collectFavorites() {
+            const rows = [];
+            Object.entries(FAVORITE_KIND_BY_SECTION).forEach(([section, kind]) => {
+                PE.items.collect(section).forEach((item) => rows.push({ ...item, kind }));
+            });
+            return rows;
+        },
+
+        /** L'elenco unico rimesso nelle quattro liste (annulla, preset). */
+        loadFavorites(rows) {
+            const bySection = {};
+            Object.keys(FAVORITE_KIND_BY_SECTION).forEach((section) => { bySection[section] = []; });
+            (Array.isArray(rows) ? rows : []).forEach((row) => {
+                const section = FAVORITE_SECTION_BY_KIND[row?.kind];
+                if (section) bySection[section].push(row);
+            });
+            Object.entries(bySection).forEach(([section, list]) => PE.items.load(section, list));
+        },
+
         count: countFor,
         refreshList,
     };
+
+    // Sezione dell'editor <-> `kind` del database, nei due versi.
+    const FAVORITE_KIND_BY_SECTION = { fav_games: 'game', fav_watch: 'watch', fav_music: 'music', fav_read: 'read' };
+    const FAVORITE_SECTION_BY_KIND = Object.fromEntries(
+        Object.entries(FAVORITE_KIND_BY_SECTION).map(([section, kind]) => [kind, section])
+    );
+
+    // Il pulsante grande delle sezioni dei preferiti: cerca e aggiunge.
+    document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-search-media]');
+        if (!button) return;
+        event.preventDefault();
+        const section = button.dataset.searchMedia;
+        if (!canAdd(section)) return;
+        PE.mediaSearch.open(button.dataset.searchKind, {
+            title: button.querySelector('span')?.textContent || '',
+            onPick: (item) => {
+                const added = PE.items.addFrom(section, {
+                    title: item.title || '',
+                    subtitle: item.subtitle || '',
+                    meta: item.meta || '',
+                    image_url: item.image || '',
+                    url: item.url || '',
+                    source: item.source || '',
+                    is_visible: 1,
+                });
+                if (added) PE.toast(t('Aggiunto.', 'Added.'), { type: 'success' });
+            },
+        });
+    });
 
     document.addEventListener('click', (event) => {
         const add = event.target.closest('[data-add-item]');
@@ -558,6 +684,14 @@
                 const hidden = wrap.querySelector('[data-config="hidden"]')?.checked ? 1 : 0;
                 if (title || icon || hidden) config[key] = { hidden, title, icon };
             });
+            // `join`: con il layout a schermate questa sezione resta in quella
+            // di sopra. Sta fuori dal riquadro di titolo e icona perche' le
+            // statistiche quel riquadro non ce l'hanno.
+            $$('[data-section-join]', sectionsEl).forEach((input) => {
+                if (input.value !== '1') return;
+                const key = input.dataset.sectionJoin;
+                config[key] = { hidden: 0, title: '', icon: '', ...(config[key] || {}), join: 1 };
+            });
             return config;
         },
 
@@ -576,6 +710,10 @@
                 if (iconEl) { iconEl.value = c.icon || ''; PE.syncIcon(iconEl.closest('[data-icon-field]')); }
                 if (hiddenEl) hiddenEl.checked = !!c.hidden;
             });
+            $$('[data-section-join]', sectionsEl).forEach((input) => {
+                input.value = (config || {})[input.dataset.sectionJoin]?.join ? '1' : '0';
+            });
+            PE.refreshScreenGroups();
         },
 
         toggle(sectionEl, force) {
@@ -588,6 +726,52 @@
                 PE.focusPreviewSection?.(sectionEl.dataset.section);
             }
         },
+    };
+
+    /*
+     * Le schermate del layout "A schermate".
+     *
+     * Ogni sezione apre una schermata nuova, a meno che non sia unita a
+     * quella di sopra. Qui si ridisegnano le etichette ("Schermata 2", "nella
+     * stessa schermata") dopo ogni trascinamento e ogni clic sulle forbici,
+     * e si segnano le sezioni che stanno insieme cosi' si vedono a colpo
+     * d'occhio. La prima della lista apre sempre la prima schermata.
+     */
+    PE.refreshScreenGroups = () => {
+        if (!sectionsEl) return;
+        const sections = $$('.pe-section', sectionsEl);
+        let screen = 0;
+
+        sections.forEach((section, index) => {
+            const input = section.querySelector('[data-section-join]');
+            const row = section.querySelector('[data-screen-row]');
+            const button = section.querySelector('[data-screen-toggle]');
+            if (!input || !row || !button) return;
+
+            // La prima non puo' unirsi a niente: se lo era, smette.
+            if (index === 0 && input.value === '1') input.value = '0';
+
+            const joined = index > 0 && input.value === '1';
+            if (!joined) screen += 1;
+
+            row.hidden = index === 0;
+            section.classList.toggle('is-joined', joined);
+            section.dataset.screen = String(screen);
+            button.setAttribute('aria-pressed', joined ? 'true' : 'false');
+            button.title = joined
+                ? t('Rimetti questa sezione in una schermata sua', 'Put this section back on its own screen')
+                : t('Tieni questa sezione nella schermata di sopra', 'Keep this section on the screen above');
+            button.querySelector('.pe-screen-label').textContent = joined
+                ? t('nella stessa schermata', 'same screen')
+                : t(`Schermata ${screen}`, `Screen ${screen}`);
+        });
+
+        // Due sezioni di fila nella stessa schermata: si evidenziano insieme.
+        sections.forEach((section, index) => {
+            const next = sections[index + 1];
+            section.classList.toggle('is-group-start', !section.classList.contains('is-joined') && !!next?.classList.contains('is-joined'));
+            section.classList.toggle('is-group-end', section.classList.contains('is-joined') && !next?.classList.contains('is-joined'));
+        });
     };
 
     PE.refreshSectionSummaries = () => {
@@ -618,6 +802,19 @@
 
     if (sectionsEl) {
         sectionsEl.addEventListener('click', (event) => {
+            const screenBtn = event.target.closest('[data-screen-toggle]');
+            if (screenBtn) {
+                const section = screenBtn.closest('.pe-section');
+                const input = section?.querySelector('[data-section-join]');
+                if (input) {
+                    input.value = input.value === '1' ? '0' : '1';
+                    PE.refreshScreenGroups();
+                    // Cambia come sono impaginate le schermate: l'anteprima si
+                    // ridisegna dalla bozza, non da sola.
+                    PE.changed?.({ structural: true });
+                }
+                return;
+            }
             const btn = event.target.closest('.pe-section-toggle');
             if (btn) PE.sections.toggle(btn.closest('.pe-section'));
         });
@@ -882,7 +1079,12 @@
             if (sectionsEl) {
                 Sortable.create(sectionsEl, {
                     handle: '.pe-section-head > .pe-drag', animation: 180, ghostClass: 'is-ghost', draggable: '.pe-section',
-                    onEnd: () => PE.changed?.({ structural: true }),
+                    onEnd: () => {
+                        // Spostando una sezione cambiano le schermate: le
+                        // etichette vanno rifatte prima di salvare la bozza.
+                        PE.refreshScreenGroups();
+                        PE.changed?.({ structural: true });
+                    },
                 });
             }
             if (charOrder) {
@@ -896,5 +1098,6 @@
             }
         }
         PE.refreshSectionSummaries();
+        PE.refreshScreenGroups();
     };
 })();

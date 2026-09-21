@@ -94,6 +94,208 @@
         setTimeout(dismiss, timeout);
     };
 
+    // ── Conferme ────────────────────────────────────────────────────────────
+    /**
+     * Chiede conferma con il dialogo dell'editor e risponde con una Promise.
+     * Prende il posto di window.confirm: quella finestra e' del sistema
+     * operativo, non segue ne' i colori ne' la lingua dell'editor, e blocca
+     * tutta la pagina mentre e' aperta.
+     *
+     * `danger: true` colora di rosso il pulsante di conferma.
+     */
+    PE.confirm = (text, { title = '', confirmLabel = '', cancelLabel = '', danger = false, icon = '' } = {}) => {
+        const dialog = document.getElementById('peConfirm');
+        if (!dialog) return Promise.resolve(window.confirm(text));
+
+        const titleEl = document.getElementById('peConfirmTitle');
+        const textEl = document.getElementById('peConfirmText');
+        const iconEl = document.getElementById('peConfirmIcon');
+        const okBtn = document.getElementById('peConfirmOk');
+        const cancelBtn = document.getElementById('peConfirmCancel');
+
+        titleEl.textContent = title || PE.t('Confermi?', 'Are you sure?');
+        textEl.textContent = text || '';
+        textEl.hidden = !text;
+        iconEl.innerHTML = `<i class="fa-solid ${icon || (danger ? 'fa-triangle-exclamation' : 'fa-circle-question')}" aria-hidden="true"></i>`;
+        okBtn.textContent = confirmLabel || PE.t('Conferma', 'Confirm');
+        cancelBtn.textContent = cancelLabel || PE.t('Annulla', 'Cancel');
+        dialog.classList.toggle('is-danger', !!danger);
+
+        return new Promise((resolve) => {
+            let settled = false;
+
+            /*
+             * La risposta si decide qui, non nell'evento `close` del dialogo:
+             * quell'evento non arriva ovunque, e chi aspettava la conferma
+             * restava fermo per sempre con il dialogo gia' chiuso.
+             */
+            const finish = (value) => {
+                if (settled) return;
+                settled = true;
+                okBtn.removeEventListener('click', onOk);
+                cancelBtn.removeEventListener('click', onCancel);
+                dialog.removeEventListener('click', onBackdrop);
+                dialog.removeEventListener('cancel', onDismiss);
+                dialog.removeEventListener('close', onDismiss);
+                if (dialog.open) dialog.close();
+                resolve(value);
+            };
+
+            const onOk = () => finish(true);
+            const onCancel = () => finish(false);
+            const onDismiss = () => finish(false);
+            // Clic fuori dal riquadro: il bersaglio e' il dialogo stesso.
+            const onBackdrop = (event) => { if (event.target === dialog) finish(false); };
+
+            okBtn.addEventListener('click', onOk);
+            cancelBtn.addEventListener('click', onCancel);
+            dialog.addEventListener('click', onBackdrop);
+            dialog.addEventListener('cancel', onDismiss);
+            dialog.addEventListener('close', onDismiss);
+
+            dialog.showModal();
+            // Il pulsante pericoloso non parte selezionato: si conferma apposta.
+            (danger ? cancelBtn : okBtn).focus();
+        });
+    };
+
+    // ── Ricerca su fonti esterne ────────────────────────────────────────────
+    /*
+     * Il dialogo che cerca giochi, anime/serie/film, canzoni e libri su
+     * api/profile/media_search.php e restituisce quello scelto.
+     *
+     * Serve alle quattro sezioni dei preferiti e al brano del player: senza,
+     * ogni copertina andava trovata a mano da qualche altra parte e incollata
+     * come URL.
+     */
+    PE.mediaSearch = (() => {
+        let dialog = null;
+        let input = null;
+        let resultsEl = null;
+        let statusEl = null;
+        let titleEl = null;
+        let timer = null;
+        let requestId = 0;
+        let current = { kind: '', onPick: null };
+
+        const build = () => {
+            dialog = document.createElement('dialog');
+            dialog.className = 'pe-dialog pe-mediasearch';
+            dialog.innerHTML = `
+                <div class="pe-mediasearch-box">
+                    <header class="pe-mediasearch-head">
+                        <h2></h2>
+                        <button type="button" class="pe-icon-btn" data-close-dialog aria-label="${PE.escape(PE.t('Chiudi', 'Close'))}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                    </header>
+                    <div class="pe-mediasearch-input">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" class="pe-input" autocomplete="off" spellcheck="false">
+                    </div>
+                    <p class="pe-mediasearch-status"></p>
+                    <div class="pe-mediasearch-results"></div>
+                </div>`;
+            document.body.appendChild(dialog);
+            input = dialog.querySelector('input');
+            resultsEl = dialog.querySelector('.pe-mediasearch-results');
+            statusEl = dialog.querySelector('.pe-mediasearch-status');
+            titleEl = dialog.querySelector('h2');
+
+            input.addEventListener('input', () => {
+                clearTimeout(timer);
+                // Mezzo secondo scarso: una richiesta per parola scritta, non
+                // una per lettera battuta.
+                timer = setTimeout(() => run(input.value), 350);
+            });
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') { event.preventDefault(); clearTimeout(timer); run(input.value); }
+            });
+            dialog.addEventListener('close', () => { clearTimeout(timer); requestId += 1; });
+        };
+
+        const setStatus = (text, { busy = false } = {}) => {
+            statusEl.textContent = text || '';
+            statusEl.hidden = !text;
+            dialog.classList.toggle('is-busy', busy);
+        };
+
+        const render = (items) => {
+            resultsEl.innerHTML = '';
+            items.forEach((item) => {
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'pe-mediasearch-card';
+                card.innerHTML = `
+                    <span class="pe-mediasearch-art${item.image ? '' : ' is-empty'}">
+                        ${item.image ? `<img src="${PE.escape(item.image)}" alt="" loading="lazy">` : '<i class="fa-solid fa-image" aria-hidden="true"></i>'}
+                    </span>
+                    <span class="pe-mediasearch-info">
+                        <strong></strong>
+                        <small></small>
+                    </span>`;
+                card.querySelector('strong').textContent = item.title;
+                card.querySelector('small').textContent = [item.subtitle, item.meta].filter(Boolean).join(' · ');
+                // Una copertina che non carica e' peggio di nessuna copertina.
+                card.querySelector('img')?.addEventListener('error', (event) => {
+                    event.target.closest('.pe-mediasearch-art')?.classList.add('is-empty');
+                    event.target.remove();
+                    item.image = '';
+                }, { once: true });
+                card.addEventListener('click', () => {
+                    current.onPick?.(item);
+                    dialog.close();
+                });
+                resultsEl.appendChild(card);
+            });
+        };
+
+        const run = async (query) => {
+            const text = String(query || '').trim();
+            resultsEl.innerHTML = '';
+            if (text.length < 2) {
+                setStatus(PE.t('Scrivi almeno due lettere.', 'Type at least two letters.'));
+                return;
+            }
+            const mine = ++requestId;
+            setStatus(PE.t('Sto cercando…', 'Searching…'), { busy: true });
+            try {
+                const url = `/api/profile/media_search.php?kind=${encodeURIComponent(current.kind)}&q=${encodeURIComponent(text)}&lang=${encodeURIComponent(data.lang || 'it')}`;
+                const response = await fetch(url, { credentials: 'same-origin' });
+                const json = await response.json().catch(() => ({}));
+                // Una risposta vecchia non deve sostituire una ricerca nuova.
+                if (mine !== requestId) return;
+                if (!response.ok || !json.ok) throw new Error(json.message || PE.t('Ricerca non riuscita.', 'Search failed.'));
+
+                const items = Array.isArray(json.results) ? json.results : [];
+                if (!items.length) {
+                    setStatus(PE.t('Nessun risultato. Puoi aggiungerlo a mano.', 'No results. You can add it by hand.'));
+                    return;
+                }
+                render(items);
+                setStatus(json.partial
+                    ? PE.t('Una fonte non ha risposto: potrebbero mancare dei risultati.', 'One source did not answer: some results may be missing.')
+                    : '');
+            } catch (error) {
+                if (mine !== requestId) return;
+                setStatus(error.message);
+            }
+        };
+
+        return {
+            open(kind, { title = '', onPick = null, query = '' } = {}) {
+                if (!dialog) build();
+                current = { kind, onPick };
+                titleEl.textContent = title || PE.t('Cerca', 'Search');
+                input.placeholder = PE.t('Scrivi il titolo…', 'Type the title…');
+                input.value = query;
+                resultsEl.innerHTML = '';
+                setStatus(PE.t('Scrivi almeno due lettere.', 'Type at least two letters.'));
+                if (!dialog.open) dialog.showModal();
+                input.focus();
+                if (query) run(query);
+            },
+        };
+    })();
+
     // ── Proposta Premium ────────────────────────────────────────────────────
     PE.upsell = (reason = '') => {
         const dialog = document.getElementById('peUpsell');
@@ -432,15 +634,28 @@
     };
 
     // ── Tendine con opzioni Premium e anteprima del font ────────────────────
-    const loadedFonts = new Set(['Poppins', 'Minecraft', 'Gang of Three']);
+    /*
+     * I font del catalogo, indicizzati per famiglia. Il link a Google Fonts
+     * arriva da PHP con i pesi giusti; i due font che stanno nel repository
+     * (Minecraft, Gang of Three) hanno `css` vuoto e non vanno chiesti a
+     * nessuno. Prima il link si costruiva dal solo nome della famiglia.
+     */
+    const fontIndex = new Map((data.catalog?.fonts || []).map((f) => [f.value, f]));
+    const loadedFonts = new Set();
+
     PE.loadFont = (family) => {
         if (!family || loadedFonts.has(family)) return;
         loadedFonts.add(family);
+        const css = fontIndex.get(family)?.css;
+        if (!css) return;
         const link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, '+')}&display=swap`;
+        link.href = `https://fonts.googleapis.com/css2?family=${css}&display=swap`;
         document.head.appendChild(link);
     };
+
+    /** La famiglia CSS di un font, riserva compresa. */
+    PE.fontFamily = (family) => `'${String(family).replace(/'/g, '')}', ${fontIndex.get(family)?.stack || 'sans-serif'}`;
 
     PE.syncSelect = (select) => {
         const wrap = select.closest('.pe-selectmenu');
@@ -450,7 +665,7 @@
         current.textContent = option ? option.textContent : '';
         if (select.hasAttribute('data-font-preview') && option) {
             PE.loadFont(option.value);
-            current.style.fontFamily = `'${option.value}', sans-serif`;
+            current.style.fontFamily = PE.fontFamily(option.value);
         }
     };
 
@@ -481,49 +696,128 @@
             trigger.innerHTML = '<span class="pe-select-current"></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
             wrap.appendChild(trigger);
 
+            const searchable = select.hasAttribute('data-searchable');
+
+            /*
+             * Il font di un'opzione si carica solo quando la sua riga entra
+             * davvero nella lista: con quaranta font, caricarli tutti
+             * all'apertura voleva dire quaranta fogli di stile in un colpo.
+             */
+            const fontLazyLoader = () => {
+                if (!fontPreview || !('IntersectionObserver' in window)) return null;
+                return new IntersectionObserver((entries, obs) => {
+                    entries.forEach((entry) => {
+                        if (!entry.isIntersecting) return;
+                        PE.loadFont(entry.target.dataset.value);
+                        obs.unobserve(entry.target);
+                    });
+                }, { root: null, rootMargin: '120px' });
+            };
+
             const open = () => {
                 const list = document.createElement('div');
                 list.className = 'pe-listbox';
                 list.setAttribute('role', 'listbox');
-                Array.from(select.options).forEach((option) => {
-                    const item = document.createElement('button');
-                    item.type = 'button';
-                    item.className = 'pe-listbox-option';
-                    item.setAttribute('role', 'option');
-                    item.setAttribute('aria-selected', option.selected ? 'true' : 'false');
-                    item.dataset.value = option.value;
-                    const locked = option.dataset.locked === '1';
-                    item.innerHTML = `<span></span>${option.dataset.premium ? `<i class="fa-solid fa-crown ${locked ? 'is-locked' : ''}" aria-label="Premium"></i>` : ''}${option.selected ? '<i class="fa-solid fa-check pe-listbox-check" aria-hidden="true"></i>' : ''}`;
-                    item.querySelector('span').textContent = option.textContent;
-                    if (fontPreview) {
-                        PE.loadFont(option.value);
-                        item.style.fontFamily = `'${option.value}', sans-serif`;
-                    }
-                    item.addEventListener('click', () => {
-                        if (locked) {
-                            PE.closePopover();
-                            PE.upsell(option.textContent);
-                            return;
+
+                const observer = fontLazyLoader();
+                let lastGroup = null;
+
+                const build = (query = '') => {
+                    list.innerHTML = '';
+                    lastGroup = null;
+                    const needle = query.trim().toLowerCase();
+                    let shown = 0;
+
+                    Array.from(select.options).forEach((option) => {
+                        if (needle && !option.textContent.toLowerCase().includes(needle)) return;
+                        shown += 1;
+
+                        // Intestazione del gruppo, solo senza ricerca in corso.
+                        const group = option.dataset.group || '';
+                        if (!needle && group && group !== lastGroup) {
+                            lastGroup = group;
+                            const head = document.createElement('div');
+                            head.className = 'pe-listbox-group';
+                            head.textContent = group;
+                            list.appendChild(head);
                         }
-                        select.value = option.value;
-                        PE.syncSelect(select);
-                        PE.emit(select);
-                        PE.closePopover();
-                        trigger.focus();
+
+                        const item = document.createElement('button');
+                        item.type = 'button';
+                        item.className = 'pe-listbox-option';
+                        item.setAttribute('role', 'option');
+                        item.setAttribute('aria-selected', option.selected ? 'true' : 'false');
+                        item.dataset.value = option.value;
+                        const locked = option.dataset.locked === '1';
+                        item.innerHTML = `<span></span>${option.dataset.premium ? `<i class="fa-solid fa-crown ${locked ? 'is-locked' : ''}" aria-label="Premium"></i>` : ''}${option.selected ? '<i class="fa-solid fa-check pe-listbox-check" aria-hidden="true"></i>' : ''}`;
+                        item.querySelector('span').textContent = option.textContent;
+                        if (fontPreview) {
+                            item.style.fontFamily = PE.fontFamily(option.value);
+                            if (observer) observer.observe(item);
+                            else PE.loadFont(option.value);
+                        }
+                        item.addEventListener('click', () => {
+                            if (locked) {
+                                PE.closePopover();
+                                PE.upsell(option.textContent);
+                                return;
+                            }
+                            select.value = option.value;
+                            PE.syncSelect(select);
+                            PE.emit(select);
+                            PE.closePopover();
+                            trigger.focus();
+                        });
+                        list.appendChild(item);
                     });
-                    list.appendChild(item);
+
+                    if (shown === 0) {
+                        const empty = document.createElement('p');
+                        empty.className = 'pe-listbox-empty';
+                        empty.textContent = PE.t('Nessun risultato', 'No results');
+                        list.appendChild(empty);
+                    }
+                };
+
+                build();
+
+                let holder = list;
+                let search = null;
+                if (searchable) {
+                    holder = document.createElement('div');
+                    holder.className = 'pe-listbox-wrap';
+                    const searchWrap = document.createElement('div');
+                    searchWrap.className = 'pe-listbox-search';
+                    searchWrap.innerHTML = '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>';
+                    search = document.createElement('input');
+                    search.type = 'search';
+                    search.className = 'pe-input';
+                    search.placeholder = PE.t('Cerca…', 'Search…');
+                    search.autocomplete = 'off';
+                    searchWrap.appendChild(search);
+                    holder.appendChild(searchWrap);
+                    holder.appendChild(list);
+                    search.addEventListener('input', () => build(search.value));
+                }
+
+                const pop = PE.openPopover(trigger, holder, {
+                    className: searchable ? 'pe-popover-list pe-popover-search' : 'pe-popover-list',
+                    onClose: () => observer?.disconnect(),
                 });
-                const pop = PE.openPopover(trigger, list, { className: 'pe-popover-list' });
                 if (pop) {
                     pop.style.minWidth = `${trigger.offsetWidth}px`;
-                    const selected = pop.querySelector('[aria-selected="true"]');
-                    selected?.scrollIntoView({ block: 'nearest' });
-                    selected?.focus();
-                    list.addEventListener('keydown', (event) => {
+                    if (search) search.focus();
+                    else {
+                        const selected = pop.querySelector('[aria-selected="true"]');
+                        selected?.scrollIntoView({ block: 'nearest' });
+                        selected?.focus();
+                    }
+                    holder.addEventListener('keydown', (event) => {
                         const items = PE.$$('.pe-listbox-option', list);
                         const index = items.indexOf(document.activeElement);
                         if (event.key === 'ArrowDown') { event.preventDefault(); items[Math.min(items.length - 1, index + 1)]?.focus(); }
-                        if (event.key === 'ArrowUp') { event.preventDefault(); items[Math.max(0, index - 1)]?.focus(); }
+                        if (event.key === 'ArrowUp') { event.preventDefault(); index <= 0 ? search?.focus() : items[index - 1]?.focus(); }
+                        if (event.key === 'Enter' && event.target === search) { event.preventDefault(); items[0]?.click(); }
                     });
                 }
             };

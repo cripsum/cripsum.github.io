@@ -230,6 +230,30 @@ body[data-theme="light"] .bio-background__overlay {
     border-color: rgba(34, 197, 94, 0.22);
 }
 
+/* Contatore delle visite: la parola "visite" e la pillola attorno si tolgono
+   una per una dall'editor. Senza pillola restano icona e numero, con
+   un'ombra leggera perche' si leggano anche sugli sfondi chiari. */
+.bio-pill--views .profile-views-label[hidden] {
+    display: none;
+}
+
+.bio-pill--views.bio-pill--bare {
+    min-height: 0;
+    padding: 0;
+    gap: 0.35rem;
+    border: 0;
+    background: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.bio-pill--views.bio-pill--bare i {
+    opacity: 0.85;
+}
+
+body[data-theme="light"] .bio-pill--views.bio-pill--bare {
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.55);
+}
+
 .bio-dot {
     width: 0.52rem;
     height: 0.52rem;
@@ -684,6 +708,454 @@ body[data-theme="light"] .bio-avatar {
 
 #volumeSlider {
     max-width: 110px;
+}
+
+/* ══ Player della musica ═══════════════════════════════════════════════════
+   Quattro stili sullo stesso markup (profile_render_audio_player in
+   profile.php): Classico, Compatto, Centrato e Vinile. Stavano scritti nel
+   <style> di profile.php, ricalcolati a ogni caricamento di ogni profilo.
+
+   La copertina e' sempre nel markup: gli stili decidono se mostrarla di
+   fianco, grande al centro o come etichetta del disco. */
+
+.bio-audio__header>div {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Un titolo lungo restringeva il pulsante play fino a schiacciarlo. */
+.bio-audio strong,
+.bio-audio .profile-artist-span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bio-audio strong i {
+    flex: none;
+}
+
+.bio-audio .profile-artist-span {
+    display: block;
+    margin-top: 0.1rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* ── Copertina ──────────────────────────────────────────────────────────── */
+.bio-audio__art {
+    position: relative;
+    display: none;
+    flex: none;
+    width: 3.1rem;
+    height: 3.1rem;
+}
+
+.profile-audio-player.has-cover .bio-audio__art {
+    display: block;
+}
+
+.bio-audio__disc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-sm, 12px);
+    color: var(--muted-2);
+    background: rgba(var(--accent-rgb), 0.14);
+    font-size: 1.05rem;
+}
+
+.bio-audio__cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bio-audio__tonearm {
+    display: none;
+}
+
+/* ── Barra di avanzamento ───────────────────────────────────────────────── */
+.bio-audio__track {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* La parte gia' scaricata, dietro al cursore. */
+.bio-audio__buffered {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: var(--audio-buffered, 0%);
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-50%);
+    transition: width 0.3s linear;
+    pointer-events: none;
+}
+
+/* Il pieno segue il brano: prima la barra restava tutta grigia e l'unico
+   segno del punto raggiunto era il pallino. */
+.bio-audio input[type="range"]#profileAudioProgress {
+    position: relative;
+    background: linear-gradient(to right,
+            var(--accent) 0%,
+            var(--accent) var(--audio-progress, 0%),
+            transparent var(--audio-progress, 0%));
+}
+
+.bio-audio input[type="range"] {
+    transition: background 0.1s linear;
+}
+
+/* ── Barre dell'equalizzatore (solo stile Centrato) ─────────────────────── */
+.bio-audio__eq {
+    display: none;
+    align-items: flex-end;
+    gap: 3px;
+    height: 18px;
+}
+
+.bio-audio__eq i {
+    display: block;
+    width: 3px;
+    height: 30%;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: 0.55;
+}
+
+.profile-audio-player.audio-playing .bio-audio__eq i {
+    animation: bio-audio-eq 0.9s ease-in-out infinite;
+}
+
+.bio-audio__eq i:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.bio-audio__eq i:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.bio-audio__eq i:nth-child(4) {
+    animation-delay: 0.45s;
+}
+
+@keyframes bio-audio-eq {
+
+    0%,
+    100% {
+        height: 25%;
+        opacity: 0.5;
+    }
+
+    50% {
+        height: 100%;
+        opacity: 1;
+    }
+}
+
+/* ══ 1. Compatto (retro) ═══════════════════════════════════════════════════
+   Una riga sola: copertina, titolo, play. La barra sotto, sottile. */
+body[data-music-theme="retro"] .bio-audio {
+    padding: 0.65rem 0.8rem;
+}
+
+body[data-music-theme="retro"] .bio-audio__header {
+    margin-bottom: 0.5rem;
+    gap: 0.6rem;
+}
+
+body[data-music-theme="retro"] .bio-audio__art {
+    width: 2.4rem;
+    height: 2.4rem;
+}
+
+body[data-music-theme="retro"] .bio-audio small {
+    display: none;
+}
+
+body[data-music-theme="retro"] .bio-audio strong {
+    font-size: 0.86rem;
+}
+
+body[data-music-theme="retro"] .bio-audio .profile-artist-span {
+    font-size: 0.74rem;
+}
+
+body[data-music-theme="retro"] .bio-audio__progress {
+    margin-bottom: 0;
+    gap: 0.5rem;
+}
+
+body[data-music-theme="retro"] .bio-audio__progress span {
+    min-width: 2.2rem;
+    font-size: 0.7rem;
+}
+
+body[data-music-theme="retro"] .bio-audio input[type="range"],
+body[data-music-theme="retro"] .bio-audio__buffered {
+    height: 4px;
+}
+
+/* Il volume si apre solo quando serve: in compatto rubava tutta una riga. */
+body[data-music-theme="retro"] .bio-audio__bottom {
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.2s ease, opacity 0.2s ease, margin-top 0.2s ease;
+}
+
+body[data-music-theme="retro"] .bio-audio:hover .bio-audio__bottom,
+body[data-music-theme="retro"] .bio-audio:focus-within .bio-audio__bottom {
+    max-height: 3rem;
+    margin-top: 0.6rem;
+    opacity: 1;
+}
+
+/* ══ 2. Centrato (cyberpunk) ═══════════════════════════════════════════════
+   Copertina grande in mezzo, testo sotto, barre dell'equalizzatore. */
+body[data-music-theme="cyberpunk"] .bio-audio {
+    padding: 1.1rem 1rem 0.95rem;
+    text-align: center;
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__header {
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-bottom: 0.9rem;
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__art {
+    width: 7.5rem;
+    height: 7.5rem;
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__disc {
+    border-radius: var(--radius-md, 16px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__header>div {
+    width: 100%;
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio strong {
+    justify-content: center;
+    font-size: 1rem;
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__eq {
+    display: flex;
+    justify-content: center;
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    color: var(--text);
+    background: rgba(var(--accent-rgb), 0.18);
+    font-size: 1rem;
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle:hover {
+    background: rgba(var(--accent-rgb), 0.3);
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__bottom {
+    justify-content: center;
+}
+
+body[data-music-theme="cyberpunk"] .bio-audio__bottom input[type="range"] {
+    max-width: 140px;
+}
+
+/* ══ 3. Vinile (synthwave) ═════════════════════════════════════════════════
+   Il disco gira davvero mentre suona e si ferma in pausa, con la copertina
+   incollata al centro come etichetta e il braccio che si abbassa. */
+body[data-music-theme="synthwave"] .bio-audio {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 0.2rem 1.1rem;
+    padding: 1.1rem;
+}
+
+body[data-music-theme="synthwave"] .bio-audio__art {
+    display: block;
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    width: 6.4rem;
+    height: 6.4rem;
+}
+
+body[data-music-theme="synthwave"] .bio-audio__disc {
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 50% 50%, transparent 0 13%, rgba(255, 255, 255, 0.16) 13.5% 14%, transparent 14.5%),
+        repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 5px),
+        radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.14), transparent 55%),
+        #0a0a10;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+/* La copertina fa da etichetta: sta al centro e gira con il disco. */
+body[data-music-theme="synthwave"] .bio-audio__cover {
+    width: 42%;
+    height: 42%;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 0 0 5px rgba(0, 0, 0, 0.55);
+}
+
+body[data-music-theme="synthwave"] .bio-audio__disc>i {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 1.4rem;
+}
+
+/* Il buco al centro c'e' anche senza copertina. */
+body[data-music-theme="synthwave"] .bio-audio__art::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8%;
+    height: 8%;
+    border-radius: 50%;
+    background: var(--profile-card-color, #05070d);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+body[data-music-theme="synthwave"] .bio-audio__disc {
+    animation: spin-vinyl 4s linear infinite;
+    animation-play-state: paused;
+}
+
+body[data-music-theme="synthwave"] .bio-audio.audio-playing .bio-audio__disc {
+    animation-play-state: running;
+}
+
+/* Il braccio: alzato da fermo, appoggiato sul disco mentre suona. */
+body[data-music-theme="synthwave"] .bio-audio__tonearm {
+    display: block;
+    position: absolute;
+    top: 4%;
+    right: -4%;
+    width: 2px;
+    height: 52%;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.25));
+    transform-origin: top center;
+    transform: rotate(28deg);
+    transition: transform 0.45s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+body[data-music-theme="synthwave"] .bio-audio__tonearm::after {
+    content: "";
+    position: absolute;
+    right: -2px;
+    bottom: -4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-music-theme="synthwave"] .bio-audio.audio-playing .bio-audio__tonearm {
+    transform: rotate(8deg);
+}
+
+@keyframes spin-vinyl {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+body[data-music-theme="synthwave"] .bio-audio__header {
+    grid-column: 2;
+    grid-row: 1;
+    margin-bottom: 0.35rem;
+}
+
+body[data-music-theme="synthwave"] .bio-audio__progress {
+    grid-column: 2;
+    grid-row: 2;
+    margin-bottom: 0.4rem;
+}
+
+body[data-music-theme="synthwave"] .bio-audio__bottom {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+/* Il disco che gira e le barre che ballano sono movimento continuo: chi ha
+   chiesto meno animazioni vede il player fermo, non una pagina che pulsa. */
+@media (prefers-reduced-motion: reduce) {
+
+    body[data-music-theme="synthwave"] .bio-audio__disc,
+    .profile-audio-player.audio-playing .bio-audio__eq i {
+        animation: none !important;
+    }
+
+    body[data-music-theme="synthwave"] .bio-audio__tonearm {
+        transition: none;
+    }
+}
+
+/* Sui telefoni il Vinile torna in colonna: 6.4rem di disco piu' il testo non
+   ci stavano affiancati. */
+@media (max-width: 560px) {
+    body[data-music-theme="synthwave"] .bio-audio {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        gap: 0.8rem;
+    }
+
+    body[data-music-theme="synthwave"] .bio-audio__art {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    body[data-music-theme="synthwave"] .bio-audio__header,
+    body[data-music-theme="synthwave"] .bio-audio__progress,
+    body[data-music-theme="synthwave"] .bio-audio__bottom {
+        grid-column: 1;
+        width: 100%;
+    }
+
+    body[data-music-theme="synthwave"] .bio-audio__header {
+        grid-row: 2;
+    }
+
+    body[data-music-theme="synthwave"] .bio-audio__progress {
+        grid-row: 3;
+    }
+
+    body[data-music-theme="synthwave"] .bio-audio__bottom {
+        grid-row: 4;
+        justify-content: center;
+    }
+
+    body[data-music-theme="cyberpunk"] .bio-audio__art {
+        width: 6rem;
+        height: 6rem;
+    }
 }
 
 .bio-content {
@@ -2402,7 +2874,10 @@ body[data-theme="light"] .profile-row-grid select option {
     text-align: left;
 }
 
-.profile-audio-player .bio-audio__header span {
+/* Era `.bio-audio__header span`: quando nell'intestazione c'era solo il nome
+   dell'artista andava bene, ma adesso ci stanno anche la copertina e le barre
+   dell'equalizzatore, e questo display:block le schiacciava. */
+.profile-audio-player .bio-audio__header .profile-artist-span {
     display: block;
     margin-top: 0.22rem;
     color: var(--muted);
@@ -4356,6 +4831,126 @@ body[data-theme="light"] .profile-select-menu {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.72rem;
+}
+
+/* ══ Preferiti ═════════════════════════════════════════════════════════════
+   Giochi, anime/serie/film, canzoni e libri: quattro sezioni, una scheda
+   sola. La copertina tiene il formato 2:3 dei poster; le copertine dei
+   dischi sono quadrate e si adattano da sole con object-fit. */
+/* Quattro colonne fisse, non `auto-fit`: con due soli preferiti le colonne
+   elastiche diventavano due poster giganti, sproporzionati accanto alle altre
+   sezioni. Cosi' le schede hanno sempre la stessa misura. */
+.profile-favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.72rem;
+}
+
+.profile-favorite-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.profile-favorite-art {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm, 12px);
+    background: rgba(var(--accent-rgb), 0.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    transition: transform 0.22s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)), box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.profile-favorite-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-favorite-art.is-empty {
+    color: var(--muted-2);
+    font-size: 1.4rem;
+}
+
+a.profile-favorite-card:hover .profile-favorite-art,
+a.profile-favorite-card:focus-visible .profile-favorite-art {
+    border-color: rgba(var(--accent-rgb), 0.55);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34);
+    transform: translateY(-3px);
+}
+
+/* Anno o formato, appoggiato in basso sulla copertina. */
+.profile-favorite-meta {
+    position: absolute;
+    right: 0.35rem;
+    bottom: 0.35rem;
+    max-width: calc(100% - 0.7rem);
+    overflow: hidden;
+    padding: 0.14rem 0.4rem;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.62);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+}
+
+.profile-favorite-info {
+    display: block;
+    min-width: 0;
+}
+
+.profile-favorite-info strong {
+    display: block;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-favorite-info small {
+    display: block;
+    overflow: hidden;
+    margin-top: 0.1rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .profile-favorites-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .profile-favorites-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.6rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    a.profile-favorite-card:hover .profile-favorite-art,
+    a.profile-favorite-card:focus-visible .profile-favorite-art {
+        transform: none;
+    }
 }
 
 .profile-character-card {

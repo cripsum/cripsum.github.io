@@ -15,29 +15,22 @@ function profile_editor_catalog(callable $tt): array
     $opt = static fn(string $value, string $label, bool $premium = false, array $extra = []): array
         => ['value' => $value, 'label' => $label, 'premium' => $premium] + $extra;
 
+    // I font arrivano da profile_font_catalog() (includes/profile_style.php):
+    // aggiungerne uno la' lo fa comparire qui, nel salvataggio e nel profilo.
+    $fonts = [];
+    foreach (profile_font_catalog() as $family => $entry) {
+        $fonts[] = $opt($family, $family, $entry['premium'], [
+            'group' => $entry['group'],
+            // Il JS costruisce il link a Google Fonts da qui: senza i pesi
+            // giusti l'anteprima mostrava il font in un solo spessore.
+            'css' => $entry['css'],
+            'stack' => $entry['stack'],
+        ]);
+    }
+
     return [
-        'fonts' => [
-            $opt('Poppins', 'Poppins'),
-            $opt('Inter', 'Inter'),
-            $opt('Roboto', 'Roboto'),
-            $opt('Outfit', 'Outfit'),
-            $opt('Montserrat', 'Montserrat'),
-            $opt('Playfair Display', 'Playfair Display', true),
-            $opt('Space Grotesk', 'Space Grotesk', true),
-            $opt('Syne', 'Syne', true),
-            $opt('Fira Code', 'Fira Code', true),
-            $opt('PT Mono', 'PT Mono', true),
-            $opt('Cinzel', 'Cinzel', true),
-            $opt('Rubik', 'Rubik', true),
-            $opt('Bebas Neue', 'Bebas Neue', true),
-            $opt('Minecraft', 'Minecraft', true),
-            $opt('Gang of Three', 'Gang of Three', true),
-            $opt('Press Start 2P', 'Press Start 2P', true),
-            $opt('Bungee', 'Bungee', true),
-            $opt('Permanent Marker', 'Permanent Marker', true),
-            $opt('Creepster', 'Creepster', true),
-            $opt('Shojumaru', 'Shojumaru', true),
-        ],
+        'fonts' => $fonts,
+        'font_groups' => profile_font_groups($tt('it', 'en')),
 
         'page_effects' => [
             $opt('none', $tt('Nessuno', 'None')),
@@ -265,8 +258,10 @@ function profile_editor_catalog(callable $tt): array
         // Quanti elementi per sezione. Gli stessi numeri stanno in
         // api/update_profile.php, che li applica davvero.
         'limits' => [
-            'free' => ['socials' => 5, 'links' => 5, 'projects' => 3, 'contents' => 3, 'blocks' => 1, 'embeds' => 3, 'tags' => 10, 'characters' => 12, 'badges' => 8],
-            'premium' => ['socials' => 100, 'links' => 100, 'projects' => 100, 'contents' => 100, 'blocks' => 100, 'embeds' => 100, 'tags' => 10, 'characters' => 12, 'badges' => 1000],
+            'free' => ['socials' => 5, 'links' => 5, 'projects' => 3, 'contents' => 3, 'blocks' => 1, 'embeds' => 3, 'tags' => 10, 'characters' => 12, 'badges' => 8,
+                'fav_games' => 4, 'fav_watch' => 4, 'fav_music' => 4, 'fav_read' => 4],
+            'premium' => ['socials' => 100, 'links' => 100, 'projects' => 100, 'contents' => 100, 'blocks' => 100, 'embeds' => 100, 'tags' => 10, 'characters' => 12, 'badges' => 1000,
+                'fav_games' => 8, 'fav_watch' => 8, 'fav_music' => 8, 'fav_read' => 8],
         ],
 
         // Ordine e icone delle sezioni del profilo.
@@ -277,6 +272,10 @@ function profile_editor_catalog(callable $tt): array
             'projects' => ['icon' => 'fa-solid fa-cubes', 'label' => $tt('Progetti', 'Projects'), 'toggle' => 'profile_show_projects'],
             'blocks' => ['icon' => 'fa-solid fa-shapes', 'label' => $tt('Blocchi liberi', 'Custom blocks'), 'toggle' => 'profile_show_blocks'],
             'contents' => ['icon' => 'fa-solid fa-circle-play', 'label' => $tt('Contenuti', 'Content'), 'toggle' => 'profile_show_contents'],
+            'fav_games' => ['icon' => 'fa-solid fa-gamepad', 'label' => $tt('Giochi preferiti', 'Favourite games'), 'toggle' => 'profile_show_fav_games', 'favorite' => 'game'],
+            'fav_watch' => ['icon' => 'fa-solid fa-clapperboard', 'label' => $tt('Anime, serie e film', 'Anime, series and films'), 'toggle' => 'profile_show_fav_watch', 'favorite' => 'watch'],
+            'fav_music' => ['icon' => 'fa-solid fa-headphones', 'label' => $tt('Canzoni preferite', 'Favourite songs'), 'toggle' => 'profile_show_fav_music', 'favorite' => 'music'],
+            'fav_read' => ['icon' => 'fa-solid fa-book-open', 'label' => $tt('Libri, manga e light novel', 'Books, manga and light novels'), 'toggle' => 'profile_show_fav_read', 'favorite' => 'read'],
             'characters' => ['icon' => 'fa-solid fa-user-astronaut', 'label' => $tt('Personaggi', 'Characters'), 'toggle' => 'profile_show_characters'],
             'badges' => ['icon' => 'fa-solid fa-trophy', 'label' => 'Badge', 'toggle' => 'profile_show_badges'],
             'activity' => ['icon' => 'fa-solid fa-clock-rotate-left', 'label' => $tt('Attività', 'Activity'), 'toggle' => 'profile_show_activity'],

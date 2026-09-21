@@ -139,7 +139,13 @@ $linkOptions = array_map(static fn($o) => $o + ['art' => '<span class="art-link 
 <?php pe_group_end(); ?>
 
 <?php pe_group('grp-font', $tt('Testo', 'Text'), null, ['keywords' => 'font carattere tipografia']); ?>
-<?php pe_select('profile_font', (string)($profile['profile_font'] ?? 'Poppins'), $catalog['fonts'], ['label' => 'Font', 'font_preview' => true]); ?>
+<?php pe_select('profile_font', profile_font_normalize($profile['profile_font'] ?? 'Poppins'), $catalog['fonts'], [
+    'label' => 'Font',
+    'font_preview' => true,
+    'groups' => $catalog['font_groups'],
+    'searchable' => true,
+    'help' => pe_h($tt('Scritto con quel font: la tendina mostra ogni nome nel suo carattere.', 'Written in that font: the dropdown shows each name in its own typeface.')),
+]); ?>
 <?php pe_group_end(); ?>
 
 <?php pe_group('grp-background', $tt('Sfondo', 'Background'), null, ['keywords' => 'sfondo video immagine background banner']); ?>

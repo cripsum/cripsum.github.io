@@ -70,6 +70,22 @@
 ]); ?>
 <?php pe_group_end(); ?>
 
+<?php pe_group('grp-views', $tt('Contatore delle visite', 'Views counter'), $tt('Il numero in alto a sinistra nella card.', 'The number at the top left of your card.'), ['keywords' => 'visite views contatore pillola numero']); ?>
+<div class="pe-views-preview" aria-hidden="true">
+    <span class="bio-pill bio-pill--views" id="peViewsPreview">
+        <i class="fa-solid fa-eye"></i><span class="profile-views-count">1.2K</span><span class="profile-views-label"><?php echo pe_h($tt('visite', 'views')); ?></span>
+    </span>
+</div>
+<?php pe_toggle('profile_views_label', $pflag('profile_views_label'), [
+    'label' => $tt('Mostra la scritta «visite»', 'Show the word “views”'),
+    'description' => $tt('Senza, resta solo il numero.', 'Without it, only the number stays.'),
+]); ?>
+<?php pe_toggle('profile_views_pill', $pflag('profile_views_pill'), [
+    'label' => $tt('Mostra la pillola attorno', 'Show the pill around it'),
+    'description' => $tt('Senza, restano icona e numero appoggiati sulla card.', 'Without it, the icon and number sit straight on the card.'),
+]); ?>
+<?php pe_group_end(); ?>
+
 <?php pe_group('grp-tags', $tt('Tag', 'Tags'), $tt('Etichette colorate sotto la bio, fino a 10.', 'Colored labels under your bio, up to 10.'), [
     'keywords' => 'pill pillole etichette tag',
     'action' => '<button type="button" class="pe-btn pe-btn-secondary pe-btn-sm" data-add-item="tags"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>' . pe_h($tt('Aggiungi', 'Add')) . '</span></button>',

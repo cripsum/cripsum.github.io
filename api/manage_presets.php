@@ -61,7 +61,12 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume',
         'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity', 'profile_bg_use_video_audio',
         'profile_layout_snap', 'profile_music_theme', 'profile_bg_grain', 'profile_cursor_effect',
-        'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center'
+        'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center',
+        // Migration v7: se le colonne non esistono ancora arrivano gia' con il
+        // valore di ripiego da profile_v7_select_sql(), e al caricamento del
+        // preset vengono saltate.
+        'profile_music_cover', 'profile_views_label', 'profile_views_pill',
+        'profile_show_fav_games', 'profile_show_fav_watch', 'profile_show_fav_music', 'profile_show_fav_read'
     ];
 
     $profile = profile_get_edit_profile($mysqli, $targetUserId);
@@ -115,6 +120,7 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
     $presetData['contents_json'] = $_POST['contents_json'] ?? '[]';
     $presetData['blocks_json'] = $_POST['blocks_json'] ?? '[]';
     $presetData['embeds_json'] = $_POST['embeds_json'] ?? '[]';
+    $presetData['favorites_json'] = $_POST['favorites_json'] ?? '[]';
     $presetData['badges_json'] = $_POST['badges_json'] ?? '[]';
     $presetData['characters_json'] = $_POST['characters_json'] ?? '[]';
 
@@ -328,7 +334,9 @@ switch ($action) {
             'profile_hide_meta', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume',
             'profile_bg_overlay_opacity', 'profile_bg_blur', 'profile_bg_orbs_opacity', 'profile_bg_use_video_audio',
             'profile_layout_snap', 'profile_music_theme', 'profile_bg_grain', 'profile_cursor_effect',
-            'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center'
+            'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center',
+            'profile_music_cover', 'profile_views_label', 'profile_views_pill',
+            'profile_show_fav_games', 'profile_show_fav_watch', 'profile_show_fav_music', 'profile_show_fav_read'
         ];
 
         // Preset data is user-controlled JSON, so the free-form columns that end
@@ -357,7 +365,13 @@ switch ($action) {
         $setParts = [];
         $types = '';
         $params = [];
+        $v7Columns = profile_v7_columns();
         foreach ($columnsToUpdate as $col) {
+            // Colonne della migration v7: finche' non esistono si saltano, o
+            // il caricamento del preset fallirebbe tutto insieme.
+            if (isset($v7Columns[$col]) && !profile_v7_column_available($mysqli, $col)) {
+                continue;
+            }
             if (array_key_exists($col, $presetData)) {
                 $setParts[] = "`$col` = ?";
                 $val = $presetData[$col];
@@ -703,6 +717,45 @@ switch ($action) {
                 $insertEmbed->execute();
             }
             $insertEmbed->close();
+
+            // 6b. Preferiti (giochi, anime/serie/film, canzoni, libri)
+            // Solo dopo la migration v7: senza tabella si salta il ripristino
+            // invece di far fallire tutto il caricamento del preset.
+            if (profile_favorites_available($mysqli)) {
+                $mysqli->query("DELETE FROM utenti_profile_favorites WHERE utente_id = " . $targetUserId);
+                $favoriteRows = json_decode($presetData['favorites_json'] ?? '[]', true) ?: [];
+                $insertFavorite = $mysqli->prepare(
+                    "INSERT INTO utenti_profile_favorites (utente_id, kind, title, subtitle, image_url, url, meta, source, sort_order, is_visible)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                );
+                $favoriteLimit = profile_favorites_limit((int)($profile['is_premium'] ?? 0) === 1);
+                $favoriteCounts = array_fill_keys(array_values(PROFILE_FAVORITE_KINDS), 0);
+                foreach ($favoriteRows as $row) {
+                    $kind = profile_allowed_value((string)($row['kind'] ?? ''), array_values(PROFILE_FAVORITE_KINDS), '');
+                    if ($kind === '' || $favoriteCounts[$kind] >= $favoriteLimit) continue;
+                    $title = profile_clean_text($row['title'] ?? '', 120);
+                    if ($title === '') continue;
+
+                    $subtitle = profile_clean_text($row['subtitle'] ?? '', 120);
+                    $meta = profile_clean_text($row['meta'] ?? '', 80);
+                    $source = profile_clean_text($row['source'] ?? '', 60);
+                    $image = $presetSafeUrl($row['image_url'] ?? '', true);
+                    $url = $presetSafeUrl($row['url'] ?? '', true);
+
+                    $subtitleDb = $subtitle !== '' ? $subtitle : null;
+                    $imageDb = $image !== '' ? $image : null;
+                    $urlDb = $url !== '' ? $url : null;
+                    $metaDb = $meta !== '' ? $meta : null;
+                    $sourceDb = $source !== '' ? $source : null;
+                    $visible = !empty($row['is_visible']) ? 1 : 0;
+                    $sort = $favoriteCounts[$kind];
+
+                    $insertFavorite->bind_param('isssssssii', $targetUserId, $kind, $title, $subtitleDb, $imageDb, $urlDb, $metaDb, $sourceDb, $sort, $visible);
+                    $insertFavorite->execute();
+                    $favoriteCounts[$kind]++;
+                }
+                $insertFavorite->close();
+            }
 
             // 7. Badges list restoration
             $mysqli->query("DELETE FROM utenti_profile_badges WHERE utente_id = " . $targetUserId);

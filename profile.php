@@ -4,6 +4,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/profile_helpers.php';
 require_once __DIR__ . '/includes/cripsum_og.php';
+require_once __DIR__ . '/includes/profile_sections_favorites.php';
 require_once __DIR__ . '/includes/mission_tracker.php';
 require_once __DIR__ . '/includes/social_functions.php';
 
@@ -194,7 +195,13 @@ if ($profile) {
                 'profile_show_characters',
                 'profile_hide_meta',
                 'profile_show_audio_btn',
-                'profile_bg_use_video_audio'
+                'profile_bg_use_video_audio',
+                'profile_views_label',
+                'profile_views_pill',
+                'profile_show_fav_games',
+                'profile_show_fav_watch',
+                'profile_show_fav_music',
+                'profile_show_fav_read'
             ];
             // Gli interruttori dell'editor mandano sempre il loro "0" nascosto,
             // quindi una chiave assente vuol dire "non e' nel form", non "spento".
@@ -277,8 +284,29 @@ if ($profile) {
                 }
             }
 
+            // Preferiti della bozza: la lista e' una sola, divisa per tipo
+            // come la restituisce profile_list_favorites().
+            $favorites = array_fill_keys(array_values(PROFILE_FAVORITE_KINDS), []);
+            foreach ($draftList('favorites_json') as $favRow) {
+                $favKind = (string)($favRow['kind'] ?? '');
+                if (!isset($favorites[$favKind])) continue;
+                if (count($favorites[$favKind]) >= profile_favorites_limit($isPremium)) continue;
+                $favorites[$favKind][] = [
+                    'title' => profile_clean_text($favRow['title'] ?? '', 120),
+                    'subtitle' => profile_clean_text($favRow['subtitle'] ?? '', 120),
+                    'meta' => profile_clean_text($favRow['meta'] ?? '', 80),
+                    'image_url' => profile_is_safe_url($favRow['image_url'] ?? '', false) ? (string)($favRow['image_url'] ?? '') : '',
+                    'url' => profile_is_safe_url($favRow['url'] ?? '', false) ? (string)($favRow['url'] ?? '') : '',
+                ];
+            }
+            $favorites = array_map(
+                static fn(array $rows): array => array_values(array_filter($rows, static fn(array $r): bool => $r['title'] !== '')),
+                $favorites
+            );
+
             $activity = profile_recent_activity($mysqli, $profileId);
         } else {
+            $favorites = profile_list_favorites($mysqli, $profileId, true);
             $socials = profile_list_socials($mysqli, $profileId, true);
             $links = profile_list_links($mysqli, $profileId, true);
             $projects = profile_list_projects($mysqli, $profileId, true);
@@ -363,6 +391,67 @@ function profile_get_section_title(string $sectionKey, string $defaultTitle): st
     return $defaultTitle;
 }
 
+/**
+ * Il player della musica del profilo.
+ *
+ * Uno solo: prima lo stesso markup stava scritto tre volte (player vero,
+ * player nascosto quando si usa il pulsantino, player finto dell'anteprima) e
+ * una modifica andava fatta tre volte — infatti due copie avevano perso gli
+ * id, quindi nell'anteprima barra e tempi non si muovevano.
+ *
+ * La copertina e' sempre nel markup: i quattro stili la usano in modo diverso
+ * (etichetta del disco per il Vinile, riquadro di fianco negli altri) e senza
+ * copertina resta l'icona.
+ */
+function profile_render_audio_player(array $o = []): void
+{
+    $title = trim((string)($o['title'] ?? '')) ?: 'Profile Song';
+    $artist = trim((string)($o['artist'] ?? ''));
+    $cover = trim((string)($o['cover'] ?? ''));
+    $src = trim((string)($o['src'] ?? ''));
+    $volume = (float)($o['volume'] ?? 0.18);
+    $withAudio = !empty($o['with_audio']);
+    $hidden = !empty($o['hidden']);
+?>
+    <div class="bio-audio profile-audio-player<?php echo $cover !== '' ? ' has-cover' : ''; ?>" data-audio-player<?php echo $hidden ? ' style="display: none;"' : ''; ?>>
+        <?php if ($withAudio): ?>
+            <audio id="profileAudio" preload="metadata" data-default-volume="<?php echo $volume; ?>" src="<?php echo profile_h($src); ?>"></audio>
+        <?php endif; ?>
+        <div class="bio-audio__header">
+            <span class="bio-audio__art" data-audio-art>
+                <span class="bio-audio__disc">
+                    <?php if ($cover !== ''): ?>
+                        <img class="bio-audio__cover" src="<?php echo profile_h($cover); ?>" alt="" loading="lazy">
+                    <?php else: ?>
+                        <i class="fa-solid fa-compact-disc" aria-hidden="true"></i>
+                    <?php endif; ?>
+                </span>
+                <span class="bio-audio__tonearm" aria-hidden="true"></span>
+            </span>
+            <div>
+                <small>Audio</small>
+                <strong><i class="fa-solid fa-music"></i><?php echo profile_h($title); ?></strong>
+                <span class="profile-artist-span" style="<?php echo $artist !== '' ? '' : 'display: none;'; ?>"><?php echo profile_h($artist); ?></span>
+            </div>
+            <span class="bio-audio__eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fa-solid fa-play"></i></button>
+        </div>
+        <div class="bio-audio__progress">
+            <span id="profileAudioCurrent">0:00</span>
+            <span class="bio-audio__track">
+                <span class="bio-audio__buffered" aria-hidden="true"></span>
+                <input id="profileAudioProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
+            </span>
+            <span id="profileAudioTotal">0:00</span>
+        </div>
+        <div class="bio-audio__bottom">
+            <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i id="profileVolumeIcon" class="fa-solid fa-volume-low"></i></button>
+            <input id="profileVolumeSlider" type="range" min="0" max="1" step="0.01" value="<?php echo $volume; ?>" aria-label="Volume">
+        </div>
+    </div>
+<?php
+}
+
 function profile_render_section_heading(string $icon, string $title, ?string $subtitle = null, ?string $sectionKey = null): void
 {
     global $profile;
@@ -371,6 +460,9 @@ function profile_render_section_heading(string $icon, string $title, ?string $su
     $customTitle = $title;
     $customIcon = $icon;
     $isHidden = false;
+    // Senza questa riga il controllo sui blocchi qui sotto leggeva $config
+    // anche quando non era mai stato riempito.
+    $config = [];
 
     if ($isPremium && $sectionKey !== null && !empty($profile['profile_sections_config'])) {
         $config = json_decode($profile['profile_sections_config'], true);
@@ -459,6 +551,13 @@ $stamp = ($profile && !empty($profile['profile_updated_at'])) ? (int)strtotime((
 $musicUrl = $hasUploadedMusic ? '/includes/get_profile_music.php?id=' . (int)$profile['id'] . '&t=' . $stamp : $musicExternalUrl;
 $musicTitle = $profile ? trim((string)($profile['profile_music_title'] ?? '')) : '';
 $musicArtist = $profile ? trim((string)($profile['profile_music_artist'] ?? '')) : '';
+// Copertina del brano: solo Premium, e solo se e' un indirizzo che sta in piedi.
+$musicCover = ($profile && (int)($profile['is_premium'] ?? 0) === 1)
+    ? trim((string)($profile['profile_music_cover'] ?? ''))
+    : '';
+if ($musicCover !== '' && !profile_is_safe_url($musicCover, true)) {
+    $musicCover = '';
+}
 $showAudioPlayer = $profile ? ((int)($profile['profile_show_audio_player'] ?? 1) === 1) : false;
 
 $backgroundUrl = $profile && !empty($profile['profile_banner_type']) ? '/includes/get_profile_banner.php?id=' . (int)$profile['id'] . '&t=' . $stamp : null;
@@ -489,11 +588,17 @@ $showActivity = $profile ? profile_flag($profile, 'profile_show_activity', true)
 $showDiscord = $profile ? profile_flag($profile, 'profile_show_discord', true) : false;
 $showCharacters = $profile ? profile_flag($profile, 'profile_show_characters', true) : false;
 
-$profileFont = $profile ? ($profile['profile_font'] ?? 'Poppins') : 'Poppins';
-// Fonts land inside a CSS custom property, so only a plain family name is kept.
-if (!preg_match('/^[A-Za-z0-9 _-]{1,40}$/', (string)$profileFont)) {
-    $profileFont = 'Poppins';
-}
+// Aspetto del contatore delle visite, in alto a sinistra nella card: la parola
+// "visite" e la pillola attorno si possono togliere una per una.
+$viewsLabel = $profile ? profile_flag($profile, 'profile_views_label', true) : true;
+$viewsPill = $profile ? profile_flag($profile, 'profile_views_pill', true) : true;
+
+// Il font passa sempre dal catalogo (includes/profile_style.php): quello che
+// non c'e' torna Poppins, e chi non ha il Premium tiene solo i font liberi.
+$profileFont = profile_font_normalize(
+    $profile ? ($profile['profile_font'] ?? 'Poppins') : 'Poppins',
+    (int)($profile['is_premium'] ?? 0) === 1
+);
 
 // Cursor URLs are interpolated into an inline style attribute: percent-encode
 // everything that could terminate the CSS string (see profile_css_url_value).
@@ -514,6 +619,19 @@ $visibleLinks = $showLinks ? $links : [];
 $visibleProjects = $showProjects ? $projects : [];
 $visibleContents = $showContents ? $contents : [];
 $visibleBlocks = $showBlocks ? $blocks : [];
+
+// Preferiti: ogni sezione ha il suo occhio, come le altre.
+$favorites = isset($favorites) && is_array($favorites)
+    ? $favorites
+    : array_fill_keys(array_values(PROFILE_FAVORITE_KINDS), []);
+$visibleFavorites = [];
+foreach (PROFILE_FAVORITE_KINDS as $favSection => $favKind) {
+    $favShown = $profile ? profile_flag($profile, 'profile_show_' . $favSection, true) : false;
+    $visibleFavorites[$favKind] = $favShown
+        ? array_slice($favorites[$favKind] ?? [], 0, profile_favorites_limit($isPremium))
+        : [];
+}
+$hasFavorites = (bool)array_filter($visibleFavorites);
 $badgesDisplay = $profile ? ($profile['profile_badges_display'] ?? 'both') : 'both';
 $badgesPosition = $profile ? ($profile['profile_badges_position'] ?? 'below_bio') : 'below_bio';
 
@@ -571,7 +689,7 @@ $pt = static fn(string $it, string $en): string => $profileLang === 'it' ? $it :
 $stats = ($showStats && $profile) ? profile_stats_cards($mysqli, $profile, $profileLang) : [];
 $hasStats = $stats !== [];
 $hasDiscordSection = $showDiscord && (!empty($discordId) || !empty($widgetData));
-$hasRightContent = $hasStats || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds;
+$hasRightContent = $hasStats || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || ($visibleBadges && $showBadgesSection) || $visibleActivity || $visibleCharacters || $embeds || $hasFavorites;
 $hasAnyPublicContent = $visibleSocials || $visibleLinks || $visibleProjects || $visibleContents || $visibleBlocks || $visibleBadges || $hasDiscordSection || $hasMusic || $embeds;
 
 $ogMeta = cripsum_og_profile($mysqli, $profile);
@@ -589,7 +707,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=5.18.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=7.0.0">
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-name-effects.css?v=1.1.0">
@@ -642,7 +760,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
     <script src="/assets/js/profile-effects.js?v=1.2.0" defer></script>
     <script src="/assets/js/profile-name-effects.js?v=1.1.0" defer></script>
-    <script src="/assets/js/profile.js?v=5.18.0" defer></script>
+    <script src="/assets/js/profile.js?v=7.0.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <script src="/assets/js/profile-style.js?v=6.3.0" defer></script>
         <style>
@@ -656,30 +774,12 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
         </style>
     <?php endif; ?>
     <?php
-    $googleFonts = [
-        'Poppins' => 'Poppins',
-        'Inter' => 'Inter:wght@300;400;500;600;700;800&display=swap',
-        'Roboto' => 'Roboto:wght@300;400;500;700&display=swap',
-        'Outfit' => 'Outfit:wght@300;400;500;600;700;800&display=swap',
-        'Playfair Display' => 'Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap',
-        'Space Grotesk' => 'Space+Grotesk:wght@300..700&display=swap',
-        'Syne' => 'Syne:wght@400..800&display=swap',
-        'Montserrat' => 'Montserrat:ital,wght@0,100..900;1,100..900&display=swap',
-        'Fira Code' => 'Fira+Code:wght@300..700&display=swap',
-        'PT Mono' => 'PT+Mono&display=swap',
-        'Cinzel' => 'Cinzel:wght@400..900&display=swap',
-        'Rubik' => 'Rubik:ital,wght@0,300..900;1,300..900&display=swap',
-        'Bebas Neue' => 'Bebas+Neue&display=swap',
-        'Press Start 2P' => 'Press+Start+2P&display=swap',
-        'Bungee' => 'Bungee&display=swap',
-        'Permanent Marker' => 'Permanent+Marker&display=swap',
-        'Creepster' => 'Creepster&display=swap',
-        'Shojumaru' => 'Shojumaru&display=swap'
-    ];
-    if (array_key_exists($profileFont, $googleFonts) && $profileFont !== 'Poppins') {
+    // Poppins arriva gia' da head-import.php: caricarlo due volte non serve.
+    $fontStylesheet = $profileFont === 'Poppins' ? '' : profile_font_stylesheet_url($profileFont);
+    if ($fontStylesheet !== '') {
         echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
         echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
-        echo '<link href="https://fonts.googleapis.com/css2?family=' . $googleFonts[$profileFont] . '" rel="stylesheet">' . "\n";
+        echo '<link href="' . profile_h($fontStylesheet) . '" rel="stylesheet">' . "\n";
     }
     ?>
     <style>
@@ -687,7 +787,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
             <?php foreach ($styleVars as $varName => $varValue): ?>
             <?php echo $varName; ?>: <?php echo preg_replace('/[^a-zA-Z0-9#%.,()\s-]/', '', (string)$varValue); ?> !important;
             <?php endforeach; ?>
-            --profile-font: '<?php echo profile_h($profileFont); ?>', sans-serif !important;
+            --profile-font: <?php echo profile_h(profile_font_css_family($profileFont)); ?> !important;
             font-family: var(--profile-font, "Poppins", sans-serif) !important;
         }
 
@@ -733,6 +833,14 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 justify-content: center !important;
                 padding: 2rem 1rem !important;
                 position: relative !important;
+            }
+
+            /* Piu' sezioni nella stessa schermata: si incolonnano con un po'
+               di aria in mezzo. Se il gruppo e' piu' alto dello schermo ci si
+               scorre dentro, come gia' fa una sezione lunga da sola. */
+            body.snap-active .profile-snap-slide-wrapper.is-multi {
+                gap: 1rem !important;
+                justify-content: safe center !important;
             }
 
             body.snap-active.public-profile-body #bioPage .profile-smart-hero-wrapper {
@@ -924,262 +1032,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
             line-height: 1;
         }
 
-        /* Music Player Styles */
-        /* 1. COMPACT ROW STYLE (retro) */
-        body[data-music-theme="retro"] .bio-audio {
-            display: grid !important;
-            grid-template-columns: auto 1fr auto !important;
-            align-items: center !important;
-            gap: 0.6rem 1rem !important;
-            padding: 0.75rem 1rem !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__header {
-            display: contents !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__header>button.js-profile-audio-toggle {
-            grid-column: 1 !important;
-            grid-row: 1 !important;
-            margin: 0 !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__header>div {
-            grid-column: 2 !important;
-            grid-row: 1 !important;
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            flex-wrap: wrap !important;
-            gap: 0.25rem 0.5rem !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__header>div small {
-            display: none !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__header>div strong {
-            font-size: 0.85rem !important;
-            margin: 0 !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__header>div span.profile-artist-span {
-            font-size: 0.76rem !important;
-            color: var(--muted) !important;
-            margin: 0 !important;
-            display: inline-block !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__header>div span.profile-artist-span::before {
-            content: "• " !important;
-            margin-right: 0.25rem !important;
-            opacity: 0.6 !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__progress {
-            grid-column: 1 / -1 !important;
-            grid-row: 2 !important;
-            margin: 0 !important;
-            width: 100% !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__bottom {
-            grid-column: 3 !important;
-            grid-row: 1 !important;
-            margin: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 0.5rem !important;
-        }
-
-        body[data-music-theme="retro"] .bio-audio__bottom input[type="range"] {
-            width: 60px !important;
-        }
-
-        /* 2. CENTERED PILL STYLE (cyberpunk) */
-        body[data-music-theme="cyberpunk"] .bio-audio {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            text-align: center !important;
-            padding: 1.5rem !important;
-            border-radius: 28px !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__header {
-            flex-direction: column !important;
-            align-items: center !important;
-            gap: 0.75rem !important;
-            margin-bottom: 1rem !important;
-            width: 100% !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__header>div {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            text-align: center !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__header>div small {
-            margin-bottom: 0.35rem !important;
-            letter-spacing: 0.12em !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__header>div strong {
-            font-size: 1.05rem !important;
-            justify-content: center !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle {
-            width: 52px !important;
-            height: 52px !important;
-            border-radius: 50% !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: rgba(var(--accent-rgb), 0.1) !important;
-            border: 1px solid rgba(var(--accent-rgb), 0.25) !important;
-            order: -1 !important;
-            margin-bottom: 0.5rem !important;
-            transition: all 0.3s ease !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle:hover {
-            background: rgba(var(--accent-rgb), 0.2) !important;
-            transform: scale(1.05) !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle i {
-            font-size: 1.15rem !important;
-            margin-left: 2px !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__header>button.js-profile-audio-toggle:has(.fa-pause) i {
-            margin-left: 0 !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__progress {
-            width: 100% !important;
-            margin-bottom: 0.85rem !important;
-            justify-content: center !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__bottom {
-            width: 100% !important;
-            justify-content: center !important;
-            gap: 0.5rem !important;
-        }
-
-        body[data-music-theme="cyberpunk"] .bio-audio__bottom input[type="range"] {
-            max-width: 110px !important;
-        }
-
-        /* 3. VINYL PLAYER STYLE (synthwave) */
-        body[data-music-theme="synthwave"] .bio-audio {
-            display: grid !important;
-            grid-template-columns: auto 1fr !important;
-            align-items: center !important;
-            gap: 1rem 1.25rem !important;
-            padding: 1.25rem !important;
-        }
-
-        body[data-music-theme="synthwave"] .bio-audio::before {
-            content: "" !important;
-            display: block !important;
-            width: 80px !important;
-            height: 80px !important;
-            border-radius: 50% !important;
-            background: radial-gradient(circle,
-                    var(--accent) 6%,
-                    #0b0c10 7%,
-                    #0b0c10 22%,
-                    #1f2833 23%,
-                    #0b0c10 38%,
-                    #1f2833 40%,
-                    #0b0c10 56%,
-                    rgba(var(--accent-rgb), 0.25) 57%,
-                    #0b0c10 70%,
-                    rgba(255, 255, 255, 0.05) 71%) !important;
-            border: 2px solid rgba(255, 255, 255, 0.08) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(var(--accent-rgb), 0.05) !important;
-            grid-column: 1 !important;
-            grid-row: 1 / span 3 !important;
-            animation: spin-vinyl 4s linear infinite !important;
-            animation-play-state: paused !important;
-        }
-
-        body[data-music-theme="synthwave"] .bio-audio.audio-playing::before {
-            animation-play-state: running !important;
-        }
-
-        @keyframes spin-vinyl {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        body[data-music-theme="synthwave"] .bio-audio__header {
-            grid-column: 2 !important;
-            grid-row: 1 !important;
-            margin-bottom: 0 !important;
-            align-items: center !important;
-        }
-
-        body[data-music-theme="synthwave"] .bio-audio__progress {
-            grid-column: 2 !important;
-            grid-row: 2 !important;
-            margin-bottom: 0 !important;
-            width: 100% !important;
-        }
-
-        body[data-music-theme="synthwave"] .bio-audio__bottom {
-            grid-column: 2 !important;
-            grid-row: 3 !important;
-            margin-bottom: 0 !important;
-            width: 100% !important;
-        }
-
-        body[data-music-theme="synthwave"] .bio-audio__bottom input[type="range"] {
-            width: 100% !important;
-            max-width: 100px !important;
-        }
-
-        @media (max-width: 480px) {
-            body[data-music-theme="synthwave"] .bio-audio {
-                grid-template-columns: 1fr !important;
-                justify-items: center !important;
-                text-align: center !important;
-            }
-
-            body[data-music-theme="synthwave"] .bio-audio::before {
-                grid-column: 1 !important;
-                grid-row: 1 !important;
-            }
-
-            body[data-music-theme="synthwave"] .bio-audio__header {
-                grid-column: 1 !important;
-                grid-row: 2 !important;
-                width: 100% !important;
-            }
-
-            body[data-music-theme="synthwave"] .bio-audio__progress {
-                grid-column: 1 !important;
-                grid-row: 3 !important;
-                width: 100% !important;
-            }
-
-            body[data-music-theme="synthwave"] .bio-audio__bottom {
-                grid-column: 1 !important;
-                grid-row: 4 !important;
-                width: 100% !important;
-                justify-content: center !important;
-            }
-        }
+        /* Gli stili dei quattro player stanno in assets/css/profile.css,
+           sotto "Player della musica": erano 250 righe di !important qui
+           dentro, ricalcolate a ogni caricamento di ogni profilo. */
     </style>
 </head>
 
@@ -1209,6 +1064,10 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     data-bg-use-video-audio="<?php echo (int)($profile['profile_bg_use_video_audio'] ?? 0) === 1 ? '1' : '0'; ?>"
     data-cursor-effect="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_cursor_effect'] ?? 'none') : 'none'; ?>"
     data-layout-snap="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_layout_snap'] ?? 0) === 1 ? '1' : '0'; ?>"
+    <?php /* Quali sezioni stanno nella stessa schermata: gruppi separati da
+             "|", sezioni separate da ",". Prima ogni sezione era per forza
+             una schermata a se'. */ ?>
+    data-snap-screens="<?php echo profile_h(profile_snap_screens_attr($profile ?: [])); ?>"
     data-bg-grain="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && ((int)($profile['profile_bg_grain'] ?? 0) === 1 || $profileEffect === 'bg_grain') ? '1' : '0'; ?>"
     data-music-theme="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_music_theme'] ?? 'default') : 'default'; ?>"
     data-cursor-custom-url="<?php echo profile_h($cursorCustomUrlCss); ?>"
@@ -1298,7 +1157,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 <section class="bio-hero bio-card profile-smart-hero js-tilt-card js-reveal" aria-label="Public Profile" <?php echo $tiltAttrs; ?>>
                     <div class="profile-hero-actions-top">
                         <?php // Le visite stanno sempre qui, anche con il box statistiche attivo: lo stato va nella riga in fondo alla card. ?>
-                        <span class="bio-pill bio-pill--views"><i class="fa-solid fa-eye"></i><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?> <?php echo $pt('visite', 'views'); ?></span>
+                        <span class="bio-pill bio-pill--views<?php echo $viewsPill ? '' : ' bio-pill--bare'; ?>" data-views-pill>
+                            <i class="fa-solid fa-eye"></i><span class="profile-views-count"><?php echo profile_compact_number($profile['profile_views'] ?? 0); ?></span><span class="profile-views-label"<?php echo $viewsLabel ? '' : ' hidden'; ?>><?php echo $pt('visite', 'views'); ?></span>
+                        </span>
 
                         <?php if (!isset($_GET['preview_mode'])): ?>
                             <div class="profile-dropdown-wrap">
@@ -1548,26 +1409,14 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     $hasClickToEnter = $profile && profile_flag($profile, 'profile_click_to_enter', false);
                     ?>
                     <?php if ($hasMusic && $showAudioPlayer): ?>
-                        <div class="bio-audio profile-audio-player" data-audio-player>
-                            <audio id="profileAudio" preload="metadata" data-default-volume="<?php echo $audioDefaultVolume; ?>" src="<?php echo profile_h($musicUrl); ?>"></audio>
-                            <div class="bio-audio__header">
-                                <div>
-                                    <small>Audio</small>
-                                    <strong><i class="fa-solid fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
-                                    <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
-                                </div>
-                                <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i id="profileAudioIcon" class="fa-solid fa-play"></i></button>
-                            </div>
-                            <div class="bio-audio__progress">
-                                <span id="profileAudioCurrent">0:00</span>
-                                <input id="profileAudioProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
-                                <span id="profileAudioTotal">0:00</span>
-                            </div>
-                            <div class="bio-audio__bottom">
-                                <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i id="profileVolumeIcon" class="fa-solid fa-volume-low"></i></button>
-                                <input id="profileVolumeSlider" type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
-                            </div>
-                        </div>
+                        <?php profile_render_audio_player([
+                            'title' => $musicTitle,
+                            'artist' => $musicArtist,
+                            'cover' => $musicCover,
+                            'src' => $musicUrl,
+                            'volume' => $audioDefaultVolume,
+                            'with_audio' => true,
+                        ]); ?>
                     <?php elseif ($hasMusic && !$showAudioPlayer): ?>
                         <audio
                             id="profileAudio"
@@ -1579,46 +1428,23 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                             data-default-volume="<?php echo $audioDefaultVolume; ?>"
                             src="<?php echo profile_h($musicUrl); ?>"></audio>
                         <?php if ($isPreview): ?>
-                            <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
-                                <div class="bio-audio__header">
-                                    <div>
-                                        <small>Audio</small>
-                                        <strong><i class="fa-solid fa-music"></i><?php echo profile_h($musicTitle ?: 'Profile Song'); ?></strong>
-                                        <span class="profile-artist-span" style="<?php echo $musicArtist ? '' : 'display: none;'; ?>"><?php echo profile_h($musicArtist); ?></span>
-                                    </div>
-                                    <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fa-solid fa-play"></i></button>
-                                </div>
-                                <div class="bio-audio__progress">
-                                    <span>0:00</span>
-                                    <input type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
-                                    <span>0:00</span>
-                                </div>
-                                <div class="bio-audio__bottom">
-                                    <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fa-solid fa-volume-low"></i></button>
-                                    <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
-                                </div>
-                            </div>
+                            <?php // Nell'anteprima il player resta nel markup anche da nascosto:
+                                  // accendendo l'interruttore compare subito, senza ricaricare. ?>
+                            <?php profile_render_audio_player([
+                                'title' => $musicTitle,
+                                'artist' => $musicArtist,
+                                'cover' => $musicCover,
+                                'volume' => $audioDefaultVolume,
+                                'hidden' => true,
+                            ]); ?>
                         <?php endif; ?>
                     <?php elseif ($isPreview): ?>
                         <audio id="profileAudio" preload="metadata"></audio>
-                        <div class="bio-audio profile-audio-player" data-audio-player style="display: none;">
-                            <div class="bio-audio__header">
-                                <div>
-                                    <small>Audio</small>
-                                    <strong><i class="fa-solid fa-music"></i>Profile Song</strong>
-                                    <span class="profile-artist-span" style="display: none;"></span>
-                                </div>
-                                <button class="bio-small-button js-profile-audio-toggle" type="button" aria-label="Play pause"><i class="fa-solid fa-play"></i></button>
-                            </div>
-                            <div class="bio-audio__progress">
-                                <span>0:00</span>
-                                <input type="range" min="0" max="100" step="0.1" value="0" aria-label="Audio progress">
-                                <span>0:00</span>
-                            </div>
-                            <div class="bio-audio__bottom">
-                                <button class="bio-small-button js-profile-volume-toggle" type="button" aria-label="Mute"><i class="fa-solid fa-volume-low"></i></button>
-                                <input type="range" min="0" max="1" step="0.01" value="0.18" aria-label="Volume">
-                            </div>
+                        <?php profile_render_audio_player([
+                            'cover' => $musicCover,
+                            'volume' => $audioDefaultVolume,
+                            'hidden' => true,
+                        ]); ?>
                         <?php endif; ?>
 
                         <script>
@@ -2036,9 +1862,19 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     <?php endif;
                     $sectionsHtml['activity'] = ob_get_clean();
 
-                    $sectionsOrderRaw = $profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,characters,badges,activity';
+                    // 10-13. Preferiti (giochi, anime/serie/film, canzoni, libri).
+                    foreach (PROFILE_FAVORITE_KINDS as $favSection => $favKind) {
+                        $sectionsHtml[$favSection] = profile_render_favorites_section(
+                            $favKind,
+                            $visibleFavorites[$favKind] ?? [],
+                            $tiltAttrs,
+                            $lang
+                        );
+                    }
+
+                    $sectionsOrderRaw = $profile['profile_sections_order'] ?? 'links,embeds,stats,projects,blocks,contents,fav_games,fav_watch,fav_music,fav_read,characters,badges,activity';
                     $sectionsOrder = explode(',', $sectionsOrderRaw);
-                    $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'characters', 'badges', 'activity'];
+                    $allowedSectionsList = ['links', 'embeds', 'stats', 'projects', 'blocks', 'contents', 'fav_games', 'fav_watch', 'fav_music', 'fav_read', 'characters', 'badges', 'activity'];
 
                     $orderedSectionsHtml = [];
 
@@ -2203,12 +2039,27 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
                 let lastCursor = '';
 
+                /*
+                 * Link e riserva di ogni font, dal catalogo PHP. Prima il link
+                 * veniva costruito dal solo nome della famiglia: l'anteprima
+                 * caricava un unico spessore e i font del repository (Minecraft,
+                 * Gang of Three) finivano lo stesso su Google Fonts.
+                 */
+                const FONTS = <?php echo json_encode(array_map(
+                    static fn(string $family): array => [
+                        'href' => profile_font_stylesheet_url($family),
+                        'family' => profile_font_css_family($family),
+                    ],
+                    array_combine(array_keys(profile_font_catalog()), array_keys(profile_font_catalog()))
+                ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+
                 const loadFont = (family) => {
-                    if (!family || ['Poppins', 'Minecraft', 'Gang of Three'].includes(family) || loadedFonts.has(family)) return;
+                    const entry = FONTS[family];
+                    if (!entry || !entry.href || loadedFonts.has(family)) return;
                     loadedFonts.add(family);
                     const link = document.createElement('link');
                     link.rel = 'stylesheet';
-                    link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(family).replace(/%20/g, '+') + '&display=swap';
+                    link.href = entry.href;
                     document.head.appendChild(link);
                 };
 
@@ -2267,6 +2118,14 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                             bio.hidden = value.trim() === '';
                         }
                     }
+                };
+
+                const applyViews = (s) => {
+                    const pill = $('[data-views-pill]');
+                    if (!pill) return;
+                    pill.classList.toggle('bio-pill--bare', !on(s, 'profile_views_pill'));
+                    const label = pill.querySelector('.profile-views-label');
+                    if (label) label.hidden = !on(s, 'profile_views_label');
                 };
 
                 const applyRing = (s) => {
@@ -2341,6 +2200,35 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         artist.style.display = s.profile_music_artist ? '' : 'none';
                     }
 
+                    // Copertina: si vede subito, senza ricaricare l'anteprima.
+                    const disc = $('.bio-audio__disc');
+                    if (player && disc) {
+                        const cover = premium ? String(s.profile_music_cover || '').trim() : '';
+                        player.classList.toggle('has-cover', cover !== '');
+                        const img = disc.querySelector('.bio-audio__cover');
+                        if (cover === '') {
+                            if (img) img.remove();
+                            if (!disc.querySelector('i')) {
+                                const icon = document.createElement('i');
+                                icon.className = 'fa-solid fa-compact-disc';
+                                icon.setAttribute('aria-hidden', 'true');
+                                disc.appendChild(icon);
+                            }
+                        } else {
+                            disc.querySelector('i')?.remove();
+                            if (img) {
+                                if (img.getAttribute('src') !== cover) img.src = cover;
+                            } else {
+                                const next = document.createElement('img');
+                                next.className = 'bio-audio__cover';
+                                next.alt = '';
+                                next.loading = 'lazy';
+                                next.src = cover;
+                                disc.appendChild(next);
+                            }
+                        }
+                    }
+
                     const floating = $('[data-floating-audio]');
                     if (floating) {
                         const position = String(s.profile_audio_btn_position || 'bottom-right');
@@ -2361,9 +2249,9 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
                 const applySettings = (s, premium) => {
                     if (window.CripsumProfileStyle) window.CripsumProfileStyle.apply(body, s);
-                    if (s.profile_font) {
+                    if (s.profile_font && FONTS[s.profile_font]) {
                         loadFont(s.profile_font);
-                        body.style.setProperty('--profile-font', `'${String(s.profile_font).replace(/'/g, '')}', sans-serif`, 'important');
+                        body.style.setProperty('--profile-font', FONTS[s.profile_font].family, 'important');
                     }
 
                     const effect = s.profile_effect || 'none';
@@ -2377,6 +2265,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
                     applyName(s);
                     applyTexts(s);
+                    applyViews(s);
                     applyRing(s);
                     applyCursor(s, premium);
                     applyTilt(s);
