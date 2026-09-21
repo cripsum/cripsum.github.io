@@ -3548,54 +3548,42 @@
     box-shadow: 0 8px 24px color-mix(in srgb, var(--pe-premium) 30%, transparent);
 }
 
+/* Testo che serve solo a chi usa uno screen reader.
+   Mancava: "Visibile sul profilo", "Torna al profilo" e i nomi delle palette
+   si leggevano davvero, appiccicati accanto ai loro controlli. */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
 /* ── Schermate del layout a scorrimento ───────────────────────────────────
-   Ogni riquadro è una schermata del profilo, e dentro ci stanno le sezioni
-   che la compongono. Si trascinano da una schermata all'altra; la stessa
-   sezione può stare in due schermate con elementi diversi. */
-.pe-screens {
-    margin-bottom: 1.1rem;
-    padding: 0.9rem;
+   Le stesse schede di sezione, raccolte dentro riquadri "Schermata N". Non
+   c'è una seconda lista: si trascinano da un riquadro all'altro. */
+.pe-screen-note {
+    margin-bottom: 0.8rem;
+}
+
+.pe-screen-note[hidden],
+#peScreenAdd[hidden] {
+    display: none;
+}
+
+.pe-screen-group,
+.pe-screen-rest {
     border: 1px solid var(--pe-line);
     border-radius: var(--pe-radius);
     background: var(--pe-surface-2);
 }
 
-.pe-screens[hidden] {
-    display: none;
-}
-
-.pe-screens-head h4 {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin: 0 0 0.25rem;
-    font-size: 0.92rem;
-    font-weight: 700;
-}
-
-.pe-screens-head h4 i {
-    color: var(--pe-accent-text);
-    font-size: 0.85rem;
-}
-
-.pe-screens-head .pe-help {
-    margin: 0 0 0.8rem;
-}
-
-.pe-screens-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 0.55rem;
-}
-
-.pe-screen {
-    border: 1px solid var(--pe-line);
-    border-radius: 14px;
-    background: var(--pe-surface);
-}
-
-.pe-screen.is-ghost {
+.pe-screen-group.is-ghost {
     opacity: 0.45;
 }
 
@@ -3603,7 +3591,7 @@
     display: flex;
     align-items: center;
     gap: 0.45rem;
-    padding: 0.45rem 0.55rem 0.35rem;
+    padding: 0.5rem 0.6rem 0.4rem;
 }
 
 .pe-screen-head strong {
@@ -3619,86 +3607,102 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
+    flex: none;
     font-size: 0.76rem;
 }
 
-.pe-screen-slots {
+.pe-screen-body {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.45rem;
     min-height: 2.6rem;
-    padding: 0 0.55rem 0.55rem;
+    padding: 0 0.6rem 0.6rem;
 }
 
-/* Una schermata vuota deve comunque essere un bersaglio per il trascinamento. */
+/* Una schermata vuota resta un bersaglio per il trascinamento. */
 .pe-screen-empty {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 2.4rem;
+    min-height: 2.6rem;
     margin: 0;
     border: 1px dashed var(--pe-line);
-    border-radius: 10px;
+    border-radius: 12px;
     color: var(--pe-muted);
     font-size: 0.78rem;
 }
 
-.pe-screen-chip {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.4rem 0.5rem;
-    border: 1px solid var(--pe-line);
-    border-radius: 10px;
-    background: var(--pe-surface-2);
+/* Le sezioni vuote o nascoste: restano modificabili, ma fuori dalle
+   schermate, perché sul profilo non ne occupano nessuna. */
+.pe-screen-rest {
+    border-style: dashed;
+    background: transparent;
 }
 
-.pe-screen-chip.is-ghost {
+.pe-screen-rest .pe-screen-head strong {
+    color: var(--pe-muted);
+    letter-spacing: 0.04em;
+    text-transform: none;
+}
+
+/* Una parte in più di una sezione, in un'altra schermata. */
+.pe-section-part {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.55rem;
+    border: 1px dashed color-mix(in srgb, var(--pe-accent) 40%, var(--pe-line));
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--pe-accent) 7%, transparent);
+}
+
+.pe-section-part.is-ghost {
     opacity: 0.45;
 }
 
-.pe-screen-chip .pe-drag {
-    cursor: grab;
-}
-
-.pe-screen-chip-icon {
-    width: 1.1rem;
+.pe-section-part .pe-section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    flex: none;
+    border-radius: 8px;
     color: var(--pe-accent-text);
-    font-size: 0.82rem;
-    text-align: center;
+    background: color-mix(in srgb, var(--pe-accent) 14%, transparent);
+    font-size: 0.75rem;
 }
 
-.pe-screen-chip-text {
+.pe-section-part .pe-section-text {
     display: flex;
     flex-direction: column;
     flex: 1;
     min-width: 0;
 }
 
-.pe-screen-chip-text strong {
+.pe-section-part .pe-section-text strong {
     overflow: hidden;
-    font-size: 0.83rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.pe-screen-chip-text small {
+.pe-section-part .pe-section-text small {
+    overflow: hidden;
     color: var(--pe-muted);
-    font-size: 0.7rem;
-}
-
-.pe-screens-foot {
-    margin: 0;
+    font-size: 0.72rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Scelta degli elementi di una parte. */
-.pe-chip-items {
+.pe-part-items {
     min-width: 200px;
-    max-width: 280px;
+    max-width: 290px;
 }
 
-.pe-chip-item {
+.pe-part-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -3708,11 +3712,11 @@
     cursor: pointer;
 }
 
-.pe-chip-item:hover {
+.pe-part-item:hover {
     background: var(--pe-surface-3);
 }
 
-.pe-chip-item span {
+.pe-part-item span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -3727,11 +3731,18 @@
     text-transform: uppercase;
 }
 
-/* Con le schermate attive l'ordine si decide lì: qui il trascinamento è
-   spento, per non avere due ordini che si contraddicono. */
-.pe-sections.is-snap .pe-section-head > .pe-drag {
-    opacity: 0.25;
-    cursor: not-allowed;
+.pe-menu-item small {
+    color: var(--pe-muted);
+    font-size: 0.7rem;
+}
+
+/* Dentro i riquadri le schede non hanno più il bordo doppio. */
+.pe-sections.is-snap {
+    gap: 0.6rem;
+}
+
+.pe-sections.is-snap .pe-section {
+    background: var(--pe-surface);
 }
 
 /* ── Ricerca su fonti esterne (preferiti e brano) ─────────────────────────── */

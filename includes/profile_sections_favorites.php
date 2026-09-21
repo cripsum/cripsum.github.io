@@ -87,10 +87,11 @@ function profile_render_favorites_section(string $kind, array $items, string $ti
                     </span>
                     <span class="profile-favorite-info">
                         <strong><?php echo profile_h($itemTitle); ?></strong>
-                        <?php if ($subtitle !== ''): ?><small><?php echo profile_h($subtitle); ?></small><?php endif; ?>
-                        <?php if ($itemMeta !== ''): ?><span class="profile-favorite-meta"><?php echo profile_h($itemMeta); ?></span><?php endif; ?>
+                        <span class="profile-favorite-tags">
+                            <?php if ($subtitle !== ''): ?><span class="profile-favorite-tag"><?php echo profile_h($subtitle); ?></span><?php endif; ?>
+                            <?php if ($itemMeta !== ''): ?><span class="profile-favorite-meta"><?php echo profile_h($itemMeta); ?></span><?php endif; ?>
+                        </span>
                     </span>
-                    <?php if ($url !== ''): ?><i class="fa-solid fa-chevron-right profile-favorite-go" aria-hidden="true"></i><?php endif; ?>
                 </<?php echo $tag; ?>>
             <?php endforeach; ?>
         </div>
