@@ -4870,21 +4870,6 @@ a.profile-favorite-card:hover {
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
 }
 
-/* Riflesso all'hover, come sulle schede dei personaggi e dei link. */
-a.profile-favorite-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.07), transparent);
-    transform: translateX(-120%);
-    transition: transform 500ms ease;
-    pointer-events: none;
-}
-
-a.profile-favorite-card:hover::after {
-    transform: translateX(120%);
-}
-
 .profile-favorite-art {
     position: relative;
     display: flex;

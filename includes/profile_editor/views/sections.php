@@ -50,16 +50,41 @@ $sectionDescriptions = [
     'fav_read' => $tt('Libri, manga e light novel che consigli.', 'Books, manga and light novels you recommend.'),
 ];
 ?>
-<?php /* Con il layout a scorrimento le sezioni qui sotto si raccolgono in
-         riquadri "Schermata 1, 2, 3...": si trascinano da un riquadro
-         all'altro, e non c'e' una seconda lista che dice la stessa cosa. */ ?>
-<p class="pe-note pe-screen-note" id="peScreenNote" hidden>
-    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-    <?php echo pe_h($tt(
-        'Ogni riquadro è una schermata intera del profilo. Trascina le sezioni da una schermata all’altra; con “+ sezione” puoi anche metterne solo una parte in una schermata diversa.',
-        'Each box is one full screen of your profile. Drag sections from one screen to another; with "+ section" you can also put just a part of one on a different screen.'
-    )); ?>
-</p>
+<div class="pe-sections-area" id="peSectionsArea">
+
+<?php /* Con il layout a scorrimento: le schermate, una sotto l'altra. La prima
+         e' sempre la card del profilo, bloccata; nelle altre si mettono le
+         sezioni. Lo stesso tipo di sezione puo' stare in piu' schermate, e
+         ogni copia e' indipendente. Senza scorrimento questo riquadro non si
+         vede e resta la fila di sempre, qui sotto. */ ?>
+<div class="pe-board" id="peBoard" hidden>
+    <p class="pe-board-intro">
+        <?php echo pe_h($tt(
+            'Il tuo profilo si sfoglia una schermata alla volta, come delle slide. Qui decidi cosa c’è in ognuna.',
+            'Your profile is browsed one screen at a time, like slides. Here you decide what goes on each one.'
+        )); ?>
+    </p>
+
+    <div class="pe-board-card">
+        <span class="pe-screen-num" aria-hidden="true">1</span>
+        <span class="pe-screen-text">
+            <strong><?php echo pe_h($tt('La tua card', 'Your card')); ?></strong>
+            <small><?php echo pe_h($tt('Foto, nome, bio e social: è sempre la prima schermata.', 'Photo, name, bio and socials: always the first screen.')); ?></small>
+        </span>
+        <button type="button" class="pe-btn pe-btn-ghost pe-btn-sm" data-go-profile>
+            <i class="fa-solid fa-pen" aria-hidden="true"></i><span><?php echo pe_h($tt('Modifica', 'Edit')); ?></span>
+        </button>
+    </div>
+
+    <div class="pe-screens-list" id="peScreensList"></div>
+
+    <button type="button" class="pe-add pe-new-screen" id="peScreenAdd">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i><span><?php echo pe_h($tt('Nuova schermata', 'New screen')); ?></span>
+    </button>
+    <p class="pe-help pe-new-screen-hint" id="peScreenAddHint" hidden>
+        <?php echo pe_h($tt('C’è già una schermata vuota: riempi prima quella.', 'There is already an empty screen: fill that one first.')); ?>
+    </p>
+</div>
 
 <div class="pe-sections" id="peSections">
     <?php foreach ($sectionsOrder as $sectionKey):
@@ -68,7 +93,7 @@ $sectionDescriptions = [
         $config = is_array($sectionsConfig[$sectionKey] ?? null) ? $sectionsConfig[$sectionKey] : [];
         $headerLocked = !$isPremium;
     ?>
-        <article class="pe-section" data-section="<?php echo $sectionKey; ?>" data-search="<?php echo pe_h($section['label'] . ' ' . $sectionDescriptions[$sectionKey]); ?>" id="sec-<?php echo $sectionKey; ?>">
+        <article class="pe-section" data-section="<?php echo $sectionKey; ?>" data-description="<?php echo pe_h($sectionDescriptions[$sectionKey]); ?>" data-search="<?php echo pe_h($section['label'] . ' ' . $sectionDescriptions[$sectionKey]); ?>" id="sec-<?php echo $sectionKey; ?>">
             <header class="pe-section-head">
                 <span class="pe-drag" title="<?php echo pe_h($tt('Trascina per spostare', 'Drag to move')); ?>"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
                 <button type="button" class="pe-section-toggle" aria-expanded="false" aria-controls="sec-body-<?php echo $sectionKey; ?>">
@@ -86,6 +111,9 @@ $sectionDescriptions = [
                     <i class="fa-solid fa-eye-slash pe-eye-off" aria-hidden="true"></i>
                     <span class="visually-hidden"><?php echo pe_h($tt('Visibile sul profilo', 'Visible on profile')); ?></span>
                 </label>
+                <button type="button" class="pe-icon-btn pe-icon-btn-sm pe-section-more" data-section-more title="<?php echo pe_h($tt('Sposta, rinomina, elimina', 'Move, rename, delete')); ?>" aria-label="<?php echo pe_h($tt('Altre azioni', 'More actions')); ?>">
+                    <i class="fa-solid fa-ellipsis" aria-hidden="true"></i>
+                </button>
             </header>
 
             <div class="pe-section-body" id="sec-body-<?php echo $sectionKey; ?>" hidden>
@@ -181,6 +209,9 @@ $sectionDescriptions = [
     <?php endforeach; ?>
 </div>
 
-<button type="button" class="pe-add" id="peScreenAdd" hidden>
-    <i class="fa-solid fa-plus" aria-hidden="true"></i><span><?php echo pe_h($tt('Nuova schermata', 'New screen')); ?></span>
-</button>
+<?php /* Fuori vista: le schede originali dei tipi ripetibili mentre si usano
+         le schermate, e le sezioni tolte dal profilo. Tengono i campi del
+         form e tornano nella fila senza scorrimento. */ ?>
+<div class="pe-sections-holder" id="peSectionsHolder" hidden></div>
+
+</div>

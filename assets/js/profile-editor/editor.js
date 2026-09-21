@@ -87,6 +87,9 @@
         if (fd.get('music_source') === 'file') fd.set('profile_music_url', '');
         fd.delete('music_source');
         fd.delete('tilt_preset');
+        // Con le schermate un tipo si vede se almeno una sua copia si vede:
+        // gli occhi delle copie non sono campi del form.
+        (PE.screens?.formOverrides?.() || []).forEach(([name, value]) => fd.set(name, value));
         return fd;
     };
 
@@ -249,6 +252,7 @@
     };
 
     undoBtn?.addEventListener('click', () => goHistory(-1));
+    PE.undo = () => goHistory(-1);
     redoBtn?.addEventListener('click', () => goHistory(1));
 
     /** Da chiamare dopo ogni modifica. `structural`: l'anteprima va ricaricata. */
@@ -268,7 +272,7 @@
         const el = event.target;
         if (!(el instanceof HTMLElement) || el.type === 'file' || el.closest('.pe-popover')) return;
         if (el.id === 'peCharacterSearch' || el.id === 'pePaletteInput') return;
-        const insideItems = el.closest('.pe-item, .pe-badges, #peCharacters, [data-section-config]');
+        const insideItems = el.closest('.pe-item, .pe-badges, #peCharacters, [data-section-config], [data-instance-config], [data-instance-eye]');
         const name = el.name || '';
         if (!name && !insideItems && !el.dataset.field && !el.dataset.local) return;
 
@@ -614,7 +618,16 @@
         if (!el) return;
         const view = el.closest('[data-view-panel]')?.dataset.viewPanel;
         if (view) showView(view, { focus: true });
-        const section = el.closest('.pe-section');
+        let section = el.closest('.pe-section');
+        // Con le schermate la scheda originale di un tipo sta fuori vista:
+        // si va alla sua prima copia nelle schermate.
+        if (section && section.closest('#peSectionsHolder')) {
+            const shown = PE.screens?.cardFor?.(section.dataset.section);
+            if (shown) {
+                el = shown;
+                section = shown;
+            }
+        }
         if (section) PE.sections.toggle(section, true);
         const details = el.closest('details');
         if (details) details.open = true;

@@ -515,9 +515,28 @@
     };
 
     // ── Liste ───────────────────────────────────────────────────────────────
-    const listFor = (typeKey) => $(`.pe-items[data-items="${typeKey}"]`);
+    /*
+     * Con il layout a scorrimento lo stesso tipo di sezione puo' comparire in
+     * piu' schermate, e ogni copia ha la sua lista: gli elementi di un tipo
+     * sono quindi sparsi su piu' liste. Qui "tutti gli elementi di un tipo"
+     * vuol dire tutte le sue liste, nell'ordine in cui stanno nella pagina.
+     */
+    const rowsOf = (typeKey) => $$(`.pe-items[data-items="${typeKey}"] > .pe-item`);
+    const listsOf = (typeKey) => $$(`.pe-items[data-items="${typeKey}"]`);
 
-    const countFor = (typeKey) => $$('.pe-item', listFor(typeKey) || document.createElement('div')).length;
+    /** La lista "di casa" del tipo: quella della scheda originale della pagina. */
+    const homeList = (typeKey) => $(`.pe-section[data-original][data-section="${typeKey}"] .pe-items[data-items="${typeKey}"]`)
+        || $(`.pe-items[data-items="${typeKey}"]`);
+
+    const listFor = homeList;
+    const countFor = (typeKey) => rowsOf(typeKey).length;
+
+    const collectRow = (row) => {
+        const type = TYPES[row.dataset.type];
+        if (!type) return null;
+        const item = readItem(row);
+        return type.collect ? type.collect(item, row) : item;
+    };
 
     const canAdd = (typeKey) => {
         const max = limits[typeKey];
@@ -531,20 +550,24 @@
     };
 
     const refreshList = (typeKey) => {
-        const list = listFor(typeKey);
-        if (!list) return;
-        const count = countFor(typeKey);
-        let empty = list.querySelector('.pe-empty-inline');
-        if (!count) {
-            if (!empty) {
-                empty = document.createElement('p');
-                empty.className = 'pe-empty-inline';
-                empty.textContent = TYPES[typeKey].empty;
-                list.appendChild(empty);
+        const lists = listsOf(typeKey);
+        if (!lists.length) return;
+        lists.forEach((list) => {
+            const own = $$(':scope > .pe-item', list).length;
+            let empty = list.querySelector(':scope > .pe-empty-inline');
+            if (!own) {
+                if (!empty) {
+                    empty = document.createElement('p');
+                    empty.className = 'pe-empty-inline';
+                    empty.textContent = TYPES[typeKey].empty;
+                    list.appendChild(empty);
+                }
+            } else {
+                empty?.remove();
             }
-        } else {
-            empty?.remove();
-        }
+        });
+        // Il tetto vale per il tipo, sommando tutte le sue copie.
+        const count = countFor(typeKey);
         const max = limits[typeKey];
         $$(`[data-limit-for="${typeKey}"]`).forEach((el) => {
             // Il contatore serve dove il limite si sente: piano Base ovunque, e
@@ -555,27 +578,34 @@
         });
         $$(`[data-add-item="${typeKey}"]`).forEach((btn) => btn.classList.toggle('is-full', !!max && count >= max));
         PE.refreshSectionSummaries?.();
-        // Un elemento in piu' o in meno cambia cosa si puo' spezzare.
         PE.screens?.refresh();
     };
+
+    /** Lista in cui finisce un elemento nuovo: quella della scheda da cui si parte. */
+    const targetList = (typeKey, list) => (list && list.dataset.items === typeKey ? list : homeList(typeKey));
 
     PE.items = {
         TYPES,
 
+        /**
+         * Carica gli elementi di un tipo nella lista di casa, togliendo quelli
+         * di tutte le copie. Se ci sono schermate, sono loro a ridistribuirli
+         * (PE.screens.set dopo un annulla, PE.screens.init all'avvio).
+         */
         load(typeKey, items) {
-            const list = listFor(typeKey);
+            const list = homeList(typeKey);
             if (!list) return;
-            $$('.pe-item', list).forEach((row) => row.remove());
+            rowsOf(typeKey).forEach((row) => row.remove());
             (items || []).forEach((item) => list.appendChild(makeRow(typeKey, item)));
             refreshList(typeKey);
         },
 
-        add(typeKey) {
-            const list = listFor(typeKey);
-            if (!list || !canAdd(typeKey)) return;
-            $$('.pe-item.is-open', list).forEach((row) => toggleRow(row, false));
+        add(typeKey, list = null) {
+            const target = targetList(typeKey, list);
+            if (!target || !canAdd(typeKey)) return;
+            $$('.pe-item.is-open', target).forEach((row) => toggleRow(row, false));
             const row = makeRow(typeKey, {}, { open: true });
-            list.appendChild(row);
+            target.appendChild(row);
             refreshList(typeKey);
             row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             row.querySelector('.pe-item-body input:not([type="hidden"]), .pe-item-body textarea')?.focus({ preventScroll: true });
@@ -583,25 +613,20 @@
         },
 
         /** Aggiunge una riga gia' compilata (la scelta dalla ricerca esterna). */
-        addFrom(typeKey, values) {
-            const list = listFor(typeKey);
-            if (!list || !canAdd(typeKey)) return null;
+        addFrom(typeKey, values, list = null) {
+            const target = targetList(typeKey, list);
+            if (!target || !canAdd(typeKey)) return null;
             const row = makeRow(typeKey, { ...TYPES[typeKey].defaults(), ...values });
-            list.appendChild(row);
+            target.appendChild(row);
             refreshList(typeKey);
             row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             PE.changed?.({ structural: true });
             return row;
         },
 
+        /** Tutti gli elementi validi di un tipo, nell'ordine della pagina. */
         collect(typeKey) {
-            const list = listFor(typeKey);
-            if (!list) return [];
-            const type = TYPES[typeKey];
-            return $$('.pe-item', list).map((row) => {
-                const item = readItem(row);
-                return type.collect ? type.collect(item, row) : item;
-            }).filter(Boolean);
+            return rowsOf(typeKey).map(collectRow).filter(Boolean);
         },
 
         /**
@@ -637,13 +662,18 @@
         Object.entries(FAVORITE_KIND_BY_SECTION).map(([section, kind]) => [kind, section])
     );
 
-    // Il pulsante grande delle sezioni dei preferiti: cerca e aggiunge.
+    /** La lista della scheda che contiene un pulsante. */
+    const listNear = (el, typeKey) => el.closest('.pe-section')?.querySelector(`.pe-items[data-items="${typeKey}"]`) || null;
+
+    // Il pulsante grande delle sezioni dei preferiti: cerca e aggiunge nella
+    // scheda da cui si e' partiti, non nella prima del suo tipo.
     document.addEventListener('click', (event) => {
         const button = event.target.closest('[data-search-media]');
         if (!button) return;
         event.preventDefault();
         const section = button.dataset.searchMedia;
         if (!canAdd(section)) return;
+        const list = listNear(button, section);
         PE.mediaSearch.open(button.dataset.searchKind, {
             title: button.querySelector('span')?.textContent || '',
             onPick: (item) => {
@@ -655,7 +685,7 @@
                     url: item.url || '',
                     source: item.source || '',
                     is_visible: 1,
-                });
+                }, list);
                 if (added) PE.toast(t('Aggiunto.', 'Added.'), { type: 'success' });
             },
         });
@@ -665,42 +695,88 @@
         const add = event.target.closest('[data-add-item]');
         if (add) {
             event.preventDefault();
-            PE.items.add(add.dataset.addItem);
+            PE.items.add(add.dataset.addItem, listNear(add, add.dataset.addItem));
         }
     });
 
-    // ── Sezioni: ordine, apertura, riassunto, intestazione ──────────────────
+    // ── Sezioni ─────────────────────────────────────────────────────────────
+    /*
+     * Due modi di mostrare le stesse schede.
+     *
+     * - Senza scorrimento: una scheda per tipo, in fila in #peSections, e si
+     *   riordinano trascinandole.
+     * - Con lo scorrimento: le schede stanno dentro riquadri "Schermata 2, 3…"
+     *   (la 1 e' la card del profilo). I tipi ripetibili possono comparire in
+     *   piu' schermate: ogni comparsa e' una scheda a se', con la sua lista,
+     *   il suo titolo, la sua icona e il suo occhio.
+     *
+     * Le schede della pagina (data-original) non si duplicano mai: servono
+     * alla fila senza scorrimento e tengono i campi del form. Le copie delle
+     * schermate nascono da uno stampo preso prima che i componenti si
+     * accendessero, cosi' ogni copia ha i suoi campi funzionanti.
+     */
     const sectionsEl = document.getElementById('peSections');
+    const areaEl = document.getElementById('peSectionsArea') || sectionsEl?.parentElement || document.body;
+    const boardEl = document.getElementById('peBoard');
+    const screensListEl = document.getElementById('peScreensList');
+    const holderEl = document.getElementById('peSectionsHolder');
+    const newScreenBtn = document.getElementById('peScreenAdd');
+    const newScreenHint = document.getElementById('peScreenAddHint');
+    const sectionMeta = catalog.sections || {};
+    const REPEATABLE = new Set(['links', 'embeds', 'projects', 'contents', 'blocks', 'fav_games', 'fav_watch', 'fav_music', 'fav_read']);
     let sectionsSortable = null;
+
+    // Stampi delle schede ripetibili, presi adesso che la pagina e' intatta.
+    const templates = new Map();
+    $$('.pe-section', sectionsEl || document.createElement('div')).forEach((card) => {
+        card.dataset.original = '1';
+        if (REPEATABLE.has(card.dataset.section)) templates.set(card.dataset.section, card.outerHTML);
+    });
+
+    const originalCard = (key) => $(`.pe-section[data-original][data-section="${key}"]`);
+    const isBoard = () => document.querySelector('input[name="profile_layout_choice"]:checked')?.value === 'scrollsnap';
+    const originalEyeOn = (key) => !!originalCard(key)?.querySelector('.pe-section-head .pe-eye input[type="checkbox"]')?.checked;
+    const newId = () => `s${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 6)}`;
+
+    /** L'ordine della fila senza scorrimento, ricordato anche mentre non si vede. */
+    let flatOrder = $$('.pe-section', sectionsEl || document.createElement('div')).map((el) => el.dataset.section);
 
     PE.sections = {
         order() {
-            return $$('.pe-section', sectionsEl).map((s) => s.dataset.section);
+            // Solo quando le schede stanno davvero nella fila: uscendo dalle
+            // schermate la fila e' ancora vuota, e l'ordine andava perso.
+            if (currentMode === 'flat' && sectionsEl) {
+                flatOrder = $$(':scope > .pe-section', sectionsEl).map((el) => el.dataset.section);
+            }
+            const known = Object.keys(sectionMeta);
+            return [...flatOrder.filter((key) => known.includes(key)), ...known.filter((key) => !flatOrder.includes(key))];
         },
 
         config() {
             const config = {};
-            $$('[data-section-config]', sectionsEl).forEach((wrap) => {
+            // Titolo e icona di ogni tipo: quelli delle schede originali. Le
+            // copie hanno i loro, dentro le schermate.
+            $$('.pe-section[data-original] [data-section-config]', areaEl).forEach((wrap) => {
                 const key = wrap.dataset.sectionConfig;
                 const title = wrap.querySelector('[data-config="title"]')?.value.trim() || '';
                 const icon = wrap.querySelector('[data-config="icon"]')?.value.trim() || '';
                 const hidden = wrap.querySelector('[data-config="hidden"]')?.checked ? 1 : 0;
                 if (title || icon || hidden) config[key] = { hidden, title, icon };
             });
-            // La composizione delle schermate (layout a scorrimento) vive
-            // nella stessa configurazione, sotto una chiave riservata.
             const screens = PE.screens?.value();
             if (screens && screens.length) config.__screens = screens;
             return config;
         },
 
         apply(order, config) {
-            if (!sectionsEl) return;
-            (order || []).forEach((key) => {
-                const el = sectionsEl.querySelector(`.pe-section[data-section="${key}"]`);
-                if (el) sectionsEl.appendChild(el);
-            });
-            $$('[data-section-config]', sectionsEl).forEach((wrap) => {
+            if (Array.isArray(order) && order.length) flatOrder = order.slice();
+            if (sectionsEl && currentMode === 'flat') {
+                flatOrder.forEach((key) => {
+                    const el = originalCard(key);
+                    if (el && el.parentElement === sectionsEl) sectionsEl.appendChild(el);
+                });
+            }
+            $$('.pe-section[data-original] [data-section-config]', areaEl).forEach((wrap) => {
                 const c = (config || {})[wrap.dataset.sectionConfig] || {};
                 const titleEl = wrap.querySelector('[data-config="title"]');
                 const iconEl = wrap.querySelector('[data-config="icon"]');
@@ -724,522 +800,739 @@
         },
     };
 
-
     // ── Schermate (solo con il layout a scorrimento) ────────────────────────
     /*
-     * Con il layout a scorrimento le sezioni si raggruppano in schermate.
+     * Nella pagina le schermate sono la verita': si leggono dal DOM (readState)
+     * e ogni operazione sposta, aggiunge o toglie schede senza ridisegnare le
+     * altre, cosi' una scheda aperta resta aperta mentre ci si lavora.
+     * Si ridisegna tutto solo cambiando layout o dopo un annulla.
      *
-     * Non c'e' una seconda lista: sono le stesse schede di sezione, raccolte
-     * dentro riquadri "Schermata 1, 2, 3…". Si trascinano da un riquadro
-     * all'altro e basta. Prima c'erano due elenchi che dicevano la stessa
-     * cosa (uno di pastiglie e uno di schede) piu' un paio di forbici fra le
-     * righe: tre modi diversi di guardare lo stesso ordine, e nessuno chiaro.
-     *
-     * Una sezione puo' comparire in piu' schermate: le comparse in piu' sono
-     * righe sottili ("una parte di Blocchi liberi") che portano solo alcuni
-     * dei suoi elementi. La scheda vera resta una, dove si modificano
-     * contenuto e impostazioni.
-     *
-     * Stato: [ [ {s:'blocks', i:[0]}, {s:'stats'} ], [ {s:'links'} ] ]
-     * Fra un disegno e l'altro la verita' sta nel DOM.
+     * Ogni elemento di un tipo ripetibile sa di quale copia e' (data-owner):
+     * cosi' resta suo anche passando per il layout senza scorrimento, dove le
+     * copie si fondono in una scheda sola.
      */
-    const sectionMeta = catalog.sections || {};
-    const SPLITTABLE = new Set(['links', 'embeds', 'projects', 'contents', 'blocks', 'fav_games', 'fav_watch', 'fav_music', 'fav_read']);
+    let boardState = Array.isArray(data.sectionsConfig?.__screens) ? data.sectionsConfig.__screens : null;
+    let currentMode = null;
+    let refreshPending = 0;
 
-    // Si parte da quello che e' gia' salvato: senza, chi apriva l'editor con
-    // un altro layout e pubblicava si ritrovava le schermate azzerate.
-    let screensState = Array.isArray(data.sectionsConfig?.__screens) ? data.sectionsConfig.__screens : null;
-    let screenSortables = [];
-
-    const snapLayout = () => document.querySelector('input[name="profile_layout_choice"]:checked')?.value === 'scrollsnap';
-
-    /** Quanti elementi ha davvero una sezione (quelli che finiranno sul profilo). */
-    const sectionItemCount = (key) => {
-        if (TYPES[key]) return countFor(key);
-        if (key === 'badges') return PE.badges?.selected().length ?? 0;
-        if (key === 'characters') return PE.characters?.selected().length ?? 0;
-        if (key === 'stats') return PE.stats?.selected().length ?? 0;
-        return 1;
+    const hasContent = (key) => {
+        if (key === 'stats') return (PE.stats?.selected().length ?? 0) > 0;
+        if (key === 'badges') return (PE.badges?.selected().length ?? 0) > 0;
+        if (key === 'characters') return (PE.characters?.selected().length ?? 0) > 0;
+        return true;
     };
 
-    /** Una sezione spenta o vuota non occupa una schermata sul profilo. */
-    const sectionShows = (key) => {
-        const section = sectionsEl?.querySelector(`.pe-section[data-section="${key}"]`);
-        if (!section) return false;
-        const eye = section.querySelector('.pe-eye input[type="checkbox"]');
-        if (eye && !eye.checked) return false;
-        return sectionItemCount(key) > 0;
+    const labelOf = (key) => sectionMeta[key]?.label || key;
+
+    /** Il titolo che si vede per una copia: il suo, o quello della sezione. */
+    const cardTitle = (card) => {
+        const own = card.querySelector('[data-instance-config] [data-config="title"]')?.value.trim();
+        return own || labelOf(card.dataset.section);
     };
 
-    /** Le schede di sezione nell'ordine in cui stanno adesso nella pagina. */
-    const sectionCards = () => $$('.pe-section', sectionsEl);
+    const screensEls = () => (screensListEl ? $$(':scope > .pe-screen', screensListEl) : []);
+    const cardsIn = (screen) => $$(':scope > .pe-screen-body > .pe-section', screen);
+    const boardCards = () => (screensListEl ? $$('.pe-screen-body > .pe-section', screensListEl) : []);
 
-    /** I titoli degli elementi di una sezione, per sceglierli a mano. */
-    const sectionItemLabels = (key) => {
-        const list = listFor(key);
-        if (!list) return [];
-        return $$('.pe-item', list).map((row, index) => ({
-            index,
-            label: row.querySelector('.pe-item-summary strong')?.textContent?.trim() || `#${index + 1}`,
+    /** Ogni elemento prende come proprietaria la copia in cui sta adesso. */
+    const syncOwners = () => {
+        boardCards().forEach((card) => {
+            if (!REPEATABLE.has(card.dataset.section)) return;
+            $$('.pe-items > .pe-item', card).forEach((row) => { row.dataset.owner = card.dataset.instance; });
+        });
+    };
+
+    const readState = () => screensEls().map((screen) => cardsIn(screen).map((card) => {
+        const key = card.dataset.section;
+        if (!REPEATABLE.has(key)) return { s: key };
+        const conf = card.querySelector('[data-instance-config]');
+        const slot = { id: card.dataset.instance, s: key };
+        const title = conf?.querySelector('[data-config="title"]')?.value.trim();
+        const icon = conf?.querySelector('[data-config="icon"]')?.value.trim();
+        if (title) slot.t = title;
+        if (icon) slot.c = icon;
+        if (conf?.querySelector('[data-config="hidden"]')?.checked) slot.h = 1;
+        const eye = card.querySelector('[data-instance-eye]');
+        if (eye && !eye.checked) slot.v = 0;
+        return slot;
+    }));
+
+    /**
+     * Dopo un caricamento (avvio, annulla) gli elementi sono tutti nella lista
+     * di casa, nell'ordine salvato: le posizioni `i` dicono di chi e' ognuno.
+     */
+    const assignOwners = (state) => {
+        const claimed = new Set();
+        (state || []).forEach((slots) => (slots || []).forEach((slot) => {
+            if (!slot || !REPEATABLE.has(slot.s) || !slot.id || !Array.isArray(slot.i)) return;
+            const rows = rowsOf(slot.s).filter((row) => collectRow(row));
+            slot.i.forEach((index) => {
+                const row = rows[index];
+                if (!row || claimed.has(row)) return;
+                claimed.add(row);
+                row.dataset.owner = slot.id;
+            });
         }));
-    };
-
-    const partsOf = (state, key) => {
-        const slots = [];
-        state.forEach((screen) => screen.forEach((slot) => {
-            if (slot.s === key) slots.push(slot);
-        }));
-        return slots;
     };
 
     /**
-     * Rimette in riga lo stato con quello che c'e' adesso: sezioni spente o
-     * riaccese, elementi aggiunti o tolti. Nessun contenuto resta fuori.
+     * Mette in regola uno stato: tipi sconosciuti via, le sezioni non
+     * ripetibili una volta sola, id unici, e nessun contenuto senza casa.
      */
     const normalize = (state) => {
-        const order = sectionCards().map((el) => el.dataset.section);
-        const shown = order.filter(sectionShows);
-        const allowed = new Set(shown);
+        const seenSingle = new Set();
+        const ids = new Set();
+        const screens = (Array.isArray(state) ? state : []).map((slots) => (Array.isArray(slots) ? slots : [])
+            .filter((slot) => slot && sectionMeta[slot.s])
+            .map((slot) => ({ ...slot }))
+            .filter((slot) => {
+                if (!REPEATABLE.has(slot.s)) {
+                    if (seenSingle.has(slot.s)) return false;
+                    seenSingle.add(slot.s);
+                    return true;
+                }
+                if (!slot.id || ids.has(slot.id)) slot.id = newId();
+                ids.add(slot.id);
+                return true;
+            }));
 
-        const screens = (Array.isArray(state) ? state : []).map(
-            (slots) => (Array.isArray(slots) ? slots.filter((slot) => slot && allowed.has(slot.s)) : [])
-        );
-
-        const placed = new Set();
-        screens.forEach((slots) => slots.forEach((slot) => placed.add(slot.s)));
-        shown.forEach((key) => {
-            if (!placed.has(key)) screens.push([{ s: key }]);
+        // Elementi senza una copia valida: alla prima del loro tipo, o a una
+        // copia nuova in fondo se il tipo non ne ha nessuna.
+        const order = PE.sections.order();
+        order.filter((key) => REPEATABLE.has(key)).forEach((key) => {
+            const rows = rowsOf(key);
+            if (!rows.length) return;
+            const slotsOfType = screens.flat().filter((slot) => slot.s === key);
+            const valid = new Set(slotsOfType.map((slot) => slot.id));
+            const orphans = rows.filter((row) => !valid.has(row.dataset.owner));
+            if (!orphans.length) return;
+            let target = slotsOfType[0];
+            if (!target) {
+                target = { id: newId(), s: key };
+                if (!originalEyeOn(key)) target.v = 0;
+                screens.push([target]);
+            }
+            orphans.forEach((row) => { row.dataset.owner = target.id; });
         });
 
-        const keys = new Set();
-        screens.forEach((slots) => slots.forEach((slot) => keys.add(slot.s)));
-
-        keys.forEach((key) => {
-            const slots = partsOf(screens, key);
-            const count = sectionItemCount(key);
-
-            if (slots.length === 1 || !SPLITTABLE.has(key)) {
-                slots.forEach((slot, position) => {
-                    delete slot.i;
-                    if (position > 0) slot.drop = true;
-                });
-                return;
+        // Le sezioni non ripetibili accese e con qualcosa da mostrare non
+        // restano fuori: sul profilo ci sarebbero, qui devono vedersi.
+        order.filter((key) => !REPEATABLE.has(key) && !seenSingle.has(key)).forEach((key) => {
+            if (originalEyeOn(key) && hasContent(key)) {
+                screens.push([{ s: key }]);
+                seenSingle.add(key);
             }
-
-            const taken = new Set();
-            slots.forEach((slot) => {
-                const wanted = Array.isArray(slot.i) ? slot.i : [];
-                slot.i = [];
-                wanted.forEach((value) => {
-                    const index = Number(value);
-                    if (!Number.isInteger(index) || index < 0 || index >= count || taken.has(index)) return;
-                    taken.add(index);
-                    slot.i.push(index);
-                });
-            });
-            // Gli elementi che nessuna parte rivendica restano nella scheda vera.
-            for (let index = 0; index < count; index += 1) {
-                if (!taken.has(index)) slots[0].i.push(index);
-            }
-            slots[0].i.sort((a, b) => a - b);
-            slots.forEach((slot, position) => {
-                if (position > 0 && !slot.i.length) slot.drop = true;
-            });
         });
 
-        return screens.map((slots) => slots.filter((slot) => !slot.drop));
+        return screens;
     };
 
-    /** Lo stato letto dai riquadri come sono adesso nella pagina. */
-    const readState = () => $$('.pe-screen-group', sectionsEl).map((group) =>
-        $$('.pe-section, .pe-section-part', group).map((el) => {
-            const slot = { s: el.dataset.section };
-            if (el.dataset.items) {
-                try { slot.i = JSON.parse(el.dataset.items); } catch (_) { /* niente */ }
-            }
-            return slot;
-        }));
-
-    const commit = (state, { structural = true } = {}) => {
-        screensState = state;
-        // Subito dopo, non adesso: chiamato dentro onEnd di Sortable, rifare
-        // i riquadri sul momento vorrebbe dire distruggere i contenitori
-        // mentre lui sta ancora sistemando il nodo appena lasciato.
-        // setTimeout e non requestAnimationFrame: quello si ferma quando la
-        // scheda non sta disegnando, e l'editor resterebbe indietro.
-        clearTimeout(groupsPending);
-        groupsPending = setTimeout(applyGroups, 0);
-        if (structural) PE.changed?.({ structural: true });
-    };
-
-    /** Riga sottile: una parte in piu' di una sezione, in un'altra schermata. */
-    const makePart = (key, indexes) => {
-        const meta = sectionMeta[key] || {};
-        const part = document.createElement('article');
-        part.className = 'pe-section-part';
-        part.dataset.section = key;
-        part.dataset.items = JSON.stringify(indexes || []);
-        part.innerHTML = `
-            <span class="pe-drag" title="${escape(t('Trascina in un altra schermata', 'Drag to another screen'))}"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
-            <span class="pe-section-icon"><i class="${escape(meta.icon || 'fa-solid fa-layer-group')}" aria-hidden="true"></i></span>
-            <span class="pe-section-text">
-                <strong></strong>
-                <small></small>
-            </span>
-            <button type="button" class="pe-btn pe-btn-secondary pe-btn-sm" data-part-items><i class="fa-solid fa-list-check" aria-hidden="true"></i><span>${escape(t('Elementi', 'Items'))}</span></button>
-            <button type="button" class="pe-icon-btn pe-icon-btn-sm pe-btn-danger-text" data-part-remove title="${escape(t('Togli questa parte: gli elementi tornano nella sezione', 'Remove this part: its items go back to the section'))}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`;
-        part.querySelector('strong').textContent = t(`Una parte di ${meta.label || key}`, `Part of ${meta.label || key}`);
-        return part;
-    };
-
-    /*
-     * Quali elementi porta una parte, scritti per esteso.
-     *
-     * Si fa dopo che i riquadri sono nella pagina: i titoli si leggono dalla
-     * scheda della sezione, e mentre i riquadri si costruiscono quella e'
-     * ancora staccata dal documento — si leggeva sempre "nessun elemento".
-     */
-    const refreshPartLabels = () => {
-        $$('.pe-section-part', sectionsEl).forEach((part) => {
-            let indexes = [];
-            try { indexes = JSON.parse(part.dataset.items || '[]'); } catch (_) { /* niente */ }
-            const chosen = sectionItemLabels(part.dataset.section)
-                .filter(({ index }) => indexes.includes(index))
-                .map(({ label }) => label);
-            part.querySelector('small').textContent = chosen.join(' · ') || t('nessun elemento', 'no items');
+    /** Rimette tutti gli elementi di tutti i tipi nelle liste di casa, in ordine. */
+    const gatherRows = () => {
+        REPEATABLE.forEach((key) => {
+            const home = homeList(key);
+            if (!home) return;
+            rowsOf(key).forEach((row) => home.appendChild(row));
         });
     };
 
-    /** Il riquadro di una schermata, vuoto: il contenuto lo mette applyGroups. */
-    const makeGroup = (index) => {
-        const group = document.createElement('section');
-        group.className = 'pe-screen-group';
-        group.dataset.screen = String(index);
-        group.innerHTML = `
+    const destroySortable = (el) => { if (el && window.Sortable) Sortable.get(el)?.destroy(); };
+
+    const itemsSortable = (list) => {
+        if (!window.Sortable || !list || Sortable.get(list)) return;
+        Sortable.create(list, {
+            group: `pe-items-${list.dataset.items}`,
+            handle: '.pe-drag', animation: 180, ghostClass: 'is-ghost', draggable: '.pe-item',
+            onEnd: () => {
+                syncOwners();
+                PE.refreshSectionSummaries?.();
+                PE.changed?.({ structural: true });
+            },
+        });
+    };
+
+    /** Una copia nuova di una sezione ripetibile, con i suoi campi funzionanti. */
+    const makeInstanceCard = (slot) => {
+        const html = templates.get(slot.s);
+        if (!html) return null;
+        const holder = document.createElement('div');
+        holder.innerHTML = html.trim();
+        const card = holder.firstElementChild;
+        delete card.dataset.original;
+        card.removeAttribute('data-search');
+        card.dataset.instance = slot.id;
+        card.classList.remove('is-open', 'is-hidden-on-profile');
+
+        // Id unici: la scheda originale ha gli stessi.
+        const suffix = `-${slot.id}`;
+        if (card.id) card.id += suffix;
+        $$('[id]', card).forEach((el) => { el.id += suffix; });
+        $$('[aria-controls]', card).forEach((el) => el.setAttribute('aria-controls', el.getAttribute('aria-controls') + suffix));
+        $$('label[for]', card).forEach((el) => el.setAttribute('for', el.getAttribute('for') + suffix));
+        card.querySelector('.pe-section-body').hidden = true;
+
+        // L'occhio della copia e' suo: non tocca il campo del form del tipo.
+        const eyeLabel = card.querySelector('.pe-section-head .pe-eye');
+        eyeLabel?.querySelector('input[type="hidden"]')?.remove();
+        const eye = eyeLabel?.querySelector('input[type="checkbox"]');
+        if (eye) {
+            eye.removeAttribute('name');
+            eye.dataset.instanceEye = '1';
+            eye.checked = slot.v !== 0;
+        }
+
+        // Titolo, icona e intestazione propri.
+        const conf = card.querySelector('[data-section-config]');
+        if (conf) {
+            conf.removeAttribute('data-section-config');
+            conf.dataset.instanceConfig = slot.s;
+            const titleEl = conf.querySelector('[data-config="title"]');
+            const iconEl = conf.querySelector('[data-config="icon"]');
+            const hiddenEl = conf.querySelector('[data-config="hidden"]');
+            if (titleEl) {
+                titleEl.value = slot.t || '';
+                titleEl.placeholder = originalCard(slot.s)?.querySelector('[data-section-config] [data-config="title"]')?.value.trim() || labelOf(slot.s);
+            }
+            if (iconEl) iconEl.value = slot.c || '';
+            if (hiddenEl) hiddenEl.checked = !!slot.h;
+        }
+        return card;
+    };
+
+    /** Accende componenti e trascinamento di una copia appena entrata nella pagina. */
+    const wakeCard = (card) => {
+        PE.initComponents(card);
+        $$('.pe-items', card).forEach(itemsSortable);
+    };
+
+    const makeScreen = () => {
+        const screen = document.createElement('section');
+        screen.className = 'pe-screen';
+        screen.innerHTML = `
             <header class="pe-screen-head">
                 <span class="pe-drag" title="${escape(t('Trascina per spostare la schermata', 'Drag to move the screen'))}"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
-                <strong>${escape(t(`Schermata ${index + 1}`, `Screen ${index + 1}`))}</strong>
-                <button type="button" class="pe-link" data-screen-add><i class="fa-solid fa-plus" aria-hidden="true"></i>${escape(t('sezione', 'section'))}</button>
+                <span class="pe-screen-num" aria-hidden="true"></span>
+                <span class="pe-screen-text"><strong></strong><small></small></span>
+                <button type="button" class="pe-icon-btn pe-icon-btn-sm" data-screen-delete title="${escape(t('Elimina la schermata', 'Delete the screen'))}" aria-label="${escape(t('Elimina la schermata', 'Delete the screen'))}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button>
             </header>
-            <div class="pe-screen-body"></div>`;
-        return group;
+            <div class="pe-screen-body" data-empty="${escape(t('Schermata vuota: aggiungi una sezione o trascinane qui una.', 'Empty screen: add a section or drag one here.'))}"></div>
+            <button type="button" class="pe-screen-add" data-screen-add><i class="fa-solid fa-plus" aria-hidden="true"></i><span>${escape(t('Aggiungi una sezione', 'Add a section'))}</span></button>`;
+        if (window.Sortable) {
+            Sortable.create(screen.querySelector('.pe-screen-body'), {
+                group: 'pe-board-cards', handle: '.pe-section-head > .pe-drag', animation: 180, ghostClass: 'is-ghost', draggable: '.pe-section',
+                onEnd: () => { update(); PE.changed?.({ structural: true }); },
+            });
+        }
+        return screen;
     };
 
-    /**
-     * Mette le schede di sezione dentro i riquadri delle schermate — o le
-     * rimette in fila, senza riquadri, con gli altri layout.
-     *
-     * Le schede si spostano, non si ricreano: dentro hanno campi aperti,
-     * caricamenti in corso e ascoltatori, e ricrearle butterebbe via tutto.
-     */
-    const applyGroups = () => {
-        if (!sectionsEl) return;
+    const removeScreen = (screen) => {
+        destroySortable(screen.querySelector('.pe-screen-body'));
+        screen.remove();
+    };
 
-        screenSortables.forEach((sortable) => sortable.destroy());
-        screenSortables = [];
+    /** Aggiornamento leggero: numeri, conteggi, stati vuoti. Non sposta niente. */
+    const update = () => {
+        if (!isBoard() || !screensListEl) return;
+        let hasEmpty = false;
+        screensEls().forEach((screen, index) => {
+            const cards = cardsIn(screen);
+            const empty = cards.length === 0;
+            hasEmpty = hasEmpty || empty;
+            screen.classList.toggle('is-empty', empty);
+            screen.querySelector('.pe-screen-num').textContent = String(index + 2);
+            screen.querySelector('.pe-screen-text strong').textContent = t(`Schermata ${index + 2}`, `Screen ${index + 2}`);
+            screen.querySelector('.pe-screen-text small').textContent = empty
+                ? t('vuota', 'empty')
+                : (cards.length === 1 ? t('1 sezione', '1 section') : t(`${cards.length} sezioni`, `${cards.length} sections`));
+        });
+        // Una schermata vuota alla volta: prima si riempie quella.
+        if (newScreenBtn) newScreenBtn.disabled = hasEmpty;
+        if (newScreenHint) newScreenHint.hidden = !hasEmpty;
+        PE.refreshSectionSummaries?.();
+    };
 
-        const snap = snapLayout();
-        sectionsEl.classList.toggle('is-snap', snap);
-        const addScreenBtn = document.getElementById('peScreenAdd');
-        const note = document.getElementById('peScreenNote');
-        if (addScreenBtn) addScreenBtn.hidden = !snap;
-        if (note) note.hidden = !snap;
-
-        const cards = new Map(sectionCards().map((el) => [el.dataset.section, el]));
-
-        if (!snap) {
-            // Via i riquadri: le schede tornano in fila, nell'ordine in cui
-            // stanno adesso — comprese quelle finite fra le vuote, che
-            // altrimenti sparivano dalla lista insieme al loro riquadro.
-            sectionCards().forEach((card) => {
-                delete card.dataset.items;
-                sectionsEl.appendChild(card);
+    /** Disegna da capo le schermate dallo stato (cambio di layout, annulla, avvio). */
+    const buildBoard = () => {
+        const fromFlat = currentMode === 'flat';
+        // Passando dalla fila alle schermate, un tipo spento resta spento
+        // anche in tutte le sue copie.
+        const state = normalize(boardState ?? []);
+        if (fromFlat) {
+            state.flat().forEach((slot) => {
+                if (REPEATABLE.has(slot.s) && !originalEyeOn(slot.s)) slot.v = 0;
             });
-            $$('.pe-screen-group, .pe-screen-rest', sectionsEl).forEach((box) => box.remove());
-            $$('.pe-section-part', sectionsEl).forEach((part) => part.remove());
-            sectionsSortable?.option('disabled', false);
-            return;
         }
 
-        screensState = normalize(screensState ?? []);
+        gatherRows();
+        boardCards().forEach((card) => {
+            if (card.dataset.original) holderEl?.appendChild(card);
+            else { $$('.pe-items', card).forEach(destroySortable); card.remove(); }
+        });
+        screensEls().forEach(removeScreen);
 
-        // Le sezioni che non si vedono sul profilo restano fuori dai riquadri,
-        // in fondo: si possono comunque aprire e riempire.
-        const placed = new Set();
-        screensState.forEach((slots) => slots.forEach((slot) => placed.add(slot.s)));
-
-        // Quante volte si e' gia' vista ogni sezione: vale per tutte le
-        // schermate insieme, non per una sola. La prima comparsa e' la scheda
-        // vera, le altre sono righe "una parte di…"; azzerandolo a ogni
-        // riquadro, la scheda veniva spostata di schermata in schermata e
-        // finiva nell'ultima che la nominava.
-        const seen = new Map();
-
-        const groups = screensState.map((slots, index) => {
-            const group = makeGroup(index);
-            const body = group.querySelector('.pe-screen-body');
+        state.forEach((slots) => {
+            const screen = makeScreen();
+            const body = screen.querySelector('.pe-screen-body');
             slots.forEach((slot) => {
-                const position = seen.get(slot.s) || 0;
-                seen.set(slot.s, position + 1);
-                if (position === 0) {
-                    const card = cards.get(slot.s);
+                if (REPEATABLE.has(slot.s)) {
+                    const card = makeInstanceCard(slot);
                     if (!card) return;
-                    if (Array.isArray(slot.i)) card.dataset.items = JSON.stringify(slot.i);
-                    else delete card.dataset.items;
                     body.appendChild(card);
+                    const list = card.querySelector('.pe-items');
+                    rowsOf(slot.s).filter((row) => row.dataset.owner === slot.id).forEach((row) => list?.appendChild(row));
                 } else {
-                    body.appendChild(makePart(slot.s, slot.i || []));
+                    const card = originalCard(slot.s);
+                    if (!card) return;
+                    card.dataset.instance = `@${slot.s}`;
+                    body.appendChild(card);
                 }
             });
-            if (!body.children.length) {
-                body.innerHTML = `<p class="pe-screen-empty">${escape(t('Trascina qui una sezione', 'Drag a section here'))}</p>`;
-            }
-            return group;
+            screensListEl.appendChild(screen);
         });
 
-        // Le parti vecchie che non servono piu' se ne vanno con i riquadri.
-        $$('.pe-screen-group', sectionsEl).forEach((group) => group.remove());
-        $$('.pe-section-part', sectionsEl).forEach((part) => part.remove());
-        groups.forEach((group) => sectionsEl.appendChild(group));
+        // Tutto il resto aspetta fuori vista: le schede originali dei tipi
+        // ripetibili e le sezioni tolte dal profilo.
+        $$('.pe-section[data-original]', sectionsEl || document.createElement('div')).forEach((card) => holderEl?.appendChild(card));
+        $$('.pe-section[data-original]', holderEl || document.createElement('div')).forEach((card) => {
+            if (!card.closest('.pe-screen')) delete card.dataset.instance;
+        });
 
-        // Le sezioni vuote o nascoste: sotto ai riquadri, in una zona a parte.
-        const leftovers = sectionCards().filter((card) => !placed.has(card.dataset.section));
-        let rest = sectionsEl.querySelector('.pe-screen-rest');
-        if (leftovers.length) {
-            if (!rest) {
-                rest = document.createElement('section');
-                rest.className = 'pe-screen-rest';
-                rest.innerHTML = `<header class="pe-screen-head"><strong></strong></header><div class="pe-screen-body"></div>`;
-            }
-            rest.querySelector('strong').textContent = t('Fuori dalle schermate: vuote o nascoste', 'Not on any screen: empty or hidden');
-            const body = rest.querySelector('.pe-screen-body');
-            leftovers.forEach((card) => { delete card.dataset.items; body.appendChild(card); });
-            sectionsEl.appendChild(rest);
-        } else if (rest) {
-            rest.remove();
-        }
+        boardCards().forEach((card) => { if (!card.dataset.original) wakeCard(card); });
 
-        refreshPartLabels();
-
-        // L'ordine delle sezioni lo decidono i riquadri: il trascinamento
-        // della lista piatta qui non deve piu' funzionare.
-        sectionsSortable?.option('disabled', true);
-
-        if (window.Sortable) {
-            $$('.pe-screen-group .pe-screen-body', sectionsEl).forEach((body) => {
-                screenSortables.push(Sortable.create(body, {
-                    group: 'pe-screen-sections', handle: '.pe-drag', animation: 160, ghostClass: 'is-ghost',
-                    draggable: '.pe-section, .pe-section-part',
-                    onEnd: () => commit(readState()),
-                }));
+        if (window.Sortable && !Sortable.get(screensListEl)) {
+            Sortable.create(screensListEl, {
+                handle: '.pe-screen-head > .pe-drag', animation: 180, ghostClass: 'is-ghost', draggable: '.pe-screen',
+                onEnd: () => { update(); PE.changed?.({ structural: true }); },
             });
-            screenSortables.push(Sortable.create(sectionsEl, {
-                handle: '.pe-screen-head > .pe-drag', animation: 160, ghostClass: 'is-ghost', draggable: '.pe-screen-group',
-                onEnd: () => commit(readState()),
-            }));
         }
+
+        if (sectionsEl) sectionsEl.hidden = true;
+        if (boardEl) boardEl.hidden = false;
+        REPEATABLE.forEach((key) => { if (sectionMeta[key]) refreshList(key); });
+        update();
     };
 
-    /** Alla parte nuova va almeno un elemento, altrimenti sparirebbe subito. */
-    const seedNewPart = (state, key) => {
-        const slots = partsOf(state, key);
-        if (slots.length < 2) return state;
-        const count = sectionItemCount(key);
-        slots.forEach((slot) => { if (!Array.isArray(slot.i)) slot.i = []; });
-        const first = slots[0];
-        const last = slots[slots.length - 1];
-        if (!first.i.length) first.i = Array.from({ length: count }, (_, index) => index);
-        if (!last.i.length && first.i.length > 1) last.i = [first.i.pop()];
-        return state;
+    /** Torna alla fila senza scorrimento, tenendo da parte le schermate. */
+    const buildFlat = () => {
+        if (currentMode === 'board') {
+            syncOwners();
+            const state = readState();
+            boardState = state;
+            // Nella fila c'e' un occhio solo per tipo: acceso se almeno una
+            // copia si vede.
+            REPEATABLE.forEach((key) => {
+                const slots = state.flat().filter((slot) => slot.s === key);
+                if (!slots.length) return;
+                const eye = originalCard(key)?.querySelector('.pe-section-head .pe-eye input[type="checkbox"]');
+                if (eye) eye.checked = slots.some((slot) => slot.v !== 0);
+            });
+        }
+
+        gatherRows();
+        boardCards().forEach((card) => {
+            if (!card.dataset.original) { $$('.pe-items', card).forEach(destroySortable); card.remove(); }
+        });
+        screensEls().forEach(removeScreen);
+        destroySortable(screensListEl);
+
+        if (sectionsEl) {
+            PE.sections.order().forEach((key) => {
+                const card = originalCard(key);
+                if (!card) return;
+                delete card.dataset.instance;
+                sectionsEl.appendChild(card);
+            });
+            sectionsEl.hidden = false;
+        }
+        if (boardEl) boardEl.hidden = true;
+        REPEATABLE.forEach((key) => { if (sectionMeta[key]) refreshList(key); });
+        PE.refreshSectionSummaries?.();
     };
 
-    /** Menu "+ sezione": sposta qui una sezione, o aggiunge una sua parte. */
-    const openScreenAdd = (anchor, screenIndex) => {
-        const state = readState();
-        const placed = new Set();
-        state.forEach((slots) => slots.forEach((slot) => placed.add(slot.s)));
-        const here = new Set((state[screenIndex] || []).map((slot) => slot.s));
+    const render = ({ force = false } = {}) => {
+        const mode = isBoard() ? 'board' : 'flat';
+        if (!force && mode === currentMode) {
+            update();
+            return;
+        }
+        if (mode === 'board') buildBoard();
+        else buildFlat();
+        currentMode = mode;
+    };
 
+    /** Porta una scheda in vista, la apre e mette il fuoco sulla sua azione. */
+    const spotlight = (card) => {
+        if (!card) return;
+        PE.sections.toggle(card, true);
+        requestAnimationFrame(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+        card.classList.remove('pe-flash');
+        void card.offsetWidth;
+        card.classList.add('pe-flash');
+        const action = card.querySelector('[data-search-media], [data-add-item], .pe-section-body input:not([type="hidden"]), .pe-section-body button');
+        action?.focus({ preventScroll: true });
+    };
+
+    /** Mette una sezione in una schermata: copia nuova, o spostamento. */
+    const addToScreen = (screen, key) => {
+        const body = screen.querySelector('.pe-screen-body');
+        let card;
+        if (REPEATABLE.has(key)) {
+            card = makeInstanceCard({ id: newId(), s: key });
+            if (!card) return;
+            body.appendChild(card);
+            wakeCard(card);
+            refreshList(key);
+        } else {
+            card = originalCard(key);
+            if (!card) return;
+            card.dataset.instance = `@${key}`;
+            body.appendChild(card);
+            // Rimetterla in una schermata vuol dire rimetterla sul profilo.
+            const eye = card.querySelector('.pe-section-head .pe-eye input[type="checkbox"]');
+            if (eye && !eye.checked) {
+                eye.checked = true;
+                PE.emit(eye);
+            }
+        }
+        update();
+        PE.changed?.({ structural: true });
+        spotlight(card);
+    };
+
+    /** Menu "Aggiungi una sezione" di una schermata. */
+    const openAddPicker = (anchor, screen) => {
         const menu = document.createElement('div');
-        menu.className = 'pe-menu';
+        menu.className = 'pe-menu pe-picker';
+        const heading = document.createElement('p');
+        heading.className = 'pe-menu-title';
+        heading.textContent = t('Aggiungi a questa schermata', 'Add to this screen');
+        menu.appendChild(heading);
 
-        const add = (key, again, hint) => {
+        const screens = screensEls();
+        Object.keys(sectionMeta).forEach((key) => {
+            const meta = sectionMeta[key];
+            const placed = REPEATABLE.has(key) ? null : boardCards().find((card) => card.dataset.section === key);
+            const placedScreen = placed?.closest('.pe-screen');
+            const here = placedScreen === screen;
+
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'pe-menu-item';
-            button.innerHTML = `<i class="${escape(sectionMeta[key]?.icon || 'fa-solid fa-layer-group')}" aria-hidden="true"></i><span></span>${hint ? `<small>${escape(hint)}</small>` : ''}`;
-            button.querySelector('span').textContent = sectionMeta[key]?.label || key;
+            button.className = 'pe-menu-item pe-picker-item';
+            button.disabled = here;
+            let tag = '';
+            if (here) tag = t('già qui', 'already here');
+            else if (placedScreen) tag = t(`in schermata ${screens.indexOf(placedScreen) + 2} · spostala qui`, `on screen ${screens.indexOf(placedScreen) + 2} · move it here`);
+            button.innerHTML = `<i class="${escape(meta.icon || 'fa-solid fa-layer-group')}" aria-hidden="true"></i>
+                <span class="pe-picker-text"><strong></strong><small></small></span>
+                ${tag ? `<em class="pe-picker-tag"></em>` : ''}`;
+            button.querySelector('strong').textContent = meta.label || key;
+            button.querySelector('small').textContent = originalCard(key)?.dataset.description || '';
+            if (tag) button.querySelector('.pe-picker-tag').textContent = tag;
             button.addEventListener('click', () => {
                 PE.closePopover();
-                const next = readState();
-                while (next.length <= screenIndex) next.push([]);
-                if (again) {
-                    next[screenIndex].push({ s: key, i: [] });
-                    seedNewPart(next, key);
-                    PE.toast(t('Parte aggiunta: scegli quali elementi porta.', 'Part added: choose which items it holds.'), { type: 'info' });
-                } else {
-                    // Spostare, non duplicare: la sezione lascia la schermata
-                    // in cui stava.
-                    next.forEach((slots, index) => {
-                        if (index !== screenIndex) {
-                            for (let i = slots.length - 1; i >= 0; i -= 1) {
-                                if (slots[i].s === key && !Array.isArray(slots[i].i)) slots.splice(i, 1);
-                            }
-                        }
-                    });
-                    next[screenIndex].push({ s: key });
-                }
-                commit(next);
+                addToScreen(screen, key);
             });
             menu.appendChild(button);
+        });
+        PE.openPopover(anchor, menu, { className: 'pe-popover-menu pe-popover-picker' });
+    };
+
+    /** Elimina una copia (ripetibile) o toglie dal profilo una sezione unica. */
+    const removeCard = async (card, { confirm = true } = {}) => {
+        const key = card.dataset.section;
+        const name = cardTitle(card);
+        if (REPEATABLE.has(key)) {
+            const rows = $$('.pe-items > .pe-item', card);
+            if (confirm && rows.length) {
+                const ok = await PE.confirm(
+                    rows.length === 1
+                        ? t('La sezione e il suo elemento spariscono dal profilo.', 'The section and its item disappear from your profile.')
+                        : t(`La sezione e i suoi ${rows.length} elementi spariscono dal profilo.`, `The section and its ${rows.length} items disappear from your profile.`),
+                    { title: t(`Eliminare «${name}»?`, `Delete “${name}”?`), confirmLabel: t('Elimina', 'Delete'), danger: true }
+                );
+                if (!ok) return false;
+            }
+            rows.forEach((row) => row.remove());
+            $$('.pe-items', card).forEach(destroySortable);
+            card.remove();
+            refreshList(key);
+        } else {
+            const eye = card.querySelector('.pe-section-head .pe-eye input[type="checkbox"]');
+            if (eye && eye.checked) {
+                eye.checked = false;
+                PE.emit(eye);
+            }
+            PE.sections.toggle(card, false);
+            delete card.dataset.instance;
+            holderEl?.appendChild(card);
+        }
+        return true;
+    };
+
+    const undoToast = (message) => PE.toast(message, {
+        type: 'success',
+        action: PE.undo ? { label: t('Annulla', 'Undo'), run: () => PE.undo() } : null,
+    });
+
+    /** Menu ⋯ di una scheda dentro una schermata. */
+    const openCardMenu = (anchor, card) => {
+        const key = card.dataset.section;
+        const menu = document.createElement('div');
+        menu.className = 'pe-menu';
+        const screens = screensEls();
+        const current = card.closest('.pe-screen');
+
+        const title = document.createElement('p');
+        title.className = 'pe-menu-title';
+        title.textContent = t('Sposta in', 'Move to');
+        menu.appendChild(title);
+
+        const moveTo = (screen) => {
+            screen.querySelector('.pe-screen-body').appendChild(card);
+            update();
+            PE.changed?.({ structural: true });
+            spotlight(card);
         };
 
-        const movable = sectionCards().map((el) => el.dataset.section)
-            .filter((key) => sectionShows(key) && !here.has(key));
-        movable.forEach((key) => add(key, false, placed.has(key) ? t('spostala qui', 'move it here') : ''));
+        screens.forEach((screen, index) => {
+            if (screen === current) return;
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'pe-menu-item';
+            b.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i><span>${escape(t(`Schermata ${index + 2}`, `Screen ${index + 2}`))}</span>`;
+            b.addEventListener('click', () => { PE.closePopover(); moveTo(screen); });
+            menu.appendChild(b);
+        });
 
-        const again = sectionCards().map((el) => el.dataset.section)
-            .filter((key) => placed.has(key) && SPLITTABLE.has(key) && sectionItemCount(key) > 1);
-        if (again.length) {
-            const divider = document.createElement('p');
-            divider.className = 'pe-menu-title';
-            divider.textContent = t('Oppure solo una parte di…', 'Or just a part of…');
-            menu.appendChild(divider);
-            again.forEach((key) => add(key, true));
+        const fresh = document.createElement('button');
+        fresh.type = 'button';
+        fresh.className = 'pe-menu-item';
+        fresh.innerHTML = `<i class="fa-solid fa-plus" aria-hidden="true"></i><span>${escape(t('Una schermata nuova', 'A new screen'))}</span>`;
+        fresh.addEventListener('click', () => {
+            PE.closePopover();
+            const screen = makeScreen();
+            screensListEl.appendChild(screen);
+            moveTo(screen);
+        });
+        menu.appendChild(fresh);
+
+        const divider = document.createElement('hr');
+        divider.className = 'pe-menu-sep';
+        menu.appendChild(divider);
+
+        if (card.querySelector('[data-instance-config], [data-section-config]')) {
+            const rename = document.createElement('button');
+            rename.type = 'button';
+            rename.className = 'pe-menu-item';
+            rename.innerHTML = `<i class="fa-solid fa-pen" aria-hidden="true"></i><span>${escape(t('Titolo e icona', 'Title and icon'))}</span>`;
+            rename.addEventListener('click', () => {
+                PE.closePopover();
+                PE.sections.toggle(card, true);
+                const details = card.querySelector('.pe-section-header-settings');
+                if (details) details.open = true;
+                const input = card.querySelector('[data-instance-config] [data-config="title"], [data-section-config] [data-config="title"]');
+                requestAnimationFrame(() => {
+                    input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    input?.focus({ preventScroll: true });
+                });
+            });
+            menu.appendChild(rename);
         }
 
-        if (!menu.children.length) {
-            const empty = document.createElement('p');
-            empty.className = 'pe-menu-title';
-            empty.textContent = t('Non c e altro da mettere qui.', 'Nothing else to put here.');
-            menu.appendChild(empty);
-        }
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'pe-menu-item is-danger';
+        const repeatable = REPEATABLE.has(key);
+        remove.innerHTML = `<i class="fa-regular ${repeatable ? 'fa-trash-can' : 'fa-eye-slash'}" aria-hidden="true"></i><span>${escape(repeatable ? t('Elimina la sezione', 'Delete the section') : t('Togli dal profilo', 'Remove from profile'))}</span>`;
+        remove.addEventListener('click', async () => {
+            PE.closePopover();
+            const name = cardTitle(card);
+            if (!await removeCard(card)) return;
+            update();
+            PE.changed?.({ structural: true });
+            undoToast(repeatable
+                ? t(`«${name}» eliminata.`, `“${name}” deleted.`)
+                : t(`«${name}» tolta dal profilo. La ritrovi in Aggiungi una sezione.`, `“${name}” removed from your profile. Find it again in Add a section.`));
+        });
+        menu.appendChild(remove);
+
         PE.openPopover(anchor, menu, { className: 'pe-popover-menu' });
     };
 
-    /** Scelta degli elementi di una parte: ognuno sta in un posto solo. */
-    const openPartItems = (anchor, part) => {
-        const key = part.dataset.section;
-        const labels = sectionItemLabels(key);
-        const all = $$(`.pe-section-part[data-section="${key}"]`, sectionsEl);
-        const position = all.indexOf(part) + 1;
-
-        const box = document.createElement('div');
-        box.className = 'pe-menu pe-part-items';
-        const title = document.createElement('p');
-        title.className = 'pe-menu-title';
-        title.textContent = t('Elementi in questa parte', 'Items in this part');
-        box.appendChild(title);
-
-        const slots = partsOf(readState(), key);
-        labels.forEach(({ index, label }) => {
-            const isMine = Array.isArray(slots[position]?.i) && slots[position].i.includes(index);
-            const row = document.createElement('label');
-            row.className = 'pe-part-item';
-            row.innerHTML = '<input type="checkbox"><span></span>';
-            row.querySelector('span').textContent = label;
-            const input = row.querySelector('input');
-            input.checked = isMine;
-            input.addEventListener('change', () => {
-                const next = readState();
-                const nextSlots = partsOf(next, key);
-                const target = nextSlots[position];
-                if (!target) return;
-                nextSlots.forEach((slot) => {
-                    if (!Array.isArray(slot.i)) slot.i = [];
-                    slot.i = slot.i.filter((value) => value !== index);
-                });
-                if (input.checked) {
-                    target.i.push(index);
-                    target.i.sort((a, b) => a - b);
-                }
-                PE.closePopover();
-                commit(next);
+    /** Elimina una schermata: vuota subito, piena dopo aver detto cosa perde. */
+    const deleteScreen = async (screen) => {
+        const cards = cardsIn(screen);
+        const index = screensEls().indexOf(screen) + 2;
+        if (cards.length) {
+            const lines = cards.map((card) => {
+                const count = $$('.pe-items > .pe-item', card).length;
+                if (!REPEATABLE.has(card.dataset.section)) return t(`${cardTitle(card)} (tolta dal profilo)`, `${cardTitle(card)} (removed from profile)`);
+                return count ? `${cardTitle(card)} (${count} ${count === 1 ? t('elemento', 'item') : t('elementi', 'items')})` : cardTitle(card);
             });
-            box.appendChild(row);
-        });
-
-        if (!labels.length) {
-            const empty = document.createElement('p');
-            empty.className = 'pe-menu-title';
-            empty.textContent = t('Questa sezione non ha elementi.', 'This section has no items.');
-            box.appendChild(empty);
+            const ok = await PE.confirm(
+                t(`Se ne vanno anche: ${lines.join(', ')}.`, `These go too: ${lines.join(', ')}.`),
+                { title: t(`Eliminare la schermata ${index}?`, `Delete screen ${index}?`), confirmLabel: t('Elimina', 'Delete'), danger: true }
+            );
+            if (!ok) return;
+            for (const card of cards) await removeCard(card, { confirm: false });
         }
-        PE.openPopover(anchor, box, { className: 'pe-popover-menu' });
+        removeScreen(screen);
+        update();
+        PE.changed?.({ structural: true });
+        if (cards.length) undoToast(t(`Schermata ${index} eliminata.`, `Screen ${index} deleted.`));
     };
 
-    sectionsEl?.addEventListener('click', (event) => {
-        const screenAdd = event.target.closest('[data-screen-add]');
-        if (screenAdd) {
-            openScreenAdd(screenAdd, Number(screenAdd.closest('.pe-screen-group').dataset.screen));
+    areaEl.addEventListener('click', (event) => {
+        const toggle = event.target.closest('.pe-section-toggle');
+        if (toggle) {
+            PE.sections.toggle(toggle.closest('.pe-section'));
             return;
         }
-        const partItems = event.target.closest('[data-part-items]');
-        if (partItems) {
-            openPartItems(partItems, partItems.closest('.pe-section-part'));
+        const more = event.target.closest('[data-section-more]');
+        if (more) {
+            openCardMenu(more, more.closest('.pe-section'));
             return;
         }
-        const partRemove = event.target.closest('[data-part-remove]');
-        if (partRemove) {
-            const part = partRemove.closest('.pe-section-part');
-            const key = part.dataset.section;
-            const position = $$(`.pe-section-part[data-section="${key}"]`, sectionsEl).indexOf(part) + 1;
-            const next = readState();
-            const slots = partsOf(next, key);
-            // Gli elementi tornano nella scheda vera: non si cancella niente.
-            if (slots[position] && slots[0]) {
-                slots[0].i = [...(slots[0].i || []), ...(slots[position].i || [])].sort((a, b) => a - b);
-                slots[position].drop = true;
-            }
-            commit(next.map((screen) => screen.filter((slot) => !slot.drop)));
+        const add = event.target.closest('[data-screen-add]');
+        if (add) {
+            openAddPicker(add, add.closest('.pe-screen'));
+            return;
+        }
+        const del = event.target.closest('[data-screen-delete]');
+        if (del) {
+            deleteScreen(del.closest('.pe-screen'));
+            return;
+        }
+        if (event.target.closest('[data-go-profile]')) {
+            document.querySelector('.pe-rail-btn[data-view="profile"]')?.click();
         }
     });
 
-    document.getElementById('peScreenAdd')?.addEventListener('click', () => {
-        const next = readState();
-        next.push([]);
-        commit(next, { structural: false });
+    areaEl.addEventListener('change', (event) => {
+        if (event.target.closest('.pe-eye')) PE.refreshSectionSummaries();
     });
 
-    let groupsPending = 0;
+    // Il titolo di una copia compare subito nella sua intestazione.
+    areaEl.addEventListener('input', (event) => {
+        if (event.target.closest('[data-instance-config]')) PE.refreshSectionSummaries();
+    });
+
+    newScreenBtn?.addEventListener('click', () => {
+        if (newScreenBtn.disabled) return;
+        const screen = makeScreen();
+        screensListEl.appendChild(screen);
+        update();
+        screen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Una schermata nuova serve a metterci qualcosa: il menu si apre da solo.
+        openAddPicker(screen.querySelector('[data-screen-add]'), screen);
+    });
 
     PE.screens = {
-        /** Le schermate da salvare: quelle vuote non si tengono. */
+        /**
+         * Le schermate da salvare, con le posizioni degli elementi di ogni
+         * copia. Senza scorrimento si tiene quello che si sapeva, cosi'
+         * tornandoci e' come l'avevano lasciato.
+         */
         value() {
-            // Con un altro layout i riquadri non ci sono: si tiene quello che
-            // si sapeva, cosi' tornando allo scorrimento e' come l'avevano
-            // lasciato invece che azzerato.
-            const state = snapLayout() ? readState() : (screensState || []);
+            const board = isBoard() && currentMode === 'board';
+            if (board) syncOwners();
+            if (!board && boardState) boardState = normalize(boardState);
+            const state = board ? readState() : (boardState || []);
+            if (!state.length) return null;
+
+            const positions = new Map();
+            REPEATABLE.forEach((key) => {
+                let index = 0;
+                rowsOf(key).forEach((row) => {
+                    if (!collectRow(row)) return;
+                    const owner = row.dataset.owner || '';
+                    if (!positions.has(owner)) positions.set(owner, []);
+                    positions.get(owner).push(index);
+                    index += 1;
+                });
+            });
+
             return state
-                .map((slots) => slots.map((slot) => (Array.isArray(slot.i) ? { s: slot.s, i: slot.i } : { s: slot.s })))
+                .map((slots) => slots.map((slot) => {
+                    if (!REPEATABLE.has(slot.s)) return { s: slot.s };
+                    const out = { id: slot.id, s: slot.s, i: positions.get(slot.id) || [] };
+                    if (slot.t) out.t = slot.t;
+                    if (slot.c) out.c = slot.c;
+                    if (slot.h) out.h = 1;
+                    if (slot.v === 0) out.v = 0;
+                    return out;
+                }))
                 .filter((slots) => slots.length);
         },
-        set(value) {
-            screensState = Array.isArray(value) ? value : null;
-            applyGroups();
+
+        /**
+         * I campi del form che le copie decidono: un tipo si vede sul profilo
+         * se almeno una delle sue copie si vede.
+         */
+        formOverrides() {
+            if (!isBoard() || currentMode !== 'board') return [];
+            const state = readState().flat();
+            const out = [];
+            REPEATABLE.forEach((key) => {
+                const toggle = sectionMeta[key]?.toggle;
+                if (!toggle) return;
+                const slots = state.filter((slot) => slot.s === key);
+                if (!slots.length) return;
+                out.push([toggle, slots.some((slot) => slot.v !== 0) ? '1' : '0']);
+            });
+            return out;
         },
-        render: applyGroups,
-        /** Per i richiami frequenti: un disegno solo, alla fine. */
+
+        /** Stato arrivato da fuori (annulla, preset): si ridisegna da capo. */
+        set(value) {
+            boardState = Array.isArray(value) ? value : null;
+            assignOwners(boardState);
+            render({ force: true });
+        },
+
+        /** All'avvio: gli elementi appena caricati prendono le loro copie. */
+        init() {
+            assignOwners(boardState);
+            render({ force: true });
+        },
+
+        render: () => render(),
+
+        /** Per i richiami frequenti: un aggiornamento solo, alla fine. */
         refresh() {
-            clearTimeout(groupsPending);
-            groupsPending = setTimeout(applyGroups, 0);
+            clearTimeout(refreshPending);
+            refreshPending = setTimeout(() => render(), 0);
+        },
+
+        /** La prima scheda visibile di un tipo (per la ricerca delle impostazioni). */
+        cardFor(key) {
+            return boardCards().find((card) => card.dataset.section === key) || null;
         },
     };
 
     PE.refreshSectionSummaries = () => {
-        if (!sectionsEl) return;
-        $$('.pe-section', sectionsEl).forEach((section) => {
+        $$('.pe-section', areaEl).forEach((section) => {
             const key = section.dataset.section;
             const summary = section.querySelector('[data-section-summary]');
-            const eye = section.querySelector('.pe-eye input[type="checkbox"]');
-            section.classList.toggle('is-hidden-on-profile', eye && !eye.checked);
+            const eye = section.querySelector('.pe-section-head .pe-eye input[type="checkbox"]');
+            section.classList.toggle('is-hidden-on-profile', !!eye && !eye.checked);
+
+            // Le copie con un titolo proprio si chiamano cosi' anche qui, e
+            // sotto dicono che tipo di sezione sono.
+            const instance = !section.dataset.original && REPEATABLE.has(key);
+            const ownTitle = instance ? section.querySelector('[data-instance-config] [data-config="title"]')?.value.trim() : '';
+            const nameEl = section.querySelector('.pe-section-text strong');
+            if (nameEl) nameEl.textContent = ownTitle || labelOf(key);
+
             if (!summary) return;
             let count = null;
-            if (TYPES[key]) count = countFor(key);
+            if (TYPES[key]) count = $$('.pe-items > .pe-item', section).length;
             if (key === 'characters') count = PE.characters?.selected().length ?? null;
             if (key === 'badges') count = PE.badges?.selected().length ?? null;
             if (key === 'stats') count = PE.stats?.selected().length ?? null;
             const parts = [];
+            if (ownTitle) parts.push(labelOf(key));
             if (count !== null && key === 'stats') {
                 parts.push(count === 0 ? t('Nessuna statistica', 'No stats') : (count === 1 ? t('1 statistica', '1 stat') : t(`${count} statistiche`, `${count} stats`)));
             } else if (count !== null) {
@@ -1251,19 +1544,6 @@
             summary.textContent = parts.join(' · ');
         });
     };
-
-    if (sectionsEl) {
-        sectionsEl.addEventListener('click', (event) => {
-            const btn = event.target.closest('.pe-section-toggle');
-            if (btn) PE.sections.toggle(btn.closest('.pe-section'));
-        });
-        sectionsEl.addEventListener('change', (event) => {
-            if (event.target.closest('.pe-eye')) {
-                PE.refreshSectionSummaries();
-                PE.screens?.refresh();
-            }
-        });
-    }
 
     // ── Personaggi ──────────────────────────────────────────────────────────
     const charGrid = document.getElementById('peCharacterGrid');
@@ -1514,14 +1794,14 @@
                     },
                 });
             }
-            $$('.pe-items').forEach((list) => Sortable.create(list, {
-                handle: '.pe-drag', animation: 180, ghostClass: 'is-ghost', draggable: '.pe-item',
-                onEnd: () => PE.changed?.({ structural: true }),
-            }));
+            // Un gruppo per tipo: un link si trascina da una sezione Link
+            // all'altra, non dentro i Progetti.
+            $$('.pe-items').forEach(itemsSortable);
             if (sectionsEl) {
-                // Ordine delle sezioni senza il layout a scorrimento. Con
-                // quello, a ordinare sono i riquadri delle schermate e questa
-                // si spegne (applyGroups).
+                // Ordine delle sezioni senza il layout a scorrimento. E' l'unica
+                // Sortable su questo contenitore: le schermate hanno il loro.
+                // Prima ce n'erano due sullo stesso elemento, e distruggendo la
+                // seconda si cancellava la registrazione della prima.
                 sectionsSortable = Sortable.create(sectionsEl, {
                     handle: '.pe-section-head > .pe-drag', animation: 180, ghostClass: 'is-ghost', draggable: '.pe-section',
                     onEnd: () => PE.changed?.({ structural: true }),
@@ -1538,6 +1818,6 @@
             }
         }
         PE.refreshSectionSummaries();
-        PE.screens?.render();
+        PE.screens?.init();
     };
 })();

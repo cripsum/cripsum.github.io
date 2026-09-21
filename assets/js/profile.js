@@ -1717,13 +1717,19 @@
      * Ricompone le sezioni secondo le schermate scelte (layout a scorrimento).
      *
      * `data-snap-screens` arriva da profile.php:
-     *   [ [ {s:"blocks", i:[0]}, {s:"stats"} ], [ {s:"links"} ], [ {s:"blocks", i:[1,2]} ] ]
-     * Una sezione puo' comparire piu' volte con elementi diversi: e' cosi' che
-     * due blocchi custom finiscono su due schermate lontane. Il server manda
-     * ogni sezione una volta sola, con tutti i suoi elementi; qui si spezza.
+     *   [ [ {s:"blocks", id:"a1", i:[0], t:"Chi sono"}, {s:"stats"} ],
+     *     [ {s:"links"} ],
+     *     [ {s:"blocks", id:"b2", i:[1,2], v:0} ] ]
      *
-     * Gira prima di anelli, inclinazione e comparse, cosi' i pezzi nuovi sono
-     * gia' nella pagina quando quelli si agganciano.
+     * Ogni voce e' una sezione a se'. Lo stesso tipo puo' comparire piu'
+     * volte (due "Blocchi liberi" su schermate diverse), ognuna con i suoi
+     * elementi, il suo titolo e la sua icona; `v:0` la nasconde.
+     *
+     * Il server manda ogni tipo una volta sola, con tutti i suoi elementi:
+     * qui si fanno le copie e ognuna prende i suoi.
+     *
+     * Gira prima di inclinazione e comparse, cosi' le copie sono gia' nella
+     * pagina quando quelli si agganciano.
      */
     const applyScreenComposition = () => {
         const raw = body.dataset.snapScreens;
@@ -1746,9 +1752,12 @@
         const itemsOf = (el) => el.querySelector('[data-section-items]');
 
         // Gli elementi si fotografano e si tolgono PRIMA di distribuirli:
-        // spostandoli man mano, gli indici della configurazione non
-        // corrisponderebbero piu' a niente.
+        // spostandoli man mano, le posizioni della configurazione non
+        // corrisponderebbero piu' a niente. Si tiene anche una copia della
+        // sezione vuota, da cui nascono le altre: presa dopo, porterebbe il
+        // titolo gia' cambiato della prima.
         const snapshots = new Map();
+        const templates = new Map();
         screens.forEach((slots) => (slots || []).forEach((slot) => {
             if (!slot || !Array.isArray(slot.i) || snapshots.has(slot.s)) return;
             const original = originals.get(slot.s);
@@ -1756,68 +1765,141 @@
             if (!box) return;
             snapshots.set(slot.s, Array.from(box.children));
             box.textContent = '';
+            templates.set(slot.s, original.cloneNode(true));
         }));
 
+        /** L'icona di una copia: classe Font Awesome o immagine caricata. */
+        const iconNode = (icon) => {
+            if (/^(https?:\/\/|\/uploads\/)/i.test(icon)) {
+                const wrap = document.createElement('span');
+                wrap.className = 'profile-custom-icon-wrap';
+                const img = document.createElement('img');
+                img.className = 'profile-custom-icon';
+                img.alt = '';
+                img.src = icon;
+                wrap.appendChild(img);
+                return wrap;
+            }
+            const i = document.createElement('i');
+            i.className = icon;
+            i.setAttribute('aria-hidden', 'true');
+            return i;
+        };
+
+        /**
+         * Titolo e icona propri di una copia. Senza, resta l'intestazione
+         * della sezione; con `h`, l'intestazione sparisce.
+         */
+        const applyHeading = (el, slot) => {
+            let heading = el.querySelector(':scope > .bio-section-heading');
+            if (slot.h) {
+                heading?.remove();
+                return;
+            }
+            const title = typeof slot.t === 'string' ? slot.t.trim() : '';
+            const icon = typeof slot.c === 'string' ? slot.c.trim() : '';
+            if (!title && !icon) return;
+
+            if (!heading) {
+                // I blocchi liberi non hanno intestazione finche' non se ne
+                // sceglie una: la copia se la crea uguale alle altre.
+                heading = document.createElement('div');
+                heading.className = 'bio-section-heading profile-clean-heading';
+                heading.innerHTML = '<div><span></span></div>';
+                el.insertBefore(heading, el.firstChild);
+            }
+            const span = heading.querySelector('span');
+            if (!span) return;
+
+            const oldIcon = span.querySelector('i, .profile-custom-icon-wrap');
+            const oldTitle = Array.from(span.childNodes)
+                .filter((node) => node.nodeType === Node.TEXT_NODE)
+                .map((node) => node.textContent)
+                .join('')
+                .trim();
+
+            span.textContent = '';
+            if (icon) span.appendChild(iconNode(icon));
+            else if (oldIcon) span.appendChild(oldIcon);
+            span.appendChild(document.createTextNode(title || oldTitle));
+            if (title) el.dataset.sectionTitle = title;
+        };
+
         const built = [];
-        const firstPart = new Map();
-        const taken = new Map();
+        const firstVisible = new Map();
+        const claimed = new Map();
 
         screens.forEach((slots, screenIndex) => {
             (slots || []).forEach((slot) => {
                 const original = slot && originals.get(slot.s);
                 if (!original) return;
 
-                const isFirst = !firstPart.has(slot.s);
+                const snapshot = snapshots.get(slot.s);
+                const mine = claimed.get(slot.s) || new Set();
+                const wanted = [];
+                if (snapshot && Array.isArray(slot.i)) {
+                    slot.i.forEach((index) => {
+                        if (!snapshot[index] || mine.has(index)) return;
+                        mine.add(index);
+                        wanted.push(snapshot[index]);
+                    });
+                    claimed.set(slot.s, mine);
+                }
+
+                // Nascosta: i suoi elementi restano suoi, ma non si vede.
+                if (slot.v === 0) return;
+
+                const isFirst = !firstVisible.has(slot.s);
                 let el = original;
                 if (!isFirst) {
-                    el = original.cloneNode(true);
+                    el = (templates.get(slot.s) || original).cloneNode(true);
                     const box = itemsOf(el);
                     if (box) box.textContent = '';
                 }
 
-                const snapshot = snapshots.get(slot.s);
-                if (snapshot && Array.isArray(slot.i)) {
-                    const box = itemsOf(el);
-                    const mine = taken.get(slot.s) || new Set();
-                    slot.i.forEach((index) => {
-                        const node = snapshot[index];
-                        if (!node || mine.has(index)) return;
-                        mine.add(index);
-                        box?.appendChild(node);
-                    });
-                    taken.set(slot.s, mine);
-                }
+                const box = itemsOf(el);
+                if (box) wanted.forEach((node) => box.appendChild(node));
 
-                if (isFirst) firstPart.set(slot.s, el);
+                applyHeading(el, slot);
+                if (isFirst) firstVisible.set(slot.s, el);
                 el.dataset.snapScreen = String(screenIndex);
                 built.push(el);
             });
         });
 
-        // Un elemento che nessuna parte ha richiesto torna nella prima: una
-        // configurazione rimasta indietro non deve far sparire contenuti.
+        // Un elemento che nessuna sezione ha rivendicato va nella prima
+        // visibile del suo tipo: una configurazione rimasta indietro non
+        // deve far sparire contenuti.
         snapshots.forEach((snapshot, key) => {
-            const mine = taken.get(key) || new Set();
-            const box = itemsOf(firstPart.get(key) || originals.get(key));
+            const mine = claimed.get(key) || new Set();
+            const target = firstVisible.get(key);
+            const box = target && itemsOf(target);
             snapshot.forEach((node, index) => {
                 if (!mine.has(index) && box) box.appendChild(node);
             });
         });
 
-        // Le parti rimaste senza elementi non lasciano un riquadro vuoto.
+        // Un tipo con tutte le copie nascoste non si vede proprio.
+        originals.forEach((el, key) => {
+            if (snapshots.has(key) && !firstVisible.has(key)) el.remove();
+        });
+
+        // Le sezioni rimaste senza elementi non lasciano un riquadro vuoto.
         const kept = built.filter((el) => {
             const box = itemsOf(el);
             if (!box || !snapshots.has(el.dataset.sectionType)) return true;
-            return box.children.length > 0;
+            if (box.children.length > 0) return true;
+            el.remove();
+            return false;
         });
 
         kept.forEach((el) => {
             const box = itemsOf(el);
             if (box) {
                 const count = box.children.length;
-                // Contatori che decidono le colonne: dopo lo spezzettamento
-                // vanno rifatti, o una parte con due schede si impagina come
-                // se ne avesse otto.
+                // Contatori che decidono le colonne: dopo la divisione vanno
+                // rifatti, o una sezione con due schede si impagina come se
+                // ne avesse otto.
                 if (box.hasAttribute('data-count')) box.dataset.count = String(count);
                 if (box.classList.contains('profile-link-grid')) {
                     box.className = box.className.replace(/\bprofile-link-count-\d+\b/g, '').trim() + ' profile-link-count-' + count;
@@ -1831,7 +1913,7 @@
 
         // Quello che le schermate non nominano resta in fondo, dov'era.
         originals.forEach((el) => {
-            if (!el.dataset.snapScreen) content.appendChild(el);
+            if (el.isConnected && !el.dataset.snapScreen) content.appendChild(el);
         });
     };
 

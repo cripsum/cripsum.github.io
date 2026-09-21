@@ -60,7 +60,7 @@ function profile_render_favorites_section(string $kind, array $items, string $ti
 
     ob_start();
 ?>
-    <section class="bio-card profile-favorites-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="<?php echo profile_h($sectionKey); ?>" data-section-title="<?php echo profile_h($title); ?>">
+    <section class="bio-card profile-favorites-section profile-clean-section js-reveal js-tilt-card" <?php echo $tiltAttrs; ?> data-section-type="<?php echo profile_h($sectionKey); ?>" data-section-title="<?php echo profile_h($title); ?>">
         <?php profile_render_section_heading($meta['icon'], $meta['title'], null, $sectionKey); ?>
         <div class="profile-favorites-grid" data-count="<?php echo count($items); ?>" data-section-items>
             <?php foreach ($items as $item): ?>

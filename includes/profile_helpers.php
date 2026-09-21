@@ -738,8 +738,15 @@ const PROFILE_SECTION_KEYS = [
  */
 const PROFILE_SCREENS_KEY = '__screens';
 
-/** Le sezioni che si possono spezzare fra schermate diverse, elemento per elemento. */
-const PROFILE_SPLITTABLE_SECTIONS = [
+/**
+ * Le sezioni che si possono aggiungere piu' volte, su schermate diverse.
+ *
+ * Hanno elementi propri (link, blocchi, preferiti...): ogni copia porta i
+ * suoi. Statistiche, badge, personaggi e attivita' mostrano sempre gli stessi
+ * dati, quindi una seconda copia sarebbe identica alla prima: quelle stanno in
+ * una schermata sola.
+ */
+const PROFILE_REPEATABLE_SECTIONS = [
     'links', 'embeds', 'projects', 'contents', 'blocks',
     'fav_games', 'fav_watch', 'fav_music', 'fav_read',
 ];
@@ -747,17 +754,25 @@ const PROFILE_SPLITTABLE_SECTIONS = [
 /**
  * Le schermate del layout "A schermate".
  *
- * Una schermata e' una lista di "pezzi": `['s' => sezione]` per la sezione
- * intera, `['s' => sezione, 'i' => [0, 2]]` per una parte, cioe' solo alcuni
- * dei suoi elementi. Cosi' gli stessi blocchi custom possono stare su due
- * schermate lontane, che era l'unica cosa che il modello di prima — un
- * interruttore "unisci a quella sopra" per sezione — non sapeva fare.
+ * Una schermata e' una lista di sezioni. Ogni voce e' una sezione a se':
+ *
+ *   s  il tipo (links, blocks, stats...)
+ *   id identificativo stabile, lo usa l'editor per sapere di chi e' cosa
+ *   i  gli elementi che porta, come posizioni nell'elenco di quel tipo
+ *   t  titolo proprio (vuoto: quello della sezione)
+ *   c  icona propria (vuota: quella della sezione)
+ *   h  1 = nasconde l'intestazione
+ *   v  0 = nascosta sul profilo
+ *
+ * Le sezioni ripetibili possono comparire piu' volte, ognuna con i suoi
+ * elementi: due "Blocchi liberi" su due schermate lontane sono due sezioni
+ * indipendenti. Le altre compaiono una volta sola.
  *
  * Quello che non e' nominato finisce in fondo, una sezione per schermata, e
- * gli elementi lasciati fuori da tutte le parti tornano nella prima: nessun
- * contenuto sparisce perche' la configurazione e' rimasta indietro.
+ * gli elementi che nessuna voce rivendica tornano nella prima del loro tipo:
+ * nessun contenuto sparisce perche' la configurazione e' rimasta indietro.
  *
- * @return array<int,array<int,array{s:string,i?:array<int,int>}>>
+ * @return array<int,array<int,array<string,mixed>>>
  */
 function profile_screens_resolve(array $profile): array
 {
@@ -831,9 +846,23 @@ function profile_screens_sanitize($raw): array
             if (!in_array($key, PROFILE_SECTION_KEYS, true)) continue;
 
             $part = ['s' => $key];
-            // Gli indici hanno senso solo dove gli elementi si possono
-            // spezzare: altrove la sezione va tutta insieme.
-            if (isset($slot['i']) && is_array($slot['i']) && in_array($key, PROFILE_SPLITTABLE_SECTIONS, true)) {
+            $repeatable = in_array($key, PROFILE_REPEATABLE_SECTIONS, true);
+
+            // Le sezioni con dati sempre uguali compaiono una volta sola:
+            // una seconda copia sarebbe identica alla prima.
+            if (!$repeatable) {
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $clean[] = $part;
+                continue;
+            }
+
+            if (isset($slot['id']) && is_string($slot['id']) && preg_match('/^[A-Za-z0-9_-]{1,24}$/', $slot['id'])) {
+                $part['id'] = $slot['id'];
+            }
+
+            // Quali elementi di quel tipo porta questa sezione.
+            if (isset($slot['i']) && is_array($slot['i'])) {
                 $indexes = [];
                 foreach (array_slice($slot['i'], 0, 200) as $index) {
                     if (!is_int($index) && !ctype_digit((string)$index)) continue;
@@ -845,12 +874,23 @@ function profile_screens_sanitize($raw): array
                 $part['i'] = $indexes;
             }
 
-            // Una sezione intera due volte sarebbe lo stesso contenuto
-            // stampato due volte: si tiene la prima.
-            if (!isset($part['i'])) {
-                if (isset($seen[$key])) continue;
-                $seen[$key] = true;
+            $title = isset($slot['t']) && is_string($slot['t']) ? profile_clean_text($slot['t'], 80) : '';
+            if ($title !== '') {
+                $part['t'] = $title;
             }
+            $icon = isset($slot['c']) && is_string($slot['c']) ? profile_clean_text($slot['c'], 255) : '';
+            // Classe Font Awesome o immagine: cio' che non e' ne' l'uno ne'
+            // l'altro non entra, come per le icone delle sezioni.
+            if ($icon !== '' && (preg_match('/^[a-z0-9 -]{1,120}$/', $icon) || profile_is_safe_url($icon, true))) {
+                $part['c'] = $icon;
+            }
+            if (!empty($slot['h'])) {
+                $part['h'] = 1;
+            }
+            if (array_key_exists('v', $slot) && empty($slot['v'])) {
+                $part['v'] = 0;
+            }
+
             $clean[] = $part;
         }
         if ($clean) {
