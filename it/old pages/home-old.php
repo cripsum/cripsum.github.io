@@ -1,7 +1,7 @@
 <?php
-require_once '../config/session_init.php';
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once '../../config/session_init.php';
+require_once '../../config/database.php';
+require_once '../../includes/functions.php';
 checkBan($mysqli);
 ?>
 
@@ -9,7 +9,7 @@ checkBan($mysqli);
 <html lang="en">
 
 <head>
-    <?php include '../includes/head-import.php'; ?>
+    <?php include '../../includes/head-import.php'; ?>
     <title data-i18n="meta.title">Cripsum™</title>
     <link rel="preload" as="image" href="img/Susremaster.png">
     <meta property="og:image" content="img/Susremaster.png">
@@ -19,12 +19,12 @@ checkBan($mysqli);
 </head>
 
 <body class="">
-    <?php include '../includes/navbar.php'; ?>
-    <?php include '../includes/impostazioni.php'; ?>
+    <?php include '../../includes/navbar.php'; ?>
+    <?php include '../../includes/impostazioni.php'; ?>
 
     <!-- <div id="splash-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.7s cubic-bezier(.4,0,.2,1);opacity:1;">
-        <video id="splash-video-portrait" src="../vid/splash-portrait.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;display:none;"></video>
-        <video id="splash-video-landscape" src="../vid/splash-landscape.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;display:none;"></video>
+        <video id="splash-video-portrait" src="../../vid/splash-portrait.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;display:none;"></video>
+        <video id="splash-video-landscape" src="../../vid/splash-landscape.mp4" autoplay muted playsinline style="width:100vw;height:100vh;object-fit:cover;display:none;"></video>
     </div>
     <script>
         document.body.style.overflow = "hidden";
@@ -187,7 +187,7 @@ checkBan($mysqli);
         <div class="home-section fadeup">
             <div class="home-content">
                 <div class="home-image">
-                    <img class="home-img ombra" src="../img/amongus.jpg" alt="Cripsum Hero" />
+                    <img class="home-img ombra" src="../../img/amongus.jpg" alt="Cripsum Hero" />
                 </div>
                 <div class="home-text">
                     <h1 class="home-title">Benvenuto/a nel sito migliore del congo</h1>
@@ -201,19 +201,19 @@ checkBan($mysqli);
             <div class="alberi-grid">
                 <div class="albero-card">
                     <div class="albero-image-wrapper">
-                        <img src="../img/felicita.jpg" class="albero-img ombra" alt="Felicità" />
+                        <img src="../../img/felicita.jpg" class="albero-img ombra" alt="Felicità" />
                     </div>
                     <h3 class="albero-label">Felicità</h3>
                 </div>
                 <div class="albero-card">
                     <div class="albero-image-wrapper">
-                        <img src="../img/tristezza.jpg" class="albero-img ombra" alt="Tristezza" />
+                        <img src="../../img/tristezza.jpg" class="albero-img ombra" alt="Tristezza" />
                     </div>
                     <h3 class="albero-label">Tristezza</h3>
                 </div>
                 <div class="albero-card">
                     <div class="albero-image-wrapper">
-                        <img src="../img/stupore.jpg" class="albero-img ombra" alt="Stupore" />
+                        <img src="../../img/stupore.jpg" class="albero-img ombra" alt="Stupore" />
                     </div>
                     <h3 class="albero-label">Stupore</h3>
                 </div>
@@ -269,7 +269,7 @@ checkBan($mysqli);
                 <div class="account-section fadeup mt-4">
                     <h3 class="sottopag mb-3">Hai un account Cripsum™?</h3>
                     <p class="sottopag mb-4">
-                        <a href="accedi" class="btn-link">Accedi</a> al sito per sbloccare tutti i contenuti:
+                        <a href="../../accedi" class="btn-link">Accedi</a> al sito per sbloccare tutti i contenuti:
                     </p>
 
                     <div class="features-list mb-4">
@@ -304,7 +304,7 @@ checkBan($mysqli);
             <p id="popup-description"></p>
         </div>
     </div>
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../../includes/footer.php'; ?>
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"

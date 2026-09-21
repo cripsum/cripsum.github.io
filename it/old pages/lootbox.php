@@ -1,7 +1,7 @@
 <?php
-require_once '../config/session_init.php';
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once '../../config/session_init.php';
+require_once '../../config/database.php';
+require_once '../../includes/functions.php';
 checkBan($mysqli);
 
 
@@ -9,7 +9,7 @@ if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     $_SESSION['login_message'] = "Per accedere alle lootbox devi essere loggato";
 
-    header('Location: accedi');
+    header('Location: ../../accedi');
     exit();
 }
 checkPermissions($mysqli, 'utente');
@@ -22,20 +22,20 @@ checkPermissions($mysqli, 'utente');
 //     exit();
 // }
 
-require_once '../api/api_personaggi.php';
+require_once '../../api/api_personaggi.php';
 
 ?>
 <!DOCTYPE html>
 <html lang="it">
 
 <head>
-    <?php include '../includes/head-import.php'; ?>
+    <?php include '../../includes/head-import.php'; ?>
     <link rel="stylesheet" href="/css/lootbox.css?v=8.2" />
     <title>Cripsum™ - lootbox</title>
 </head>
 
 <body class="lootbox-page">
-    <?php include '../includes/navbar-lootbox.php'; ?>
+    <?php include '../../includes/navbar-lootbox.php'; ?>
     <div class="stars" id="stars"></div>
 
     <!-- TO DO
@@ -132,7 +132,7 @@ require_once '../api/api_personaggi.php';
         </script>
         <div class="container">
 
-            <img src="../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick(event)" onclick="handleChestClick(event)" />
+            <img src="../../img/cassa.png" alt="Cassa" id="cassa" class="fadein lootbox-chest" draggable="false" aria-label="Apri cassa" ondblclick="handleDoubleClick(event)" onclick="handleChestClick(event)" />
 
             <div id="baglioreWrapper">
                 <div class="bagliore" id="bagliore"></div>
@@ -372,7 +372,7 @@ require_once '../api/api_personaggi.php';
             </ul>
         </footer>-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="../js/unlockAchievement-it.js"></script>
+        <script src="../../js/unlockAchievement-it.js"></script>
         <script>
             const cassa = document.getElementById("cassa");
             const nomePersonaggio = document.getElementById("nomePersonaggio");
@@ -1270,7 +1270,7 @@ require_once '../api/api_personaggi.php';
                 cassa.classList.add("is-opening-chest");
 
                 setTimeout(() => {
-                    cassa.src = "../img/cassa_aperta.png";
+                    cassa.src = "../../img/cassa_aperta.png";
                 }, 420);
 
                 setTimeout(() => {
@@ -1758,7 +1758,7 @@ require_once '../api/api_personaggi.php';
                     filter: brightness(1.2) contrast(1.1);
                     transition: filter 2s ease-in-out;
                 `;
-                video.src = '../vid/shorekeeperpull.mp4';
+                video.src = '../../vid/shorekeeperpull.mp4';
                 video.autoplay = true;
                 video.muted = false;
                 video.loop = false;
@@ -1835,7 +1835,7 @@ require_once '../api/api_personaggi.php';
                     filter: brightness(1.2) contrast(1.1);
                     transition: filter 2s ease-in-out;
                 `;
-                video.src = '../vid/tunggodgacha.mp4';
+                video.src = '../../vid/tunggodgacha.mp4';
                 video.autoplay = true;
                 video.muted = false;
                 video.loop = false;
