@@ -1113,105 +1113,21 @@
     };
     window.initCursorEffects = initCursorEffects;
 
-    // Custom cursor image follower (for animated GIF cursors that CSS can't animate)
+    /**
+     * Immagine del cursore: il motore e' assets/js/profile-cursor.js, lo
+     * stesso dell'editor. La configurazione arriva da PHP (data-cursor-config)
+     * o dall'anteprima dell'editor, che la riscrive e richiama questa funzione.
+     */
     const initCustomCursorImage = () => {
-        // Clean up previous custom cursor follower
-        if (window.customCursorEl) {
-            window.customCursorEl.remove();
-            window.customCursorEl = null;
+        if (!window.CripsumCursor) return;
+        let config = null;
+        try {
+            config = JSON.parse(body.dataset.cursorConfig || 'null');
+        } catch (_) {
+            config = null;
         }
-        if (window.customCursorRafId) {
-            cancelAnimationFrame(window.customCursorRafId);
-            window.customCursorRafId = null;
-        }
-        if (window.customCursorMoveHandler) {
-            window.removeEventListener('pointermove', window.customCursorMoveHandler);
-            window.customCursorMoveHandler = null;
-        }
-        if (window.customCursorOverHandler) {
-            window.removeEventListener('pointerover', window.customCursorOverHandler);
-            window.customCursorOverHandler = null;
-        }
-        // Remove previous cursor-none class
-        body.classList.remove('custom-cursor-js-active');
-
-        const standardUrl = body.dataset.cursorCustomUrl;
-        const hoverUrl = body.dataset.cursorCustomHoverUrl;
-        const standardCenter = body.dataset.cursorCustomCenter === '1';
-        const hoverCenter = body.dataset.cursorCustomHoverCenter === '1';
-        const standardAnimated = standardUrl && /\.(gif)$/i.test(standardUrl);
-        const hoverAnimated = hoverUrl && /\.(gif)$/i.test(hoverUrl);
-
-        // Only use JS follower if at least one of the cursors is animated (GIF)
-        if (!standardAnimated && !hoverAnimated) return;
-
-        const cursorEl = document.createElement('img');
-        cursorEl.style.cssText = 'position:fixed;pointer-events:none;z-index:999999;width:64px;height:64px;image-rendering:pixelated;left:-100px;top:-100px;transform:translate(0, 0);will-change:transform;display:none;';
-        body.appendChild(cursorEl);
-        window.customCursorEl = cursorEl;
-
-        let mouseX = -100, mouseY = -100;
-
-        const updateActiveCursorState = (target) => {
-            const isHoveringClickable = target && typeof target.closest === 'function' && !!target.closest('a, button, select, [role="button"], input[type="submit"], input[type="button"], input[type="reset"]');
-
-            let activeUrl = '';
-            let activeCenter = false;
-            let activeAnimated = false;
-
-            if (isHoveringClickable && hoverUrl) {
-                activeUrl = hoverUrl;
-                activeCenter = hoverCenter;
-                activeAnimated = hoverAnimated;
-            } else if (standardUrl) {
-                activeUrl = standardUrl;
-                activeCenter = standardCenter;
-                activeAnimated = standardAnimated;
-            }
-
-            if (activeUrl && activeAnimated) {
-                if (cursorEl.getAttribute('data-active-src') !== activeUrl) {
-                    cursorEl.src = activeUrl;
-                    cursorEl.setAttribute('data-active-src', activeUrl);
-                }
-                const transformVal = activeCenter ? 'translate(-50%, -50%)' : 'translate(0, 0)';
-                if (cursorEl.style.transform !== transformVal) {
-                    cursorEl.style.transform = transformVal;
-                }
-                if (cursorEl.style.display !== 'block') {
-                    cursorEl.style.display = 'block';
-                }
-                if (!body.classList.contains('custom-cursor-js-active')) {
-                    body.classList.add('custom-cursor-js-active');
-                }
-            } else {
-                if (cursorEl.style.display !== 'none') {
-                    cursorEl.style.display = 'none';
-                }
-                if (body.classList.contains('custom-cursor-js-active')) {
-                    body.classList.remove('custom-cursor-js-active');
-                }
-            }
-        };
-
-        window.customCursorMoveHandler = (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            updateActiveCursorState(e.target);
-        };
-        window.addEventListener('pointermove', window.customCursorMoveHandler, { passive: true });
-
-        window.customCursorOverHandler = (e) => {
-            updateActiveCursorState(e.target);
-        };
-        window.addEventListener('pointerover', window.customCursorOverHandler, { passive: true });
-
-        function tickCursor() {
-            cursorEl.style.left = mouseX + 'px';
-            cursorEl.style.top = mouseY + 'px';
-            window.customCursorRafId = requestAnimationFrame(tickCursor);
-        }
-        tickCursor();
+        if (window.profileCursor) window.profileCursor.update(config);
+        else window.profileCursor = window.CripsumCursor.mount(body, config);
     };
     window.initCustomCursorImage = initCustomCursorImage;
 

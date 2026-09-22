@@ -66,7 +66,9 @@ function profile_build_preset_data(mysqli $mysqli, int $targetUserId): ?array
         // valore di ripiego da profile_v7_select_sql(), e al caricamento del
         // preset vengono saltate.
         'profile_music_cover', 'profile_views_label', 'profile_views_pill',
-        'profile_show_fav_games', 'profile_show_fav_watch', 'profile_show_fav_music', 'profile_show_fav_read'
+        'profile_show_fav_games', 'profile_show_fav_watch', 'profile_show_fav_music', 'profile_show_fav_read',
+        // Migration del cursore, con la stessa regola.
+        'profile_cursor_size', 'profile_cursor_hotspot', 'profile_cursor_hover_hotspot'
     ];
 
     $profile = profile_get_edit_profile($mysqli, $targetUserId);
@@ -336,7 +338,8 @@ switch ($action) {
             'profile_layout_snap', 'profile_music_theme', 'profile_bg_grain', 'profile_cursor_effect',
             'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center',
             'profile_music_cover', 'profile_views_label', 'profile_views_pill',
-            'profile_show_fav_games', 'profile_show_fav_watch', 'profile_show_fav_music', 'profile_show_fav_read'
+            'profile_show_fav_games', 'profile_show_fav_watch', 'profile_show_fav_music', 'profile_show_fav_read',
+            'profile_cursor_size', 'profile_cursor_hotspot', 'profile_cursor_hover_hotspot'
         ];
 
         // Preset data is user-controlled JSON, so the free-form columns that end
@@ -348,6 +351,23 @@ switch ($action) {
                 $candidate = trim((string)($presetData[$urlCol] ?? ''));
                 $presetData[$urlCol] = ($candidate !== '' && profile_is_safe_url($candidate, true)) ? $candidate : null;
             }
+        }
+        // Misura e punta del cursore. Un preset salvato prima della migration
+        // del cursore conosce solo "dal centro": la punta si ricava da li',
+        // altrimenti l'immagine nuova terrebbe la punta di quella di adesso.
+        if (array_key_exists('profile_cursor_size', $presetData)) {
+            $presetData['profile_cursor_size'] = profile_cursor_size_clean($presetData['profile_cursor_size']);
+        }
+        foreach ([
+            'profile_cursor_hotspot' => ['profile_cursor_custom_url', 'profile_cursor_custom_center'],
+            'profile_cursor_hover_hotspot' => ['profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center'],
+        ] as $hotspotCol => [$cursorUrlCol, $cursorCenterCol]) {
+            if (!array_key_exists($cursorUrlCol, $presetData)) {
+                continue;
+            }
+            $presetData[$hotspotCol] = empty($presetData[$cursorUrlCol])
+                ? null
+                : profile_cursor_hotspot_for($presetData, $hotspotCol, $cursorCenterCol);
         }
         // Required colours always keep a value; optional ones may be cleared —
         // matching what api/update_profile.php stores for the same columns.

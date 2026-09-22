@@ -86,22 +86,110 @@ $nameVars = '--name-color: ' . pe_h($nameStyle['color']) . '; --name-grad-1: ' .
     <?php pe_choice('profile_cursor_effect', $cursorEffect, $cursorEffectOptions, ['label' => $tt('Effetto', 'Effect'), 'variant' => 'tiles', 'columns' => 3, 'class' => 'pe-fx-choices', 'keywords' => 'cursore mouse scia stelle cuori gattino cerchio']); ?>
 </div>
 
-<div class="pe-field<?php echo $isPremium ? '' : ' is-locked'; ?>" data-search="<?php echo pe_h($tt('Immagine del cursore', 'Cursor image')); ?>" <?php echo $isPremium ? '' : 'data-premium-lock="1"'; ?>>
+<?php
+/*
+ * Immagine del cursore: due riquadri (normale e sopra cio' che si clicca).
+ * Nel riquadro si clicca il punto che deve cliccare, la "punta"; la misura
+ * vale per entrambi. Sotto, un'area dove provarlo con il cursore vero
+ * (assets/js/profile-cursor.js, lo stesso del profilo). La logica e' in
+ * editor.js, "Cursore personalizzato".
+ */
+$cursorDisabled = $isPremium ? '' : ' disabled';
+$cursorSlots = [
+    [
+        'key' => 'base',
+        'title' => $tt('Normale', 'Default'),
+        'desc' => $tt('Su tutta la pagina', 'Across the whole page'),
+        'url' => 'profile_cursor_custom_url',
+        'url_id' => 'peCursorUrl',
+        'hotspot' => 'profile_cursor_hotspot',
+        'center' => 'profile_cursor_custom_center',
+    ],
+    [
+        'key' => 'hover',
+        'title' => $tt('Sopra link e pulsanti', 'Over links and buttons'),
+        'desc' => $tt('Dove si può cliccare', 'Wherever you can click'),
+        'url' => 'profile_cursor_custom_hover_url',
+        'url_id' => 'peCursorHoverUrl',
+        'hotspot' => 'profile_cursor_hover_hotspot',
+        'center' => 'profile_cursor_custom_hover_center',
+    ],
+];
+?>
+<div class="pe-field pe-cursor<?php echo $isPremium ? '' : ' is-locked'; ?>" id="peCursor" data-search="<?php echo pe_h($tt('Immagine del cursore punta dimensione link', 'Cursor image hotspot size links')); ?>" <?php echo $isPremium ? '' : 'data-premium-lock="1"'; ?>>
     <div class="pe-field-label"><span class="pe-field-title"><?php echo pe_h($tt('Immagine del cursore', 'Cursor image')); ?></span><?php echo pe_premium_chip(); ?></div>
-    <div class="pe-media-url" data-media-url data-purpose="cursor" data-accept="image/jpeg,image/png,image/webp,image/gif,.cur,.ani">
-        <input type="hidden" name="profile_cursor_custom_url" id="peCursorUrl" value="<?php echo pe_h($profile['profile_cursor_custom_url'] ?? ''); ?>" <?php echo $isPremium ? '' : 'disabled'; ?>>
-    </div>
-    <p class="pe-help"><?php echo pe_h($tt('PNG, JPG, WEBP, GIF, CUR o ANI. Le immagini diventano 64×64.', 'PNG, JPG, WEBP, GIF, CUR or ANI. Images become 64×64.')); ?></p>
-</div>
-<?php pe_toggle('profile_cursor_custom_center', $pflag('profile_cursor_custom_center', 0), ['label' => $tt('Punta dal centro dell\'immagine', 'Point from the image center'), 'premium' => true, 'show_if' => 'profile_cursor_custom_url']); ?>
 
-<div class="pe-field<?php echo $isPremium ? '' : ' is-locked'; ?>" data-search="<?php echo pe_h($tt('Cursore sui link', 'Cursor over links')); ?>" <?php echo $isPremium ? '' : 'data-premium-lock="1"'; ?>>
-    <div class="pe-field-label"><span class="pe-field-title"><?php echo pe_h($tt('Cursore sopra i link', 'Cursor over links')); ?></span><?php echo pe_premium_chip(); ?></div>
-    <div class="pe-media-url" data-media-url data-purpose="cursor" data-accept="image/jpeg,image/png,image/webp,image/gif,.cur,.ani">
-        <input type="hidden" name="profile_cursor_custom_hover_url" id="peCursorHoverUrl" value="<?php echo pe_h($profile['profile_cursor_custom_hover_url'] ?? ''); ?>" <?php echo $isPremium ? '' : 'disabled'; ?>>
+    <div class="pe-cursor-slots">
+        <?php foreach ($cursorSlots as $slot):
+            $slotUrl = (string)($profile[$slot['url']] ?? '');
+            $slotHotspot = $slotUrl !== '' ? profile_cursor_hotspot_for($profile, $slot['hotspot'], $slot['center']) : '0,0';
+        ?>
+        <div class="pe-cursor-slot<?php echo $slotUrl === '' ? ' is-empty' : ''; ?>" data-cursor-slot="<?php echo pe_h($slot['key']); ?>">
+            <div class="pe-cursor-slot-head">
+                <strong><?php echo pe_h($slot['title']); ?></strong>
+                <small><?php echo pe_h($slot['desc']); ?></small>
+            </div>
+            <div class="pe-cursor-stage" data-cursor-stage tabindex="0"
+                aria-label="<?php echo pe_h($tt('Punta del cursore: clicca sull\'immagine o usa le frecce', 'Cursor hotspot: click the image or use the arrow keys')); ?>">
+                <span class="pe-cursor-figure">
+                    <img alt="" draggable="false">
+                    <span class="pe-cursor-hot" aria-hidden="true"></span>
+                </span>
+                <span class="pe-cursor-empty">
+                    <i class="fa-solid fa-arrow-pointer" aria-hidden="true"></i>
+                    <span><?php echo pe_h($tt('Carica un\'immagine', 'Upload an image')); ?></span>
+                </span>
+            </div>
+            <div class="pe-cursor-tip">
+                <span class="pe-cursor-tip-text"><?php echo pe_h($tt('Clicca il punto che deve cliccare', 'Click the point that clicks')); ?></span>
+                <span class="pe-cursor-tip-presets">
+                    <button type="button" class="pe-cursor-preset" data-cursor-hot="0,0" title="<?php echo pe_h($tt('Punta in alto a sinistra, come una freccia', 'Top-left point, like an arrow')); ?>"<?php echo $cursorDisabled; ?>>
+                        <i class="fa-solid fa-arrow-pointer" aria-hidden="true"></i><span><?php echo pe_h($tt('Freccia', 'Arrow')); ?></span>
+                    </button>
+                    <button type="button" class="pe-cursor-preset" data-cursor-hot="50,50" title="<?php echo pe_h($tt('Punta al centro, come un mirino', 'Centered point, like a crosshair')); ?>"<?php echo $cursorDisabled; ?>>
+                        <i class="fa-solid fa-crosshairs" aria-hidden="true"></i><span><?php echo pe_h($tt('Centro', 'Center')); ?></span>
+                    </button>
+                </span>
+            </div>
+            <p class="pe-cursor-note" data-cursor-note></p>
+            <div class="pe-media-url pe-cursor-media" data-media-url data-purpose="cursor" data-accept="image/png,image/gif,image/webp,image/jpeg,.cur,.ani">
+                <input type="hidden" name="<?php echo pe_h($slot['url']); ?>" id="<?php echo pe_h($slot['url_id']); ?>" value="<?php echo pe_h($slotUrl); ?>"<?php echo $cursorDisabled; ?>>
+            </div>
+            <input type="hidden" name="<?php echo pe_h($slot['hotspot']); ?>" value="<?php echo pe_h($slotHotspot); ?>" data-cursor-hot-input<?php echo $cursorDisabled; ?>>
+        </div>
+        <?php endforeach; ?>
     </div>
+
+    <?php pe_slider('profile_cursor_size', profile_cursor_size_clean($profile['profile_cursor_size'] ?? null), [
+        'label' => $tt('Dimensione', 'Size'),
+        'min' => PROFILE_CURSOR_SIZE_MIN,
+        'max' => PROFILE_CURSOR_SIZE_MAX,
+        'step' => 2,
+        'format' => 'px',
+        'default' => PROFILE_CURSOR_SIZE_DEFAULT,
+        'premium' => true,
+        'keywords' => 'cursore grandezza misura grande piccolo',
+        'help' => pe_h($tt(
+            'Il lato più lungo dell\'immagine. 32 px è la misura dei cursori di sistema; più grande, il cursore lo disegna la pagina e segue il mouse con un attimo di ritardo.',
+            'The longest side of the image. 32 px is the size of system cursors; bigger, the page draws the cursor and it follows the mouse with a slight delay.'
+        )),
+    ]); ?>
+
+    <div class="pe-cursor-test is-empty" id="peCursorTest">
+        <span class="pe-cursor-test-hint">
+            <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
+            <span data-cursor-test-text
+                data-ready="<?php echo pe_h($tt('Passa qui sopra per provarlo', 'Hover here to try it')); ?>"
+                data-empty="<?php echo pe_h($tt('Carica un\'immagine per provarla qui', 'Upload an image to try it here')); ?>"><?php echo pe_h($tt('Carica un\'immagine per provarla qui', 'Upload an image to try it here')); ?></span>
+        </span>
+        <span class="pe-cursor-test-link" aria-hidden="true"><i class="fa-solid fa-link" aria-hidden="true"></i><?php echo pe_h($tt('Un link', 'A link')); ?></span>
+    </div>
+
+    <p class="pe-help"><?php echo pe_h($tt(
+        'PNG con lo sfondo trasparente, GIF animate, CUR o ANI, fino a 2 MB. I bordi trasparenti vengono tolti e le proporzioni restano quelle dell\'immagine.',
+        'PNG with a transparent background, animated GIFs, CUR or ANI, up to 2 MB. Transparent edges are trimmed and the image keeps its proportions.'
+    )); ?></p>
 </div>
-<?php pe_toggle('profile_cursor_custom_hover_center', $pflag('profile_cursor_custom_hover_center', 0), ['label' => $tt('Punta dal centro dell\'immagine', 'Point from the image center'), 'premium' => true, 'show_if' => 'profile_cursor_custom_hover_url']); ?>
 <?php pe_group_end(); ?>
 
 <?php pe_group('grp-tilt', $tt('Inclinazione delle card', 'Card tilt'), $tt('Le card si inclinano in 3D quando ci passi sopra con il mouse.', 'Cards tilt in 3D when you hover them with the mouse.'), ['keywords' => 'tilt 3d inclinazione']); ?>

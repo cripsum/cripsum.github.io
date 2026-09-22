@@ -2,106 +2,242 @@
 /**
  * cursor_helpers.php
  *
- * Server-side helpers for processing custom cursor uploads.
- * Handles image resizing, .cur validation, and .ani → animated GIF conversion.
- * Uses pure PHP GD — no ImageMagick or exec() calls.
+ * Preparazione dei cursori caricati per il profilo (api/upload_profile_media.php).
+ *
+ * Il file salvato e' l'immagine "madre": margini trasparenti tolti, proporzioni
+ * intatte, lato lungo al massimo CURSOR_MASTER_MAX. La misura con cui si vede
+ * la sceglie chi modifica il profilo e la applica assets/js/profile-cursor.js,
+ * quindi cambiarla non richiede di ricaricare il file.
+ *
+ * - immagini statiche (JPG, PNG, WEBP, GIF a un fotogramma) -> PNG;
+ * - GIF e WebP animati -> restano come sono (GD non sa ridimensionarli);
+ * - .cur -> PNG, con la punta scritta nel file;
+ * - .ani -> GIF animata (o PNG se ha un solo fotogramma).
+ *
+ * Solo GD, niente ImageMagick ne' exec().
  */
+
+/** Oltre i 128 px i browser non mostrano piu' un cursore. */
+const CURSOR_MASTER_MAX = 128;
+
+/** GIF e WebP animati restano come sono: oltre questo lato si rifiutano. */
+const CURSOR_ANIMATED_MAX = 1024;
+
+function cursor_gd_available(): bool
+{
+    return function_exists('imagecreatetruecolor') && function_exists('imagepng');
+}
+
+/** Un'immagine statica in GD, in truecolor e con la trasparenza. */
+function cursor_load_image(string $path, string $mimeType): ?\GdImage
+{
+    $src = match ($mimeType) {
+        'image/jpeg', 'image/jpg' => @imagecreatefromjpeg($path),
+        'image/png' => @imagecreatefrompng($path),
+        'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+        'image/gif' => @imagecreatefromgif($path),
+        default => false,
+    };
+    if (!$src) {
+        return null;
+    }
+    if (!imageistruecolor($src)) {
+        imagepalettetotruecolor($src);
+    }
+    imagealphablending($src, false);
+    imagesavealpha($src, true);
+    return $src;
+}
+
+/** Una parte di $src ridisegnata in un'immagine nuova $w x $h, trasparenza compresa. */
+function cursor_resample(\GdImage $src, int $sx, int $sy, int $sw, int $sh, int $w, int $h): \GdImage
+{
+    $dst = imagecreatetruecolor($w, $h);
+    imagealphablending($dst, false);
+    imagesavealpha($dst, true);
+    imagefill($dst, 0, 0, imagecolorallocatealpha($dst, 0, 0, 0, 127));
+    imagecopyresampled($dst, $src, 0, 0, $sx, $sy, $w, $h, $sw, $sh);
+    return $dst;
+}
 
 /**
- * Resize an uploaded image to $size × $size pixels and save as PNG.
- * Preserves transparency for PNG, WEBP, and GIF inputs.
- *
- * @param string $tmpPath   Path to the uploaded temp file
- * @param string $mimeType  Detected MIME type of the source image
- * @param string $outputPath Destination file path (will be .png)
- * @param int    $size       Target width and height (default 32)
- * @return bool True on success, false on failure
+ * Il riquadro dei pixel che si vedono, [x, y, larghezza, altezza], oppure null
+ * se l'immagine e' tutta trasparente. Si parte dai bordi: su un'immagine piena
+ * basta un pixel per riga.
  */
-function cursor_resize_image(string $tmpPath, string $mimeType, string $outputPath, int $size = 64): bool
+function cursor_visible_box(\GdImage $img): ?array
 {
-    // Create GD image resource from the source file
-    $src = null;
-    switch ($mimeType) {
-        case 'image/jpeg':
-        case 'image/jpg':
-            $src = @imagecreatefromjpeg($tmpPath);
-            break;
-        case 'image/png':
-            $src = @imagecreatefrompng($tmpPath);
-            break;
-        case 'image/webp':
-            $src = @imagecreatefromwebp($tmpPath);
-            break;
-        case 'image/gif':
-            // GD only loads the first frame of an animated GIF
-            $src = @imagecreatefromgif($tmpPath);
-            break;
-        default:
-            return false;
-    }
-
-    if (!$src) {
+    $w = imagesx($img);
+    $h = imagesy($img);
+    // Alfa di GD: 0 opaco, 127 trasparente. Sotto 120 il pixel si vede.
+    $visible = static fn(int $x, int $y): bool => ((imagecolorat($img, $x, $y) >> 24) & 0x7F) < 120;
+    $rowHasPixels = static function (int $y) use ($w, $visible): bool {
+        for ($x = 0; $x < $w; $x++) {
+            if ($visible($x, $y)) {
+                return true;
+            }
+        }
         return false;
-    }
-
-    $srcW = imagesx($src);
-    $srcH = imagesy($src);
-
-    // Create the output canvas with transparency support
-    $dst = imagecreatetruecolor($size, $size);
-    if (!$dst) {
-        imagedestroy($src);
+    };
+    $columnHasPixels = static function (int $x, int $top, int $bottom) use ($visible): bool {
+        for ($y = $top; $y <= $bottom; $y++) {
+            if ($visible($x, $y)) {
+                return true;
+            }
+        }
         return false;
+    };
+
+    $top = 0;
+    while ($top < $h && !$rowHasPixels($top)) {
+        $top++;
+    }
+    if ($top === $h) {
+        return null;
+    }
+    $bottom = $h - 1;
+    while ($bottom > $top && !$rowHasPixels($bottom)) {
+        $bottom--;
+    }
+    $left = 0;
+    while ($left < $w - 1 && !$columnHasPixels($left, $top, $bottom)) {
+        $left++;
+    }
+    $right = $w - 1;
+    while ($right > $left && !$columnHasPixels($right, $top, $bottom)) {
+        $right--;
+    }
+    return [$left, $top, $right - $left + 1, $bottom - $top + 1];
+}
+
+/**
+ * Salva un cursore statico: via i margini trasparenti (spostano la punta e
+ * rimpiccioliscono il disegno), lato lungo al massimo CURSOR_MASTER_MAX,
+ * proporzioni intatte, PNG.
+ *
+ * `box` e' il riquadro tenuto, in pixel dell'immagine di partenza: serve a
+ * spostare la punta dei .cur.
+ *
+ * @return array{ok:bool, width?:int, height?:int, box?:array, error?:string}
+ */
+function cursor_save_static(\GdImage $src, string $outputPath): array
+{
+    // Una foto enorme si riduce prima: cercare i bordi su milioni di pixel
+    // richiederebbe secondi, e il cursore finale e' comunque piccolo.
+    $w = imagesx($src);
+    $h = imagesy($src);
+    $work = $src;
+    $pre = 1.0;
+    if (max($w, $h) > 512) {
+        $pre = 512 / max($w, $h);
+        $work = cursor_resample($src, 0, 0, $w, $h, max(1, (int)round($w * $pre)), max(1, (int)round($h * $pre)));
     }
 
-    // Preserve transparency: fill with transparent background
-    imagesavealpha($dst, true);
-    imagealphablending($dst, false);
-    $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
-    imagefill($dst, 0, 0, $transparent);
+    $box = cursor_visible_box($work);
+    if ($box === null) {
+        if ($work !== $src) {
+            imagedestroy($work);
+        }
+        return ['ok' => false, 'error' => 'L\'immagine è tutta trasparente: non c\'è niente da mostrare.'];
+    }
 
-    // For source images that may have alpha, preserve it during copy
-    imagealphablending($dst, true);
+    [$bx, $by, $bw, $bh] = $box;
+    $scale = min(1.0, CURSOR_MASTER_MAX / max($bw, $bh));
+    $outW = max(1, (int)round($bw * $scale));
+    $outH = max(1, (int)round($bh * $scale));
+    $out = cursor_resample($work, $bx, $by, $bw, $bh, $outW, $outH);
+    if ($work !== $src) {
+        imagedestroy($work);
+    }
 
-    // Resample the source into the $size × $size canvas
-    $ok = imagecopyresampled($dst, $src, 0, 0, 0, 0, $size, $size, $srcW, $srcH);
-    imagedestroy($src);
-
+    $ok = imagepng($out, $outputPath);
+    imagedestroy($out);
     if (!$ok) {
-        imagedestroy($dst);
-        return false;
+        return ['ok' => false, 'error' => 'Impossibile salvare il cursore.'];
     }
 
-    // Save as PNG (always, for transparency support)
-    imagesavealpha($dst, true);
-    $result = imagepng($dst, $outputPath);
-    imagedestroy($dst);
+    return [
+        'ok' => true,
+        'width' => $outW,
+        'height' => $outH,
+        'box' => [$bx / $pre, $by / $pre, $bw / $pre, $bh / $pre],
+    ];
+}
 
+/** Un'immagine statica caricata come cursore. */
+function cursor_prepare_image(string $tmpPath, string $mimeType, string $outputPath): array
+{
+    $src = cursor_load_image($tmpPath, $mimeType);
+    if (!$src) {
+        return ['ok' => false, 'error' => 'Non riesco a leggere l\'immagine. Prova con un PNG.'];
+    }
+    $result = cursor_save_static($src, $outputPath);
+    imagedestroy($src);
     return $result;
 }
 
+/** GIF o WebP con piu' di un fotogramma. */
+function cursor_is_animated(string $path, string $mimeType): bool
+{
+    $data = @file_get_contents($path);
+    if ($data === false) {
+        return false;
+    }
+    if ($mimeType === 'image/gif') {
+        // Ogni fotogramma ha il suo "graphic control extension" seguito
+        // dall'immagine (o da un'altra estensione).
+        return preg_match_all('#\x21\xF9\x04.{4}\x00[\x2C\x21]#s', $data) > 1;
+    }
+    if ($mimeType === 'image/webp') {
+        // WebP esteso (VP8X) con il bit dell'animazione acceso.
+        return substr($data, 12, 4) === 'VP8X' && strlen($data) > 20 && (ord($data[20]) & 0x02) === 0x02;
+    }
+    return false;
+}
+
+/** La punta "x,y" in percentuale, con un decimale. */
+function cursor_hotspot_string(float $x, float $y): string
+{
+    $format = static fn(float $n): string => rtrim(rtrim(number_format(max(0.0, min(100.0, $n)), 1, '.', ''), '0'), '.');
+    return $format($x) . ',' . $format($y);
+}
 
 /**
- * Validate and copy a .cur file to the output path.
- * CUR header: 2 bytes reserved (0x0000), 2 bytes type (0x0002), 2 bytes count (>=1).
+ * Un file .cur (o .ico) diventa un PNG. La punta scritta nel file si porta
+ * dietro, spostata sul riquadro tenuto.
  *
- * @param string $tmpPath    Source file path
- * @param string $outputPath Destination file path
- * @return bool True on success, false on failure
+ * @return array{ok:bool, width?:int, height?:int, hotspot?:?string, error?:string}
  */
-function cursor_process_cur_file(string $tmpPath, string $outputPath): bool
+function cursor_prepare_cur(string $tmpPath, string $outputPath): array
 {
-    $data = @file_get_contents($tmpPath, false, null, 0, 6);
+    $data = @file_get_contents($tmpPath);
     if ($data === false || strlen($data) < 6) {
-        return false;
+        return ['ok' => false, 'error' => 'File .cur non valido.'];
     }
-
     $header = unpack('vreserved/vtype/vcount', $data);
-    if ($header['reserved'] !== 0 || $header['type'] !== 2 || $header['count'] < 1) {
-        return false;
+    if ($header['reserved'] !== 0 || !in_array($header['type'], [1, 2], true) || $header['count'] < 1) {
+        return ['ok' => false, 'error' => 'File .cur non valido.'];
     }
 
-    return copy($tmpPath, $outputPath);
+    $hotspot = null;
+    $img = _cursor_ico_to_gd($data, 256, $hotspot);
+    if (!$img) {
+        return ['ok' => false, 'error' => 'Non riesco a leggere il file .cur.'];
+    }
+    imagealphablending($img, false);
+    imagesavealpha($img, true);
+    $result = cursor_save_static($img, $outputPath);
+    imagedestroy($img);
+    if (!$result['ok']) {
+        return $result;
+    }
+
+    $result['hotspot'] = null;
+    if ($hotspot !== null) {
+        [$bx, $by, $bw, $bh] = $result['box'];
+        $result['hotspot'] = cursor_hotspot_string(($hotspot[0] - $bx) / $bw * 100, ($hotspot[1] - $by) / $bh * 100);
+    }
+    return $result;
 }
 
 
@@ -118,12 +254,12 @@ function cursor_process_cur_file(string $tmpPath, string $outputPath): bool
  *       icon <size> <complete ICO/CUR data>
  *       ...
  *
- * Falls back to extracting the first frame as a static 32×32 PNG if full
- * animated conversion fails.
+ * Con un solo fotogramma utile diventa un PNG statico, come le immagini.
+ * La punta del primo fotogramma torna in `hotspot` ("x,y" in percentuale).
  *
  * @param string $aniPath    Source .ani file path
  * @param string $outputPath Destination file path (extension may change)
- * @return array ['ok' => bool, 'animated' => bool, 'ext' => 'gif'|'png'] or ['ok' => false, 'error' => '...']
+ * @return array ['ok' => true, 'animated' => bool, 'ext' => 'gif'|'png', 'width', 'height', 'hotspot'] or ['ok' => false, 'error' => '...']
  */
 function cursor_convert_ani_to_gif(string $aniPath, string $outputPath): array
 {
@@ -158,6 +294,7 @@ function cursor_convert_ani_to_gif(string $aniPath, string $outputPath): array
     $nFrames  = count($iconChunks);
     $nSteps   = $nFrames;
     $jifRate  = 10; // default: 10 jiffies ≈ 167ms
+    $cx       = 0;  // larghezza dichiarata dei fotogrammi (0 = non detta)
 
     if ($anihData !== null && strlen($anihData) >= 36) {
         $anih = unpack(
@@ -168,6 +305,7 @@ function cursor_convert_ani_to_gif(string $aniPath, string $outputPath): array
             $nFrames = $anih['nFrames'] ?: $nFrames;
             $nSteps  = $anih['nSteps'] ?: $nSteps;
             $jifRate = $anih['jifRate'] ?: $jifRate;
+            $cx      = (int)$anih['cx'];
         }
     }
 
@@ -203,17 +341,28 @@ function cursor_convert_ani_to_gif(string $aniPath, string $outputPath): array
 
     // --- Extract GD images from each unique frame ---
     $frameImages = []; // index => GdImage
-    $frameSize   = ($cx > 0 && $cx <= 256) ? min(128, max(32, $cx)) : 64;
+    // La misura vera dei fotogrammi (fino ai 128 px dei cursori): prima si
+    // leggeva una variabile mai definita e l'avviso rompeva la risposta JSON.
+    $frameSize   = ($cx > 0 && $cx <= 256) ? min(CURSOR_MASTER_MAX, max(16, $cx)) : 0;
+    $hotspot     = null;
 
     foreach ($iconChunks as $idx => $icoData) {
-        $img = _cursor_ico_to_gd($icoData, $frameSize);
+        $frameHotspot = null;
+        $img = _cursor_ico_to_gd($icoData, $frameSize ?: 256, $frameHotspot);
         if ($img) {
+            if (!$frameImages && $frameHotspot !== null) {
+                $hotspot = cursor_hotspot_string($frameHotspot[0] / imagesx($img) * 100, $frameHotspot[1] / imagesy($img) * 100);
+            }
             $frameImages[$idx] = $img;
         }
     }
 
     if (empty($frameImages)) {
         return ['ok' => false, 'error' => 'Impossibile decodificare i frame del file .ani.'];
+    }
+    if (!$frameSize) {
+        $first = reset($frameImages);
+        $frameSize = min(CURSOR_MASTER_MAX, max(16, imagesx($first), imagesy($first)));
     }
 
     // --- Build the animation frames list in step order ---
@@ -229,18 +378,26 @@ function cursor_convert_ani_to_gif(string $aniPath, string $outputPath): array
         }
     }
 
-    // Fallback: if we ended up with only 0-1 usable frames, output static PNG
+    // Un solo fotogramma utile: e' un cursore statico come gli altri.
     if (count($animFrames) <= 1) {
         $singleFrame = $animFrames[0] ?? reset($frameImages);
-        // Ensure it's 32×32
-        $singleFrame = _cursor_ensure_size($singleFrame, $frameSize);
         $pngPath = preg_replace('/\.[^.]+$/', '.png', $outputPath);
+        imagealphablending($singleFrame, false);
         imagesavealpha($singleFrame, true);
-        $ok = imagepng($singleFrame, $pngPath);
+        $srcW = imagesx($singleFrame) ?: 1;
+        $srcH = imagesy($singleFrame) ?: 1;
+        $saved = cursor_save_static($singleFrame, $pngPath);
         _cursor_destroy_frames($frameImages);
-        return $ok
-            ? ['ok' => true, 'animated' => false, 'ext' => 'png']
-            : ['ok' => false, 'error' => 'Impossibile salvare il frame statico PNG.'];
+        if (!$saved['ok']) {
+            return $saved;
+        }
+        if ($hotspot !== null) {
+            // La punta segue il riquadro tenuto, come nei .cur.
+            [$px, $py] = array_map('floatval', explode(',', $hotspot));
+            [$bx, $by, $bw, $bh] = $saved['box'];
+            $hotspot = cursor_hotspot_string(($px / 100 * $srcW - $bx) / $bw * 100, ($py / 100 * $srcH - $by) / $bh * 100);
+        }
+        return ['ok' => true, 'animated' => false, 'ext' => 'png', 'width' => $saved['width'], 'height' => $saved['height'], 'hotspot' => $hotspot];
     }
 
     // --- Encode animated GIF ---
@@ -260,7 +417,7 @@ function cursor_convert_ani_to_gif(string $aniPath, string $outputPath): array
 
     $ok = file_put_contents($gifPath, $gifData) !== false;
     return $ok
-        ? ['ok' => true, 'animated' => true, 'ext' => 'gif']
+        ? ['ok' => true, 'animated' => true, 'ext' => 'gif', 'width' => $frameSize, 'height' => $frameSize, 'hotspot' => $hotspot]
         : ['ok' => false, 'error' => 'Impossibile scrivere il file GIF.'];
 }
 
@@ -331,8 +488,9 @@ function _cursor_parse_riff_chunks(
  * @param int    $size     Desired output size (will pick closest entry)
  * @return \GdImage|null
  */
-function _cursor_ico_to_gd(string $icoData, int $size): ?\GdImage
+function _cursor_ico_to_gd(string $icoData, int $size, ?array &$hotspot = null): ?\GdImage
 {
+    $hotspot = null;
     if (strlen($icoData) < 6) {
         return null;
     }
@@ -376,6 +534,11 @@ function _cursor_ico_to_gd(string $icoData, int $size): ?\GdImage
     $entryH = ord($icoData[$entryOff + 1]);
     if ($entryW === 0) $entryW = 256;
     if ($entryH === 0) $entryH = 256;
+
+    // Nei .cur (tipo 2) i due campi "piani" e "bit" sono la punta del cursore.
+    if ($hdr['type'] === 2) {
+        $hotspot = [unpack('v', $icoData, $entryOff + 4)[1], unpack('v', $icoData, $entryOff + 6)[1]];
+    }
 
     if ($imgOffset + $imgSize > strlen($icoData) || $imgSize < 8) {
         return null;

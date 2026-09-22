@@ -62,7 +62,7 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
 
 $file = $_FILES['file'];
 
-// `cursor`: immagini e .cur/.ani ridotti a 64x64.
+// `cursor`: immagini, GIF animate e .cur/.ani (vedi includes/cursor_helpers.php).
 // `block`: i media dei blocchi custom, che possono essere anche video.
 // Qualsiasi altro valore: solo immagini (icone, copertine, miniature).
 $purpose = trim($_POST['purpose'] ?? '');
@@ -185,46 +185,51 @@ $fileName = $prefix . $randomHash . '.' . $ext;
 $targetPath = $uploadDir . '/' . $fileName;
 
 if ($purpose === 'cursor') {
-    $success = false;
-    $errorMessage = 'Impossibile salvare il cursore.';
+    // Il file tenuto e' l'immagine "madre" (vedi includes/cursor_helpers.php):
+    // la misura sul profilo la sceglie chi lo modifica, senza ricaricare.
+    if (!cursor_gd_available()) {
+        echo json_encode(['ok' => false, 'message' => 'Il server non può elaborare immagini in questo momento.']);
+        exit;
+    }
+
+    $basePath = $uploadDir . '/cursor_' . $randomHash;
+    $result = ['ok' => false, 'error' => 'Impossibile salvare il cursore.'];
 
     if ($ext === 'cur') {
-        if (cursor_process_cur_file($tmpPath, $targetPath)) {
-            $success = true;
-        } else {
-            $errorMessage = 'File .cur non valido o errore nel salvataggio.';
-        }
+        $result = cursor_prepare_cur($tmpPath, $basePath . '.png') + ['ext' => 'png'];
     } elseif ($ext === 'ani') {
-        $res = cursor_convert_ani_to_gif($tmpPath, $targetPath);
-        if ($res['ok']) {
-            $success = true;
-            // The converter picks the real extension (gif or png) and writes to
-            // that path, so follow it here too.
-            $ext = $res['ext'];
-            $fileName = 'cursor_' . $randomHash . '.' . $ext;
-            $targetPath = $uploadDir . '/' . $fileName;
-        } else {
-            $errorMessage = $res['error'] ?? 'Errore nella conversione del file .ani.';
+        $result = cursor_convert_ani_to_gif($tmpPath, $basePath . '.gif');
+    } elseif (cursor_is_animated($tmpPath, $mimeType)) {
+        // GD non sa ridimensionare le animazioni: si tengono come sono e le
+        // rimpicciolisce la pagina.
+        $dims = @getimagesize($tmpPath);
+        $animatedExt = $mimeType === 'image/webp' ? 'webp' : 'gif';
+        if (!$dims || max((int)$dims[0], (int)$dims[1]) > CURSOR_ANIMATED_MAX) {
+            $result = ['ok' => false, 'error' => "L'animazione è troppo grande: il massimo è " . CURSOR_ANIMATED_MAX . '×' . CURSOR_ANIMATED_MAX . ' pixel.'];
+        } elseif (move_uploaded_file($tmpPath, $basePath . '.' . $animatedExt)) {
+            $result = ['ok' => true, 'ext' => $animatedExt, 'animated' => true, 'width' => (int)$dims[0], 'height' => (int)$dims[1]];
         }
     } else {
-        // Standard image, resize to 64x64 and save as PNG
-        $ext = 'png';
-        $fileName = 'cursor_' . $randomHash . '.png';
-        $targetPath = $uploadDir . '/' . $fileName;
-
-        if (cursor_resize_image($tmpPath, $mimeType, $targetPath, 64)) {
-            $success = true;
-        } else {
-            $errorMessage = 'Errore durante il ridimensionamento dell\'immagine del cursore.';
-        }
+        $result = cursor_prepare_image($tmpPath, $mimeType, $basePath . '.png') + ['ext' => 'png'];
     }
 
-    if ($success) {
-        $relativeUrl = '/uploads/profile_media/user_' . $userId . '/' . $fileName;
-        echo json_encode(['ok' => true, 'url' => $relativeUrl, 'size' => @filesize($targetPath) ?: 0, 'name' => $fileName]);
-    } else {
-        echo json_encode(['ok' => false, 'message' => $errorMessage]);
+    if (empty($result['ok'])) {
+        echo json_encode(['ok' => false, 'message' => $result['error'] ?? 'Impossibile salvare il cursore.']);
+        exit;
     }
+
+    $fileName = 'cursor_' . $randomHash . '.' . $result['ext'];
+    echo json_encode([
+        'ok' => true,
+        'url' => '/uploads/profile_media/user_' . $userId . '/' . $fileName,
+        'size' => @filesize($uploadDir . '/' . $fileName) ?: 0,
+        'name' => $fileName,
+        'width' => (int)($result['width'] ?? 0),
+        'height' => (int)($result['height'] ?? 0),
+        // La punta scritta nei .cur e .ani, "x,y" in percentuale.
+        'hotspot' => $result['hotspot'] ?? null,
+        'animated' => !empty($result['animated']),
+    ]);
 } else {
     if (move_uploaded_file($tmpPath, $targetPath)) {
         // Return relative URL that starts with /uploads/profile_media/

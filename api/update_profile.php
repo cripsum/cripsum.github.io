@@ -524,14 +524,23 @@ try {
             }
         }
         $hideMeta = profile_bool_from_post('profile_hide_meta', false) ? 1 : 0;
-        $cursorCustomCenter = profile_bool_from_post('profile_cursor_custom_center', false) ? 1 : 0;
-        
+
         $cursorCustomHoverUrl = isset($_POST['profile_cursor_custom_hover_url']) ? trim((string)$_POST['profile_cursor_custom_hover_url']) : '';
         if ($cursorCustomHoverUrl !== '' && !profile_is_safe_url($cursorCustomHoverUrl, false)) {
             $cursorCustomHoverUrl = '';
         }
         $cursorCustomHoverUrlDb = $cursorCustomHoverUrl !== '' ? $cursorCustomHoverUrl : null;
-        $cursorCustomHoverCenter = profile_bool_from_post('profile_cursor_custom_hover_center', false) ? 1 : 0;
+
+        // Misura e punta del cursore. Un client vecchio manda ancora solo
+        // "dal centro"; le colonne vecchie restano allineate per chi non ha
+        // ancora la migration del cursore.
+        $cursorSize = profile_cursor_size_clean($_POST['profile_cursor_size'] ?? null);
+        $cursorHotspot = $cursorCustomUrlDb === null ? null : (profile_cursor_hotspot_clean($_POST['profile_cursor_hotspot'] ?? null)
+            ?? (profile_bool_from_post('profile_cursor_custom_center', false) ? '50,50' : '0,0'));
+        $cursorHoverHotspot = $cursorCustomHoverUrlDb === null ? null : (profile_cursor_hotspot_clean($_POST['profile_cursor_hover_hotspot'] ?? null)
+            ?? (profile_bool_from_post('profile_cursor_custom_hover_center', false) ? '50,50' : '0,0'));
+        $cursorCustomCenter = $cursorHotspot === '50,50' ? 1 : 0;
+        $cursorCustomHoverCenter = $cursorHoverHotspot === '50,50' ? 1 : 0;
     } else {
         $layoutSnap = 0;
         $cursorEffect = 'none';
@@ -543,6 +552,9 @@ try {
         $cursorCustomCenter = 0;
         $cursorCustomHoverUrlDb = null;
         $cursorCustomHoverCenter = 0;
+        $cursorSize = PROFILE_CURSOR_SIZE_DEFAULT;
+        $cursorHotspot = null;
+        $cursorHoverHotspot = null;
     }
 
     // La scelta delle statistiche vale per tutti i piani e vive dentro la
@@ -586,6 +598,10 @@ try {
         'profile_show_fav_watch' => ['i', profile_bool_from_post('profile_show_fav_watch', true)],
         'profile_show_fav_music' => ['i', profile_bool_from_post('profile_show_fav_music', true)],
         'profile_show_fav_read' => ['i', profile_bool_from_post('profile_show_fav_read', true)],
+        // Migration del cursore (migrations/2026-09-22_profile_cursor.sql).
+        'profile_cursor_size' => ['i', $cursorSize],
+        'profile_cursor_hotspot' => ['s', $cursorHotspot],
+        'profile_cursor_hover_hotspot' => ['s', $cursorHoverHotspot],
     ];
 
     $v7Set = [];

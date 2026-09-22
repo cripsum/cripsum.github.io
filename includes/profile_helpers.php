@@ -189,6 +189,73 @@ function profile_css_url_value(?string $url): string
     );
 }
 
+/*
+ * Cursore personalizzato. La misura e' il lato lungo dell'immagine in pixel;
+ * la punta e' "x,y" in percentuale dell'immagine (0,0 = angolo in alto a
+ * sinistra), cosi' resta giusta a qualsiasi misura.
+ */
+const PROFILE_CURSOR_SIZE_MIN = 16;
+const PROFILE_CURSOR_SIZE_MAX = 128;
+const PROFILE_CURSOR_SIZE_DEFAULT = 32;
+
+function profile_cursor_size_clean($value): int
+{
+    $size = is_numeric($value) ? (int)round((float)$value) : PROFILE_CURSOR_SIZE_DEFAULT;
+    return max(PROFILE_CURSOR_SIZE_MIN, min(PROFILE_CURSOR_SIZE_MAX, $size));
+}
+
+/** La punta come "x,y" con al massimo un decimale, oppure null se non e' valida. */
+function profile_cursor_hotspot_clean($value): ?string
+{
+    if (!is_string($value) || !preg_match('/^\s*(\d{1,3}(?:\.\d+)?)\s*,\s*(\d{1,3}(?:\.\d+)?)\s*$/', $value, $m)) {
+        return null;
+    }
+    $format = static fn(string $n): string => rtrim(rtrim(number_format(min(100.0, (float)$n), 1, '.', ''), '0'), '.');
+    return $format($m[1]) . ',' . $format($m[2]);
+}
+
+/**
+ * La punta salvata; prima della migration del cursore esisteva solo
+ * l'interruttore "dal centro".
+ */
+function profile_cursor_hotspot_for(array $profile, string $hotspotKey, string $centerKey): string
+{
+    return profile_cursor_hotspot_clean($profile[$hotspotKey] ?? null)
+        ?? ((int)($profile[$centerKey] ?? 0) === 1 ? '50,50' : '0,0');
+}
+
+/**
+ * Il cursore personalizzato come lo vuole assets/js/profile-cursor.js, oppure
+ * null se il profilo non ne ha uno. Solo Premium.
+ */
+function profile_cursor_config(array $profile): ?array
+{
+    if ((int)($profile['is_premium'] ?? 0) !== 1) {
+        return null;
+    }
+
+    $slot = static function (string $urlKey, string $hotspotKey, string $centerKey) use ($profile): ?array {
+        $url = profile_css_url_value($profile[$urlKey] ?? '');
+        if ($url === '') {
+            return null;
+        }
+        [$x, $y] = array_map('floatval', explode(',', profile_cursor_hotspot_for($profile, $hotspotKey, $centerKey)));
+        return ['url' => $url, 'x' => $x, 'y' => $y];
+    };
+
+    $base = $slot('profile_cursor_custom_url', 'profile_cursor_hotspot', 'profile_cursor_custom_center');
+    $hover = $slot('profile_cursor_custom_hover_url', 'profile_cursor_hover_hotspot', 'profile_cursor_custom_hover_center');
+    if (!$base && !$hover) {
+        return null;
+    }
+
+    return [
+        'size' => profile_cursor_size_clean($profile['profile_cursor_size'] ?? null),
+        'base' => $base,
+        'hover' => $hover,
+    ];
+}
+
 function profile_clean_text(?string $value, int $max): string
 {
     $value = trim((string)$value);
@@ -241,8 +308,9 @@ function profile_deletion_select_sql(mysqli $mysqli): string
 }
 
 /**
- * Le colonne di `utenti` aggiunte dalla migration del profilo v7, con il
- * valore da usare al loro posto finche' la migration non e' stata eseguita.
+ * Le colonne di `utenti` aggiunte dalla migration del profilo v7 e da quella
+ * del cursore, con il valore da usare al loro posto finche' la migration non
+ * e' stata eseguita.
  *
  * @return array<string,string> colonna => valore di ripiego in SQL
  */
@@ -256,6 +324,11 @@ function profile_v7_columns(): array
         'profile_show_fav_watch' => '1',
         'profile_show_fav_music' => '1',
         'profile_show_fav_read' => '1',
+        // Migration del cursore (migrations/2026-09-22_profile_cursor.sql):
+        // misura e punta. Senza, vale "dal centro" delle colonne vecchie.
+        'profile_cursor_size' => '32',
+        'profile_cursor_hotspot' => 'NULL',
+        'profile_cursor_hover_hotspot' => 'NULL',
     ];
 }
 

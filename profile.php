@@ -600,14 +600,8 @@ $profileFont = profile_font_normalize(
     (int)($profile['is_premium'] ?? 0) === 1
 );
 
-// Cursor URLs are interpolated into an inline style attribute: percent-encode
-// everything that could terminate the CSS string (see profile_css_url_value).
-$cursorCustomUrlCss = (int)($profile['is_premium'] ?? 0) === 1
-    ? profile_css_url_value($profile['profile_cursor_custom_url'] ?? '')
-    : '';
-$cursorCustomHoverUrlCss = (int)($profile['is_premium'] ?? 0) === 1
-    ? profile_css_url_value($profile['profile_cursor_custom_hover_url'] ?? '')
-    : '';
+// Immagini del cursore, misura e punta: le disegna assets/js/profile-cursor.js.
+$cursorConfig = $profile ? profile_cursor_config($profile) : null;
 $hideMeta = $isPremium && $profile ? profile_flag($profile, 'profile_hide_meta', false) : false;
 $showAudioBtn = $profile ? profile_flag($profile, 'profile_show_audio_btn', true) : true;
 $audioBtnPosition = ($profile && !empty($profile['profile_audio_btn_position'])) ? $profile['profile_audio_btn_position'] : 'bottom-right';
@@ -707,7 +701,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=7.3.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=7.4.0">
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-name-effects.css?v=1.1.0">
@@ -760,7 +754,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <script src="/assets/js/profile-tab-title.js?v=1.0.0" defer></script>
     <script src="/assets/js/profile-effects.js?v=1.2.0" defer></script>
     <script src="/assets/js/profile-name-effects.js?v=1.1.0" defer></script>
-    <script src="/assets/js/profile.js?v=7.3.0" defer></script>
+    <script src="/assets/js/profile-cursor.js?v=1.0.0" defer></script>
+    <script src="/assets/js/profile.js?v=7.4.0" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <script src="/assets/js/profile-style.js?v=6.3.0" defer></script>
         <style>
@@ -986,43 +981,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
             }
         }
 
-        /* Custom Cursor */
-        body[data-cursor-custom-url],
-        body[data-cursor-custom-url] a,
-        body[data-cursor-custom-url] button,
-        body[data-cursor-custom-url] select,
-        body[data-cursor-custom-url] input,
-        body[data-cursor-custom-url] textarea,
-        body[data-cursor-custom-url] [role="button"] {
-            cursor: var(--cursor-custom-url) !important;
-        }
-
-        /* Custom Hover Cursor for Clickable Elements */
-        body[data-cursor-custom-hover-url] a,
-        body[data-cursor-custom-hover-url] button,
-        body[data-cursor-custom-hover-url] select,
-        body[data-cursor-custom-hover-url] [role="button"],
-        body[data-cursor-custom-hover-url] input[type="submit"],
-        body[data-cursor-custom-hover-url] input[type="button"],
-        body[data-cursor-custom-hover-url] input[type="reset"],
-        body[data-cursor-custom-hover-url] a *,
-        body[data-cursor-custom-hover-url] button *,
-        body[data-cursor-custom-hover-url] [role="button"] * {
-            cursor: var(--cursor-custom-hover-url) !important;
-        }
-
-        /* JS cursor follower for animated cursors (GIF) */
-        body.custom-cursor-js-active,
-        body.custom-cursor-js-active *,
-        body.custom-cursor-js-active a,
-        body.custom-cursor-js-active button,
-        body.custom-cursor-js-active select,
-        body.custom-cursor-js-active input,
-        body.custom-cursor-js-active textarea {
-            cursor: none !important;
-        }
-
-
         /* Card Tags */
         .profile-card-tag {
             display: inline-block;
@@ -1075,11 +1033,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     data-snap-screens="<?php echo profile_h(profile_snap_screens_attr($profile ?: [])); ?>"
     data-bg-grain="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && ((int)($profile['profile_bg_grain'] ?? 0) === 1 || $profileEffect === 'bg_grain') ? '1' : '0'; ?>"
     data-music-theme="<?php echo (int)($profile['is_premium'] ?? 0) === 1 ? profile_h($profile['profile_music_theme'] ?? 'default') : 'default'; ?>"
-    data-cursor-custom-url="<?php echo profile_h($cursorCustomUrlCss); ?>"
-    data-cursor-custom-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? '1' : '0'; ?>"
-    data-cursor-custom-hover-url="<?php echo profile_h($cursorCustomHoverUrlCss); ?>"
-    data-cursor-custom-hover-center="<?php echo (int)($profile['is_premium'] ?? 0) === 1 && (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? '1' : '0'; ?>"
-    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>; <?php if ($cursorCustomUrlCss !== ''): ?>--cursor-custom-url: url('<?php echo profile_h($cursorCustomUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?> <?php if ($cursorCustomHoverUrlCss !== ''): ?>--cursor-custom-hover-url: url('<?php echo profile_h($cursorCustomHoverUrlCss); ?>')<?php echo (int)($profile['profile_cursor_custom_hover_center'] ?? 0) === 1 ? ' 32 32' : ''; ?>, auto !important;<?php endif; ?>">
+    <?php if ($cursorConfig): ?>data-cursor-config="<?php echo profile_h(json_encode($cursorConfig, JSON_UNESCAPED_SLASHES)); ?>"<?php endif; ?>
+    style="--profile-ring: <?php echo profile_h($avatarRingColor); ?>;">
 
     <?php if ($theme === 'auto'): ?>
         <script>
@@ -2042,7 +1997,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 const loadedFonts = new Set();
                 let lastEffect = body.dataset.profileEffect || 'none';
 
-                let lastCursor = '';
+                let lastCursor = body.dataset.cursorEffect || 'none';
 
                 /*
                  * Link e riserva di ogni font, dal catalogo PHP. Prima il link
@@ -2154,25 +2109,30 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                     body.dataset.avatarBorder = on(s, 'profile_avatar_border') ? '1' : '0';
                 };
 
+                // Effetto e immagine del cursore si riavviano solo quando cambiano:
+                // l'editor manda tutti i valori a ogni tasto premuto.
+                let lastCursorConfig = body.dataset.cursorConfig || '';
                 const applyCursor = (s, premium) => {
-                    const url = premium ? previewCssUrl(s.profile_cursor_custom_url) : '';
-                    const hover = premium ? previewCssUrl(s.profile_cursor_custom_hover_url) : '';
-                    body.dataset.cursorEffect = premium ? (s.profile_cursor_effect || 'none') : 'none';
-                    body.dataset.cursorCustomUrl = url;
-                    body.dataset.cursorCustomCenter = premium && on(s, 'profile_cursor_custom_center') ? '1' : '0';
-                    body.dataset.cursorCustomHoverUrl = hover;
-                    body.dataset.cursorCustomHoverCenter = premium && on(s, 'profile_cursor_custom_hover_center') ? '1' : '0';
-                    if (url) body.style.setProperty('--cursor-custom-url', `url('${url}')${on(s, 'profile_cursor_custom_center') ? ' 32 32' : ''}, auto`);
-                    else body.style.removeProperty('--cursor-custom-url');
-                    if (hover) body.style.setProperty('--cursor-custom-hover-url', `url('${hover}')${on(s, 'profile_cursor_custom_hover_center') ? ' 32 32' : ''}, auto`);
-                    else body.style.removeProperty('--cursor-custom-hover-url');
-                    if (!url) body.removeAttribute('data-cursor-custom-url');
-                    if (!hover) body.removeAttribute('data-cursor-custom-hover-url');
-
-                    const key = [body.dataset.cursorEffect, url, hover].join('|');
-                    if (key !== lastCursor) {
-                        lastCursor = key;
+                    const effect = premium ? (s.profile_cursor_effect || 'none') : 'none';
+                    if (effect !== lastCursor) {
+                        lastCursor = effect;
+                        body.dataset.cursorEffect = effect;
                         window.initCursorEffects?.();
+                    }
+
+                    const slot = (url, hotspot) => {
+                        const clean = premium ? previewCssUrl(url) : '';
+                        if (!clean) return null;
+                        const [x, y] = String(hotspot || '').split(',').map(Number);
+                        return { url: clean, x: Number.isFinite(x) ? x : 0, y: Number.isFinite(y) ? y : 0 };
+                    };
+                    const base = slot(s.profile_cursor_custom_url, s.profile_cursor_hotspot);
+                    const hover = slot(s.profile_cursor_custom_hover_url, s.profile_cursor_hover_hotspot);
+                    const config = base || hover ? JSON.stringify({ size: Number(s.profile_cursor_size) || 32, base, hover }) : '';
+                    if (config !== lastCursorConfig) {
+                        lastCursorConfig = config;
+                        if (config) body.dataset.cursorConfig = config;
+                        else delete body.dataset.cursorConfig;
                         window.initCustomCursorImage?.();
                     }
                 };

@@ -39,7 +39,7 @@
         'profile_name_glitch_color1', 'profile_name_glitch_color2', 'profile_name_sparkle_color',
         'avatar_ring_style', 'avatar_ring_color', 'profile_avatar_border', 'profile_effect',
         'profile_views_label', 'profile_views_pill',
-        'profile_cursor_effect', 'profile_cursor_custom_url', 'profile_cursor_custom_center', 'profile_cursor_custom_hover_url', 'profile_cursor_custom_hover_center',
+        'profile_cursor_effect', 'profile_cursor_custom_url', 'profile_cursor_hotspot', 'profile_cursor_custom_hover_url', 'profile_cursor_hover_hotspot', 'profile_cursor_size',
         'tilt_preset', 'tilt_enabled', 'tilt_max', 'tilt_glare', 'tilt_zoom', 'tilt_speed',
         'profile_music_theme', 'profile_show_audio_btn', 'profile_audio_btn_position', 'profile_audio_default_volume', 'profile_show_audio_player',
         'profile_music_title', 'profile_music_artist', 'profile_music_cover',
@@ -371,6 +371,9 @@
             viewsPreview.classList.toggle('bio-pill--bare', !checked('profile_views_pill'));
             viewsPreview.querySelector('.profile-views-label').hidden = !checked('profile_views_label');
         }
+
+        // Riquadri del cursore e area di prova.
+        PE.cursorEditor?.sync();
 
         // L'accento dell'editor segue quello del profilo.
         const accent = PE.hex(byName('accent_color')?.value);
@@ -1147,6 +1150,240 @@
         }, { rootMargin: '80px' });
         fxArts.forEach((art) => fxObserver.observe(art));
     }
+
+    // ── Cursore personalizzato ──────────────────────────────────────────────
+    // Due riquadri (normale e sopra i link): l'immagine in grande con la punta,
+    // che si sposta cliccando o con le frecce. Sotto, l'area di prova con il
+    // cursore vero (assets/js/profile-cursor.js, lo stesso del profilo). I
+    // valori stanno in campi nascosti: bozza, anteprima e annulla li trattano
+    // come tutti gli altri, e dopo un annulla basta ridisegnare (sync).
+    PE.cursorEditor = (() => {
+        const box = document.getElementById('peCursor');
+        if (!box) return null;
+
+        const STAGE = 104; // lato utile del riquadro, come nel CSS
+        const clampPct = (n) => Math.min(100, Math.max(0, n));
+        const parseHot = (value) => {
+            const [x, y] = String(value || '').split(',').map(Number);
+            return [Number.isFinite(x) ? clampPct(x) : 0, Number.isFinite(y) ? clampPct(y) : 0];
+        };
+        const formatHot = (x, y) => [x, y].map((n) => String(Math.round(clampPct(n) * 10) / 10)).join(',');
+
+        const slots = $$('[data-cursor-slot]', box).map((el) => {
+            const url = el.querySelector('[data-media-url] input');
+            return {
+                el,
+                url,
+                hot: el.querySelector('[data-cursor-hot-input]'),
+                stage: el.querySelector('[data-cursor-stage]'),
+                img: el.querySelector('.pe-cursor-figure img'),
+                mark: el.querySelector('.pe-cursor-hot'),
+                note: el.querySelector('[data-cursor-note]'),
+                natural: null,
+                pending: null,
+                lastUrl: url.value.trim(),
+            };
+        });
+        const [baseSlot, hoverSlot] = slots;
+        const sizeInput = byName('profile_cursor_size');
+        const test = document.getElementById('peCursorTest');
+        const testText = test?.querySelector('[data-cursor-test-text]');
+        let testCursor = null;
+        let testKey = null;
+
+        // Le immagini piccole si ingrandiscono, a pixel netti, per poter
+        // scegliere la punta con precisione.
+        const layout = (slot) => {
+            if (!slot.natural) return;
+            const [w, h] = slot.natural;
+            const scale = Math.min(STAGE / Math.max(w, h), 8);
+            slot.img.style.width = `${Math.max(1, Math.round(w * scale))}px`;
+            slot.img.style.height = `${Math.max(1, Math.round(h * scale))}px`;
+            slot.img.classList.toggle('is-pixelated', scale >= 2);
+            placeMark(slot);
+        };
+
+        // Il segno sta al centro del pixel scelto.
+        const placeMark = (slot) => {
+            const [x, y] = parseHot(slot.hot.value);
+            const center = (pct, size) => (size ? ((Math.min(size - 1, Math.round((pct / 100) * size)) + 0.5) / size) * 100 : pct);
+            slot.mark.style.left = `${center(x, slot.natural?.[0])}%`;
+            slot.mark.style.top = `${center(y, slot.natural?.[1])}%`;
+        };
+
+        const paint = (slot) => {
+            const url = slot.url.value.trim();
+            slot.el.classList.toggle('is-empty', !url);
+            if (!url) {
+                slot.img.removeAttribute('src');
+                slot.img.dataset.src = '';
+                slot.natural = null;
+                slot.el.classList.remove('is-loading', 'is-broken');
+            } else if (slot.img.dataset.src !== url) {
+                slot.img.dataset.src = url;
+                slot.natural = null;
+                slot.el.classList.add('is-loading');
+                slot.el.classList.remove('is-broken');
+                slot.img.onload = () => {
+                    if (slot.img.dataset.src !== url) return;
+                    slot.natural = [slot.img.naturalWidth || 1, slot.img.naturalHeight || 1];
+                    slot.el.classList.remove('is-loading');
+                    layout(slot);
+                };
+                slot.img.onerror = () => {
+                    if (slot.img.dataset.src !== url) return;
+                    slot.el.classList.remove('is-loading');
+                    slot.el.classList.add('is-broken');
+                    notes();
+                };
+                slot.img.src = url;
+            }
+            placeMark(slot);
+            const [x, y] = parseHot(slot.hot.value);
+            $$('[data-cursor-hot]', slot.el).forEach((button) => {
+                const [px, py] = parseHot(button.dataset.cursorHot);
+                button.classList.toggle('is-active', !!url && px === x && py === y);
+            });
+        };
+
+        const notes = () => {
+            const hasBase = !!baseSlot?.url.value.trim();
+            const text = (slot, empty) => {
+                if (!slot?.note) return;
+                if (slot.el.classList.contains('is-broken')) {
+                    slot.note.textContent = t('Questa immagine non si carica: prova a ricaricarla.', 'This image does not load: try uploading it again.');
+                } else {
+                    slot.note.textContent = slot.url.value.trim() ? '' : empty;
+                }
+            };
+            text(baseSlot, t('Vuoto: resta la freccia del sistema.', 'Empty: the system arrow stays.'));
+            text(hoverSlot, hasBase
+                ? t('Vuoto: sopra i link resta il cursore normale.', 'Empty: the default cursor stays over links too.')
+                : t('Vuoto: sopra i link resta la manina del sistema.', 'Empty: the system hand stays over links.'));
+        };
+
+        const config = () => {
+            const read = (slot) => {
+                const url = slot?.url.value.trim();
+                if (!url) return null;
+                const [x, y] = parseHot(slot.hot.value);
+                return { url, x, y };
+            };
+            return { size: Number(sizeInput?.value) || 32, base: read(baseSlot), hover: read(hoverSlot) };
+        };
+
+        const refreshTest = () => {
+            if (!test || !window.CripsumCursor) return;
+            const cfg = config();
+            const ready = !!(cfg.base || cfg.hover);
+            test.classList.toggle('is-empty', !ready);
+            if (testText) testText.textContent = ready ? testText.dataset.ready : testText.dataset.empty;
+            const key = JSON.stringify(cfg);
+            if (key === testKey) return;
+            testKey = key;
+            if (testCursor) testCursor.update(ready ? cfg : null);
+            else testCursor = window.CripsumCursor.mount(test, ready ? cfg : null);
+        };
+
+        const setHot = (slot, x, y) => {
+            const value = formatHot(x, y);
+            if (slot.hot.value === value) return;
+            slot.hot.value = value;
+            paint(slot);
+            PE.emit(slot.hot);
+        };
+
+        // Il pixel sotto il mouse: la punta si aggancia ai pixel dell'immagine.
+        const pick = (slot, event) => {
+            if (!slot.natural) return;
+            const rect = slot.img.getBoundingClientRect();
+            if (!rect.width || !rect.height) return;
+            const [w, h] = slot.natural;
+            const px = Math.min(w - 1, Math.max(0, Math.floor(((event.clientX - rect.left) / rect.width) * w)));
+            const py = Math.min(h - 1, Math.max(0, Math.floor(((event.clientY - rect.top) / rect.height) * h)));
+            setHot(slot, (px / w) * 100, (py / h) * 100);
+        };
+
+        slots.forEach((slot) => {
+            const upload = () => slot.el.querySelector('[data-act="upload"]')?.click();
+
+            slot.stage.addEventListener('pointerdown', (event) => {
+                if (event.button !== 0) return;
+                if (!slot.url.value.trim()) {
+                    upload();
+                    return;
+                }
+                if (slot.url.disabled || !slot.natural) return;
+                event.preventDefault();
+                slot.stage.focus({ preventScroll: true });
+                slot.stage.setPointerCapture?.(event.pointerId);
+                slot.el.classList.add('is-picking');
+                pick(slot, event);
+                const move = (e) => pick(slot, e);
+                const end = () => {
+                    slot.el.classList.remove('is-picking');
+                    slot.stage.removeEventListener('pointermove', move);
+                    slot.stage.removeEventListener('pointerup', end);
+                    slot.stage.removeEventListener('pointercancel', end);
+                };
+                slot.stage.addEventListener('pointermove', move);
+                slot.stage.addEventListener('pointerup', end);
+                slot.stage.addEventListener('pointercancel', end);
+            });
+
+            slot.stage.addEventListener('keydown', (event) => {
+                if (!slot.url.value.trim()) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        upload();
+                    }
+                    return;
+                }
+                const step = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
+                if (!step || !slot.natural || slot.url.disabled) return;
+                event.preventDefault();
+                const [w, h] = slot.natural;
+                const [x, y] = parseHot(slot.hot.value);
+                const jump = event.shiftKey ? 8 : 1;
+                const px = Math.min(w - 1, Math.max(0, Math.round((x / 100) * w) + step[0] * jump));
+                const py = Math.min(h - 1, Math.max(0, Math.round((y / 100) * h) + step[1] * jump));
+                setHot(slot, (px / w) * 100, (py / h) * 100);
+            });
+
+            $$('[data-cursor-hot]', slot.el).forEach((button) => button.addEventListener('click', () => {
+                if (!slot.url.value.trim()) return;
+                const [x, y] = parseHot(button.dataset.cursorHot);
+                setHot(slot, x, y);
+            }));
+
+            // Un .cur o un .ani porta la sua punta; un'immagine nuova qualsiasi
+            // riparte dall'angolo in alto a sinistra, come una freccia. Arriva
+            // prima dell'indirizzo, che poi fa scattare "input" qui sotto.
+            slot.el.addEventListener('pe:uploaded', (event) => {
+                slot.pending = event.detail?.hotspot || '0,0';
+            });
+            slot.url.addEventListener('input', () => {
+                const url = slot.url.value.trim();
+                if (url === slot.lastUrl) return;
+                slot.lastUrl = url;
+                slot.hot.value = url ? formatHot(...parseHot(slot.pending || '0,0')) : '0,0';
+                slot.pending = null;
+            });
+        });
+
+        sizeInput?.addEventListener('input', refreshTest);
+
+        return {
+            sync() {
+                slots.forEach((slot) => {
+                    slot.lastUrl = slot.url.value.trim();
+                    paint(slot);
+                });
+                notes();
+                refreshTest();
+            },
+        };
+    })();
 
     // ── Anteprima della scheda del browser ──────────────────────────────────
     const tabPreviewTitle = document.getElementById('peTabPreviewTitle');
