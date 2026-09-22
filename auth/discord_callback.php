@@ -21,7 +21,17 @@ $targetUserId = (int)($_SESSION['discord_oauth_target_user_id'] ?? $_SESSION['us
 
 unset($_SESSION['discord_oauth_state'], $_SESSION['discord_oauth_target_user_id']);
 
-if ($code === '' || $state === '' || !hash_equals((string)$savedState, $state)) {
+// Se Discord rifiuta (consenso negato, scope non concesso all'app) torna qui
+// con ?error= e senza code: meglio mostrare il motivo vero che "state invalido".
+$oauthError = trim((string)($_GET['error'] ?? ''));
+if ($oauthError !== '') {
+    $description = trim((string)($_GET['error_description'] ?? ''));
+    $_SESSION['profile_flash_error'] = 'Discord: ' . profile_clean_text($oauthError . ($description !== '' ? ' - ' . $description : ''), 200);
+    header('Location: /' . cripsum_preferred_lang() . '/edit-profile');
+    exit;
+}
+
+if ($code === ''|| $state === '' || !hash_equals((string)$savedState, $state)) {
     $_SESSION['profile_flash_error'] = 'Invalid Discord OAuth state.';
     header('Location: /' . cripsum_preferred_lang() . '/edit-profile');
     exit;
