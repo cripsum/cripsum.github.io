@@ -2145,18 +2145,34 @@
     display: none;
 }
 
+/* Il riquadro e' stretto: "Carica" su tutta la riga, sotto URL e cestino. */
 .pe-cursor-media .pe-media-actions {
-    flex-wrap: nowrap;
-    gap: 0.25rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem;
 }
 
 .pe-cursor-media .pe-media-actions .pe-btn {
-    padding-inline: 0.55rem;
+    justify-content: center;
+    min-width: 0;
 }
 
 .pe-cursor-media [data-act="upload"] {
-    flex: 1;
-    justify-content: center;
+    grid-column: 1 / -1;
+}
+
+.pe-cursor-media [data-act="url"] {
+    border: 1px solid var(--pe-line-strong);
+}
+
+.pe-cursor-media [data-act="remove"] {
+    width: 34px;
+    border: 1px solid var(--pe-line-strong);
+}
+
+/* Senza immagine il cestino non c'e': URL prende tutta la riga. */
+.pe-cursor-media .pe-media-actions:has([data-act="remove"][hidden]) [data-act="url"] {
+    grid-column: 1 / -1;
 }
 
 .pe-cursor-test {
