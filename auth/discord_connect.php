@@ -86,16 +86,11 @@ $_SESSION['discord_oauth_target_user_id'] = $targetUserId;
 // Solo percorsi interni: $returnUrl e' gia' passato da $localPath.
 $_SESSION['discord_oauth_return_url'] = $returnUrl;
 
-// application_identities.write serve al Game Stats Widget. Per ora lo chiede
-// solo lo staff: se Discord non lo concede all'app risponde invalid_scope, e
-// cosi' il collegamento normale degli utenti non si rompe durante la prova.
-$scope = profile_is_staff() ? 'identify application_identities.write' : 'identify';
-
 $params = http_build_query([
     'client_id' => CRIPSUM_DISCORD_CLIENT_ID,
     'redirect_uri' => CRIPSUM_DISCORD_REDIRECT_URI,
     'response_type' => 'code',
-    'scope' => $scope,
+    'scope' => 'identify',
     'state' => $state,
     'prompt' => 'consent',
 ]);
