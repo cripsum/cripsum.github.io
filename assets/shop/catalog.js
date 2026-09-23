@@ -591,6 +591,64 @@
         setInterval(tick, 1000);
     };
 
+    /*
+     * Strisce che scorrono di lato (gli ultimi arrivi del Merch): frecce
+     * avanti/indietro e sfumature ai bordi al posto della barra di sistema.
+     * Le frecce compaiono solo se c'e' davvero qualcosa da scorrere.
+     */
+    const initScrollers = () => {
+        $$('[data-scroller]').forEach((root) => {
+            const track = $('[data-scroller-track]', root);
+            const nav = $('[data-scroller-nav]', root);
+            const prev = $('[data-scroller-prev]', root);
+            const next = $('[data-scroller-next]', root);
+            if (!track || !nav || !prev || !next) return;
+
+            // Il browser manda "scroll" al massimo una volta per fotogramma:
+            // si aggiorna subito, senza aspettare requestAnimationFrame.
+            const update = () => {
+                const max = track.scrollWidth - track.clientWidth;
+                const scrollable = max > 4;
+                const before = scrollable && track.scrollLeft > 4;
+                const after = scrollable && track.scrollLeft < max - 4;
+
+                nav.hidden = !scrollable;
+                prev.disabled = !before;
+                next.disabled = !after;
+                track.classList.toggle('has-before', before);
+                track.classList.toggle('has-after', after);
+            };
+
+            // Distanza tra l'inizio di una card e quello della successiva.
+            const stride = () => {
+                const [first, second] = track.children;
+                if (!first) return 180;
+                return second ? second.offsetLeft - first.offsetLeft : first.offsetWidth;
+            };
+
+            const step = (direction) => {
+                // Si scorre di tante card quante ne stanno nella striscia,
+                // atterrando sempre sull'inizio di una card: lo scroll-snap
+                // non ha niente da correggere. L'ultimo passo va fino in
+                // fondo anche se l'ultima card non riempie il posto.
+                const size = stride();
+                const perPage = Math.max(1, Math.floor(track.clientWidth / size));
+                const max = track.scrollWidth - track.clientWidth;
+                let target = (Math.round(track.scrollLeft / size) + direction * perPage) * size;
+                if (direction > 0 && max - target < size) target = max;
+                track.scrollTo({ left: Math.min(Math.max(target, 0), max), behavior: reduceMotion ? 'auto' : 'smooth' });
+            };
+
+            prev.addEventListener('click', () => step(-1));
+            next.addEventListener('click', () => step(1));
+            track.addEventListener('scroll', update, { passive: true });
+            window.addEventListener('resize', update, { passive: true });
+            // Le immagini lazy cambiano la larghezza solo quando arrivano.
+            $$('img', track).forEach((img) => img.addEventListener('load', update, { once: true }));
+            update();
+        });
+    };
+
     const start = () => {
         initList();
         // Dopo initList: la select ha gia' il valore letto dall'indirizzo.
@@ -599,6 +657,7 @@
         initCheckout();
         initDownloads();
         initCountdowns();
+        initScrollers();
     };
 
     if (document.readyState === 'loading') {

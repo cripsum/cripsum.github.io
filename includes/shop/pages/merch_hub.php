@@ -81,9 +81,15 @@
         </section>
 
         <?php if ($latest): ?>
-            <section class="shop-latest" aria-labelledby="shop-latest-title">
-                <h2 id="shop-latest-title"><?php echo shop_h($S['latest_arrivals']); ?></h2>
-                <div class="shop-latest__track">
+            <section class="shop-latest" aria-labelledby="shop-latest-title" data-scroller>
+                <div class="shop-latest__head">
+                    <h2 id="shop-latest-title"><?php echo shop_h($S['latest_arrivals']); ?></h2>
+                    <div class="shop-scroller__nav" data-scroller-nav hidden>
+                        <button type="button" class="shop-scroller__btn" data-scroller-prev aria-label="<?php echo shop_h($S['scroll_prev']); ?>" disabled><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                        <button type="button" class="shop-scroller__btn" data-scroller-next aria-label="<?php echo shop_h($S['scroll_next']); ?>"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <div class="shop-latest__track" data-scroller-track>
                     <?php foreach ($latest as $product): ?>
                         <a class="shop-latest__item" href="<?php echo shop_h($product['url']); ?>">
                             <span class="shop-latest__image">

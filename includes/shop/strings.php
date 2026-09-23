@@ -52,6 +52,8 @@ function shop_strings(string $lang): array
         'launch_in' => 'Esce tra',
         'new' => 'Nuovo',
         'latest_arrivals' => 'Ultimi arrivi',
+        'scroll_prev' => 'Precedenti',
+        'scroll_next' => 'Successivi',
         'empty_collection' => 'Questa collezione è vuota, per ora.',
         'no_collections' => 'Nessuna collezione disponibile al momento.',
         // Pagina prodotto
@@ -182,6 +184,8 @@ function shop_strings(string $lang): array
         'launch_in' => 'Drops in',
         'new' => 'New',
         'latest_arrivals' => 'Latest arrivals',
+        'scroll_prev' => 'Previous',
+        'scroll_next' => 'Next',
         'empty_collection' => 'This collection is empty, for now.',
         'no_collections' => 'No collections available right now.',
         'view_product' => 'View',

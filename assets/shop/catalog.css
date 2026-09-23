@@ -1318,15 +1318,92 @@ body.shop-page {
     padding: 1rem;
 }
 
+.shop-latest__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+/*
+ * Striscia che scorre di lato: niente barra di scorrimento (quella di
+ * sistema su Windows e' una riga bianca), si scorre con le frecce, col
+ * dito o con la rotella + Maiusc. Le sfumature ai bordi dicono che c'e'
+ * altro da vedere; le mette catalog.js solo sul lato dove c'e'.
+ */
 .shop-latest__track {
+    --fade-before: 0px;
+    --fade-after: 0px;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(170px, 200px);
     gap: 0.75rem;
+    /* Spazio per l'ombra e il sollevamento al passaggio del mouse. */
+    margin: -0.35rem -0.35rem 0;
+    padding: 0.35rem;
     overflow-x: auto;
-    padding-bottom: 0.4rem;
+    overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
-    scrollbar-width: thin;
+    scroll-padding-inline: 0.35rem;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-before), #000 calc(100% - var(--fade-after)), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-before), #000 calc(100% - var(--fade-after)), transparent 100%);
+}
+
+.shop-latest__track::-webkit-scrollbar {
+    display: none;
+}
+
+.shop-latest__track.has-before {
+    --fade-before: 3rem;
+}
+
+.shop-latest__track.has-after {
+    --fade-after: 3rem;
+}
+
+.shop-scroller__nav {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.shop-scroller__nav[hidden] {
+    display: none;
+}
+
+.shop-scroller__btn {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    padding: 0;
+    border: 1px solid var(--shop-border);
+    border-radius: 999px;
+    color: var(--shop-text);
+    background: var(--shop-surface);
+    cursor: pointer;
+    transition: background var(--shop-transition), border-color var(--shop-transition), color var(--shop-transition), transform var(--shop-transition), opacity var(--shop-transition);
+}
+
+.shop-scroller__btn:hover:not(:disabled) {
+    color: var(--shop-on-accent);
+    border-color: transparent;
+    background: var(--shop-accent);
+    transform: scale(1.06);
+}
+
+.shop-scroller__btn:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.shop-scroller__btn:focus-visible {
+    outline: 3px solid rgba(var(--shop-accent-rgb), 0.55);
+    outline-offset: 2px;
+}
+
+.shop-scroller__btn:disabled {
+    opacity: 0.35;
+    cursor: default;
 }
 
 .shop-latest__item {
@@ -1859,12 +1936,11 @@ body.shop-page {
     transform: scale(0.985);
 }
 
+/* Al massimo 13 foto: vanno a capo invece di scorrere sotto una barra. */
 .shop-gallery__thumbs {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    overflow-x: auto;
-    padding-bottom: 0.2rem;
-    scrollbar-width: thin;
 }
 
 .shop-gallery__thumb {
