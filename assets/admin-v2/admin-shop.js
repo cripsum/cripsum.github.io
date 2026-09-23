@@ -100,12 +100,33 @@
         return payload;
     };
 
-    const uploadImage = async (file) => {
+    const slugify = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+    /*
+     * Le immagini finiscono in una cartella di img/ secondo il form da cui
+     * si caricano: img/negozio, img/merch/{collezione}, img/download,
+     * img/gacha. `folder` puo' essere una funzione: si legge al momento del
+     * caricamento, cosi' vale la collezione scelta in quel momento.
+     */
+    const uploadImage = async (file, folder = null) => {
         const fd = new FormData();
         fd.append('file', file);
         fd.append('type', 'image');
+        const target = typeof folder === 'function' ? folder() : folder;
+        if (target) fd.append('folder', target);
         const res = await api('upload_media.php', { method: 'POST', body: fd });
-        return `/img/${res.filename}`;
+        return res.url || `/img/${res.filename}`;
+    };
+
+    const folderSlug = (value) => slugify(value).slice(0, 60).replace(/-+$/, '');
+
+    const productFolder = (ctx, form) => {
+        const id = form.elements.vetrina_id?.value || ctx.defaultVetrina;
+        const vetrina = ctx.vetrine.find((v) => String(v.id) === String(id));
+        if (vetrina?.tipo !== 'merch') return 'negozio';
+        const slug = folderSlug(vetrina.slug);
+        return slug ? `merch/${slug}` : 'merch';
     };
 
     /**
@@ -113,7 +134,7 @@
      * colori (selettore e testo sincronizzati), campi che compaiono solo con
      * un certo valore di un altro campo (data-show-when="stato=in_arrivo").
      */
-    const bindForm = (form, onChange = null) => {
+    const bindForm = (form, onChange = null, folder = null) => {
         $$('[data-upload-image]', form).forEach((input) => input.addEventListener('change', async () => {
             const file = input.files?.[0];
             if (!file) return;
@@ -121,7 +142,7 @@
             const text = $('[data-image-input]', wrap);
             try {
                 showToast('Caricamento immagine...');
-                text.value = await uploadImage(file);
+                text.value = await uploadImage(file, folder);
                 text.dispatchEvent(new Event('input', { bubbles: true }));
                 showToast('Immagine caricata.');
             } catch (error) {
@@ -466,9 +487,6 @@
         const preview = $('[data-theme-preview]', form);
         const slugPreview = $('[data-slug-preview]', form);
 
-        const slugify = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-
         const draw = () => {
             const val = (name) => form.elements[name]?.value || '';
             const accent = val('colore_accento') || '#6d5dfc';
@@ -503,7 +521,14 @@
             draw();
         }));
 
-        bindForm(form, draw);
+        // Il Negozio non ha il campo indirizzo: e' l'unica vetrina senza slug.
+        const folder = () => {
+            if (!form.elements.slug) return 'negozio';
+            const slug = folderSlug(form.elements.slug.value || form.elements.nome?.value);
+            return slug ? `merch/${slug}` : 'merch';
+        };
+
+        bindForm(form, draw, folder);
     };
 
     const toLocalInput = (value) => (value ? String(value).replace(' ', 'T').slice(0, 16) : '');
@@ -554,7 +579,7 @@
             <small class="shop-admin-help">Una per riga, fino a 12. Nella pagina del prodotto diventano le miniature sotto la foto principale.</small>
         </div>`;
 
-    const bindGalleryField = (form) => {
+    const bindGalleryField = (form, folder = null) => {
         const wrap = $('[data-gallery-field]', form);
         if (!wrap) return;
         const area = $('textarea', wrap);
@@ -570,7 +595,7 @@
             for (const file of files) {
                 try {
                     showToast(`Caricamento ${file.name}...`);
-                    const url = await uploadImage(file);
+                    const url = await uploadImage(file, folder);
                     area.value = (area.value.trim() ? area.value.trim() + '\n' : '') + url;
                     draw();
                 } catch (error) {
@@ -638,8 +663,9 @@
             extra: { id: item?.id || 0, ...(isMerch ? {} : { vetrina_id: ctx.vetrine[0]?.id }) },
             after: reload,
             onReady: (form) => {
-                bindGalleryField(form);
-                bindForm(form, () => productPreview(form));
+                const folder = () => productFolder(ctx, form);
+                bindGalleryField(form, folder);
+                bindForm(form, () => productPreview(form), folder);
             },
         });
     };
@@ -1130,7 +1156,7 @@
                     : '';
                 form.elements.name_it.placeholder = badge ? badge.name : 'vuoto = nome del badge';
                 form.elements.name_en.placeholder = badge ? (badge.name_en || badge.name) : 'vuoto = nome inglese del badge';
-            }),
+            }, 'gacha'),
         });
     };
 
@@ -1524,7 +1550,7 @@
 
         const form = $('#adminModalBody [data-shop-form]');
         const saveBtn = $('#adminModalFooter [data-shop-save]');
-        bindForm(form);
+        bindForm(form, null, 'download');
 
         $$('[data-upload-file]', form).forEach((input) => input.addEventListener('change', async () => {
             const file = input.files?.[0];

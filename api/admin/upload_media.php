@@ -1,6 +1,38 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 
+/**
+ * Le immagini del pannello vanno in una sottocartella di img/ secondo da
+ * dove si caricano (POST folder): negozio, merch/{collezione}, download,
+ * gacha, personaggi. Senza folder finiscono in img/ come prima.
+ *
+ * Il primo livello e' una lista chiusa: img/ ha gia' cartelle con un
+ * significato (badges, rewind, cripsumpedia) in cui il pannello non deve
+ * scrivere.
+ */
+const ADMIN_IMAGE_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personaggi'];
+
+function admin_upload_folder(string $folder): string
+{
+    $folder = trim($folder, " /");
+    if ($folder === '') {
+        return '';
+    }
+
+    $segments = explode('/', $folder);
+    if (count($segments) > 2 || !in_array($segments[0], ADMIN_IMAGE_FOLDERS, true)) {
+        admin_fail('Cartella di destinazione non valida.');
+    }
+
+    foreach ($segments as $segment) {
+        if (!preg_match('/^[a-z0-9](?:[a-z0-9-]{0,58}[a-z0-9])?$/', $segment)) {
+            admin_fail('Cartella di destinazione non valida.');
+        }
+    }
+
+    return implode('/', $segments) . '/';
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     admin_fail('Metodo non consentito.', 405);
 }
@@ -32,9 +64,12 @@ if ($file['size'] <= 0 || $file['size'] > $maxSize) {
 $allowedExtensions = [];
 $targetDir = '';
 
+$subFolder = '';
+
 if ($type === 'image') {
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-    $targetDir = __DIR__ . '/../../img/';
+    $subFolder = admin_upload_folder((string)($_POST['folder'] ?? ''));
+    $targetDir = __DIR__ . '/../../img/' . $subFolder;
 } elseif ($type === 'audio') {
     $allowedExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'aac'];
     $targetDir = __DIR__ . '/../../audio/';
@@ -91,11 +126,16 @@ if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
 }
 
 admin_log($mysqli, (int)$adminUser['id'], 'upload_media', null, [
-    'filename' => $finalFilename,
+    'filename' => $subFolder . $finalFilename,
     'type' => $type
 ]);
 
+// filename resta relativo alla cartella del tipo (img/, audio/, vid/), come
+// prima: i personaggi lo salvano cosi' e le pagine ci mettono davanti /img/.
+$baseUrl = ['image' => '/img/', 'audio' => '/audio/', 'video' => '/vid/'][$type];
+
 admin_ok([
     'message' => 'File caricato con successo.',
-    'filename' => $finalFilename
+    'filename' => $subFolder . $finalFilename,
+    'url' => $baseUrl . $subFolder . $finalFilename,
 ]);

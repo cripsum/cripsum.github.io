@@ -696,6 +696,9 @@
                 const fd = new FormData();
                 fd.append('file', file);
                 fd.append('type', 'image');
+                // In img/personaggi/: il campo salva "personaggi/nome.jpg" e le
+                // pagine ci mettono davanti /img/ come per i nomi semplici.
+                fd.append('folder', 'personaggi');
                 try {
                     showToast('Caricamento immagine...');
                     const res = await api('upload_media.php', { method: 'POST', body: fd });
