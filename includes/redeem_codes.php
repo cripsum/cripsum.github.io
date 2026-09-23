@@ -188,6 +188,13 @@ function cripsum_redeem_codes(): array
             'expires_at' => '2026-08-11 17:02:01',
             'active' => true,
         ],
+        '500H' => [
+            'tipo' => 'punti',
+            'punti' => 500,
+            'descrizione' => ['it' => 'W 500 ore', 'en' => 'W 500 hours'],
+            'starts_at' => '2026-09-24 00:00:00',
+            'active' => true,
+        ],
     ];
 }
 
