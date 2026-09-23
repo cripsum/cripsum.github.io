@@ -192,7 +192,7 @@ function cripsum_redeem_codes(): array
             'tipo' => 'punti',
             'punti' => 500,
             'descrizione' => ['it' => 'W 500 ore', 'en' => 'W 500 hours'],
-            'starts_at' => '2026-09-24 00:00:00',
+            'starts_at' => '2026-09-24 00:00:01',
             'active' => true,
         ],
     ];
