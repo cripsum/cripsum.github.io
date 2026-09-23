@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/stripe_config.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/shop/gacha_catalog.php';
 
 header('Content-Type: text/plain; charset=utf-8');
 
@@ -147,35 +148,35 @@ if ($eventType === 'checkout.session.completed') {
     if ($purchaseType === 'shards') {
         $userId = (int)($metadata['user_id'] ?? 0);
         $packageId = $metadata['package_id'] ?? '';
+        $sessionRef = (string)($session['id'] ?? '');
 
-        $packages = [
-            'shards_5' => ['price' => 0.59, 'shards' => 5],
-            'shards_10' => ['price' => 0.99, 'shards' => 10],
-            'shards_25' => ['price' => 1.99, 'shards' => 25],
-            'shards_45' => ['price' => 2.99, 'shards' => 45],
-            'shards_80' => ['price' => 4.99, 'shards' => 80],
-            'shards_180' => ['price' => 9.99, 'shards' => 180],
-            'shards_400' => ['price' => 19.99, 'shards' => 400],
-            'shards_1200' => ['price' => 49.99, 'shards' => 1200],
-        ];
+        // Anche un pacchetto spento o archiviato nel frattempo: il pagamento
+        // e' partito quando era in vendita.
+        $package = $packageId !== '' ? gacha_package_for_payment($mysqli, (string)$packageId) : null;
 
-        if ($userId <= 0 || !isset($packages[$packageId])) {
+        if ($userId <= 0 || $package === null) {
+            gacha_order_error($mysqli, $userId, (string)$packageId, 'stripe', $sessionRef, (int)($session['amount_total'] ?? 0), 'Pacchetto non trovato nei metadati Stripe.');
             stripe_release_event($mysqli, $eventId);
             http_response_code(400);
             exit('Metadati pacchetto non validi.');
         }
 
-        $expectedAmount = (int)round($packages[$packageId]['price'] * 100);
+        // Prezzo e Shards fotografati alla creazione della sessione. Le
+        // sessioni aperte prima di questa versione non li hanno: per quelle
+        // valgono i valori attuali del pacchetto, come e' sempre stato.
+        $snapshotCents = (string)($metadata['price_cents'] ?? '');
+        $snapshotShards = (string)($metadata['shards'] ?? '');
+        $expectedAmount = ctype_digit($snapshotCents) && (int)$snapshotCents > 0 ? (int)$snapshotCents : (int)$package['price_cents'];
+        $baseShards = ctype_digit($snapshotShards) && (int)$snapshotShards > 0 ? (int)$snapshotShards : (int)$package['shards'];
+
         if ((int)($session['amount_total'] ?? -1) !== $expectedAmount) {
+            gacha_order_error($mysqli, $userId, (string)$packageId, 'stripe', $sessionRef, (int)($session['amount_total'] ?? 0), 'Importo pagato diverso da quello atteso (' . $expectedAmount . ' cent).');
             stripe_release_event($mysqli, $eventId);
             http_response_code(400);
             exit('Importo pagamento non valido.');
         }
 
-        if ($userId > 0 && isset($packages[$packageId])) {
-            $package = $packages[$packageId];
-            $baseShards = $package['shards'];
-
+        if ($userId > 0) {
             $mysqli->begin_transaction();
             try {
                 // Serialize all value credits for the same account so two
@@ -236,10 +237,15 @@ if ($eventType === 'checkout.session.completed') {
                 $mysqli->rollback();
                 stripe_release_event($mysqli, $eventId);
                 error_log("[Stripe Webhook] Errore accreditamento shards: " . $e->getMessage());
+                gacha_order_error($mysqli, $userId, (string)$packageId, 'stripe', $sessionRef, $expectedAmount, 'Accredito non riuscito, Stripe riprova da solo: ' . $e->getMessage());
                 http_response_code(500);
                 echo "Errore database.";
                 exit;
             }
+
+            // Storico per l'assistenza, a Shards gia' accreditate e fuori
+            // dalla transazione: se questa scrittura fallisce l'accredito resta.
+            gacha_order_paid($mysqli, $userId, (string)$packageId, 'stripe', $sessionRef, $expectedAmount, $baseShards, $finalShards, $isFirstPurchase);
         }
     } else {
         $userId = (int)($session['client_reference_id'] ?? 0);

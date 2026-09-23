@@ -19,7 +19,7 @@ $csrfToken = admin_csrf_token();
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/admin-v2/admin.css?v=3.0">
+    <link rel="stylesheet" href="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin.css')); ?>">
 </head>
 
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">
@@ -50,6 +50,12 @@ $csrfToken = admin_csrf_token();
                 <button type="button" data-section="messages"><i class="fa-solid fa-envelope"></i><span>Centro Messaggi</span></button>
                 <button type="button" data-section="tickets"><i class="fa-solid fa-headset"></i><span>Ticket Supporto</span></button>
                 <button type="button" data-section="homeslides"><i class="fa-solid fa-house-laptop"></i><span>Slide homepage</span></button>
+                <span class="admin-nav-label">Shop</span>
+                <button type="button" data-section="shop-negozio"><i class="fa-solid fa-store"></i><span>Negozio</span></button>
+                <button type="button" data-section="shop-merch"><i class="fa-solid fa-shirt"></i><span>Merch</span></button>
+                <button type="button" data-section="shop-gacha"><i class="fa-solid fa-gem"></i><span>Shop Gacha</span></button>
+                <button type="button" data-section="shop-download"><i class="fa-solid fa-download"></i><span>Download</span></button>
+                <span class="admin-nav-label">Community</span>
                 <button type="button" data-section="shitposts"><i class="fa-solid fa-image"></i><span>Shitpost</span></button>
                 <button type="button" data-section="toprimasti"><i class="fa-solid fa-ranking-star"></i><span>Top Rimasti</span></button>
                 <button type="button" data-section="reports"><i class="fa-solid fa-flag"></i><span>Segnalazioni</span></button>
@@ -165,6 +171,46 @@ $csrfToken = admin_csrf_token();
                     <button type="button" class="admin-btn admin-btn--primary" id="createHomeSlideBtn"><i class="fa-solid fa-plus"></i> Nuova</button>
                 </div>
                 <div id="homeSlidesTable" class="admin-table-card"></div>
+            </section>
+
+            <section class="admin-section" id="section-shop-negozio" data-section-panel="shop-negozio">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Negozio</strong>
+                        <small>Prodotti finti della pagina <a href="/it/negozio" target="_blank" rel="noopener">/it/negozio</a>: nessun pagamento vero.</small>
+                    </div>
+                </div>
+                <div class="admin-table-card shop-admin" data-shop-admin="negozio"></div>
+            </section>
+
+            <section class="admin-section" id="section-shop-merch" data-section-panel="shop-merch">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Merch</strong>
+                        <small>Collezioni (simonetussi.ph, Poppy...) con i loro prodotti finti. Pagina: <a href="/it/merch" target="_blank" rel="noopener">/it/merch</a>.</small>
+                    </div>
+                </div>
+                <div class="admin-table-card shop-admin" data-shop-admin="merch"></div>
+            </section>
+
+            <section class="admin-section" id="section-shop-gacha" data-section-panel="shop-gacha">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Shop Gacha</strong>
+                        <small>Pacchetti di Godo Shards (soldi veri) e oggetti comprabili con i Godos. Pagina: <a href="/it/shop" target="_blank" rel="noopener">/it/shop</a>.</small>
+                    </div>
+                </div>
+                <div class="admin-table-card shop-admin" data-shop-admin="gacha"></div>
+            </section>
+
+            <section class="admin-section" id="section-shop-download" data-section-panel="shop-download">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Download</strong>
+                        <small>File e link della pagina <a href="/it/download" target="_blank" rel="noopener">/it/download</a>.</small>
+                    </div>
+                </div>
+                <div class="admin-table-card shop-admin" data-shop-admin="download"></div>
             </section>
 
             <section class="admin-section" id="section-shitposts" data-section-panel="shitposts">
@@ -303,7 +349,8 @@ $csrfToken = admin_csrf_token();
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/assets/admin-v2/admin.js?v=3.7"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-shop.js')); ?>"></script>
 </body>
 
 </html>

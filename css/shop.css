@@ -895,3 +895,317 @@ input[type="range"].form-range {
     object-fit: contain;
 }
 
+
+/* ── Settembre 2026: stili che prima stavano inline nella pagina ────────── */
+
+/* Toast di pagamento e conversione (prima erano uno <style> dentro shop.php). */
+.shop-toast {
+    position: fixed;
+    top: 5rem;
+    right: 2rem;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: min(92vw, 420px);
+    padding: 1rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    background: rgba(16, 185, 129, 0.9);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    animation: shopToastIn 0.3s ease forwards;
+}
+
+.shop-toast.is-error {
+    background: rgba(239, 68, 68, 0.9);
+}
+
+/* Dopo Stripe, finche' il webhook non ha accreditato le Shards. */
+.shop-toast.is-pending {
+    background: rgba(79, 70, 229, 0.92);
+}
+
+.shop-toast a {
+    color: #fff;
+    font-weight: 800;
+}
+
+.shop-toast-spinner {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: 0 0 auto;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    border-radius: 999px;
+    animation: shopSpin 0.8s linear infinite;
+}
+
+@keyframes shopToastIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes shopSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 520px) {
+    .shop-toast {
+        left: 12px;
+        right: 12px;
+        top: 4.8rem;
+    }
+}
+
+/* Card */
+.card-shards-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.card-note-muted {
+    display: block;
+    min-height: 28px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.card-amount--item {
+    font-size: 1.5rem;
+}
+
+.card-price--godos {
+    font-size: 1.15rem;
+    color: #a855f7;
+}
+
+.card-per-shard {
+    display: block;
+    margin-top: 0.2rem;
+    color: #94a3b8;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.card-btn--convert {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+}
+
+.card-btn:disabled {
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    filter: none;
+}
+
+.card-btn.is-owned,
+.card-btn.is-soldout {
+    color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* "Ti mancano X Godos": si vede subito, senza cliccare per scoprirlo. */
+.card-btn.is-short {
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    font-size: 0.85rem;
+}
+
+.card-btn.is-soon {
+    color: #fde68a;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    font-size: 0.85rem;
+}
+
+.card-btn--gold {
+    max-width: 200px;
+    color: #000;
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+}
+
+.shop-card.is-soon .shop-badge-preview {
+    filter: grayscale(0.4) brightness(0.85);
+}
+
+.badge-time {
+    background: rgba(251, 191, 36, 0.16);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: #fde68a;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Pezzi rimasti di un oggetto a tiratura limitata */
+.shop-stock {
+    height: 6px;
+    margin: 0.2rem auto 0.9rem;
+    width: 80%;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.shop-stock span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+    transition: width 0.4s ease;
+}
+
+.shop-bonus-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: -1rem auto 2rem;
+    max-width: 760px;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 14px;
+    color: #fecdd3;
+    background: rgba(239, 68, 68, 0.08);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.shop-grid-empty {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 2rem 1rem;
+    color: #94a3b8;
+    text-align: center;
+}
+
+/* Convertitore */
+.shop-conversion-pulls {
+    margin: -14px 0 18px;
+    color: rgba(226, 232, 240, 0.55);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+.shop-conversion-quick {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.shop-conversion-quick button,
+.shop-conversion-quick input {
+    min-width: 2.6rem;
+    height: 2.3rem;
+    padding: 0 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.05);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.shop-conversion-quick button {
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.shop-conversion-quick button:hover {
+    border-color: rgba(124, 58, 237, 0.55);
+    background: rgba(124, 58, 237, 0.18);
+}
+
+.shop-conversion-quick input {
+    width: 5.5rem;
+    text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.shop-conversion-quick input::-webkit-outer-spin-button,
+.shop-conversion-quick input::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+.shop-conversion-quick input:focus {
+    border-color: rgba(124, 58, 237, 0.7);
+}
+
+/* Modali di conferma e di successo degli oggetti Godos */
+.shop-reveal-body {
+    padding-top: 0.25rem;
+    text-align: center;
+}
+
+.shop-reveal-text {
+    color: #94a3b8;
+}
+
+.reveal-card-wrap {
+    margin: 1rem 0;
+}
+
+.reveal-card-wrap--plain {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.reveal-badge-box--plain {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+    animation: none;
+}
+
+.reveal-badge-name {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.5rem;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.reveal-badge-desc {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.25rem;
+    padding: 0 1rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.reveal-badge-price {
+    margin-top: 1rem;
+    color: #a855f7;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.success-glow-ring i {
+    color: #fbbf24;
+    font-size: 3rem;
+    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));
+}
+
+.shop-action-modal__actions--center {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.shop-reveal-body .shop-action-modal__actions {
+    margin-top: 1.5rem;
+}

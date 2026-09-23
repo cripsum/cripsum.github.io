@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/stripe_config.php';
+require_once __DIR__ . '/../includes/shop/gacha_catalog.php';
 
 if (STRIPE_SECRET_KEY === '') {
     error_log('Stripe shard checkout disabled: missing runtime credentials.');
@@ -27,33 +28,28 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
 $userId = (int)$_SESSION['user_id'];
 $packageId = isset($_REQUEST['package_id']) ? trim((string)$_REQUEST['package_id']) : '';
 
-$packages = [
-    'shards_5' => ['price' => 0.59, 'shards' => 5, 'name' => '5 Godo Shards'],
-    'shards_10' => ['price' => 0.99, 'shards' => 10, 'name' => '10 Godo Shards'],
-    'shards_25' => ['price' => 1.99, 'shards' => 25, 'name' => '25 Godo Shards'],
-    'shards_45' => ['price' => 2.99, 'shards' => 45, 'name' => '45 Godo Shards'],
-    'shards_80' => ['price' => 4.99, 'shards' => 80, 'name' => '80 Godo Shards (Pity Completo)'],
-    'shards_180' => ['price' => 9.99, 'shards' => 180, 'name' => '180 Godo Shards'],
-    'shards_400' => ['price' => 19.99, 'shards' => 400, 'name' => '400 Godo Shards'],
-    'shards_1200' => ['price' => 49.99, 'shards' => 1200, 'name' => '1200 Godo Shards'],
-];
+// Solo i pacchetti in vendita adesso: quelli spenti dall'admin non si
+// possono piu' comprare, anche con un link vecchio.
+$package = $packageId !== '' ? gacha_package_for_checkout($mysqli, $packageId) : null;
 
-if (empty($packageId) || !isset($packages[$packageId])) {
+if ($package === null) {
     header("Location: /{$lang}/shop.php?error=invalid_package");
     exit;
 }
 
-$package = $packages[$packageId];
-$priceInCents = (int)round($package['price'] * 100);
+$priceInCents = (int)$package['price_cents'];
+$productName = $package['name'] . ($package['highlight'] === 'pity' ? ' (Pity Completo)' : '');
 
-$successUrl = "https://cripsum.com/{$lang}/shop.php?payment=success&package_id=" . urlencode($packageId);
+// {CHECKOUT_SESSION_ID} lo sostituisce Stripe: al ritorno la pagina sa quale
+// ordine aspettare e mostra "accredito in corso" finche' non arriva il webhook.
+$successUrl = "https://cripsum.com/{$lang}/shop.php?payment=success&package_id=" . urlencode($packageId) . '&session_id={CHECKOUT_SESSION_ID}';
 $cancelUrl = "https://cripsum.com/{$lang}/shop.php?payment=cancel";
 
 // Prep Stripe session parameters using inline price_data
 $postData = http_build_query([
     'line_items[0][price_data][currency]' => 'eur',
     'line_items[0][price_data][unit_amount]' => $priceInCents,
-    'line_items[0][price_data][product_data][name]' => $package['name'],
+    'line_items[0][price_data][product_data][name]' => $productName,
     'line_items[0][quantity]' => 1,
     'mode' => 'payment',
     'client_reference_id' => $userId,
@@ -62,6 +58,10 @@ $postData = http_build_query([
     'metadata[type]' => 'shards',
     'metadata[package_id]' => $packageId,
     'metadata[user_id]' => $userId,
+    // Prezzo e Shards di questo momento: se l'admin li cambia mentre la
+    // sessione e' aperta, il webhook accredita quello che e' stato pagato.
+    'metadata[price_cents]' => $priceInCents,
+    'metadata[shards]' => (int)$package['shards'],
 ]);
 
 // Call Stripe API using standard PHP cURL
@@ -82,6 +82,8 @@ curl_close($ch);
 if ($httpStatus === 200) {
     $session = json_decode($response, true);
     if (!empty($session['url'])) {
+        // Storico: l'ordine nasce "in attesa", lo chiude il webhook.
+        gacha_order_pending($mysqli, $userId, $packageId, 'stripe', (string)($session['id'] ?? ''), $package);
         header('Location: ' . $session['url']);
         exit;
     }

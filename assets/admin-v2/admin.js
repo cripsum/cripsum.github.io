@@ -1544,17 +1544,24 @@
      * La riga si sposta nel DOM mentre la trascini, cosi' si vede dove andra' a
      * finire; l'ordine si manda al server una volta sola, quando molli.
      */
-    const enableHomeSlidesDrag = (box) => {
+    /**
+     * Riordino trascinando le righe di una tabella: le righe hanno
+     * l'attributo `rowAttr` con il loro id, e a fine trascinamento
+     * `onOrder` riceve l'elenco completo degli id nel nuovo ordine. Lo usano
+     * le slide della home e le sezioni dello shop.
+     */
+    const enableRowDrag = (box, rowAttr, onOrder) => {
         const corpo = box.querySelector('tbody');
         if (!corpo) return;
 
+        const selector = `[${rowAttr}]`;
         let trascinata = null;
         let ordineIniziale = [];
 
-        const ordineAttuale = () => $$('[data-slide-row]', corpo).map((r) => Number(r.dataset.slideRow));
+        const ordineAttuale = () => $$(selector, corpo).map((r) => Number(r.getAttribute(rowAttr)));
 
         corpo.addEventListener('dragstart', (event) => {
-            const riga = event.target.closest('[data-slide-row]');
+            const riga = event.target.closest(selector);
             if (!riga) return;
 
             trascinata = riga;
@@ -1564,7 +1571,7 @@
             // Firefox non avvia il trascinamento se non c'e' niente nel
             // dataTransfer.
             event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('text/plain', riga.dataset.slideRow);
+            event.dataTransfer.setData('text/plain', riga.getAttribute(rowAttr));
         });
 
         corpo.addEventListener('dragover', (event) => {
@@ -1572,7 +1579,7 @@
             event.preventDefault();
             event.dataTransfer.dropEffect = 'move';
 
-            const sopra = event.target.closest('[data-slide-row]');
+            const sopra = event.target.closest(selector);
             if (!sopra || sopra === trascinata) return;
 
             // Si guarda se il puntatore e' sopra o sotto la meta' della riga:
@@ -1593,20 +1600,24 @@
             const ordine = ordineAttuale();
             if (ordine.join() === ordineIniziale.join()) return;
 
-            try {
-                await api('reorder_home_slides.php', { method: 'POST', body: { order: ordine } });
-                showToast('Ordine aggiornato.');
-                loadHomeSlides();
-            } catch (error) {
-                showToast(error.message, true);
-                loadHomeSlides();
-            }
+            await onOrder(ordine);
         });
 
         // Senza questo il browser rifiuta il rilascio e la riga "torna
         // indietro" con l'animazione di annullamento.
         corpo.addEventListener('drop', (event) => event.preventDefault());
     };
+
+    const enableHomeSlidesDrag = (box) => enableRowDrag(box, 'data-slide-row', async (ordine) => {
+        try {
+            await api('reorder_home_slides.php', { method: 'POST', body: { order: ordine } });
+            showToast('Ordine aggiornato.');
+            loadHomeSlides();
+        } catch (error) {
+            showToast(error.message, true);
+            loadHomeSlides();
+        }
+    });
 
     /**
      * Sposta una slide di un posto e rimanda su l'ordine completo.
@@ -1691,10 +1702,39 @@
         }
     );
 
+    /* ── Sezioni esterne ──────────────────────────────────────────────
+       Le sezioni dello shop stanno in admin-shop.js: si registrano qui e
+       usano gli stessi strumenti (api, modali, toast) del resto del
+       pannello. */
+
+    const externalSections = {};
+
+    window.CripsumAdmin = {
+        role: adminRole,
+        api,
+        openModal,
+        closeModal,
+        confirmBox,
+        showToast,
+        escapeHtml,
+        assetUrl,
+        thumb,
+        setLoading,
+        emptyState,
+        formatDate,
+        enableRowDrag,
+        getQuery: () => state.q,
+        registerSection: (name, loader) => {
+            externalSections[name] = loader;
+            if (state.section === name) loader();
+        },
+    };
+
     const switchSection = (section) => {
         state.section = section;
         $$('[data-admin-nav] button').forEach((b) => b.classList.toggle('is-active', b.dataset.section === section));
         $$('[data-section-panel]').forEach((panel) => panel.classList.toggle('is-active', panel.dataset.sectionPanel === section));
+        if (externalSections[section]) externalSections[section]();
         if (section === 'dashboard') loadDashboard();
         if (section === 'users') loadUsers();
         if (section === 'characters') loadCharacters();

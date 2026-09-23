@@ -658,3 +658,114 @@ body.modal-open {
 @media (prefers-reduced-motion: reduce) {
     .admin-btn--online.is-active .admin-online-dot { animation: none; }
 }
+
+/* ── Shop (admin-shop.js) ────────────────────────────────────────────────
+   Negozio, Merch, Shop Gacha e Download: schede, interruttori nelle righe,
+   anteprime nei form e le FAQ modificabili sul posto. */
+
+.admin-nav-label { margin: .7rem .85rem .1rem; color: var(--admin-muted-2); font-size: .68rem; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
+@media (max-width: 1180px) { .admin-nav-label { display: none; } }
+
+.shop-admin a:not(.admin-btn) { color: var(--admin-accent); }
+.shop-admin code { color: var(--admin-text); background: rgba(255,255,255,.07); padding: .05rem .35rem; border-radius: 6px; }
+.admin-toolbar small a { color: var(--admin-accent); }
+
+.shop-admin-tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; padding-bottom: .8rem; border-bottom: 1px solid var(--admin-border); }
+.shop-admin-tab { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.5rem; padding: .5rem .9rem; border: 1px solid var(--admin-border); border-radius: 999px; color: var(--admin-muted); background: rgba(255,255,255,.04); font-weight: 850; cursor: pointer; transition: var(--admin-transition); }
+.shop-admin-tab i { color: var(--admin-accent); }
+.shop-admin-tab:hover { color: var(--admin-text); border-color: rgba(var(--admin-accent-rgb), .4); }
+.shop-admin-tab.is-active { color: var(--admin-text); border-color: rgba(var(--admin-accent-rgb), .6); background: rgba(var(--admin-accent-rgb), .16); }
+
+.shop-admin-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .6rem; }
+.shop-admin-bar > p { flex: 1 1 320px; margin: 0; }
+.shop-admin-hint { display: flex; align-items: center; gap: .5rem; margin: 0 0 .4rem; color: var(--admin-muted); font-size: .84rem; }
+.shop-admin-hint i { color: var(--admin-accent); }
+
+.shop-admin .admin-table tr.is-off td { opacity: .62; }
+.shop-admin .admin-table tr.is-off td:last-child,
+.shop-admin .admin-table tr.is-off td[data-label="In vendita"],
+.shop-admin .admin-table tr.is-off td[data-label="Stato"] { opacity: 1; }
+.shop-admin .admin-table tr[data-shop-row] { cursor: grab; }
+.shop-admin .admin-table tr[data-shop-row]:active { cursor: grabbing; }
+.shop-admin .admin-table tr.is-dragging { opacity: .45; outline: 2px dashed rgba(var(--admin-accent-rgb), .6); }
+.shop-admin-divider td { padding: .8rem .65rem .2rem !important; border: 0 !important; background: transparent !important; color: var(--admin-muted-2); font-size: .72rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.shop-admin-star { color: #fbbf24; }
+.shop-admin-source { max-width: 260px; overflow-wrap: anywhere; color: var(--admin-muted); font-size: .86rem; }
+.shop-admin-state { min-width: 9.5rem; }
+@media (hover: none) { .shop-admin .admin-table tr[data-shop-row] { cursor: default; } }
+
+/* Interruttore acceso/spento nelle righe */
+.shop-admin-switch { position: relative; display: inline-flex; cursor: pointer; }
+.shop-admin-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.shop-admin-switch span { position: relative; width: 2.75rem; height: 1.55rem; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid var(--admin-border); transition: background var(--admin-transition); }
+.shop-admin-switch span::after { content: ""; position: absolute; top: .16rem; left: .18rem; width: 1.1rem; height: 1.1rem; border-radius: 999px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); transition: transform var(--admin-transition); }
+.shop-admin-switch input:checked + span { background: var(--admin-success); border-color: transparent; }
+.shop-admin-switch input:checked + span::after { transform: translateX(1.18rem); }
+.shop-admin-switch input:focus-visible + span { outline: 3px solid rgba(var(--admin-accent-rgb), .5); outline-offset: 2px; }
+.shop-admin-switch input:disabled + span { opacity: .45; cursor: not-allowed; }
+
+/* Form */
+.shop-admin-form [hidden],
+.shop-admin-inline [hidden] { display: none !important; }
+.shop-admin-help { display: block; color: var(--admin-muted-2); font-size: .78rem; line-height: 1.4; }
+.shop-admin-help code { font-size: .74rem; }
+.shop-admin-req { color: var(--admin-danger); }
+.shop-admin-subtitle { grid-column: 1 / -1; display: grid; gap: .1rem; margin: .9rem 0 .15rem; padding-top: .8rem; border-top: 1px solid var(--admin-border); }
+.shop-admin-form > .shop-admin-subtitle:first-child,
+.shop-admin-inline > .shop-admin-subtitle:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.shop-admin-subtitle strong { font-size: .95rem; }
+.shop-admin-subtitle small { color: var(--admin-muted); }
+.shop-admin-check label { display: inline-flex !important; align-items: center; gap: .55rem; color: var(--admin-text) !important; font-size: .9rem !important; font-weight: 800 !important; letter-spacing: 0 !important; text-transform: none !important; cursor: pointer; }
+.shop-admin-note { display: flex; gap: .55rem; margin: 0; padding: .7rem .85rem; border: 1px solid rgba(var(--admin-accent-rgb), .3); border-radius: 14px; color: var(--admin-muted); background: rgba(var(--admin-accent-rgb), .08); font-size: .84rem; }
+.shop-admin-note i { margin-top: .15rem; color: var(--admin-accent); }
+.shop-admin-upload { flex: none; margin: 0; cursor: pointer; height: 2.75rem; display: inline-flex; align-items: center; gap: .4rem; }
+.shop-admin-media { display: flex; align-items: center; gap: .6rem; }
+.shop-admin-media .admin-input-group { flex: 1; min-width: 0; }
+.shop-admin-media__preview .admin-thumb { width: 2.75rem; height: 2.75rem; }
+.shop-admin-color { display: flex; align-items: center; gap: .5rem; }
+.shop-admin-color input[type="color"] { width: 3rem !important; min-height: 2.75rem; padding: .2rem !important; cursor: pointer; }
+.shop-admin-color input[type="text"] { font-family: ui-monospace, monospace; text-transform: lowercase; }
+.shop-admin-presets { display: flex; flex-wrap: wrap; gap: .4rem; }
+.shop-admin-preset { display: inline-flex; align-items: center; gap: .45rem; padding: .35rem .7rem .35rem .4rem; border: 1px solid var(--admin-border); border-radius: 999px; color: var(--admin-text); background: rgba(255,255,255,.05); font-weight: 800; font-size: .82rem; cursor: pointer; }
+.shop-admin-preset span { width: 1.3rem; height: 1.3rem; border-radius: 999px; background: linear-gradient(135deg, var(--b1), var(--b2)); box-shadow: inset 0 0 0 4px var(--a); }
+.shop-admin-preset:hover { border-color: rgba(var(--admin-accent-rgb), .5); }
+.shop-admin-theme { display: grid; gap: .3rem; padding: 1.1rem 1.2rem; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--a) 35%, transparent); background: radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--a) 30%, transparent), transparent 60%), linear-gradient(135deg, var(--b1), var(--b2)); color: #f7f8ff; }
+.shop-admin-theme strong { font-size: 1.5rem; letter-spacing: -.03em; }
+.shop-admin-theme small { color: color-mix(in srgb, var(--a) 22%, #b4bbcc); }
+.shop-admin-theme__kicker { width: fit-content; padding: .2rem .6rem; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--a) 45%, transparent); color: var(--a); font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+.shop-admin-theme__btn { width: fit-content; margin-top: .4rem; padding: .45rem .9rem; border-radius: 999px; color: var(--on); background: var(--a); font-weight: 900; }
+.shop-admin-swatch { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; flex: none; overflow: hidden; border-radius: 12px; border: 2px solid var(--a); background: linear-gradient(135deg, var(--b1), var(--b2)); font-size: 1.2rem; }
+.shop-admin-swatch img { width: 100%; height: 100%; object-fit: cover; }
+.shop-admin-choice { display: grid; gap: .5rem; margin: .5rem 0 .8rem; }
+.shop-admin-choice label { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-weight: 700; }
+.shop-admin-choice select { width: auto; min-width: 12rem; }
+.shop-admin-badge { display: flex; align-items: center; gap: .75rem; }
+.shop-admin-badge:empty { display: none; }
+.shop-admin-badge > div { display: grid; }
+.shop-admin-badge small { color: var(--admin-muted); }
+
+/* Prodotto: form a sinistra, anteprima della card a destra */
+.shop-admin-split { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 1rem; align-items: start; }
+.shop-admin-preview-wrap { position: sticky; top: 0; display: grid; gap: .4rem; }
+.shop-admin-card { overflow: hidden; border: 1px solid var(--admin-border); border-radius: 18px; background: rgba(255,255,255,.05); }
+.shop-admin-card__media { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 12.5; overflow: hidden; background: rgba(0,0,0,.25); color: var(--admin-muted-2); font-size: 2rem; }
+.shop-admin-card__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.shop-admin-card__media span { position: absolute; top: .5rem; left: .5rem; padding: .15rem .5rem; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font-size: .68rem; font-weight: 900; }
+.shop-admin-card__media em { position: absolute; top: .5rem; right: .5rem; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 999px; background: #fbbf24; color: #1a1300; font-size: .7rem; font-style: normal; }
+.shop-admin-card__body { display: grid; gap: .25rem; padding: .7rem .8rem .8rem; }
+.shop-admin-card__body small { color: var(--admin-muted-2); font-weight: 800; }
+.shop-admin-card__body p { margin: 0; color: var(--admin-muted); font-size: .82rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.shop-admin-card__body div { display: flex; align-items: baseline; gap: .4rem; }
+.shop-admin-card__body s { color: var(--admin-muted-2); font-size: .78rem; }
+@media (max-width: 900px) { .shop-admin-split { grid-template-columns: 1fr; } .shop-admin-preview-wrap { position: static; max-width: 260px; } }
+
+/* Form sul posto (testata, colori) e FAQ */
+.shop-admin-inline { margin-bottom: .5rem; }
+.shop-admin-inline__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+.shop-admin-faq { display: grid; gap: .7rem; }
+.shop-admin-faq__item { padding: .9rem; border: 1px solid var(--admin-border); border-radius: 18px; background: rgba(255,255,255,.035); }
+.shop-admin-faq__item .admin-field textarea { min-height: 5rem; }
+.shop-admin-faq__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .6rem; }
+.shop-admin-faq__actions .admin-field { margin: 0; }
+.shop-admin-spacer { flex: 1; }
+.shop-admin-faq > .admin-btn { justify-self: start; }

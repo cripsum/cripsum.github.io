@@ -642,7 +642,7 @@ if (!function_exists('nav_bootstrap')) {
         <?php endif; ?>
 
         <?php if ($ctx['richpresence'] === 1): ?>
-            <script src="/js/richpresence.js?v=4" defer></script>
+            <script src="/js/richpresence.js?v=5" defer></script>
         <?php endif; ?>
 
         <?php if ($isLoggedIn): ?>

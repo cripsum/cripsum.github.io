@@ -741,6 +741,7 @@ defined('PITY_EVENTO_SOFT') || define('PITY_EVENTO_SOFT',   65);
                     <p class="mb-4">You do not have enough Godos or Godo Shards to complete this pull.</p>
                     <div class="d-grid gap-2 col-8 mx-auto">
                         <a href="/en/shop.php" class="btn btn-primary" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none; font-weight: 700; padding: 0.75rem;">Visit Shop</a>
+                        <a href="/en/shop.php#converti" class="btn btn-outline-light" style="font-weight: 700;">Convert Godos to Shards</a>
                         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>

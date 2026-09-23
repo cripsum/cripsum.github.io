@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/paypal_config.php';
+require_once __DIR__ . '/../includes/shop/gacha_catalog.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -28,24 +29,15 @@ if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
 }
 $packageId = isset($input['package_id']) ? trim($input['package_id']) : '';
 
-$packages = [
-    'shards_5' => ['price' => '0.59', 'name' => '5 Godo Shards'],
-    'shards_10' => ['price' => '0.99', 'name' => '10 Godo Shards'],
-    'shards_25' => ['price' => '1.99', 'name' => '25 Godo Shards'],
-    'shards_45' => ['price' => '2.99', 'name' => '45 Godo Shards'],
-    'shards_80' => ['price' => '4.99', 'name' => '80 Godo Shards'],
-    'shards_180' => ['price' => '9.99', 'name' => '180 Godo Shards'],
-    'shards_400' => ['price' => '19.99', 'name' => '400 Godo Shards'],
-    'shards_1200' => ['price' => '49.99', 'name' => '1200 Godo Shards'],
-];
+// Solo i pacchetti in vendita adesso.
+$package = $packageId !== '' ? gacha_package_for_checkout($mysqli, $packageId) : null;
 
-if (empty($packageId) || !isset($packages[$packageId])) {
+if ($package === null) {
     echo json_encode(['ok' => false, 'message' => 'Pacchetto non valido.']);
     exit;
 }
 
-$package = $packages[$packageId];
-$price = $package['price'];
+$price = number_format($package['price_cents'] / 100, 2, '.', '');
 
 // Chiamata a PayPal per creare l'ordine
 $token = getPayPalAccessToken();
@@ -85,6 +77,10 @@ curl_close($ch);
 
 if ($status === 201) {
     $resJson = json_decode($response, true);
+    // La capture confrontera' l'importo con quello di adesso, anche se nel
+    // frattempo l'admin cambia il prezzo del pacchetto.
+    gacha_paypal_remember_order((string)($resJson['id'] ?? ''), $packageId, $package);
+    gacha_order_pending($mysqli, (int)$_SESSION['user_id'], $packageId, 'paypal', (string)($resJson['id'] ?? ''), $package);
     echo json_encode([
         'ok' => true,
         'id' => $resJson['id']

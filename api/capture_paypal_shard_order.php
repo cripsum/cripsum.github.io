@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/paypal_config.php';
+require_once __DIR__ . '/../includes/shop/gacha_catalog.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -34,18 +35,11 @@ if (!preg_match('/^[a-zA-Z0-9-]{6,64}$/', $orderId) || empty($packageId)) {
     exit;
 }
 
-$packages = [
-    'shards_5' => ['price' => 0.59, 'shards' => 5],
-    'shards_10' => ['price' => 0.99, 'shards' => 10],
-    'shards_25' => ['price' => 1.99, 'shards' => 25],
-    'shards_45' => ['price' => 2.99, 'shards' => 45],
-    'shards_80' => ['price' => 4.99, 'shards' => 80],
-    'shards_180' => ['price' => 9.99, 'shards' => 180],
-    'shards_400' => ['price' => 19.99, 'shards' => 400],
-    'shards_1200' => ['price' => 49.99, 'shards' => 1200],
-];
+// Prezzo e Shards visti da chi paga, anche se il pacchetto nel frattempo e'
+// stato cambiato, spento o archiviato dal pannello admin.
+$package = gacha_paypal_package_for_capture($mysqli, $orderId, $packageId);
 
-if (!isset($packages[$packageId])) {
+if ($package === null) {
     echo json_encode(['ok' => false, 'message' => 'Pacchetto non valido.']);
     exit;
 }
@@ -83,7 +77,7 @@ if ($status === 200 || $status === 201) {
     $purchaseUnit = $resJson['purchase_units'][0] ?? [];
     $capture = $purchaseUnit['payments']['captures'][0] ?? [];
     $capturedAmount = number_format((float)($capture['amount']['value'] ?? -1), 2, '.', '');
-    $expectedAmount = number_format((float)$packages[$packageId]['price'], 2, '.', '');
+    $expectedAmount = number_format($package['price_cents'] / 100, 2, '.', '');
     $currency = strtoupper((string)($capture['amount']['currency_code'] ?? ''));
     $customId = (string)($purchaseUnit['custom_id'] ?? '');
     $expectedCustomId = $userId . ':' . $packageId;
@@ -98,14 +92,15 @@ if ($status === 200 || $status === 201) {
 }
 
 if (!$paymentVerified) {
+    gacha_order_error($mysqli, $userId, $packageId, 'paypal', $orderId, (int)$package['price_cents'], 'Capture PayPal non verificata (HTTP ' . (int)$status . ').');
     echo json_encode(['ok' => false, 'message' => 'La transazione PayPal non è stata completata con successo.']);
     exit;
 }
 
-$package = $packages[$packageId];
-$baseShards = $package['shards'];
+$baseShards = (int)$package['shards'];
 
 // Attivazione nel database in transazione
+$credited = false;
 $mysqli->begin_transaction();
 try {
     $stmtUserLock = $mysqli->prepare('SELECT id FROM utenti WHERE id = ? LIMIT 1 FOR UPDATE');
@@ -155,6 +150,8 @@ try {
     }
 
     $mysqli->commit();
+    $credited = true;
+    gacha_paypal_forget_order($orderId);
 
     echo json_encode([
         'ok' => true,
@@ -165,7 +162,14 @@ try {
 } catch (Exception $e) {
     $mysqli->rollback();
     error_log('PayPal shard capture persistence failed: ' . $e->getMessage());
+    gacha_order_error($mysqli, $userId, $packageId, 'paypal', $orderId, (int)$package['price_cents'], 'Pagato su PayPal ma accredito non riuscito: ' . $e->getMessage());
     echo json_encode(['ok' => false, 'message' => 'Impossibile accreditare l\'acquisto. Contatta il supporto indicando l\'ID ordine.']);
+}
+
+// Storico per l'assistenza, a Shards gia' accreditate e fuori dalla
+// transazione: se questa scrittura fallisce l'accredito resta.
+if ($credited) {
+    gacha_order_paid($mysqli, $userId, $packageId, 'paypal', $orderId, (int)$package['price_cents'], $baseShards, $finalShards, $isFirstPurchase);
 }
 exit;
 

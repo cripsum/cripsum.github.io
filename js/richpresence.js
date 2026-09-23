@@ -480,6 +480,21 @@ async function updatePresence() {
     url: fullPath
   };
 
+  // Le pagine costruite dal database (collezioni del merch, download...)
+  // dichiarano la loro presenza in due meta tag: cosi' una collezione nuova
+  // non ha bisogno di una voce scritta a mano qui sopra.
+  const presenceTitle = document.querySelector('meta[name="cripsum:presence-title"]')?.content;
+  const presenceState = document.querySelector('meta[name="cripsum:presence-state"]')?.content;
+  if (presenceTitle && presenceState) {
+    page = {
+      ...page,
+      title: presenceTitle,
+      state: presenceState,
+      imageText: page.imageText || presenceTitle,
+      url: fullPath
+    };
+  }
+
 
   if ((pathOnly === "/it/edits" || pathOnly === "/en/edits") && currentEdit && editMap[currentEdit]) {
     const edit = editMap[currentEdit];

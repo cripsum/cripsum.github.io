@@ -4,6 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/stats_tracker.php';
 require_once '../includes/mission_tracker.php';
+require_once '../includes/shop/gacha_catalog.php';
 
 $contentType = strtolower((string)($_SERVER['CONTENT_TYPE'] ?? ''));
 $accept = strtolower((string)($_SERVER['HTTP_ACCEPT'] ?? ''));
@@ -51,7 +52,8 @@ if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
 }
 $shardsToBuy = isset($input['shards']) ? (int)$input['shards'] : 0;
 
-if ($shardsToBuy <= 0) {
+// Il tetto evita che una quantita' enorme faccia traboccare il costo.
+if ($shardsToBuy <= 0 || $shardsToBuy > 1000000) {
     if ($isJsonRequest) {
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => $lang === 'en' ? 'Invalid Shard quantity.' : 'Quantità di shards non valida.']);
@@ -61,7 +63,8 @@ if ($shardsToBuy <= 0) {
     exit;
 }
 
-$costoGodos = $shardsToBuy * 100;
+// Il cambio si decide dal pannello admin (100 finche' non viene cambiato).
+$costoGodos = $shardsToBuy * gacha_godos_per_shard($mysqli);
 
 try {
     $mysqli->begin_transaction();

@@ -4,6 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/stats_tracker.php';
 require_once '../includes/mission_tracker.php';
+require_once '../includes/shop/gacha_catalog.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -52,6 +53,16 @@ try {
 
     if (!$item) {
         throw new Exception('Oggetto non trovato o non attivo.');
+    }
+
+    // Oggetti a tempo: fuori dalle date scelte nel pannello non si comprano,
+    // nemmeno da una pagina rimasta aperta da prima.
+    $window = gacha_item_window($item);
+    if ($window === 'presto') {
+        throw new Exception('Questo oggetto non è ancora in vendita.');
+    }
+    if ($window === 'finito') {
+        throw new Exception('Questo oggetto non è più in vendita.');
     }
 
     $costo = (int)$item['price_godos'];
