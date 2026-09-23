@@ -41,7 +41,6 @@ $shopData = [
 
     <section class="shop-hero shop-hero--compact">
         <div class="shop-hero__content">
-            <span class="shop-kicker"><?php echo shop_h($page['kicker'] !== '' ? $page['kicker'] : 'Download'); ?></span>
             <h1><?php echo shop_h($page['title'] !== '' ? $page['title'] : 'Download Center'); ?></h1>
             <?php if ($page['subtitle'] !== ''): ?>
                 <p><?php echo shop_h($page['subtitle']); ?></p>
@@ -78,16 +77,15 @@ $shopData = [
                     <button type="button" class="shop-search__clear" data-shop-search-clear aria-label="<?php echo shop_h($S['clear_search']); ?>" hidden><i class="fa-solid fa-xmark"></i></button>
                 </label>
 
-                <label class="shop-sort">
-                    <span class="visually-hidden"><?php echo shop_h($S['sort']); ?></span>
-                    <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
-                    <select data-shop-sort aria-label="<?php echo shop_h($S['sort']); ?>">
-                        <option value="featured"><?php echo shop_h($S['sort_featured']); ?></option>
-                        <option value="popular"><?php echo shop_h($S['sort_downloads']); ?></option>
-                        <option value="recent"><?php echo shop_h($S['sort_recent']); ?></option>
-                        <option value="name"><?php echo shop_h($S['sort_name']); ?></option>
-                    </select>
-                </label>
+                <?php
+                $sortOptions = [
+                    'featured' => $S['sort_featured'],
+                    'popular' => $S['sort_downloads'],
+                    'recent' => $S['sort_recent'],
+                    'name' => $S['sort_name'],
+                ];
+                include __DIR__ . '/../partials/sort_select.php';
+                ?>
 
                 <?php if ($soonCount > 0): ?>
                     <div class="shop-filters" role="group">

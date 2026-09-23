@@ -1,10 +1,10 @@
 /*
- * Negozio, Merch e Download: filtri, ordinamento, scheda rapida, checkout
- * finto, download e conto alla rovescia dei drop.
+ * Negozio, Merch e Download: filtri, ordinamento, menu "Ordina", pagina
+ * prodotto, checkout finto, download e conto alla rovescia dei drop.
  *
  * I dati arrivano dalla pagina in <script id="shop-data">: il PHP ha gia'
  * disegnato le card, qui si decide solo quali mostrare e in che ordine.
- * Lo stato dei filtri sta nell'indirizzo (?q=&cat=&sort=&p=), cosi' una
+ * Lo stato dei filtri sta nell'indirizzo (?q=&cat=&sort=), cosi' una
  * ricerca si puo' condividere e il tasto Indietro fa quello che ci si
  * aspetta.
  */
@@ -34,7 +34,7 @@
     // "Felpa" trova anche "félpa": si confrontano le lettere senza accenti.
     const normalize = (value) => String(value || '')
         .normalize('NFD')
-        .replace(/[̀-ͯ]/g, '')
+        .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
         .trim();
 
@@ -248,132 +248,194 @@
         render();
     };
 
-    /* ── Scheda rapida dei prodotti ──────────────────────────────────── */
+    /* ── Menu a tendina su misura ─────────────────────────────────────── */
 
-    const initQuickView = () => {
-        if (data.kind !== 'products') return;
+    /*
+     * La <select> stampata dal PHP resta nel DOM (nascosta) e continua a
+     * essere la fonte del valore: il menu la aggiorna e le manda "change",
+     * quindi filtri e ordinamento non si accorgono di niente. Senza
+     * JavaScript si vede la select normale.
+     *
+     * Tastiera come in una listbox vera: frecce, Home/Fine, Invio/Spazio per
+     * scegliere, Esc per chiudere, e una lettera salta alla voce che inizia
+     * cosi'.
+     */
+    let selectCounter = 0;
 
-        const modal = $('[data-shop-modal]');
-        const content = $('[data-modal-content]');
-        const panel = modal?.querySelector('.shop-modal__panel');
-        if (!modal || !content || !panel) return;
+    const enhanceSelect = (wrap) => {
+        const select = $('select', wrap);
+        if (!select || wrap.dataset.enhanced === '1') return;
+        wrap.dataset.enhanced = '1';
 
-        const items = new Map((data.products || []).map((item) => [item.slug, item]));
-        let lastTrigger = null;
+        const uid = `shop-select-${++selectCounter}`;
+        const label = $('label', wrap)?.textContent.trim() || '';
+        const options = Array.from(select.options);
 
-        const pageUrlFor = (slug) => {
-            const url = new URL(window.location.href);
-            url.search = '';
-            url.hash = '';
-            url.searchParams.set('p', slug);
-            return url.toString();
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'shop-select__button';
+        button.id = `${uid}-button`;
+        button.setAttribute('aria-haspopup', 'listbox');
+        button.setAttribute('aria-expanded', 'false');
+        button.setAttribute('aria-controls', `${uid}-list`);
+        button.innerHTML = `
+            <i class="fa-solid fa-arrow-down-wide-short shop-select__icon" aria-hidden="true"></i>
+            <span class="shop-select__label">${escapeHtml(label)}</span>
+            <span class="shop-select__value"></span>
+            <i class="fa-solid fa-chevron-down shop-select__chevron" aria-hidden="true"></i>`;
+
+        const list = document.createElement('ul');
+        list.className = 'shop-select__menu';
+        list.id = `${uid}-list`;
+        list.setAttribute('role', 'listbox');
+        list.setAttribute('tabindex', '-1');
+        list.setAttribute('aria-label', label);
+        list.innerHTML = options.map((option, index) => `
+            <li class="shop-select__option" role="option" id="${uid}-opt-${index}" data-value="${escapeHtml(option.value)}" style="--i:${index}" aria-selected="false">
+                <span>${escapeHtml(option.textContent)}</span>
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
+            </li>`).join('');
+
+        // La select vera resta nel form (e tiene il valore), ma non si
+        // raggiunge piu' con Tab: il bottone la sostituisce.
+        select.tabIndex = -1;
+        select.setAttribute('aria-hidden', 'true');
+
+        wrap.classList.add('is-enhanced');
+        wrap.append(button, list);
+
+        const items = $$('.shop-select__option', list);
+        const valueNode = $('.shop-select__value', button);
+        let active = 0;
+        let typed = '';
+        let typedTimer = null;
+
+        const sync = () => {
+            const index = Math.max(0, options.findIndex((option) => option.value === select.value));
+            valueNode.textContent = options[index]?.textContent || '';
+            items.forEach((item, i) => item.setAttribute('aria-selected', i === index ? 'true' : 'false'));
+            return index;
         };
 
-        const open = (slug, trigger = null) => {
-            const item = items.get(slug);
-            if (!item) return;
+        const setActive = (index, scroll = true) => {
+            active = (index + items.length) % items.length;
+            items.forEach((item, i) => item.classList.toggle('is-active', i === active));
+            list.setAttribute('aria-activedescendant', items[active].id);
+            if (scroll) items[active].scrollIntoView({ block: 'nearest' });
+        };
 
-            lastTrigger = trigger || document.activeElement;
+        const isOpen = () => wrap.classList.contains('is-open');
 
-            const sizes = (item.sizes || []).map((size, index) => `
-                <label class="shop-size">
-                    <input type="radio" name="quick-size" value="${escapeHtml(size)}" ${index === 0 && item.sizes.length === 1 ? 'checked' : ''}>
-                    <span>${escapeHtml(size)}</span>
-                </label>`).join('');
+        const open = () => {
+            if (isOpen()) return;
+            // Un menu alla volta.
+            $$('[data-shop-select].is-open').forEach((other) => other !== wrap && other.dispatchEvent(new CustomEvent('shop-select:close')));
+            wrap.classList.add('is-open');
+            button.setAttribute('aria-expanded', 'true');
+            setActive(sync(), false);
+            requestAnimationFrame(() => list.focus({ preventScroll: true }));
+        };
 
-            content.innerHTML = `
-                <div class="shop-quick">
-                    <div class="shop-quick__image">
-                        ${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}">` : '<i class="fa-solid fa-box-open shop-card__placeholder"></i>'}
-                    </div>
-                    <div class="shop-quick__body">
-                        ${item.badge ? `<span class="shop-kicker">${escapeHtml(item.badge)}</span>` : ''}
-                        <div>
-                            <h2 id="shop-modal-title">${escapeHtml(item.name)}</h2>
-                            ${item.variant ? `<span class="shop-variant">${escapeHtml(item.variant)}</span>` : ''}
-                        </div>
-                        ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}
-                        <div class="shop-quick__price">
-                            <strong>${escapeHtml(item.priceLabel)}</strong>
-                            ${item.fullPriceLabel ? `<s>${escapeHtml(item.fullPriceLabel)}</s>` : ''}
-                        </div>
-                        ${sizes ? `<div><div class="shop-field"><span>${escapeHtml(strings.size)}</span></div><div class="shop-sizes" role="radiogroup">${sizes}</div></div>` : ''}
-                        <div class="shop-quick__actions">
-                            <a class="shop-btn shop-btn--primary" href="${escapeHtml(item.buyUrl)}" data-quick-buy>
-                                <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> ${escapeHtml(strings.buy)}
-                            </a>
-                            <button type="button" class="shop-btn shop-btn--ghost" data-quick-copy>
-                                <i class="fa-solid fa-link" aria-hidden="true"></i> ${escapeHtml(strings.copyLink)}
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
+        const close = (focusButton = true) => {
+            if (!isOpen()) return;
+            wrap.classList.remove('is-open');
+            button.setAttribute('aria-expanded', 'false');
+            list.removeAttribute('aria-activedescendant');
+            if (focusButton) button.focus({ preventScroll: true });
+        };
 
-            // La taglia scelta qui arriva gia' selezionata nel checkout.
-            const buy = $('[data-quick-buy]', content);
-            $$('input[name="quick-size"]', content).forEach((input) => input.addEventListener('change', () => {
-                const url = new URL(item.buyUrl, window.location.origin);
-                url.searchParams.set('taglia', input.value);
-                buy.href = url.pathname + url.search;
-            }));
+        const choose = (index) => {
+            const value = options[index]?.value;
+            if (value === undefined) return;
+            const changed = select.value !== value;
+            select.value = value;
+            sync();
+            close();
+            if (changed) select.dispatchEvent(new Event('change', { bubbles: true }));
+        };
 
-            $('[data-quick-copy]', content)?.addEventListener('click', async () => {
-                const ok = await copyText(pageUrlFor(item.slug));
-                toast(ok ? strings.linkCopied : strings.copyFailed);
+        button.addEventListener('click', () => (isOpen() ? close() : open()));
+
+        button.addEventListener('keydown', (event) => {
+            if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+                event.preventDefault();
+                open();
+                if (event.key === 'ArrowUp') setActive(items.length - 1);
+            }
+        });
+
+        list.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowDown': event.preventDefault(); setActive(active + 1); break;
+                case 'ArrowUp': event.preventDefault(); setActive(active - 1); break;
+                case 'Home': event.preventDefault(); setActive(0); break;
+                case 'End': event.preventDefault(); setActive(items.length - 1); break;
+                case 'Enter':
+                case ' ': event.preventDefault(); choose(active); break;
+                case 'Escape': event.preventDefault(); event.stopPropagation(); close(); break;
+                case 'Tab': close(false); break;
+                default:
+                    if (event.key.length === 1 && /\S/.test(event.key)) {
+                        typed += event.key.toLowerCase();
+                        clearTimeout(typedTimer);
+                        typedTimer = setTimeout(() => { typed = ''; }, 600);
+                        const match = options.findIndex((option) => normalize(option.textContent).startsWith(normalize(typed)));
+                        if (match >= 0) setActive(match);
+                    }
+            }
+        });
+
+        items.forEach((item, index) => {
+            item.addEventListener('mousemove', () => { if (active !== index) setActive(index, false); });
+            item.addEventListener('click', () => choose(index));
+        });
+
+        document.addEventListener('pointerdown', (event) => {
+            if (isOpen() && !wrap.contains(event.target)) close(false);
+        });
+        wrap.addEventListener('shop-select:close', () => close(false));
+        list.addEventListener('focusout', (event) => {
+            if (isOpen() && !wrap.contains(event.relatedTarget)) close(false);
+        });
+
+        // Se qualcuno cambia la select da codice (filtri dall'indirizzo),
+        // il menu si rimette in pari.
+        select.addEventListener('change', sync);
+        sync();
+    };
+
+    const initCustomSelects = () => $$('[data-shop-select]').forEach(enhanceSelect);
+
+    /* ── Pagina prodotto ─────────────────────────────────────────────── */
+
+    const initProductPage = () => {
+        if (data.kind !== 'product') return;
+
+        // Galleria: la miniatura scelta prende il posto della foto grande.
+        const main = $('[data-gallery-main]');
+        const thumbs = $$('[data-gallery-thumb]');
+        thumbs.forEach((thumb) => thumb.addEventListener('click', () => {
+            if (!main || main.getAttribute('src') === thumb.dataset.galleryThumb) return;
+            main.classList.add('is-swapping');
+            window.setTimeout(() => {
+                main.src = thumb.dataset.galleryThumb;
+                main.classList.remove('is-swapping');
+            }, reduceMotion ? 0 : 140);
+            thumbs.forEach((other) => {
+                const on = other === thumb;
+                other.classList.toggle('is-active', on);
+                other.setAttribute('aria-pressed', on ? 'true' : 'false');
             });
+        }));
 
-            modal.hidden = false;
-            document.documentElement.style.overflow = 'hidden';
-            writeParams({ p: item.slug }, true);
-            requestAnimationFrame(() => panel.focus({ preventScroll: true }));
-        };
-
-        const close = () => {
-            if (modal.hidden) return;
-            modal.hidden = true;
-            content.innerHTML = '';
-            document.documentElement.style.overflow = '';
-            writeParams({ p: '' }, true);
-            if (lastTrigger && typeof lastTrigger.focus === 'function') {
-                lastTrigger.focus({ preventScroll: true });
-            }
-        };
-
-        $$('[data-open-product]').forEach((button) => {
-            button.addEventListener('click', () => open(button.dataset.openProduct, button));
-        });
-
-        $$('[data-close-modal]', modal).forEach((button) => button.addEventListener('click', close));
-
-        document.addEventListener('keydown', (event) => {
-            if (modal.hidden) return;
-            if (event.key === 'Escape') {
-                close();
-                return;
-            }
-            // Il Tab resta dentro la scheda finche' e' aperta.
-            if (event.key === 'Tab') {
-                const focusable = $$('a[href], button:not([disabled]), input:not([disabled])', panel).filter((el) => el.offsetParent !== null);
-                if (!focusable.length) return;
-                const first = focusable[0];
-                const last = focusable[focusable.length - 1];
-                if (event.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
-                    event.preventDefault();
-                    last.focus();
-                } else if (!event.shiftKey && document.activeElement === last) {
-                    event.preventDefault();
-                    first.focus();
-                }
-            }
-        });
-
-        // Un link condiviso (?p=felpa-big-logo) apre subito il prodotto.
-        const requested = new URL(window.location.href).searchParams.get('p');
-        if (requested && items.has(requested)) {
-            const card = document.getElementById(`p-${requested}`);
-            card?.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
-            setTimeout(() => open(requested, $('[data-open-product]', card || document)), reduceMotion ? 0 : 250);
-        }
+        // La taglia scelta qui arriva gia' selezionata nel checkout.
+        const buy = $('[data-product-buy]');
+        $$('[data-product-size]').forEach((input) => input.addEventListener('change', () => {
+            if (!buy || !data.buyUrl) return;
+            const url = new URL(data.buyUrl, window.location.origin);
+            url.searchParams.set('taglia', input.value);
+            buy.href = url.pathname + url.search;
+        }));
     };
 
     /* ── Checkout finto ──────────────────────────────────────────────── */
@@ -531,7 +593,9 @@
 
     const start = () => {
         initList();
-        initQuickView();
+        // Dopo initList: la select ha gia' il valore letto dall'indirizzo.
+        initCustomSelects();
+        initProductPage();
         initCheckout();
         initDownloads();
         initCountdowns();

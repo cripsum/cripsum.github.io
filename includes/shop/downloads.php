@@ -183,7 +183,6 @@ function shop_download_view(array $row, string $lang): array
         'id' => (int)$row['id'],
         'slug' => $slug,
         'name' => shop_pick($row, 'nome', $lang),
-        'kicker' => shop_pick($row, 'kicker', $lang),
         'short' => $short,
         'description' => shop_pick($row, 'descrizione', $lang) ?: $short,
         'image' => shop_asset_url($row['immagine'] ?? ''),

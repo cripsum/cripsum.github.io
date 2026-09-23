@@ -23,6 +23,18 @@ if (!admin_table_exists($mysqli, 'shop_vetrine') || !admin_table_exists($mysqli,
     admin_fail('Tabelle dello shop mancanti: applica la migrazione.', 409);
 }
 
+/**
+ * Le colonne della pagina prodotto (descrizione lunga, specifiche, galleria)
+ * arrivano con la migrazione 2026_09_23b: prima, il pannello non le mostra e
+ * il salvataggio le salta.
+ */
+function catalog_details_ready(mysqli $mysqli): bool
+{
+    return admin_column_exists($mysqli, 'shop_prodotti', 'specifiche')
+        && admin_column_exists($mysqli, 'shop_prodotti', 'galleria')
+        && admin_column_exists($mysqli, 'shop_prodotti', 'descrizione_lunga');
+}
+
 function catalog_tipo(array $source): string
 {
     $tipo = (string)($source['tipo'] ?? '');
@@ -99,7 +111,19 @@ try {
             [$tipo]
         );
 
-        admin_ok(['ready' => true, 'vetrine' => $vetrine, 'categorie' => $categorie, 'prodotti' => $prodotti]);
+        // Specifiche e galleria tornano testo, pronte per i campi del pannello.
+        $details = catalog_details_ready($mysqli);
+        if ($details) {
+            foreach ($prodotti as &$prodotto) {
+                $prodotto['specifiche_it'] = admin_shop_pairs_text($prodotto['specifiche'] ?? null, 'it');
+                $prodotto['specifiche_en'] = admin_shop_pairs_text($prodotto['specifiche'] ?? null, 'en');
+                $gallery = json_decode((string)($prodotto['galleria'] ?? ''), true);
+                $prodotto['galleria_testo'] = is_array($gallery) ? implode("\n", $gallery) : '';
+            }
+            unset($prodotto);
+        }
+
+        admin_ok(['ready' => true, 'details' => $details, 'vetrine' => $vetrine, 'categorie' => $categorie, 'prodotti' => $prodotti]);
     }
 
     admin_shop_require_post();
@@ -129,8 +153,6 @@ try {
             $fields = [
                 'nome' => $nome,
                 'nome_en' => admin_shop_text($input, 'nome_en', 'Nome (EN)', 80),
-                'kicker' => admin_shop_text($input, 'kicker', 'Etichetta (IT)', 80),
-                'kicker_en' => admin_shop_text($input, 'kicker_en', 'Etichetta (EN)', 80),
                 'titolo' => admin_shop_text($input, 'titolo', 'Titolo (IT)', 120),
                 'titolo_en' => admin_shop_text($input, 'titolo_en', 'Titolo (EN)', 120),
                 'sottotitolo' => admin_shop_text($input, 'sottotitolo', 'Sottotitolo (IT)', 400),
@@ -337,6 +359,25 @@ try {
             $columns = array_keys($fields);
             $values = array_values($fields);
             $types = 'ii' . str_repeat('s', 13) . 'ii';
+
+            if (catalog_details_ready($mysqli)) {
+                $specs = [
+                    'it' => admin_shop_pairs($input['specifiche_it'] ?? '', 'Specifiche (IT)'),
+                    'en' => admin_shop_pairs($input['specifiche_en'] ?? '', 'Specifiche (EN)'),
+                ];
+                $gallery = admin_shop_image_list($input, 'galleria', 'Altre foto');
+                $details = [
+                    'descrizione_lunga' => admin_shop_text($input, 'descrizione_lunga', 'Descrizione completa (IT)', 5000),
+                    'descrizione_lunga_en' => admin_shop_text($input, 'descrizione_lunga_en', 'Descrizione completa (EN)', 5000),
+                    'specifiche' => ($specs['it'] || $specs['en']) ? json_encode($specs, JSON_UNESCAPED_UNICODE) : null,
+                    'galleria' => $gallery ? json_encode($gallery, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null,
+                ];
+                foreach ($details as $column => $value) {
+                    $columns[] = $column;
+                    $values[] = $value;
+                    $types .= 's';
+                }
+            }
 
             if ($existing) {
                 // Un prodotto spostato in un'altra collezione va in fondo.

@@ -20,29 +20,9 @@ if (!admin_table_exists($mysqli, 'download_items')) {
     admin_fail('Tabella download_items mancante: applica la migrazione.', 409);
 }
 
-/**
- * "Etichetta: valore" una per riga -> [["Etichetta", "valore"], ...]
- */
 function downloads_parse_meta(?string $text): array
 {
-    $pairs = [];
-    foreach (preg_split('/\n/', (string)$text) as $line) {
-        $line = trim($line);
-        if ($line === '') {
-            continue;
-        }
-        $parts = explode(':', $line, 2);
-        if (count($parts) !== 2 || trim($parts[0]) === '' || trim($parts[1]) === '') {
-            admin_fail('Dettagli: scrivi una riga per voce, nella forma "Etichetta: valore" (es. "Piattaforma: Windows").');
-        }
-        $pairs[] = [mb_substr(trim($parts[0]), 0, 40), mb_substr(trim($parts[1]), 0, 80)];
-    }
-
-    if (count($pairs) > 8) {
-        admin_fail('Dettagli: al massimo 8 righe.');
-    }
-
-    return $pairs;
+    return admin_shop_pairs($text, 'Dettagli', 8);
 }
 
 function downloads_parse_steps(?string $text): array
@@ -152,8 +132,6 @@ try {
                 'slug' => $slug,
                 'nome' => $nome,
                 'nome_en' => admin_shop_text($input, 'nome_en', 'Nome (EN)', 120),
-                'kicker' => admin_shop_text($input, 'kicker', 'Etichetta (IT)', 60),
-                'kicker_en' => admin_shop_text($input, 'kicker_en', 'Etichetta (EN)', 60),
                 'descrizione_breve' => admin_shop_text($input, 'descrizione_breve', 'Descrizione breve (IT)', 300),
                 'descrizione_breve_en' => admin_shop_text($input, 'descrizione_breve_en', 'Descrizione breve (EN)', 300),
                 'descrizione' => admin_shop_text($input, 'descrizione', 'Descrizione completa (IT)', 4000),

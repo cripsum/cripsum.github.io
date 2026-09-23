@@ -12,9 +12,6 @@
 <main class="shop-shell">
     <section class="shop-hero shop-hero--compact">
         <div class="shop-hero__content">
-            <?php if ($page['kicker'] !== ''): ?>
-                <span class="shop-kicker"><?php echo shop_h($page['kicker']); ?></span>
-            <?php endif; ?>
             <h1><?php echo shop_h($page['title'] !== '' ? $page['title'] : 'Merch'); ?></h1>
             <?php if ($page['subtitle'] !== ''): ?>
                 <p><?php echo shop_h($page['subtitle']); ?></p>

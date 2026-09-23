@@ -262,6 +262,35 @@ function shop_presence_meta(string $title, string $state): string
         . '<meta name="cripsum:presence-state" content="' . shop_h($state) . '">';
 }
 
+/**
+ * Coppie etichetta/valore salvate in JSON con le due lingue dentro:
+ *   {"it": [["Materiale", "Cotone"]], "en": [["Material", "Cotton"]]}
+ * Una lingua vuota ricade sull'altra. Esce [['label' => ..., 'value' => ...]].
+ */
+function shop_localized_pairs(?string $json, string $lang): array
+{
+    $data = json_decode((string)$json, true);
+    if (!is_array($data)) {
+        return [];
+    }
+
+    $list = $data[$lang] ?? [];
+    if (!is_array($list) || !$list) {
+        $list = $data['it'] ?? [];
+    }
+
+    $pairs = [];
+    foreach (is_array($list) ? $list : [] as $pair) {
+        // [etichetta, valore]; array_values regge anche un JSON scritto a mano con le chiavi.
+        $pair = is_array($pair) ? array_values($pair) : [];
+        if (count($pair) >= 2 && is_scalar($pair[0]) && is_scalar($pair[1]) && trim((string)$pair[0]) !== '' && trim((string)$pair[1]) !== '') {
+            $pairs[] = ['label' => trim((string)$pair[0]), 'value' => trim((string)$pair[1])];
+        }
+    }
+
+    return $pairs;
+}
+
 function shop_is_staff(): bool
 {
     $role = $_SESSION['ruolo'] ?? '';

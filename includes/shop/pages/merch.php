@@ -1,7 +1,8 @@
 <?php
 /**
- * /it/merch (elenco delle collezioni) e /it/merch/{slug} (una collezione).
- * La regola in .htaccess passa lo slug come ?collezione=.
+ * /it/merch (elenco delle collezioni), /it/merch/{slug} (una collezione) e
+ * /it/merch/{slug}/{prodotto} (la pagina di un prodotto). Le regole in
+ * .htaccess passano gli slug come ?collezione= e ?prodotto=.
  *
  * Con una sola collezione aperta l'elenco non serve: /it/merch mostra
  * direttamente quella, e quando ne arriva una seconda diventa l'elenco da
@@ -27,6 +28,23 @@ if (!shop_catalog_ready($mysqli)) {
     include __DIR__ . '/../partials/state.php';
     include __DIR__ . '/../partials/bottom.php';
     return;
+}
+
+$productSlug = strtolower(trim((string)($_GET['prodotto'] ?? '')));
+
+if ($requestedSlug !== '' && $productSlug !== '') {
+    $expectedTipo = 'merch';
+    $expectedVetrinaSlug = $requestedSlug;
+    include __DIR__ . '/prodotto.php';
+    return;
+}
+
+// I link della vecchia scheda rapida (/it/merch/poppy?p=felpa) portano alla
+// pagina del prodotto: prodotto.php sistema anche la collezione se e' cambiata.
+$legacySlug = strtolower(trim((string)($_GET['p'] ?? '')));
+if (preg_match('/^[a-z0-9-]{1,80}$/', $legacySlug)) {
+    header('Location: ' . shop_product_url($shopLang, 'merch', $requestedSlug !== '' ? $requestedSlug : 'x', $legacySlug), true, 301);
+    exit;
 }
 
 $collections = shop_merch_collections($mysqli, $shopLang);
@@ -87,7 +105,7 @@ if (!$vetrina) {
 
 $isPreview = $vetrina['state'] !== 'attiva' && shop_is_staff();
 $categories = shop_categories($mysqli, 'merch', $shopLang);
-$products = shop_products($mysqli, $vetrina['id'], $shopLang, $categories);
+$products = shop_products($mysqli, $vetrina, $shopLang, $categories);
 $faq = shop_faq($mysqli, 'vetrina', $vetrina['id'], $shopLang);
 
 $otherCollections = array_values(array_filter($collections, static fn(array $c): bool => $c['id'] !== $vetrina['id']));

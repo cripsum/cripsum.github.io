@@ -63,9 +63,6 @@ $shopData = [
         </div>
 
         <div class="shop-detail__content">
-            <?php if ($item['kicker'] !== ''): ?>
-                <span class="shop-kicker"><?php echo shop_h($item['kicker']); ?></span>
-            <?php endif; ?>
             <h1><?php echo shop_h($item['name']); ?></h1>
             <?php if ($item['description'] !== ''): ?>
                 <p class="shop-detail__text"><?php echo shop_linkify($item['description']); ?></p>

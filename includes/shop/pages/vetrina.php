@@ -11,9 +11,9 @@
  *   $otherCollections  le altre collezioni del Merch (vuoto per il Negozio)
  *   $hubUrl            link all'elenco del Merch, o null
  *
- * I dati dei prodotti arrivano al JavaScript in un blocco JSON: filtri,
- * ordinamenti e scheda rapida lavorano su quello, le card nel DOM restano
- * quelle generate qui (la pagina si legge anche senza JavaScript).
+ * Ogni card porta alla pagina del prodotto. I dati per filtri e ordinamento
+ * arrivano al JavaScript in un blocco JSON; le card nel DOM restano quelle
+ * generate qui, quindi la pagina si legge anche senza JavaScript.
  */
 
 $isComingSoon = $vetrina['state'] === 'in_arrivo' && !$isPreview;
@@ -40,18 +40,12 @@ foreach ($products as $product) {
         'name' => $product['name'],
         'variant' => $product['variant'],
         'description' => $product['description'],
-        'badge' => $product['badge'],
         'price' => $product['price'],
-        'priceLabel' => $product['price_label'],
-        'fullPriceLabel' => $product['full_price_label'],
-        'image' => $product['image'],
-        'sizes' => $product['sizes'],
         'category' => $product['category'],
         'featured' => $product['featured'],
         'orders' => $product['orders'],
         'position' => $product['position'],
         'created' => $product['created'],
-        'buyUrl' => '/' . $shopLang . '/checkout?p=' . rawurlencode($product['slug']),
     ];
 }
 
@@ -59,16 +53,17 @@ $shopData = [
     'kind' => 'products',
     'products' => $jsonProducts,
     'strings' => [
-        'buy' => $S['buy'],
-        'size' => $S['size'],
-        'copyLink' => $S['copy_link'],
-        'linkCopied' => $S['link_copied'],
-        'copyFailed' => $S['copy_failed'],
-        'close' => $S['close'],
         'resultsOne' => $S['results_one'],
         'resultsMany' => $S['results_many'],
-        'featured' => $S['featured'],
     ],
+];
+
+$sortOptions = [
+    'featured' => $S['sort_featured'],
+    'popular' => $S['sort_popular'],
+    'price-asc' => $S['sort_price_asc'],
+    'price-desc' => $S['sort_price_desc'],
+    'name' => $S['sort_name'],
 ];
 ?>
 <main class="shop-shell">
@@ -89,21 +84,9 @@ $shopData = [
 
     <section class="shop-hero">
         <div class="shop-hero__content">
-            <?php if ($vetrina['kicker'] !== ''): ?>
-                <span class="shop-kicker"><?php echo shop_h($vetrina['kicker']); ?></span>
-            <?php endif; ?>
             <h1><?php echo shop_h($vetrina['title']); ?></h1>
             <?php if ($vetrina['subtitle'] !== ''): ?>
                 <p><?php echo shop_h($vetrina['subtitle']); ?></p>
-            <?php endif; ?>
-
-            <?php if (!$isComingSoon && $products): ?>
-                <ul class="shop-hero__stats">
-                    <li><strong><?php echo count($products); ?></strong> <?php echo shop_h(count($products) === 1 ? $S['product'] : $S['products']); ?></li>
-                    <?php foreach (array_slice($visibleCategories, 0, 4) as $category): ?>
-                        <li><?php echo shop_h($category['name']); ?></li>
-                    <?php endforeach; ?>
-                </ul>
             <?php endif; ?>
         </div>
 
@@ -118,7 +101,7 @@ $shopData = [
 
     <?php if ($isComingSoon): ?>
         <section class="shop-soon" <?php if ($vetrina['launch_at']): ?>data-countdown="<?php echo shop_h(date('c', strtotime($vetrina['launch_at']))); ?>"<?php endif; ?>>
-            <span class="shop-kicker"><?php echo shop_h($S['coming_soon']); ?></span>
+            <i class="fa-solid fa-hourglass-half shop-soon__icon" aria-hidden="true"></i>
             <h2><?php echo shop_h($S['coming_soon_text']); ?></h2>
             <?php if ($vetrina['launch_at']): ?>
                 <p class="shop-soon__label"><?php echo shop_h($S['launch_in']); ?></p>
@@ -137,17 +120,7 @@ $shopData = [
                         <button type="button" class="shop-search__clear" data-shop-search-clear aria-label="<?php echo shop_h($S['clear_search']); ?>" hidden><i class="fa-solid fa-xmark"></i></button>
                     </label>
 
-                    <label class="shop-sort">
-                        <span class="visually-hidden"><?php echo shop_h($S['sort']); ?></span>
-                        <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
-                        <select data-shop-sort aria-label="<?php echo shop_h($S['sort']); ?>">
-                            <option value="featured"><?php echo shop_h($S['sort_featured']); ?></option>
-                            <option value="popular"><?php echo shop_h($S['sort_popular']); ?></option>
-                            <option value="price-asc"><?php echo shop_h($S['sort_price_asc']); ?></option>
-                            <option value="price-desc"><?php echo shop_h($S['sort_price_desc']); ?></option>
-                            <option value="name"><?php echo shop_h($S['sort_name']); ?></option>
-                        </select>
-                    </label>
+                    <?php include __DIR__ . '/../partials/sort_select.php'; ?>
 
                     <?php if (count($visibleCategories) > 1): ?>
                         <div class="shop-filters" role="group" aria-label="<?php echo shop_h($S['all']); ?>">
@@ -166,45 +139,8 @@ $shopData = [
                 </div>
 
                 <div class="shop-grid" data-shop-grid>
-                    <?php foreach ($products as $index => $product): ?>
-                        <article class="shop-card" data-shop-item="<?php echo shop_h($product['slug']); ?>" id="p-<?php echo shop_h($product['slug']); ?>">
-                            <button type="button" class="shop-card__hit" data-open-product="<?php echo shop_h($product['slug']); ?>">
-                                <span class="visually-hidden"><?php echo shop_h($S['details'] . ': ' . $product['name'] . ($product['variant'] !== '' ? ' ' . $product['variant'] : '')); ?></span>
-                            </button>
-                            <div class="shop-card__media">
-                                <?php if ($product['image'] !== ''): ?>
-                                    <img src="<?php echo shop_h($product['image']); ?>" alt="" width="480" height="375" <?php echo $index > 5 ? 'loading="lazy"' : ''; ?> decoding="async">
-                                <?php else: ?>
-                                    <i class="fa-solid fa-box-open shop-card__placeholder" aria-hidden="true"></i>
-                                <?php endif; ?>
-                                <?php if ($product['badge'] !== ''): ?>
-                                    <span class="shop-badge"><?php echo shop_h($product['badge']); ?></span>
-                                <?php endif; ?>
-                                <?php if ($product['featured']): ?>
-                                    <span class="shop-flag" title="<?php echo shop_h($S['featured']); ?>"><i class="fa-solid fa-star" aria-hidden="true"></i><span class="visually-hidden"><?php echo shop_h($S['featured']); ?></span></span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="shop-card__body">
-                                <h2><?php echo shop_h($product['name']); ?></h2>
-                                <?php if ($product['variant'] !== ''): ?>
-                                    <span class="shop-variant"><?php echo shop_h($product['variant']); ?></span>
-                                <?php endif; ?>
-                                <?php if ($product['description'] !== ''): ?>
-                                    <p><?php echo shop_h($product['description']); ?></p>
-                                <?php endif; ?>
-                                <div class="shop-card__footer">
-                                    <div class="shop-price">
-                                        <?php if ($product['full_price_label'] !== ''): ?>
-                                            <s><?php echo shop_h($product['full_price_label']); ?></s>
-                                        <?php endif; ?>
-                                        <strong><?php echo shop_h($product['price_label']); ?></strong>
-                                    </div>
-                                    <a class="shop-btn shop-btn--primary shop-btn--small" href="/<?php echo shop_h($shopLang); ?>/checkout?p=<?php echo rawurlencode($product['slug']); ?>">
-                                        <?php echo shop_h($S['buy']); ?>
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
+                    <?php foreach ($products as $cardIndex => $product): ?>
+                        <?php include __DIR__ . '/../partials/product_card.php'; ?>
                     <?php endforeach; ?>
                 </div>
 
@@ -250,13 +186,5 @@ $shopData = [
         </section>
     <?php endif; ?>
 </main>
-
-<div class="shop-modal" data-shop-modal hidden>
-    <div class="shop-modal__backdrop" data-close-modal></div>
-    <article class="shop-modal__panel" role="dialog" aria-modal="true" aria-labelledby="shop-modal-title" tabindex="-1">
-        <button type="button" class="shop-modal__close" data-close-modal aria-label="<?php echo shop_h($S['close']); ?>"><i class="fa-solid fa-xmark"></i></button>
-        <div class="shop-modal__content" data-modal-content></div>
-    </article>
-</div>
 
 <script type="application/json" id="shop-data"><?php echo json_encode($shopData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP); ?></script>

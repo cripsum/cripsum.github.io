@@ -379,8 +379,6 @@
             <form class="admin-form-grid shop-admin-inline" data-page-form>
                 ${hint ? `<p class="admin-muted admin-field--full">${hint}</p>` : ''}
                 ${fields([
-                    { name: 'kicker', label: 'Etichetta (IT)', max: 80, placeholder: 'es. Download' },
-                    { name: 'kicker_en', label: 'Etichetta (EN)', max: 80, placeholder: 'vuoto = usa l\'italiano' },
                     { name: 'titolo', label: 'Titolo (IT)', max: 120, required: true },
                     { name: 'titolo_en', label: 'Titolo (EN)', max: 120, placeholder: 'vuoto = usa l\'italiano' },
                     { name: 'sottotitolo', label: 'Sottotitolo (IT)', type: 'textarea', max: 400, rows: 2 },
@@ -447,8 +445,6 @@
             help: 'Quando arriva, la collezione si apre da sola. Vuota = "in arrivo" senza data.',
         }] : []),
         sectionTitle('Testata della pagina'),
-        { name: 'kicker', label: 'Etichetta (IT)', max: 80, placeholder: isMerch ? 'es. Merch drop' : '' },
-        { name: 'kicker_en', label: 'Etichetta (EN)', max: 80, placeholder: 'vuoto = usa l\'italiano' },
         { name: 'titolo', label: 'Titolo (IT)', max: 120, placeholder: 'vuoto = usa il nome' },
         { name: 'titolo_en', label: 'Titolo (EN)', max: 120, placeholder: 'vuoto = usa l\'italiano' },
         { name: 'sottotitolo', label: 'Sottotitolo (IT)', type: 'textarea', max: 400, rows: 2 },
@@ -470,7 +466,7 @@
         const preview = $('[data-theme-preview]', form);
         const slugPreview = $('[data-slug-preview]', form);
 
-        const slugify = (value) => String(value || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+        const slugify = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
         const draw = () => {
@@ -487,7 +483,6 @@
                 })();
                 preview.style.setProperty('--on', light ? '#161000' : '#ffffff');
                 preview.innerHTML = `
-                    <span class="shop-admin-theme__kicker">${e(val('kicker') || 'Etichetta')}</span>
                     <strong>${e(val('titolo') || val('nome') || 'Titolo')}</strong>
                     <small>${e(val('sottotitolo') || 'Sottotitolo della vetrina')}</small>
                     <span class="shop-admin-theme__btn">Acquista</span>`;
@@ -538,6 +533,58 @@
             </div>`;
     };
 
+    /* Indirizzo della pagina di un prodotto, per i link del pannello. */
+    const productPath = (ctx, item) => {
+        const vetrina = ctx.vetrine.find((v) => Number(v.id) === Number(item.vetrina_id)) || ctx.vetrine[0];
+        const slug = item.slug || 'nome-del-prodotto';
+        return vetrina && vetrina.tipo === 'merch'
+            ? `/it/merch/${vetrina.slug}/${slug}`
+            : `/it/negozio/${slug}`;
+    };
+
+    /* Altre foto: una per riga, con anteprima e caricamento di piu' file. */
+    const galleryField = (values) => `
+        <div class="admin-field admin-field--full" data-gallery-field>
+            <label for="shop-admin-gallery-input">Altre foto</label>
+            <div class="shop-admin-gallery" data-gallery-preview></div>
+            <div class="shop-admin-gallery__tools">
+                <textarea id="shop-admin-gallery-input" name="galleria" rows="3" placeholder="/img/retro.jpg\n/img/dettaglio.jpg">${e(values.galleria_testo || '')}</textarea>
+                <label class="admin-btn shop-admin-upload"><i class="fa-solid fa-images"></i> Aggiungi foto<input type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple data-upload-gallery hidden></label>
+            </div>
+            <small class="shop-admin-help">Una per riga, fino a 12. Nella pagina del prodotto diventano le miniature sotto la foto principale.</small>
+        </div>`;
+
+    const bindGalleryField = (form) => {
+        const wrap = $('[data-gallery-field]', form);
+        if (!wrap) return;
+        const area = $('textarea', wrap);
+        const preview = $('[data-gallery-preview]', wrap);
+
+        const draw = () => {
+            const lines = area.value.split('\n').map((l) => l.trim()).filter(Boolean);
+            preview.innerHTML = lines.map((line) => thumb(line)).join('');
+        };
+
+        $('[data-upload-gallery]', wrap).addEventListener('change', async (event) => {
+            const files = Array.from(event.target.files || []);
+            for (const file of files) {
+                try {
+                    showToast(`Caricamento ${file.name}...`);
+                    const url = await uploadImage(file);
+                    area.value = (area.value.trim() ? area.value.trim() + '\n' : '') + url;
+                    draw();
+                } catch (error) {
+                    showToast(error.message, true);
+                }
+            }
+            event.target.value = '';
+            if (files.length) showToast('Foto aggiunte.');
+        });
+
+        area.addEventListener('input', draw);
+        draw();
+    };
+
     const productForm = (tipo, ctx, item = null, reload) => {
         const isMerch = tipo === 'merch';
         const values = item ? { ...item } : { attivo: 1, vetrina_id: ctx.defaultVetrina };
@@ -567,9 +614,17 @@
                 { name: 'descrizione_en', label: 'Descrizione (EN)', type: 'textarea', max: 600, rows: 3, placeholder: 'vuoto = usa l\'italiano' },
                 { name: 'badge', label: 'Badge (IT)', max: 40, placeholder: 'es. Drop, -40%, Limited' },
                 { name: 'badge_en', label: 'Badge (EN)', max: 40 },
-                { name: 'immagine', label: 'Immagine', type: 'image', full: true },
-                { name: 'taglie', label: 'Taglie', max: 120, placeholder: isMerch ? 'es. S, M, L, XL' : 'vuoto = niente taglie', help: 'Separate da virgola. Chi compra sceglie la taglia nel checkout.' },
-                { name: 'slug', label: 'Codice nell\'indirizzo', max: 80, placeholder: 'vuoto = dal nome', help: 'Serve ai link diretti: <code>?p=codice</code>.' },
+                { name: 'immagine', label: 'Immagine principale', type: 'image', full: true },
+                ...(ctx.details ? [galleryField(values)] : []),
+                { name: 'taglie', label: 'Taglie', max: 120, placeholder: isMerch ? 'es. S, M, L, XL' : 'vuoto = niente taglie', help: 'Separate da virgola. Si scelgono nella pagina del prodotto e nel checkout.' },
+                ...(ctx.details ? [
+                    sectionTitle('Pagina del prodotto', 'Si apre cliccando la card. La descrizione breve qui sopra resta sulla card e in cima alla pagina.'),
+                    { name: 'descrizione_lunga', label: 'Descrizione completa (IT)', type: 'textarea', max: 5000, rows: 5 },
+                    { name: 'descrizione_lunga_en', label: 'Descrizione completa (EN)', type: 'textarea', max: 5000, rows: 5, placeholder: 'vuoto = usa l\'italiano' },
+                    { name: 'specifiche_it', label: 'Specifiche (IT)', type: 'textarea', rows: 4, placeholder: 'Materiale: 100% poliestere\nPeso: 180 g', help: 'Una riga per voce, «Etichetta: valore». Categoria, variante e taglie si aggiungono da sole.' },
+                    { name: 'specifiche_en', label: 'Specifiche (EN)', type: 'textarea', rows: 4, placeholder: 'Material: 100% polyester\nWeight: 180 g' },
+                ] : ['<p class="shop-admin-note admin-field--full"><i class="fa-solid fa-circle-info"></i> Applica migrations/2026_09_23b_shop_prodotti_dettagli.sql per aggiungere descrizione completa, specifiche e altre foto alla pagina del prodotto.</p>']),
+                { name: 'slug', label: 'Indirizzo della pagina', max: 80, placeholder: 'vuoto = dal nome', help: 'La pagina sarà <code>' + e(productPath(ctx, values)) + '</code>' },
                 { name: 'attivo', label: 'In vendita', type: 'checkbox' },
                 { name: 'in_evidenza', label: 'In evidenza (stella, in cima alla lista)', type: 'checkbox', checked: false },
             ], values)}`;
@@ -582,7 +637,10 @@
             action: 'save_product',
             extra: { id: item?.id || 0, ...(isMerch ? {} : { vetrina_id: ctx.vetrine[0]?.id }) },
             after: reload,
-            onReady: (form) => bindForm(form, () => productPreview(form)),
+            onReady: (form) => {
+                bindGalleryField(form);
+                bindForm(form, () => productPreview(form));
+            },
         });
     };
 
@@ -635,6 +693,7 @@
                                     <div>
                                         <div class="admin-row-title">${Number(p.in_evidenza) === 1 ? '<i class="fa-solid fa-star shop-admin-star" title="In evidenza"></i> ' : ''}${e(p.nome)}</div>
                                         <div class="admin-row-sub">${e([p.variante, p.badge ? `badge «${p.badge}»` : ''].filter(Boolean).join(' · ') || p.slug)}</div>
+                                        <div class="admin-row-sub"><a href="${e(productPath(ctx, p))}" target="_blank" rel="noopener" title="Apri la pagina del prodotto">${e(productPath(ctx, p))} <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
                                     </div>
                                 </div>
                             </td>
@@ -1440,8 +1499,6 @@
             { name: 'descrizione_breve_en', label: 'Descrizione breve (EN)', type: 'textarea', max: 300, rows: 2 },
             { name: 'descrizione', label: 'Descrizione completa (IT)', type: 'textarea', max: 4000, rows: 4, help: 'Nella pagina del download. Vuota = quella breve.' },
             { name: 'descrizione_en', label: 'Descrizione completa (EN)', type: 'textarea', max: 4000, rows: 4 },
-            { name: 'kicker', label: 'Etichetta (IT)', max: 60, placeholder: 'es. Download, Tutorial' },
-            { name: 'kicker_en', label: 'Etichetta (EN)', max: 60 },
             { name: 'badge', label: 'Badge sulla card (IT)', max: 40, placeholder: 'es. Gratis' },
             { name: 'badge_en', label: 'Badge sulla card (EN)', max: 40 },
             { name: 'testo_bottone', label: 'Testo del bottone (IT)', max: 60, placeholder: 'vuoto = Scarica / Apri' },

@@ -52,7 +52,7 @@ include __DIR__ . '/../partials/top.php';
 ?>
 <main class="shop-shell shop-shell--checkout">
     <nav class="shop-crumbs" aria-label="Breadcrumb">
-        <a href="<?php echo shop_h($vetrina['url']); ?>"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> <?php echo shop_h($vetrina['name']); ?></a>
+        <a href="<?php echo shop_h($product['url']); ?>"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> <?php echo shop_h($product['name']); ?></a>
     </nav>
 
     <form class="shop-checkout" method="post" action="/api/shop/fake_order.php" data-shop-checkout novalidate>

@@ -119,8 +119,6 @@ try {
         case 'save_page':
             $page = content_page_key($input);
             $fields = [
-                'kicker' => admin_shop_text($input, 'kicker', 'Etichetta (IT)', 80),
-                'kicker_en' => admin_shop_text($input, 'kicker_en', 'Etichetta (EN)', 80),
                 'titolo' => admin_shop_text($input, 'titolo', 'Titolo (IT)', 120, true),
                 'titolo_en' => admin_shop_text($input, 'titolo_en', 'Titolo (EN)', 120),
                 'sottotitolo' => admin_shop_text($input, 'sottotitolo', 'Sottotitolo (IT)', 400),

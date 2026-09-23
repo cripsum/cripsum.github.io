@@ -722,6 +722,12 @@ body.modal-open {
 .shop-admin-media { display: flex; align-items: center; gap: .6rem; }
 .shop-admin-media .admin-input-group { flex: 1; min-width: 0; }
 .shop-admin-media__preview .admin-thumb { width: 2.75rem; height: 2.75rem; }
+.shop-admin-gallery { display: flex; flex-wrap: wrap; gap: .4rem; }
+.shop-admin-gallery:empty { display: none; }
+.shop-admin-gallery .admin-thumb { width: 3.2rem; height: 3.2rem; }
+.shop-admin-gallery__tools { display: flex; align-items: flex-start; gap: .6rem; }
+.shop-admin-gallery__tools textarea { flex: 1; min-width: 0; font-family: ui-monospace, monospace; font-size: .82rem; }
+@media (max-width: 560px) { .shop-admin-gallery__tools { flex-direction: column; align-items: stretch; } }
 .shop-admin-color { display: flex; align-items: center; gap: .5rem; }
 .shop-admin-color input[type="color"] { width: 3rem !important; min-height: 2.75rem; padding: .2rem !important; cursor: pointer; }
 .shop-admin-color input[type="text"] { font-family: ui-monospace, monospace; text-transform: lowercase; }
@@ -732,7 +738,6 @@ body.modal-open {
 .shop-admin-theme { display: grid; gap: .3rem; padding: 1.1rem 1.2rem; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--a) 35%, transparent); background: radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--a) 30%, transparent), transparent 60%), linear-gradient(135deg, var(--b1), var(--b2)); color: #f7f8ff; }
 .shop-admin-theme strong { font-size: 1.5rem; letter-spacing: -.03em; }
 .shop-admin-theme small { color: color-mix(in srgb, var(--a) 22%, #b4bbcc); }
-.shop-admin-theme__kicker { width: fit-content; padding: .2rem .6rem; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--a) 45%, transparent); color: var(--a); font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
 .shop-admin-theme__btn { width: fit-content; margin-top: .4rem; padding: .45rem .9rem; border-radius: 999px; color: var(--on); background: var(--a); font-weight: 900; }
 .shop-admin-swatch { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; flex: none; overflow: hidden; border-radius: 12px; border: 2px solid var(--a); background: linear-gradient(135deg, var(--b1), var(--b2)); font-size: 1.2rem; }
 .shop-admin-swatch img { width: 100%; height: 100%; object-fit: cover; }

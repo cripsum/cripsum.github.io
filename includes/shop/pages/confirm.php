@@ -45,9 +45,8 @@ include __DIR__ . '/../partials/top.php';
 <main class="shop-shell shop-shell--narrow">
     <section class="shop-confirm">
         <div class="shop-confirm__icon" aria-hidden="true"><i class="fa-solid fa-check"></i></div>
-        <span class="shop-kicker"><?php echo shop_h($S['order_number'] . ' #' . $order['ref']); ?></span>
         <h1><?php echo shop_h($S['thanks']); ?></h1>
-        <p><?php echo shop_h($S['order_eta']); ?></p>
+        <p><?php echo shop_h($S['order_number'] . ' #' . $order['ref'] . ' · ' . $S['order_eta']); ?></p>
 
         <div class="shop-confirm__line">
             <?php if ($product['image'] !== ''): ?>

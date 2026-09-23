@@ -149,16 +149,9 @@ function admin_shop_slug(array $input, string $key, string $fallbackSource, int 
  * Un'immagine: percorso del sito, nome restituito dal caricamento (finisce
  * in /img/) o indirizzo https. Si salva gia' nella forma che la pagina usa.
  */
-function admin_shop_image(array $input, string $key, string $label, bool $required = false): ?string
+function admin_shop_image_value(string $value, string $label): string
 {
-    $value = trim((string)($input[$key] ?? ''));
-
-    if ($value === '') {
-        if ($required) {
-            admin_fail($label . ': campo obbligatorio.');
-        }
-        return null;
-    }
+    $value = trim($value);
 
     if (mb_strlen($value) > 255) {
         admin_fail($label . ': percorso troppo lungo.');
@@ -180,6 +173,91 @@ function admin_shop_image(array $input, string $key, string $label, bool $requir
     }
 
     return shop_asset_url($value);
+}
+
+function admin_shop_image(array $input, string $key, string $label, bool $required = false): ?string
+{
+    $value = trim((string)($input[$key] ?? ''));
+
+    if ($value === '') {
+        if ($required) {
+            admin_fail($label . ': campo obbligatorio.');
+        }
+        return null;
+    }
+
+    return admin_shop_image_value($value, $label);
+}
+
+/**
+ * Piu' immagini, una per riga (la galleria di un prodotto). Esce la lista
+ * gia' normalizzata, senza doppioni.
+ */
+function admin_shop_image_list(array $input, string $key, string $label, int $max = 12): array
+{
+    $images = [];
+    foreach (preg_split('/\R/', (string)($input[$key] ?? '')) as $line) {
+        $line = trim($line);
+        if ($line === '') {
+            continue;
+        }
+        $url = admin_shop_image_value($line, $label);
+        if (!in_array($url, $images, true)) {
+            $images[] = $url;
+        }
+    }
+
+    if (count($images) > $max) {
+        admin_fail($label . ': al massimo ' . $max . ' immagini.');
+    }
+
+    return $images;
+}
+
+/**
+ * "Etichetta: valore" una per riga -> [["Etichetta", "valore"], ...].
+ * Serve alle specifiche dei prodotti e ai dettagli dei download.
+ */
+function admin_shop_pairs(?string $text, string $label, int $max = 12): array
+{
+    $pairs = [];
+    foreach (preg_split('/\R/', (string)$text) as $line) {
+        $line = trim($line);
+        if ($line === '') {
+            continue;
+        }
+        $parts = explode(':', $line, 2);
+        if (count($parts) !== 2 || trim($parts[0]) === '' || trim($parts[1]) === '') {
+            admin_fail($label . ': scrivi una riga per voce, nella forma "Etichetta: valore" (es. "Materiale: Cotone").');
+        }
+        $pairs[] = [mb_substr(trim($parts[0]), 0, 40), mb_substr(trim($parts[1]), 0, 120)];
+    }
+
+    if (count($pairs) > $max) {
+        admin_fail($label . ': al massimo ' . $max . ' righe.');
+    }
+
+    return $pairs;
+}
+
+/**
+ * Il contrario di admin_shop_pairs(): il JSON salvato torna testo da
+ * modificare nel pannello, una lingua per volta.
+ */
+function admin_shop_pairs_text(?string $json, string $lang): string
+{
+    $data = json_decode((string)$json, true);
+    $list = is_array($data) ? ($data[$lang] ?? []) : [];
+
+    $lines = [];
+    foreach (is_array($list) ? $list : [] as $pair) {
+        $pair = is_array($pair) ? array_values($pair) : [];
+        if (count($pair) >= 2 && is_scalar($pair[0]) && is_scalar($pair[1])) {
+            $lines[] = $pair[0] . ': ' . $pair[1];
+        }
+    }
+
+    return implode("\n", $lines);
 }
 
 function admin_shop_link(array $input, string $key, string $label, bool $required = false): ?string

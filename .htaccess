@@ -79,7 +79,9 @@ RewriteRule ^(it|en)/rewind/([A-Za-z0-9_-]{22})/?$ rewind_public.php?lang=$1&tok
 
 # Shop: le collezioni del Merch e il dettaglio dei download stanno nel
 # database, una pagina sola le disegna tutte.
+RewriteRule ^(it|en)/merch/([a-z0-9-]{1,60})/([a-z0-9-]{1,80})/?$ $1/merch.php?collezione=$2&prodotto=$3 [L,QSA]
 RewriteRule ^(it|en)/merch/([a-z0-9-]{1,60})/?$ $1/merch.php?collezione=$2 [L,QSA]
+RewriteRule ^(it|en)/negozio/([a-z0-9-]{1,80})/?$ $1/negozio.php?prodotto=$2 [L,QSA]
 RewriteRule ^(it|en)/download/([a-z0-9-]{1,80})/?$ $1/download.php?item=$2 [L,QSA]
 
 RewriteRule ^u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]

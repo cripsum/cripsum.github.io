@@ -1,7 +1,8 @@
 <?php
 /**
- * /it/negozio e /en/negozio. Si include da it/negozio.php con $shopLang gia'
- * impostata e $mysqli aperta.
+ * /it/negozio e /en/negozio, e la pagina di un prodotto /it/negozio/{slug}
+ * (la regola in .htaccess passa lo slug come ?prodotto=). Si include da
+ * it/negozio.php con $shopLang gia' impostata e $mysqli aperta.
  */
 
 require_once __DIR__ . '/../catalog.php';
@@ -23,8 +24,25 @@ if (!$vetrina) {
     return;
 }
 
+$productSlug = strtolower(trim((string)($_GET['prodotto'] ?? '')));
+
+// I link della vecchia scheda rapida (/it/negozio?p=ps6) portano alla pagina
+// del prodotto.
+$legacySlug = strtolower(trim((string)($_GET['p'] ?? '')));
+if ($productSlug === '' && preg_match('/^[a-z0-9-]{1,80}$/', $legacySlug)) {
+    header('Location: ' . shop_product_url($shopLang, 'negozio', 'negozio', $legacySlug), true, 301);
+    exit;
+}
+
+if ($productSlug !== '') {
+    $expectedTipo = 'negozio';
+    $expectedVetrinaSlug = 'negozio';
+    include __DIR__ . '/prodotto.php';
+    return;
+}
+
 $categories = shop_categories($mysqli, 'negozio', $shopLang);
-$products = shop_products($mysqli, $vetrina['id'], $shopLang, $categories);
+$products = shop_products($mysqli, $vetrina, $shopLang, $categories);
 $faq = shop_faq($mysqli, 'vetrina', $vetrina['id'], $shopLang);
 $isPreview = false;
 $otherCollections = [];
