@@ -19,7 +19,8 @@ $found = preg_match('/^[a-z0-9-]{1,80}$/', $productSlug)
 if (!$found) {
     http_response_code(404);
     $pageTitle = $expectedTipo === 'merch' ? 'Merch' : ($shopLang === 'en' ? 'Shop' : 'Negozio');
-    $bodyClass = $expectedTipo === 'merch' ? 'shop-theme-merch' : 'shop-theme-store';
+    $bodyClass = 'shop-theme-store';
+    $bodyStyle = shop_store_style($mysqli, $shopLang);
     include __DIR__ . '/../partials/top.php';
     $stateIcon = 'fa-solid fa-box-open';
     $stateTitle = $S['not_found_title'];

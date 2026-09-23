@@ -19,7 +19,7 @@ $requestedSlug = strtolower(trim((string)($_GET['collezione'] ?? '')));
 
 if (!shop_catalog_ready($mysqli)) {
     $pageTitle = 'Merch';
-    $bodyClass = 'shop-theme-merch';
+    $bodyClass = 'shop-theme-store';
     include __DIR__ . '/../partials/top.php';
     $stateIcon = 'fa-solid fa-screwdriver-wrench';
     $stateTitle = $S['maintenance_title'];
@@ -63,7 +63,8 @@ if ($requestedSlug !== '') {
     if (!$vetrina) {
         http_response_code(404);
         $pageTitle = 'Merch';
-        $bodyClass = 'shop-theme-merch';
+        $bodyClass = 'shop-theme-store';
+        $bodyStyle = shop_store_style($mysqli, $shopLang);
         include __DIR__ . '/../partials/top.php';
         $stateIcon = 'fa-solid fa-shirt';
         $stateTitle = $S['not_found_title'];
@@ -88,8 +89,9 @@ if (!$vetrina) {
     $pageTitle = 'Merch';
     $pageDescription = $page['subtitle'];
     $pageImage = $collections[0]['cover'] ?? ($collections[0]['preview'][0] ?? '');
-    $bodyClass = 'shop-theme-merch';
-    $bodyStyle = $collections ? $collections[0]['style'] : '';
+    // L'elenco ha i colori del Negozio; ogni card tiene quelli della sua collezione.
+    $bodyClass = 'shop-theme-store';
+    $bodyStyle = shop_store_style($mysqli, $shopLang);
     $presence = [
         'title' => 'Merch',
         'state' => $shopLang === 'en' ? 'Browsing the merch' : 'Guardando il merch',

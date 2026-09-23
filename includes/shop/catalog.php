@@ -59,6 +59,21 @@ function shop_vetrina_view(array $row, string $lang): array
     ];
 }
 
+/**
+ * I colori del Negozio. Li usano anche le pagine del Merch che non sono di
+ * una collezione (l'elenco, gli errori): i colori propri li hanno solo le
+ * collezioni. Vuoto se il catalogo non c'e', e restano quelli di base.
+ */
+function shop_store_style(?mysqli $mysqli, string $lang): string
+{
+    if (!shop_catalog_ready($mysqli)) {
+        return '';
+    }
+
+    $store = shop_vetrina($mysqli, 'negozio', 'negozio', $lang);
+    return $store['style'] ?? '';
+}
+
 function shop_vetrina(mysqli $mysqli, string $tipo, string $slug, string $lang): ?array
 {
     $row = shop_fetch_one(
