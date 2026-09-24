@@ -320,7 +320,7 @@ try {
             }
 
             if ($id > 0) {
-                gacha_admin_item($mysqli, $id);
+                $previous = gacha_admin_item($mysqli, $id);
                 admin_shop_exec(
                     $mysqli,
                     "UPDATE godos_shop_items
@@ -335,6 +335,8 @@ try {
                 if ($itemsHaveWindow) {
                     admin_shop_exec($mysqli, 'UPDATE godos_shop_items SET disponibile_dal = ?, disponibile_fino = ? WHERE id = ? LIMIT 1', 'ssi', [$from, $until, $id], 'Non sono riuscito a salvare le date.')->close();
                 }
+
+                admin_media_cleanup($mysqli, [$previous['image_url'] ?? null], $adminId);
 
                 admin_log($mysqli, $adminId, 'shop_update_godos_item', null, ['item_id' => $id, 'badge_id' => $badgeId, 'price' => $price]);
                 admin_ok(['message' => 'Oggetto salvato.', 'id' => $id]);
@@ -399,6 +401,7 @@ try {
             }
 
             admin_shop_exec($mysqli, 'DELETE FROM godos_shop_items WHERE id = ? LIMIT 1', 'i', [$itemId], 'Eliminazione non riuscita.')->close();
+            admin_media_cleanup($mysqli, [$item['image_url'] ?? null], $adminId);
             admin_log($mysqli, $adminId, 'shop_delete_godos_item', null, ['item_id' => $itemId, 'nome' => $item['name_it']]);
             admin_ok(['message' => 'Oggetto eliminato.', 'archived' => false]);
 

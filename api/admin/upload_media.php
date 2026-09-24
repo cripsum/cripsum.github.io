@@ -6,11 +6,10 @@ require_once __DIR__ . '/bootstrap.php';
  * dove si caricano (POST folder): negozio, merch/{collezione}, download,
  * gacha, personaggi. Senza folder finiscono in img/ come prima.
  *
- * Il primo livello e' una lista chiusa: img/ ha gia' cartelle con un
- * significato (badges, rewind, cripsumpedia) in cui il pannello non deve
- * scrivere.
+ * Il primo livello e' una lista chiusa (ADMIN_MEDIA_FOLDERS, in
+ * admin_media_helpers.php): img/ ha gia' cartelle con un significato
+ * (badges, rewind, cripsumpedia) in cui il pannello non deve scrivere.
  */
-const ADMIN_IMAGE_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personaggi'];
 
 function admin_upload_folder(string $folder): string
 {
@@ -20,7 +19,7 @@ function admin_upload_folder(string $folder): string
     }
 
     $segments = explode('/', $folder);
-    if (count($segments) > 2 || !in_array($segments[0], ADMIN_IMAGE_FOLDERS, true)) {
+    if (count($segments) > 2 || !in_array($segments[0], ADMIN_MEDIA_FOLDERS, true)) {
         admin_fail('Cartella di destinazione non valida.');
     }
 

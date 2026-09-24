@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/admin/admin_helpers.php';
+require_once __DIR__ . '/../../includes/admin/admin_media_helpers.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 if (isset($mysqli) && $mysqli instanceof mysqli) {

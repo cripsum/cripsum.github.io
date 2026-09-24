@@ -192,6 +192,9 @@ try {
                     'Non sono riuscito a salvare la vetrina.'
                 )->close();
 
+                // Logo o copertina sostituiti: il file vecchio se ne va.
+                admin_media_cleanup($mysqli, [$existing['logo'] ?? null, $existing['copertina'] ?? null], $adminId);
+
                 admin_log($mysqli, $adminId, 'shop_update_vetrina', null, ['vetrina_id' => $id, 'slug' => $slug]);
                 admin_ok(['message' => $tipo === 'negozio' ? 'Negozio salvato.' : 'Collezione salvata.', 'id' => $id, 'slug' => $slug]);
             }
@@ -221,6 +224,16 @@ try {
             $count = (int)(admin_shop_row($mysqli, 'SELECT COUNT(*) AS n FROM shop_prodotti WHERE vetrina_id = ?', 'i', [$vetrinaId])['n'] ?? 0);
             $mode = (string)($input['mode'] ?? 'delete');
 
+            // Le immagini da ripulire dopo: quelle della collezione e, se i
+            // prodotti se ne vanno con lei, anche le loro.
+            $images = [$vetrina['logo'] ?? null, $vetrina['copertina'] ?? null];
+            if ($count > 0 && $mode !== 'move') {
+                foreach (admin_shop_rows($mysqli, 'SELECT * FROM shop_prodotti WHERE vetrina_id = ?', 'i', [$vetrinaId]) as $row) {
+                    $images[] = $row['immagine'] ?? null;
+                    $images[] = $row['galleria'] ?? null;
+                }
+            }
+
             $mysqli->begin_transaction();
 
             // Con "sposta" i prodotti passano a un'altra collezione prima che
@@ -243,6 +256,8 @@ try {
 
             admin_shop_exec($mysqli, 'DELETE FROM shop_vetrine WHERE id = ? LIMIT 1', 'i', [$vetrinaId], 'Eliminazione non riuscita.')->close();
             $mysqli->commit();
+
+            admin_media_cleanup($mysqli, $images, $adminId);
 
             admin_log($mysqli, $adminId, 'shop_delete_vetrina', null, ['slug' => $vetrina['slug'], 'prodotti' => $count, 'mode' => $mode]);
             admin_ok(['message' => 'Collezione eliminata.']);
@@ -395,6 +410,10 @@ try {
                     'Non sono riuscito a salvare il prodotto.'
                 )->close();
 
+                // Foto sostituite o tolte dalla galleria: i file vecchi se ne
+                // vanno (quelle rimaste sono ancora in uso e restano).
+                admin_media_cleanup($mysqli, [$existing['immagine'] ?? null, $existing['galleria'] ?? null], $adminId);
+
                 admin_log($mysqli, $adminId, 'shop_update_product', null, ['product_id' => $id, 'slug' => $slug]);
                 admin_ok(['message' => 'Prodotto salvato.', 'id' => $id, 'slug' => $slug]);
             }
@@ -454,6 +473,8 @@ try {
         case 'delete_product':
             $product = catalog_product($mysqli, (int)($input['id'] ?? 0));
             admin_shop_exec($mysqli, 'DELETE FROM shop_prodotti WHERE id = ? LIMIT 1', 'i', [(int)$product['id']], 'Eliminazione non riuscita.')->close();
+            // Una copia duplicata usa le stesse foto: in quel caso restano.
+            admin_media_cleanup($mysqli, [$product['immagine'] ?? null, $product['galleria'] ?? null], $adminId);
             admin_log($mysqli, $adminId, 'shop_delete_product', null, ['slug' => $product['slug'], 'nome' => $product['nome']]);
             admin_ok(['message' => 'Prodotto eliminato.']);
 

@@ -161,6 +161,7 @@ try {
             if ($existing) {
                 $set = implode(', ', array_map(static fn($c) => "`$c` = ?", $columns));
                 admin_shop_exec($mysqli, "UPDATE download_items SET $set WHERE id = ? LIMIT 1", $types . 'i', array_merge($values, [$id]), 'Non sono riuscito a salvare il download.')->close();
+                admin_media_cleanup($mysqli, [$existing['immagine'] ?? null], $adminId);
                 admin_log($mysqli, $adminId, 'shop_update_download', null, ['download_id' => $id, 'slug' => $slug]);
                 admin_ok(['message' => 'Download salvato.', 'id' => $id, 'slug' => $slug]);
             }
@@ -197,14 +198,16 @@ try {
             admin_ok(['message' => 'Stato aggiornato.']);
 
         case 'delete':
-            // Il file caricato resta sul disco: potrebbe servire a un altro
-            // download, e cancellarlo per errore non si puo' annullare.
+            // Il file da scaricare resta sul disco: potrebbe servire a un
+            // altro download, e cancellarlo per errore non si puo' annullare.
+            // L'immagine della card invece se ne va, se nessuno la usa.
             $id = (int)($input['id'] ?? 0);
-            $item = admin_shop_row($mysqli, 'SELECT slug FROM download_items WHERE id = ? LIMIT 1', 'i', [$id]);
+            $item = admin_shop_row($mysqli, 'SELECT slug, immagine FROM download_items WHERE id = ? LIMIT 1', 'i', [$id]);
             if (!$item) {
                 admin_fail('Download non trovato.', 404);
             }
             admin_shop_exec($mysqli, 'DELETE FROM download_items WHERE id = ? LIMIT 1', 'i', [$id], 'Eliminazione non riuscita.')->close();
+            admin_media_cleanup($mysqli, [$item['immagine'] ?? null], $adminId);
             admin_log($mysqli, $adminId, 'shop_delete_download', null, ['slug' => $item['slug']]);
             admin_ok(['message' => 'Download eliminato.']);
 

@@ -116,7 +116,9 @@
         const target = typeof folder === 'function' ? folder() : folder;
         if (target) fd.append('folder', target);
         const res = await api('upload_media.php', { method: 'POST', body: fd });
-        return res.url || `/img/${res.filename}`;
+        const url = res.url || `/img/${res.filename}`;
+        A.trackUpload?.(url);
+        return url;
     };
 
     const folderSlug = (value) => slugify(value).slice(0, 60).replace(/-+$/, '');
@@ -567,47 +569,146 @@
             : `/it/negozio/${slug}`;
     };
 
-    /* Altre foto: una per riga, con anteprima e caricamento di piu' file. */
+    /*
+     * Altre foto: miniature da riordinare o togliere, piu' "Aggiungi foto"
+     * (anche piu' file insieme) o un percorso/link incollato. Il valore vero
+     * sta nel textarea nascosto "galleria", una foto per riga, come lo legge
+     * il server. Una foto tolta si cancella dal disco quando si salva, se
+     * nessun altro prodotto la usa.
+     */
+    const GALLERY_MAX = 12;
+
     const galleryField = (values) => `
         <div class="admin-field admin-field--full" data-gallery-field>
-            <label for="shop-admin-gallery-input">Altre foto</label>
-            <div class="shop-admin-gallery" data-gallery-preview></div>
+            <label>Altre foto <span class="shop-admin-gallery__count" data-gallery-count></span></label>
+            <ul class="shop-admin-gallery" data-gallery-list></ul>
             <div class="shop-admin-gallery__tools">
-                <textarea id="shop-admin-gallery-input" name="galleria" rows="3" placeholder="/img/retro.jpg\n/img/dettaglio.jpg">${e(values.galleria_testo || '')}</textarea>
-                <label class="admin-btn shop-admin-upload"><i class="fa-solid fa-images"></i> Aggiungi foto<input type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple data-upload-gallery hidden></label>
+                <label class="admin-btn shop-admin-upload" data-gallery-upload><i class="fa-solid fa-images"></i> Aggiungi foto<input type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple data-upload-gallery hidden></label>
+                <div class="admin-input-group shop-admin-gallery__link">
+                    <input type="text" placeholder="oppure incolla un percorso /img/... o un link https" aria-label="Percorso o link di una foto" data-gallery-link>
+                    <button type="button" class="admin-btn" data-gallery-add><i class="fa-solid fa-plus"></i> Aggiungi</button>
+                </div>
             </div>
-            <small class="shop-admin-help">Una per riga, fino a 12. Nella pagina del prodotto diventano le miniature sotto la foto principale.</small>
+            <textarea name="galleria" hidden>${e(values.galleria_testo || '')}</textarea>
+            <small class="shop-admin-help">Nella pagina del prodotto sono le miniature sotto la foto principale, in quest'ordine. Le foto tolte si cancellano dal sito quando salvi.</small>
         </div>`;
 
     const bindGalleryField = (form, folder = null) => {
         const wrap = $('[data-gallery-field]', form);
         if (!wrap) return;
-        const area = $('textarea', wrap);
-        const preview = $('[data-gallery-preview]', wrap);
+        const area = $('textarea[name="galleria"]', wrap);
+        const list = $('[data-gallery-list]', wrap);
+        const count = $('[data-gallery-count]', wrap);
+        const upload = $('[data-upload-gallery]', wrap);
+        const uploadLabel = $('[data-gallery-upload]', wrap);
+        const link = $('[data-gallery-link]', wrap);
+        const addButton = $('[data-gallery-add]', wrap);
 
-        const draw = () => {
-            const lines = area.value.split('\n').map((l) => l.trim()).filter(Boolean);
-            preview.innerHTML = lines.map((line) => thumb(line)).join('');
+        const photos = area.value.split('\n').map((line) => line.trim()).filter(Boolean);
+
+        const item = (url, index) => `
+            <li class="shop-admin-gallery__item">
+                ${thumb(url)}
+                <span class="shop-admin-gallery__index">${index + 1}</span>
+                <div class="shop-admin-gallery__actions">
+                    <button type="button" data-index="${index}" data-gallery-move="-1" title="Sposta prima" aria-label="Sposta prima la foto ${index + 1}" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-chevron-left"></i></button>
+                    <button type="button" class="is-danger" data-index="${index}" data-gallery-remove title="Togli" aria-label="Togli la foto ${index + 1}"><i class="fa-solid fa-xmark"></i></button>
+                    <button type="button" data-index="${index}" data-gallery-move="1" title="Sposta dopo" aria-label="Sposta dopo la foto ${index + 1}" ${index === photos.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </li>`;
+
+        const sync = () => {
+            area.value = photos.join('\n');
+            const full = photos.length >= GALLERY_MAX;
+            count.textContent = photos.length ? `${photos.length}/${GALLERY_MAX}` : '';
+            list.innerHTML = photos.map(item).join('');
+            list.hidden = photos.length === 0;
+            upload.disabled = full;
+            uploadLabel.classList.toggle('is-disabled', full);
+            link.disabled = full;
+            addButton.disabled = full;
         };
 
-        $('[data-upload-gallery]', wrap).addEventListener('change', async (event) => {
+        const add = (url) => {
+            if (!url || photos.includes(url) || photos.length >= GALLERY_MAX) return false;
+            photos.push(url);
+            return true;
+        };
+
+        list.addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-index]');
+            if (!button || button.disabled) return;
+            const index = Number(button.dataset.index);
+            let focusIndex;
+            let focusSelector;
+
+            if (button.hasAttribute('data-gallery-remove')) {
+                photos.splice(index, 1);
+                focusIndex = Math.min(index, photos.length - 1);
+                focusSelector = '[data-gallery-remove]';
+            } else {
+                const direction = Number(button.dataset.galleryMove);
+                const to = index + direction;
+                if (to < 0 || to >= photos.length) return;
+                [photos[index], photos[to]] = [photos[to], photos[index]];
+                focusIndex = to;
+                focusSelector = `[data-gallery-move="${direction}"]`;
+            }
+
+            sync();
+            // Il fuoco resta sulla foto appena spostata (o su quella che ha
+            // preso il posto di quella tolta): con la tastiera si continua.
+            const buttons = focusIndex >= 0 ? $$(`[data-index="${focusIndex}"]`, list) : [];
+            const target = buttons.find((b) => b.matches(focusSelector) && !b.disabled)
+                || buttons.find((b) => b.hasAttribute('data-gallery-remove'));
+            (target || link).focus();
+        });
+
+        upload.addEventListener('change', async (event) => {
             const files = Array.from(event.target.files || []);
+            event.target.value = '';
+            let added = 0;
             for (const file of files) {
+                if (photos.length >= GALLERY_MAX) {
+                    showToast(`Al massimo ${GALLERY_MAX} foto: le altre non sono state caricate.`, true);
+                    break;
+                }
                 try {
                     showToast(`Caricamento ${file.name}...`);
-                    const url = await uploadImage(file, folder);
-                    area.value = (area.value.trim() ? area.value.trim() + '\n' : '') + url;
-                    draw();
+                    if (add(await uploadImage(file, folder))) added++;
+                    sync();
                 } catch (error) {
                     showToast(error.message, true);
                 }
             }
-            event.target.value = '';
-            if (files.length) showToast('Foto aggiunte.');
+            if (added) showToast(added === 1 ? 'Foto aggiunta.' : `${added} foto aggiunte.`);
         });
 
-        area.addEventListener('input', draw);
-        draw();
+        const addLink = () => {
+            const value = link.value.trim();
+            if (!value) return;
+            if (!/^(\/|https?:\/\/)/i.test(value)) {
+                showToast('Usa un percorso del sito (/img/...) o un indirizzo https.', true);
+                return;
+            }
+            if (!add(value)) {
+                showToast(photos.includes(value) ? 'Questa foto c\'è già.' : `Al massimo ${GALLERY_MAX} foto.`, true);
+                return;
+            }
+            link.value = '';
+            sync();
+        };
+
+        addButton.addEventListener('click', addLink);
+        link.addEventListener('keydown', (event) => {
+            // Invio aggiunge la foto invece di salvare il form.
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addLink();
+            }
+        });
+
+        sync();
     };
 
     const productForm = (tipo, ctx, item = null, reload) => {
@@ -900,6 +1001,7 @@
             try {
                 const res = await post(EP.catalog, 'save_vetrina', { ...readForm(form), id: vetrina.id });
                 showToast(res.message);
+                A.discardPendingUploads?.();
             } catch (error) {
                 showToast(error.message, true);
             }

@@ -73,12 +73,17 @@ try {
     $params[] = $id;
     $types .= 'i';
 
+    $oldImage = admin_character_image($mysqli, $id);
+
     $stmt = $mysqli->prepare('UPDATE personaggi SET ' . implode(', ', $sets) . ' WHERE id = ? LIMIT 1');
     if (!$stmt) admin_fail('Query modifica personaggio non valida.', 500);
 
     $stmt->bind_param($types, ...$params);
     if (!$stmt->execute()) admin_fail('Non sono riuscito a modificare il personaggio.', 500);
     $stmt->close();
+
+    // Immagine sostituita: quella vecchia se ne va, se sta in img/personaggi/.
+    admin_media_cleanup($mysqli, [$oldImage], (int)$adminUser['id']);
 
     admin_log($mysqli, (int)$adminUser['id'], 'update_character', null, ['character_id' => $id, 'name' => $name]);
     admin_ok(['message' => 'Personaggio aggiornato.']);

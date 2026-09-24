@@ -93,6 +93,31 @@
         return data;
     };
 
+    /*
+     * Immagini caricate da un form della finestra: quando la finestra si
+     * chiude (salvata o annullata) si mandano al server, che cancella solo
+     * quelle che nessuna riga del database usa. Cosi' le foto caricate e poi
+     * sostituite, o di un form chiuso senza salvare, non restano sul disco;
+     * quelle salvate sono in uso e restano.
+     */
+    const pendingUploads = new Set();
+
+    const trackUpload = (url) => {
+        if (url) pendingUploads.add(String(url));
+    };
+
+    const discardPendingUploads = async () => {
+        if (!pendingUploads.size) return;
+        const files = Array.from(pendingUploads);
+        pendingUploads.clear();
+        try {
+            await api('discard_media.php', { method: 'POST', body: { files } });
+        } catch (error) {
+            // Non e' un errore per chi usa il pannello: al massimo resta un file.
+            console.warn('discard_media', error);
+        }
+    };
+
     const setLoading = (container, rows = 4) => {
         if (!container) return;
         container.innerHTML = `<div class="admin-stack">${Array.from({ length: rows }).map(() => '<div class="admin-row-card"><div class="admin-row-main"><span class="admin-avatar"></span><div><div class="admin-row-title">Caricamento...</div><div class="admin-row-sub">Attendi</div></div></div></div>').join('')}</div>`;
@@ -190,16 +215,20 @@
         },
         hide() {
             if (!element) return;
+            const wasOpen = element.classList.contains('is-open');
             element.classList.remove('is-open');
             element.style.display = 'none';
             element.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('modal-open');
+            if (wasOpen) element.dispatchEvent(new Event('hidden.bs.modal'));
         }
     });
 
     const initModalInstances = () => {
         const adminModalElement = $('#adminModal');
         const confirmModalElement = $('#confirmModal');
+
+        adminModalElement?.addEventListener('hidden.bs.modal', discardPendingUploads);
 
         if (window.bootstrap && window.bootstrap.Modal) {
             modal = adminModalElement ? new window.bootstrap.Modal(adminModalElement) : createFallbackModal(adminModalElement);
@@ -704,6 +733,7 @@
                     const res = await api('upload_media.php', { method: 'POST', body: fd });
                     if (res.ok && res.filename) {
                         imgUrlTxt.value = res.filename;
+                        trackUpload(res.url);
                         showToast('Immagine caricata!');
                     } else {
                         showToast(res.message || 'Errore caricamento immagine.', true);
@@ -1726,6 +1756,8 @@
         emptyState,
         formatDate,
         enableRowDrag,
+        trackUpload,
+        discardPendingUploads,
         getQuery: () => state.q,
         registerSection: (name, loader) => {
             externalSections[name] = loader;
