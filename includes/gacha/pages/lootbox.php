@@ -173,10 +173,11 @@ $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 function gacha_page_pity_note(array $b, array $G, string $lang): array
 {
     $p = $b['pity'];
-    $left = max(0, $p['hard'] - $p['contatore'] + 1);
+    // La pull garantita e' la numero `hard`: con pity hard-1 e' la prossima.
+    $left = max(1, $p['hard'] - $p['contatore']);
     $soglia = gacha_rarity_label($p['soglia'], $lang);
     if ($b['pity_gruppo'] === 'standard') {
-        if ($p['contatore'] >= $p['hard']) return [$G['pity_std_hard'], true];
+        if ($p['contatore'] + 1 >= $p['hard']) return [$G['pity_std_hard'], true];
         if ($p['contatore'] >= $p['soft']) return [$G['pity_std_soft'], true];
         return [sprintf($G['pity_std_count'], $left), false];
     }
@@ -184,7 +185,7 @@ function gacha_page_pity_note(array $b, array $G, string $lang): array
         if ($p['contatore'] >= $p['soft']) return [$G['pity_evt_soft'], true];
         return [sprintf($G['pity_evt_count'], $left), false];
     }
-    if ($p['contatore'] >= $p['hard']) return [sprintf($G['pity_gen_hard'], $soglia), true];
+    if ($p['contatore'] + 1 >= $p['hard']) return [sprintf($G['pity_gen_hard'], $soglia), true];
     return [sprintf($G['pity_gen_count'], $soglia, $left), false];
 }
 

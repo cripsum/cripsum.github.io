@@ -237,7 +237,7 @@ function gacha_banner_rates(mysqli $mysqli, array $banner): array
             'condiviso' => $banner['pity_gruppo'] === 'evento',
             'quota' => $hasTopFeatured ? $quotaTop : null,
             // Nel caso peggiore: hard pity perso al 50/50, poi garantito.
-            'featured_entro' => $hasTopFeatured ? ($quotaTop >= 100 ? $profile['hard'] + 1 : 2 * ($profile['hard'] + 1)) : null,
+            'featured_entro' => $hasTopFeatured ? ($quotaTop >= 100 ? $profile['hard'] : 2 * $profile['hard']) : null,
         ],
         'garanzia_multi' => $banner['garanzia_multi'] ? GACHA_MULTI_GUARANTEE_RARITY : null,
         'pool' => $pool,

@@ -311,7 +311,7 @@ function gb_admin_rates_public(mysqli $mysqli, array $banner): array
                 'prob' => round($p, 5),
                 // Probabilita' di averlo almeno una volta entro l'hard pity,
                 // col solo tasso base (il pity la fa solo salire).
-                'entro_hard' => round((1 - pow(1 - $p / 100, $hard + 1)) * 100, 2),
+                'entro_hard' => round((1 - pow(1 - $p / 100, $hard)) * 100, 2),
             ];
         }
     }

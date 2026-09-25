@@ -89,7 +89,7 @@
       details_rules:      'Regole',
       details_pool:       (n) => `Personaggi del banner (${n})`,
       details_rule_soft:  (s) => `Dalla pull ${s + 1} le rarità alte salgono a ogni pull (soft pity).`,
-      details_rule_hard:  (h, r) => `Entro la pull ${h + 1} arriva di sicuro un ${r} o superiore (hard pity).`,
+      details_rule_hard:  (h, r) => `Entro la pull ${h} arriva di sicuro un ${r} o superiore (hard pity).`,
       details_rule_5050:  (q, n) => `Quando esce la rarità del rate-up hai il ${q}% di prenderlo; se perdi, il prossimo è garantito. Al massimo ${n} pull per averlo.`,
       details_rule_shared:'Il pity e il garantito sono condivisi con gli altri banner evento.',
       details_rule_multi: (r) => `Ogni multi 10× contiene almeno un ${r} o superiore.`,
@@ -167,7 +167,7 @@
       details_rules:      'Rules',
       details_pool:       (n) => `Banner characters (${n})`,
       details_rule_soft:  (s) => `From pull ${s + 1} the high rarities go up every pull (soft pity).`,
-      details_rule_hard:  (h, r) => `By pull ${h + 1} you surely get a ${r} or higher (hard pity).`,
+      details_rule_hard:  (h, r) => `By pull ${h} you surely get a ${r} or higher (hard pity).`,
       details_rule_5050:  (q, n) => `When the rate-up rarity drops you have a ${q}% chance to get it; if you lose, the next one is guaranteed. At most ${n} pulls to get it.`,
       details_rule_shared:'Pity and guarantee are shared with the other limited banners.',
       details_rule_multi: (r) => `Every 10× multi has at least one ${r} or higher.`,
@@ -1707,7 +1707,8 @@
       const hard = Number(view.dataset.pityHard || 80);
       const soft = Number(view.dataset.pitySoft || 65);
       const soglia = view.dataset.pitySoglia || 'segreto';
-      const left = Math.max(0, hard - counter + 1);
+      // La pull garantita e' la numero `hard`: con pity hard-1 e' la prossima.
+      const left = Math.max(1, hard - counter);
 
       const fill = view.querySelector('[data-pity-fill]');
       const numEl = view.querySelector('[data-pity-num]');
@@ -1717,7 +1718,7 @@
       if (note) {
         let text; let active;
         if (group === 'standard') {
-          if (counter >= hard) { text = t.pity_hard; active = true; }
+          if (counter + 1 >= hard) { text = t.pity_hard; active = true; }
           else if (counter >= soft) { text = t.pity_soft; active = true; }
           else { text = t.pity_count(left); active = false; }
         } else if (soglia === 'segreto') {
@@ -1725,7 +1726,7 @@
           text = active ? t.pity_evt_soft : t.pity_evt_count(left);
         } else {
           const label = rarityLabels[soglia] || soglia;
-          if (counter >= hard) { text = t.pity_gen_hard(label); active = true; }
+          if (counter + 1 >= hard) { text = t.pity_gen_hard(label); active = true; }
           else { text = t.pity_gen_count(label, left); active = counter >= soft; }
         }
         note.textContent = text;

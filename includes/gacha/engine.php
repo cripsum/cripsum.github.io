@@ -99,12 +99,15 @@ function gacha_pick_entry(array $entries): ?array
  * pesi delle rarita' alte salgono di un tanto a pull; all'hard pity si
  * estrae solo fra le rarita' dalla soglia in su, con la ripartizione del
  * profilo. Le rarita' che il pool non ha restano a zero.
+ *
+ * $pity sono le pull gia' fatte senza la soglia: con hard 80 la pull
+ * garantita e' l'ottantesima, cioe' quella che parte da pity 79.
  */
 function gacha_pull_weights(array $banner, array $pool, array $profile, int $pity): array
 {
     $weights = gacha_banner_weights($banner, $pool);
 
-    if ($pity >= $profile['hard']) {
+    if ($pity + 1 >= $profile['hard']) {
         $hard = [];
         foreach ($profile['hard_pesi'] as $key => $weight) {
             if (!empty($pool[$key])) {

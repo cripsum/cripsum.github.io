@@ -183,7 +183,7 @@
         principiante: {
             label: 'Principiante', icon: 'fa-solid fa-seedling',
             help: 'Venti pull a testa con un Segreto garantito entro la ventesima.',
-            values: { tipo: 'principiante', pool_modo: 'standard', pity_modo: 'dedicato', pity_soft: 15, pity_hard: 19, pity_soglia: 'segreto', limite_pull_utente: 20, costo_punti: 100, garanzia_multi: 1 },
+            values: { tipo: 'principiante', pool_modo: 'standard', pity_modo: 'dedicato', pity_soft: 15, pity_hard: 20, pity_soglia: 'segreto', limite_pull_utente: 20, costo_punti: 100, garanzia_multi: 1 },
         },
     };
 
@@ -295,7 +295,7 @@
                 ${section('Pity e garanzie')}
                 ${isStandard ? `<p class="shop-admin-note admin-field--full"><i class="fa-solid fa-lock"></i> Pity standard fisso: soft ${profiles.standard?.soft}, hard ${profiles.standard?.hard}, garantito Speciale o superiore.</p>` : select('pity_modo', 'Pity', b.pity_modo || 'evento', [['evento', `Evento, condiviso con gli altri (soft ${profiles.evento?.soft}, hard ${profiles.evento?.hard})`], ['dedicato', 'Dedicato a questo banner']], 'Condiviso: pity e garantito passano da un banner evento all\'altro, come sempre.')}
                 ${field('pity_soft', 'Soft pity', b.pity_soft ?? 65, 'type="number" min="1" max="1000"', 'Da qui le probabilità salgono a ogni pull.', false, 'data-show-pity="dedicato"')}
-                ${field('pity_hard', 'Hard pity', b.pity_hard ?? 80, 'type="number" min="1" max="1000"', 'Dopo queste pull senza la rarità garantita, la successiva la dà di sicuro.', false, 'data-show-pity="dedicato"')}
+                ${field('pity_hard', 'Hard pity', b.pity_hard ?? 80, 'type="number" min="1" max="1000"', 'La pull numero N dà di sicuro la rarità garantita (N = questo valore).', false, 'data-show-pity="dedicato"')}
                 ${select('pity_soglia', 'Rarità garantita', b.pity_soglia || 'segreto', (m.rarities || []).map((r) => [r.key, `${r.label} o superiore`]), '', '', 'data-show-pity="dedicato"')}
                 ${isStandard ? '' : field('quota_featured', 'Quota del rate-up principale %', b.quota_featured ?? '', 'type="number" min="0" max="100" placeholder="50"', 'Fascia del pity (segreto+theone per l\'evento). Vuoto = 50, 100 = sempre il rate-up.')}
                 ${isStandard ? '' : field('destino_max', 'Destino: rate-up non scelti prima del bersaglio', b.destino_max ?? 1, 'type="number" min="0" max="10"', 'Con più rate-up nella stessa fascia chi gioca sceglie il bersaglio. 0 = niente scelta.')}
@@ -337,7 +337,7 @@
             <p class="admin-row-sub">${num(p.pool_totale)} personaggi nel pool.</p>
             ${(p.featured || []).length ? `<div class="gacha-admin-featured">
                 <strong>Rate-up</strong>
-                ${p.featured.map((f) => `<div><span>${rarityDot(f.rarita)} ${e(f.nome)}</span><b>${pct(f.prob, 4)}</b><small>a pull · ${pct(f.entro_hard, 1)} entro ${Number(p.pity?.hard) + 1} pull senza pity</small></div>`).join('')}
+                ${p.featured.map((f) => `<div><span>${rarityDot(f.rarita)} ${e(f.nome)}</span><b>${pct(f.prob, 4)}</b><small>a pull · ${pct(f.entro_hard, 1)} entro ${Number(p.pity?.hard)} pull senza pity</small></div>`).join('')}
             </div>` : ''}
             <div class="gacha-admin-pityinfo">
                 <span>Soft ${p.pity?.soft} · Hard ${p.pity?.hard} · ${e(RARITY_LABELS[p.pity?.soglia] || p.pity?.soglia)}+ garantito</span>
