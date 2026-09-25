@@ -108,7 +108,7 @@ function account_protected_tables(): array
 {
     // `utenti` is handled explicitly and last; the rest are shared catalogues
     // whose rows do not belong to any single account.
-    return ['utenti', 'achievement', 'personaggi', 'missions', 'godos_shop_items', 'banner_eventi'];
+    return ['utenti', 'achievement', 'personaggi', 'missions', 'godos_shop_items', 'banner_eventi', 'gacha_banner', 'gacha_banner_personaggi', 'gacha_banner_rarita', 'personaggi_categorie'];
 }
 
 /**

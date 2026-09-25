@@ -65,6 +65,46 @@
       pity_count:         (n) => `Garantito Speciale o Segreto in ${n} pull`,
       pity_evt_soft:      '✦ Soft pity attivo — probabilità in aumento',
       pity_evt_count:     (n) => `Garantito segreto in ${n} pull`,
+      pity_gen_hard:      (r) => `★ Garantito: prossima pull è ${r} o superiore!`,
+      pity_gen_count:     (r, n) => `Garantito ${r} o superiore in ${n} pull`,
+      // Riepilogo multi
+      summary_best:       'Migliore',
+      summary_copy:       (n) => n === 1 ? 'prima copia' : `copia n. ${n}`,
+      summary_spent:      (g, s) => g || s ? `Spesi ${[g ? `${g.toLocaleString('it-IT')} Godos` : '', s ? `${s} Shards` : ''].filter(Boolean).join(' + ')}` : 'Pull gratuite',
+      summary_pity:       (c, h) => `Pity ${c}/${h}`,
+      summary_rateup:     'Rate-Up',
+      summary_guarantee:  'Garanzia 10×',
+      summary_open:       'Apri nell\'inventario',
+      summary_new_filter: '<i class="fa-solid fa-star"></i> Vedi i nuovi',
+      // Cronologia
+      history_luck:       (w, l, p) => `50/50: ${w} vinti · ${l} persi${p ? ` · segreti in media al pity ${p}` : ''}`,
+      history_featured:   'Rate-Up',
+      history_free:       'Gratis',
+      // Dettagli banner
+      details_kicker:     'Banner',
+      details_title:      'Dettagli e probabilità',
+      details_rates:      'Probabilità per rarità',
+      details_rateups:    'Rate-up',
+      details_perpull:    'a pull',
+      details_rules:      'Regole',
+      details_pool:       (n) => `Personaggi del banner (${n})`,
+      details_rule_soft:  (s) => `Dalla pull ${s + 1} le rarità alte salgono a ogni pull (soft pity).`,
+      details_rule_hard:  (h, r) => `Entro la pull ${h + 1} arriva di sicuro un ${r} o superiore (hard pity).`,
+      details_rule_5050:  (q, n) => `Quando esce la rarità del rate-up hai il ${q}% di prenderlo; se perdi, il prossimo è garantito. Al massimo ${n} pull per averlo.`,
+      details_rule_shared:'Il pity e il garantito sono condivisi con gli altri banner evento.',
+      details_rule_multi: (r) => `Ogni multi 10× contiene almeno un ${r} o superiore.`,
+      details_pool_std:   'Tutti i personaggi del pool standard, più i rate-up.',
+      details_pool_list:  'Solo i personaggi qui sotto.',
+      details_pool_cat:   (c) => `Tutti i personaggi della categoria «${c}».`,
+      details_owned:      'Posseduto',
+      details_error:      'Non riesco a caricare i dettagli.',
+      details_close:      'Chiudi',
+      destiny_saved:      'Bersaglio aggiornato.',
+      destiny_points:     (p, m) => `Destino ${p}/${m}`,
+      free_today:         (n) => `${n} gratis oggi`,
+      limit_total:        (u, m) => `${u} / ${m} pull usate`,
+      limit_day:          (u, m) => `${u} / ${m} pull oggi`,
+      soon_toast:         'Questo banner non è ancora iniziato.',
     },
     en: {
       locale:             'en-GB',
@@ -106,6 +146,43 @@
       pity_count:         (n) => `Guaranteed Special/Secret in ${n} pulls`,
       pity_evt_soft:      '✦ Soft pity active — probability increasing',
       pity_evt_count:     (n) => `Guaranteed secret in ${n} pulls`,
+      pity_gen_hard:      (r) => `★ Guaranteed: next pull is ${r} or higher!`,
+      pity_gen_count:     (r, n) => `${r} or higher guaranteed in ${n} pulls`,
+      summary_best:       'Best',
+      summary_copy:       (n) => n === 1 ? 'first copy' : `copy #${n}`,
+      summary_spent:      (g, s) => g || s ? `Spent ${[g ? `${g.toLocaleString('en-GB')} Godos` : '', s ? `${s} Shards` : ''].filter(Boolean).join(' + ')}` : 'Free pulls',
+      summary_pity:       (c, h) => `Pity ${c}/${h}`,
+      summary_rateup:     'Rate-Up',
+      summary_guarantee:  '10× guarantee',
+      summary_open:       'Open in inventory',
+      summary_new_filter: '<i class="fa-solid fa-star"></i> See new ones',
+      history_luck:       (w, l, p) => `50/50: ${w} won · ${l} lost${p ? ` · secrets at pity ${p} on average` : ''}`,
+      history_featured:   'Rate-Up',
+      history_free:       'Free',
+      details_kicker:     'Banner',
+      details_title:      'Details & rates',
+      details_rates:      'Rates by rarity',
+      details_rateups:    'Rate-up',
+      details_perpull:    'per pull',
+      details_rules:      'Rules',
+      details_pool:       (n) => `Banner characters (${n})`,
+      details_rule_soft:  (s) => `From pull ${s + 1} the high rarities go up every pull (soft pity).`,
+      details_rule_hard:  (h, r) => `By pull ${h + 1} you surely get a ${r} or higher (hard pity).`,
+      details_rule_5050:  (q, n) => `When the rate-up rarity drops you have a ${q}% chance to get it; if you lose, the next one is guaranteed. At most ${n} pulls to get it.`,
+      details_rule_shared:'Pity and guarantee are shared with the other limited banners.',
+      details_rule_multi: (r) => `Every 10× multi has at least one ${r} or higher.`,
+      details_pool_std:   'Every character of the standard pool, plus the rate-ups.',
+      details_pool_list:  'Only the characters below.',
+      details_pool_cat:   (c) => `Every character of the “${c}” category.`,
+      details_owned:      'Owned',
+      details_error:      'Could not load the details.',
+      details_close:      'Close',
+      destiny_saved:      'Target updated.',
+      destiny_points:     (p, m) => `Destiny ${p}/${m}`,
+      free_today:         (n) => `${n} free today`,
+      limit_total:        (u, m) => `${u} / ${m} pulls used`,
+      limit_day:          (u, m) => `${u} / ${m} pulls today`,
+      soon_toast:         'This banner has not started yet.',
     },
   }[lang];
 
@@ -115,7 +192,7 @@
    * Es. 'leggendario' → 'LEGENDARY' (EN) / 'LEGGENDARIO' (IT)
    */
   function rarityLabel(r) {
-    return (t['intro_' + r]?.label ?? r).toUpperCase();
+    return (t['intro_' + r]?.label ?? window.GACHA_INIT?.rarities?.find?.((x) => x.key === r)?.label ?? r).toUpperCase();
   }
 
   /* ══════════════════════════════════════════════════════
@@ -139,9 +216,15 @@
   /* ══════════════════════════════════════════════════════
      STATE
   ══════════════════════════════════════════════════════ */
+  const INIT = window.GACHA_INIT || {};
+  const bannersByKey = new Map((INIT.banners || []).map((b) => [String(b.key ?? b.id), b]));
+  const rarityLabels = Object.fromEntries((INIT.rarities || []).map((r) => [r.key, r.label]));
+
   const state = {
-    activeBannerId:   'standard',
-    activeBannerType: 'standard',
+    activeBannerId:   String(INIT.activeBannerId ?? 'standard'),
+    activeBannerType: bannersByKey.get(String(INIT.activeBannerId ?? 'standard'))?.tipo === 'standard' ? 'standard' : 'evento',
+    godosPerShard:    Number(INIT.godosPerShard || 100),
+    pityGroups:       JSON.parse(JSON.stringify(INIT.pity || {})),
     isPulling:        false,
     isFastPull:       false,  // #2: modalità apertura veloce
     overlayOpen:      false,
@@ -236,6 +319,10 @@
     injectHistoryModal();
     injectMultiModal(); // #4
     initFloatingAudioBtn();
+    injectDetailsModal();
+    initDetailsButtons();
+    initDestiny();
+    updateBannerUI();
   }
 
   /* ════════════════════════════════════════════════════
@@ -320,7 +407,10 @@
     $(`banner-view-${state.activeBannerId}`)?.style && ($(`banner-view-${state.activeBannerId}`).style.display = 'none');
     const nv = $(`banner-view-${bannerId}`);
     if (nv) {
-      nv.style.cssText = 'display:flex;opacity:0;flex:1;';
+      // Solo queste proprieta': lo stile del banner ha anche i suoi colori.
+      nv.style.display = 'flex';
+      nv.style.opacity = '0';
+      nv.style.flex = '1';
       requestAnimationFrame(() => {
         nv.style.transition = 'opacity .35s ease';
         nv.style.opacity = '1';
@@ -330,6 +420,11 @@
     state.activeBannerId   = bannerId;
     state.activeBannerType = bannerType ?? 'standard';
     if (window.GACHA_INIT) window.GACHA_INIT.activeBannerId = bannerId;
+    try {
+      const url = new URL(location.href);
+      if (bannerId === 'standard') url.searchParams.delete('banner'); else url.searchParams.set('banner', bannerId);
+      history.replaceState(null, '', url);
+    } catch (e) {}
   }
 
   /* ════════════════════════════════════════════════════
@@ -398,6 +493,7 @@
       state.pityStandard = data.pity_standard ?? state.pityStandard;
       state.pityEvento   = data.pity_evento   ?? state.pityEvento;
       state.garantito    = data.garantito     ?? state.garantito;
+      applyServerState(data, bannerId);
       window._lastPullData = data;
 
       // Notice banner removed
@@ -477,6 +573,8 @@
       state.pityEvento   = data.pity_evento   ?? state.pityEvento;
       state.garantito    = data.garantito     ?? state.garantito;
       state.multiResults = data.pulls;
+      applyServerState(data, bannerId);
+      state.lastMulti = data;
 
       // Notice banner removed
       preloadPullMedia(data.pulls);
@@ -926,11 +1024,6 @@
   function showMultiSummary(results) {
     stopAudio(); // nessun audio nel resoconto
 
-    const RARITY_C = {
-      comune:'#9ca3af',raro:'#38bdf8',epico:'#c084fc',
-      leggendario:'#fbbf24',speciale:'#fff',segreto:'#a855f7',theone:'#60a5fa'
-    };
-
     phaseOpening.style.display = 'none';
     phaseVideo.style.display   = 'none';
     phaseCard.style.display    = 'none';
@@ -947,41 +1040,69 @@
     }
     summary.style.display = 'flex';
 
-    const newCount = results.filter(r => r.is_new).length;
-    const newBadge = newCount > 0
-      ? `<span class="gms-badge gms-badge--count">${newCount === 1 ? t.summary_new_one(newCount) : t.summary_new_many(newCount)}</span>`
-      : '';
+    const rank = ['comune','raro','epico','leggendario','speciale','segreto','theone'];
+    const rankOf = (r) => rank.indexOf(normalizeRarity(r?.personaggio?.rarità));
+    const data = state.lastMulti || {};
 
-    // Calcola top rarity per titolo dinamico
-    const rarityRank = ['theone','segreto','speciale','leggendario','epico','raro','comune'];
-    let topRarity = 'comune';
-    results.forEach(r => {
-      const ra = normalizeRarity(r.personaggio.rarità);
-      if (rarityRank.indexOf(ra) < rarityRank.indexOf(topRarity)) topRarity = ra;
-    });
-    const topColor = RARITY_C[topRarity] ?? '#fff';
+    // Migliore pull: rarita' piu' alta, a parita' la prima.
+    let bestIdx = 0;
+    results.forEach((r, i) => { if (rankOf(r) > rankOf(results[bestIdx])) bestIdx = i; });
+    const best = results[bestIdx];
+    const topRarity = normalizeRarity(best?.personaggio?.rarità);
+    const topColor = RARITY_COLORS[topRarity] ?? '#fff';
+
+    const newCount = results.filter(r => r.is_new).length;
+    const rateupCount = results.filter(r => r.vinto_50_50 === 1 || r.featured).length;
+    const hasRare = results.some(r => ['segreto','theone','speciale'].includes(normalizeRarity(r.personaggio.rarità)));
+
+    // Conteggio per rarita', dalla piu' alta.
+    const counts = {};
+    results.forEach(r => { const k = normalizeRarity(r.personaggio.rarità); counts[k] = (counts[k] || 0) + 1; });
+    const distribution = rank.slice().reverse().filter(k => counts[k]).map(k =>
+      `<span class="gms-dist-chip" style="--rc:${RARITY_COLORS[k] ?? '#fff'}"><b>${counts[k]}</b> ${escapeHtml(rarityLabel(k))}</span>`
+    ).join('');
 
     const cards = results.map((r, idx) => {
       const p  = r.personaggio;
       const ra = normalizeRarity(p.rarità);
-      const co = RARITY_C[ra] ?? '#fff';
+      const co = RARITY_COLORS[ra] ?? '#fff';
       const isTop = ['theone','segreto','speciale'].includes(ra);
+      const isBest = idx === bestIdx && rankOf(r) >= rank.indexOf('leggendario');
       return `
-        <div class="gms-card gms-card--${ra}" style="--rc:${co};animation-delay:${idx * 55}ms">
+        <button type="button" class="gms-card gms-card--${ra}${isBest ? ' gms-card--best' : ''}" style="--rc:${co};animation-delay:${idx * 55}ms" data-summary-idx="${idx}">
           <div class="gms-card-frame">
             <img class="gms-card-img" src="${p.img_url ? '/img/'+p.img_url : '/img/cassa.png'}"
                  alt="${escapeHtml(characterName(p, ''))}" loading="lazy" onerror="this.src='/img/cassa.png'">
             <div class="gms-card-shine"></div>
             ${isTop ? '<div class="gms-card-glow"></div>' : ''}
             ${r.is_new ? '<span class="gms-badge gms-badge--new">NEW</span>' : ''}
-            ${r.vinto_50_50 === 1 ? '<span class="gms-badge gms-badge--50">★ Rate-Up</span>' : ''}
+            ${r.vinto_50_50 === 1 || r.featured ? `<span class="gms-badge gms-badge--50">★ ${t.summary_rateup}</span>` : ''}
+            ${r.garanzia_multi ? `<span class="gms-badge gms-badge--guarantee" title="${escapeHtml(t.summary_guarantee)}"><i class="fa-solid fa-shield"></i></span>` : ''}
           </div>
           <div class="gms-card-info">
-            <span class="gms-card-rarity" style="color:${co}">${escapeHtml(rarityLabel(normalizeRarity(p.rarità)))}</span>
+            <span class="gms-card-rarity" style="color:${co}">${escapeHtml(rarityLabel(ra))}</span>
             <span class="gms-card-name">${escapeHtml(characterName(p, ''))}</span>
+            ${r.copie ? `<span class="gms-card-copy">${escapeHtml(t.summary_copy(Number(r.copie)))}</span>` : ''}
           </div>
-        </div>`;
+        </button>`;
     }).join('');
+
+    const pity = data.pity;
+    const meta = [
+      pity ? t.summary_pity(pity.contatore, pity.hard) : '',
+      t.summary_spent(Number(data.punti_spesi || 0), Number(data.shards_spese || 0)),
+    ].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join('<span aria-hidden="true">·</span>');
+
+    const bestChar = best?.personaggio;
+    const bestHtml = bestChar && rankOf(best) >= rank.indexOf('leggendario') ? `
+      <div class="gms-best" style="--rc:${topColor}">
+        <img src="${bestChar.img_url ? '/img/'+bestChar.img_url : '/img/cassa.png'}" alt="" onerror="this.src='/img/cassa.png'">
+        <div>
+          <small>${t.summary_best}</small>
+          <strong>${escapeHtml(characterName(bestChar, ''))}</strong>
+          <span style="color:${topColor}">${escapeHtml(rarityLabel(topRarity))}${best.is_new ? ' · NEW' : ''}${best.vinto_50_50 === 1 || best.featured ? ` · ★ ${t.summary_rateup}` : ''}</span>
+        </div>
+      </div>` : '';
 
     summary.innerHTML = `
       <div class="gms-inner">
@@ -989,11 +1110,15 @@
           <div class="gms-header-line" style="background:${topColor}"></div>
           <h2 class="gms-title">${t.summary_title}</h2>
           <div class="gms-header-badges">
-            ${newBadge}
-            ${results.filter(r=>['segreto','theone','speciale'].includes(normalizeRarity(r.personaggio.rarità))).length > 0
-              ? `<span class="gms-badge gms-badge--rare">${t.summary_rare}</span>` : ''}
+            ${newCount > 0 ? `<span class="gms-badge gms-badge--count">${newCount === 1 ? t.summary_new_one(newCount) : t.summary_new_many(newCount)}</span>` : ''}
+            ${rateupCount > 0 ? `<span class="gms-badge gms-badge--50">★ ${t.summary_rateup}${rateupCount > 1 ? ` ×${rateupCount}` : ''}</span>` : ''}
+            ${hasRare ? `<span class="gms-badge gms-badge--rare">${t.summary_rare}</span>` : ''}
+            ${data.garanzia_multi ? `<span class="gms-badge gms-badge--guarantee"><i class="fa-solid fa-shield"></i> ${t.summary_guarantee}</span>` : ''}
           </div>
+          <div class="gms-distribution">${distribution}</div>
+          ${meta ? `<div class="gms-meta">${meta}</div>` : ''}
         </div>
+        ${bestHtml}
         <div class="gms-cards">${cards}</div>
         <div class="gms-footer">
           <button class="gms-btn gms-btn--primary" id="btn-multi-again">
@@ -1002,11 +1127,21 @@
           <button class="gms-btn gms-btn--ghost" id="btn-summary-close">
             ${t.btn_close}
           </button>
-          <a href="inventario" class="gms-btn gms-btn--ghost">
-            ${t.btn_inventory}
+          <a href="${newCount > 0 ? 'inventario?s=new' : 'inventario'}" class="gms-btn gms-btn--ghost">
+            ${newCount > 0 ? t.summary_new_filter : t.btn_inventory}
           </a>
         </div>
       </div>`;
+
+    // Una carta del riepilogo apre il personaggio nell'inventario.
+    summary.querySelectorAll('[data-summary-idx]').forEach((cardEl) => {
+      cardEl.addEventListener('click', () => {
+        const r = results[Number(cardEl.dataset.summaryIdx)];
+        const id = getPulledCharacterId(r);
+        if (id) window.location.href = `inventario?c=${encodeURIComponent(id)}`;
+      });
+      cardEl.title = t.summary_open;
+    });
 
     $('btn-summary-close')?.addEventListener('click', () => {
       summary.style.display = 'none';
@@ -1018,7 +1153,7 @@
       summary.style.display = 'none';
       state.isMulti       = false;
       state.multiSkipping = false;
-      startMultiPull(state.activeBannerId);
+      checkGachaBalanceAndConfirm(state.activeBannerId, 10, () => startMultiPull(state.activeBannerId));
     });
   }
 
@@ -1442,13 +1577,11 @@
     btnPullAgain?.addEventListener('click', () => {
       // Questo listener vale solo quando btnPullAgain è visibile (non durante video)
       if (state.isPulling) return;
-      const bannerView = document.getElementById('banner-view-' + state.activeBannerId) || document.getElementById('banner-view-standard');
-      const costPuntiSingola = bannerView ? parseInt(bannerView.dataset.costo || '100') : 100;
-      const costShards = Math.ceil(costPuntiSingola / 100);
+      const { shards: costShards } = pullCost(state.activeBannerId, 1);
 
       // Check balance first BEFORE changing overlay phase to opening
       if (state.godoshards < costShards) {
-        const pointsCost = (costShards - state.godoshards) * 100;
+        const pointsCost = (costShards - state.godoshards) * state.godosPerShard;
         if (state.soldi < pointsCost) {
           closeOverlay();
           const redirectModal = new bootstrap.Modal(document.getElementById('gachaShopRedirectModal'));
@@ -1508,6 +1641,7 @@
       state.pityStandard = data.pity_standard ?? state.pityStandard;
       state.pityEvento   = data.pity_evento   ?? state.pityEvento;
       state.garantito    = data.garantito     ?? state.garantito;
+      applyServerState(data, state.activeBannerId);
       window._lastPullData = data;
 
       // Notice banner removed
@@ -1564,31 +1698,89 @@
     $$('.user-shards-val').forEach(el =>
       el.textContent = state.godoshards.toLocaleString(t.locale)
     );
-    const pHS = window.GACHA_INIT?.pityHardStd ?? 90;
-    const pSS = window.GACHA_INIT?.pitySoftStd ?? 70;
-    const sf=$('pity-std-fill'), sn=$('pity-std-num'), so=$('pity-std-note');
-    if (sf) sf.style.width = Math.min(100, Math.round(state.pityStandard/pHS*100)) + '%';
-    if (sn) sn.textContent = `${state.pityStandard} / ${pHS}`;
-    if (so) {
-      if (state.pityStandard >= pHS) {
-        so.textContent = t.pity_hard;
-        so.classList.add('is-active');
-      } else if (state.pityStandard >= pSS) {
-        so.textContent = t.pity_soft;
-        so.classList.add('is-active');
-      } else {
-        so.textContent = t.pity_count(pHS - state.pityStandard);
-        so.classList.remove('is-active');
+
+    // Il pity e' per gruppo: i banner evento condividono lo stesso.
+    $$('.gacha-banner-view[data-pity-gruppo]').forEach(view => {
+      const group = view.dataset.pityGruppo;
+      const g = state.pityGroups[group] || {};
+      const counter = Number(g.contatore || 0);
+      const hard = Number(view.dataset.pityHard || 80);
+      const soft = Number(view.dataset.pitySoft || 65);
+      const soglia = view.dataset.pitySoglia || 'segreto';
+      const left = Math.max(0, hard - counter + 1);
+
+      const fill = view.querySelector('[data-pity-fill]');
+      const numEl = view.querySelector('[data-pity-num]');
+      const note = view.querySelector('[data-pity-note]');
+      if (fill) fill.style.width = Math.min(100, Math.round(counter / Math.max(1, hard) * 100)) + '%';
+      if (numEl) numEl.textContent = `${counter} / ${hard}`;
+      if (note) {
+        let text; let active;
+        if (group === 'standard') {
+          if (counter >= hard) { text = t.pity_hard; active = true; }
+          else if (counter >= soft) { text = t.pity_soft; active = true; }
+          else { text = t.pity_count(left); active = false; }
+        } else if (soglia === 'segreto') {
+          active = counter >= soft;
+          text = active ? t.pity_evt_soft : t.pity_evt_count(left);
+        } else {
+          const label = rarityLabels[soglia] || soglia;
+          if (counter >= hard) { text = t.pity_gen_hard(label); active = true; }
+          else { text = t.pity_gen_count(label, left); active = counter >= soft; }
+        }
+        note.textContent = text;
+        note.classList.toggle('is-active', active);
       }
-    }
-    const pHE=window.GACHA_INIT?.pityHardEvt??80, pSE=window.GACHA_INIT?.pitySoftEvt??65;
-    $$('.pity-evt-fill').forEach(el=>el.style.width=Math.min(100,Math.round(state.pityEvento/pHE*100))+'%');
-    $$('.pity-evt-num').forEach(el=>el.textContent=`${state.pityEvento} / ${pHE}`);
-    $$('.pity-evt-note').forEach(el=>{
-      el.textContent=state.pityEvento>=pSE ? t.pity_evt_soft : t.pity_evt_count(pHE-state.pityEvento);
-      el.classList.toggle('is-active',state.pityEvento>=pSE);
+      view.querySelectorAll('[data-garantito-badge]').forEach(el => { el.style.display = g.garantito ? '' : 'none'; });
+
+      const banner = bannersByKey.get(view.dataset.bannerId);
+      const uso = banner?.uso;
+      if (uso) {
+        view.dataset.gratis = String(uso.gratis_rimaste || 0);
+        const freeChip = view.querySelector('[data-free-chip]');
+        if (freeChip) {
+          freeChip.hidden = !(uso.gratis_rimaste > 0);
+          const text = freeChip.querySelector('[data-free-text]');
+          if (text) text.textContent = t.free_today(uso.gratis_rimaste);
+        }
+        const total = view.querySelector('[data-limit-total]');
+        if (total && uso.limite) total.lastChild.textContent = ' ' + t.limit_total(uso.totale, uso.limite);
+        const day = view.querySelector('[data-limit-day]');
+        if (day && uso.limite_giorno) day.lastChild.textContent = ' ' + t.limit_day(uso.oggi, uso.limite_giorno);
+      }
     });
-    $$('[id^="garantito-badge-"]').forEach(el=>el.style.display=state.garantito?'':'none');
+  }
+
+  /**
+   * Aggiorna lo stato locale con la risposta di una pull: pity del gruppo
+   * del banner, pity storici, limiti e pull gratuite rimaste.
+   */
+  function applyServerState(data, bannerId) {
+    if (!data) return;
+    if (data.pity?.gruppo) {
+      state.pityGroups[data.pity.gruppo] = { contatore: data.pity.contatore, garantito: data.pity.garantito ? 1 : 0 };
+    }
+    if (state.pityGroups.standard && data.pity_standard != null) state.pityGroups.standard.contatore = data.pity_standard;
+    if (state.pityGroups.evento && data.pity_evento != null) {
+      state.pityGroups.evento.contatore = data.pity_evento;
+      state.pityGroups.evento.garantito = data.garantito ? 1 : 0;
+    }
+    const banner = bannersByKey.get(String(data.banner_id ?? bannerId));
+    if (banner && data.uso) banner.uso = data.uso;
+    if (data.destino && banner?.destino) {
+      banner.destino.punti = data.destino.punti;
+      const box = document.querySelector(`[data-destiny][data-banner="${CSS.escape(String(banner.key))}"] [data-destiny-points]`);
+      if (box) box.textContent = t.destiny_points(data.destino.punti, data.destino.max);
+    }
+  }
+
+  /** Costo di una pull in Godos e Shards, al cambio attuale e con le pull gratis. */
+  function pullCost(bannerId, quantity) {
+    const bannerView = document.getElementById('banner-view-' + bannerId) || document.getElementById('banner-view-standard');
+    const single = bannerView ? parseInt(bannerView.dataset.costo || '0', 10) : 0;
+    const free = bannerView ? Math.min(quantity, parseInt(bannerView.dataset.gratis || '0', 10)) : 0;
+    const godos = single * Math.max(0, quantity - free);
+    return { godos, shards: godos > 0 ? Math.ceil(godos / state.godosPerShard) : 0 };
   }
 
   /* ════════════════════════════════════════════════════
@@ -1790,7 +1982,10 @@
       if (e.repeat) return;
       // Space = pull normale
       if (e.code==='Space' && !state.overlayOpen && !state.isPulling) {
-        e.preventDefault(); state.isFastPull=false; startPull(state.activeBannerId);
+        if (e.target?.closest?.('input, textarea, select, button, .modal')) return;
+        e.preventDefault();
+        if ($(`banner-view-${state.activeBannerId}`)?.dataset.stato === 'prossimamente') { showToast(t.soon_toast, 'error'); return; }
+        state.isFastPull=false; startPull(state.activeBannerId);
       }
       // F = apertura veloce (skip animazione orb se skippabile)
       // if (e.code==='KeyF' && !state.overlayOpen && !state.isPulling) {
@@ -1844,8 +2039,15 @@
     });
   }
   function updateTimer(el) {
-    const diff = new Date(el.dataset.ends.replace(' ','T')+'Z').getTime()-Date.now();
-    if(diff<=0){el.closest('.gacha-timer-wrap')?.remove();return;}
+    const raw = el.dataset.ends || '';
+    // Le date arrivano in ISO con il fuso (2026-09-30T15:00:18+02:00).
+    const target = /[T].*([+-]\d{2}:?\d{2}|Z)$/.test(raw) ? new Date(raw) : new Date(raw.replace(' ', 'T'));
+    const diff = target.getTime() - Date.now();
+    if(diff<=0){
+      if (el.hasAttribute('data-reload-at-zero')) { setTimeout(() => location.reload(), 1500); }
+      el.closest('.gacha-timer-wrap')?.remove();
+      return;
+    }
     const d=el.querySelector('.t-days'),h=el.querySelector('.t-hours'),m=el.querySelector('.t-mins');
     if(d)d.textContent=Math.floor(diff/86400000);
     if(h)h.textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
@@ -1905,7 +2107,9 @@
         const r=normalizeRarity(p.rarità),c=RC[r]??'#fff';
         const dt=new Date(p.created_at).toLocaleString(t.locale,{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
         const b50=p.esito_50_50===1?`<span style="font-size:.68rem;color:#fbbf24;background:rgba(251,191,36,.12);padding:2px 7px;border-radius:6px">★ Rate-Up</span>`:p.esito_50_50===0?`<span style="font-size:.68rem;color:#f87171;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:6px">→ Garantito</span>`:'';
-        const newBadge=p.is_new?`<span style="font-size:.68rem;color:#4ade80;background:rgba(74,222,128,.12);padding:2px 7px;border-radius:6px">NEW</span>`:'';
+        const newBadge=(p.is_new?`<span style="font-size:.68rem;color:#4ade80;background:rgba(74,222,128,.12);padding:2px 7px;border-radius:6px">NEW</span>`:'')
+          +(p.featured&&p.esito_50_50===null?`<span style="font-size:.68rem;color:#fbbf24;background:rgba(251,191,36,.12);padding:2px 7px;border-radius:6px">★ ${t.history_featured}</span>`:'')
+          +(p.gratuita?`<span style="font-size:.68rem;color:#93c5fd;background:rgba(96,165,250,.12);padding:2px 7px;border-radius:6px">${t.history_free}</span>`:'');
         return`<div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid ${c};margin-bottom:6px">
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
@@ -1918,16 +2122,19 @@
           <div style="text-align:right;flex-shrink:0;font-size:.72rem;color:rgba(255,255,255,.25)">${t.history_pity(p.pity_al_momento)}</div>
         </div>`;
       }).join('');
-      const seg=data.pulls.filter(p=>['segreto','theone'].includes(normalizeRarity(p.rarità))).length;
-      $('gacha-history-stats').textContent=t.history_stats(data.total??data.pulls.length, seg);
+      const seg=data.stats?.segreti ?? data.pulls.filter(p=>['segreto','theone'].includes(normalizeRarity(p.rarità))).length;
+      const luck=data.stats && (data.stats.vinti_50_50||data.stats.persi_50_50) ? ` · ${t.history_luck(data.stats.vinti_50_50, data.stats.persi_50_50, data.stats.pity_medio_segreti)}` : '';
+      $('gacha-history-stats').textContent=t.history_stats(data.total??data.pulls.length, seg)+luck;
     }catch{$('gacha-history-list').innerHTML=`<div style="text-align:center;color:#f87171;padding:32px">${t.err_history}</div>`;}
   }
 
   function checkGachaBalanceAndConfirm(bannerId, quantity, onSuccess) {
-    const bannerView = document.getElementById('banner-view-' + bannerId) || document.getElementById('banner-view-standard');
-    const costPuntiSingola = bannerView ? parseInt(bannerView.dataset.costo || '100') : 100;
-    const costPunti = costPuntiSingola * quantity;
-    const costShards = Math.ceil(costPunti / 100);
+    const bannerView = document.getElementById('banner-view-' + bannerId);
+    if (bannerView?.dataset.stato === 'prossimamente') {
+      showToast(t.soon_toast, 'error');
+      return;
+    }
+    const { godos: costPunti, shards: costShards } = pullCost(bannerId, quantity);
 
     if (costPunti === 0) {
       onSuccess();
@@ -1940,7 +2147,7 @@
     }
 
     const missingShards = costShards - state.godoshards;
-    const pointsCost = missingShards * 100;
+    const pointsCost = missingShards * state.godosPerShard;
 
     if (state.soldi >= pointsCost) {
       showConversionModal(missingShards, pointsCost, quantity, onSuccess);
@@ -1984,6 +2191,155 @@
     modal.show();
   }
 
+
+  /* ════════════════════════════════════════════════════
+     DETTAGLI E PROBABILITÀ DEL BANNER
+  ════════════════════════════════════════════════════ */
+  function injectDetailsModal() {
+    if ($('gachaDetailsModal')) return;
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="modal fade" id="gachaDetailsModal" tabindex="-1" aria-hidden="true" aria-labelledby="gachaDetailsTitle">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content bgimpostazioni lootbox-settings-content gacha-details-content">
+          <div class="modal-header lootbox-settings-header">
+            <div>
+              <span class="lootbox-modal-kicker">${t.details_kicker}</span>
+              <h5 class="modal-title testobianco" id="gachaDetailsTitle">${t.details_title}</h5>
+              <p id="gacha-details-sub" style="margin:0"></p>
+            </div>
+            <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="${t.details_close}"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="modal-body gacha-details-body" id="gacha-details-body"></div>
+        </div>
+      </div>
+    </div>`);
+  }
+
+  function initDetailsButtons() {
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-banner-details]');
+      if (btn) openDetails(btn.dataset.bannerDetails);
+    });
+  }
+
+  function fmtPct(v) {
+    const n = Number(v || 0);
+    const digits = n >= 1 ? 2 : n >= 0.01 ? 3 : 4;
+    return `${n.toLocaleString(t.locale, { maximumFractionDigits: digits })}%`;
+  }
+
+  async function openDetails(key) {
+    const modal = $('gachaDetailsModal');
+    if (!modal || !window.bootstrap) return;
+    const body = $('gacha-details-body');
+    body.innerHTML = '<div class="gacha-details-loading"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
+    $('gacha-details-sub').textContent = bannersByKey.get(String(key))?.nome ?? '';
+    bootstrap.Modal.getOrCreateInstance(modal).show();
+
+    try {
+      const resp = await fetch(`/api/gacha/dettagli.php?banner=${encodeURIComponent(key)}&lang=${lang}`, { credentials: 'same-origin' });
+      const d = await resp.json();
+      if (!d.ok) throw new Error(d.message || t.details_error);
+
+      const rates = (d.rarita || []).map(r => `
+        <div class="gd-rate" style="--rc:${r.colore}">
+          <span><i class="gd-dot"></i>${escapeHtml(r.label)}</span>
+          <b>${fmtPct(r.prob)}</b>
+          <small>${r.count}</small>
+        </div>`).join('');
+
+      const featured = d.pool.filter(p => p.featured);
+      const featuredHtml = featured.length ? `
+        <section class="gd-section">
+          <h6>${t.details_rateups}</h6>
+          <div class="gd-featured">
+            ${featured.map(f => `
+              <div class="gd-feat" style="--rc:${RARITY_COLORS[f.rarita] ?? '#fff'}">
+                <img src="${escapeHtml(f.img || '/img/cassa.png')}" alt="" loading="lazy" onerror="this.src='/img/cassa.png'">
+                <div><strong>${escapeHtml(f.nome)}</strong><span>${escapeHtml(rarityLabel(f.rarita))}${f.posseduto ? ` · ${t.details_owned}` : ''}</span></div>
+                <b>${fmtPct(f.prob)}<small>${t.details_perpull}</small></b>
+              </div>`).join('')}
+          </div>
+        </section>` : '';
+
+      const pity = d.pity || {};
+      const sogliaLabel = rarityLabels[pity.soglia] || pity.soglia;
+      const rules = [
+        t.details_rule_soft(pity.soft),
+        t.details_rule_hard(pity.hard, sogliaLabel),
+        pity.featured_entro ? t.details_rule_5050(pity.quota, pity.featured_entro) : '',
+        pity.condiviso ? t.details_rule_shared : '',
+        d.garanzia_multi ? t.details_rule_multi(rarityLabels[d.garanzia_multi] || d.garanzia_multi) : '',
+      ].filter(Boolean);
+
+      const poolMode = d.banner?.pool_modo === 'lista' ? t.details_pool_list
+        : d.banner?.pool_modo === 'categoria' ? t.details_pool_cat(d.banner.pool_categoria || '')
+        : t.details_pool_std;
+
+      const others = d.pool.filter(p => !p.featured);
+      const poolHtml = `
+        <section class="gd-section">
+          <h6>${t.details_pool(d.pool.length)}</h6>
+          <p class="gd-muted">${escapeHtml(poolMode)}</p>
+          <div class="gd-pool">
+            ${others.map(p => `
+              <div class="gd-char${p.id ? '' : ' is-masked'}${p.posseduto ? ' is-owned' : ''}" style="--rc:${RARITY_COLORS[p.rarita] ?? '#fff'}" title="${escapeHtml(p.nome)} · ${fmtPct(p.prob)}">
+                ${p.img ? `<img src="${escapeHtml(p.img)}" alt="" loading="lazy" onerror="this.src='/img/cassa.png'">` : '<span class="gd-q">?</span>'}
+                <span>${escapeHtml(p.nome)}</span>
+              </div>`).join('')}
+          </div>
+        </section>`;
+
+      body.innerHTML = `
+        <section class="gd-section">
+          <h6>${t.details_rates}</h6>
+          <div class="gd-rates">${rates}</div>
+        </section>
+        ${featuredHtml}
+        <section class="gd-section">
+          <h6>${t.details_rules}</h6>
+          <ul class="gd-rules">${rules.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
+        </section>
+        ${poolHtml}`;
+    } catch (err) {
+      body.innerHTML = `<p class="gd-error"><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(err.message || t.details_error)}</p>`;
+    }
+  }
+
+  /* ════════════════════════════════════════════════════
+     DESTINO: SCELTA DEL RATE-UP
+  ════════════════════════════════════════════════════ */
+  function initDestiny() {
+    document.addEventListener('click', async (e) => {
+      const opt = e.target.closest('[data-destiny-target]');
+      if (!opt || state.isPulling) return;
+      const box = opt.closest('[data-destiny]');
+      if (!box || opt.classList.contains('is-active')) return;
+      const target = Number(opt.dataset.destinyTarget || 0);
+      box.querySelectorAll('[data-destiny-target]').forEach(b => b.disabled = true);
+      try {
+        const resp = await fetch('/api/gacha/azioni.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+          credentials: 'same-origin',
+          body: JSON.stringify({ action: 'destino', banner: box.dataset.banner, id: target }),
+        });
+        const data = await resp.json();
+        if (!data.ok) throw new Error(data.message || t.err_retry);
+        box.querySelectorAll('[data-destiny-target]').forEach(b => b.classList.toggle('is-active', b === opt));
+        const points = box.querySelector('[data-destiny-points]');
+        if (points) points.textContent = t.destiny_points(data.punti || 0, Number(box.dataset.max || 1));
+        const banner = bannersByKey.get(String(box.dataset.banner));
+        if (banner?.destino) { banner.destino.bersaglio = data.bersaglio; banner.destino.punti = data.punti; }
+        showToast(t.destiny_saved);
+      } catch (err) {
+        showToast(err.message || t.err_retry, 'error');
+      } finally {
+        box.querySelectorAll('[data-destiny-target]').forEach(b => b.disabled = false);
+      }
+    });
+  }
+
   window.GachaHistory = { open: openHistoryModal };
 
   /* ════════════════════════════════════════════════════
@@ -1998,40 +2354,16 @@
   /* ════════════════════════════════════════════════════
        ACHIEVEMENTS
   ════════════════════════════════════════════════════ */
-  async function triggerAchievements(data) {
-    if (typeof unlockAchievement !== 'function') return;
-    try {
-      unlockAchievement(5);
-
-      const r = await fetch('/api/get_casse_aperte');
-      const d = await r.json();
-      const c = d.total ?? 0;
-      if (c >= 100) unlockAchievement(8);
-      if (c >= 500) unlockAchievement(16);
-
-      const rarities = data.pulls
-        ? data.pulls.map(p => normalizeRarity(p.personaggio.rarità)) 
-        : [normalizeRarity(data.personaggio.rarità)];                  
-
-      for (const rarity of rarities) {
-        if (rarity === 'comune') {
-          state.comuniDiFila++;
-          if (state.comuniDiFila >= 10) unlockAchievement(9);
-        } else {
-          state.comuniDiFila = 0;  
-        }
-      }
-
-      const hasNew = data.pulls
-        ? data.pulls.some(p => p.is_new)
-        : data.is_new;
-
-      if (hasNew) {
-        const inv = await fetch('/api/api_get_inventario').then(r2 => r2.json());
-        if (Array.isArray(inv) && inv.length >= 100) unlockAchievement(18);
-      }
-
-    } catch(e) {}
+  /**
+   * Gli achievement del gacha (prima pull, casse aperte, comuni di fila,
+   * personaggi trovati) li assegna il server dopo la pull e li rimanda in
+   * `achievements`: qui si mostra solo il popup.
+   */
+  function triggerAchievements(data) {
+    const ids = Array.isArray(data?.achievements) ? data.achievements : [];
+    ids.forEach((id) => {
+      if (typeof window.showAchievementPopup === 'function') window.showAchievementPopup(id);
+    });
   }
 
   /* ════════════════════════════════════════════════════

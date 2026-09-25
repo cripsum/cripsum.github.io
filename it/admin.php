@@ -50,6 +50,9 @@ $csrfToken = admin_csrf_token();
                 <button type="button" data-section="messages"><i class="fa-solid fa-envelope"></i><span>Centro Messaggi</span></button>
                 <button type="button" data-section="tickets"><i class="fa-solid fa-headset"></i><span>Ticket Supporto</span></button>
                 <button type="button" data-section="homeslides"><i class="fa-solid fa-house-laptop"></i><span>Slide homepage</span></button>
+                <span class="admin-nav-label">Gacha</span>
+                <button type="button" data-section="gacha-banner"><i class="fa-solid fa-star"></i><span>Banner</span></button>
+                <button type="button" data-section="gacha-categorie"><i class="fa-solid fa-tags"></i><span>Categorie</span></button>
                 <span class="admin-nav-label">Shop</span>
                 <button type="button" data-section="shop-negozio"><i class="fa-solid fa-store"></i><span>Negozio</span></button>
                 <button type="button" data-section="shop-merch"><i class="fa-solid fa-shirt"></i><span>Merch</span></button>
@@ -147,7 +150,10 @@ $csrfToken = admin_csrf_token();
             <section class="admin-section" id="section-characters" data-section-panel="characters">
                 <div class="admin-toolbar">
                     <div><strong>Personaggi</strong><small>Crea, modifica o rimuovi personaggi dal database.</small></div>
-                    <button type="button" class="admin-btn admin-btn--primary" id="createCharacterBtn"><i class="fa-solid fa-plus"></i> Nuovo</button>
+                    <div class="admin-toolbar-actions">
+                        <div id="charactersFilters" class="admin-toolbar-actions"></div>
+                        <button type="button" class="admin-btn admin-btn--primary" id="createCharacterBtn"><i class="fa-solid fa-plus"></i> Nuovo</button>
+                    </div>
                 </div>
                 <div id="charactersTable" class="admin-table-card"></div>
                 <div id="charactersPagination" class="admin-pagination"></div>
@@ -171,6 +177,28 @@ $csrfToken = admin_csrf_token();
                     <button type="button" class="admin-btn admin-btn--primary" id="createHomeSlideBtn"><i class="fa-solid fa-plus"></i> Nuova</button>
                 </div>
                 <div id="homeSlidesTable" class="admin-table-card"></div>
+            </section>
+
+            <section class="admin-section" id="section-gacha-banner" data-section-panel="gacha-banner">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Banner gacha</strong>
+                        <small>Rate-up, pool esclusivi o per categoria, probabilità, pity e limiti. Pagina: <a href="/it/lootbox" target="_blank" rel="noopener">/it/lootbox</a>.</small>
+                    </div>
+                    <button type="button" class="admin-btn admin-btn--primary" id="createGachaBannerBtn"><i class="fa-solid fa-plus"></i> Nuovo banner</button>
+                </div>
+                <div class="admin-table-card" data-gacha-admin="banner"></div>
+            </section>
+
+            <section class="admin-section" id="section-gacha-categorie" data-section-panel="gacha-categorie">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Categorie dei personaggi</strong>
+                        <small>Nome, colore e icona nei filtri dell'inventario, premio per chi completa la collezione. Rinominarne una aggiorna i personaggi.</small>
+                    </div>
+                    <button type="button" class="admin-btn admin-btn--primary" id="createGachaCategoryBtn"><i class="fa-solid fa-plus"></i> Nuova categoria</button>
+                </div>
+                <div class="admin-table-card" data-gacha-admin="categorie"></div>
             </section>
 
             <section class="admin-section" id="section-shop-negozio" data-section-panel="shop-negozio">
@@ -351,6 +379,7 @@ $csrfToken = admin_csrf_token();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-shop.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-gacha.js')); ?>"></script>
 </body>
 
 </html>

@@ -65,6 +65,7 @@ function admin_media_reference_columns(mysqli $mysqli): array
         'home_slides' => ['media'],
         'custom_badges' => ['image_url'],
         'banner_eventi' => ['banner_img_url', 'img_url', 'image_url', 'immagine'],
+        'gacha_banner' => ['banner_img_url', 'thumb_url', 'arte_url'],
     ];
 
     $columns = [];

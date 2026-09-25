@@ -31,11 +31,15 @@ try {
     $features = trim((string)($input['caratteristiche'] ?? ''));
     $features_en = trim((string)($input['caratteristiche_en'] ?? ''));
 
-    $rarity = trim((string)($input['rarità'] ?? $input['rarita'] ?? $input['rarity'] ?? ''));
-    $rarity_en = trim((string)($input['rarita_en'] ?? $input['rarità_en'] ?? $input['rarity_en'] ?? ''));
+    $rarity = admin_character_rarity($input);
+    $rarity_en = '';
     $category = trim((string)($input['categoria'] ?? $input['category'] ?? ''));
-    $pool_evento = isset($input['pool_evento']) ? (int)$input['pool_evento'] : 0;
+    $pool_evento = 0;
     $in_pool_standard = isset($input['in_pool_standard']) ? (int)$input['in_pool_standard'] : 0;
+    $limitato = !empty($input['limitato']) ? 1 : 0;
+    $catalogo = in_array($input['catalogo'] ?? '', ['visibile', 'segreto', 'nascosto'], true)
+        ? $input['catalogo']
+        : (in_array($rarity, ['segreto', 'theone'], true) ? 'segreto' : 'visibile');
     $ruolo = trim((string)($input['ruolo'] ?? ''));
 
     $imageValue = admin_normalize_media_file(
@@ -75,13 +79,16 @@ try {
         'pool_evento' => $pool_evento,
         'in_pool_standard' => $in_pool_standard,
         'ruolo' => $ruolo,
+        'limitato' => $limitato,
+        'catalogo' => $catalogo,
+        'aggiunto_il' => date('Y-m-d H:i:s'),
     ];
 
     foreach ($map as $key => $value) {
         if (!empty($cols[$key])) {
             $fields[] = admin_qcol($cols[$key]);
             $placeholders[] = '?';
-            if ($key === 'pool_evento' || $key === 'in_pool_standard') {
+            if (in_array($key, ['pool_evento', 'in_pool_standard', 'limitato'], true)) {
                 $types .= 'i';
             } else {
                 $types .= 's';

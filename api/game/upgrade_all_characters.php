@@ -6,9 +6,11 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
     $uid = gd_require_login();
+    gd_require_csrf();
 
+    $limitedSelect = gd_has_col($mysqli, 'personaggi', 'limitato') ? 'p.limitato' : 'NULL AS limitato';
     $stmt = $mysqli->prepare(
-        'SELECT p.id, p.nome, p.rarità, p.categoria, up.quantità, up.livello
+        'SELECT p.id, p.nome, p.rarità, p.categoria, ' . $limitedSelect . ', up.quantità, up.livello
            FROM utenti_personaggi up
            JOIN personaggi p ON p.id = up.personaggio_id
           WHERE up.utente_id = ?
@@ -33,7 +35,7 @@ try {
         foreach ($ownedRows as $row) {
             $characterId = (int)($row['id'] ?? 0);
             $rarity = (string)($row['rarità'] ?? 'comune');
-            $category = (string)($row['categoria'] ?? '');
+            $category = gd_limited_marker($row);
             $level = max(1, (int)($row['livello'] ?? 1));
             $quantity = max(1, (int)($row['quantità'] ?? 1));
             $startLevel = $level;

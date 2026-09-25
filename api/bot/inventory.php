@@ -31,7 +31,7 @@ if (bot_profile_is_private($user, $isSelf)) {
     ]);
 }
 
-$rarityOrder = ['theone', 'segreto', 'leggendario', 'speciale', 'epico', 'raro', 'comune'];
+$rarityOrder = ['theone', 'segreto', 'speciale', 'leggendario', 'epico', 'raro', 'comune'];
 $rarityFilter = strtolower(trim((string)($_GET['rarity'] ?? '')));
 if ($rarityFilter !== '' && !in_array($rarityFilter, $rarityOrder, true)) {
     $rarityFilter = '';
@@ -54,7 +54,7 @@ if ($rarityFilter !== '') {
     $sql .= ' AND LOWER(p.`rarità`) = ?';
 }
 
-$sql .= " ORDER BY FIELD(LOWER(p.`rarità`), 'theone','segreto','leggendario','speciale','epico','raro','comune'), p.nome ASC
+$sql .= " ORDER BY FIELD(LOWER(p.`rarità`), 'theone','segreto','speciale','leggendario','epico','raro','comune'), p.nome ASC
           LIMIT 500";
 
 $stmt = $mysqli->prepare($sql);

@@ -4,12 +4,11 @@
  * api_gacha_multi_pull.php
  * POST /api/api_gacha_multi_pull
  *
- * Esegue 10 pull in un'unica transazione SQL.
- * Nessun round-trip per ogni singola pull → niente rate limit tra pull.
- * Rate limit: 1 richiesta multi ogni 5 secondi (sessione).
+ * Dieci pull in un'unica transazione, con lo stesso motore della singola
+ * (includes/gacha/engine.php). Anti-spam: una multi ogni 5 secondi.
  *
  * Input JSON: { "banner_id": "standard"|int, "quantity": 10 }
- * Output JSON: { "status": "success", "pulls": [...10 risultati...], "soldi_rimasti": int, ... }
+ * Output: { "status": "success", "pulls": [...], "soldi_rimasti": int, ... }
  */
 
 declare(strict_types=1);
@@ -17,498 +16,68 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/mission_tracker.php';
+require_once __DIR__ . '/../includes/gacha/engine.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
-defined('PITY_STANDARD_SOFT') || define('PITY_STANDARD_SOFT', 70);
-defined('PITY_STANDARD_HARD') || define('PITY_STANDARD_HARD', 90);
-defined('PITY_EVENTO_SOFT')   || define('PITY_EVENTO_SOFT',   65);
-defined('PITY_EVENTO_HARD')   || define('PITY_EVENTO_HARD',   80);
-
-defined('MULTI_RATE_LIMIT_S') || define('MULTI_RATE_LIMIT_S', 5);
-defined('MULTI_MAX_QUANTITY') || define('MULTI_MAX_QUANTITY', 10);
-
-defined('BASE_WEIGHTS_M') || define('BASE_WEIGHTS_M', [
-    'comune'      => 51.00,
-    'raro'        => 28.00,
-    'epico'       => 13.00,
-    'leggendario' =>  5.999,
-    'speciale'    =>  1.80,
-    'segreto'     =>  0.20,
-    'theone'      =>  0.001,
-]);
-
+function gacha_multi_endpoint_fail(int $status, array $payload): void
+{
+    http_response_code($status);
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
-    exit();
+    gacha_multi_endpoint_fail(405, ['status' => 'error', 'message' => 'Method not allowed']);
 }
 
 if (!isLoggedIn()) {
-    http_response_code(401);
-    echo json_encode(['status' => 'error', 'message' => 'Non autenticato', 'code' => 'NOT_LOGGED_IN']);
-    exit();
+    gacha_multi_endpoint_fail(401, ['status' => 'error', 'message' => 'Non autenticato', 'code' => 'NOT_LOGGED_IN']);
 }
 
-$userId = (int) $_SESSION['user_id'];
+$userId = (int)$_SESSION['user_id'];
 
 $rawInput = file_get_contents('php://input');
-$input    = !empty($rawInput) ? (json_decode($rawInput, true) ?? []) : [];
-if (empty($input)) $input = $_POST;
+$input = $rawInput ? (json_decode($rawInput, true) ?? []) : [];
+if (!$input) {
+    $input = $_POST;
+}
 
 $csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
 if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
-    http_response_code(419);
-    echo json_encode(['status' => 'error', 'message' => 'Sessione scaduta. Ricarica la pagina.', 'code' => 'CSRF_FAILED']);
-    exit();
+    gacha_multi_endpoint_fail(419, ['status' => 'error', 'message' => 'Sessione scaduta. Ricarica la pagina.', 'code' => 'CSRF_FAILED']);
 }
 
 $now = time();
-if (isset($_SESSION['gacha_multi_last_ts'])) {
-    $elapsed = $now - (int)$_SESSION['gacha_multi_last_ts'];
-    if ($elapsed < MULTI_RATE_LIMIT_S) {
-        http_response_code(429);
-        echo json_encode([
-            'status'  => 'error',
-            'message' => 'Aspetta qualche secondo prima di fare un altra multi!',
-            'code'    => 'RATE_LIMIT',
-        ]);
-        exit();
-    }
+if (isset($_SESSION['gacha_multi_last_ts']) && $now - (int)$_SESSION['gacha_multi_last_ts'] < GACHA_MULTI_RATE_LIMIT_S) {
+    gacha_multi_endpoint_fail(429, ['status' => 'error', 'message' => 'Aspetta qualche secondo prima di fare un altra multi!', 'code' => 'RATE_LIMIT']);
 }
 $_SESSION['gacha_multi_last_ts'] = $now;
 
-$rawBannerId = $input['banner_id'] ?? null;
-$quantity    = min(MULTI_MAX_QUANTITY, max(1, (int)($input['quantity'] ?? 10)));
-
-if ($rawBannerId === null) {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'banner_id mancante']);
-    exit();
+$bannerId = $input['banner_id'] ?? null;
+if ($bannerId === null || $bannerId === '') {
+    gacha_multi_endpoint_fail(400, ['status' => 'error', 'message' => 'banner_id mancante', 'code' => 'MISSING_BANNER']);
+}
+if (!is_scalar($bannerId) || ($bannerId !== 'standard' && !ctype_digit((string)$bannerId))) {
+    gacha_multi_endpoint_fail(400, ['status' => 'error', 'message' => 'banner_id non valido', 'code' => 'INVALID_BANNER']);
 }
 
-$bannerType = null;
-$bannerData = null;
-$bannerId   = null;
+$quantity = min(GACHA_MULTI_SIZE, max(1, (int)($input['quantity'] ?? GACHA_MULTI_SIZE)));
 
-if ($rawBannerId === 'standard') {
-    $bannerType = 'standard';
-    $bannerId   = 'standard';
-} elseif (is_numeric($rawBannerId) && (int)$rawBannerId > 0) {
-    $bannerIdInt = (int)$rawBannerId;
-    $nowDt       = date('Y-m-d H:i:s');
-    $stmtB = $mysqli->prepare(
-        'SELECT id, nome, id_personaggio_rateup, costo_punti, data_fine
-         FROM banner_eventi
-         WHERE id = ? AND attivo = 1
-           AND (data_inizio IS NULL OR data_inizio <= ?)
-           AND (data_fine   IS NULL OR data_fine   >= ?)
-         LIMIT 1'
-    );
-    if (!$stmtB) {
-        http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'DB err']);
-        exit();
-    }
-    $stmtB->bind_param('iss', $bannerIdInt, $nowDt, $nowDt);
-    $stmtB->execute();
-    $bannerData = $stmtB->get_result()->fetch_assoc();
-    $stmtB->close();
-    if (!$bannerData) {
-        http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'Banner non trovato o scaduto', 'code' => 'BANNER_NOT_FOUND']);
-        exit();
-    }
-    $bannerType = 'evento';
-    $bannerId   = (string)$bannerIdInt;
-} else {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'banner_id non valido']);
-    exit();
+$opts = ['source' => 'web'];
+if (in_array($_SESSION['ruolo'] ?? 'utente', ['admin', 'owner'], true)) {
+    $opts['force_rarity'] = is_string($input['force_rarity'] ?? null) ? $input['force_rarity'] : null;
+    $opts['force_character_id'] = max(0, (int)($input['force_character_id'] ?? 0));
 }
-
-
-function loadStandardPoolM(mysqli $db): array
-{
-    $pool = ['comune' => [], 'raro' => [], 'epico' => [], 'leggendario' => [], 'speciale' => [], 'segreto' => [], 'theone' => []];
-    $stmt = $db->prepare(
-        'SELECT id, nome, `rarità`, img_url, audio_url, video_url, descrizione, caratteristiche
-         FROM personaggi WHERE in_pool_standard = 1'
-    );
-    if (!$stmt) return $pool;
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $r = strtolower(trim($row['rarità']));
-        if (isset($pool[$r])) $pool[$r][] = $row;
-    }
-    $stmt->close();
-    return $pool;
-}
-
-function selectRarityM(string $bannerType, int $pity, ?string $forceRarity = null): string
-{
-    if ($forceRarity) return $forceRarity;
-
-    $weights = BASE_WEIGHTS_M;
-
-    if ($bannerType === 'standard') {
-        if ($pity >= PITY_STANDARD_SOFT) {
-            $bonus = ($pity - PITY_STANDARD_SOFT + 1) * 4.0;
-            $weights['speciale'] += $bonus;
-            $weights['segreto']  += $bonus * 0.5;
-        }
-        if ($pity >= PITY_STANDARD_HARD) {
-            return (mt_rand(1, 10) === 1) ? 'segreto' : 'speciale';
-        }
-    } elseif ($bannerType === 'evento') {
-        if ($pity >= PITY_EVENTO_SOFT) {
-            $bonus = ($pity - PITY_EVENTO_SOFT + 1) * 6.0;
-            $weights['segreto'] += $bonus;
-            $weights['theone']  += $bonus * 0.005;
-        }
-        if ($pity >= PITY_EVENTO_HARD) {
-            return (mt_rand(1, 100) === 1) ? 'theone' : 'segreto';
-        }
-    }
-
-    $total = array_sum($weights);
-    $rand  = (mt_rand(0, PHP_INT_MAX - 1) / PHP_INT_MAX) * $total;
-    foreach ($weights as $rarity => $weight) {
-        $rand -= $weight;
-        if ($rand <= 0) return $rarity;
-    }
-    return 'comune';
-}
-
-function pickFromPoolM(array $pool, string $rarity): ?array
-{
-    $candidates = $pool[$rarity] ?? [];
-    if (empty($candidates)) {
-        foreach (['comune', 'raro', 'epico', 'leggendario'] as $fb) {
-            if (!empty($pool[$fb])) {
-                $candidates = $pool[$fb];
-                break;
-            }
-        }
-    }
-    if (empty($candidates)) return null;
-    return $candidates[mt_rand(0, count($candidates) - 1)];
-}
-
-function loadCharByIdM(mysqli $db, int $id): ?array
-{
-    $stmt = $db->prepare(
-        'SELECT id, nome, `rarità`, img_url, audio_url, video_url, descrizione, caratteristiche
-         FROM personaggi WHERE id = ? LIMIT 1'
-    );
-    if (!$stmt) return null;
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $char = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    return $char ?: null;
-}
-
-$standardPool = loadStandardPoolM($mysqli);
-
-$forceRarity = null;
-$forceCharacterId = 0;
-$ruolo = $_SESSION['ruolo'] ?? 'utente';
-if (in_array($ruolo, ['admin', 'owner'], true)) {
-    $fr = $input['force_rarity'] ?? null;
-    $validRarities = ['comune', 'raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
-    if ($fr && in_array($fr, $validRarities, true)) $forceRarity = $fr;
-    $forceCharacterId = max(0, (int)($input['force_character_id'] ?? 0));
-}
-$forcedCharacter = $forceCharacterId > 0 ? loadCharByIdM($mysqli, $forceCharacterId) : null;
-if ($forceCharacterId > 0 && !$forcedCharacter) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Personaggio forzato non trovato', 'code' => 'FORCED_CHARACTER_NOT_FOUND']);
-    exit();
-}
-
-$mysqli->begin_transaction();
 
 try {
-    $stmtLock = $mysqli->prepare(
-        'SELECT soldi, godoshards_balance, pity_standard, pity_evento, garantito_evento
-         FROM utenti WHERE id = ? LIMIT 1 FOR UPDATE'
-    );
-    if (!$stmtLock) throw new RuntimeException('Prepare lock fallito');
-    $stmtLock->bind_param('i', $userId);
-    $stmtLock->execute();
-    $user = $stmtLock->get_result()->fetch_assoc();
-    $stmtLock->close();
-    if (!$user) throw new RuntimeException('Utente non trovato', 404);
-
-    $soldi        = (int)$user['soldi'];
-    $godoshards   = (int)$user['godoshards_balance'];
-    $pityStandard = (int)$user['pity_standard'];
-    $pityEvento   = (int)$user['pity_evento'];
-    $garantito    = (int)$user['garantito_evento'];
-
-    $costoSingolaPunti = ($bannerType === 'standard') ? 0 : (int)$bannerData['costo_punti'];
-    $costoTotalePunti  = $costoSingolaPunti * $quantity;
-    $costoTotaleShards = (int)ceil($costoTotalePunti / 100);
-
-    $shardsToUse = 0;
-    $pointsToUse = 0;
-
-    if ($costoTotalePunti > 0) {
-        $shardsToUse = min($costoTotaleShards, $godoshards);
-        $shardsRemaining = $costoTotaleShards - $shardsToUse;
-        $pointsToUse = $shardsRemaining * 100;
-
-        if ($soldi < $pointsToUse) {
-            throw new RuntimeException(
-                "Valute insufficienti! Hai {$soldi} Godos e {$godoshards} Godo Shards, ne servono {$pointsToUse} Godos e {$shardsToUse} Godo Shards per questa pull.",
-                402
-            );
-        }
-    }
-
-    $stmtInv = $mysqli->prepare(
-        'INSERT INTO utenti_personaggi (utente_id, personaggio_id, quantità, data)
-         VALUES (?, ?, 1, NOW())
-         ON DUPLICATE KEY UPDATE quantità = quantità + 1'
-    );
-    if (!$stmtInv) throw new RuntimeException('Prepare inventario fallito');
-
-    $stmtHistNull = $mysqli->prepare(
-        'INSERT INTO gacha_pull_history
-           (utente_id, banner_id, personaggio_id, `rarità`, pity_al_momento, esito_50_50, is_new)
-         VALUES (?, ?, ?, ?, ?, NULL, ?)'
-    );
-    $stmtHistVal = $mysqli->prepare(
-        'INSERT INTO gacha_pull_history
-           (utente_id, banner_id, personaggio_id, `rarità`, pity_al_momento, esito_50_50, is_new)
-         VALUES (?, ?, ?, ?, ?, ?, ?)'
-    );
-
-    $pulls = [];
-    $rateupId = ($bannerType === 'evento') ? (int)$bannerData['id_personaggio_rateup'] : 0;
-
-    for ($i = 0; $i < $quantity; $i++) {
-        $pityCorrente = ($bannerType === 'standard') ? $pityStandard : $pityEvento;
-        $rarità       = selectRarityM($bannerType, $pityCorrente, $forceRarity);
-        if ($forcedCharacter) {
-            $rarità = strtolower(trim((string)$forcedCharacter['rarità']));
-        }
-        $isTopRarity  = in_array($rarità, ['segreto', 'theone'], true);
-        $vinto50_50   = null;
-        $personaggio  = null;
-
-        if ($bannerType === 'standard') {
-            $pityStandard++;
-            if (in_array($rarità, ['speciale', 'segreto', 'theone'], true)) $pityStandard = 0;
-        } else {
-            $pityEvento++;
-        }
-
-        if ($forcedCharacter) {
-            $personaggio = $forcedCharacter;
-            if ($bannerType === 'evento' && $isTopRarity) $pityEvento = 0;
-        } elseif ($bannerType === 'evento' && $isTopRarity) {
-            if ($garantito === 1) {
-                $personaggio = loadCharByIdM($mysqli, $rateupId);
-                $garantito   = 0;
-                $vinto50_50  = 1;
-            } else {
-                if (mt_rand(0, 1) === 1) {
-                    $personaggio = loadCharByIdM($mysqli, $rateupId);
-                    $garantito   = 0;
-                    $vinto50_50  = 1;
-                } else {
-                    $personaggio = pickFromPoolM($standardPool, 'segreto') ?? pickFromPoolM($standardPool, 'leggendario');
-                    $garantito   = 1;
-                    $vinto50_50  = 0;
-                }
-            }
-            $pityEvento = 0;
-        } else {
-            $personaggio = pickFromPoolM($standardPool, $rarità);
-        }
-
-        if (!$personaggio) throw new RuntimeException("Nessun personaggio trovato (pull $i, rarità: $rarità)", 500);
-
-        $personaggioId = (int)$personaggio['id'];
-
-        $stmtInv->bind_param('ii', $userId, $personaggioId);
-        $stmtInv->execute();
-        $isNew = ($stmtInv->affected_rows === 1);
-        $isNewInt = $isNew ? 1 : 0;
-
-        if ($vinto50_50 !== null) {
-            $v50 = (int)$vinto50_50;
-            $stmtHistVal->bind_param('isisiii', $userId, $bannerId, $personaggioId, $rarità, $pityCorrente, $v50, $isNewInt);
-            $stmtHistVal->execute();
-        } else {
-            $stmtHistNull->bind_param('isisii', $userId, $bannerId, $personaggioId, $rarità, $pityCorrente, $isNewInt);
-            $stmtHistNull->execute();
-        }
-
-        $pulls[] = [
-            'personaggio' => [
-                'id'        => $personaggioId,
-                'nome'      => $personaggio['nome'],
-                'rarità'    => $personaggio['rarità'],
-                'img_url'   => $personaggio['img_url'],
-                'audio_url' => $personaggio['audio_url'],
-                'video_url' => $personaggio['video_url'],
-            ],
-            'is_new'       => $isNew,
-            'vinto_50_50'  => $vinto50_50,
-            'pity_snapshot' => $pityCorrente,
-        ];
-    }
-
-    if ($shardsToUse > 0) {
-        $stmtShards = $mysqli->prepare(
-            'UPDATE utenti SET godoshards_balance = godoshards_balance - ? WHERE id = ? AND godoshards_balance >= ?'
-        );
-        $stmtShards->bind_param('iii', $shardsToUse, $userId, $shardsToUse);
-        $stmtShards->execute();
-        if ($stmtShards->affected_rows === 0) {
-            $stmtShards->close();
-            throw new RuntimeException('Shards insufficienti (race condition).', 402);
-        }
-        $stmtShards->close();
-    }
-    if ($pointsToUse > 0) {
-        $stmtMoney = $mysqli->prepare(
-            'UPDATE utenti SET soldi = soldi - ? WHERE id = ? AND soldi >= ?'
-        );
-        $stmtMoney->bind_param('iii', $pointsToUse, $userId, $pointsToUse);
-        $stmtMoney->execute();
-        if ($stmtMoney->affected_rows === 0) {
-            $stmtMoney->close();
-            throw new RuntimeException('Godos insufficienti (race condition).', 402);
-        }
-        $stmtMoney->close();
-    }
-
-    $stmtPity = $mysqli->prepare(
-        'UPDATE utenti SET pity_standard=?, pity_evento=?, garantito_evento=? WHERE id=?'
-    );
-    $stmtPity->bind_param('iiii', $pityStandard, $pityEvento, $garantito, $userId);
-    $stmtPity->execute();
-    $stmtPity->close();
-
-    $stmtInv->close();
-    if ($stmtHistNull) $stmtHistNull->close();
-    if ($stmtHistVal)  $stmtHistVal->close();
-
-    $mysqli->commit();
-
-    try {
-        $rarityRarePlus = ['raro', 'epico', 'leggendario', 'speciale', 'segreto', 'theone'];
-        $rarityEpicPlus = ['epico', 'leggendario', 'speciale', 'segreto', 'theone'];
-        $raritySpecialPlus = ['speciale', 'segreto', 'theone'];
-        $raritySecretPlus = ['segreto', 'theone'];
-
-
-        // I conteggi si sommano prima e si mandano una volta sola. Il ciclo
-        // chiamava trackMissionProgress fino a cinquanta volte, e ogni
-        // chiamata è una transazione con SELECT ... FOR UPDATE: sulla
-        // multi-pull da dieci erano cinquanta transazioni per un risultato
-        // identico a cinque.
-        $missionCounts = ['lootbox_open' => count($pulls)];
-
-        foreach ($pulls as $pull) {
-            $pullRarity = strtolower(trim($pull['personaggio']['rarità'] ?? ''));
-
-            if (in_array($pullRarity, $rarityRarePlus, true)) {
-                $missionCounts['get_rarity_rare'] = ($missionCounts['get_rarity_rare'] ?? 0) + 1;
-            }
-            if (in_array($pullRarity, $rarityEpicPlus, true)) {
-                $missionCounts['get_rarity_epic'] = ($missionCounts['get_rarity_epic'] ?? 0) + 1;
-            }
-            if (in_array($pullRarity, $raritySpecialPlus, true)) {
-                $missionCounts['get_rarity_special'] = ($missionCounts['get_rarity_special'] ?? 0) + 1;
-            }
-            if (in_array($pullRarity, $raritySecretPlus, true)) {
-                $missionCounts['get_rarity_secret'] = ($missionCounts['get_rarity_secret'] ?? 0) + 1;
-            }
-            if (!empty($pull['is_new'])) {
-                $missionCounts['gacha_new_char'] = ($missionCounts['gacha_new_char'] ?? 0) + 1;
-            }
-        }
-
-        // Una multi-pull è una multi-pull: conta una volta, non dieci.
-        $missionCounts['gacha_multi_pull'] = 1;
-
-        foreach ($missionCounts as $evento => $quantita) {
-            trackMissionProgress($mysqli, $userId, $evento, $quantita);
-        }
-
-        // ── Statistiche Rewind ────────────────────────────────────────────
-        // Una sola scrittura per l'intera multi-pull invece di dieci.
-        $statDeltas = ['gacha_pulls' => count($pulls)];
-        if ($pointsToUse > 0) $statDeltas['godos_spent']  = $pointsToUse;
-        if ($pointsToUse > 0) $statDeltas['gacha_spent']  = $pointsToUse;
-        if ($shardsToUse > 0) $statDeltas['shards_spent'] = $shardsToUse;
-
-        $newChars = 0;
-        $won50 = 0;
-        $lost50 = 0;
-        $maxPity = 0;
-
-        foreach ($pulls as $pull) {
-            if (!empty($pull['is_new'])) $newChars++;
-            if (($pull['vinto_50_50'] ?? null) === 1) $won50++;
-            if (($pull['vinto_50_50'] ?? null) === 0) $lost50++;
-            $maxPity = max($maxPity, (int)($pull['pity_snapshot'] ?? 0));
-        }
-
-        if ($newChars > 0) $statDeltas['gacha_new_chars'] = $newChars;
-        if ($won50 > 0)    $statDeltas['gacha_5050_won']  = $won50;
-        if ($lost50 > 0)   $statDeltas['gacha_5050_lost'] = $lost50;
-        if ($maxPity > 0)  $statDeltas['max_pity_hit']    = $maxPity;
-
-        stats_track_many($mysqli, $userId, $statDeltas);
-    } catch (Throwable $trackErr) {
-        error_log('[MissionTracking gacha_multi_pull] ' . $trackErr->getMessage());
-    }
-
-    $stmtS = $mysqli->prepare('SELECT soldi, godoshards_balance FROM utenti WHERE id=? LIMIT 1');
-    $stmtS->bind_param('i', $userId);
-    $stmtS->execute();
-    $resS = $stmtS->get_result()->fetch_assoc();
-    $soldiRimasti = (int)($resS['soldi'] ?? $soldi);
-    $shardsRimaste = (int)($resS['godoshards_balance'] ?? $godoshards);
-    $stmtS->close();
-
-    echo json_encode([
-        'status'         => 'success',
-        'pulls'          => $pulls,
-        'soldi_rimasti'  => $soldiRimasti,
-        'shards_rimaste' => $shardsRimaste,
-        'valuta_usata'   => ($shardsToUse > 0 && $pointsToUse > 0) ? 'mixed' : ($shardsToUse > 0 ? 'shards' : 'points'),
-        'pity_standard'  => $pityStandard,
-        'pity_evento'    => $pityEvento,
-        'garantito'      => (bool)$garantito,
-        'costo_totale'   => $pointsToUse,
-        'shards_spese'   => $shardsToUse,
-        'punti_spesi'    => $pointsToUse,
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-} catch (RuntimeException $e) {
-    $mysqli->rollback();
-    $code = $e->getCode();
-    $http = match (true) {
-        $code === 401 => 401,
-        $code === 402 => 402,
-        $code === 404 => 404,
-        default => 500
-    };
-    http_response_code($http > 0 ? $http : 500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage(), 'code' => $code === 402 ? 'NO_POINTS' : 'SERVER_ERROR']);
+    $result = gacha_pull($mysqli, $userId, (string)$bannerId, $quantity, $opts);
+    echo json_encode(gacha_response_multi($result), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {
-    $mysqli->rollback();
-    error_log('[api_gacha_multi_pull] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Errore interno. Riprova.', 'code' => 'INTERNAL_ERROR']);
+    [$status, $payload] = gacha_response_error($e);
+    http_response_code($status);
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
 }
+
+gacha_flush_announcements();

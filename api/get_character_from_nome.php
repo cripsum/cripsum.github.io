@@ -1,4 +1,7 @@
-<?php  
+<?php
+// SELECT * pubblico sui personaggi (anche segreti non ancora usciti) e nessun
+// chiamante rimasto nel sito: ritirato.
+require __DIR__ . '/../includes/retired_endpoint.php';  
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 

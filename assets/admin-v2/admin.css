@@ -789,3 +789,44 @@ body.modal-open {
 .shop-admin-faq__actions .admin-field { margin: 0; }
 .shop-admin-spacer { flex: 1; }
 .shop-admin-faq > .admin-btn { justify-self: start; }
+
+/* ── Gacha: banner e categorie (admin-gacha.js) ───────────────────────── */
+.gacha-admin-editor { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 1.2rem; align-items: start; }
+.gacha-admin-editor [hidden] { display: none !important; }
+.gacha-admin-preview { position: sticky; top: 0; display: grid; gap: .7rem; padding: 1rem; border: 1px solid var(--admin-border); border-radius: 18px; background: rgba(255,255,255,.04); }
+.gacha-admin-preview > strong { font-size: .95rem; }
+.gacha-admin-dot { display: inline-block; width: .6rem; height: .6rem; border-radius: 999px; background: var(--c); box-shadow: 0 0 0 1px rgba(0,0,0,.35); vertical-align: middle; }
+.gacha-admin-bars { display: grid; gap: .45rem; }
+.gacha-admin-bar { display: grid; grid-template-columns: 1fr auto; gap: .15rem .5rem; font-size: .82rem; }
+.gacha-admin-bar small { color: var(--admin-muted); }
+.gacha-admin-bar i { grid-column: 1 / -1; display: block; height: .3rem; border-radius: 999px; background: rgba(255,255,255,.08); position: relative; overflow: hidden; }
+.gacha-admin-bar i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); background: var(--c); border-radius: inherit; }
+.gacha-admin-featured { display: grid; gap: .45rem; padding-top: .6rem; border-top: 1px solid var(--admin-border); font-size: .82rem; }
+.gacha-admin-featured > div { display: grid; grid-template-columns: 1fr auto; gap: .1rem .5rem; }
+.gacha-admin-featured small { grid-column: 1 / -1; color: var(--admin-muted); }
+.gacha-admin-pityinfo { display: grid; gap: .3rem; padding-top: .6rem; border-top: 1px solid var(--admin-border); color: var(--admin-muted); font-size: .8rem; }
+.gacha-admin-pityinfo b { color: var(--admin-text); }
+.gacha-admin-warnings { display: grid; gap: .35rem; margin: 0; padding: .6rem .7rem; list-style: none; border: 1px solid rgba(245,158,11,.38); border-radius: 12px; background: rgba(245,158,11,.1); color: #ffe0a6; font-size: .8rem; }
+.gacha-admin-error { color: #ffd0d9; font-size: .84rem; }
+.gacha-admin-picker { position: relative; }
+.gacha-admin-picker input { width: 100%; }
+.gacha-admin-results { position: absolute; z-index: 5; inset: calc(100% + .3rem) 0 auto; max-height: 20rem; overflow: auto; border: 1px solid var(--admin-border); border-radius: 14px; background: #10131f; box-shadow: 0 18px 40px rgba(0,0,0,.5); }
+.gacha-admin-result { display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: .5rem; padding: .45rem .6rem; border-bottom: 1px solid var(--admin-border); }
+.gacha-admin-result span { display: grid; min-width: 0; }
+.gacha-admin-result small { color: var(--admin-muted); font-size: .76rem; }
+.gacha-admin-links td { vertical-align: middle; }
+.gacha-admin-links select { min-width: 7.5rem; }
+.gacha-admin-num { width: 6.5rem; }
+.gacha-admin-rarity td, .gacha-admin-rarity th { padding: .35rem .5rem; }
+.gacha-admin-empty { margin: .6rem 0 0; }
+.gacha-admin-cat { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; flex: none; border-radius: 12px; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); background: color-mix(in srgb, var(--c) 14%, transparent); }
+.gacha-admin-orphans { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.shop-admin-preset.is-active { border-color: rgba(var(--admin-accent-rgb), .7); background: rgba(var(--admin-accent-rgb), .18); }
+.admin-pill { display: inline-flex; padding: .05rem .45rem; border-radius: 999px; border: 1px solid var(--admin-border); font-size: .72rem; font-weight: 800; }
+.admin-pill--limited { color: #e9d5ff; border-color: rgba(168,85,247,.5); background: rgba(168,85,247,.14); }
+@media (max-width: 960px) {
+    .gacha-admin-editor { grid-template-columns: 1fr; }
+    .gacha-admin-preview { position: static; }
+    .gacha-admin-result { grid-template-columns: auto 1fr; }
+    .gacha-admin-result .admin-btn { grid-column: span 1; }
+}

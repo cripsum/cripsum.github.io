@@ -6,6 +6,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
     $uid = gd_require_login();
+    gd_require_csrf();
     $input = gd_input();
     $characterId = (int)($input['character_id'] ?? 0);
 
@@ -14,7 +15,8 @@ try {
     }
 
     // 1. Recupera informazioni sul personaggio
-    $stmt = $mysqli->prepare('SELECT id, nome, rarità, categoria FROM personaggi WHERE id = ? LIMIT 1');
+    $limitedSelect = gd_has_col($mysqli, 'personaggi', 'limitato') ? 'limitato' : 'NULL AS limitato';
+    $stmt = $mysqli->prepare('SELECT id, nome, rarità, categoria, ' . $limitedSelect . ' FROM personaggi WHERE id = ? LIMIT 1');
     if (!$stmt) {
         gd_fail('Database non disponibile.');
     }
@@ -28,7 +30,7 @@ try {
     }
 
     $rarity = $char['rarità'] ?? 'comune';
-    $category = $char['categoria'] ?? '';
+    $category = gd_limited_marker($char);
 
     // 2. Recupera l'ownership, quantità e livello corrente dall'inventario utente
     $stmt = $mysqli->prepare('SELECT quantità, livello FROM utenti_personaggi WHERE utente_id = ? AND personaggio_id = ? LIMIT 1');

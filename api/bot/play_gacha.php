@@ -1,38 +1,50 @@
 <?php
-require_once __DIR__ . '/../../config/session_init.php';
+declare(strict_types=1);
+
+/**
+ * Pull dal comando /gacha del bot.
+ *
+ * Prima simulava una sessione e includeva api_gacha_pull.php, che pero'
+ * chiede il token CSRF: il bot non ce l'ha, e la pull finiva in errore.
+ * Adesso chiama direttamente il motore, con la stessa risposta di sempre.
+ */
+
+if (!defined('CRIPSUM_STATELESS_REQUEST')) {
+    define('CRIPSUM_STATELESS_REQUEST', true);
+}
+
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
 require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/gacha/engine.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
 
-// 1. Authenticate Request
-$apiKey = $_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '';
-if (empty($apiKey) || $apiKey !== CRIPSUM_BOT_API_KEY) {
+$apiKey = (string)($_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '');
+if ($apiKey === '' || !defined('CRIPSUM_BOT_API_KEY') || !hash_equals((string)CRIPSUM_BOT_API_KEY, $apiKey)) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Access denied. Invalid or missing X-Cripsum-Bot-Key.']);
     exit;
 }
 
-// 2. Parse Input
-$rawInput = file_get_contents('php://input');
-$input = json_decode($rawInput, true) ?? [];
-$discordId = isset($input['discord_id']) ? trim((string)$input['discord_id']) : '';
+$input = json_decode((string)file_get_contents('php://input'), true);
+$input = is_array($input) ? $input : [];
+$discordId = trim((string)($input['discord_id'] ?? ''));
+$bannerId = trim((string)($input['banner_id'] ?? 'standard'));
 
-if (empty($discordId)) {
+if ($discordId === '') {
     http_response_code(400);
     echo json_encode(['status' => 'error', 'message' => 'Missing discord_id in request body.']);
     exit;
 }
-
-// 3. Find Linked User
-$stmt = $mysqli->prepare("SELECT id, username, ruolo FROM utenti WHERE discord_id = ? LIMIT 1");
-if (!$stmt) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Database query preparation failed.']);
+if ($bannerId !== 'standard' && !ctype_digit($bannerId)) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'banner_id non valido', 'code' => 'INVALID_BANNER']);
     exit;
 }
 
+$stmt = $mysqli->prepare('SELECT id FROM utenti WHERE discord_id = ? LIMIT 1');
 $stmt->bind_param('s', $discordId);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -43,13 +55,13 @@ if (!$user) {
     exit;
 }
 
-// 4. Mock user session to bypass auth inside api_gacha_pull.php
-$_SESSION['user_id'] = (int)$user['id'];
-$_SESSION['username'] = $user['username'];
-$_SESSION['ruolo'] = $user['ruolo'];
-unset($_SESSION['gacha_last_pull_ts']); // Bypass rate limit for bot calls if desired
+try {
+    $result = gacha_pull($mysqli, (int)$user['id'], $bannerId, 1, ['source' => 'bot']);
+    echo json_encode(gacha_response_single($result), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+} catch (Throwable $e) {
+    [$status, $payload] = gacha_response_error($e);
+    http_response_code($status);
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+}
 
-// 5. Delegate to official gacha pull script
-// We use require instead of include to ensure it halts if not found.
-require __DIR__ . '/../api_gacha_pull.php';
-exit;
+gacha_flush_announcements();

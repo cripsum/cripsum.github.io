@@ -1,58 +1,54 @@
 <?php
-require_once __DIR__ . '/../../config/session_init.php';
+declare(strict_types=1);
+
+/**
+ * Banner attivi e pity di un utente collegato, per /banners e per
+ * l'autocompletamento di /gacha. Stessa risposta di api_gacha_banners.php,
+ * che fa il lavoro; qui si trova solo l'utente dal suo id Discord.
+ */
+
+// Il bot non ha cookie: niente sessione (vedi config/session_init.php).
+if (!defined('CRIPSUM_STATELESS_REQUEST')) {
+    define('CRIPSUM_STATELESS_REQUEST', true);
+}
+
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
-require_once __DIR__ . '/../../includes/functions.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// 1. Authenticate Request
-$apiKey = $_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '';
-if (empty($apiKey) || $apiKey !== CRIPSUM_BOT_API_KEY) {
+$apiKey = (string)($_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '');
+if ($apiKey === '' || !defined('CRIPSUM_BOT_API_KEY') || !hash_equals((string)CRIPSUM_BOT_API_KEY, $apiKey)) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Access denied. Invalid or missing X-Cripsum-Bot-Key.']);
     exit;
 }
 
-// 2. Parse Input
-$discordId = isset($_GET['discord_id']) ? trim((string)$_GET['discord_id']) : '';
-if (empty($discordId)) {
-    $input = json_decode(file_get_contents('php://input'), true) ?? [];
-    $discordId = isset($input['discord_id']) ? trim((string)$input['discord_id']) : '';
+$discordId = trim((string)($_GET['discord_id'] ?? ''));
+if ($discordId === '') {
+    $input = json_decode((string)file_get_contents('php://input'), true);
+    $discordId = is_array($input) ? trim((string)($input['discord_id'] ?? '')) : '';
 }
 
-if (empty($discordId)) {
+if ($discordId === '') {
     http_response_code(400);
     echo json_encode(['status' => 'error', 'message' => 'Missing discord_id.']);
     exit;
 }
 
-$stmt = $mysqli->prepare("SELECT id FROM utenti WHERE discord_id = ? LIMIT 1");
-if (!$stmt) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Database query preparation failed.']);
-    exit;
-}
-
+$stmt = $mysqli->prepare('SELECT id FROM utenti WHERE discord_id = ? LIMIT 1');
 $stmt->bind_param('s', $discordId);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$user) {
-    echo json_encode([
-        'status' => 'error',
-        'linked' => false,
-        'message' => 'Account Discord non collegato.'
-    ]);
+    echo json_encode(['status' => 'error', 'linked' => false, 'message' => 'Account Discord non collegato.']);
     exit;
 }
 
-$userId = (int)$user['id'];
+$GLOBALS['gacha_bot_user_id'] = (int)$user['id'];
+$_SERVER['REQUEST_METHOD'] = 'GET';
 
-// 3. Mock user session to bypass auth inside api_gacha_banners.php
-$_SESSION['user_id'] = $userId;
-
-// 4. Delegate to official banners script
 require __DIR__ . '/../api_gacha_banners.php';
 exit;

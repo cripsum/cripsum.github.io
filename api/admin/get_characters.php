@@ -17,10 +17,30 @@ try {
     $params = [];
     $types = '';
 
+    $conditions = [];
     if ($q !== '' && $nameCol) {
-        $where = 'WHERE ' . admin_qcol($nameCol) . ' LIKE ?';
+        $conditions[] = admin_qcol($nameCol) . ' LIKE ?';
         $params[] = '%' . $q . '%';
-        $types = 's';
+        $types .= 's';
+    }
+    // Filtri del pannello: rarita', categoria, limitati.
+    $rarityFilter = trim((string)($_GET['rarita'] ?? ''));
+    if ($rarityFilter !== '' && $cols['rarity']) {
+        $conditions[] = 'LOWER(' . admin_qcol($cols['rarity']) . ') = ?';
+        $params[] = strtolower($rarityFilter);
+        $types .= 's';
+    }
+    $categoryFilter = trim((string)($_GET['categoria'] ?? ''));
+    if ($categoryFilter !== '' && $cols['category']) {
+        $conditions[] = 'LOWER(' . admin_qcol($cols['category']) . ') = LOWER(?)';
+        $params[] = $categoryFilter;
+        $types .= 's';
+    }
+    if (($_GET['limitati'] ?? '') === '1' && $cols['limitato']) {
+        $conditions[] = admin_qcol($cols['limitato']) . ' = 1';
+    }
+    if ($conditions) {
+        $where = 'WHERE ' . implode(' AND ', $conditions);
     }
 
     $stmt = $mysqli->prepare("SELECT COUNT(*) AS total FROM personaggi $where");
@@ -45,6 +65,10 @@ try {
     $select .= isset($cols['pool_evento']) && $cols['pool_evento'] ? ', ' . admin_qcol($cols['pool_evento']) . ' AS pool_evento' : ', 0 AS pool_evento';
     $select .= isset($cols['in_pool_standard']) && $cols['in_pool_standard'] ? ', ' . admin_qcol($cols['in_pool_standard']) . ' AS in_pool_standard' : ', 0 AS in_pool_standard';
     $select .= $cols['ruolo'] ? ', ' . admin_qcol($cols['ruolo']) . ' AS ruolo' : ', NULL AS ruolo';
+    $select .= $cols['limitato']
+        ? ', ' . admin_qcol($cols['limitato']) . ' AS limitato'
+        : ', (LOWER(' . ($cols['category'] ? admin_qcol($cols['category']) : "''") . ") = 'limited') AS limitato";
+    $select .= $cols['catalogo'] ? ', ' . admin_qcol($cols['catalogo']) . ' AS catalogo' : ', NULL AS catalogo';
 
     $order = $nameCol ? admin_qcol($nameCol) : 'id';
     $stmt = $mysqli->prepare("SELECT $select FROM personaggi $where ORDER BY $order ASC LIMIT $limit OFFSET $offset");

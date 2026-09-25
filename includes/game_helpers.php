@@ -29,6 +29,17 @@ function gd_input(): array
     $json = json_decode($raw ?: '', true);
     return is_array($json) ? $json : ($_POST ?: $_GET ?: []);
 }
+/**
+ * Token CSRF per le azioni che cambiano l'inventario (potenziamenti): header
+ * X-CSRF-Token o campo csrf_token del corpo, come nel resto del sito.
+ */
+function gd_require_csrf(): void
+{
+    $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? (gd_input()['csrf_token'] ?? null);
+    if (!function_exists('csrf_validate') || !csrf_validate(is_string($token) ? $token : null)) {
+        gd_fail('Sessione scaduta. Ricarica la pagina.', 419);
+    }
+}
 function gd_user_id(): int
 {
     foreach (['user_id', 'utente_id', 'id'] as $k) if (!empty($_SESSION[$k])) return (int)$_SESSION[$k];
@@ -73,7 +84,8 @@ function gd_char_cols(mysqli $m): array
         'name' => gd_first($c, ['nome', 'name', 'title']),
         'image' => gd_first($c, ['img_url', 'image_url', 'img', 'image']),
         'rarity' => gd_first($c, ['rarità', 'rarita', 'rarity']),
-        'category' => gd_first($c, ['categoria', 'category'])
+        'category' => gd_first($c, ['categoria', 'category']),
+        'limited' => gd_first($c, ['limitato'])
     ];
 }
 function gd_inv_cols(mysqli $m): array
@@ -161,6 +173,7 @@ function gd_character(mysqli $m, int $pid): ?array
     $fields[] = $c['image'] ? 'p.' . gd_qcol($c['image']) . ' img_url' : "'' img_url";
     $fields[] = $c['rarity'] ? 'p.' . gd_qcol($c['rarity']) . ' rarita' : "'comune' rarita";
     $fields[] = $c['category'] ? 'p.' . gd_qcol($c['category']) . ' categoria' : "'' categoria";
+    $fields[] = $c['limited'] ? 'p.' . gd_qcol($c['limited']) . ' limitato' : 'NULL limitato';
     $fields[] = "p.ruolo AS ruolo";
 
     $sql = 'SELECT ' . implode(',', $fields) . ' FROM personaggi p WHERE p.' . gd_qcol($c['id']) . '=? LIMIT 1';
@@ -172,6 +185,21 @@ function gd_character(mysqli $m, int $pid): ?array
     $st->close();
     return $row ?: null;
 }
+/**
+ * Cosa passare come "categoria" alle funzioni di potenziamento, che trattano
+ * da limitato chi ha "limited" nella categoria. Con la migration del gacha
+ * il limitato e' un flag (personaggi.limitato) e la categoria e' libera: si
+ * passa "limited" se il flag c'e', altrimenti niente. Senza la colonna vale
+ * la categoria di sempre.
+ */
+function gd_limited_marker(array $ch): string
+{
+    if (array_key_exists('limitato', $ch) && $ch['limitato'] !== null) {
+        return (int)$ch['limitato'] === 1 ? 'limited' : '';
+    }
+    return (string)($ch['categoria'] ?? '');
+}
+
 function gd_get_upgrade_requirement(string $rarity, int $current_level, string $category = ''): int
 {
     $lvl = max(1, min(5, $current_level));
@@ -261,7 +289,28 @@ function gd_get_skill_multiplier(string $rarity, int $level, string $category = 
 
 function gd_stats(mysqli $m, int $pid, int $level = 1): array
 {
-    $ch = gd_character($m, $pid);
+    $ch = gd_character($m, $pid) ?? [];
+
+    $row = null;
+    $q = $m->prepare('SELECT hp,attack,defense,speed,max_energy,special_name,special_cost,special_cooldown FROM game_card_stats WHERE personaggio_id=? LIMIT 1');
+    if ($q) {
+        $q->bind_param('i', $pid);
+        $q->execute();
+        $row = $q->get_result()->fetch_assoc() ?: null;
+        $q->close();
+    }
+
+    return gd_stats_build($pid, $ch, $row, $level);
+}
+
+/**
+ * Le statistiche di un personaggio a un livello, dai dati gia' letti: il
+ * personaggio (nome, rarita, ruolo, categoria/limitato) e la sua riga di
+ * game_card_stats, se c'e'. Senza query: l'inventario la chiama per tutti i
+ * personaggi dopo averli letti in blocco.
+ */
+function gd_stats_build(int $pid, array $ch, ?array $cardRow, int $level = 1): array
+{
     $nome = $ch['nome'] ?? 'Personaggio';
     $rarity = $ch['rarita'] ?? 'comune';
     $role = $ch['ruolo'] ?? 'DPS';
@@ -287,22 +336,14 @@ function gd_stats(mysqli $m, int $pid, int $level = 1): array
     $st['ultimate_name'] = $cfg['ultimate_name'] ?? null;
     $st['ultimate_desc'] = $cfg['ultimate_desc'] ?? null;
 
-    $q = $m->prepare('SELECT hp,attack,defense,speed,max_energy,special_name,special_cost,special_cooldown FROM game_card_stats WHERE personaggio_id=? LIMIT 1');
-    if ($q) {
-        $q->bind_param('i', $pid);
-        $q->execute();
-        $row = $q->get_result()->fetch_assoc();
-        $q->close();
-        if ($row) {
-            foreach (['hp', 'attack', 'defense', 'speed', 'max_energy'] as $k) if ($row[$k] !== null) $st[$k] = max(1, (int)$row[$k]);
-            if ($row['special_cost'] !== null) $st['special_cost'] = max(1, (int)$row['special_cost']);
-            if ($row['special_cooldown'] !== null) $st['special_cooldown'] = max(1, (int)$row['special_cooldown']);
-            if (!empty($row['special_name'])) $st['special_name'] = $row['special_name'];
-        }
+    if ($cardRow) {
+        foreach (['hp', 'attack', 'defense', 'speed', 'max_energy'] as $k) if (($cardRow[$k] ?? null) !== null) $st[$k] = max(1, (int)$cardRow[$k]);
+        if (($cardRow['special_cost'] ?? null) !== null) $st['special_cost'] = max(1, (int)$cardRow['special_cost']);
+        if (($cardRow['special_cooldown'] ?? null) !== null) $st['special_cooldown'] = max(1, (int)$cardRow['special_cooldown']);
+        if (!empty($cardRow['special_name'])) $st['special_name'] = $cardRow['special_name'];
     }
 
-    $category = $ch['categoria'] ?? '';
-    $mult = gd_get_stat_multiplier($rarity, $level, $category);
+    $mult = gd_get_stat_multiplier($rarity, $level, gd_limited_marker($ch));
     $st['hp'] = (int)round($st['hp'] * $mult);
     $st['attack'] = (int)round($st['attack'] * $mult);
     $st['defense'] = (int)round($st['defense'] * $mult);
@@ -1509,7 +1550,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
 
                 $eff_type = $actor_cfg['ultimate_effect']['type'] ?? '';
                 $actor_level = isset($actor['livello']) ? (int)$actor['livello'] : 1;
-                $skill_mult = gd_get_skill_multiplier($actor_char['rarita'] ?? 'comune', $actor_level, $actor_char['categoria'] ?? '');
+                $skill_mult = gd_get_skill_multiplier($actor_char['rarita'] ?? 'comune', $actor_level, gd_limited_marker($actor_char));
 
                 $m->query("UPDATE game_match_cards SET energy=0, ultimate_used=1 WHERE id={$actorId}");
                 $msg = "{$char_name} attiva l'**ULTIMATE**: **{$actor_cfg['ultimate_name']}**!!! ";
@@ -1526,7 +1567,7 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
 
                 $eff_type = $actor_cfg['special_effect']['type'] ?? '';
                 $actor_level = isset($actor['livello']) ? (int)$actor['livello'] : 1;
-                $skill_mult = gd_get_skill_multiplier($actor_char['rarita'] ?? 'comune', $actor_level, $actor_char['categoria'] ?? '');
+                $skill_mult = gd_get_skill_multiplier($actor_char['rarita'] ?? 'comune', $actor_level, gd_limited_marker($actor_char));
 
                 $en = max(0, (int)$actor['energy'] - (int)$actor['special_cost']);
                 $cd = max(1, (int)$actor['special_cooldown_max']);

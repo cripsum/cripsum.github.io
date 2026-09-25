@@ -19,8 +19,26 @@ if ($idPersonaggio > 0) {
     $stmt->close();
 }
 
+// Solo chi lo possiede (o lo staff) vede l'animazione: prima bastava
+// cambiare l'id nell'indirizzo per vedere il video di qualsiasi segreto.
+if ($charData && !in_array($_SESSION['ruolo'] ?? 'utente', ['admin', 'owner'], true)) {
+    $viewerId = (int)($_SESSION['user_id'] ?? 0);
+    $ownsIt = false;
+    if ($viewerId > 0) {
+        $stmtOwn = $mysqli->prepare('SELECT 1 FROM utenti_personaggi WHERE utente_id = ? AND personaggio_id = ? LIMIT 1');
+        $stmtOwn->bind_param('ii', $viewerId, $idPersonaggio);
+        $stmtOwn->execute();
+        $ownsIt = (bool)$stmtOwn->get_result()->fetch_row();
+        $stmtOwn->close();
+    }
+    if (!$ownsIt) {
+        $charData = null;
+        $errorMsg = "You don't own this character yet.";
+    }
+}
+
 // Se il personaggio non esiste mostra errore
-if (!$charData) {
+if (!$charData && empty($errorMsg)) {
     $errorMsg = $idPersonaggio > 0
         ? "Personaggio con ID {$idPersonaggio} non trovato."
         : "Nessun ID personaggio specificato. Usa ?id_personaggio=X";

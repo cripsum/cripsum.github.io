@@ -10,13 +10,14 @@
         section: 'dashboard',
         q: '',
         users: { page: 1, status: 'all', role: 'all', sort: 'data_creazione', dir: 'DESC', online: false },
-        characters: { page: 1 },
+        characters: { page: 1, rarita: '', categoria: '', limitati: false },
         achievements: { page: 1 },
         messages: { page: 1 },
         tickets: { page: 1, status: 'all' },
         shitposts: { page: 1, status: 'all' },
         toprimasti: { page: 1, status: 'all' },
         reports: { page: 1, source: 'all', status: 'open' },
+        characterCategories: null,
         cache: { homeSlides: [], users: [], characters: [], achievements: [], messages: [], tickets: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
     };
 
@@ -603,15 +604,68 @@
         showToast('Utente sbannato.'); loadUsers(); loadDashboard();
     });
 
+    const RARITIES = [
+        ['comune', 'Comune'], ['raro', 'Raro'], ['epico', 'Epico'], ['leggendario', 'Leggendario'],
+        ['speciale', 'Speciale'], ['segreto', 'Segreto'], ['theone', 'The One'],
+    ];
+    const rarityLabel = (value) => (RARITIES.find(([k]) => k === String(value || '').toLowerCase()) || [null, value || '—'])[1];
+    const CATALOG_LABELS = { visibile: 'Visibile', segreto: '???', nascosto: 'Nascosto' };
+
+    // Categorie dal pannello (tabella personaggi_categorie). Senza migration
+    // l'elenco e' vuoto e il campo resta testo libero, come prima.
+    const loadCharacterCategories = async (force = false) => {
+        if (state.characterCategories && !force) return state.characterCategories;
+        try {
+            const data = await api('gacha_categories.php?action=list');
+            state.characterCategories = data.ready === false ? [] : (data.categories || []).map((c) => c.nome);
+        } catch (error) {
+            state.characterCategories = [];
+        }
+        return state.characterCategories;
+    };
+
+    const renderCharacterFilters = async () => {
+        const bar = $('#charactersFilters');
+        if (!bar || bar.dataset.bound === '1') return;
+        bar.dataset.bound = '1';
+        const categories = await loadCharacterCategories();
+        bar.innerHTML = `
+            <select class="admin-input" data-char-filter="rarita" aria-label="Filtra per rarità">
+                <option value="">Tutte le rarità</option>
+                ${RARITIES.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}
+            </select>
+            <select class="admin-input" data-char-filter="categoria" aria-label="Filtra per categoria">
+                <option value="">Tutte le categorie</option>
+                ${categories.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
+            </select>
+            <label class="admin-btn admin-btn--small" style="gap:.4rem"><input type="checkbox" data-char-filter="limitati"> Solo limitati</label>`;
+        $$('[data-char-filter]', bar).forEach((el) => el.addEventListener('change', () => {
+            const key = el.dataset.charFilter;
+            state.characters[key] = el.type === 'checkbox' ? el.checked : el.value;
+            state.characters.page = 1;
+            loadCharacters();
+        }));
+    };
+
     const loadCharacters = async () => {
+        renderCharacterFilters();
         const box = $('#charactersTable'); setLoading(box);
         try {
             const params = new URLSearchParams({ q: state.q, page: state.characters.page, limit: 30 });
+            if (state.characters.rarita) params.set('rarita', state.characters.rarita);
+            if (state.characters.categoria) params.set('categoria', state.characters.categoria);
+            if (state.characters.limitati) params.set('limitati', '1');
             const data = await api(`get_characters.php?${params}`);
             state.cache.characters = data.characters || [];
             box.innerHTML = state.cache.characters.length ? `
-                <table class="admin-table"><thead><tr><th>Nome</th><th>Rarità</th><th>Categoria</th><th>Azioni</th></tr></thead><tbody>
-                    ${state.cache.characters.map((c) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(c.image_url || c.img_url, 'fa-solid fa-box-open')}<div><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}</div></div></div></td><td data-label="Rarità">${escapeHtml(c.rarita || '—')}</td><td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fa-solid fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fa-solid fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
+                <table class="admin-table"><thead><tr><th>Nome</th><th>Rarità</th><th>Categoria</th><th>Pool</th><th>Azioni</th></tr></thead><tbody>
+                    ${state.cache.characters.map((c) => `<tr>
+                        <td data-label="Nome"><div class="admin-name-cell">${thumb(c.image_url || c.img_url, 'fa-solid fa-box-open')}<div><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}${Number(c.limitato) === 1 ? ' · <span class="admin-pill admin-pill--limited">Limitato</span>' : ''}${c.catalogo && c.catalogo !== 'visibile' ? ` · <span class="admin-pill">${escapeHtml(CATALOG_LABELS[c.catalogo] || c.catalogo)}</span>` : ''}</div></div></div></td>
+                        <td data-label="Rarità">${escapeHtml(rarityLabel(c.rarita))}</td>
+                        <td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td>
+                        <td data-label="Pool">${Number(c.in_pool_standard) === 1 ? 'Standard' : '<span class="admin-muted">Solo banner</span>'}</td>
+                        <td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fa-solid fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fa-solid fa-trash"></i> Elimina</button></div></td>
+                    </tr>`).join('')}
                 </tbody></table>` : emptyState('fa-solid fa-box-open', 'Nessun personaggio');
             $$('[data-edit-character]', box).forEach((b) => b.addEventListener('click', () => openCharacterForm(state.cache.characters.find((c) => Number(c.id) === Number(b.dataset.editCharacter)))));
             $$('[data-delete-character]', box).forEach((b) => b.addEventListener('click', () => deleteCharacter(Number(b.dataset.deleteCharacter))));
@@ -619,7 +673,7 @@
         } catch (error) { box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore personaggi', error.message); }
     };
 
-    const characterFormHtml = (item = {}) => `
+    const characterFormHtml = (item = {}, categories = []) => `
         <form id="characterForm" class="admin-form-grid">
             ${item.id ? `<input type="hidden" name="id" value="${Number(item.id)}">` : ''}
             <div class="admin-field">
@@ -643,16 +697,23 @@
                 </select>
             </div>
             <div class="admin-field">
-                <label>Rarità (IT)</label>
-                <input name="rarita" value="${escapeHtml(item.rarita || '')}" placeholder="comune, raro, epico, leggendario...">
-            </div>
-            <div class="admin-field">
-                <label>Rarità (EN)</label>
-                <input name="rarita_en" value="${escapeHtml(item.rarita_en || '')}" placeholder="common, rare, epic, legendary...">
+                <label>Rarità</label>
+                <select name="rarita" required>
+                    ${RARITIES.map(([k, l]) => `<option value="${k}" ${String(item.rarita || 'comune').toLowerCase() === k ? 'selected' : ''}>${l}</option>`).join('')}
+                </select>
             </div>
             <div class="admin-field">
                 <label>Categoria</label>
-                <input name="categoria" value="${escapeHtml(item.categoria || '')}" placeholder="anime, poppy...">
+                ${categories.length ? `<select name="categoria">
+                    <option value="">— nessuna —</option>
+                    ${[...new Set([...(item.categoria && !categories.some((c) => c.toLowerCase() === String(item.categoria).toLowerCase()) ? [item.categoria] : []), ...categories])].map((c) => `<option value="${escapeHtml(c)}" ${String(item.categoria || '').toLowerCase() === c.toLowerCase() ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+                </select><small class="admin-muted">Le categorie si gestiscono nella sezione «Categorie».</small>` : `<input name="categoria" value="${escapeHtml(item.categoria || '')}" placeholder="anime, poppy...">`}
+            </div>
+            <div class="admin-field">
+                <label>Nel catalogo, a chi non lo possiede</label>
+                <select name="catalogo">
+                    ${[['visibile', 'Visibile (silhouette e nome)'], ['segreto', '??? (solo la rarità)'], ['nascosto', 'Nascosto (non ancora uscito)']].map(([k, l]) => `<option value="${k}" ${(item.catalogo || (['segreto', 'theone'].includes(String(item.rarita || '').toLowerCase()) ? 'segreto' : 'visibile')) === k ? 'selected' : ''}>${l}</option>`).join('')}
+                </select>
             </div>
             <div class="admin-field">
                 <label>Video (Nome file o URL)</label>
@@ -693,13 +754,13 @@
                 <input name="caratteristiche_en" value="${escapeHtml(item.caratteristiche_en || '')}" placeholder="Traits separated by commas">
             </div>
             <div class="admin-field" style="display: flex; flex-direction: row; gap: 1.5rem; align-items: center; height: 100%; margin-top: 1.25rem;">
-                <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin-bottom: 0;">
-                    <input type="checkbox" name="pool_evento" id="char_pool_evento" value="1" ${Number(item.pool_evento) === 1 ? 'checked' : ''}>
-                    <span>Pool Evento</span>
-                </label>
-                <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin-bottom: 0;">
+                <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin-bottom: 0;" title="Esce nel banner standard e nel 50/50 perso dei banner evento">
                     <input type="checkbox" name="in_pool_standard" id="char_in_pool_standard" value="1" ${item.in_pool_standard === undefined || Number(item.in_pool_standard) === 1 ? 'checked' : ''}>
                     <span>Pool Standard</span>
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin-bottom: 0;" title="Badge Limitato nell'inventario e costi di potenziamento da limitato">
+                    <input type="checkbox" name="limitato" id="char_limitato" value="1" ${Number(item.limitato) === 1 ? 'checked' : ''}>
+                    <span>Limitato</span>
                 </label>
             </div>
             <div class="admin-field admin-field--full">
@@ -712,8 +773,9 @@
             </div>
         </form>`;
 
-    const openCharacterForm = (item = null) => {
-        openModal(item ? 'Modifica personaggio' : 'Nuovo personaggio', item ? `ID ${item.id}` : '', characterFormHtml(item || {}), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveCharacterBtn">Salva</button>`);
+    const openCharacterForm = async (item = null) => {
+        const categories = await loadCharacterCategories(true);
+        openModal(item ? 'Modifica personaggio' : 'Nuovo personaggio', item ? `ID ${item.id}` : '', characterFormHtml(item || {}, categories), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveCharacterBtn">Salva</button>`);
         
         // Upload handlers
         const imgInput = $('#char_img_file');
@@ -796,8 +858,8 @@
             const form = $('#characterForm');
             if (!form) return;
             const payload = Object.fromEntries(new FormData(form).entries());
-            payload.pool_evento = $('#char_pool_evento')?.checked ? 1 : 0;
             payload.in_pool_standard = $('#char_in_pool_standard')?.checked ? 1 : 0;
+            payload.limitato = $('#char_limitato')?.checked ? 1 : 0;
             try { await api(item ? 'update_character.php' : 'create_character.php', { method: 'POST', body: payload }); closeModal(); showToast('Personaggio salvato.'); loadCharacters(); loadDashboard(); }
             catch (error) { showToast(error.message, true); }
         });
@@ -1759,6 +1821,8 @@
         trackUpload,
         discardPendingUploads,
         getQuery: () => state.q,
+        pagination,
+        refreshCharacterCategories: () => loadCharacterCategories(true),
         registerSection: (name, loader) => {
             externalSections[name] = loader;
             if (state.section === name) loader();

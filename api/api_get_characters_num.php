@@ -1,24 +1,19 @@
-<?php  
+<?php
+/**
+ * Quanti personaggi ci sono nel catalogo, senza quelli nascosti (non ancora
+ * usciti): e' il totale su cui si calcola il completamento.
+ */
+require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/gacha/banners.php';
 
-require_once __DIR__ . '/../config/session_init.php';
-$user_id = $_SESSION['user_id'] ?? 0;
-
-    $stmt = $mysqli->prepare("SELECT count(id) as total FROM personaggi"); 
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $total = 0;
-    if ($row = $result->fetch_assoc()) {
-        $total = (int)$row['total'];
+$total = 0;
+foreach (gacha_characters($mysqli) as $c) {
+    if ($c['catalogo'] !== 'nascosto') {
+        $total++;
     }
-    
-    $stmt->close();
-    
-    header('Content-Type: application/json');
-    echo json_encode($total);
+}
 
-
-
-?>
+header('Content-Type: application/json');
+echo json_encode($total);

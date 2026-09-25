@@ -413,7 +413,25 @@ function admin_character_columns(mysqli $mysqli): array
         'pool_evento' => admin_first_existing_column($mysqli, 'personaggi', ['pool_evento', 'pool_event']),
         'in_pool_standard' => admin_first_existing_column($mysqli, 'personaggi', ['in_pool_standard', 'standard_pool']),
         'ruolo' => admin_first_existing_column($mysqli, 'personaggi', ['ruolo', 'role']),
+        'limitato' => admin_first_existing_column($mysqli, 'personaggi', ['limitato']),
+        'catalogo' => admin_first_existing_column($mysqli, 'personaggi', ['catalogo']),
+        'aggiunto_il' => admin_first_existing_column($mysqli, 'personaggi', ['aggiunto_il']),
     ];
+}
+
+/**
+ * Rarita' di un personaggio dal pannello: solo le chiavi del gacha. Prima era
+ * testo libero, e una rarita' scritta male toglieva il personaggio dai pool
+ * senza nessun errore.
+ */
+function admin_character_rarity(array $input): string
+{
+    require_once __DIR__ . '/../gacha/config.php';
+    $key = gacha_rarity_key((string)($input['rarità'] ?? $input['rarita'] ?? $input['rarity'] ?? ''));
+    if ($key === '') {
+        admin_fail("Rarità non valida: scegline una dall'elenco.");
+    }
+    return $key;
 }
 
 function admin_normalize_media_file($value, array $allowedExtensions, string $fieldLabel): string
