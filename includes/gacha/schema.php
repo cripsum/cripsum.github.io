@@ -79,6 +79,7 @@ function gacha_schema(mysqli $mysqli): array
         'inv_visto' => gacha_has_col($mysqli, 'utenti_personaggi', 'visto'),
         'inv_preferito' => gacha_has_col($mysqli, 'utenti_personaggi', 'preferito'),
         'inv_ultima' => gacha_has_col($mysqli, 'utenti_personaggi', 'ultima_copia_il'),
+        'inv_usate' => gacha_has_col($mysqli, 'utenti_personaggi', 'copie_usate'),
         'history' => gacha_has_table($mysqli, 'gacha_pull_history'),
         'history_v2' => gacha_has_col($mysqli, 'gacha_pull_history', 'gratuita'),
         'wishlist' => gacha_has_table($mysqli, 'utenti_wishlist'),

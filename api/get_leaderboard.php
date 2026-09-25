@@ -12,7 +12,7 @@ try {
             SELECT 
                 u.username,
                 COALESCE(u.is_premium, 0) AS is_premium,
-                SUM(up.quantità) as total_casse
+                SUM(" . cripsum_boxes_sql($mysqli, 'up') . ") as total_casse
             FROM utenti u
             JOIN utenti_personaggi up ON u.id = up.utente_id
             GROUP BY u.id, u.username, u.is_premium

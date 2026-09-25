@@ -28,6 +28,7 @@ try {
 
     $updatedCharacters = [];
     $levelsGained = 0;
+    $hasUsedColumn = gd_has_col($mysqli, 'utenti_personaggi', 'copie_usate');
 
     $mysqli->begin_transaction();
 
@@ -54,12 +55,21 @@ try {
                 continue;
             }
 
-            $upd = $mysqli->prepare('UPDATE utenti_personaggi SET livello = ?, quantità = ? WHERE utente_id = ? AND personaggio_id = ?');
-            if (!$upd) {
-                throw new RuntimeException('Query aggiornamento non valida.');
+            // Le copie consumate restano nelle "casse aperte" (copie_usate).
+            $used = max(1, (int)($row['quantità'] ?? 1)) - $quantity;
+            if ($hasUsedColumn) {
+                $upd = $mysqli->prepare('UPDATE utenti_personaggi SET livello = ?, quantità = ?, copie_usate = copie_usate + ? WHERE utente_id = ? AND personaggio_id = ?');
+                if (!$upd) {
+                    throw new RuntimeException('Query aggiornamento non valida.');
+                }
+                $upd->bind_param('iiiii', $level, $quantity, $used, $uid, $characterId);
+            } else {
+                $upd = $mysqli->prepare('UPDATE utenti_personaggi SET livello = ?, quantità = ? WHERE utente_id = ? AND personaggio_id = ?');
+                if (!$upd) {
+                    throw new RuntimeException('Query aggiornamento non valida.');
+                }
+                $upd->bind_param('iiii', $level, $quantity, $uid, $characterId);
             }
-
-            $upd->bind_param('iiii', $level, $quantity, $uid, $characterId);
             $upd->execute();
             $upd->close();
 

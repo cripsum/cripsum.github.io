@@ -71,7 +71,7 @@ function gacha_award_achievements(mysqli $mysqli, int $userId): array
         }
 
         if (array_intersect([GACHA_ACH_100_BOXES, GACHA_ACH_500_BOXES, GACHA_ACH_100_CHARACTERS], $missing)) {
-            $stmt = $mysqli->prepare('SELECT COALESCE(SUM(`quantità`), 0) AS casse, COUNT(*) AS unici FROM utenti_personaggi WHERE utente_id = ?');
+            $stmt = $mysqli->prepare('SELECT COALESCE(SUM(' . cripsum_boxes_sql($mysqli) . '), 0) AS casse, COUNT(*) AS unici FROM utenti_personaggi WHERE utente_id = ?');
             $stmt->bind_param('i', $userId);
             $stmt->execute();
             $row = $stmt->get_result()->fetch_assoc() ?: [];

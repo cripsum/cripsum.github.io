@@ -39,6 +39,7 @@ function gacha_owned_rows(mysqli $mysqli, int $userId, bool $forUpdate = false):
     if ($schema['inv_visto']) $cols[] = 'visto';
     if ($schema['inv_preferito']) $cols[] = 'preferito';
     if ($schema['inv_ultima']) $cols[] = 'ultima_copia_il';
+    if ($schema['inv_usate']) $cols[] = 'copie_usate';
 
     $stmt = $mysqli->prepare('SELECT ' . implode(', ', $cols) . ' FROM utenti_personaggi WHERE utente_id = ?' . ($forUpdate ? ' FOR UPDATE' : ''));
     $stmt->bind_param('i', $userId);
@@ -53,6 +54,7 @@ function gacha_owned_rows(mysqli $mysqli, int $userId, bool $forUpdate = false):
             'visto' => (int)($row['visto'] ?? 1) === 1,
             'preferito' => (int)($row['preferito'] ?? 0) === 1,
             'ultima' => $row['ultima_copia_il'] ?? ($row['data'] ?? null),
+            'usate' => max(0, (int)($row['copie_usate'] ?? 0)),
         ];
     }
     $stmt->close();
@@ -138,18 +140,46 @@ function gacha_week_end(): int
 }
 
 /**
- * La rotazione della settimana: per ogni rarita' del negozio, alcuni
- * personaggi del pool standard scelti in modo deterministico dalla
- * settimana (tutti vedono gli stessi, e non cambiano ricaricando).
+ * Il negozio della settimana di un utente.
+ *
+ * Si genera la prima volta che lo apre nella settimana e poi resta fisso
+ * (tabella gacha_frammenti_negozio): comprare un personaggio non ne fa
+ * comparire un altro al suo posto. Per ogni rarita' vengono prima i
+ * personaggi che l'utente non ha ancora, poi gli altri; l'ordine dipende da
+ * settimana e utente, quindi cambia ogni lunedi' e non e' uguale per tutti.
+ * Solo personaggi del pool standard: i limitati non si comprano.
  */
-function gacha_frammenti_rotation(mysqli $mysqli, ?string $week = null): array
+function gacha_frammenti_rotation(mysqli $mysqli, int $userId, ?array $owned = null, ?string $week = null): array
 {
     $week ??= gacha_week_key();
+    $stored = gacha_has_table($mysqli, 'gacha_frammenti_negozio');
+    $chars = gacha_characters($mysqli);
+
+    if ($stored) {
+        try {
+            $stmt = $mysqli->prepare('SELECT personaggio_id, rarita, prezzo FROM gacha_frammenti_negozio WHERE utente_id = ? AND settimana = ? ORDER BY posizione ASC');
+            $stmt->bind_param('is', $userId, $week);
+            $stmt->execute();
+            $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            if ($rows) {
+                return array_values(array_filter(array_map(static fn($r) => [
+                    'personaggio_id' => (int)$r['personaggio_id'],
+                    'rarita' => (string)$r['rarita'],
+                    'prezzo' => (int)$r['prezzo'],
+                ], $rows), static fn($r) => isset($chars[$r['personaggio_id']])));
+            }
+        } catch (Throwable $e) {
+            error_log('[gacha negozio] ' . $e->getMessage());
+        }
+    }
+
+    $owned ??= $userId > 0 ? gacha_owned_rows($mysqli, $userId) : [];
     $slots = gacha_frammenti_slot();
     $prices = gacha_frammenti_prezzi();
     $byRarity = [];
-    foreach (gacha_characters($mysqli) as $c) {
-        if ($c['in_pool_standard'] && $c['rarita_valida'] && $c['catalogo'] !== 'nascosto' && isset($slots[$c['rarita']])) {
+    foreach ($chars as $c) {
+        if ($c['in_pool_standard'] && !$c['limitato'] && $c['rarita_valida'] && $c['catalogo'] !== 'nascosto' && isset($slots[$c['rarita']])) {
             $byRarity[$c['rarita']][] = $c;
         }
     }
@@ -157,11 +187,36 @@ function gacha_frammenti_rotation(mysqli $mysqli, ?string $week = null): array
     $items = [];
     foreach ($slots as $rarity => $count) {
         $list = $byRarity[$rarity] ?? [];
-        usort($list, static fn($a, $b) => crc32($week . '#' . $a['id']) <=> crc32($week . '#' . $b['id']));
+        usort($list, static function ($a, $b) use ($owned, $week, $userId) {
+            $missingA = isset($owned[$a['id']]) ? 1 : 0;
+            $missingB = isset($owned[$b['id']]) ? 1 : 0;
+            return [$missingA, crc32("$week#$userId#{$a['id']}")] <=> [$missingB, crc32("$week#$userId#{$b['id']}")];
+        });
         foreach (array_slice($list, 0, $count) as $c) {
             $items[] = ['personaggio_id' => $c['id'], 'rarita' => $rarity, 'prezzo' => $prices[$rarity]];
         }
     }
+
+    if ($stored && $userId > 0 && $items) {
+        try {
+            // Le settimane passate non servono piu'.
+            $stmt = $mysqli->prepare('DELETE FROM gacha_frammenti_negozio WHERE utente_id = ? AND settimana <> ?');
+            $stmt->bind_param('is', $userId, $week);
+            $stmt->execute();
+            $stmt->close();
+
+            $stmt = $mysqli->prepare('INSERT IGNORE INTO gacha_frammenti_negozio (utente_id, settimana, personaggio_id, rarita, prezzo, posizione) VALUES (?, ?, ?, ?, ?, ?)');
+            foreach ($items as $i => $item) {
+                $pos = $i;
+                $stmt->bind_param('isisii', $userId, $week, $item['personaggio_id'], $item['rarita'], $item['prezzo'], $pos);
+                $stmt->execute();
+            }
+            $stmt->close();
+        } catch (Throwable $e) {
+            error_log('[gacha negozio] ' . $e->getMessage());
+        }
+    }
+
     return $items;
 }
 
@@ -189,6 +244,12 @@ function gacha_collection_payload(mysqli $mysqli, int $userId, string $lang): ar
             'key' => $banner['key'],
             'nome' => ($lang === 'en' && $banner['nome_en']) ? $banner['nome_en'] : $banner['nome'],
             'stato' => $status,
+            'tipo' => $banner['tipo'],
+            'img' => gacha_media($banner['thumb'] ?: ($banner['sfondo'] ?: ($banner['featured'] ? ($chars[$banner['featured'][0]['id']]['img_url'] ?? null) : null))),
+            'arte' => gacha_media($banner['arte'] ?: ($banner['featured'] ? ($chars[$banner['featured'][0]['id']]['img_url'] ?? null) : null)),
+            'costo' => $banner['costo'],
+            'data_inizio' => gacha_iso($banner['data_inizio']),
+            'data_fine' => gacha_iso($banner['data_fine']),
         ];
         foreach ($banner['featured'] as $entry) {
             $inBanners[$entry['id']][] = $banner['key'];
@@ -286,9 +347,10 @@ function gacha_collection_payload(mysqli $mysqli, int $userId, string $lang): ar
         ];
     }
 
+    // Casse aperte: copie possedute piu' quelle spese (potenziamenti, frammenti).
     $boxes = 0;
     foreach ($owned as $own) {
-        $boxes += $own['quantita'];
+        $boxes += $own['quantita'] + $own['usate'];
     }
 
     return [
@@ -401,7 +463,7 @@ function gacha_frammenti_public(mysqli $mysqli, int $userId, array $owned): ?arr
 
     $chars = gacha_characters($mysqli);
     $items = [];
-    foreach (gacha_frammenti_rotation($mysqli, $week) as $item) {
+    foreach (gacha_frammenti_rotation($mysqli, $userId, $owned, $week) as $item) {
         $c = $chars[$item['personaggio_id']] ?? null;
         if (!$c) {
             continue;
@@ -414,6 +476,7 @@ function gacha_frammenti_public(mysqli $mysqli, int $userId, array $owned): ?arr
             'prezzo' => $item['prezzo'],
             'comprato' => isset($bought[$c['id']]),
             'posseduti' => $owned[$c['id']]['quantita'] ?? 0,
+            'nuovo' => !isset($owned[$c['id']]),
         ];
     }
 
@@ -537,7 +600,7 @@ function gacha_action_wishlist(mysqli $mysqli, int $userId, int $characterId, bo
  * se $characterId e' 0. Tiene sempre la copia base e quelle che servono
  * ancora ai potenziamenti fino al MAX.
  */
-function gacha_action_convert(mysqli $mysqli, int $userId, int $characterId = 0, ?int $copies = null): array
+function gacha_action_convert(mysqli $mysqli, int $userId, int $characterId = 0, ?int $copies = null, array $rarities = []): array
 {
     if (!gacha_schema($mysqli)['frammenti']) {
         throw new GachaActionException('Funzione non ancora disponibile.', 503);
@@ -554,13 +617,21 @@ function gacha_action_convert(mysqli $mysqli, int $userId, int $characterId = 0,
 
         $owned = gacha_owned_rows($mysqli, $userId, true);
         $targets = $characterId > 0 ? [$characterId => $owned[$characterId] ?? null] : $owned;
+        // Senza personaggio si puo' scegliere quali rarita' convertire.
+        $rarities = array_values(array_filter(array_map('gacha_rarity_key', $rarities)));
+        if ($characterId <= 0 && $rarities) {
+            $targets = array_filter($targets, static fn($own, $id) => isset($chars[$id]) && in_array($chars[$id]['rarita'], $rarities, true), ARRAY_FILTER_USE_BOTH);
+        }
         if ($characterId > 0 && !$targets[$characterId]) {
             throw new GachaActionException('Non possiedi questo personaggio.', 403);
         }
 
         $gained = 0;
         $converted = [];
-        $upd = $mysqli->prepare('UPDATE utenti_personaggi SET `quantità` = `quantità` - ? WHERE utente_id = ? AND personaggio_id = ? AND `quantità` > ?');
+        // Le copie convertite restano nelle "casse aperte" (copie_usate).
+        $upd = gacha_schema($mysqli)['inv_usate']
+            ? $mysqli->prepare('UPDATE utenti_personaggi SET `quantità` = `quantità` - ?, copie_usate = copie_usate + ? WHERE utente_id = ? AND personaggio_id = ? AND `quantità` > ?')
+            : $mysqli->prepare('UPDATE utenti_personaggi SET `quantità` = `quantità` - ? WHERE utente_id = ? AND personaggio_id = ? AND `quantità` > ?');
         foreach ($targets as $id => $own) {
             $c = $chars[$id] ?? null;
             if (!$c || !$own || !isset($values[$c['rarita']])) {
@@ -571,7 +642,11 @@ function gacha_action_convert(mysqli $mysqli, int $userId, int $characterId = 0,
             if ($n <= 0) {
                 continue;
             }
-            $upd->bind_param('iiii', $n, $userId, $id, $n);
+            if (gacha_schema($mysqli)['inv_usate']) {
+                $upd->bind_param('iiiii', $n, $n, $userId, $id, $n);
+            } else {
+                $upd->bind_param('iiii', $n, $userId, $id, $n);
+            }
             gacha_exec($upd, 'conversione');
             if ($upd->affected_rows > 0) {
                 $gained += $n * $values[$c['rarita']];
@@ -616,7 +691,7 @@ function gacha_action_buy(mysqli $mysqli, int $userId, int $characterId): array
     }
     $week = gacha_week_key();
     $item = null;
-    foreach (gacha_frammenti_rotation($mysqli, $week) as $candidate) {
+    foreach (gacha_frammenti_rotation($mysqli, $userId, null, $week) as $candidate) {
         if ($candidate['personaggio_id'] === $characterId) {
             $item = $candidate;
         }

@@ -7,7 +7,7 @@ declare(strict_types=1);
  *   visto        { ids: [..] }            spegne il badge NEW (vuoto = tutti)
  *   preferito    { id, on }
  *   wishlist     { id, on }
- *   converti     { id?, copie? }          copie in eccesso → frammenti (senza id: tutte)
+ *   converti     { id?, copie?, rarita? } copie in eccesso → frammenti (senza id: tutte, o solo quelle rarita')
  *   compra       { id }                   personaggio dal negozio dei frammenti
  *   collezione   { categoria_id }         premio della collezione completa
  *   destino      { banner, id }           bersaglio del rate-up (id 0 = nessuno)
@@ -39,7 +39,8 @@ try {
             // no break
         case 'converti':
             $copies = isset($input['copie']) ? (int)$input['copie'] : null;
-            gacha_api_json(['ok' => true] + gacha_action_convert($mysqli, $gachaUserId, $id, $copies));
+            $rarities = is_array($input['rarita'] ?? null) ? $input['rarita'] : [];
+            gacha_api_json(['ok' => true] + gacha_action_convert($mysqli, $gachaUserId, $id, $copies, $rarities));
             // no break
         case 'compra':
             gacha_api_json(['ok' => true] + gacha_action_buy($mysqli, $gachaUserId, $id));

@@ -101,8 +101,9 @@ $ogImage = '/img/waguri.jpeg';
                 <i class="fa-solid fa-tags" aria-hidden="true"></i> <?= $gEn ? 'Collections' : 'Collezioni' ?> <span class="inv-tab__dot" data-claim-dot hidden></span>
             </button>
             <button type="button" role="tab" class="inv-tab" data-tab="frammenti" aria-selected="false">
-                <i class="fa-solid fa-gem" aria-hidden="true"></i> <?= $gEn ? 'Fragments' : 'Frammenti' ?>
+                <img src="/img/frammento.svg" alt="" class="inv-tab__img" aria-hidden="true"> <?= $gEn ? 'Fragments' : 'Frammenti' ?>
             </button>
+            <span class="inv-tabs__ink" data-tab-ink aria-hidden="true"></span>
         </nav>
 
         <section class="inv-panel" data-panel="collezione">
@@ -119,7 +120,8 @@ $ogImage = '/img/waguri.jpeg';
                 </button>
             </div>
 
-            <div class="inv-filters" data-filters hidden>
+            <div class="inv-filters" data-filters>
+                <div class="inv-filters__inner">
                 <div class="inv-filters__group">
                     <span class="inv-filters__label"><?= $gEn ? 'Show' : 'Mostra' ?></span>
                     <div class="inv-chips" data-status-chips></div>
@@ -129,24 +131,8 @@ $ogImage = '/img/waguri.jpeg';
                     <div class="inv-chips" data-category-chips></div>
                 </div>
                 <div class="inv-filters__row">
-                    <label class="inv-select">
-                        <span><?= $gEn ? 'Sort by' : 'Ordina per' ?></span>
-                        <select data-sort>
-                            <option value="rarity"><?= $gEn ? 'Rarity' : 'Rarità' ?></option>
-                            <option value="recent"><?= $gEn ? 'Most recent' : 'Più recenti' ?></option>
-                            <option value="name"><?= $gEn ? 'Name' : 'Nome' ?></option>
-                            <option value="quantity"><?= $gEn ? 'Copies' : 'Copie' ?></option>
-                            <option value="level"><?= $gEn ? 'Level' : 'Livello' ?></option>
-                        </select>
-                    </label>
-                    <label class="inv-select">
-                        <span><?= $gEn ? 'Group by' : 'Raggruppa' ?></span>
-                        <select data-group>
-                            <option value="rarity"><?= $gEn ? 'Rarity' : 'Rarità' ?></option>
-                            <option value="category"><?= $gEn ? 'Category' : 'Categoria' ?></option>
-                            <option value="none"><?= $gEn ? 'None' : 'Nessuno' ?></option>
-                        </select>
-                    </label>
+                    <div class="inv-dd" data-dd="sort" data-label="<?= $gEn ? 'Sort by' : 'Ordina per' ?>"></div>
+                    <div class="inv-dd" data-dd="group" data-label="<?= $gEn ? 'Group by' : 'Raggruppa' ?>"></div>
                     <div class="inv-density" role="group" aria-label="<?= $gEn ? 'Card size' : 'Dimensione carte' ?>">
                         <button type="button" data-density="comfortable" title="<?= $gEn ? 'Large cards' : 'Carte grandi' ?>"><i class="fa-solid fa-table-cells-large"></i></button>
                         <button type="button" data-density="compact" title="<?= $gEn ? 'Compact' : 'Compatte' ?>"><i class="fa-solid fa-table-cells"></i></button>
@@ -154,6 +140,7 @@ $ogImage = '/img/waguri.jpeg';
                     <button type="button" class="inv-btn inv-btn--ghost" data-reset>
                         <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> <?= $gEn ? 'Reset' : 'Azzera' ?>
                     </button>
+                </div>
                 </div>
             </div>
 

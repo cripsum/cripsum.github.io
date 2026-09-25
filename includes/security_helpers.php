@@ -82,6 +82,23 @@ function auth_column_exists(mysqli $mysqli, string $table, string $column): bool
     }
 }
 
+/**
+ * SQL delle "casse aperte" di una riga di utenti_personaggi: le copie che
+ * possiedi piu' quelle usate per potenziamenti e frammenti. Prima era la sola
+ * quantita', e ogni potenziamento faceva scendere la classifica. Senza la
+ * colonna (migration non applicata) resta la quantita'.
+ *
+ * $alias e' l'alias della tabella nella query ('up'), vuoto se non c'e'.
+ */
+function cripsum_boxes_sql(mysqli $mysqli, string $alias = ''): string
+{
+    $prefix = $alias !== '' ? '`' . preg_replace('/[^a-z0-9_]/i', '', $alias) . '`.' : '';
+
+    return auth_column_exists($mysqli, 'utenti_personaggi', 'copie_usate')
+        ? "({$prefix}`quantità` + {$prefix}`copie_usate`)"
+        : "{$prefix}`quantità`";
+}
+
 function csrf_token(): string
 {
     if (empty($_SESSION['csrf_token'])) {

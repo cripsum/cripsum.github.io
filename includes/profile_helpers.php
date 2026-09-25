@@ -499,7 +499,7 @@ function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
             GROUP BY utente_id
         ) ach ON ach.utente_id = u.id
         LEFT JOIN (
-            SELECT utente_id, COUNT(DISTINCT personaggio_id) AS num_personaggi, COALESCE(SUM(`quantità`), 0) AS total_personaggi
+            SELECT utente_id, COUNT(DISTINCT personaggio_id) AS num_personaggi, COALESCE(SUM(" . cripsum_boxes_sql($mysqli) . "), 0) AS total_personaggi
             FROM utenti_personaggi
             GROUP BY utente_id
         ) inv ON inv.utente_id = u.id
@@ -649,7 +649,7 @@ function profile_get_public_profile_by_alias(mysqli $mysqli, string $alias): ?ar
             GROUP BY utente_id
         ) ach ON ach.utente_id = u.id
         LEFT JOIN (
-            SELECT utente_id, COUNT(DISTINCT personaggio_id) AS num_personaggi, COALESCE(SUM(`quantità`), 0) AS total_personaggi
+            SELECT utente_id, COUNT(DISTINCT personaggio_id) AS num_personaggi, COALESCE(SUM(" . cripsum_boxes_sql($mysqli) . "), 0) AS total_personaggi
             FROM utenti_personaggi
             GROUP BY utente_id
         ) inv ON inv.utente_id = u.id

@@ -65,8 +65,14 @@ try {
         $nextLevel = $currentLevel + 1;
         $newQuantity = $quantity - $requiredCopies;
 
-        $upd = $mysqli->prepare('UPDATE utenti_personaggi SET livello = ?, quantità = ? WHERE utente_id = ? AND personaggio_id = ?');
-        $upd->bind_param('iiii', $nextLevel, $newQuantity, $uid, $characterId);
+        // Le copie consumate restano nelle "casse aperte" (copie_usate).
+        if (gd_has_col($mysqli, 'utenti_personaggi', 'copie_usate')) {
+            $upd = $mysqli->prepare('UPDATE utenti_personaggi SET livello = ?, quantità = ?, copie_usate = copie_usate + ? WHERE utente_id = ? AND personaggio_id = ?');
+            $upd->bind_param('iiiii', $nextLevel, $newQuantity, $requiredCopies, $uid, $characterId);
+        } else {
+            $upd = $mysqli->prepare('UPDATE utenti_personaggi SET livello = ?, quantità = ? WHERE utente_id = ? AND personaggio_id = ?');
+            $upd->bind_param('iiii', $nextLevel, $newQuantity, $uid, $characterId);
+        }
         $upd->execute();
         $upd->close();
 

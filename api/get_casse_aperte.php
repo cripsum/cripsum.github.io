@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/session_init.php';
 $user_id = $_SESSION['user_id'] ?? 0;
 
-    $stmt = $mysqli->prepare("SELECT SUM(quantità) as total FROM utenti_personaggi WHERE utente_id = ?");
+    $stmt = $mysqli->prepare('SELECT SUM(' . cripsum_boxes_sql($mysqli) . ') as total FROM utenti_personaggi WHERE utente_id = ?');
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();

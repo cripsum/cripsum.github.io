@@ -43,7 +43,7 @@ $stmt = $mysqli->prepare("
     ) ach ON ach.utente_id = u.id
     LEFT JOIN (
         SELECT utente_id, COUNT(DISTINCT personaggio_id) AS num_personaggi,
-               COALESCE(SUM(`quantità`), 0) AS total_personaggi
+               COALESCE(SUM(" . cripsum_boxes_sql($mysqli) . "), 0) AS total_personaggi
         FROM utenti_personaggi GROUP BY utente_id
     ) inv ON inv.utente_id = u.id
     WHERE COALESCE(u.isBannato, 0) = 0

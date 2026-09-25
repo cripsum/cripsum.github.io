@@ -242,6 +242,7 @@ function gacha_frammenti_prezzi(): array
         'epico' => 100,
         'leggendario' => 250,
         'speciale' => 400,
+        'segreto' => 1500,
     ];
 }
 
@@ -253,6 +254,7 @@ function gacha_frammenti_slot(): array
         'epico' => 2,
         'leggendario' => 1,
         'speciale' => 1,
+        'segreto' => 1,
     ];
 }
 

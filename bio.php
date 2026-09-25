@@ -120,7 +120,7 @@ $achievementCount = (int) fetchSingleValue(
     $user_cercato_id
 );
 
-$inventoryStmt = $mysqli->prepare('SELECT COUNT(DISTINCT personaggio_id) AS unique_characters, COALESCE(SUM(`quantità`), 0) AS total_pulls FROM utenti_personaggi WHERE utente_id = ?');
+$inventoryStmt = $mysqli->prepare('SELECT COUNT(DISTINCT personaggio_id) AS unique_characters, COALESCE(SUM(' . cripsum_boxes_sql($mysqli) . '), 0) AS total_pulls FROM utenti_personaggi WHERE utente_id = ?');
 $uniqueCharacters = 0;
 $totalPulls = 0;
 

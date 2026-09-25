@@ -231,7 +231,7 @@ function profile_stats_raw(mysqli $mysqli, array $profile, array $keys, string $
 
     $owned = static fn() => $once('owned', static fn() => array_key_exists('num_personaggi', $profile)
         ? ['n' => (int)$profile['num_personaggi'], 'qty' => (int)$profile['total_personaggi']]
-        : (profile_stats_row($mysqli, 'SELECT COUNT(DISTINCT personaggio_id) AS n, COALESCE(SUM(`quantità`), 0) AS qty FROM utenti_personaggi WHERE utente_id = ?', 'i', [$userId]) ?? ['n' => null, 'qty' => null]));
+        : (profile_stats_row($mysqli, 'SELECT COUNT(DISTINCT personaggio_id) AS n, COALESCE(SUM(' . cripsum_boxes_sql($mysqli) . '), 0) AS qty FROM utenti_personaggi WHERE utente_id = ?', 'i', [$userId]) ?? ['n' => null, 'qty' => null]));
 
     $achievements = static fn() => $once('achievements', static fn() => array_key_exists('num_achievement', $profile)
         ? (int)$profile['num_achievement']
