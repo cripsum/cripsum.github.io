@@ -5,8 +5,14 @@
  *
  * Si include da it/lootbox.php ed en/lootbox.php con $gachaLang impostata.
  * I banner arrivano da gacha_lootbox_state() (motore in includes/gacha/):
- * qui si disegnano e basta. La parte della pull (overlay, carta, video,
- * effetti) e' identica a prima e la guida js/gacha.js.
+ * qui si disegnano e basta.
+ *
+ * - Schermata iniziale: stili in css/lootbox-v3.css, comportamento in
+ *   js/lootbox-ui.js (cambio banner, arte, conti alla rovescia, premium).
+ * - Pop-up (impostazioni, classifica, cronologia, dettagli, valute): sono
+ *   <dialog> gestiti da js/lootbox-modal.js, stili in css/lootbox-modal.css.
+ * - La pull (overlay, carta, video, effetti, riepilogo) e' identica a prima
+ *   e la guida js/gacha.js: gli id e i data- che legge restano quelli.
  *
  * Attenzione ai nomi: head-import.php e la navbar sovrascrivono $t, $lang,
  * $ruolo e $userId. Le variabili della pagina usano il prefisso $g.
@@ -64,50 +70,53 @@ if (!in_array($gActive, array_column($gBanners, 'key'), true)) {
 }
 
 $G = $gEn ? [
-    'always' => '✦ Always Available',
-    'type_evento' => '✦ LIMITED BANNER',
-    'type_selezione' => '✦ SELECTION BANNER',
-    'type_principiante' => '✦ BEGINNER BANNER',
-    'soon_badge' => '✦ COMING SOON',
-    'premium_only' => 'Premium only',
-    'rateup' => 'Rate-Up ✦',
-    'rateup_many' => 'Rate-Up characters',
-    'guaranteed' => 'Guaranteed active — next rare is the rate-up',
-    'pity_std' => 'Standard Pity',
-    'pity_evt' => 'Limited Pity',
-    'pity_own' => 'Banner Pity',
-    'pity_shared' => 'Shared with the other limited banners',
-    'pity_std_hard' => '★ Guaranteed: next pull is Special or Secret!',
-    'pity_std_soft' => '✦ Soft pity — % Special or Secret increased',
-    'pity_std_count' => 'Guaranteed Special or Secret in %d pulls',
-    'pity_evt_soft' => '✦ Soft pity active — rates increasing',
-    'pity_evt_count' => 'Secret guaranteed in %d pulls',
-    'pity_gen_hard' => '★ Guaranteed: next pull is %s or higher!',
-    'pity_gen_count' => '%s or higher guaranteed in %d pulls',
-    'ends_in' => 'Remaining time',
+    'kind_standard' => 'Always available',
+    'kind_evento' => 'Limited banner',
+    'kind_selezione' => 'Selection banner',
+    'kind_principiante' => 'Beginner banner',
+    'kind_soon' => 'Coming soon',
+    'ends_in' => 'Ends in',
     'starts_in' => 'Starts in',
-    'days' => 'days', 'hours' => 'hours', 'mins' => 'mins',
-    'godos_tip' => 'Free currency obtained by using the website.',
-    'shards_tip' => 'Premium currency used to pull.',
-    'buy_shards' => 'Buy Godo Shards',
-    'free' => '• Free',
-    'cost' => '• Cost: %s Godos or %d Shard',
-    'open1' => 'Open 1×', 'open10' => 'Open 10×', 'multi10' => 'Open 10×',
-    'free_today' => '%d free today',
+    'no_end' => 'No end date',
+    'premium_only' => 'Premium only',
+    'rateup' => 'Rate-up',
+    'pool' => 'Pool',
+    'pool_all' => '%d characters',
+    'pool_cat' => 'Category “%s”',
+    'pity' => 'Pity',
+    'pity_shared' => 'Shared with the other limited banners',
+    'pity_next' => '%s guaranteed on the next pull',
+    'pity_soft' => 'Soft pity active · odds rising',
+    'pity_within' => '%s guaranteed within <b>%d</b>',
+    'tier_std' => 'Special or Secret',
+    'tier_up' => '%s or higher',
+    'guaranteed' => 'Guaranteed: the next %s is a rate-up',
+    'free_today' => '%d free pull today',
+    'free_today_n' => '%d free pulls today',
     'limit_total' => '%d / %d pulls used',
     'limit_day' => '%d / %d pulls today',
-    'multi_guarantee' => 'Every 10× has at least one Epic or higher',
-    'details' => 'Details & rates',
-    'destiny' => 'Choose your rate-up',
+    'destiny' => 'Destiny',
+    'destiny_none' => 'none',
     'destiny_help' => 'If you win a rate-up that is not your target %d times, the next one is your target.',
-    'destiny_none' => 'No target',
     'destiny_points' => 'Destiny %d/%d',
+    'open1' => 'Open 1×', 'open10' => 'Open 10×',
+    'or' => 'or',
+    'free' => 'Free',
+    'free_badge' => 'FREE',
+    'free_sub' => 'costs nothing today',
+    'buy_shards' => 'Buy Godo Shards',
+    'details' => 'Details & rates',
     'soon_note' => 'Available from %s',
     'standard_name' => 'Standard Banner',
-    'sidebar' => 'Banners', 'sidebar_soon' => 'Coming soon',
-    'tag_standard' => 'Standard', 'tag_evento' => 'Limited', 'tag_selezione' => 'Selection', 'tag_principiante' => 'Beginner', 'tag_soon' => 'Soon',
-    'premium_claim' => 'Premium Claim', 'claimed' => 'Claimed today (Reset in <span class="claim-countdown">--:--:--</span>)', 'claim' => 'Claim 500 Points',
-    'settings' => 'Settings', 'leaderboard' => 'Leaderboard', 'inventory' => 'Inventory', 'history' => 'Pull History',
+    'sidebar' => 'Banners',
+    'group_always' => 'Always available', 'group_events' => 'Events', 'group_soon' => 'Coming soon',
+    'all' => 'All',
+    'card_free' => '%d free',
+    'card_left' => '%d left',
+    'premium' => 'Premium', 'premium_sub' => '500 Godos a day', 'premium_again' => 'Again in', 'claim' => 'Claim',
+    'settings' => 'Settings', 'leaderboard' => 'Leaderboard', 'inventory' => 'Inventory', 'history' => 'History',
+    'close_x' => 'Close',
+    // Overlay della pull: come prima.
     'win5050' => '<i class="fa-solid fa-trophy"></i> 50/50 Won!',
     'loss5050' => 'Guaranteed activated for the next pull',
     'again' => '<i class="fa-solid fa-rotate-right"></i> Open Again',
@@ -115,50 +124,52 @@ $G = $gEn ? [
     'see_inventory' => '<i class="fa-solid fa-layer-group"></i> View Inventory',
     'tap_audio' => 'Tap for audio',
 ] : [
-    'always' => '✦ SEMPRE DISPONIBILE',
-    'type_evento' => '✦ BANNER EVENTO',
-    'type_selezione' => '✦ BANNER SELEZIONE',
-    'type_principiante' => '✦ BANNER PRINCIPIANTE',
-    'soon_badge' => '✦ PROSSIMAMENTE',
-    'premium_only' => 'Solo Premium',
-    'rateup' => 'Rate-Up ✦',
-    'rateup_many' => 'Personaggi in rate-up',
-    'guaranteed' => 'Garantito attivo — prossima rara è il rate-up',
-    'pity_std' => 'Pity Standard',
-    'pity_evt' => 'Pity Evento',
-    'pity_own' => 'Pity del banner',
-    'pity_shared' => 'Condiviso con gli altri banner evento',
-    'pity_std_hard' => '★ Garantito: prossima pull è Speciale o Segreto!',
-    'pity_std_soft' => '✦ Soft pity — % Speciale o Segreto aumentata',
-    'pity_std_count' => 'Garantito Speciale o Segreto in %d pull',
-    'pity_evt_soft' => '✦ Soft pity attivo — probabilità in aumento',
-    'pity_evt_count' => 'Garantito segreto in %d pull',
-    'pity_gen_hard' => '★ Garantito: prossima pull è %s o superiore!',
-    'pity_gen_count' => 'Garantito %s o superiore in %d pull',
-    'ends_in' => 'Scade tra',
+    'kind_standard' => 'Sempre disponibile',
+    'kind_evento' => 'Banner evento',
+    'kind_selezione' => 'Banner selezione',
+    'kind_principiante' => 'Banner principiante',
+    'kind_soon' => 'In arrivo',
+    'ends_in' => 'Finisce tra',
     'starts_in' => 'Inizia tra',
-    'days' => 'gg', 'hours' => 'ore', 'mins' => 'min',
-    'godos_tip' => 'Valuta gratuita ottenibile usando il sito.',
-    'shards_tip' => 'Valuta premium usata per pullare.',
-    'buy_shards' => 'Acquista Godo Shards',
-    'free' => '• Gratuito',
-    'cost' => '• Costo: %s Godos o %d Shard',
-    'open1' => 'Apri 1×', 'open10' => 'Apri 10×', 'multi10' => 'Multi 10×',
-    'free_today' => '%d gratis oggi',
+    'no_end' => 'Senza scadenza',
+    'premium_only' => 'Solo Premium',
+    'rateup' => 'Rate-up',
+    'pool' => 'Pool',
+    'pool_all' => '%d personaggi',
+    'pool_cat' => 'Categoria «%s»',
+    'pity' => 'Pity',
+    'pity_shared' => 'Condiviso con gli altri banner evento',
+    'pity_next' => '%s garantito alla prossima',
+    'pity_soft' => 'Soft pity attivo · probabilità in salita',
+    'pity_within' => '%s garantito entro <b>%d</b>',
+    'tier_std' => 'Speciale o Segreto',
+    'tier_up' => '%s o superiore',
+    'guaranteed' => 'Garantito: il prossimo %s è un rate-up',
+    'free_today' => '%d pull gratis oggi',
+    'free_today_n' => '%d pull gratis oggi',
     'limit_total' => '%d / %d pull usate',
     'limit_day' => '%d / %d pull oggi',
-    'multi_guarantee' => 'Ogni 10× ha almeno un Epico o superiore',
-    'details' => 'Dettagli e probabilità',
-    'destiny' => 'Scegli il tuo rate-up',
+    'destiny' => 'Destino',
+    'destiny_none' => 'nessuno',
     'destiny_help' => 'Se vinci %d volte un rate-up diverso dal tuo bersaglio, il successivo è il bersaglio.',
-    'destiny_none' => 'Nessun bersaglio',
     'destiny_points' => 'Destino %d/%d',
+    'open1' => 'Apri 1×', 'open10' => 'Apri 10×',
+    'or' => 'o',
+    'free' => 'Gratis',
+    'free_badge' => 'GRATIS',
+    'free_sub' => 'oggi non costa nulla',
+    'buy_shards' => 'Acquista Godo Shards',
+    'details' => 'Dettagli e probabilità',
     'soon_note' => 'Disponibile dal %s',
     'standard_name' => 'Banner Standard',
-    'sidebar' => 'Banner', 'sidebar_soon' => 'Prossimamente',
-    'tag_standard' => 'Standard', 'tag_evento' => 'Evento', 'tag_selezione' => 'Selezione', 'tag_principiante' => 'Principiante', 'tag_soon' => 'In arrivo',
-    'premium_claim' => 'Riscatto Premium', 'claimed' => 'Riscattato oggi (Ricarica tra <span class="claim-countdown">--:--:--</span>)', 'claim' => 'Riscatta 500 Punti',
+    'sidebar' => 'Banner',
+    'group_always' => 'Sempre disponibili', 'group_events' => 'Eventi', 'group_soon' => 'In arrivo',
+    'all' => 'Tutti',
+    'card_free' => '%d gratis',
+    'card_left' => '%d rimaste',
+    'premium' => 'Premium', 'premium_sub' => '500 Godos al giorno', 'premium_again' => 'Di nuovo tra', 'claim' => 'Riscatta',
     'settings' => 'Impostazioni', 'leaderboard' => 'Classifica', 'inventory' => 'Inventario', 'history' => 'Cronologia',
+    'close_x' => 'Chiudi',
     'win5050' => '<i class="fa-solid fa-trophy"></i> Rate-Up Vinto!',
     'loss5050' => 'Garantito attivato per la prossima pull',
     'again' => '<i class="fa-solid fa-rotate-right"></i> Apri ancora',
@@ -168,329 +179,427 @@ $G = $gEn ? [
 ];
 
 $h = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+$gFmt = static fn($n) => number_format((int)$n, 0, $gEn ? '.' : ',', $gEn ? ',' : '.');
+$gProfiles = gacha_pity_profiles();
 
-/** Il testo sotto la barra del pity, come lo scriveva la pagina di prima. */
-function gacha_page_pity_note(array $b, array $G, string $lang): array
+/** Durata breve per i conti alla rovescia: "4g 2h", "2h 13m", "13m". */
+function lb_duration(int $seconds, bool $en): string
 {
-    $p = $b['pity'];
-    // La pull garantita e' la numero `hard`: con pity hard-1 e' la prossima.
-    $left = max(1, $p['hard'] - $p['contatore']);
-    $soglia = gacha_rarity_label($p['soglia'], $lang);
-    if ($b['pity_gruppo'] === 'standard') {
-        if ($p['contatore'] + 1 >= $p['hard']) return [$G['pity_std_hard'], true];
-        if ($p['contatore'] >= $p['soft']) return [$G['pity_std_soft'], true];
-        return [sprintf($G['pity_std_count'], $left), false];
-    }
-    if ($p['soglia'] === 'segreto') {
-        if ($p['contatore'] >= $p['soft']) return [$G['pity_evt_soft'], true];
-        return [sprintf($G['pity_evt_count'], $left), false];
-    }
-    if ($p['contatore'] + 1 >= $p['hard']) return [sprintf($G['pity_gen_hard'], $soglia), true];
-    return [sprintf($G['pity_gen_count'], $soglia, $left), false];
+    $seconds = max(0, $seconds);
+    $d = intdiv($seconds, 86400);
+    $hh = intdiv($seconds % 86400, 3600);
+    $m = intdiv($seconds % 3600, 60);
+    if ($d > 0) return $d . ($en ? 'd ' : 'g ') . $hh . 'h';
+    if ($hh > 0) return $hh . 'h ' . $m . 'm';
+    return max(1, $m) . 'm';
 }
 
-$gRateRows = [
-    ['comune', 'rate-common'], ['raro', 'rate-rare'], ['epico', 'rate-epic'],
-    ['leggendario', 'rate-legendary'], ['speciale', 'rate-special'], ['segreto', 'rate-secret'],
+/** Proporzioni di un'immagine del sito (larghezza / altezza), o null. */
+function lb_ratio(?string $url): ?float
+{
+    static $cache = [];
+    $url = (string)$url;
+    if ($url === '' || !str_starts_with($url, '/img/')) return null;
+    if (array_key_exists($url, $cache)) return $cache[$url];
+    $file = dirname(__DIR__, 3) . rawurldecode((string)parse_url($url, PHP_URL_PATH));
+    $size = is_file($file) ? @getimagesize($file) : false;
+    return $cache[$url] = ($size && $size[1] > 0) ? round($size[0] / $size[1], 4) : null;
+}
+
+/** Colore del banner: quello scelto nel pannello, o dalla rarita' del rate-up. */
+function lb_accent(array $b): array
+{
+    $byRarity = [
+        'comune' => '#64748b', 'raro' => '#38bdf8', 'epico' => '#c084fc', 'leggendario' => '#f59e0b',
+        'speciale' => '#e879f9', 'segreto' => '#a855f7', 'theone' => '#3b82f6',
+    ];
+    if ($b['colore'] && preg_match('/^#[0-9a-f]{6}$/i', $b['colore'])) {
+        $accent = $b['colore'];
+    } elseif ($b['featured']) {
+        $accent = $byRarity[$b['featured'][0]['rarita']] ?? '#a855f7';
+    } else {
+        $accent = '#38bdf8';
+    }
+    return [$accent, $b['tipo'] === 'standard' ? '#6366f1' : '#60a5fa'];
+}
+
+/** Cosa garantisce il pity, in parole: "Segreto", "Speciale o Segreto"... */
+function lb_tier_label(string $soglia, array $G, string $lang): string
+{
+    if ($soglia === 'speciale') return $G['tier_std'];
+    if ($soglia === 'segreto' || $soglia === 'theone') return gacha_rarity_label('segreto', $lang);
+    return sprintf($G['tier_up'], gacha_rarity_label($soglia, $lang));
+}
+
+/** La frase accanto al pity (HTML, con il numero in grassetto) e se e' "accesa". */
+function lb_pity_note(array $b, array $G, string $lang): array
+{
+    $p = $b['pity'];
+    $tier = htmlspecialchars(lb_tier_label($p['soglia'], $G, $lang), ENT_QUOTES, 'UTF-8');
+    // La pull garantita e' la numero `hard`: con pity hard-1 e' la prossima.
+    if ($p['contatore'] + 1 >= $p['hard']) return [sprintf($G['pity_next'], $tier), true];
+    if ($p['contatore'] >= $p['soft']) return [$G['pity_soft'], true];
+    return [sprintf($G['pity_within'], $tier, max(1, $p['hard'] - $p['contatore'])), false];
+}
+
+$gRateRows = ['comune', 'raro', 'epico', 'leggendario', 'speciale', 'segreto'];
+$gNow = time();
+
+// Le carte dell'elenco banner, uguali nella colonna e nella striscia mobile.
+$gCard = static function (array $b, bool $mini) use ($h, $G, $gActive, $gEn, $gNow): string {
+    [$accent] = lb_accent($b);
+    $isSoon = $b['stato'] === 'prossimamente';
+    $thumb = $b['thumb'] ?: ($b['featured'][0]['img'] ?? '/img/cassa.png');
+    $uso = $b['uso'];
+
+    $st = '';
+    if ($isSoon && $b['data_inizio']) {
+        $st = '<span class="lb-card__st is-soon"><i class="fa-regular fa-calendar"></i> <span data-countdown="' . $h($b['data_inizio']) . '">'
+            . $h(lb_duration(strtotime($b['data_inizio']) - $gNow, $gEn)) . '</span></span>';
+    } elseif ($uso['gratis_rimaste'] > 0) {
+        $st = '<span class="lb-card__st is-free" data-card-free><i class="fa-solid fa-gift"></i> ' . $h(sprintf($G['card_free'], $uso['gratis_rimaste'])) . '</span>';
+    } elseif ($uso['limite']) {
+        $st = '<span class="lb-card__st" data-card-left><i class="fa-solid fa-hourglass-half"></i> ' . $h(sprintf($G['card_left'], max(0, $uso['limite'] - $uso['totale']))) . '</span>';
+    } elseif ($b['data_fine']) {
+        $st = '<span class="lb-card__st"><i class="fa-regular fa-clock"></i> <span data-countdown="' . $h($b['data_fine']) . '">'
+            . $h(lb_duration(strtotime($b['data_fine']) - $gNow, $gEn)) . '</span></span>';
+    }
+
+    if ($b['featured']) {
+        $sub = implode(' · ', array_column($b['featured'], 'nome'));
+    } elseif ($b['pool_modo'] === 'categoria' && $b['pool_categoria']) {
+        $sub = sprintf($G['pool_cat'], $b['pool_categoria']);
+    } else {
+        $sub = sprintf($G['pool_all'], $b['pool_count']);
+    }
+    $on = $b['key'] === $gActive;
+
+    return '<button type="button" class="lb-card' . ($mini ? ' lb-card--mini' : '') . ($on ? ' is-active' : '') . ($isSoon ? ' is-soon' : '') . '"'
+        . ' data-banner-select="' . $h($b['key']) . '" data-banner-type="' . ($b['tipo'] === 'standard' ? 'standard' : 'evento') . '"'
+        . ' aria-pressed="' . ($on ? 'true' : 'false') . '" aria-label="' . $h($b['nome']) . '"'
+        . ' style="--card-img:url(\'' . $h($thumb) . '\');--accent:' . $h($accent) . '">'
+        . '<span class="lb-card__bg" aria-hidden="true"></span>'
+        . $st
+        . '<span class="lb-card__body"><b>' . $h($b['nome']) . '</b>' . ($mini ? '' : '<small>' . $h($sub) . '</small>') . '</span>'
+        . '</button>';
+};
+
+$gGroups = [
+    'always' => array_values(array_filter($gBanners, static fn($b) => $b['stato'] !== 'prossimamente' && in_array($b['tipo'], ['standard', 'principiante'], true))),
+    'events' => array_values(array_filter($gBanners, static fn($b) => $b['stato'] !== 'prossimamente' && !in_array($b['tipo'], ['standard', 'principiante'], true))),
+    'soon' => array_values(array_filter($gBanners, static fn($b) => $b['stato'] === 'prossimamente')),
 ];
-$gProfiles = gacha_pity_profiles();
-$gFmt = static fn($n) => number_format((int)$n, 0, $gEn ? '.' : ',', $gEn ? ',' : '.');
+$gActiveBanner = null;
+foreach ($gBanners as $b) {
+    if ($b['key'] === $gActive) $gActiveBanner = $b;
+}
+[$gAccent, $gAccent2] = $gActiveBanner ? lb_accent($gActiveBanner) : ['#38bdf8', '#6366f1'];
+
+$gClaimedToday = $gPremium && ($gLastClaim === getMissionDailyPeriod());
+$gClaimLeft = strtotime('tomorrow') - time();
 ?>
 <!DOCTYPE html>
 <html lang="<?= $gLang ?>">
 
 <head>
     <?php include __DIR__ . '/../../head-import.php'; ?>
-    <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/lootbox.css')) ?>">
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/gacha.css')) ?>">
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/gacha-v2.css')) ?>">
-    <meta name="theme-color" content="#080810">
+    <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/lootbox-v3.css')) ?>">
+    <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/lootbox-modal.css')) ?>">
+    <meta name="theme-color" content="#06070d">
     <title>Cripsum™ — Lootbox</title>
 </head>
 
-<body class="lootbox-page<?= $gPremium ? ' has-premium' : '' ?>" data-ruolo="<?= $h($gRole) ?>">
+<body class="lootbox-page lb-page<?= $gPremium ? ' has-premium' : '' ?>" data-ruolo="<?= $h($gRole) ?>" style="--accent:<?= $h($gAccent) ?>;--accent-2:<?= $h($gAccent2) ?>">
 
     <?php include __DIR__ . '/../../navbar-lootbox.php'; ?>
 
-    <div class="stars" id="stars"></div>
+    <div class="lb" id="gacha-layout">
 
-    <div class="gacha-layout" id="gacha-layout">
+        <main class="lb-stage" id="gacha-main">
+            <div class="lb-bgs" aria-hidden="true">
+                <?php foreach ($gBanners as $b):
+                    $bg = $b['sfondo'] ?: null;
+                    $fallback = $bg ? null : ($b['arte'] ?: '/img/cassa.png');
+                    $on = $b['key'] === $gActive;
+                ?>
+                    <div class="lb-bg<?= $bg ? '' : ' is-blurred' ?><?= $on ? ' is-active' : '' ?>" data-bg="<?= $h($b['key']) ?>"
+                        data-src="<?= $h($bg ?: $fallback) ?>"<?= $on ? ' style="background-image:url(\'' . $h($bg ?: $fallback) . '\')"' : '' ?>></div>
+                <?php endforeach; ?>
+            </div>
 
-        <main class="gacha-main" id="gacha-main">
+            <nav class="lb-strip" aria-label="<?= $h($G['sidebar']) ?>">
+                <div class="lb-strip__track">
+                    <?php foreach (array_merge($gGroups['always'], $gGroups['events'], $gGroups['soon']) as $b) echo $gCard($b, true); ?>
+                </div>
+                <button type="button" class="lb-strip__all" data-rail-open aria-controls="gacha-sidebar">
+                    <i class="fa-solid fa-grip"></i><span><?= $h($G['all']) ?></span>
+                </button>
+            </nav>
+
             <?php foreach ($gBanners as $b):
                 $key = $b['key'];
                 $isStd = $b['tipo'] === 'standard';
                 $isSoon = $b['stato'] === 'prossimamente';
                 $featured = $b['featured'];
-                [$note, $noteActive] = gacha_page_pity_note($b, $G, $gLang);
-                $pityLabel = $b['pity_gruppo'] === 'standard' ? $G['pity_std'] : ($b['pity_gruppo'] === 'evento' ? $G['pity_evt'] : $G['pity_own']);
-                $badge = $isSoon ? $G['soon_badge'] : ($isStd ? $G['always'] : ($G['type_' . $b['tipo']] ?? $G['type_evento']));
                 $uso = $b['uso'];
-                $styleAccent = $b['colore'] ? '--banner-accent:' . $h($b['colore']) . ';--banner-accent-glow:' . $h($b['colore']) . '55;' : '';
+                $p = $b['pity'];
+                [$accent, $accent2] = lb_accent($b);
+                [$note, $noteActive] = lb_pity_note($b, $G, $gLang);
+                $kind = $isSoon ? $G['kind_soon'] : ($G['kind_' . $b['tipo']] ?? $G['kind_evento']);
+                $kindIcon = $isSoon ? 'fa-calendar' : ($isStd ? 'fa-infinity' : ($b['tipo'] === 'principiante' ? 'fa-seedling' : 'fa-star'));
+                $on = $key === $gActive;
+
+                // Arte: quella scelta nel pannello, altrimenti i personaggi in
+                // rate-up, altrimenti la cassa. Ogni immagine tiene la sua forma.
+                $explicitArt = $b['arte'] && (!$featured || $b['arte'] !== ($featured[0]['img'] ?? null));
+                if ($explicitArt || !$featured) {
+                    $arts = [['img' => $b['arte'] ?: '/img/cassa.png', 'nome' => $b['nome']]];
+                } else {
+                    $arts = array_map(static fn($f) => ['img' => $f['img'] ?: '/img/cassa.png', 'nome' => $f['nome']], array_slice($featured, 0, 4));
+                }
+                $isChest = count($arts) === 1 && str_ends_with((string)$arts[0]['img'], '/cassa.png');
+                $sameRarity = $featured && count(array_unique(array_column($featured, 'rarita'))) === 1;
             ?>
                 <section
-                    class="gacha-banner-view<?= $isSoon ? ' is-soon' : '' ?>"
+                    class="lb-view<?= $on ? ' is-active' : '' ?><?= $isSoon ? ' is-soon' : '' ?>"
                     id="banner-view-<?= $h($key) ?>"
                     data-banner-id="<?= $h($key) ?>"
                     data-banner-type="<?= $isStd ? 'standard' : 'evento' ?>"
                     data-pity-gruppo="<?= $h($b['pity_gruppo']) ?>"
-                    data-pity-hard="<?= (int)$b['pity']['hard'] ?>"
-                    data-pity-soft="<?= (int)$b['pity']['soft'] ?>"
-                    data-pity-soglia="<?= $h($b['pity']['soglia']) ?>"
+                    data-pity-hard="<?= (int)$p['hard'] ?>"
+                    data-pity-soft="<?= (int)$p['soft'] ?>"
+                    data-pity-soglia="<?= $h($p['soglia']) ?>"
                     data-costo="<?= (int)$b['costo'] ?>"
                     data-stato="<?= $h($b['stato']) ?>"
                     data-gratis="<?= (int)$uso['gratis_rimaste'] ?>"
+                    data-accent="<?= $h($accent) ?>" data-accent-2="<?= $h($accent2) ?>"
                     <?php if ($b['data_fine']): ?>data-data-fine="<?= $h($b['data_fine']) ?>"<?php endif; ?>
-                    style="<?= $key === $gActive ? '' : 'display:none;' ?><?= $styleAccent ?>"
+                    <?= $on ? '' : 'hidden' ?>
                     aria-label="<?= $h($b['nome']) ?>">
-                    <div class="gacha-banner-bg<?= $b['sfondo'] ? ' has-img' : '' ?>" id="banner-bg-<?= $h($key) ?>"
-                        <?php if ($b['sfondo']): ?>style="background-image:url('<?= $h($b['sfondo']) ?>')"<?php endif; ?>></div>
 
-                    <div class="gacha-banner-art-wrap" aria-hidden="true">
-                        <img src="<?= $h($b['arte'] ?: '/img/cassa.png') ?>" alt="" class="gacha-banner-char"
-                            <?= $isStd ? 'id="banner-char-standard"' : '' ?> draggable="false" onerror="this.src='/img/cassa.png'">
-                    </div>
-
-                    <div class="gacha-banner-info">
-                        <div>
-                            <span class="gacha-banner-type-badge"><?= $h($badge) ?></span>
-                            <?php if ($b['solo_premium']): ?>
-                                <span class="gacha-v2-chip gacha-v2-chip--premium"><i class="fa-solid fa-gem"></i> <?= $h($G['premium_only']) ?></span>
+                    <div class="lb-info">
+                        <p class="lb-kicker lb-in" style="--d:0">
+                            <span class="lb-kicker__kind"><i class="fa-solid <?= $kindIcon ?>"></i> <?= $h($kind) ?></span>
+                            <?php $timerTarget = $isSoon ? $b['data_inizio'] : $b['data_fine']; ?>
+                            <?php if ($timerTarget || !$isStd): ?>
+                                <span class="lb-kicker__sep" aria-hidden="true"></span>
+                                <span class="lb-kicker__time"><i class="fa-regular fa-clock"></i>
+                                    <?php if ($timerTarget): ?>
+                                        <?= $h($isSoon ? $G['starts_in'] : $G['ends_in']) ?>
+                                        <b data-countdown="<?= $h($timerTarget) ?>"<?= $isSoon ? ' data-reload-at-zero' : '' ?>><?= $h(lb_duration(strtotime($timerTarget) - $gNow, $gEn)) ?></b>
+                                    <?php else: ?>
+                                        <?= $h($G['no_end']) ?>
+                                    <?php endif; ?>
+                                </span>
                             <?php endif; ?>
-                            <h1 class="gacha-banner-title"><?= $h($b['nome']) ?></h1>
-                            <?php if ($b['descrizione']): ?>
-                                <p class="gacha-banner-desc"><?= $h($b['descrizione']) ?></p>
+                            <?php if ($b['solo_premium']): ?>
+                                <span class="lb-kicker__premium"><i class="fa-solid fa-gem"></i> <?= $h($G['premium_only']) ?></span>
+                            <?php endif; ?>
+                        </p>
+
+                        <h1 class="lb-title lb-in" style="--d:1"><?= $h($b['nome']) ?></h1>
+                        <?php if ($b['descrizione']): ?>
+                            <p class="lb-desc lb-in" style="--d:2" title="<?= $h($b['descrizione']) ?>"><?= $h($b['descrizione']) ?></p>
+                        <?php endif; ?>
+
+                        <div class="lb-feature lb-in" style="--d:3">
+                            <?php if ($featured): ?>
+                                <span class="lb-feature__imgs">
+                                    <?php foreach (array_slice($featured, 0, 3) as $f): ?>
+                                        <img src="<?= $h($f['img'] ?: '/img/cassa.png') ?>" alt="" style="--rc:<?= $h(gacha_rarity_defs()[$f['rarita']]['color'] ?? '#fff') ?>" onerror="this.src='/img/cassa.png'">
+                                    <?php endforeach; ?>
+                                </span>
+                                <span class="lb-feature__text">
+                                    <small><?= $h($G['rateup']) ?></small>
+                                    <b><?= $h(count($featured) > 2 ? $featured[0]['nome'] . ', ' . $featured[1]['nome'] . ' +' . (count($featured) - 2) : implode(' & ', array_column($featured, 'nome'))) ?></b>
+                                </span>
+                                <?php if ($sameRarity): $rk = $featured[0]['rarita']; ?>
+                                    <span class="lb-chip-r" style="--rc:<?= $h(gacha_rarity_defs()[$rk]['color'] ?? '#fff') ?>"><?= $h(gacha_rarity_label($rk, $gLang)) ?></span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="lb-feature__icon"><i class="fa-solid fa-layer-group"></i></span>
+                                <span class="lb-feature__text">
+                                    <small><?= $h($G['pool']) ?></small>
+                                    <b><?= $h($b['pool_modo'] === 'categoria' && $b['pool_categoria'] ? sprintf($G['pool_cat'], $b['pool_categoria']) : sprintf($G['pool_all'], $b['pool_count'])) ?></b>
+                                </span>
                             <?php endif; ?>
                         </div>
 
-                        <?php if (count($featured) === 1): $f = $featured[0]; ?>
-                            <div class="gacha-rateup-info">
-                                <span class="gacha-rateup-label"><?= $h($G['rateup']) ?></span>
-                                <p class="gacha-rateup-name"><?= $h($f['nome']) ?></p>
-                                <p class="gacha-rateup-rarity rarity-<?= $h($f['rarita']) ?>"><?= $h($f['rarita']) ?></p>
-                                <?php if ($f['descrizione']): ?>
-                                    <p class="gacha-rateup-char-desc"><?= $h($f['descrizione']) ?></p>
+                        <?php if (!$isSoon): ?>
+                            <div class="lb-pity lb-in" style="--d:4" data-pity-box>
+                                <div class="lb-pity__top">
+                                    <span class="lb-pity__count"><?= $h($G['pity']) ?> <b data-pity-num><?= (int)$p['contatore'] ?></b> / <?= (int)$p['hard'] ?>
+                                        <?php if ($p['condiviso']): ?><i class="fa-solid fa-link" title="<?= $h($G['pity_shared']) ?>" aria-label="<?= $h($G['pity_shared']) ?>"></i><?php endif; ?>
+                                    </span>
+                                    <span class="lb-pity__note<?= $noteActive ? ' is-active' : '' ?>" data-pity-note><?= $note ?></span>
+                                </div>
+                                <div class="lb-pity__bar" role="progressbar" aria-valuemin="0" aria-valuemax="<?= (int)$p['hard'] ?>" aria-valuenow="<?= (int)$p['contatore'] ?>">
+                                    <span class="lb-pity__soft" style="left:<?= round($p['soft'] / max(1, $p['hard']) * 100, 2) ?>%"></span>
+                                    <span class="lb-pity__fill" data-pity-fill style="width:<?= min(100, round($p['contatore'] / max(1, $p['hard']) * 100, 2)) ?>%"></span>
+                                </div>
+                            </div>
+
+                            <div class="lb-tags lb-in" style="--d:5" data-limits>
+                                <?php if ($featured): ?>
+                                    <span class="lb-tag is-guaranteed" data-garantito-badge data-pity-gruppo="<?= $h($b['pity_gruppo']) ?>" id="garantito-badge-<?= $h($key) ?>"<?= $p['garantito'] ? '' : ' style="display:none"' ?>>
+                                        <i class="fa-solid fa-shield-halved"></i> <?= $h(sprintf($G['guaranteed'], lb_tier_label($p['soglia'], $G, $gLang))) ?>
+                                    </span>
                                 <?php endif; ?>
-                            </div>
-                        <?php elseif (count($featured) > 1): ?>
-                            <div class="gacha-rateup-info gacha-v2-rateups">
-                                <span class="gacha-rateup-label"><?= $h($G['rateup_many']) ?></span>
-                                <div class="gacha-v2-rateup-list">
-                                    <?php foreach ($featured as $f): ?>
-                                        <div class="gacha-v2-rateup" data-featured-id="<?= (int)$f['id'] ?>">
-                                            <img src="<?= $h($f['img'] ?: '/img/cassa.png') ?>" alt="" loading="lazy" onerror="this.src='/img/cassa.png'">
-                                            <span><strong><?= $h($f['nome']) ?></strong><small class="gacha-rateup-rarity rarity-<?= $h($f['rarita']) ?>"><?= $h(gacha_rarity_label($f['rarita'], $gLang)) ?></small></span>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($b['destino'] && !$isSoon): $d = $b['destino']; ?>
-                            <div class="gacha-v2-destiny" data-destiny data-banner="<?= $h($key) ?>" data-max="<?= (int)$d['max'] ?>">
-                                <div class="gacha-v2-destiny-head">
-                                    <span><i class="fa-solid fa-crosshairs"></i> <?= $h($G['destiny']) ?></span>
-                                    <small data-destiny-points><?= $h(sprintf($G['destiny_points'], (int)$d['punti'], (int)$d['max'])) ?></small>
-                                </div>
-                                <div class="gacha-v2-destiny-options">
-                                    <button type="button" class="gacha-v2-destiny-opt<?= $d['bersaglio'] ? '' : ' is-active' ?>" data-destiny-target="0"><?= $h($G['destiny_none']) ?></button>
-                                    <?php foreach ($featured as $f): if (!in_array($f['id'], $d['scelte'], true)) continue; ?>
-                                        <button type="button" class="gacha-v2-destiny-opt<?= (int)$d['bersaglio'] === (int)$f['id'] ? ' is-active' : '' ?>" data-destiny-target="<?= (int)$f['id'] ?>"><?= $h($f['nome']) ?></button>
-                                    <?php endforeach; ?>
-                                </div>
-                                <small class="gacha-v2-destiny-help"><?= $h(sprintf($G['destiny_help'], (int)$d['max'])) ?></small>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($featured): ?>
-                            <div class="gacha-garantito-badge" data-garantito-badge data-pity-gruppo="<?= $h($b['pity_gruppo']) ?>" id="garantito-badge-<?= $h($key) ?>"
-                                <?= !$b['pity']['garantito'] ? 'style="display:none"' : '' ?>>
-                                <i class="fa-solid fa-shield-halved"></i>
-                                <?= $h($G['guaranteed']) ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!$isSoon): ?>
-                            <div class="gacha-pity-wrap" data-pity-box>
-                                <div class="gacha-pity-header">
-                                    <span title="<?= $b['pity']['condiviso'] ? $h($G['pity_shared']) : '' ?>"><?= $h($pityLabel) ?><?= $b['pity']['condiviso'] ? ' <i class="fa-solid fa-link gacha-v2-shared" aria-hidden="true"></i>' : '' ?></span>
-                                    <span class="gacha-pity-num" data-pity-num><?= (int)$b['pity']['contatore'] ?> / <?= (int)$b['pity']['hard'] ?></span>
-                                </div>
-                                <div class="gacha-pity-track">
-                                    <div class="gacha-pity-fill" data-pity-fill
-                                        style="width:<?= min(100, round($b['pity']['contatore'] / max(1, $b['pity']['hard']) * 100)) ?>%"></div>
-                                    <div class="gacha-pity-soft-marker"
-                                        style="left:<?= round($b['pity']['soft'] / max(1, $b['pity']['hard']) * 100) ?>%"></div>
-                                </div>
-                                <p class="gacha-pity-note<?= $noteActive ? ' is-active' : '' ?>" data-pity-note><?= $h($note) ?></p>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php $timerTarget = $isSoon ? $b['data_inizio'] : $b['data_fine']; ?>
-                        <?php if ($timerTarget): ?>
-                            <div class="gacha-timer-wrap">
-                                <i class="fa-solid fa-clock"></i>
-                                <span><?= $h($isSoon ? $G['starts_in'] : $G['ends_in']) ?></span>
-                                <div class="gacha-timer-digits" data-ends="<?= $h($timerTarget) ?>"<?= $isSoon ? ' data-reload-at-zero' : '' ?>>
-                                    <div class="gacha-timer-block"><span class="t-days">--</span><small><?= $h($G['days']) ?></small></div>
-                                    <div class="gacha-timer-block"><span class="t-hours">--</span><small><?= $h($G['hours']) ?></small></div>
-                                    <div class="gacha-timer-block"><span class="t-mins">--</span><small><?= $h($G['mins']) ?></small></div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!$isSoon): ?>
-                            <div class="gacha-v2-limits" data-limits>
                                 <?php if ($uso['gratis_max'] > 0): ?>
-                                    <span class="gacha-v2-chip gacha-v2-chip--free" data-free-chip<?= $uso['gratis_rimaste'] > 0 ? '' : ' hidden' ?>><i class="fa-solid fa-gift"></i> <span data-free-text><?= $h(sprintf($G['free_today'], $uso['gratis_rimaste'])) ?></span></span>
+                                    <span class="lb-tag is-free" data-free-chip<?= $uso['gratis_rimaste'] > 0 ? '' : ' hidden' ?>><i class="fa-solid fa-gift"></i> <span data-free-text><?= $h(sprintf($uso['gratis_rimaste'] === 1 ? $G['free_today'] : $G['free_today_n'], $uso['gratis_rimaste'])) ?></span></span>
                                 <?php endif; ?>
                                 <?php if ($uso['limite']): ?>
-                                    <span class="gacha-v2-chip" data-limit-total><i class="fa-solid fa-hourglass-half"></i> <?= $h(sprintf($G['limit_total'], $uso['totale'], $uso['limite'])) ?></span>
+                                    <span class="lb-tag" data-limit-total><i class="fa-solid fa-hourglass-half"></i> <span><?= $h(sprintf($G['limit_total'], $uso['totale'], $uso['limite'])) ?></span></span>
                                 <?php endif; ?>
                                 <?php if ($uso['limite_giorno']): ?>
-                                    <span class="gacha-v2-chip" data-limit-day><i class="fa-solid fa-calendar-day"></i> <?= $h(sprintf($G['limit_day'], $uso['oggi'], $uso['limite_giorno'])) ?></span>
+                                    <span class="lb-tag" data-limit-day><i class="fa-solid fa-calendar-day"></i> <span><?= $h(sprintf($G['limit_day'], $uso['oggi'], $uso['limite_giorno'])) ?></span></span>
                                 <?php endif; ?>
-                                <?php if ($b['garanzia_multi']): ?>
-                                    <span class="gacha-v2-chip gacha-v2-chip--soft" title="<?= $h($G['multi_guarantee']) ?>"><i class="fa-solid fa-shield"></i> 10× → <?= $h(gacha_rarity_label('epico', $gLang)) ?>+</span>
+                                <?php if ($b['destino']): $d = $b['destino'];
+                                    $target = null;
+                                    foreach ($featured as $f) if ((int)$f['id'] === (int)$d['bersaglio']) $target = $f['nome'];
+                                ?>
+                                    <div class="lb-destiny" data-destiny data-banner="<?= $h($key) ?>" data-max="<?= (int)$d['max'] ?>">
+                                        <button type="button" class="lb-tag lb-tag--btn" data-destiny-toggle aria-expanded="false">
+                                            <i class="fa-solid fa-crosshairs"></i> <?= $h($G['destiny']) ?>: <b data-destiny-label><?= $h($target ?? $G['destiny_none']) ?></b>
+                                            <i class="fa-solid fa-chevron-down lb-destiny__chev"></i>
+                                        </button>
+                                        <div class="lb-destiny__menu" role="menu">
+                                            <div class="lb-destiny__head"><span><?= $h($G['destiny']) ?></span><small data-destiny-points><?= $h(sprintf($G['destiny_points'], (int)$d['punti'], (int)$d['max'])) ?></small></div>
+                                            <button type="button" role="menuitemradio" class="lb-destiny__opt<?= $d['bersaglio'] ? '' : ' is-active' ?>" data-destiny-target="0" data-name="<?= $h($G['destiny_none']) ?>">
+                                                <span class="lb-destiny__none"><i class="fa-solid fa-ban"></i></span><?= $h(ucfirst($G['destiny_none'])) ?><i class="fa-solid fa-check lb-destiny__check"></i>
+                                            </button>
+                                            <?php foreach ($featured as $f): if (!in_array($f['id'], $d['scelte'], true)) continue; ?>
+                                                <button type="button" role="menuitemradio" class="lb-destiny__opt<?= (int)$d['bersaglio'] === (int)$f['id'] ? ' is-active' : '' ?>" data-destiny-target="<?= (int)$f['id'] ?>" data-name="<?= $h($f['nome']) ?>">
+                                                    <img src="<?= $h($f['img'] ?: '/img/cassa.png') ?>" alt="" onerror="this.src='/img/cassa.png'"><?= $h($f['nome']) ?><i class="fa-solid fa-check lb-destiny__check"></i>
+                                                </button>
+                                            <?php endforeach; ?>
+                                            <p class="lb-destiny__help"><?= $h(sprintf($G['destiny_help'], (int)$d['max'])) ?></p>
+                                        </div>
+                                    </div>
                                 <?php endif; ?>
                             </div>
 
-                            <div class="gacha-economy-row">
-                                <div class="gacha-user-balance-panel">
-                                    <div class="balance-item" title="<?= $h($G['godos_tip']) ?>" data-bs-toggle="tooltip">
-                                        <span class="balance-icon"><img src="/img/godos.png" alt="Godos" class="currency-icon-img"></span>
-                                        <span class="balance-label">Godos:</span>
-                                        <span class="balance-value user-points-val"><?= $gFmt($gSoldi) ?></span>
-                                    </div>
-                                    <div class="balance-item" title="<?= $h($G['shards_tip']) ?>" data-bs-toggle="tooltip">
-                                        <span class="balance-icon"><img src="/img/godoshards.png" alt="Godo Shards" class="currency-icon-img"></span>
-                                        <span class="balance-label">Godo Shards:</span>
-                                        <span class="balance-value user-shards-val"><?= $gFmt($gShards) ?></span>
-                                    </div>
-                                    <a href="shop" class="balance-shop-btn" title="<?= $h($G['buy_shards']) ?>" data-bs-toggle="tooltip">
-                                        <i class="fa-solid fa-plus"></i>
-                                    </a>
+                            <button type="button" class="lb-more lb-in" style="--d:6" data-banner-details="<?= $h($key) ?>">
+                                <i class="fa-solid fa-circle-info"></i> <?= $h($G['details']) ?>
+                            </button>
+
+                            <div class="lb-actions lb-in" style="--d:6">
+                                <div class="lb-pulls">
+                                    <button type="button" class="lb-pull" id="pull-btn-<?= $h($key) ?>" data-pull-btn data-banner-id="<?= $h($key) ?>" aria-label="<?= $h($G['open1'] . ' ' . $b['nome']) ?>">
+                                        <?php if ($uso['gratis_max'] > 0): ?><span class="lb-pull__free" data-free-badge<?= $uso['gratis_rimaste'] > 0 ? '' : ' hidden' ?>><?= $h($G['free_badge']) ?></span><?php endif; ?>
+                                        <span class="lb-pull__label"><i class="fa-solid fa-star"></i> <?= $h($G['open1']) ?></span>
+                                        <?php if ($b['costo'] > 0): ?>
+                                            <small class="lb-pull__cost" data-cost-paid<?= $uso['gratis_rimaste'] > 0 ? ' hidden' : '' ?>><?= $gFmt($b['costo']) ?> <img src="/img/godos.png" alt="Godos"> <?= $h($G['or']) ?> <?= (int)$b['costo_shards'] ?> <img src="/img/godoshards.png" alt="Shards"></small>
+                                            <?php if ($uso['gratis_max'] > 0): ?><small class="lb-pull__cost" data-cost-free<?= $uso['gratis_rimaste'] > 0 ? '' : ' hidden' ?>><?= $h($G['free_sub']) ?></small><?php endif; ?>
+                                        <?php else: ?>
+                                            <small class="lb-pull__cost"><?= $h($G['free']) ?></small>
+                                        <?php endif; ?>
+                                    </button>
+                                    <button type="button" class="lb-pull lb-pull--main" data-pull-btn data-banner-id="<?= $h($key) ?>" data-pull-qty="10" aria-label="<?= $h($G['open10'] . ' ' . $b['nome']) ?>">
+                                        <span class="lb-pull__label"><i class="fa-solid fa-boxes-stacked"></i> <?= $h($G['open10']) ?></span>
+                                        <?php if ($b['costo'] > 0): ?>
+                                            <small class="lb-pull__cost"><?= $gFmt($b['costo'] * 10) ?> <img src="/img/godos.png" alt="Godos"> <?= $h($G['or']) ?> <?= (int)ceil($b['costo'] * 10 / max(1, $gGps)) ?> <img src="/img/godoshards.png" alt="Shards"></small>
+                                        <?php else: ?>
+                                            <small class="lb-pull__cost"><?= $h($G['free']) ?></small>
+                                        <?php endif; ?>
+                                    </button>
                                 </div>
-                                <span class="gacha-cost"><?= $b['costo'] > 0 ? $h(sprintf($G['cost'], $gFmt($b['costo']), $b['costo_shards'])) : $h($G['free']) ?></span>
-                            </div>
-
-                            <div class="gacha-pull-row">
-                                <?php if ($b['costo'] > 0): ?>
-                                    <button class="gacha-pull-btn" id="pull-btn-<?= $h($key) ?>" aria-label="<?= $h($G['open1'] . ' ' . $b['nome']) ?>" data-banner-id="<?= $h($key) ?>">
-                                        <i class="fa-solid fa-star gacha-pull-btn-icon"></i>
-                                        <div class="gacha-pull-btn-text">
-                                            <span><?= $h($G['open1']) ?></span>
-                                            <small class="gacha-pull-btn-cost" data-cost-single><?= $gFmt($b['costo']) ?> <img src="/img/godos.png" alt="Godos" class="cost-icon-img"> / <?= (int)$b['costo_shards'] ?> <img src="/img/godoshards.png" alt="Shards" class="cost-icon-img"></small>
-                                        </div>
-                                    </button>
-                                    <button class="gacha-pull-btn gacha-pull-btn--multi" aria-label="<?= $h($G['multi10'] . ' ' . $b['nome']) ?>" data-banner-id="<?= $h($key) ?>" data-pull-qty="10">
-                                        <i class="fa-solid fa-boxes-stacked gacha-pull-btn-icon"></i>
-                                        <div class="gacha-pull-btn-text">
-                                            <span><?= $h($G['multi10']) ?></span>
-                                            <small class="gacha-pull-btn-cost"><?= $gFmt($b['costo'] * 10) ?> <img src="/img/godos.png" alt="Godos" class="cost-icon-img"> / <?= (int)ceil($b['costo'] * 10 / $gGps) ?> <img src="/img/godoshards.png" alt="Shards" class="cost-icon-img"></small>
-                                        </div>
-                                    </button>
-                                <?php else: ?>
-                                    <button class="gacha-pull-btn" id="pull-btn-<?= $h($key) ?>" aria-label="<?= $h($G['open1']) ?>" data-banner-id="<?= $h($key) ?>">
-                                        <i class="fa-solid fa-box-open gacha-pull-btn-icon"></i>
-                                        <span><?= $h($G['open1']) ?></span>
-                                    </button>
-                                    <button class="gacha-pull-btn gacha-pull-btn--multi" aria-label="<?= $h($G['open10']) ?>" data-banner-id="<?= $h($key) ?>" data-pull-qty="10">
-                                        <i class="fa-solid fa-boxes-stacked gacha-pull-btn-icon"></i>
-                                        <span><?= $h($G['open10']) ?></span>
-                                    </button>
-                                <?php endif; ?>
+                                <div class="lb-wallet">
+                                    <span class="lb-coin" title="Godos"><img src="/img/godos.png" alt="Godos"><b class="user-points-val"><?= $gFmt($gSoldi) ?></b></span>
+                                    <span class="lb-coin" title="Godo Shards"><img src="/img/godoshards.png" alt="Godo Shards"><b class="user-shards-val"><?= $gFmt($gShards) ?></b></span>
+                                    <a href="shop" class="lb-coin-add" title="<?= $h($G['buy_shards']) ?>" aria-label="<?= $h($G['buy_shards']) ?>"><i class="fa-solid fa-plus"></i></a>
+                                    <span class="lb-wallet__sp"></span>
+                                    <span class="lb-mini-pity"><i class="fa-solid fa-chart-simple"></i> <?= $h($G['pity']) ?> <b data-pity-mini><?= (int)$p['contatore'] ?></b>/<?= (int)$p['hard'] ?></span>
+                                    <button type="button" class="lb-link" data-banner-details="<?= $h($key) ?>"><i class="fa-solid fa-circle-info"></i> <?= $h($G['details']) ?></button>
+                                </div>
                             </div>
                         <?php else: ?>
-                            <p class="gacha-v2-soon-note"><i class="fa-solid fa-calendar"></i> <?= $h(sprintf($G['soon_note'], date($gEn ? 'M j, H:i' : 'd/m, H:i', strtotime($b['data_inizio'])))) ?></p>
+                            <div class="lb-soon lb-in" style="--d:4">
+                                <span class="lb-soon__icon"><i class="fa-regular fa-calendar"></i></span>
+                                <div><b><?= $h(sprintf($G['soon_note'], date($gEn ? 'M j, H:i' : 'd/m, H:i', strtotime((string)$b['data_inizio'])))) ?></b>
+                                    <small><?= $h($G['starts_in']) ?> <span data-countdown="<?= $h($b['data_inizio']) ?>" data-reload-at-zero><?= $h(lb_duration(strtotime((string)$b['data_inizio']) - $gNow, $gEn)) ?></span></small></div>
+                            </div>
+                            <button type="button" class="lb-link lb-in" style="--d:5" data-banner-details="<?= $h($key) ?>"><i class="fa-solid fa-circle-info"></i> <?= $h($G['details']) ?></button>
                         <?php endif; ?>
+                    </div>
 
-                        <button type="button" class="gacha-v2-details-btn" data-banner-details="<?= $h($key) ?>">
-                            <i class="fa-solid fa-circle-info"></i> <?= $h($G['details']) ?>
-                        </button>
+                    <div class="lb-art<?= $isChest ? ' lb-art--chest' : '' ?><?= count($arts) > 1 ? ' lb-art--multi' : '' ?>" data-art>
+                        <div class="lb-art__stack">
+                            <?php foreach ($arts as $i => $a): $ratio = lb_ratio($a['img']); ?>
+                                <figure class="lb-art__card<?= $i === 0 ? ' is-front' : '' ?>" data-art-card="<?= $i ?>" style="--pos:<?= $i ?><?= $ratio ? ';--ar:' . $ratio : '' ?>">
+                                    <img src="<?= $h($a['img']) ?>" alt="<?= $h($a['nome']) ?>" draggable="false" decoding="async"<?= $on ? '' : ' loading="lazy"' ?> onerror="this.src='/img/cassa.png'">
+                                </figure>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php if (count($arts) > 1): ?>
+                            <div class="lb-art__picks">
+                                <?php foreach ($arts as $i => $a): ?>
+                                    <button type="button" class="lb-art__pick<?= $i === 0 ? ' is-on' : '' ?>" data-art-pick="<?= $i ?>" aria-pressed="<?= $i === 0 ? 'true' : 'false' ?>">
+                                        <img src="<?= $h($a['img']) ?>" alt="" onerror="this.src='/img/cassa.png'"><?= $h($a['nome']) ?>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </section>
             <?php endforeach; ?>
+
+            <div class="lb-extras">
+                <?php if ($gPremium): ?>
+                    <div class="lb-premium" data-premium>
+                        <span class="lb-premium__icon"><i class="fa-solid fa-gem"></i></span>
+                        <span class="lb-premium__text"><b><?= $h($G['premium']) ?></b><small><?= $h($G['premium_sub']) ?></small></span>
+                        <button type="button" class="lb-premium__btn<?= $gClaimedToday ? ' claimed' : '' ?>" data-premium-claim data-seconds-left="<?= (int)$gClaimLeft ?>"<?= $gClaimedToday ? ' disabled' : '' ?>>
+                            <span class="btn-text"><?= $gClaimedToday ? '<i class="fa-regular fa-clock"></i> <span class="claim-countdown">--:--:--</span>' : $h($G['claim']) ?></span>
+                        </button>
+                    </div>
+                <?php endif; ?>
+                <div class="lb-tools">
+                    <button type="button" data-open="settings"><i class="fa-solid fa-gear"></i><span><?= $h($G['settings']) ?></span></button>
+                    <button type="button" data-open="leaderboard"><i class="fa-solid fa-trophy"></i><span><?= $h($G['leaderboard']) ?></span></button>
+                    <a href="inventario"><i class="fa-solid fa-layer-group"></i><span><?= $h($G['inventory']) ?></span></a>
+                    <button type="button" data-open="history"><i class="fa-solid fa-clock-rotate-left"></i><span><?= $h($G['history']) ?></span></button>
+                </div>
+            </div>
         </main>
 
-        <aside class="gacha-sidebar<?= $gPremium ? ' has-premium' : '' ?>" id="gacha-sidebar" aria-label="<?= $h($G['sidebar']) ?>">
-
-            <p class="gsb-section-label"><?= $h($G['sidebar']) ?></p>
-
-            <div class="gsb-banners" id="gsb-banners">
-                <?php
-                $gSoonPrinted = false;
-                $gOrdered = array_merge(
-                    array_values(array_filter($gBanners, static fn($b) => $b['stato'] !== 'prossimamente')),
-                    array_values(array_filter($gBanners, static fn($b) => $b['stato'] === 'prossimamente'))
-                );
-                foreach ($gOrdered as $b):
-                    $key = $b['key'];
-                    $isSoon = $b['stato'] === 'prossimamente';
-                    if ($isSoon && !$gSoonPrinted):
-                        $gSoonPrinted = true; ?>
-                        <p class="gsb-section-label gacha-v2-soon-label"><?= $h($G['sidebar_soon']) ?></p>
-                    <?php endif;
-                    $tag = $isSoon ? $G['tag_soon'] : ($G['tag_' . $b['tipo']] ?? $G['tag_evento']);
-                    $thumb = $b['thumb'] ?: ($b['featured'][0]['img'] ?? '/img/cassa.png');
-                ?>
-                    <button
-                        class="gsb-card<?= $key === $gActive ? ' is-active' : '' ?><?= $isSoon ? ' gsb-card--soon' : '' ?>"
-                        data-banner-id="<?= $h($key) ?>"
-                        data-banner-type="<?= $b['tipo'] === 'standard' ? 'standard' : 'evento' ?>"
-                        aria-pressed="<?= $key === $gActive ? 'true' : 'false' ?>"
-                        aria-label="<?= $h($b['nome']) ?>">
-                        <div class="gsb-card-bg" style="background-image:url('<?= $h($thumb) ?>')"></div>
-                        <div class="gsb-card-overlay"></div>
-                        <div class="gsb-card-body">
-                            <span class="gsb-card-tag"><?= $h($tag) ?></span>
-                            <span class="gsb-card-name"><?= $h($b['nome']) ?></span>
-                            <?php if ($b['featured']): ?>
-                                <span class="gsb-card-rateup"><?= $h(implode(' · ', array_column($b['featured'], 'nome'))) ?></span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="gsb-card-active-bar"></div>
-                    </button>
+        <aside class="lb-rail" id="gacha-sidebar" aria-label="<?= $h($G['sidebar']) ?>">
+            <div class="lb-rail__sheet-head">
+                <span class="lb-rail__grab" aria-hidden="true"></span>
+                <h2><?= $h($G['sidebar']) ?></h2>
+                <button type="button" class="lb-rail__close" data-rail-close aria-label="<?= $h($G['close_x']) ?>"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="lb-rail__list" id="gsb-banners">
+                <?php $gi = 0;
+                foreach (['always' => $G['group_always'], 'events' => $G['group_events'], 'soon' => $G['group_soon']] as $gk => $label):
+                    if (!$gGroups[$gk]) continue; ?>
+                    <p class="lb-rail__label"><?= $h($label) ?><?= $gk === 'events' ? ' · ' . count($gGroups[$gk]) : '' ?></p>
+                    <?php foreach ($gGroups[$gk] as $b): ?>
+                        <div class="lb-rail__item" style="--i:<?= $gi++ ?>"><?= $gCard($b, false) ?></div>
+                    <?php endforeach; ?>
                 <?php endforeach; ?>
             </div>
-
-            <?php if ($gPremium): ?>
-                <div class="gsb-premium-claim-box">
-                    <div class="gsb-premium-claim-header">
-                        <i class="fa-solid fa-gem premium-gem-icon"></i>
-                        <span><?= $h($G['premium_claim']) ?></span>
+            <div class="lb-rail__bottom">
+                <?php if ($gPremium): ?>
+                    <div class="lb-premium" data-premium>
+                        <span class="lb-premium__icon"><i class="fa-solid fa-gem"></i></span>
+                        <span class="lb-premium__text"><b><?= $h($G['premium']) ?></b><small><?= $h($G['premium_sub']) ?></small></span>
+                        <button type="button" class="lb-premium__btn<?= $gClaimedToday ? ' claimed' : '' ?>" id="premium-claim-btn" data-premium-claim data-seconds-left="<?= (int)$gClaimLeft ?>"<?= $gClaimedToday ? ' disabled' : '' ?>>
+                            <span class="btn-text"><?= $gClaimedToday ? '<i class="fa-regular fa-clock"></i> <span class="claim-countdown">--:--:--</span>' : $h($G['claim']) ?></span>
+                        </button>
                     </div>
-                    <?php
-                    $gToday = getMissionDailyPeriod();
-                    $gClaimedToday = ($gLastClaim === $gToday);
-                    $gSecondsLeft = strtotime('tomorrow') - time();
-                    ?>
-                    <button id="premium-claim-btn" class="gsb-premium-claim-btn <?= $gClaimedToday ? 'claimed' : '' ?>" <?= $gClaimedToday ? 'disabled' : '' ?> data-seconds-left="<?= $gSecondsLeft ?>">
-                        <span class="btn-text"><?= $gClaimedToday ? $G['claimed'] : $h($G['claim']) ?></span>
-                    </button>
+                <?php endif; ?>
+                <div class="lb-tools">
+                    <button type="button" data-open="settings" id="btn-settings"><i class="fa-solid fa-gear"></i><span><?= $h($G['settings']) ?></span></button>
+                    <button type="button" data-open="leaderboard"><i class="fa-solid fa-trophy"></i><span><?= $h($G['leaderboard']) ?></span></button>
+                    <a href="inventario"><i class="fa-solid fa-layer-group"></i><span><?= $h($G['inventory']) ?></span></a>
+                    <button type="button" data-open="history"><i class="fa-solid fa-clock-rotate-left"></i><span><?= $h($G['history']) ?></span></button>
                 </div>
-            <?php endif; ?>
-
-            <div class="gsb-actions">
-                <button class="gsb-action-btn" id="btn-settings" aria-label="<?= $h($G['settings']) ?>">
-                    <i class="fa-solid fa-gear"></i>
-                    <span><?= $h($G['settings']) ?></span>
-                </button>
-                <button class="gsb-action-btn" onclick="toggleLeaderboard()" aria-label="<?= $h($G['leaderboard']) ?>">
-                    <i class="fa-solid fa-trophy"></i>
-                    <span><?= $h($G['leaderboard']) ?></span>
-                </button>
-                <a href="inventario" class="gsb-action-btn" aria-label="<?= $h($G['inventory']) ?>">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span><?= $h($G['inventory']) ?></span>
-                </a>
-                <button class="gsb-action-btn" onclick="openCurrentHistory()" aria-label="<?= $h($G['history']) ?>">
-                    <i class="fa-solid fa-scroll"></i>
-                    <span><?= $h($G['history']) ?></span>
-                </button>
             </div>
-
         </aside>
+        <div class="lb-rail-scrim" data-rail-close aria-hidden="true"></div>
 
     </div>
 
@@ -577,249 +686,13 @@ $gFmt = static fn($n) => number_format((int)$n, 0, $gEn ? '.' : ',', $gEn ? ',' 
         </div>
     </div>
 
-    <div class="modal fade lootbox-settings-modal" id="impostazioniModal"
-        tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable lootbox-settings-dialog">
-            <div class="modal-content bgimpostazioni lootbox-settings-content">
-                <div class="modal-header lootbox-settings-header">
-                    <div>
-                        <span class="lootbox-modal-kicker">Gacha</span>
-                        <h5 class="modal-title"><?= $gEn ? 'Settings' : 'Impostazioni' ?></h5>
-                        <p><?= $gEn ? 'Drop rates, controls, and quick functions.' : 'Probabilità, comandi e funzioni rapide.' ?></p>
-                    </div>
-                    <button type="button" class="lootbox-modal-close"
-                        data-bs-dismiss="modal" aria-label="<?= $gEn ? 'Close settings' : 'Chiudi' ?>">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <div class="modal-body lootbox-settings-body">
-
-                    <section class="lootbox-settings-section">
-                        <div class="lootbox-section-head">
-                            <i class="fa-solid fa-keyboard"></i>
-                            <div>
-                                <h6><?= $gEn ? 'Controls' : 'Comandi' ?></h6>
-                                <p><?= $gEn ? 'Quick shortcuts.' : 'Scorciatoie rapide.' ?></p>
-                            </div>
-                        </div>
-                        <div class="lootbox-command-grid">
-                            <div class="lootbox-command-item"><span>Space</span><strong><?= $gEn ? 'Normal Pull' : 'Pull normale' ?></strong></div>
-                            <div class="lootbox-command-item"><span>Enter</span><strong><?= $gEn ? 'Open Again' : 'Apri ancora' ?></strong></div>
-                            <div class="lootbox-command-item"><span>Esc</span><strong><?= $gEn ? 'Close Overlay' : 'Chiudi overlay' ?></strong></div>
-                            <div class="lootbox-command-item"><span>S</span><strong><?= $gEn ? 'Skip Multi' : 'Salta multi' ?></strong></div>
-                        </div>
-                    </section>
-
-                    <section class="lootbox-settings-section">
-                        <div class="lootbox-section-head">
-                            <i class="fa-solid fa-dice"></i>
-                            <div>
-                                <h6><?= $gEn ? 'Base rates' : 'Probabilità base' ?></h6>
-                                <p><?= $gEn ? 'Each banner shows its own under “Details & rates”.' : 'Ogni banner ha le sue in «Dettagli e probabilità».' ?></p>
-                            </div>
-                        </div>
-                        <div class="gacha-rates-grid">
-                            <?php foreach ($gRateRows as [$rk, $cls]):
-                                $w = gacha_rarity_defs()[$rk]['peso'];
-                                $label = $rk === 'segreto' ? '???' : gacha_rarity_label($rk, $gLang);
-                                $value = $w >= 5 ? round($w) . '%' : number_format($w, 2, $gEn ? '.' : ',', '') . '%';
-                            ?>
-                                <div class="gacha-rate-row <?= $cls ?>"><span><?= $h($label) ?></span><strong><?= $h($value) ?></strong></div>
-                            <?php endforeach; ?>
-                        </div>
-                    </section>
-
-                    <section class="lootbox-settings-section">
-                        <div class="lootbox-section-head">
-                            <i class="fa-solid fa-chart-line"></i>
-                            <div>
-                                <h6><?= $gEn ? 'Pity System' : 'Sistema Pity' ?></h6>
-                            </div>
-                        </div>
-                        <div class="lootbox-command-grid">
-                            <div class="lootbox-command-item"><span><?= $gEn ? 'Standard Soft pity' : 'Soft pity standard' ?></span><strong>Pull <?= (int)$gProfiles['standard']['soft'] ?></strong></div>
-                            <div class="lootbox-command-item"><span><?= $gEn ? 'Standard Hard pity' : 'Hard pity standard' ?></span><strong>Pull <?= (int)$gProfiles['standard']['hard'] ?></strong></div>
-                            <div class="lootbox-command-item"><span><?= $gEn ? 'Limited Soft pity' : 'Soft pity evento' ?></span><strong>Pull <?= (int)$gProfiles['evento']['soft'] ?></strong></div>
-                            <div class="lootbox-command-item"><span><?= $gEn ? 'Limited Hard pity' : 'Hard pity evento' ?></span><strong>Pull <?= (int)$gProfiles['evento']['hard'] ?></strong></div>
-                        </div>
-                    </section>
-
-                    <?php if ($gIsAdmin): ?>
-                        <section id="admin-cheats" class="lootbox-settings-section lootbox-admin-section">
-                            <div class="lootbox-section-head">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                <div>
-                                    <h6>Admin cheats</h6>
-                                    <p><?= $gEn ? 'Force rarity (server-side).' : 'Force rarità (server-side).' ?></p>
-                                </div>
-                            </div>
-                            <div class="lootbox-toggle-grid">
-                                <?php foreach (
-                                    [
-                                        'forza-comune' => 'Solo Comuni',
-                                        'forza-raro' => 'Solo Rari',
-                                        'forza-epico' => 'Solo Epici',
-                                        'forza-leggendario' => 'Solo Leggendari',
-                                        'forza-speciale' => 'Solo Speciali',
-                                        'forza-segreto' => 'Solo Segreti',
-                                        'forza-theone' => 'Solo The One',
-                                    ] as $id => $label
-                                ): ?>
-                                    <label class="lootbox-toggle-pill" for="<?= $id ?>">
-                                        <input class="form-check-input admin-force-rarity" type="checkbox"
-                                            id="<?= $id ?>" data-rarity="<?= str_replace('forza-', '', $id) ?>">
-                                        <span><?= $label ?></span>
-                                    </label>
-                                <?php endforeach; ?>
-                                <label class="lootbox-toggle-pill" for="forza-lobotomy">
-                                    <input class="form-check-input admin-force-character" type="checkbox"
-                                        id="forza-lobotomy" data-character-id="155">
-                                    <span>Mod sono Lobotomy</span>
-                                </label>
-                            </div>
-                        </section>
-                    <?php endif; ?>
-
-                    <section class="lootbox-settings-section lootbox-code-section">
-                        <div class="lootbox-section-head">
-                            <i class="fa-solid fa-lock"></i>
-                            <div>
-                                <h6><?= $gEn ? 'Redeem Code' : 'Codice segreto' ?></h6>
-                            </div>
-                        </div>
-                        <div class="lootbox-secret-row">
-                            <label class="visually-hidden" for="codiceSegreto"><?= $gEn ? 'Redeem Code' : 'Codice Segreto' ?></label>
-                            <input type="text" id="codiceSegreto" class="form-control"
-                                placeholder="<?= $gEn ? 'Secret code' : 'Codice segreto' ?>" autocomplete="off"
-                                onkeydown="if(event.key==='Enter')riscattaCodice()">
-                            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn"
-                                id="btnRiscatta" onclick="riscattaCodice()">
-                                <span id="btnRiscattaLabel"><?= $gEn ? 'Redeem' : 'Riscatta' ?></span>
-                                <span id="btnRiscattaSpin" style="display:none"><i class="fa-solid fa-spinner fa-spin"></i></span>
-                            </button>
-                        </div>
-                    </section>
-                </div>
-                <div class="modal-footer lootbox-settings-footer">
-                    <button type="button"
-                        class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost"
-                        data-bs-dismiss="modal"><?= $gEn ? 'Close' : 'Chiudi' ?></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="leaderboard-wrapper" id="leaderboard-wrapper" style="display:none">
-        <div class="leaderboard-box lootbox-leaderboard-box">
-            <div class="leaderboard-head">
-                <div>
-                    <span class="leaderboard-kicker"><?= $gEn ? 'Leaderboard' : 'Classifica' ?></span>
-                    <h3 class="testobianco">Top Gacha</h3>
-                    <p><?= $gEn ? 'Top 10 players' : 'Le prime posizioni del momento.' ?></p>
-                </div>
-                <button class="leaderboard-close" type="button"
-                    id="leaderboard-close-btn" aria-label="<?= $gEn ? 'Close' : 'Chiudi' ?>">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="leaderboard-buttons" role="group">
-                <button class="btn btn-secondary bottone leaderboard-btn active"
-                    id="btn-casse" onclick="switchLeaderboard('casse_aperte')">
-                    <i class="fa-solid fa-box-open"></i> <span><?= $gEn ? 'Pull count' : 'Casse aperte' ?></span>
-                </button>
-                <button class="btn btn-secondary bottone leaderboard-btn"
-                    id="btn-personaggi" onclick="switchLeaderboard('personaggi_sbloccati')">
-                    <i class="fa-solid fa-layer-group"></i> <span><?= $gEn ? 'Characters' : 'Personaggi' ?></span>
-                </button>
-            </div>
-            <div id="leaderboard-data" class="leaderboard-data">
-                <div class="loading-text testobianco"><?= $gEn ? 'Loading...' : 'Caricamento...' ?></div>
-            </div>
-        </div>
-    </div>
+    <?php include __DIR__ . '/lootbox-modals.php'; ?>
 
     <div id="achievement-popup" class="popup">
         <img id="popup-image" src="" alt="Achievement">
         <div>
             <h3 id="popup-title"></h3>
             <p id="popup-description"></p>
-        </div>
-    </div>
-
-    <div class="modal fade shop-modal" id="gachaShopRedirectModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: rgba(13, 10, 24, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: #fff;">
-                <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                    <h5 class="modal-title"><?= $gEn ? 'Insufficient Balances' : 'Valute Insufficienti' ?></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center py-4">
-                    <div style="margin-bottom: 1rem;"><img src="/img/godoshards.png" alt="Godo Shards" style="width: 80px; height: 80px; object-fit: contain;"></div>
-                    <p class="mb-4"><?= $gEn ? 'You do not have enough Godos or Godo Shards to complete this pull.' : 'Non hai abbastanza Godos o Godo Shards per completare questa pull.' ?></p>
-                    <div class="d-grid gap-2 col-8 mx-auto">
-                        <a href="/<?= $gLang ?>/shop.php" class="btn btn-primary" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); border: none; font-weight: 700; padding: 0.75rem;"><?= $gEn ? 'Visit Shop' : 'Visita lo Shop' ?></a>
-                        <a href="/<?= $gLang ?>/shop.php#converti" class="btn btn-outline-light" style="font-weight: 700;"><?= $gEn ? 'Convert Godos to Shards' : 'Converti i Godos in Shards' ?></a>
-                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal"><?= $gEn ? 'Close' : 'Chiudi' ?></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="gachaConversionModal" tabindex="-1" aria-labelledby="gachaConversionTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered gacha-conversion-dialog">
-            <div class="modal-content gacha-conversion-card">
-                <div class="gacha-conversion-glow" aria-hidden="true"></div>
-                <div class="gacha-conversion-header">
-                    <div>
-                        <span class="gacha-conversion-kicker"><i class="fa-solid fa-wand-magic-sparkles"></i> <?= $gEn ? 'Confirm pull' : 'Conferma pull' ?></span>
-                        <h5 class="gacha-conversion-title" id="gachaConversionTitle"><?= $gEn ? 'Complete your pull' : 'Completa la tua pull' ?></h5>
-                    </div>
-                    <button type="button" class="gacha-conversion-close" data-bs-dismiss="modal" aria-label="<?= $gEn ? 'Close' : 'Chiudi' ?>">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <div class="gacha-conversion-body">
-                    <p class="gacha-conversion-copy">
-                        <?php if ($gEn): ?>
-                            You need <strong><span class="conversion-shards-count">4</span> more Godo Shards</strong>.
-                            Create them instantly using your Godos.
-                        <?php else: ?>
-                            Ti mancano <strong><span class="conversion-shards-count">4</span> Godo Shards</strong>.
-                            Puoi crearli al volo usando i tuoi Godos.
-                        <?php endif; ?>
-                    </p>
-
-                    <div class="gacha-conversion-flow" aria-label="<?= $gEn ? 'Conversion summary' : 'Riepilogo conversione' ?>">
-                        <div class="gacha-conversion-currency gacha-conversion-currency--godos">
-                            <span class="gacha-conversion-label"><?= $gEn ? 'Spend' : 'Spendi' ?></span>
-                            <img src="/img/godos.png" alt="" class="gacha-conversion-icon">
-                            <strong class="conversion-godos-cost">400</strong>
-                            <small>Godos</small>
-                        </div>
-
-                        <div class="gacha-conversion-arrow" aria-hidden="true">
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </div>
-
-                        <div class="gacha-conversion-currency gacha-conversion-currency--shards">
-                            <span class="gacha-conversion-label"><?= $gEn ? 'Receive' : 'Ricevi' ?></span>
-                            <img src="/img/godoshards.png" alt="" class="gacha-conversion-icon">
-                            <strong>+<span class="conversion-shards-count">4</span></strong>
-                            <small>Godo Shards</small>
-                        </div>
-                    </div>
-
-                    <div class="gacha-conversion-actions">
-                        <button type="button" class="gacha-conversion-btn gacha-conversion-btn--ghost" data-bs-dismiss="modal"><?= $gEn ? 'Cancel' : 'Annulla' ?></button>
-                        <button type="button" class="gacha-conversion-btn gacha-conversion-btn--primary btn-confirm-conversion">
-                            <span><?= $gEn ? 'Convert & pull' : 'Converti e pulla' ?></span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -849,193 +722,20 @@ $gFmt = static fn($n) => number_format((int)$n, 0, $gEn ? '.' : ',', $gEn ? ',' 
                 'data_fine' => $b['data_fine'],
             ], $gBanners),
             'rarities' => array_map(static fn($k) => ['key' => $k, 'label' => gacha_rarity_label($k, $gLang), 'color' => gacha_rarity_defs()[$k]['color']], gacha_rarity_keys()),
+            'tierLabels' => [
+                'speciale' => lb_tier_label('speciale', $G, $gLang),
+                'segreto' => lb_tier_label('segreto', $G, $gLang),
+            ],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
-
-        const premiumBtn = document.getElementById('premium-claim-btn');
-        if (premiumBtn) {
-            const isEn = <?= $gEn ? 'true' : 'false' ?>;
-            function startPremiumClaimCountdown(btn, seconds) {
-                if (!btn) return;
-                function formatTime(secs) {
-                    if (secs <= 0) return "00:00:00";
-                    const h = Math.floor(secs / 3600);
-                    const m = Math.floor((secs % 3600) / 60);
-                    const s = secs % 60;
-                    return [h, m, s].map((v) => v.toString().padStart(2, '0')).join(':');
-                }
-                if (btn._countdownInterval) clearInterval(btn._countdownInterval);
-                const update = () => {
-                    if (seconds <= 0) {
-                        clearInterval(btn._countdownInterval);
-                        btn.classList.remove('claimed');
-                        btn.disabled = false;
-                        const btnText = btn.querySelector('.btn-text');
-                        if (btnText) btnText.textContent = isEn ? 'Claim 500 Points' : 'Riscatta 500 Punti';
-                        return;
-                    }
-                    const countdownSpan = btn.querySelector('.claim-countdown');
-                    if (countdownSpan) countdownSpan.textContent = formatTime(seconds);
-                    seconds--;
-                };
-                update();
-                btn._countdownInterval = setInterval(update, 1000);
-            }
-
-            const secondsLeft = parseInt(premiumBtn.dataset.secondsLeft || 0, 10);
-            if (premiumBtn.classList.contains('claimed')) startPremiumClaimCountdown(premiumBtn, secondsLeft);
-
-            premiumBtn.addEventListener('click', async () => {
-                try {
-                    premiumBtn.disabled = true;
-                    const res = await fetch('/api/premium_daily_claim.php', {
-                        method: 'POST',
-                        headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '' }
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        premiumBtn.classList.add('claimed');
-                        const btnText = premiumBtn.querySelector('.btn-text');
-                        if (btnText) {
-                            btnText.innerHTML = isEn
-                                ? 'Claimed today (Reset in <span class="claim-countdown">--:--:--</span>)'
-                                : 'Riscattato oggi (Ricarica tra <span class="claim-countdown">--:--:--</span>)';
-                        }
-                        startPremiumClaimCountdown(premiumBtn, parseInt(data.seconds_left || 86400, 10));
-                        window.GachaUI?.setSoldi?.(data.new_soldi);
-                        window.GachaUI?.showToast?.(data.message, 'success');
-                    } else {
-                        premiumBtn.disabled = false;
-                        window.GachaUI?.showToast?.(data.error || (isEn ? 'Error during claim' : 'Errore durante il riscatto'), 'error');
-                    }
-                } catch (e) {
-                    premiumBtn.disabled = false;
-                    window.GachaUI?.showToast?.(isEn ? 'Network or server error' : 'Errore di rete o del server', 'error');
-                }
-            });
-        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
     <script src="<?= $h(cripsum_asset('/js/unlockAchievement-' . $gLang . '.js')) ?>"></script>
+    <script src="<?= $h(cripsum_asset('/js/lootbox-modal.js')) ?>"></script>
     <script src="<?= $h(cripsum_asset('/js/gacha-effects.js')) ?>"></script>
     <script src="<?= $h(cripsum_asset('/js/gacha.js')) ?>"></script>
-
-    <script>
-        function openCurrentHistory() {
-            const bid = window.GACHA_INIT?.activeBannerId ?? 'standard';
-            const banner = window.GACHA_INIT?.banners?.find((b) => String(b.id) === String(bid));
-            window.GachaHistory?.open(bid, banner?.nome ?? <?= json_encode($G['standard_name']) ?>);
-        }
-        let currentLeaderboardType = 'casse_aperte';
-        let leaderboardVisible = false;
-        const LB = <?= json_encode($gEn
-            ? ['loading' => 'Loading...', 'empty' => 'No data available', 'error' => 'Connection error', 'boxes' => 'pulls', 'chars' => 'characters']
-            : ['loading' => 'Caricamento...', 'empty' => 'Nessun dato disponibile', 'error' => 'Errore connessione', 'boxes' => 'casse', 'chars' => 'personaggi'], JSON_UNESCAPED_UNICODE) ?>;
-
-        function toggleLeaderboard() {
-            const wrapper = document.getElementById('leaderboard-wrapper');
-            leaderboardVisible = !leaderboardVisible;
-            wrapper.style.display = leaderboardVisible ? 'flex' : 'none';
-            if (leaderboardVisible) loadLeaderboard(currentLeaderboardType);
-        }
-
-        async function loadLeaderboard(type) {
-            const dataDiv = document.getElementById('leaderboard-data');
-            dataDiv.innerHTML = `<div class="loading-text testobianco"><i class="fa-solid fa-circle-notch fa-spin"></i><span>${LB.loading}</span></div>`;
-            try {
-                const r = await fetch(`/api/get_leaderboard?type=${type}`);
-                const d = await r.json();
-                if (d.status === 'success' && d.data.length > 0) {
-                    displayLeaderboard(d.data, type);
-                } else {
-                    dataDiv.innerHTML = `<div class="loading-text testobianco"><i class="fa-solid fa-ranking-star"></i><span>${LB.empty}</span></div>`;
-                }
-            } catch {
-                dataDiv.innerHTML = `<div class="loading-text testobianco is-error"><i class="fa-solid fa-triangle-exclamation"></i><span>${LB.error}</span></div>`;
-            }
-        }
-
-        function lbEscape(value) {
-            return String(value ?? '').replace(/[&<>'"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[c]));
-        }
-
-        function displayLeaderboard(data, type) {
-            const lbl = type === 'casse_aperte' ? LB.boxes : LB.chars;
-            document.getElementById('leaderboard-data').innerHTML = data.map(item => {
-                const medal = { 1: '🥇 ', 2: '🥈 ', 3: '🥉 ' }[item.position] ?? '';
-                const cls = { 1: 'gold', 2: 'silver', 3: 'bronze' }[item.position] ?? '';
-                return `<div class="leaderboard-entry ${cls}">
-            <span class="entry-position testobianco">${medal}${item.position}</span>
-            <span class="entry-user-wrap"><span class="entry-username testobianco">${lbEscape(item.username)}${item.is_premium ? ' <span class="premium-badge-icon" title="Premium"><i class="fa-solid fa-gem"></i></span>' : ''}</span><small>${lbl}</small></span>
-            <span class="entry-value">${lbEscape(item.value)}</span>
-        </div>`;
-            }).join('');
-        }
-
-        function switchLeaderboard(type) {
-            currentLeaderboardType = type;
-            document.querySelectorAll('.leaderboard-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(type === 'casse_aperte' ? 'btn-casse' : 'btn-personaggi').classList.add('active');
-            loadLeaderboard(type);
-        }
-
-        document.getElementById('leaderboard-close-btn').addEventListener('click', toggleLeaderboard);
-        document.addEventListener('click', e => {
-            if (leaderboardVisible && e.target.id === 'leaderboard-wrapper') toggleLeaderboard();
-        });
-
-        async function riscattaCodice() {
-            const input = document.getElementById('codiceSegreto');
-            const codice = input.value.trim();
-            if (!codice) return;
-            const btn = document.getElementById('btnRiscatta');
-            const label = document.getElementById('btnRiscattaLabel');
-            const spin = document.getElementById('btnRiscattaSpin');
-            btn.disabled = true;
-            label.style.display = 'none';
-            spin.style.display = 'inline';
-
-            try {
-                const resp = await fetch('/api/api_redeem_code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                    },
-                    body: JSON.stringify({
-                        codice,
-                        lang: <?= json_encode($gLang) ?>,
-                        csrf_token: document.querySelector('meta[name="csrf-token"]')?.content || ''
-                    }),
-                    credentials: 'same-origin',
-                });
-                const data = await resp.json();
-
-                if (data.status !== 'success') {
-                    window.GachaUI?.showToast(data.message ?? <?= json_encode($gEn ? 'Error occurred.' : 'Errore riscatto.') ?>, 'error');
-                    return;
-                }
-
-                input.value = '';
-
-                if (data.tipo === 'personaggio') {
-                    bootstrap.Modal.getInstance(document.getElementById('impostazioniModal'))?.hide();
-                    window.GachaUI?.openRevealWithData(data.personaggio);
-                } else if (data.tipo === 'punti') {
-                    if (data.soldi_rimasti != null) window.GachaUI?.setSoldi?.(data.soldi_rimasti);
-                    const desc = data.descrizione ?? <?= $gEn ? '`+${data.punti} points!`' : '`+${data.punti} punti!`' ?>;
-                    window.GachaUI?.showToast(`🎁 ${desc}`, 'success');
-                }
-            } catch {
-                window.GachaUI?.showToast(<?= json_encode($gEn ? 'Error occurred. Please try again.' : 'Errore riscatto. Riprova.') ?>, 'error');
-            } finally {
-                btn.disabled = false;
-                label.style.display = 'inline';
-                spin.style.display = 'none';
-            }
-        }
-    </script>
+    <script src="<?= $h(cripsum_asset('/js/lootbox-ui.js')) ?>"></script>
 
 </body>
 

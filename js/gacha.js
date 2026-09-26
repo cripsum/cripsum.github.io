@@ -51,22 +51,12 @@
       btn_multi_again:    '<i class="fa-solid fa-rotate-right"></i> Apri x10',
       btn_close:          '<i class="fa-solid fa-xmark"></i> Chiudi',
       btn_inventory:      '<i class="fa-solid fa-layer-group"></i> Inventario',
-      // History modal
-      history_kicker:     'Gacha',
-      history_title:      'Cronologia Pull',
-      history_close:      'Chiudi',
-      history_empty:      'Nessuna pull su questo banner.',
-      history_pity:       (n) => `pity ${n}`,
-      history_stats:      (tot, seg) => `${tot} pull totali • ${seg} segreti`,
       history_guaranteed: 'Garantito attivato',
-      // Pity bar
-      pity_hard:          '★ Garantito: prossima pull è Speciale o Segreto!',
-      pity_soft:          '✦ Soft pity — % Speciale e Segreto aumentata',
-      pity_count:         (n) => `Garantito Speciale o Segreto in ${n} pull`,
-      pity_evt_soft:      '✦ Soft pity attivo — probabilità in aumento',
-      pity_evt_count:     (n) => `Garantito segreto in ${n} pull`,
-      pity_gen_hard:      (r) => `★ Garantito: prossima pull è ${r} o superiore!`,
-      pity_gen_count:     (r, n) => `Garantito ${r} o superiore in ${n} pull`,
+      // Pity accanto alla barra
+      pity_next:          (r) => `${r} garantito alla prossima`,
+      pity_soft:          'Soft pity attivo · probabilità in salita',
+      pity_within:        (r, n) => `${r} garantito entro <b>${n}</b>`,
+      tier_up:            (r) => `${r} o superiore`,
       // Riepilogo multi
       summary_best:       'Migliore',
       summary_copy:       (n) => n === 1 ? 'prima copia' : `copia n. ${n}`,
@@ -76,35 +66,15 @@
       summary_guarantee:  'Garanzia 10×',
       summary_open:       'Apri nell\'inventario',
       summary_new_filter: '<i class="fa-solid fa-star"></i> Vedi i nuovi',
-      // Cronologia
-      history_luck:       (w, l, p) => `50/50: ${w} vinti · ${l} persi${p ? ` · segreti in media al pity ${p}` : ''}`,
-      history_featured:   'Rate-Up',
-      history_free:       'Gratis',
-      // Dettagli banner
-      details_kicker:     'Banner',
-      details_title:      'Dettagli e probabilità',
-      details_rates:      'Probabilità per rarità',
-      details_rateups:    'Rate-up',
-      details_perpull:    'a pull',
-      details_rules:      'Regole',
-      details_pool:       (n) => `Personaggi del banner (${n})`,
-      details_rule_soft:  (s) => `Dalla pull ${s + 1} le rarità alte salgono a ogni pull (soft pity).`,
-      details_rule_hard:  (h, r) => `Entro la pull ${h} arriva di sicuro un ${r} o superiore (hard pity).`,
-      details_rule_5050:  (q, n) => `Quando esce la rarità del rate-up hai il ${q}% di prenderlo; se perdi, il prossimo è garantito. Al massimo ${n} pull per averlo.`,
-      details_rule_shared:'Il pity e il garantito sono condivisi con gli altri banner evento.',
-      details_rule_multi: (r) => `Ogni multi 10× contiene almeno un ${r} o superiore.`,
-      details_pool_std:   'Tutti i personaggi del pool standard, più i rate-up.',
-      details_pool_list:  'Solo i personaggi qui sotto.',
-      details_pool_cat:   (c) => `Tutti i personaggi della categoria «${c}».`,
-      details_owned:      'Posseduto',
-      details_error:      'Non riesco a caricare i dettagli.',
-      details_close:      'Chiudi',
       destiny_saved:      'Bersaglio aggiornato.',
       destiny_points:     (p, m) => `Destino ${p}/${m}`,
-      free_today:         (n) => `${n} gratis oggi`,
+      free_today:         (n) => `${n} pull gratis oggi`,
+      card_free:          (n) => `${n} gratis`,
+      card_left:          (n) => `${n} rimaste`,
       limit_total:        (u, m) => `${u} / ${m} pull usate`,
       limit_day:          (u, m) => `${u} / ${m} pull oggi`,
       soon_toast:         'Questo banner non è ancora iniziato.',
+      convert_confirm:    (g, s) => `Vuoi convertire ${g} Godos in ${s} Godo Shards per completare la pull?`,
       banner_done:        (n) => `Hai fatto tutte le pull di «${n}»: il banner non c'è più.`,
     },
     en: {
@@ -135,20 +105,11 @@
       btn_multi_again:    '<i class="fa-solid fa-rotate-right"></i> Multi again',
       btn_close:          '<i class="fa-solid fa-xmark"></i> Close',
       btn_inventory:      '<i class="fa-solid fa-layer-group"></i> Inventory',
-      history_kicker:     'Gacha',
-      history_title:      'Pull History',
-      history_close:      'Close',
-      history_empty:      'No pulls on this banner yet.',
-      history_pity:       (n) => `pity ${n}`,
-      history_stats:      (tot, seg) => `${tot} total pulls • ${seg} secrets`,
       history_guaranteed: 'Guaranteed activated',
-      pity_hard:          '★ Guaranteed: next pull is Special or Secret!',
-      pity_soft:          '✦ Soft pity — Special/Secret % increased',
-      pity_count:         (n) => `Guaranteed Special/Secret in ${n} pulls`,
-      pity_evt_soft:      '✦ Soft pity active — probability increasing',
-      pity_evt_count:     (n) => `Guaranteed secret in ${n} pulls`,
-      pity_gen_hard:      (r) => `★ Guaranteed: next pull is ${r} or higher!`,
-      pity_gen_count:     (r, n) => `${r} or higher guaranteed in ${n} pulls`,
+      pity_next:          (r) => `${r} guaranteed on the next pull`,
+      pity_soft:          'Soft pity active · odds rising',
+      pity_within:        (r, n) => `${r} guaranteed within <b>${n}</b>`,
+      tier_up:            (r) => `${r} or higher`,
       summary_best:       'Best',
       summary_copy:       (n) => n === 1 ? 'first copy' : `copy #${n}`,
       summary_spent:      (g, s) => g || s ? `Spent ${[g ? `${g.toLocaleString('en-GB')} Godos` : '', s ? `${s} Shards` : ''].filter(Boolean).join(' + ')}` : 'Free pulls',
@@ -157,33 +118,15 @@
       summary_guarantee:  '10× guarantee',
       summary_open:       'Open in inventory',
       summary_new_filter: '<i class="fa-solid fa-star"></i> See new ones',
-      history_luck:       (w, l, p) => `50/50: ${w} won · ${l} lost${p ? ` · secrets at pity ${p} on average` : ''}`,
-      history_featured:   'Rate-Up',
-      history_free:       'Free',
-      details_kicker:     'Banner',
-      details_title:      'Details & rates',
-      details_rates:      'Rates by rarity',
-      details_rateups:    'Rate-up',
-      details_perpull:    'per pull',
-      details_rules:      'Rules',
-      details_pool:       (n) => `Banner characters (${n})`,
-      details_rule_soft:  (s) => `From pull ${s + 1} the high rarities go up every pull (soft pity).`,
-      details_rule_hard:  (h, r) => `By pull ${h} you surely get a ${r} or higher (hard pity).`,
-      details_rule_5050:  (q, n) => `When the rate-up rarity drops you have a ${q}% chance to get it; if you lose, the next one is guaranteed. At most ${n} pulls to get it.`,
-      details_rule_shared:'Pity and guarantee are shared with the other limited banners.',
-      details_rule_multi: (r) => `Every 10× multi has at least one ${r} or higher.`,
-      details_pool_std:   'Every character of the standard pool, plus the rate-ups.',
-      details_pool_list:  'Only the characters below.',
-      details_pool_cat:   (c) => `Every character of the “${c}” category.`,
-      details_owned:      'Owned',
-      details_error:      'Could not load the details.',
-      details_close:      'Close',
       destiny_saved:      'Target updated.',
       destiny_points:     (p, m) => `Destiny ${p}/${m}`,
-      free_today:         (n) => `${n} free today`,
+      free_today:         (n) => `${n} free pull${n === 1 ? '' : 's'} today`,
+      card_free:          (n) => `${n} free`,
+      card_left:          (n) => `${n} left`,
       limit_total:        (u, m) => `${u} / ${m} pulls used`,
       limit_day:          (u, m) => `${u} / ${m} pulls today`,
       soon_toast:         'This banner has not started yet.',
+      convert_confirm:    (g, s) => `Do you want to convert ${g} Godos into ${s} Godo Shards to complete the pull?`,
       banner_done:        (n) => `You've used every pull on “${n}”: the banner is gone.`,
     },
   }[lang];
@@ -306,8 +249,6 @@
      INIT
   ══════════════════════════════════════════════════════ */
   function init() {
-    fixLayout();
-    createStars($('stars'), 100);
     createStars(overlayStars, 60);
     initSidebarCards();
     initPullButtons();
@@ -315,60 +256,10 @@
     initSkipButton();
     initKeyboard();
     initAdminCheats();
-    initTimers();
-    initSettingsBtn();
-    initLeaderboard();
-    injectHistoryModal();
     injectMultiModal(); // #4
     initFloatingAudioBtn();
-    injectDetailsModal();
-    initDetailsButtons();
     initDestiny();
     updateBannerUI();
-  }
-
-  /* ════════════════════════════════════════════════════
-     FIX 5/6/7 — LAYOUT: navbar offset + spazio vuoto
-  ════════════════════════════════════════════════════ */
-  function fixLayout() {
-    const nav = document.querySelector('nav.navbar, header.navbar, #navbar, .navbar');
-    const sidebar = document.getElementById('gacha-sidebar');
-    const layout  = document.getElementById('gacha-layout');
-
-    if (!nav) return;
-
-    const apply = () => {
-      const h = nav.getBoundingClientRect().height;
-      if (h <= 0) return;
-
-      // Sidebar sticky top
-      if (sidebar) {
-        sidebar.style.top    = h + 'px';
-        sidebar.style.height = `calc(100dvh - ${h}px)`;
-      }
-
-      // Layout e banner views
-      const vhMinusNav = `calc(100dvh - ${h}px)`;
-      if (layout) layout.style.minHeight = vhMinusNav;
-
-      // Su mobile la sidebar è fixed in basso: sottraiamo la sua altezza corretta
-      const hasPremium = document.body.classList.contains('has-premium');
-      const mobileSidebarH = window.innerWidth < 768 ? (hasPremium ? 230 : 148) : 0;
-      const bannerMinH = mobileSidebarH
-        ? `calc(100dvh - ${h}px - ${mobileSidebarH}px)`
-        : vhMinusNav;
-
-      $$('.gacha-banner-view').forEach(v => {
-        v.style.minHeight = bannerMinH;
-      });
-
-      // FIX 5/7: nessun padding-bottom residuo, layout riempie tutto
-      document.body.style.paddingBottom = '0';
-    };
-
-    apply();
-    window.addEventListener('resize', apply, { passive: true });
-    if (window.ResizeObserver) new ResizeObserver(apply).observe(nav);
   }
 
   /* ════════════════════════════════════════════════════
@@ -387,41 +278,37 @@
   }
 
   /* ════════════════════════════════════════════════════
-     SIDEBAR CARDS
+     SCELTA DEL BANNER
+     Le carte (colonna, striscia mobile, elenco "Tutti") hanno
+     data-banner-select; il passaggio visivo lo fa lootbox-ui.js.
   ════════════════════════════════════════════════════ */
   function initSidebarCards() {
-    document.getElementById('gsb-banners')?.addEventListener('click', e => {
-      const card = e.target.closest('.gsb-card[data-banner-id]');
+    document.addEventListener('click', e => {
+      const card = e.target.closest('[data-banner-select]');
       if (!card || state.isPulling) return;
-      switchBanner(card.dataset.bannerId, card.dataset.bannerType);
+      switchBanner(card.dataset.bannerSelect, card.dataset.bannerType);
     });
   }
 
   function switchBanner(bannerId, bannerType) {
-    if (state.activeBannerId === bannerId) return;
-    $$('.gsb-card').forEach(c => { c.classList.remove('is-active'); c.setAttribute('aria-pressed','false'); });
-    const activeCard = document.querySelector(`.gsb-card[data-banner-id="${bannerId}"]`);
-    if (activeCard) {
-      activeCard.classList.add('is-active');
-      activeCard.setAttribute('aria-pressed','true');
-      activeCard.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
-    }
-    $(`banner-view-${state.activeBannerId}`)?.style && ($(`banner-view-${state.activeBannerId}`).style.display = 'none');
+    bannerId = String(bannerId);
     const nv = $(`banner-view-${bannerId}`);
-    if (nv) {
-      // Solo queste proprieta': lo stile del banner ha anche i suoi colori.
-      nv.style.display = 'flex';
-      nv.style.opacity = '0';
-      nv.style.flex = '1';
-      requestAnimationFrame(() => {
-        nv.style.transition = 'opacity .35s ease';
-        nv.style.opacity = '1';
-        setTimeout(() => nv.style.transition = '', 370);
-      });
+    if (state.activeBannerId === bannerId || !nv) {
+      window.LootboxUI?.closeRail?.();
+      return;
     }
+    const from = state.activeBannerId;
     state.activeBannerId   = bannerId;
-    state.activeBannerType = bannerType ?? 'standard';
+    state.activeBannerType = bannerType ?? nv.dataset.bannerType ?? 'standard';
     if (window.GACHA_INIT) window.GACHA_INIT.activeBannerId = bannerId;
+
+    if (window.LootboxUI?.showBanner) {
+      window.LootboxUI.showBanner(from, bannerId);
+    } else {
+      const ov = $(`banner-view-${from}`);
+      if (ov) ov.hidden = true;
+      nv.hidden = false;
+    }
     try {
       const url = new URL(location.href);
       if (bannerId === 'standard') url.searchParams.delete('banner'); else url.searchParams.set('banner', bannerId);
@@ -433,9 +320,9 @@
      PULL BUTTONS
   ════════════════════════════════════════════════════ */
   function initPullButtons() {
-    // Unico listener per tutti i .gacha-pull-btn
+    // Unico listener per tutti i pulsanti [data-pull-btn]
     // data-pull-qty="10" → multi, altrimenti singola
-    $$('.gacha-pull-btn[data-banner-id]').forEach(btn => {
+    $$('[data-pull-btn][data-banner-id]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (state.isPulling) return;
         const bannerId = btn.dataset.bannerId;
@@ -1587,8 +1474,7 @@
         const pointsCost = (costShards - state.godoshards) * state.godosPerShard;
         if (state.soldi < pointsCost) {
           closeOverlay();
-          const redirectModal = new bootstrap.Modal(document.getElementById('gachaShopRedirectModal'));
-          redirectModal.show();
+          showFundsModal({ bannerId: state.activeBannerId, quantity: 1, missingShards: costShards - state.godoshards, pointsCost, canConvert: false, onConfirm: () => {} });
           return;
         }
       }
@@ -1689,6 +1575,23 @@
       state.godoshards = nuoviShards;
       updateBannerUI();
     },
+    // Impostazioni: volume e audio delle pull (gli stessi del pulsante flottante).
+    getAudio: () => ({ volume: globalVolume, muted: isMuted }),
+    setVolume: (v) => {
+      globalVolume = Math.min(Math.max(Number(v) || 0, 0), 1);
+      localStorage.setItem(volumeKey, String(globalVolume));
+      if (globalVolume > 0 && isMuted) { isMuted = false; localStorage.setItem(muteKey, 'false'); }
+      applyAudio();
+    },
+    setMuted: (m) => {
+      isMuted = !!m;
+      localStorage.setItem(muteKey, String(isMuted));
+      applyAudio();
+    },
+    getPity: (group) => state.pityGroups[group] || null,
+    getState: () => ({ soldi: state.soldi, godoshards: state.godoshards, godosPerShard: state.godosPerShard, activeBannerId: state.activeBannerId }),
+    isBusy: () => state.isPulling || state.overlayOpen,
+    switchBanner: (key) => switchBanner(key),
   };
 
   /* ════════════════════════════════════════════════════
@@ -1703,56 +1606,78 @@
     );
 
     // Il pity e' per gruppo: i banner evento condividono lo stesso.
-    $$('.gacha-banner-view[data-pity-gruppo]').forEach(view => {
+    $$('.lb-view[data-pity-gruppo]').forEach(view => {
       const group = view.dataset.pityGruppo;
       const g = state.pityGroups[group] || {};
       const counter = Number(g.contatore || 0);
       const hard = Number(view.dataset.pityHard || 80);
       const soft = Number(view.dataset.pitySoft || 65);
       const soglia = view.dataset.pitySoglia || 'segreto';
-      // La pull garantita e' la numero `hard`: con pity hard-1 e' la prossima.
-      const left = Math.max(1, hard - counter);
+      const tier = escapeHtml(pityTierLabel(soglia));
 
       const fill = view.querySelector('[data-pity-fill]');
-      const numEl = view.querySelector('[data-pity-num]');
-      const note = view.querySelector('[data-pity-note]');
-      if (fill) fill.style.width = Math.min(100, Math.round(counter / Math.max(1, hard) * 100)) + '%';
-      if (numEl) numEl.textContent = `${counter} / ${hard}`;
-      if (note) {
-        let text; let active;
-        if (group === 'standard') {
-          if (counter + 1 >= hard) { text = t.pity_hard; active = true; }
-          else if (counter >= soft) { text = t.pity_soft; active = true; }
-          else { text = t.pity_count(left); active = false; }
-        } else if (soglia === 'segreto') {
-          active = counter >= soft;
-          text = active ? t.pity_evt_soft : t.pity_evt_count(left);
-        } else {
-          const label = rarityLabels[soglia] || soglia;
-          if (counter + 1 >= hard) { text = t.pity_gen_hard(label); active = true; }
-          else { text = t.pity_gen_count(label, left); active = counter >= soft; }
+      if (fill) {
+        fill.style.width = Math.min(100, counter / Math.max(1, hard) * 100) + '%';
+        fill.parentElement?.setAttribute('aria-valuenow', String(counter));
+      }
+      view.querySelectorAll('[data-pity-num], [data-pity-mini]').forEach(el => {
+        if (el.textContent !== String(counter)) {
+          el.textContent = String(counter);
+          el.classList.remove('is-bumped'); void el.offsetWidth; el.classList.add('is-bumped');
         }
-        note.textContent = text;
+      });
+      const note = view.querySelector('[data-pity-note]');
+      if (note) {
+        // La pull garantita e' la numero `hard`: con pity hard-1 e' la prossima.
+        let html; let active;
+        if (counter + 1 >= hard) { html = t.pity_next(tier); active = true; }
+        else if (counter >= soft) { html = escapeHtml(t.pity_soft); active = true; }
+        else { html = t.pity_within(tier, Math.max(1, hard - counter)); active = false; }
+        note.innerHTML = html;
         note.classList.toggle('is-active', active);
+        view.querySelector('[data-pity-box]')?.classList.toggle('is-soft', active);
       }
       view.querySelectorAll('[data-garantito-badge]').forEach(el => { el.style.display = g.garantito ? '' : 'none'; });
 
-      const banner = bannersByKey.get(view.dataset.bannerId);
+      const key = view.dataset.bannerId;
+      const banner = bannersByKey.get(key);
       const uso = banner?.uso;
       if (uso) {
-        view.dataset.gratis = String(uso.gratis_rimaste || 0);
+        const free = Number(uso.gratis_rimaste || 0);
+        view.dataset.gratis = String(free);
         const freeChip = view.querySelector('[data-free-chip]');
         if (freeChip) {
-          freeChip.hidden = !(uso.gratis_rimaste > 0);
+          freeChip.hidden = !(free > 0);
           const text = freeChip.querySelector('[data-free-text]');
-          if (text) text.textContent = t.free_today(uso.gratis_rimaste);
+          if (text) text.textContent = t.free_today(free);
         }
-        const total = view.querySelector('[data-limit-total]');
-        if (total && uso.limite) total.lastChild.textContent = ' ' + t.limit_total(uso.totale, uso.limite);
-        const day = view.querySelector('[data-limit-day]');
-        if (day && uso.limite_giorno) day.lastChild.textContent = ' ' + t.limit_day(uso.oggi, uso.limite_giorno);
+        view.querySelectorAll('[data-free-badge], [data-cost-free]').forEach(el => { el.hidden = !(free > 0); });
+        view.querySelectorAll('[data-cost-paid]').forEach(el => { el.hidden = free > 0; });
+        const total = view.querySelector('[data-limit-total] span');
+        if (total && uso.limite) total.textContent = t.limit_total(uso.totale, uso.limite);
+        const day = view.querySelector('[data-limit-day] span');
+        if (day && uso.limite_giorno) day.textContent = t.limit_day(uso.oggi, uso.limite_giorno);
+
+        // Le carte del banner nell'elenco.
+        $$(`[data-banner-select="${CSS.escape(key)}"]`).forEach(card => {
+          const cf = card.querySelector('[data-card-free]');
+          if (cf) {
+            if (free > 0) cf.lastChild.textContent = ' ' + t.card_free(free);
+            else cf.remove();
+          }
+          const cl = card.querySelector('[data-card-left]');
+          if (cl && uso.limite) cl.lastChild.textContent = ' ' + t.card_left(Math.max(0, uso.limite - uso.totale));
+        });
       }
     });
+  }
+
+  /** Cosa garantisce il pity, in parole: "Segreto", "Speciale o Segreto"... */
+  function pityTierLabel(soglia) {
+    const tiers = INIT.tierLabels || {};
+    if (soglia === 'speciale') return tiers.speciale || rarityLabels.speciale || soglia;
+    if (soglia === 'segreto' || soglia === 'theone') return tiers.segreto || rarityLabels.segreto || soglia;
+    return t.tier_up(rarityLabels[soglia] || soglia);
   }
 
   /**
@@ -1788,23 +1713,14 @@
     for (const [key, banner] of bannersByKey) {
       const uso = banner.uso;
       if (!uso || !uso.limite || uso.totale < uso.limite) continue;
-      const card = document.querySelector(`.gsb-card[data-banner-id="${CSS.escape(key)}"]`);
-      const view = $(`banner-view-${key}`);
-      if (!card && !view) continue;
+      if (!$(`banner-view-${key}`)) continue;
 
       if (state.activeBannerId === key) {
-        const next = document.querySelector('.gsb-card[data-banner-id="standard"]')
-          || document.querySelector(`.gsb-card[data-banner-id]:not([data-banner-id="${CSS.escape(key)}"])`);
-        if (next) switchBanner(next.dataset.bannerId, next.dataset.bannerType);
+        const next = document.querySelector('.lb-rail [data-banner-select="standard"]')
+          || document.querySelector(`.lb-rail [data-banner-select]:not([data-banner-select="${CSS.escape(key)}"])`);
+        if (next) switchBanner(next.dataset.bannerSelect, next.dataset.bannerType);
       }
-      view?.remove();
-      if (card) {
-        card.style.transition = 'opacity .35s ease, transform .35s ease';
-        card.style.opacity = '0';
-        card.style.transform = 'scale(.92)';
-        card.style.pointerEvents = 'none';
-        setTimeout(() => card.remove(), 360);
-      }
+      window.LootboxUI?.removeBanner?.(key);
       bannersByKey.delete(key);
       showToast(t.banner_done(banner.nome));
     }
@@ -1929,6 +1845,15 @@
     });
   }
 
+  let audioUi = null;
+  /** Applica volume e muto a audio, video e controlli (pulsante e impostazioni). */
+  function applyAudio() {
+    if (audioEl) { audioEl.volume = globalVolume; audioEl.muted = isMuted; }
+    if (videoEl) { videoEl.volume = globalVolume; videoEl.muted = isMuted; }
+    audioUi?.();
+    document.dispatchEvent(new CustomEvent('lootbox:audio', { detail: { volume: globalVolume, muted: isMuted } }));
+  }
+
   function initFloatingAudioBtn() {
     const container = document.querySelector('[data-floating-audio]');
     if (!container) return;
@@ -1954,13 +1879,14 @@
         videoEl.muted = isMuted;
       }
     };
+    audioUi = updateUI;
 
     updateUI();
 
     const toggleMute = () => {
       isMuted = !isMuted;
       localStorage.setItem(muteKey, String(isMuted));
-      updateUI();
+      applyAudio();
     };
 
     btn.addEventListener('click', () => {
@@ -1979,7 +1905,7 @@
       isMuted = (val === 0);
       localStorage.setItem(volumeKey, String(val));
       localStorage.setItem(muteKey, String(isMuted));
-      updateUI();
+      applyAudio();
     });
   }
 
@@ -2016,9 +1942,11 @@
   function initKeyboard() {
     document.addEventListener('keydown', e => {
       if (e.repeat) return;
+      // Un pop-up aperto (impostazioni, conversione...) si prende i tasti.
+      if (window.LootboxModal?.anyOpen()) return;
       // Space = pull normale
       if (e.code==='Space' && !state.overlayOpen && !state.isPulling) {
-        if (e.target?.closest?.('input, textarea, select, button, .modal')) return;
+        if (e.target?.closest?.('input, textarea, select, button, a, .modal, dialog')) return;
         e.preventDefault();
         if ($(`banner-view-${state.activeBannerId}`)?.dataset.stato === 'prossimamente') { showToast(t.soon_toast, 'error'); return; }
         state.isFastPull=false; startPull(state.activeBannerId);
@@ -2067,103 +1995,10 @@
   }
 
   /* ════════════════════════════════════════════════════
-     TIMER
+     VALUTE PRIMA DELLA PULL
+     Se mancano Shards si convertono i Godos (pop-up "Completa la
+     pull"); se mancano anche i Godos lo stesso pop-up manda allo shop.
   ════════════════════════════════════════════════════ */
-  function initTimers() {
-    $$('.gacha-timer-digits[data-ends]').forEach(el => {
-      updateTimer(el); setInterval(() => updateTimer(el), 60_000);
-    });
-  }
-  function updateTimer(el) {
-    const raw = el.dataset.ends || '';
-    // Le date arrivano in ISO con il fuso (2026-09-30T15:00:18+02:00).
-    const target = /[T].*([+-]\d{2}:?\d{2}|Z)$/.test(raw) ? new Date(raw) : new Date(raw.replace(' ', 'T'));
-    const diff = target.getTime() - Date.now();
-    if(diff<=0){
-      if (el.hasAttribute('data-reload-at-zero')) { setTimeout(() => location.reload(), 1500); }
-      el.closest('.gacha-timer-wrap')?.remove();
-      return;
-    }
-    const d=el.querySelector('.t-days'),h=el.querySelector('.t-hours'),m=el.querySelector('.t-mins');
-    if(d)d.textContent=Math.floor(diff/86400000);
-    if(h)h.textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
-    if(m)m.textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
-  }
-
-  /* ════════════════════════════════════════════════════
-     SETTINGS
-  ════════════════════════════════════════════════════ */
-  function initSettingsBtn() {
-    $('btn-settings')?.addEventListener('click', () => {
-      const modal=document.getElementById('impostazioniModal');
-      if(modal&&window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
-    });
-  }
-
-  /* ════════════════════════════════════════════════════
-     CRONOLOGIA
-  ════════════════════════════════════════════════════ */
-  function injectHistoryModal() {
-    document.body.insertAdjacentHTML('beforeend',`
-    <div class="modal fade" id="gachaHistoryModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content bgimpostazioni lootbox-settings-content">
-          <div class="modal-header lootbox-settings-header">
-            <div>
-              <span class="lootbox-modal-kicker">${t.history_kicker}</span>
-              <h5 class="modal-title testobianco">${t.history_title}</h5>
-              <p id="gacha-history-banner-label" style="color:rgba(255,255,255,.45);font-size:.82rem;margin:0"></p>
-            </div>
-            <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-          <div class="modal-body" style="padding:16px 20px;max-height:60vh;overflow-y:auto">
-            <div id="gacha-history-list"></div>
-          </div>
-          <div class="modal-footer lootbox-settings-footer" style="justify-content:space-between">
-            <span id="gacha-history-stats" style="font-size:.8rem;color:rgba(255,255,255,.35)"></span>
-            <button type="button" class="btn btn-secondary bottone lootbox-modal-btn lootbox-modal-btn--ghost" data-bs-dismiss="modal">${t.history_close}</button>
-          </div>
-        </div>
-      </div>
-    </div>`);
-  }
-
-  async function openHistoryModal(bannerId, bannerName) {
-    const modal=$('gachaHistoryModal');
-    if(!modal||!window.bootstrap)return;
-    $('gacha-history-banner-label').textContent=bannerName??'';
-    $('gacha-history-list').innerHTML='<div style="text-align:center;color:rgba(255,255,255,.35);padding:40px"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
-    bootstrap.Modal.getOrCreateInstance(modal).show();
-    try{
-      const resp=await fetch(`/api/api_gacha_history?banner_id=${encodeURIComponent(bannerId)}&limit=60`,{credentials:'same-origin'});
-      const data=await resp.json();
-      if(!data.pulls?.length){$('gacha-history-list').innerHTML=`<div style="text-align:center;color:rgba(255,255,255,.3);padding:48px">${t.history_empty}</div>`;return;}
-      const RC={comune:'#9ca3af',raro:'#38bdf8',epico:'#c084fc',leggendario:'#fbbf24',speciale:'#fff',segreto:'#a855f7',theone:'#60a5fa'};
-      $('gacha-history-list').innerHTML=data.pulls.map(p=>{
-        const r=normalizeRarity(p.rarità),c=RC[r]??'#fff';
-        const dt=new Date(p.created_at).toLocaleString(t.locale,{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-        const b50=p.esito_50_50===1?`<span style="font-size:.68rem;color:#fbbf24;background:rgba(251,191,36,.12);padding:2px 7px;border-radius:6px">★ Rate-Up</span>`:p.esito_50_50===0?`<span style="font-size:.68rem;color:#f87171;background:rgba(239,68,68,.1);padding:2px 7px;border-radius:6px">→ Garantito</span>`:'';
-        const newBadge=(p.is_new?`<span style="font-size:.68rem;color:#4ade80;background:rgba(74,222,128,.12);padding:2px 7px;border-radius:6px">NEW</span>`:'')
-          +(p.featured&&p.esito_50_50===null?`<span style="font-size:.68rem;color:#fbbf24;background:rgba(251,191,36,.12);padding:2px 7px;border-radius:6px">★ ${t.history_featured}</span>`:'')
-          +(p.gratuita?`<span style="font-size:.68rem;color:#93c5fd;background:rgba(96,165,250,.12);padding:2px 7px;border-radius:6px">${t.history_free}</span>`:'');
-        return`<div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid ${c};margin-bottom:6px">
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
-              <span style="font-weight:700;color:#fff;font-size:.9rem">${escapeHtml(characterName(p, '?'))}</span>
-              <span style="font-size:.7rem;color:${c};text-transform:uppercase;font-weight:600;letter-spacing:.07em">${escapeHtml(rarityLabel(normalizeRarity(p.rarità)))}</span>
-              ${b50}${newBadge}
-            </div>
-            <span style="font-size:.72rem;color:rgba(255,255,255,.28)">${dt}</span>
-          </div>
-          <div style="text-align:right;flex-shrink:0;font-size:.72rem;color:rgba(255,255,255,.25)">${t.history_pity(p.pity_al_momento)}</div>
-        </div>`;
-      }).join('');
-      const seg=data.stats?.segreti ?? data.pulls.filter(p=>['segreto','theone'].includes(normalizeRarity(p.rarità))).length;
-      const luck=data.stats && (data.stats.vinti_50_50||data.stats.persi_50_50) ? ` · ${t.history_luck(data.stats.vinti_50_50, data.stats.persi_50_50, data.stats.pity_medio_segreti)}` : '';
-      $('gacha-history-stats').textContent=t.history_stats(data.total??data.pulls.length, seg)+luck;
-    }catch{$('gacha-history-list').innerHTML=`<div style="text-align:center;color:#f87171;padding:32px">${t.err_history}</div>`;}
-  }
-
   function checkGachaBalanceAndConfirm(bannerId, quantity, onSuccess) {
     const bannerView = document.getElementById('banner-view-' + bannerId);
     if (bannerView?.dataset.stato === 'prossimamente') {
@@ -2172,174 +2007,30 @@
     }
     const { godos: costPunti, shards: costShards } = pullCost(bannerId, quantity);
 
-    if (costPunti === 0) {
-      onSuccess();
-      return;
-    }
-
-    if (state.godoshards >= costShards) {
+    if (costPunti === 0 || state.godoshards >= costShards) {
       onSuccess();
       return;
     }
 
     const missingShards = costShards - state.godoshards;
     const pointsCost = missingShards * state.godosPerShard;
-
-    if (state.soldi >= pointsCost) {
-      showConversionModal(missingShards, pointsCost, quantity, onSuccess);
-    } else {
-      const redirectModal = new bootstrap.Modal(document.getElementById('gachaShopRedirectModal'));
-      redirectModal.show();
-    }
+    showFundsModal({ bannerId, quantity, missingShards, pointsCost, canConvert: state.soldi >= pointsCost, onConfirm: onSuccess });
   }
 
-  function showConversionModal(missingShards, pointsCost, quantity, onConfirm) {
-    const modalEl = document.getElementById('gachaConversionModal');
-    if (!modalEl) {
-      if (confirm(lang === 'it' 
-          ? `Vuoi convertire ${pointsCost} Godos in ${missingShards} Godo Shards per completare la pull?` 
-          : `Do you want to convert ${pointsCost} Godos into ${missingShards} Godo Shards to complete the pull?`)) {
-        onConfirm();
-      }
+  function showFundsModal(opts) {
+    const banner = bannersByKey.get(String(opts.bannerId));
+    const payload = {
+      ...opts,
+      bannerName: banner?.nome ?? '',
+      soldi: state.soldi,
+      shards: state.godoshards,
+      costShards: pullCost(opts.bannerId, opts.quantity).shards,
+    };
+    if (window.LootboxUI?.funds) {
+      window.LootboxUI.funds(payload);
       return;
     }
-
-    const countSpans = modalEl.querySelectorAll('.conversion-shards-count');
-    const costSpans = modalEl.querySelectorAll('.conversion-godos-cost');
-    const qtySpan = modalEl.querySelector('.conversion-pull-qty');
-
-    countSpans.forEach(span => span.textContent = missingShards);
-    costSpans.forEach(span => span.textContent = pointsCost.toLocaleString());
-    if (qtySpan) qtySpan.textContent = quantity;
-
-    const modal = new bootstrap.Modal(modalEl);
-    
-    const confirmBtn = modalEl.querySelector('.btn-confirm-conversion');
-    if (confirmBtn) {
-      const newConfirmBtn = confirmBtn.cloneNode(true);
-      confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-      newConfirmBtn.addEventListener('click', () => {
-        modal.hide();
-        onConfirm();
-      });
-    }
-
-    modal.show();
-  }
-
-
-  /* ════════════════════════════════════════════════════
-     DETTAGLI E PROBABILITÀ DEL BANNER
-  ════════════════════════════════════════════════════ */
-  function injectDetailsModal() {
-    if ($('gachaDetailsModal')) return;
-    document.body.insertAdjacentHTML('beforeend', `
-    <div class="modal fade" id="gachaDetailsModal" tabindex="-1" aria-hidden="true" aria-labelledby="gachaDetailsTitle">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content bgimpostazioni lootbox-settings-content gacha-details-content">
-          <div class="modal-header lootbox-settings-header">
-            <div>
-              <span class="lootbox-modal-kicker">${t.details_kicker}</span>
-              <h5 class="modal-title testobianco" id="gachaDetailsTitle">${t.details_title}</h5>
-              <p id="gacha-details-sub" style="margin:0"></p>
-            </div>
-            <button type="button" class="lootbox-modal-close" data-bs-dismiss="modal" aria-label="${t.details_close}"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-          <div class="modal-body gacha-details-body" id="gacha-details-body"></div>
-        </div>
-      </div>
-    </div>`);
-  }
-
-  function initDetailsButtons() {
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-banner-details]');
-      if (btn) openDetails(btn.dataset.bannerDetails);
-    });
-  }
-
-  function fmtPct(v) {
-    const n = Number(v || 0);
-    const digits = n >= 1 ? 2 : n >= 0.01 ? 3 : 4;
-    return `${n.toLocaleString(t.locale, { maximumFractionDigits: digits })}%`;
-  }
-
-  async function openDetails(key) {
-    const modal = $('gachaDetailsModal');
-    if (!modal || !window.bootstrap) return;
-    const body = $('gacha-details-body');
-    body.innerHTML = '<div class="gacha-details-loading"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
-    $('gacha-details-sub').textContent = bannersByKey.get(String(key))?.nome ?? '';
-    bootstrap.Modal.getOrCreateInstance(modal).show();
-
-    try {
-      const resp = await fetch(`/api/gacha/dettagli.php?banner=${encodeURIComponent(key)}&lang=${lang}`, { credentials: 'same-origin' });
-      const d = await resp.json();
-      if (!d.ok) throw new Error(d.message || t.details_error);
-
-      const rates = (d.rarita || []).map(r => `
-        <div class="gd-rate" style="--rc:${r.colore}">
-          <span><i class="gd-dot"></i>${escapeHtml(r.label)}</span>
-          <b>${fmtPct(r.prob)}</b>
-          <small>${r.count}</small>
-        </div>`).join('');
-
-      const featured = d.pool.filter(p => p.featured);
-      const featuredHtml = featured.length ? `
-        <section class="gd-section">
-          <h6>${t.details_rateups}</h6>
-          <div class="gd-featured">
-            ${featured.map(f => `
-              <div class="gd-feat" style="--rc:${RARITY_COLORS[f.rarita] ?? '#fff'}">
-                <img src="${escapeHtml(f.img || '/img/cassa.png')}" alt="" loading="lazy" onerror="this.src='/img/cassa.png'">
-                <div><strong>${escapeHtml(f.nome)}</strong><span>${escapeHtml(rarityLabel(f.rarita))}${f.posseduto ? ` · ${t.details_owned}` : ''}</span></div>
-                <b>${fmtPct(f.prob)}<small>${t.details_perpull}</small></b>
-              </div>`).join('')}
-          </div>
-        </section>` : '';
-
-      const pity = d.pity || {};
-      const sogliaLabel = rarityLabels[pity.soglia] || pity.soglia;
-      const rules = [
-        t.details_rule_soft(pity.soft),
-        t.details_rule_hard(pity.hard, sogliaLabel),
-        pity.featured_entro ? t.details_rule_5050(pity.quota, pity.featured_entro) : '',
-        pity.condiviso ? t.details_rule_shared : '',
-        d.garanzia_multi ? t.details_rule_multi(rarityLabels[d.garanzia_multi] || d.garanzia_multi) : '',
-      ].filter(Boolean);
-
-      const poolMode = d.banner?.pool_modo === 'lista' ? t.details_pool_list
-        : d.banner?.pool_modo === 'categoria' ? t.details_pool_cat(d.banner.pool_categoria || '')
-        : t.details_pool_std;
-
-      const others = d.pool.filter(p => !p.featured);
-      const poolHtml = `
-        <section class="gd-section">
-          <h6>${t.details_pool(d.pool.length)}</h6>
-          <p class="gd-muted">${escapeHtml(poolMode)}</p>
-          <div class="gd-pool">
-            ${others.map(p => `
-              <div class="gd-char${p.id ? '' : ' is-masked'}${p.posseduto ? ' is-owned' : ''}" style="--rc:${RARITY_COLORS[p.rarita] ?? '#fff'}" title="${escapeHtml(p.nome)} · ${fmtPct(p.prob)}">
-                ${p.img ? `<img src="${escapeHtml(p.img)}" alt="" loading="lazy" onerror="this.src='/img/cassa.png'">` : '<span class="gd-q">?</span>'}
-                <span>${escapeHtml(p.nome)}</span>
-              </div>`).join('')}
-          </div>
-        </section>`;
-
-      body.innerHTML = `
-        <section class="gd-section">
-          <h6>${t.details_rates}</h6>
-          <div class="gd-rates">${rates}</div>
-        </section>
-        ${featuredHtml}
-        <section class="gd-section">
-          <h6>${t.details_rules}</h6>
-          <ul class="gd-rules">${rules.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
-        </section>
-        ${poolHtml}`;
-    } catch (err) {
-      body.innerHTML = `<p class="gd-error"><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(err.message || t.details_error)}</p>`;
-    }
+    if (opts.canConvert && confirm(t.convert_confirm(opts.pointsCost, opts.missingShards))) opts.onConfirm();
   }
 
   /* ════════════════════════════════════════════════════
@@ -2363,6 +2054,9 @@
         const data = await resp.json();
         if (!data.ok) throw new Error(data.message || t.err_retry);
         box.querySelectorAll('[data-destiny-target]').forEach(b => b.classList.toggle('is-active', b === opt));
+        const label = box.querySelector('[data-destiny-label]');
+        if (label) label.textContent = opt.dataset.name || '';
+        window.LootboxUI?.closeDestiny?.(box);
         const points = box.querySelector('[data-destiny-points]');
         if (points) points.textContent = t.destiny_points(data.punti || 0, Number(box.dataset.max || 1));
         const banner = bannersByKey.get(String(box.dataset.banner));
@@ -2373,17 +2067,6 @@
       } finally {
         box.querySelectorAll('[data-destiny-target]').forEach(b => b.disabled = false);
       }
-    });
-  }
-
-  window.GachaHistory = { open: openHistoryModal };
-
-  /* ════════════════════════════════════════════════════
-     LEADERBOARD
-  ════════════════════════════════════════════════════ */
-  function initLeaderboard() {
-    $$('.gacha-leaderboard-btn').forEach(btn => {
-      btn.addEventListener('click', () => { if(typeof toggleLeaderboard==='function') toggleLeaderboard(); });
     });
   }
 

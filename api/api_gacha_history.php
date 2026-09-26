@@ -2,11 +2,14 @@
 
 /**
  * api_gacha_history.php
- * GET /api/api_gacha_history?banner_id=standard&limit=60
+ * GET /api/api_gacha_history?banner_id=standard&limit=60&offset=0&filtro=alte
  *
  * Cronologia delle pull dell'utente su un banner, con qualche statistica:
- * quante pull, quanti segreti, come sono andati i 50/50, pity medio a cui
- * sono usciti i segreti.
+ * quante pull, quanti leggendari o meglio, quanti segreti, come sono andati
+ * i 50/50, pity medio a cui sono usciti i segreti.
+ *
+ * filtro: alte (leggendario o meglio), nuovi, rateup. Le statistiche sono
+ * sempre sul banner intero; `trovate` conta le pull del filtro.
  */
 
 declare(strict_types=1);
@@ -28,6 +31,8 @@ if (!isLoggedIn()) {
 $userId = (int)$_SESSION['user_id'];
 $bannerId = $_GET['banner_id'] ?? null;
 $limit = max(1, min(200, (int)($_GET['limit'] ?? 60)));
+$offset = max(0, (int)($_GET['offset'] ?? 0));
+$filtro = (string)($_GET['filtro'] ?? '');
 
 if ($bannerId === null || ($bannerId !== 'standard' && (!ctype_digit((string)$bannerId) || (int)$bannerId <= 0))) {
     http_response_code(400);
@@ -38,8 +43,16 @@ if ($bannerId === null || ($bannerId !== 'standard' && (!ctype_digit((string)$ba
 $v2 = gacha_schema($mysqli)['history_v2'];
 $extra = $v2 ? ', gph.featured, gph.gratuita, gph.costo' : ', NULL AS featured, 0 AS gratuita, 0 AS costo';
 
+$where = match ($filtro) {
+    'alte' => " AND LOWER(gph.`rarità`) IN ('leggendario', 'speciale', 'segreto', 'theone')",
+    'nuovi' => ' AND gph.is_new = 1',
+    'rateup' => $v2 ? ' AND (gph.featured = 1 OR gph.esito_50_50 = 1)' : ' AND gph.esito_50_50 = 1',
+    default => '',
+};
+
 $stmt = $mysqli->prepare(
     "SELECT COUNT(*) AS tot,
+            COALESCE(SUM(LOWER(`rarità`) IN ('leggendario', 'speciale', 'segreto', 'theone')), 0) AS alte,
             COALESCE(SUM(LOWER(`rarità`) IN ('segreto', 'theone')), 0) AS segreti,
             COALESCE(SUM(esito_50_50 = 1), 0) AS vinti,
             COALESCE(SUM(esito_50_50 = 0), 0) AS persi,
@@ -51,16 +64,25 @@ $stmt->execute();
 $totals = $stmt->get_result()->fetch_assoc() ?: [];
 $stmt->close();
 
+$found = (int)($totals['tot'] ?? 0);
+if ($where !== '') {
+    $stmt = $mysqli->prepare("SELECT COUNT(*) FROM gacha_pull_history gph WHERE gph.utente_id = ? AND gph.banner_id = ?$where");
+    $stmt->bind_param('is', $userId, $bannerId);
+    $stmt->execute();
+    $found = (int)$stmt->get_result()->fetch_row()[0];
+    $stmt->close();
+}
+
 $stmt = $mysqli->prepare(
     "SELECT gph.personaggio_id, gph.`rarità`, gph.pity_al_momento, gph.esito_50_50, gph.is_new, gph.created_at,
             p.nome, p.img_url $extra
      FROM gacha_pull_history gph
      INNER JOIN personaggi p ON p.id = gph.personaggio_id
-     WHERE gph.utente_id = ? AND gph.banner_id = ?
+     WHERE gph.utente_id = ? AND gph.banner_id = ?$where
      ORDER BY gph.id DESC
-     LIMIT ?"
+     LIMIT ? OFFSET ?"
 );
-$stmt->bind_param('isi', $userId, $bannerId, $limit);
+$stmt->bind_param('isii', $userId, $bannerId, $limit, $offset);
 $stmt->execute();
 $res = $stmt->get_result();
 
@@ -86,7 +108,11 @@ echo json_encode([
     'status' => 'success',
     'banner_id' => $bannerId,
     'total' => (int)($totals['tot'] ?? 0),
+    'trovate' => $found,
+    'offset' => $offset,
+    'altre' => $offset + count($pulls) < $found,
     'stats' => [
+        'alte' => (int)($totals['alte'] ?? 0),
         'segreti' => (int)($totals['segreti'] ?? 0),
         'vinti_50_50' => (int)($totals['vinti'] ?? 0),
         'persi_50_50' => (int)($totals['persi'] ?? 0),
