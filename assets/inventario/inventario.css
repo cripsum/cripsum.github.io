@@ -1207,3 +1207,6 @@ body.inv-page .dropdown-menu button:hover { color: #fff !important; background: 
     .inv-hero__art img { opacity: 1; transform: none; }
     .inv-card:hover { transform: none; }
 }
+
+/* Passo "Frammenti": l'immagine del frammento al posto dell'icona. */
+.inv-frag-steps__n img { width: 1.35rem; height: 1.35rem; object-fit: contain; }

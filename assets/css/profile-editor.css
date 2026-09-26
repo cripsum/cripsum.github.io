@@ -4788,3 +4788,10 @@
         display: block;
     }
 }
+
+/* Statistiche dei Godos nell'editor: l'immagine della valuta. */
+.pe-stat-icon img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Premium">
+  <defs>
+    <linearGradient id="premium-gem" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset=".55" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#b45309"/>
+    </linearGradient>
+  </defs>
+  <path d="M7.2 3.5h9.6l4.2 5.3L12 20.5 3 8.8z" fill="url(#premium-gem)" stroke="url(#premium-gem)" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M3.4 8.8h17.2M9.6 3.6 8 8.8l4 11.4 4-11.4-1.6-5.2" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.1" stroke-linejoin="round"/>
+</svg>

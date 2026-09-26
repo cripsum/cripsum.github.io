@@ -14,6 +14,14 @@ try {
     $stmt->bind_param('ii', $userId, $achievementId);
     if (!$stmt->execute()) admin_fail('Non sono riuscito a rimuovere l’achievement.', 500);
     $stmt->close();
-    admin_log($mysqli, (int)$adminUser['id'], 'remove_achievement_from_user', $userId, ['achievement_id' => $achievementId]);
+    $nameCol = admin_achievement_columns($mysqli)['name'];
+    $name = null;
+    if ($nameCol && ($stmt = $mysqli->prepare('SELECT ' . admin_qcol($nameCol) . ' AS nome FROM achievement WHERE id = ? LIMIT 1'))) {
+        $stmt->bind_param('i', $achievementId);
+        $stmt->execute();
+        $name = $stmt->get_result()->fetch_assoc()['nome'] ?? null;
+        $stmt->close();
+    }
+    admin_log($mysqli, (int)$adminUser['id'], 'remove_achievement_from_user', $userId, array_filter(['achievement' => $name, 'achievement_id' => $achievementId], static fn($v) => $v !== null));
     admin_ok(['message' => 'Achievement rimosso.']);
 } catch (Throwable $e) { admin_fail('Errore rimozione achievement.', 500); }

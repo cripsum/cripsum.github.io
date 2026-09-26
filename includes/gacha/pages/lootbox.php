@@ -206,21 +206,90 @@ function lb_ratio(?string $url): ?float
     return $cache[$url] = ($size && $size[1] > 0) ? round($size[0] / $size[1], 4) : null;
 }
 
-/** Colore del banner: quello scelto nel pannello, o dalla rarita' del rate-up. */
+/**
+ * Colori di un banner: quello scelto nel pannello (o dalla rarita' del
+ * rate-up) e i toni che ne derivano per le sfumature. Restituisce
+ * [base, chiaro, scuro, testo]: il chiaro e lo scuro sono lo stesso colore
+ * con la tinta spostata di poco verso un vicino "armonico" (gialli verso
+ * l'arancio, rossi verso il cremisi, freddi verso il viola), cosi' qualunque
+ * colore scelto da' una sfumatura pulita; il testo e' scuro sui colori
+ * molto chiari, bianco sugli altri.
+ */
 function lb_accent(array $b): array
 {
     $byRarity = [
         'comune' => '#64748b', 'raro' => '#38bdf8', 'epico' => '#c084fc', 'leggendario' => '#f59e0b',
         'speciale' => '#e879f9', 'segreto' => '#a855f7', 'theone' => '#3b82f6',
     ];
-    if ($b['colore'] && preg_match('/^#[0-9a-f]{6}$/i', $b['colore'])) {
-        $accent = $b['colore'];
+    $raw = trim((string)($b['colore'] ?? ''));
+    if (preg_match('/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i', $raw, $m)) {
+        $raw = '#' . $m[1] . $m[1] . $m[2] . $m[2] . $m[3] . $m[3];
+    }
+    if (preg_match('/^#[0-9a-f]{6}$/i', $raw)) {
+        $accent = strtolower($raw);
     } elseif ($b['featured']) {
         $accent = $byRarity[$b['featured'][0]['rarita']] ?? '#a855f7';
     } else {
-        $accent = '#38bdf8';
+        $accent = '#2f9df4';
     }
-    return [$accent, $b['tipo'] === 'standard' ? '#6366f1' : '#60a5fa'];
+    return array_merge([$accent], lb_tones($accent));
+}
+
+/** [chiaro, scuro, testo] di un colore #rrggbb. */
+function lb_tones(string $hex): array
+{
+    $r = hexdec(substr($hex, 1, 2)) / 255;
+    $g = hexdec(substr($hex, 3, 2)) / 255;
+    $bl = hexdec(substr($hex, 5, 2)) / 255;
+
+    // HSL.
+    $max = max($r, $g, $bl);
+    $min = min($r, $g, $bl);
+    $l = ($max + $min) / 2;
+    $d = $max - $min;
+    $s = $d == 0 ? 0 : $d / (1 - abs(2 * $l - 1));
+    if ($d == 0) $h = 0;
+    elseif ($max === $r) $h = 60 * fmod((($g - $bl) / $d) + 6, 6);
+    elseif ($max === $g) $h = 60 * ((($bl - $r) / $d) + 2);
+    else $h = 60 * ((($r - $g) / $d) + 4);
+
+    // Verso quale tinta scurire (senza passare dall'altra parte del cerchio).
+    if ($h >= 15 && $h < 75) {
+        $delta = 22 - $h;                             // gialli e aranci -> arancio
+    } elseif ($h >= 75 && $h <= 340) {
+        $delta = 265 - $h;                            // verdi, azzurri, viola, rosa -> viola
+    } else {
+        $delta = fmod(345 - $h + 540, 360) - 180;     // rossi -> cremisi
+    }
+    $delta = max(-22, min(22, $delta));
+    $gray = $s < 0.12;
+    if ($gray) $delta = 0;                            // grigi: niente tinta da spostare
+
+    $hsl = static function (float $h, float $s, float $l): string {
+        $h = fmod($h + 360, 360);
+        $s = max(0, min(1, $s));
+        $l = max(0, min(1, $l));
+        $c = (1 - abs(2 * $l - 1)) * $s;
+        $x = $c * (1 - abs(fmod($h / 60, 2) - 1));
+        $m = $l - $c / 2;
+        [$r, $g, $b] = match (true) {
+            $h < 60 => [$c, $x, 0], $h < 120 => [$x, $c, 0], $h < 180 => [0, $c, $x],
+            $h < 240 => [0, $x, $c], $h < 300 => [$x, 0, $c], default => [$c, 0, $x],
+        };
+        return sprintf('#%02x%02x%02x', round(($r + $m) * 255), round(($g + $m) * 255), round(($b + $m) * 255));
+    };
+
+    // Chiaro: un po' piu' luminoso (i colori gia' chiarissimi restano come sono).
+    $hi = $hsl($h - $delta * 0.35, $s * 0.94, $l >= 0.82 ? $l : min($l + 0.12, 0.82));
+    // Scuro: meno luminoso, mai piu' chiaro della base (il nero resta nero).
+    $lo = $hsl($h + $delta, $gray ? $s : min(0.9, $s + 0.04), min($l, max($l - 0.14, 0.18)));
+
+    // Luminanza relativa (WCAG): sopra 0.40 il testo bianco si legge male.
+    $lin = static fn(float $c): float => $c <= 0.03928 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+    $lum = 0.2126 * $lin($r) + 0.7152 * $lin($g) + 0.0722 * $lin($bl);
+    $ink = $lum > 0.40 ? $hsl($h + $delta, $gray ? 0 : 0.6, 0.12) : '#ffffff';
+
+    return [$hi, $lo, $ink];
 }
 
 /** Cosa garantisce il pity, in parole: "Segreto", "Speciale o Segreto"... */
@@ -279,6 +348,7 @@ $gCard = static function (array $b, bool $mini) use ($h, $G, $gActive, $gEn, $gN
         . ' aria-pressed="' . ($on ? 'true' : 'false') . '" aria-label="' . $h($b['nome']) . '"'
         . ' style="--card-img:url(\'' . $h($thumb) . '\');--accent:' . $h($accent) . '">'
         . '<span class="lb-card__bg" aria-hidden="true"></span>'
+        . '<span class="lb-card__ring" aria-hidden="true"></span>'
         . $st
         . '<span class="lb-card__body"><b>' . $h($b['nome']) . '</b>' . ($mini ? '' : '<small>' . $h($sub) . '</small>') . '</span>'
         . '</button>';
@@ -293,7 +363,7 @@ $gActiveBanner = null;
 foreach ($gBanners as $b) {
     if ($b['key'] === $gActive) $gActiveBanner = $b;
 }
-[$gAccent, $gAccent2] = $gActiveBanner ? lb_accent($gActiveBanner) : ['#38bdf8', '#6366f1'];
+[$gAccent, $gAccentHi, $gAccentLo, $gAccentInk] = lb_accent($gActiveBanner ?? ['colore' => null, 'featured' => [], 'tipo' => 'standard']);
 
 $gClaimedToday = $gPremium && ($gLastClaim === getMissionDailyPeriod());
 $gClaimLeft = strtotime('tomorrow') - time();
@@ -311,21 +381,31 @@ $gClaimLeft = strtotime('tomorrow') - time();
     <title>Cripsum™ — Lootbox</title>
 </head>
 
-<body class="lootbox-page lb-page<?= $gPremium ? ' has-premium' : '' ?>" data-ruolo="<?= $h($gRole) ?>" style="--accent:<?= $h($gAccent) ?>;--accent-2:<?= $h($gAccent2) ?>">
+<body class="lootbox-page lb-page<?= $gPremium ? ' has-premium' : '' ?>" data-ruolo="<?= $h($gRole) ?>" style="--accent:<?= $h($gAccent) ?>;--accent-hi:<?= $h($gAccentHi) ?>;--accent-lo:<?= $h($gAccentLo) ?>;--accent-ink:<?= $h($gAccentInk) ?>">
 
     <?php include __DIR__ . '/../../navbar-lootbox.php'; ?>
 
     <div class="lb" id="gacha-layout">
 
         <main class="lb-stage" id="gacha-main">
+            <?php
+            // Sfondi e aloni colorati di ogni banner: si cambiano con una
+            // dissolvenza (solo opacita', che la scheda video fa da sola).
+            // Il colore sta sul singolo elemento, mai sul body: cambiarlo li'
+            // ricalcolava gli stili di tutta la pagina a ogni frame.
+            ?>
             <div class="lb-bgs" aria-hidden="true">
                 <?php foreach ($gBanners as $b):
                     $bg = $b['sfondo'] ?: null;
-                    $fallback = $bg ? null : ($b['arte'] ?: '/img/cassa.png');
+                    $src = $bg ?: ($b['arte'] ?: '/img/cassa.png');
                     $on = $b['key'] === $gActive;
                 ?>
-                    <div class="lb-bg<?= $bg ? '' : ' is-blurred' ?><?= $on ? ' is-active' : '' ?>" data-bg="<?= $h($b['key']) ?>"
-                        data-src="<?= $h($bg ?: $fallback) ?>"<?= $on ? ' style="background-image:url(\'' . $h($bg ?: $fallback) . '\')"' : '' ?>></div>
+                    <div class="lb-bg<?= $bg ? '' : ' is-blurred' ?><?= $on ? ' is-active' : '' ?>" data-bg="<?= $h($b['key']) ?>" data-src="<?= $h($src) ?>">
+                        <span class="lb-bg__img"<?= $on ? ' style="background-image:url(\'' . $h($src) . '\')"' : '' ?>></span>
+                    </div>
+                <?php endforeach; ?>
+                <?php foreach ($gBanners as $b): ?>
+                    <div class="lb-glow<?= $b['key'] === $gActive ? ' is-active' : '' ?>" data-glow="<?= $h($b['key']) ?>" style="--accent:<?= $h(lb_accent($b)[0]) ?>"></div>
                 <?php endforeach; ?>
             </div>
 
@@ -345,7 +425,7 @@ $gClaimLeft = strtotime('tomorrow') - time();
                 $featured = $b['featured'];
                 $uso = $b['uso'];
                 $p = $b['pity'];
-                [$accent, $accent2] = lb_accent($b);
+                [$accent, $accentHi, $accentLo, $accentInk] = lb_accent($b);
                 [$note, $noteActive] = lb_pity_note($b, $G, $gLang);
                 $kind = $isSoon ? $G['kind_soon'] : ($G['kind_' . $b['tipo']] ?? $G['kind_evento']);
                 $kindIcon = $isSoon ? 'fa-calendar' : ($isStd ? 'fa-infinity' : ($b['tipo'] === 'principiante' ? 'fa-seedling' : 'fa-star'));
@@ -374,7 +454,8 @@ $gClaimLeft = strtotime('tomorrow') - time();
                     data-costo="<?= (int)$b['costo'] ?>"
                     data-stato="<?= $h($b['stato']) ?>"
                     data-gratis="<?= (int)$uso['gratis_rimaste'] ?>"
-                    data-accent="<?= $h($accent) ?>" data-accent-2="<?= $h($accent2) ?>"
+                    data-accent="<?= $h($accent) ?>" data-accent-hi="<?= $h($accentHi) ?>"
+                    style="--accent:<?= $h($accent) ?>;--accent-hi:<?= $h($accentHi) ?>;--accent-lo:<?= $h($accentLo) ?>;--accent-ink:<?= $h($accentInk) ?>"
                     <?php if ($b['data_fine']): ?>data-data-fine="<?= $h($b['data_fine']) ?>"<?php endif; ?>
                     <?= $on ? '' : 'hidden' ?>
                     aria-label="<?= $h($b['nome']) ?>">
@@ -395,7 +476,7 @@ $gClaimLeft = strtotime('tomorrow') - time();
                                 </span>
                             <?php endif; ?>
                             <?php if ($b['solo_premium']): ?>
-                                <span class="lb-kicker__premium"><i class="fa-solid fa-gem"></i> <?= $h($G['premium_only']) ?></span>
+                                <span class="lb-kicker__premium"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"> <?= $h($G['premium_only']) ?></span>
                             <?php endif; ?>
                         </p>
 
@@ -549,7 +630,7 @@ $gClaimLeft = strtotime('tomorrow') - time();
             <div class="lb-extras">
                 <?php if ($gPremium): ?>
                     <div class="lb-premium" data-premium>
-                        <span class="lb-premium__icon"><i class="fa-solid fa-gem"></i></span>
+                        <span class="lb-premium__icon"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"></span>
                         <span class="lb-premium__text"><b><?= $h($G['premium']) ?></b><small><?= $h($G['premium_sub']) ?></small></span>
                         <button type="button" class="lb-premium__btn<?= $gClaimedToday ? ' claimed' : '' ?>" data-premium-claim data-seconds-left="<?= (int)$gClaimLeft ?>"<?= $gClaimedToday ? ' disabled' : '' ?>>
                             <span class="btn-text"><?= $gClaimedToday ? '<i class="fa-regular fa-clock"></i> <span class="claim-countdown">--:--:--</span>' : $h($G['claim']) ?></span>
@@ -577,14 +658,14 @@ $gClaimLeft = strtotime('tomorrow') - time();
                     if (!$gGroups[$gk]) continue; ?>
                     <p class="lb-rail__label"><?= $h($label) ?><?= $gk === 'events' ? ' · ' . count($gGroups[$gk]) : '' ?></p>
                     <?php foreach ($gGroups[$gk] as $b): ?>
-                        <div class="lb-rail__item" style="--i:<?= $gi++ ?>"><?= $gCard($b, false) ?></div>
+                        <div class="lb-rail__item" style="--i:<?= $gi++ ?>;--accent:<?= $h(lb_accent($b)[0]) ?>"><?= $gCard($b, false) ?></div>
                     <?php endforeach; ?>
                 <?php endforeach; ?>
             </div>
             <div class="lb-rail__bottom">
                 <?php if ($gPremium): ?>
                     <div class="lb-premium" data-premium>
-                        <span class="lb-premium__icon"><i class="fa-solid fa-gem"></i></span>
+                        <span class="lb-premium__icon"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"></span>
                         <span class="lb-premium__text"><b><?= $h($G['premium']) ?></b><small><?= $h($G['premium_sub']) ?></small></span>
                         <button type="button" class="lb-premium__btn<?= $gClaimedToday ? ' claimed' : '' ?>" id="premium-claim-btn" data-premium-claim data-seconds-left="<?= (int)$gClaimLeft ?>"<?= $gClaimedToday ? ' disabled' : '' ?>>
                             <span class="btn-text"><?= $gClaimedToday ? '<i class="fa-regular fa-clock"></i> <span class="claim-countdown">--:--:--</span>' : $h($G['claim']) ?></span>

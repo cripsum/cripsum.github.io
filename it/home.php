@@ -101,7 +101,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.0">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.2">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
     <script src="/assets/home-v5/home.js?v=6.1" defer></script>
     <script src="/assets/news/news-popup.js?v=1.1" defer></script>
@@ -274,13 +274,13 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     <h3>Sblocca l'esperienza Cripsum™ definitiva</h3>
                     <p>Ottieni vantaggi esclusivi, raddoppia i tuoi Godos e supporta la community.</p>
                     <div class="promo-benefits">
-                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>25.000 Godos subito all'acquisto</span></div>
-                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Sblocco della personalizzazione premium nei profili</span></div>
-                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Riscatto giornaliero di 500 Godos Lootbox</span></div>
-                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Doppio boost (2x) sui Godos delle missioni</span></div>
-                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Cripsum Rewind quando vuoi, non solo una settimana l'anno</span></div>
-                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Tag premium con diamante vicino al tuo nome</span></div>
-                        <div class="benefit-item"><i class="fa-solid fa-gem"></i><span>Nome in evidenza nella lista sostenitori</span></div>
+                        <div class="benefit-item"><img class="benefit-currency" src="/img/godos.png" alt=""><span>25.000 Godos subito all'acquisto</span></div>
+                        <div class="benefit-item"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"><span>Sblocco della personalizzazione premium nei profili</span></div>
+                        <div class="benefit-item"><img class="benefit-currency" src="/img/godos.png" alt=""><span>Riscatto giornaliero di 500 Godos Lootbox</span></div>
+                        <div class="benefit-item"><img class="benefit-currency" src="/img/godos.png" alt=""><span>Doppio boost (2x) sui Godos delle missioni</span></div>
+                        <div class="benefit-item"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"><span>Cripsum Rewind quando vuoi, non solo una settimana l'anno</span></div>
+                        <div class="benefit-item"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"><span>Tag premium con diamante vicino al tuo nome</span></div>
+                        <div class="benefit-item"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"><span>Nome in evidenza nella lista sostenitori</span></div>
                     </div>
                     <div class="promo-actions">
                         <a href="checkout-premium" class="promo-btn-primary">
@@ -290,7 +290,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                     </div>
                 </div>
                 <div class="promo-art" aria-hidden="true">
-                    <i class="fa-solid fa-gem"></i>
+                    <img class="cr-premium-gem" src="/img/premium.svg" alt="" width="96" height="96">
                 </div>
             </section>
         <?php endif; ?>
@@ -316,7 +316,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>" style="--supporter-color: <?= htmlspecialchars($suppColor) ?>;">
                                 <div class="supporter-avatar-container">
                                     <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>&amp;t=<?= $stamp ?>&amp;size=96" alt="" class="supporter-pfp" width="48" height="48" decoding="async">
-                                    <div class="supporter-badge"><i class="fa-solid fa-gem"></i></div>
+                                    <div class="supporter-badge"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"></div>
                                 </div>
                                 <span class="supporter-name"><?= htmlspecialchars($dispName) ?></span>
                             </a>

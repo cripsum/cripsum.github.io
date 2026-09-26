@@ -154,9 +154,9 @@
         const apply = () => {
             if (!nav) return;
             const r = nav.getBoundingClientRect();
-            if (r.height > 0) document.body.style.setProperty('--nav-h', `${Math.round(r.bottom)}px`);
-            const bar = $('.lb-view.is-active .lb-actions');
-            if (bar && isPhone()) document.body.style.setProperty('--mbar-h', `${Math.round(bar.offsetHeight)}px`);
+            const navH = `${Math.round(r.bottom)}px`;
+            if (r.height > 0 && document.body.style.getPropertyValue('--nav-h') !== navH) document.body.style.setProperty('--nav-h', navH);
+            measureMbar();
         };
         apply();
         window.addEventListener('resize', apply, { passive: true });
@@ -169,67 +169,163 @@
     ══════════════════════════════════════════════════════════════════ */
     const view = (key) => document.getElementById(`banner-view-${key}`);
     const railOrder = () => $$('.lb-rail [data-banner-select]').map((c) => c.dataset.bannerSelect);
-    let bgTimer = null;
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 300));
+    let shownKey = null;
+    let switchToken = 0;
 
-    function setBackground(key) {
-        const bgs = $$('.lb-bg');
-        bgs.forEach((bg) => {
-            const on = bg.dataset.bg === key;
-            if (on && !bg.style.backgroundImage && bg.dataset.src) {
-                bg.style.backgroundImage = `url("${bg.dataset.src.replace(/"/g, '%22')}")`;
-            }
-            bg.classList.toggle('is-active', on);
-        });
-        // Le GIF degli sfondi spenti non devono restare vive: si tolgono
-        // dopo la dissolvenza.
-        clearTimeout(bgTimer);
-        bgTimer = setTimeout(() => {
-            bgs.forEach((bg) => { if (!bg.classList.contains('is-active')) bg.style.backgroundImage = ''; });
-        }, 1200);
+    /* ── Immagini pronte prima dell'animazione ──────────────────────────
+       Sfondo e arte di un banner si scaricano e decodificano quando ci si
+       passa sopra (o lo si tocca), e al clic si aspettano al massimo un
+       attimo: cosi' l'animazione non si ferma a meta' per decodificarle. */
+    const primed = new Map();
+    const decoded = new Set();
+    function decodeUrl(url) {
+        const im = new Image();
+        im.decoding = 'async';
+        im.src = url;
+        decoded.add(im);
+        return (im.decode ? im.decode() : new Promise((r) => { im.onload = im.onerror = r; })).catch(() => {});
+    }
+    function primeBanner(key) {
+        key = String(key);
+        if (primed.has(key)) return primed.get(key);
+        const jobs = [];
+        const bg = $(`.lb-bg[data-bg="${CSS.escape(key)}"]`);
+        if (bg?.dataset.src) jobs.push(decodeUrl(bg.dataset.src));
+        const v = view(key);
+        if (v) {
+            $$('.lb-art__card img', v).forEach((img) => {
+                img.loading = 'eager';
+                jobs.push(img.decode ? img.decode().catch(() => {}) : Promise.resolve());
+            });
+        }
+        const p = Promise.all(jobs).then(() => { bg?.classList.add('is-ready'); });
+        primed.set(key, p);
+        return p;
     }
 
-    function setAccent(v) {
+    /* Stili e impaginazione di una vista nascosta si calcolano prima del
+       clic: resta trasparente sotto quella visibile, e inert la toglie a
+       tastiera e lettori di schermo. Al cambio resta solo l'animazione. */
+    let warmKey = null;
+    function coolView(key) {
+        const v = view(key);
         if (!v) return;
-        document.body.style.setProperty('--accent', v.dataset.accent || '#a855f7');
-        document.body.style.setProperty('--accent-2', v.dataset.accent2 || '#60a5fa');
+        v.classList.remove('is-warm');
+        v.inert = false;
+    }
+    function warmView(key) {
+        if (isPhone() || key === shownKey || key === warmKey) return;
+        if (warmKey) coolView(warmKey);
+        const v = view(key);
+        if (!v) return;
+        warmKey = key;
+        v.inert = true;
+        v.classList.add('is-warm');
+    }
+
+    function onIntent(e) {
+        const card = e.target.closest?.('[data-banner-select]');
+        if (!card) return;
+        primeBanner(card.dataset.bannerSelect);
+        if (e.type === 'pointerover') warmView(card.dataset.bannerSelect);
+    }
+
+    /** I due banner vicini nell'elenco, con calma: sono i prossimi probabili. */
+    function primeNeighbours(key) {
+        if (navigator.connection?.saveData) return;
+        const order = railOrder();
+        const i = order.indexOf(key);
+        [order[i + 1], order[i - 1]].filter(Boolean).forEach((k) => idle(() => primeBanner(k)));
+    }
+
+    function setBackground(key) {
+        $$('.lb-bg').forEach((bg) => {
+            const img = bg.firstElementChild;
+            if (bg.dataset.bg === key) {
+                clearTimeout(bg._clear);
+                if (img && !img.style.backgroundImage && bg.dataset.src) {
+                    img.style.backgroundImage = `url("${bg.dataset.src.replace(/"/g, '%22')}")`;
+                }
+                // Se l'immagine non e' ancora pronta lo sfondo resta
+                // trasparente e poi entra in dissolvenza, senza comparire di colpo.
+                if (!bg.classList.contains('is-ready')) {
+                    bg.classList.add('is-waiting');
+                    primeBanner(key).then(() => bg.classList.remove('is-waiting'));
+                }
+                bg.classList.remove('is-leaving');
+                bg.classList.add('is-active');
+            } else if (bg.classList.contains('is-active')) {
+                bg.classList.remove('is-active');
+                bg.classList.add('is-leaving');
+                // Le GIF degli sfondi spenti non devono restare vive: si
+                // tolgono finita la dissolvenza.
+                bg._clear = setTimeout(() => {
+                    bg.classList.remove('is-leaving');
+                    if (img) img.style.backgroundImage = '';
+                }, 1000);
+            }
+        });
+        $$('.lb-glow').forEach((g) => g.classList.toggle('is-active', g.dataset.glow === key));
     }
 
     function markCards(key) {
-        $$('[data-banner-select]').forEach((c) => {
-            const on = c.dataset.bannerSelect === key;
-            c.classList.toggle('is-active', on);
-            c.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-        const behavior = reduced() ? 'auto' : 'smooth';
-        const railCard = $(`.lb-rail [data-banner-select="${CSS.escape(key)}"]`);
+        // Prima si misura (impaginazione gia' pronta), poi si modifica: cosi'
+        // il browser non deve ricalcolare tutto a meta' del clic.
+        let railTop = null;
         const list = $('.lb-rail__list');
+        const railCard = $(`.lb-rail [data-banner-select="${CSS.escape(key)}"]`);
         if (railCard && list && !isPhone()) {
             const r = railCard.getBoundingClientRect();
             const lr = list.getBoundingClientRect();
-            if (r.top < lr.top + 10 || r.bottom > lr.bottom - 30) railCard.scrollIntoView({ behavior, block: 'nearest' });
+            if (r.top < lr.top + 10) railTop = list.scrollTop + r.top - lr.top - 10;
+            else if (r.bottom > lr.bottom - 30) railTop = list.scrollTop + r.bottom - lr.bottom + 30;
         }
-        const stripCard = $(`.lb-strip [data-banner-select="${CSS.escape(key)}"]`);
+        let stripLeft = null;
         const track = $('.lb-strip__track');
-        if (stripCard && track) {
-            track.scrollTo({ left: stripCard.offsetLeft - track.clientWidth / 2 + stripCard.offsetWidth / 2, behavior });
+        const stripCard = $(`.lb-strip [data-banner-select="${CSS.escape(key)}"]`);
+        if (stripCard && track && isPhone()) {
+            stripLeft = stripCard.offsetLeft - track.clientWidth / 2 + stripCard.offsetWidth / 2;
         }
+
+        $$('[data-banner-select].is-active').forEach((c) => {
+            if (c.dataset.bannerSelect === key) return;
+            c.classList.remove('is-active');
+            c.setAttribute('aria-pressed', 'false');
+        });
+        $$(`[data-banner-select="${CSS.escape(key)}"]`).forEach((c) => {
+            c.classList.add('is-active');
+            c.setAttribute('aria-pressed', 'true');
+        });
+
+        const behavior = reduced() ? 'auto' : 'smooth';
+        if (railTop !== null) list.scrollTo({ top: railTop, behavior });
+        if (stripLeft !== null) track.scrollTo({ left: stripLeft, behavior });
     }
 
-    function showBanner(from, to) {
-        const prev = view(from);
+    async function showBanner(from, to) {
+        to = String(to);
         const next = view(to);
         if (!next) return;
-        const order = railOrder();
-        document.body.dataset.switchDir = order.indexOf(to) < order.indexOf(from) ? 'up' : 'down';
+        const token = ++switchToken;
 
+        // Subito la risposta al clic, poi (al massimo 140 ms dopo) il cambio.
         markCards(to);
-        setBackground(to);
-        setAccent(next);
         closeRail();
         closeAllDestiny();
+        await Promise.race([primeBanner(to), wait(140)]);
+        if (token !== switchToken) return;
+
+        const prev = view(shownKey);
+        const order = railOrder();
+        const dir = order.indexOf(to) < order.indexOf(shownKey) ? 'up' : 'down';
+        shownKey = to;
+        setBackground(to);
 
         if (prev && prev !== next) {
             prev.classList.remove('is-active');
+            prev.dataset.dir = dir;
             if (isPhone() || reduced()) {
                 prev.hidden = true;
             } else {
@@ -240,19 +336,32 @@
                 }, 380);
             }
         }
+        next.dataset.dir = dir;
         next.hidden = false;
         next.classList.remove('is-leaving', 'is-active');
+        if (warmKey === to) {
+            coolView(to);
+            warmKey = null;
+        }
         prepareArt(next);
         void next.offsetWidth;
         next.classList.add('is-active');
 
         if (isPhone() && window.scrollY > 40) window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
         requestAnimationFrame(() => measureMbar());
+        setTimeout(() => primeNeighbours(to), 1200);
     }
 
+    let mbarH = 0;
     function measureMbar() {
+        if (!isPhone()) return;
         const bar = $('.lb-view.is-active .lb-actions');
-        if (bar && isPhone()) document.body.style.setProperty('--mbar-h', `${Math.round(bar.offsetHeight)}px`);
+        const h = bar ? Math.round(bar.offsetHeight) : 0;
+        // Solo se cambia: una variabile sul body ricalcola tutta la pagina.
+        if (h && h !== mbarH) {
+            mbarH = h;
+            document.body.style.setProperty('--mbar-h', `${h}px`);
+        }
     }
 
     /** Toglie un banner finito (limite di pull per utente raggiunto). */
@@ -271,6 +380,7 @@
         setTimeout(() => {
             view(key)?.remove();
             $(`.lb-bg[data-bg="${CSS.escape(key)}"]`)?.remove();
+            $(`.lb-glow[data-glow="${CSS.escape(key)}"]`)?.remove();
             // Un gruppo rimasto vuoto perde anche l'etichetta.
             $$('.lb-rail__label').forEach((label) => {
                 const next = label.nextElementSibling;
@@ -408,8 +518,6 @@
                 card.classList.add('is-tilting');
                 card.style.setProperty('--ry', `${(x * 12).toFixed(2)}deg`);
                 card.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`);
-                card.style.setProperty('--gx', `${((x + 0.5) * 100).toFixed(1)}%`);
-                card.style.setProperty('--gy', `${((y + 0.5) * 100).toFixed(1)}%`);
             });
         });
         document.addEventListener('pointerout', (e) => {
@@ -659,7 +767,7 @@
             <div class="lm-pod lm-pod--${r.position}${isMe(r) ? ' is-me' : ''}">
                 ${r.position === 1 ? '<i class="fa-solid fa-crown lm-crown"></i>' : ''}
                 ${avatar(r).replace('</span>', `<span class="lm-pos" style="color:${['', '#fbbf24', '#cbd5e1', '#d97706'][r.position]}">${r.position}</span></span>`)}
-                <b>${esc(decode(r.username))}${r.is_premium ? '<i class="fa-solid fa-gem lm-gem"></i>' : ''}</b>
+                <b>${esc(decode(r.username))}${r.is_premium ? '<img class="cr-premium-gem lm-gem" src="/img/premium.svg" alt="Premium">' : ''}</b>
                 <strong data-count="${Number(r.value)}">0</strong><small>${esc(unit)}</small>
             </div>`).join('')}</div>`;
 
@@ -667,7 +775,7 @@
         const restRow = (r, i) => `
             <div class="lm-lrow${isMe(r) ? ' is-me' : ''}" style="--i:${i}">
                 <span class="lm-n">${r.position}</span>${avatar(r)}
-                <b>${esc(decode(r.username))}${r.is_premium ? '<i class="fa-solid fa-gem lm-gem"></i>' : ''}${isMe(r) ? `<span class="lm-you">· ${esc(T.lb_you)}</span>` : ''}</b>
+                <b>${esc(decode(r.username))}${r.is_premium ? '<img class="cr-premium-gem lm-gem" src="/img/premium.svg" alt="Premium">' : ''}${isMe(r) ? `<span class="lm-you">· ${esc(T.lb_you)}</span>` : ''}</b>
                 <strong><span data-count="${Number(r.value)}">0</span><small>${esc(unit)}</small></strong>
             </div>`;
         const meOutside = me && me.position > rows.length;
@@ -884,7 +992,7 @@
         const v = view(detailsKey);
         const panel = $('[data-details-panel]', dlg);
         panel.style.setProperty('--lm-c', v?.dataset.accent || '#a855f7');
-        panel.style.setProperty('--lm-c2', v?.dataset.accent2 || '#60a5fa');
+        panel.style.setProperty('--lm-c2', v?.dataset.accentHi || '#60a5fa');
         $('[data-lm-sub]', dlg).textContent = banners.get(detailsKey)?.nome ?? '';
         $('[data-details-count]', dlg).textContent = '';
         const panes = { rates: $('[data-lm-pane="rates"]', dlg), chars: $('[data-lm-pane="chars"]', dlg), rules: $('[data-lm-pane="rules"]', dlg) };
@@ -989,7 +1097,7 @@
         if (o.canConvert) {
             const afterGodos = Math.max(0, o.soldi - o.pointsCost);
             const afterShards = Math.max(0, o.shards + o.missingShards - o.costShards);
-            $('.lm__icon i', dlg).className = 'fa-solid fa-wand-magic-sparkles';
+            $('.lm__icon', dlg).innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
             body.innerHTML = `
                 <div class="lm-funds lm-stagger"><img class="lm-funds__art" src="/img/godoshards.png" alt="" style="--i:0">
                     <h3 style="--i:1">${esc(T.f_missing(o.missingShards))}</h3><p style="--i:2">${esc(T.f_convert)}</p></div>
@@ -1002,7 +1110,7 @@
             foot.innerHTML = `<button type="button" class="lm-btn" data-lm-close>${esc(T.f_cancel)}</button><span class="lm-sp"></span>
                 <button type="button" class="lm-btn lm-btn--main" data-funds-go>${esc(T.f_go)} <i class="fa-solid fa-arrow-right"></i></button>`;
         } else {
-            $('.lm__icon i', dlg).className = 'fa-solid fa-coins';
+            $('.lm__icon', dlg).innerHTML = '<img src="/img/godos.png" alt="" style="width:28px;height:28px;object-fit:contain">';
             body.innerHTML = `
                 <div class="lm-funds lm-stagger"><img class="lm-funds__art" src="/img/godos.png" alt="" style="--i:0">
                     <h3 style="--i:1">${esc(T.f_poor)}</h3><p style="--i:2">${esc(T.f_poor_text(num(o.missingShards), num(o.pointsCost)))}</p></div>
@@ -1037,9 +1145,18 @@
         initSettings();
         tickCountdowns();
         setInterval(tickCountdowns, 30000);
-        // Lo sfondo attivo e' gia' nel markup; gli altri si caricano quando servono.
+        // Lo sfondo attivo e' gia' nel markup; gli altri si preparano quando
+        // ci si passa sopra, e con calma i due vicini.
         const active = $('.lb-view.is-active');
-        if (active) setAccent(active);
+        shownKey = active?.dataset.bannerId ?? null;
+        if (shownKey) {
+            $(`.lb-bg[data-bg="${CSS.escape(shownKey)}"]`)?.classList.add('is-ready');
+            primeBanner(shownKey);
+            setTimeout(() => primeNeighbours(shownKey), 2000);
+        }
+        document.addEventListener('pointerover', onIntent, { passive: true });
+        document.addEventListener('touchstart', onIntent, { passive: true });
+        document.addEventListener('focusin', onIntent);
         requestAnimationFrame(() => document.body.classList.add('lb-ready'));
     }
 

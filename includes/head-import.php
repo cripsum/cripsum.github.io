@@ -98,7 +98,7 @@
         <link rel="icon" href="/img/Susremaster.png" type="image/png" />
         <link rel="shortcut icon" href="/img/Susremaster.png" type="image/png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
-        <link rel="stylesheet" href="/css/style.css?v=27" />
+        <link rel="stylesheet" href="/css/style.css?v=28" />
         <link rel="stylesheet" href="/css/style-dark.css?v=24" />
         <link rel="stylesheet" href="/css/navbar-search.css?v=4.2" />
         <link rel="stylesheet" href="/css/animations.css" />

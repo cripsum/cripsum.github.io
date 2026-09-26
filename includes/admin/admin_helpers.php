@@ -250,11 +250,51 @@ function admin_require_access(mysqli $mysqli, bool $json = false): array
     return $user;
 }
 
+/**
+ * Valute del sito salvate in `utenti`, colonna => etichetta e icona. Il
+ * pannello mostra e modifica solo quelle la cui colonna esiste.
+ */
+function admin_user_currencies(mysqli $mysqli): array
+{
+    $defs = [
+        'soldi' => ['label' => 'Godos', 'icon' => 'fa-solid fa-coins', 'image' => '/img/godos.png'],
+        'godoshards_balance' => ['label' => 'Godo Shards', 'icon' => 'fa-solid fa-gem', 'image' => '/img/godoshards.png'],
+        'frammenti' => ['label' => 'Frammenti', 'icon' => 'fa-solid fa-puzzle-piece', 'image' => '/img/frammento.svg'],
+    ];
+
+    return array_filter($defs, static fn($column) => admin_column_exists($mysqli, 'utenti', $column), ARRAY_FILTER_USE_KEY);
+}
+
+/** Le valute per il JS del pannello: chiave, etichetta, icona e immagine. */
+function admin_user_currencies_public(mysqli $mysqli): array
+{
+    $out = [];
+    foreach (admin_user_currencies($mysqli) as $column => $def) {
+        $out[] = ['key' => $column] + $def;
+    }
+    return $out;
+}
+
 function admin_fetch_user(mysqli $mysqli, int $userId): ?array
 {
     $select = "id, username, email, ruolo, isBannato, data_creazione";
-    foreach (['motivo_ban', 'banned_until', 'banned_at', 'banned_by', 'updated_at', 'email_verificata', 'soldi', 'nsfw', 'richpresence', 'twofa_enabled', 'is_premium'] as $column) {
+    foreach (['display_name', 'motivo_ban', 'banned_until', 'banned_at', 'banned_by', 'updated_at', 'email_verificata', 'soldi', 'godoshards_balance', 'frammenti', 'nsfw', 'richpresence', 'twofa_enabled', 'twofa_enabled_at', 'is_premium', 'ultimo_accesso', 'profile_views'] as $column) {
         if (admin_column_exists($mysqli, 'utenti', $column)) $select .= ", $column";
+    }
+    // Dei segreti si dice solo se ci sono: il valore non esce dal database.
+    // La 2FA funziona davvero solo con il secret (lo controlla il login).
+    $select .= admin_column_exists($mysqli, 'utenti', 'twofa_secret')
+        ? ", (twofa_secret IS NOT NULL AND twofa_secret <> '') AS twofa_has_secret"
+        : ', 0 AS twofa_has_secret';
+    $select .= admin_column_exists($mysqli, 'utenti', 'google_id')
+        ? ", (google_id IS NOT NULL AND google_id <> '') AS google_linked"
+        : ', 0 AS google_linked';
+    $select .= admin_column_exists($mysqli, 'utenti', 'password')
+        ? ", (password IS NOT NULL AND password <> '') AS has_password"
+        : ', 1 AS has_password';
+    if (admin_column_exists($mysqli, 'utenti', 'discord_username')) $select .= ', discord_username';
+    if (admin_column_exists($mysqli, 'utenti', 'ultimo_accesso')) {
+        $select .= ', TIMESTAMPDIFF(SECOND, ultimo_accesso, NOW()) AS seconds_since_active';
     }
 
     $stmt = $mysqli->prepare("SELECT $select FROM utenti WHERE id = ? LIMIT 1");
@@ -383,6 +423,23 @@ function admin_avatar_url(int $userId): string
 function admin_now_mysql(): string
 {
     return date('Y-m-d H:i:s');
+}
+
+/**
+ * Data e ora da un campo del pannello: accetta `YYYY-MM-DD`, con o senza ora
+ * e con la `T` di <input type="datetime-local">. Torna il formato MySQL, o
+ * null se la data non esiste (31 febbraio compreso).
+ */
+function admin_parse_datetime(string $value): ?string
+{
+    $value = str_replace('T', ' ', trim($value));
+    foreach (['Y-m-d H:i:s', 'Y-m-d H:i', 'Y-m-d'] as $format) {
+        $date = DateTime::createFromFormat('!' . $format, $value);
+        if ($date && $date->format($format) === $value) {
+            return $date->format('Y-m-d H:i:s');
+        }
+    }
+    return null;
 }
 
 function admin_update_user_timestamp_sql(mysqli $mysqli): string

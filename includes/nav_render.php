@@ -160,8 +160,9 @@ if (!function_exists('nav_bootstrap')) {
         } elseif (!empty($item['mark'])) {
             // Segno in coda alla riga al posto del contatore: serve alla voce
             // Rewind, che si vede sempre ma non sempre si apre.
-            $badge = '<span class="cnav-row__mark"><i class="fa-solid '
-                . nav_e($item['mark']) . '" aria-hidden="true"></i></span>';
+            $badge = '<span class="cnav-row__mark">' . ($item['mark'] === 'premium'
+                ? '<img class="cr-premium-gem" src="/img/premium.svg" alt="" width="13" height="13">'
+                : '<i class="fa-solid ' . nav_e($item['mark']) . '" aria-hidden="true"></i>') . '</span>';
         }
 
         $current = $uri !== '' && nav_is_current((string)$item['href'], $uri);
@@ -292,7 +293,7 @@ if (!function_exists('nav_bootstrap')) {
                         <span class="cnav-acct-head__name" id="cnav-account-name">
                             <?= nav_e($ctx['username']) ?>
                             <?php if ($ctx['isPremium']): ?>
-                                <i class="fa-solid fa-gem cnav-acct-head__gem" aria-hidden="true" data-cnav-tip="Premium"></i>
+                                <img class="cr-premium-gem cnav-acct-head__gem" src="/img/premium.svg" alt="" width="12" height="12" data-cnav-tip="Premium">
                             <?php endif; ?>
                         </span>
                         <span class="cnav-acct-head__meta">

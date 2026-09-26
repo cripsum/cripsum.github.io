@@ -1508,3 +1508,19 @@ select {
         height: 200px;
     }
 }
+
+/* Icona Premium del sito (img/premium.svg). Larga 1em come un'icona del
+   font: prende la misura dal font-size di chi la contiene, quindi le regole
+   scritte per la vecchia fa-gem continuano a funzionare. */
+.cr-premium-gem {
+    display: inline-block;
+    flex: none;
+    width: 1em;
+    height: 1em;
+    object-fit: contain;
+    vertical-align: -0.125em;
+}
+
+.premium-badge-icon:has(> .cr-premium-gem) {
+    filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.45));
+}

@@ -8845,3 +8845,10 @@ body.public-profile-body .bio-stat-card .bio-stat-card__label {
     background: #80848e;
     box-shadow: 0 0 0 4px rgba(128, 132, 142, 0.14);
 }
+
+/* Statistiche dei Godos: l'immagine della valuta al posto dell'icona. */
+.bio-stat-card__icon img {
+    width: 1.35rem;
+    height: 1.35rem;
+    object-fit: contain;
+}

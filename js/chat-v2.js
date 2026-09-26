@@ -310,7 +310,7 @@
 
         const premiumBadgeHtml = (isPremium) => {
             if (!isPremium) return '';
-            return `<span class="premium-badge-icon" title="Premium"><i class="fa-solid fa-gem"></i></span>`;
+            return `<span class="premium-badge-icon" title="Premium"><img class="cr-premium-gem" src="/img/premium.svg" alt="Premium"></span>`;
         };
 
         const avatar = `<a class="chat-avatar-link" href="${escapeHtml(safeUrl(msg.profile_url || '#'))}" tabindex="-1"><img src="${escapeHtml(safeUrl(msg.avatar_url || '/img/abdul.jpg'))}" alt="" loading="lazy"></a>`;

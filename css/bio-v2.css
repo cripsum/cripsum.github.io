@@ -1301,3 +1301,12 @@ body[data-theme="light"] .ds-status-dot {
         transition-duration: .01ms !important;
     }
 }
+
+/* Crediti: l'immagine dei Godos al posto dell'icona. */
+.bio-stat-card__img {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-bottom: 1rem;
+    object-fit: contain;
+}

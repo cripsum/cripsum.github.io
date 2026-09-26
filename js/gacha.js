@@ -309,12 +309,31 @@
       if (ov) ov.hidden = true;
       nv.hidden = false;
     }
+    scheduleUrlUpdate();
+  }
+
+  /**
+   * ?banner= nell'indirizzo, per ricaricare o condividere il banner giusto.
+   * Si aggiorna solo quando ci si ferma: ogni cambio di indirizzo fa
+   * lavorare Google Analytics (che lo conta anche come visita) e faceva
+   * scattare l'animazione del cambio banner.
+   */
+  let urlTimer = null;
+  function writeUrl() {
+    clearTimeout(urlTimer);
+    urlTimer = null;
     try {
       const url = new URL(location.href);
-      if (bannerId === 'standard') url.searchParams.delete('banner'); else url.searchParams.set('banner', bannerId);
-      history.replaceState(null, '', url);
+      const key = state.activeBannerId;
+      if (key === 'standard') url.searchParams.delete('banner'); else url.searchParams.set('banner', key);
+      if (url.href !== location.href) history.replaceState(null, '', url);
     } catch (e) {}
   }
+  function scheduleUrlUpdate() {
+    clearTimeout(urlTimer);
+    urlTimer = setTimeout(writeUrl, 1500);
+  }
+  window.addEventListener('pagehide', () => { if (urlTimer) writeUrl(); });
 
   /* ════════════════════════════════════════════════════
      PULL BUTTONS

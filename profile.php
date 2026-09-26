@@ -701,7 +701,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     ?>
     <title><?php echo profile_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=7.4.0">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=7.4.1">
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-name-effects.css?v=1.1.0">
@@ -755,7 +755,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <script src="/assets/js/profile-effects.js?v=1.2.0" defer></script>
     <script src="/assets/js/profile-name-effects.js?v=1.1.0" defer></script>
     <script src="/assets/js/profile-cursor.js?v=1.0.0" defer></script>
-    <script src="/assets/js/profile.js?v=7.4.0" defer></script>
+    <script src="/assets/js/profile.js?v=7.4.1" defer></script>
     <?php if (isset($_GET['preview_mode'])): ?>
         <script src="/assets/js/profile-style.js?v=6.3.0" defer></script>
         <style>
@@ -1513,7 +1513,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                         <div class="bio-stats-grid profile-stats-compact js-reveal" data-count="<?php echo count($stats); ?>" data-section-type="stats" data-section-title="<?php echo profile_h(profile_get_section_title('stats', $pt('Statistiche', 'Stats'))); ?>">
                             <?php foreach ($stats as $stat): ?>
                                 <article class="bio-stat-card" data-stat="<?php echo profile_h($stat['key']); ?>" data-format="<?php echo profile_h($stat['format']); ?>">
-                                    <span class="bio-stat-card__icon"><i class="<?php echo profile_h($stat['icon']); ?>" aria-hidden="true"></i></span>
+                                    <span class="bio-stat-card__icon"><?php if (!empty($stat['image'])): ?><img src="<?php echo profile_h($stat['image']); ?>" alt="" loading="lazy"><?php else: ?><i class="<?php echo profile_h($stat['icon']); ?>" aria-hidden="true"></i><?php endif; ?></span>
                                     <strong class="bio-stat-card__value"><?php echo profile_h($stat['value']); ?><?php if ($stat['unit'] !== ''): ?><small><?php echo profile_h($stat['unit']); ?></small><?php endif; ?></strong>
                                     <span class="bio-stat-card__label"><?php echo profile_h($stat['label']); ?></span>
                                 </article>
@@ -2301,7 +2301,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
         </script>
     <?php endif; ?>
     <script src="/assets/social/social-api.js?v=1.5" defer></script>
-    <script src="/assets/social/user-card.js?v=2.9" defer></script>
+    <script src="/assets/social/user-card.js?v=3.0" defer></script>
 </body>
 
 </html>

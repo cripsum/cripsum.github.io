@@ -82,7 +82,7 @@ $csrfToken = admin_csrf_token();
                 <div class="admin-header-actions">
                     <label class="admin-global-search">
                         <i class="fa-solid fa-search"></i>
-                        <input type="search" id="adminGlobalSearch" placeholder="Cerca nel pannello">
+                        <input type="search" id="adminGlobalSearch" placeholder="Cerca nel pannello (utenti: nome, email o #ID)">
                     </label>
                     <button type="button" class="admin-icon-btn" id="adminRefreshBtn" title="Aggiorna"><i class="fa-solid fa-rotate"></i></button>
                 </div>
@@ -113,10 +113,10 @@ $csrfToken = admin_csrf_token();
             </section>
 
             <section class="admin-section" id="section-users" data-section-panel="users">
-                <div class="admin-toolbar">
+                <div class="admin-toolbar admin-toolbar--users">
                     <div>
                         <strong>Utenti</strong>
-                        <small>Gestisci account, ban, ruoli, inventario e achievement.</small>
+                        <small id="usersSummary">Account, saldo, inventario, badge e moderazione. Clicca una riga per aprire la scheda.</small>
                     </div>
                     <div class="admin-toolbar-actions">
                         <button type="button" class="admin-btn admin-btn--online" id="usersOnlineToggle" aria-pressed="false" title="Utenti attivi negli ultimi 30 secondi, come sul profilo">
@@ -124,22 +124,32 @@ $csrfToken = admin_csrf_token();
                             <span>Online ora</span>
                             <b id="usersOnlineCount">—</b>
                         </button>
-                        <select id="usersStatusFilter" class="admin-input">
-                            <option value="all">Tutti</option>
+                        <select id="usersStatusFilter" class="admin-input" aria-label="Filtra per stato">
+                            <option value="all">Tutti gli stati</option>
                             <option value="active">Attivi</option>
                             <option value="banned">Bannati</option>
                         </select>
-                        <select id="usersRoleFilter" class="admin-input">
+                        <select id="usersRoleFilter" class="admin-input" aria-label="Filtra per ruolo">
                             <option value="all">Tutti i ruoli</option>
                             <option value="utente">Utenti</option>
                             <option value="admin">Admin</option>
                             <option value="owner">Owner</option>
+                        </select>
+                        <select id="usersPremiumFilter" class="admin-input" aria-label="Filtra per Premium">
+                            <option value="all">Premium e non</option>
+                            <option value="premium">Solo Premium</option>
+                            <option value="free">Senza Premium</option>
                         </select>
                         <select id="usersSortFilter" class="admin-input" aria-label="Ordina utenti">
                             <option value="data_creazione:DESC">Registrati di recente</option>
                             <option value="data_creazione:ASC">Registrati da più tempo</option>
                             <option value="ultimo_accesso:DESC">Ultimo accesso più recente</option>
                             <option value="ultimo_accesso:ASC">Ultimo accesso meno recente</option>
+                            <option value="soldi:DESC">Più Godos</option>
+                            <option value="godoshards_balance:DESC">Più Godo Shards</option>
+                            <option value="frammenti:DESC">Più Frammenti</option>
+                            <option value="username:ASC">Username A-Z</option>
+                            <option value="id:ASC">ID crescente</option>
                         </select>
                     </div>
                 </div>
@@ -378,6 +388,7 @@ $csrfToken = admin_csrf_token();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-users.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-shop.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-gacha.js')); ?>"></script>
 </body>

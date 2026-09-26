@@ -59,7 +59,7 @@ try {
     $stmt->close();
 
     admin_log($mysqli, (int)$adminUser['id'], 'ban_user', $userId, ['reason' => $reason, 'duration' => $duration, 'banned_until' => $bannedUntil]);
-    admin_ok(['message' => 'Utente bannato.']);
+    admin_ok(['message' => $bannedUntil ? 'Utente bannato fino al ' . date('d/m/Y H:i', strtotime($bannedUntil)) . '.' : 'Utente bannato per sempre.', 'banned_until' => $bannedUntil]);
 } catch (Throwable $e) {
     admin_fail($e->getMessage(), 500);
 }

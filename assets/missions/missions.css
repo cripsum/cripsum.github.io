@@ -840,3 +840,16 @@ body.msn-page {
         border-color: rgba(251, 113, 133, 0.6);
     }
 }
+
+/* Ricompensa in Godos: l'immagine della valuta al posto delle monete. */
+.msn-reward img,
+.msn-toast__pts img {
+    width: 1.15rem;
+    height: 1.15rem;
+    flex: none;
+    object-fit: contain;
+    vertical-align: -0.2em;
+}
+.msn-toast__pts { display: inline-flex; align-items: center; gap: 0.3rem; }
+
+.msn-premium-boost .cr-premium-gem { font-size: 0.85rem; }

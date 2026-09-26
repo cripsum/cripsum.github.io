@@ -103,7 +103,7 @@ $rwH = static fn($v): string => htmlspecialchars((string)$v, ENT_QUOTES | ENT_SU
             <?php else: ?>
                 <?php $rwDates = rewind_free_window_label($rwLang); ?>
                 <div class="auth-alert">
-                    <i class="fa-solid fa-gem"></i>
+                    <img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14">
                     <span>
                         <?php echo $rwH($rwCopy['locked']); ?>
                         <?php if ($rwDates !== ''): ?>
@@ -113,7 +113,7 @@ $rwH = static fn($v): string => htmlspecialchars((string)$v, ENT_QUOTES | ENT_SU
                 </div>
                 <a class="auth-btn auth-btn--primary" href="/<?php echo $rwLang; ?>/checkout-premium"
                    style="width:auto;padding:10px 22px;margin-top:.75rem;">
-                    <i class="fa-solid fa-gem"></i>
+                    <img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14">
                     <span><?php echo $rwH($rwCopy['locked_cta']); ?></span>
                 </a>
             <?php endif; ?>

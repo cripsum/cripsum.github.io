@@ -270,7 +270,7 @@
     const tabs = (root, list, active, onChange) => {
         root.innerHTML = `
             <div class="shop-admin-tabs" role="tablist">
-                ${list.map(([key, label, icon]) => `<button type="button" role="tab" class="shop-admin-tab ${key === active ? 'is-active' : ''}" data-tab="${key}" aria-selected="${key === active}"><i class="${icon}"></i> ${e(label)}</button>`).join('')}
+                ${list.map(([key, label, icon]) => `<button type="button" role="tab" class="shop-admin-tab ${key === active ? 'is-active' : ''}" data-tab="${key}" aria-selected="${key === active}">${icon.startsWith('/') ? `<img class="admin-currency" src="${e(icon)}" alt="">` : `<i class="${icon}"></i>`} ${e(label)}</button>`).join('')}
             </div>
             <div data-tab-body></div>`;
         $$('[data-tab]', root).forEach((button) => button.addEventListener('click', () => onChange(button.dataset.tab)));
@@ -1557,8 +1557,8 @@
         if (!root) return;
 
         const body = tabs(root, [
-            ['pacchetti', 'Pacchetti Godo Shards', 'fa-solid fa-gem'],
-            ['oggetti', 'Oggetti Godos', 'fa-solid fa-certificate'],
+            ['pacchetti', 'Pacchetti Godo Shards', '/img/godoshards.png'],
+            ['oggetti', 'Oggetti Godos', '/img/godos.png'],
             ['ordini', 'Ordini', 'fa-solid fa-receipt'],
             ['impostazioni', 'Impostazioni', 'fa-solid fa-sliders'],
         ], gacha.tab, (tab) => { gacha.tab = tab; loadGacha(); });

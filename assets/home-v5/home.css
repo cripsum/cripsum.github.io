@@ -2049,3 +2049,23 @@ body.home-v5-body {
         gap: 0.75rem;
     }
 }
+
+/* Vantaggi Premium che parlano di Godos: l'immagine della valuta. */
+.benefit-item .benefit-currency {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: none;
+    object-fit: contain;
+}
+
+/* Gemma Premium (img/premium.svg) nella sezione Premium della home. */
+.benefit-item .cr-premium-gem { font-size: 1.05rem; }
+.supporter-badge .cr-premium-gem { font-size: 11px; }
+.promo-art .cr-premium-gem {
+    font-size: 6rem;
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.45));
+    animation: gemFloat 4s infinite ease-in-out;
+}
+@media (max-width: 768px) {
+    .promo-art .cr-premium-gem { font-size: 4.5rem; }
+}

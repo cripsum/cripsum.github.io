@@ -9,7 +9,6 @@
     const state = {
         section: 'dashboard',
         q: '',
-        users: { page: 1, status: 'all', role: 'all', sort: 'data_creazione', dir: 'DESC', online: false },
         characters: { page: 1, rarita: '', categoria: '', limitati: false },
         achievements: { page: 1 },
         messages: { page: 1 },
@@ -18,7 +17,7 @@
         toprimasti: { page: 1, status: 'all' },
         reports: { page: 1, source: 'all', status: 'open' },
         characterCategories: null,
-        cache: { homeSlides: [], users: [], characters: [], achievements: [], messages: [], tickets: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
+        cache: { homeSlides: [], characters: [], achievements: [], messages: [], tickets: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
     };
 
     let toastTimer = null;
@@ -90,7 +89,7 @@
             data = { ok: response.ok, message: clean || `HTTP ${response.status}` };
         }
 
-        if (!response.ok || data.ok === false) throw new Error(data.message || `HTTP ${response.status}`);
+        if (!response.ok || data.ok === false) throw new Error(data.message || data.error || `HTTP ${response.status}`);
         return data;
     };
 
@@ -141,39 +140,8 @@
         ? '<span class="admin-badge admin-badge--danger"><i class="fa-solid fa-ban"></i>Bannato</span>'
         : '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Attivo</span>';
 
-    // I secondi arrivano gia' calcolati da MySQL: non dipendono dall'orologio
-    // ne' dal fuso di chi guarda il pannello.
-    const timeAgo = (seconds) => {
-        const s = Math.max(0, Number(seconds) || 0);
-        const plural = (n, one, many) => `${n} ${n === 1 ? one : many} fa`;
-        if (s < 60) return 'adesso';
-        if (s < 3600) return `${Math.floor(s / 60)} min fa`;
-        if (s < 86400) return `${Math.floor(s / 3600)} h fa`;
-        if (s < 86400 * 30) return plural(Math.floor(s / 86400), 'giorno', 'giorni');
-        if (s < 86400 * 365) return plural(Math.floor(s / (86400 * 30)), 'mese', 'mesi');
-        return plural(Math.floor(s / (86400 * 365)), 'anno', 'anni');
-    };
-
-    // `ultimo_accesso` e' gia' nell'ora del sito: si riformatta la stringa
-    // cosi' com'e', senza passare da Date, che la sposterebbe nel fuso del browser.
-    const formatStamp = (value) => {
-        const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
-        return match ? `${match[3]}/${match[2]}/${match[1]} ${match[4]}:${match[5]}` : '—';
-    };
-
-    const onlineBadge = (user) => user.is_online
-        ? '<span class="admin-badge admin-badge--success"><span class="admin-online-dot" aria-hidden="true"></span>Online</span>'
-        : '';
-
-    const lastSeenCell = (user) => {
-        if (user.seconds_since_active === null || user.seconds_since_active === undefined) {
-            return '<span class="admin-muted">Mai</span>';
-        }
-        return `<b class="${user.is_online ? 'admin-text-online' : ''}">${timeAgo(user.seconds_since_active)}</b><div class="admin-row-sub">${formatStamp(user.ultimo_accesso)}</div>`;
-    };
-
     const premiumBadge = (isPremium) => Number(isPremium) === 1
-        ? '<span class="admin-badge admin-badge--warning" style="margin-left: 5px; font-size: 0.65rem; padding: 2px 6px;"><i class="fa-solid fa-gem" style="color: #eab308; margin-right: 4px;"></i>Premium</span>'
+        ? '<span class="admin-badge admin-badge--premium"><img class="cr-premium-gem" src="/img/premium.svg" alt="">Premium</span>'
         : '';
 
 
@@ -330,7 +298,7 @@
             `).join('');
 
             $('#latestUsersBox').innerHTML = (data.latest_users || []).length ? data.latest_users.map((user) => `
-                <div class="admin-row-card">
+                <div class="admin-row-card admin-row-card--link" data-open-user="${Number(user.id)}" role="button" tabindex="0" aria-label="Apri la scheda di ${escapeHtml(user.username)}">
                     <div class="admin-row-main">
                         <img class="admin-avatar" src="/includes/get_pfp.php?id=${Number(user.id)}" alt="">
                         <div class="admin-cell-text">
@@ -355,254 +323,6 @@
             showToast(error.message, true);
         }
     };
-
-    const userRow = (user) => `
-        <tr>
-            <td data-label="Utente">
-                <div class="admin-cell-user">
-                    <span class="admin-avatar-wrap${user.is_online ? ' is-online' : ''}"><img class="admin-avatar" src="${escapeHtml(user.avatar_url)}" alt=""></span>
-                    <div class="admin-cell-text">
-                        <div class="admin-row-title">${escapeHtml(user.username)} ${premiumBadge(user.is_premium)}</div>
-                        <div class="admin-row-sub">#${Number(user.id)} · ${escapeHtml(user.email)}</div>
-                    </div>
-                </div>
-            </td>
-            <td data-label="Ruolo">${roleBadge(user.ruolo)}</td>
-            <td data-label="Stato"><div class="admin-status-stack">${statusBadge(user.isBannato)}${onlineBadge(user)}</div></td>
-            <td data-label="Stats"><span class="admin-muted">Pull</span> <b>${compactNumber(user.pull_count)}</b><br><span class="admin-muted">Badge</span> <b>${compactNumber(user.achievement_count)}</b></td>
-            <td data-label="Ultimo accesso" class="admin-nowrap">${lastSeenCell(user)}</td>
-            <td data-label="Registrato" class="admin-nowrap">${formatDate(user.data_creazione)}</td>
-            <td data-label="Azioni"><div class="admin-row-actions">
-                <button class="admin-btn admin-btn--small" data-action="details" data-id="${Number(user.id)}"><i class="fa-solid fa-eye"></i> Dettagli</button>
-                <button class="admin-btn admin-btn--small" data-action="edit" data-id="${Number(user.id)}"><i class="fa-solid fa-pen"></i> Modifica</button>
-                ${user.isBannato == 1
-                    ? `<button class="admin-btn admin-btn--small" data-action="unban" data-id="${Number(user.id)}"><i class="fa-solid fa-check"></i> Sbanna</button>`
-                    : `<button class="admin-btn admin-btn--small admin-btn--danger" data-action="ban" data-id="${Number(user.id)}"><i class="fa-solid fa-ban"></i> Banna</button>`}
-            </div></td>
-        </tr>
-    `;
-
-    const renderOnlineToggle = (data) => {
-        const button = $('#usersOnlineToggle');
-        if (!button) return;
-        button.hidden = data && data.online_available === false;
-        button.classList.toggle('is-active', state.users.online);
-        button.setAttribute('aria-pressed', state.users.online ? 'true' : 'false');
-        const count = $('#usersOnlineCount');
-        if (count && data) count.textContent = compactNumber(data.online_count);
-    };
-
-    // `silent` e' l'aggiornamento automatico della lista online: niente
-    // scheletro di caricamento, altrimenti la tabella lampeggia ogni 30 secondi.
-    const loadUsers = async ({ silent = false } = {}) => {
-        const box = $('#usersTable');
-        if (!silent) setLoading(box);
-        try {
-            const params = new URLSearchParams({
-                q: state.q,
-                status: state.users.status,
-                role: state.users.role,
-                page: state.users.page,
-                sort: state.users.sort,
-                dir: state.users.dir,
-                online: state.users.online ? 1 : 0,
-                limit: 20
-            });
-            const data = await api(`get_users.php?${params}`);
-            state.cache.users = data.users || [];
-            renderOnlineToggle(data);
-            box.innerHTML = state.cache.users.length ? `
-                <table class="admin-table">
-                    <thead><tr><th>Utente</th><th>Ruolo</th><th>Stato</th><th>Stats</th><th>Ultimo accesso</th><th>Registrato</th><th>Azioni</th></tr></thead>
-                    <tbody>${state.cache.users.map(userRow).join('')}</tbody>
-                </table>
-            ` : state.users.online
-                ? emptyState('fa-solid fa-moon', 'Nessuno online', `Nessun utente attivo negli ultimi ${Number(data.online_window) || 30} secondi con questi filtri.`)
-                : emptyState('fa-solid fa-users', 'Nessun utente trovato', 'Prova a cambiare ricerca o filtri.');
-            bindUserActions(box);
-            pagination('#usersPagination', data.pagination, (page) => { state.users.page = page; loadUsers(); });
-        } catch (error) {
-            if (silent) return;
-            box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore utenti', error.message);
-        }
-    };
-
-    // Con la vista online accesa la lista si aggiorna da sola, ma solo se la
-    // sezione e' aperta, la scheda e' visibile e non c'e' una modale aperta.
-    const ONLINE_REFRESH_MS = 30000;
-    setInterval(() => {
-        if (!state.users.online || state.section !== 'users') return;
-        if (document.visibilityState !== 'visible') return;
-        if (document.querySelector('.admin-modal.show, .admin-modal.is-open')) return;
-        loadUsers({ silent: true });
-    }, ONLINE_REFRESH_MS);
-
-    const bindUserActions = (root) => {
-        $$('[data-action]', root).forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const id = Number(btn.dataset.id);
-                const action = btn.dataset.action;
-                if (action === 'details') openUserDetails(id);
-                if (action === 'edit') openUserEdit(id);
-                if (action === 'ban') openBan(id);
-                if (action === 'unban') runUnban(id);
-            });
-        });
-    };
-
-    const openUserDetails = async (id) => {
-        try {
-            const data = await api(`get_user_details.php?id=${id}`);
-            const user = data.user;
-            const inv = data.inventory || [];
-            const ach = data.achievements || [];
-            openModal(`@${user.username}`, `ID ${user.id}`, `
-                <div class="admin-detail-grid">
-                    <aside class="admin-detail-side">
-                        <img class="admin-detail-avatar" src="${escapeHtml(user.avatar_url)}" alt="">
-                        <h3>${escapeHtml(user.username)} ${premiumBadge(user.is_premium)}</h3>
-                        <p>${escapeHtml(user.email)}</p>
-                        <div class="admin-row-actions" style="justify-content:center">${roleBadge(user.ruolo)}${statusBadge(user.isBannato)}</div>
-                        <div class="admin-row-actions" style="justify-content:center; margin-top:10px;">
-                            ${Number(user.is_premium) === 1
-                                ? `<button class="admin-btn admin-btn--small admin-btn--danger" id="btnTogglePremium" data-id="${Number(user.id)}" data-premium="0"><i class="fa-solid fa-gem"></i> Rimuovi Premium</button>`
-                                : `<button class="admin-btn admin-btn--small admin-btn--warning" id="btnTogglePremium" data-id="${Number(user.id)}" data-premium="1"><i class="fa-solid fa-gem"></i> Aggiungi Premium</button>`
-                            }
-                        </div>
-                        ${user.motivo_ban ? `<p class="admin-muted">Motivo ban: ${escapeHtml(user.motivo_ban)}</p>` : ''}
-                    </aside>
-                    <div class="admin-detail-tabs">
-                        <div class="admin-toolbar"><div><strong>Inventario</strong><small>${inv.length} personaggi mostrati</small></div><button class="admin-btn admin-btn--primary" id="quickAddCharacter"><i class="fa-solid fa-plus"></i> Personaggio</button></div>
-                        <div class="admin-mini-grid">${inv.length ? inv.map((item) => `<div class="admin-mini-card"><strong>${escapeHtml(item.nome)}</strong><span>${escapeHtml(item.rarita || '—')} · x${Number(item.quantita || 1)}</span><button class="admin-btn admin-btn--small admin-btn--danger" data-remove-character="${Number(item.id)}"><i class="fa-solid fa-trash"></i> Rimuovi</button></div>`).join('') : emptyState('fa-solid fa-box-open', 'Inventario vuoto')}</div>
-                        <div class="admin-toolbar"><div><strong>Achievement</strong><small>${ach.length} achievement mostrati</small></div><button class="admin-btn admin-btn--primary" id="quickAddAchievement"><i class="fa-solid fa-plus"></i> Achievement</button></div>
-                        <div class="admin-mini-grid">${ach.length ? ach.map((item) => `<div class="admin-mini-card"><strong>${escapeHtml(item.nome)}</strong><span>${Number(item.punti || 0)} punti</span><button class="admin-btn admin-btn--small admin-btn--danger" data-remove-achievement="${Number(item.id)}"><i class="fa-solid fa-trash"></i> Rimuovi</button></div>`).join('') : emptyState('fa-solid fa-trophy', 'Nessun achievement')}</div>
-                    </div>
-                </div>
-            `);
-            $('#quickAddCharacter')?.addEventListener('click', () => openAssignCharacter(user.id));
-            $('#quickAddAchievement')?.addEventListener('click', () => openAssignAchievement(user.id));
-            $$('[data-remove-character]').forEach((btn) => btn.addEventListener('click', () => removeCharacter(user.id, Number(btn.dataset.removeCharacter))));
-            $$('[data-remove-achievement]').forEach((btn) => btn.addEventListener('click', () => removeAchievement(user.id, Number(btn.dataset.removeAchievement))));
-            $('#btnTogglePremium')?.addEventListener('click', async () => {
-                const targetPremium = Number($('#btnTogglePremium').dataset.premium);
-                const confirmMsg = targetPremium === 1
-                    ? "Vuoi attivare il Premium per questo utente? Verranno assegnati anche 25.000 soldi e il badge premium."
-                    : "Vuoi rimuovere lo stato Premium per questo utente? Verrà rimosso anche il badge premium.";
-                
-                if (confirm(confirmMsg)) {
-                    try {
-                        const payload = {
-                            id: user.id,
-                            username: user.username,
-                            email: user.email,
-                            ruolo: user.ruolo,
-                            is_premium: targetPremium
-                        };
-                        await api('update_user.php', { method: 'POST', body: payload });
-                        closeModal();
-                        showToast('Stato Premium aggiornato.');
-                        loadUsers();
-                        loadDashboard();
-                    } catch (error) {
-                        showToast(error.message, true);
-                    }
-                }
-            });
-        } catch (error) { showToast(error.message, true); }
-    };
-
-    const openUserEdit = async (id) => {
-        const user = state.cache.users.find((u) => Number(u.id) === id) || (await api(`get_user_details.php?id=${id}`)).user;
-        openModal('Modifica utente', `ID ${user.id}`, `
-            <form id="userEditForm" class="admin-form-grid">
-                <input type="hidden" name="id" value="${Number(user.id)}">
-                <div class="admin-field"><label>Username</label><input name="username" value="${escapeHtml(user.username)}" required maxlength="20"></div>
-                <div class="admin-field"><label>Email</label><input type="email" name="email" value="${escapeHtml(user.email)}" required></div>
-                <div class="admin-field"><label>Ruolo</label><select name="ruolo">
-                    <option value="utente" ${user.ruolo === 'utente' ? 'selected' : ''}>utente</option>
-                    <option value="admin" ${user.ruolo === 'admin' ? 'selected' : ''} ${adminRole !== 'owner' ? 'disabled' : ''}>admin</option>
-                    <option value="owner" ${user.ruolo === 'owner' ? 'selected' : ''} ${adminRole !== 'owner' ? 'disabled' : ''}>owner</option>
-                </select></div>
-                <div class="admin-field"><label>Soldi</label><input type="number" name="soldi" value="${Number(user.soldi ?? 0)}" min="0"></div>
-                <div class="admin-field"><label>Data Creazione</label><input type="text" name="data_creazione" value="${escapeHtml(user.data_creazione || '')}" placeholder="YYYY-MM-DD HH:MM:SS"></div>
-                <div class="admin-field"><label>Email Verificata</label><select name="email_verificata">
-                    <option value="1" ${Number(user.email_verificata) === 1 ? 'selected' : ''}>Sì (1)</option>
-                    <option value="0" ${Number(user.email_verificata) === 0 ? 'selected' : ''}>No (0)</option>
-                </select></div>
-                <div class="admin-field"><label>NSFW</label><select name="nsfw">
-                    <option value="1" ${Number(user.nsfw) === 1 ? 'selected' : ''}>Abilitato</option>
-                    <option value="0" ${Number(user.nsfw) === 0 ? 'selected' : ''}>Disabilitato</option>
-                </select></div>
-                <div class="admin-field"><label>Rich Presence</label><select name="richpresence">
-                    <option value="1" ${Number(user.richpresence) === 1 ? 'selected' : ''}>Sì (1)</option>
-                    <option value="0" ${Number(user.richpresence) === 0 ? 'selected' : ''}>No (0)</option>
-                </select></div>
-                <div class="admin-field"><label>2FA Abilitato</label><select name="twofa_enabled">
-                    <option value="1" ${Number(user.twofa_enabled) === 1 ? 'selected' : ''}>Sì (1)</option>
-                    <option value="0" ${Number(user.twofa_enabled) === 0 ? 'selected' : ''}>No (0)</option>
-                </select></div>
-                <div class="admin-field"><label>Stato Premium</label><select name="is_premium">
-                    <option value="1" ${Number(user.is_premium) === 1 ? 'selected' : ''}>Attivo</option>
-                    <option value="0" ${Number(user.is_premium) === 0 ? 'selected' : ''}>Disattivato</option>
-                </select></div>
-            </form>
-        `, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveUserBtn">Salva</button>`);
-        $('#saveUserBtn').addEventListener('click', async () => {
-            const form = $('#userEditForm');
-            const payload = Object.fromEntries(new FormData(form).entries());
-            try { await api('update_user.php', { method: 'POST', body: payload }); closeModal(); showToast('Utente aggiornato.'); loadUsers(); loadDashboard(); }
-            catch (error) { showToast(error.message, true); }
-        });
-    };
-
-    const openBan = (id) => {
-        confirmBox('Bannare utente?', `
-            <p class="admin-muted">Inserisci la durata e il motivo del ban.</p>
-            <div class="admin-field">
-                <label>Durata</label>
-                <select id="banDuration" style="width: 100%; padding: 0.5rem; background: var(--admin-bg-dark); border: 1px solid var(--admin-border); color: #fff; border-radius: 4px; margin-bottom: 0.75rem;">
-                    <option value="permanent">Permanente</option>
-                    <option value="1h">1 ora</option>
-                    <option value="1d">1 giorno</option>
-                    <option value="3d">3 giorni</option>
-                    <option value="7d">7 giorni</option>
-                    <option value="30d">30 giorni</option>
-                    <option value="custom">Personalizzato...</option>
-                </select>
-            </div>
-            <div id="banCustomDateContainer" class="admin-field" style="display: none;">
-                <label>Data e Ora Unban</label>
-                <input type="datetime-local" id="banCustomDate" style="width: 100%; padding: 0.5rem; background: var(--admin-bg-dark); border: 1px solid var(--admin-border); color: #fff; border-radius: 4px; margin-bottom: 0.75rem;">
-            </div>
-            <div class="admin-field">
-                <label>Motivo</label>
-                <textarea id="banReason" maxlength="255" placeholder="Spam, comportamento scorretto..." style="width: 100%; padding: 0.5rem; background: var(--admin-bg-dark); border: 1px solid var(--admin-border); color: #fff; border-radius: 4px; height: 80px;"></textarea>
-            </div>
-        `, async () => {
-            const duration = $('#banDuration')?.value || 'permanent';
-            const customDate = $('#banCustomDate')?.value || '';
-            const reason = $('#banReason')?.value || '';
-            await api('ban_user.php', { method: 'POST', body: { id, reason, duration, customDate } });
-            showToast('Utente bannato.'); loadUsers(); loadDashboard();
-        });
-
-        const select = $('#banDuration');
-        const customContainer = $('#banCustomDateContainer');
-        if (select && customContainer) {
-            select.addEventListener('change', (e) => {
-                if (e.target.value === 'custom') {
-                    customContainer.style.display = 'block';
-                } else {
-                    customContainer.style.display = 'none';
-                }
-            });
-        }
-    };
-
-    const runUnban = (id) => confirmBox('Sbannare utente?', '<p class="admin-muted">L’utente potrà accedere di nuovo.</p>', async () => {
-        await api('unban_user.php', { method: 'POST', body: { id } });
-        showToast('Utente sbannato.'); loadUsers(); loadDashboard();
-    });
 
     const RARITIES = [
         ['comune', 'Comune'], ['raro', 'Raro'], ['epico', 'Epico'], ['leggendario', 'Leggendario'],
@@ -911,48 +631,6 @@
         showToast('Achievement eliminato.'); loadAchievements(); loadDashboard();
     });
 
-    const openAssignCharacter = async (userId) => {
-        if (!state.cache.characters.length) await loadCharacters();
-        openModal('Aggiungi personaggio', `Utente #${userId}`, `
-            <form id="assignCharacterForm" class="admin-form-grid">
-                <input type="hidden" name="user_id" value="${Number(userId)}">
-                <div class="admin-field admin-field--full"><label>Personaggio</label><select name="character_id" required>${state.cache.characters.map((c) => `<option value="${Number(c.id)}">${escapeHtml(c.nome)}</option>`).join('')}</select></div>
-                <div class="admin-field"><label>Quantità</label><input type="number" name="quantity" value="1" min="1" max="9999"></div>
-            </form>
-        `, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="assignCharacterBtn">Aggiungi</button>`);
-        $('#assignCharacterBtn').addEventListener('click', async () => {
-            const payload = Object.fromEntries(new FormData($('#assignCharacterForm')).entries());
-            try { await api('add_character_to_user.php', { method: 'POST', body: payload }); closeModal(); showToast('Personaggio aggiunto.'); openUserDetails(userId); }
-            catch (error) { showToast(error.message, true); }
-        });
-    };
-
-    const openAssignAchievement = async (userId) => {
-        if (!state.cache.achievements.length) await loadAchievements();
-        openModal('Assegna achievement', `Utente #${userId}`, `
-            <form id="assignAchievementForm" class="admin-form-grid">
-                <input type="hidden" name="user_id" value="${Number(userId)}">
-                <div class="admin-field admin-field--full"><label>Achievement</label><select name="achievement_id" required>${state.cache.achievements.map((a) => `<option value="${Number(a.id)}">${escapeHtml(a.nome)}</option>`).join('')}</select></div>
-            </form>
-        `, `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="assignAchievementBtn">Assegna</button>`);
-        $('#assignAchievementBtn').addEventListener('click', async () => {
-            const payload = Object.fromEntries(new FormData($('#assignAchievementForm')).entries());
-            try { await api('add_achievement_to_user.php', { method: 'POST', body: payload }); closeModal(); showToast('Achievement assegnato.'); openUserDetails(userId); }
-            catch (error) { showToast(error.message, true); }
-        });
-    };
-
-    const removeCharacter = (userId, characterId) => confirmBox('Rimuovere personaggio?', '', async () => {
-        await api('remove_character_from_user.php', { method: 'POST', body: { user_id: userId, character_id: characterId } });
-        showToast('Personaggio rimosso.'); openUserDetails(userId);
-    });
-
-    const removeAchievement = (userId, achievementId) => confirmBox('Rimuovere achievement?', '', async () => {
-        await api('remove_achievement_from_user.php', { method: 'POST', body: { user_id: userId, achievement_id: achievementId } });
-        showToast('Achievement rimosso.'); openUserDetails(userId);
-    });
-
-
     const approvalBadge = (approved) => Number(approved) === 1
         ? '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Approvato</span>'
         : '<span class="admin-badge admin-badge--warning"><i class="fa-solid fa-clock"></i>In attesa</span>';
@@ -1237,19 +915,89 @@
     };
 
 
+    /* Log leggibili: etichetta e icona per azione, dettagli in una riga
+       invece del JSON grezzo. Li usa anche la scheda utente. */
+    const LOG_ACTIONS = {
+        update_user: ['fa-solid fa-user-pen', 'Account modificato'],
+        adjust_balance: ['fa-solid fa-coins', 'Saldo modificato'],
+        ban_user: ['fa-solid fa-ban', 'Ban'],
+        unban_user: ['fa-solid fa-unlock', 'Ban tolto'],
+        add_character_to_user: ['fa-solid fa-box-open', 'Personaggio dato'],
+        remove_character_from_user: ['fa-solid fa-box-archive', 'Personaggio tolto'],
+        add_achievement_to_user: ['fa-solid fa-trophy', 'Achievement assegnato'],
+        remove_achievement_from_user: ['fa-solid fa-trophy', 'Achievement tolto'],
+        add_badge_to_user: ['fa-solid fa-certificate', 'Badge assegnato'],
+        remove_badge_from_user: ['fa-solid fa-certificate', 'Badge tolto'],
+        create_message: ['fa-solid fa-envelope', 'Messaggio inviato'],
+        export_users_csv: ['fa-solid fa-file-csv', 'Utenti esportati'],
+    };
+    const LOG_FIELDS = {
+        username: 'username', display_name: 'nome', email: 'email', ruolo: 'ruolo', role: 'ruolo',
+        data_creazione: 'registrazione', email_verificata: 'email verificata', is_premium: 'Premium',
+        nsfw: 'NSFW', richpresence: 'Rich Presence', twofa_enabled: '2FA', soldi: 'Godos',
+        premium_bonus_godos: 'bonus Godos', reason: 'motivo', duration: 'durata', banned_until: 'fino al',
+        personaggio: 'personaggio', character_id: 'ID personaggio', achievement_id: 'ID achievement', quantity: 'copie', rimaste: 'rimaste',
+        badge: 'badge', badge_id: 'badge #', message_id: 'messaggio #', title_it: 'titolo', target_type: 'destinatari',
+    };
+    const LOG_FLAGS = ['email_verificata', 'is_premium', 'nsfw', 'richpresence', 'twofa_enabled'];
+    const CURRENCY_IMAGES = { Godos: '/img/godos.png', 'Godo Shards': '/img/godoshards.png', Frammenti: '/img/frammento.svg' };
+    const LOG_DURATIONS = { '1h': '1 ora', '1d': '1 giorno', '3d': '3 giorni', '7d': '7 giorni', '30d': '30 giorni', permanent: 'per sempre', custom: 'data scelta' };
+    const logValue = (key, value) => {
+        if (value === null || value === undefined || value === '') return '—';
+        if (LOG_FLAGS.includes(key)) return Number(value) === 1 ? 'sì' : 'no';
+        if (key === 'duration') return LOG_DURATIONS[value] || String(value);
+        if (typeof value === 'number') return value.toLocaleString('it-IT');
+        return typeof value === 'object' ? JSON.stringify(value) : String(value);
+    };
+    const describeLog = (log) => {
+        const [icon, label] = LOG_ACTIONS[log.action] || ['fa-solid fa-bolt', log.action];
+        let image = null;
+        let d = log.details_parsed;
+        if (!d && log.details) {
+            try { d = JSON.parse(log.details); } catch (error) { d = null; }
+        }
+        let text = '';
+        if (d && typeof d === 'object') {
+            if (log.action === 'adjust_balance' && 'da' in d) {
+                const diff = Number(d.a) - Number(d.da);
+                image = CURRENCY_IMAGES[d.valuta] || null;
+                text = `${d.valuta}: ${logValue('', Number(d.da))} → ${logValue('', Number(d.a))} (${diff >= 0 ? '+' : '−'}${Math.abs(diff).toLocaleString('it-IT')})${d.nota ? ` · «${d.nota}»` : ''}`;
+            } else {
+                text = Object.entries(d).map(([key, value]) => (value && typeof value === 'object' && 'da' in value
+                    ? `${LOG_FIELDS[key] || key}: ${logValue(key, value.da)} → ${logValue(key, value.a)}`
+                    : `${LOG_FIELDS[key] || key}: ${logValue(key, value)}`)).join(' · ');
+            }
+        } else if (log.details) {
+            text = String(log.details);
+        }
+        return { icon, image, label, text };
+    };
+    const logIcon = (d, cls = '') => (d.image
+        ? `<img class="admin-currency ${cls}" src="${escapeHtml(d.image)}" alt="">`
+        : `<i class="${escapeHtml(d.icon)} ${cls}"></i>`);
+
     const loadLogs = async (dashboardOnly = false) => {
         try {
             const data = await api('get_logs.php');
             const logs = data.logs || [];
-            const small = logs.slice(0, 8).map((log) => `
-                <div class="admin-row-card">
-                    <div class="admin-row-main"><span class="admin-brand-mark" style="width:2.2rem;height:2.2rem"><i class="fa-solid fa-bolt"></i></span><div><div class="admin-row-title">${escapeHtml(log.action)}</div><div class="admin-row-sub">${escapeHtml(log.admin_username || 'Admin')} · ${formatDateTime(log.created_at)}</div></div></div>
-                </div>`).join('') || emptyState('fa-solid fa-clock', 'Nessun log');
+            const small = logs.slice(0, 8).map((log) => {
+                const d = describeLog(log);
+                return `
+                <div class="admin-row-card${log.target_user_id ? ' admin-row-card--link' : ''}" ${log.target_user_id ? `data-open-user="${Number(log.target_user_id)}" data-tab="activity" role="button" tabindex="0"` : ''}>
+                    <div class="admin-row-main"><span class="admin-brand-mark" style="width:2.2rem;height:2.2rem">${logIcon(d)}</span><div class="admin-cell-text"><div class="admin-row-title">${escapeHtml(d.label)}${log.target_username ? ` · ${escapeHtml(log.target_username)}` : ''}</div><div class="admin-row-sub">${escapeHtml(log.admin_username || 'Admin')} · ${formatDateTime(log.created_at)}</div></div></div>
+                </div>`;
+            }).join('') || emptyState('fa-solid fa-clock', 'Nessun log');
             $('#dashboardLogsBox').innerHTML = small;
             if (!dashboardOnly) {
                 $('#logsTable').innerHTML = logs.length ? `
                     <table class="admin-table"><thead><tr><th>Azione</th><th>Admin</th><th>Target</th><th>Data</th><th>IP</th></tr></thead><tbody>
-                    ${logs.map((log) => `<tr><td data-label="Azione"><b>${escapeHtml(log.action)}</b><div class="admin-row-sub">${escapeHtml(log.details || '')}</div></td><td data-label="Admin">${escapeHtml(log.admin_username || log.admin_id)}</td><td data-label="Target">${escapeHtml(log.target_username || log.target_user_id || '—')}</td><td data-label="Data">${formatDateTime(log.created_at)}</td><td data-label="IP">${escapeHtml(log.ip_address || '—')}</td></tr>`).join('')}
+                    ${logs.map((log) => {
+                        const d = describeLog(log);
+                        const target = log.target_user_id
+                            ? `<button type="button" class="admin-link-btn" data-open-user="${Number(log.target_user_id)}" data-tab="activity">${escapeHtml(log.target_username || `#${log.target_user_id}`)}</button>`
+                            : '—';
+                        return `<tr><td data-label="Azione"><b>${logIcon(d, 'admin-log-icon')}${escapeHtml(d.label)}</b><div class="admin-row-sub admin-log-details">${escapeHtml(d.text)}</div></td><td data-label="Admin">${escapeHtml(log.admin_username || log.admin_id)}</td><td data-label="Target">${target}</td><td data-label="Data">${formatDateTime(log.created_at)}</td><td data-label="IP">${escapeHtml(log.ip_address || '—')}</td></tr>`;
+                    }).join('')}
                     </tbody></table>` : emptyState('fa-solid fa-clock-rotate-left', 'Nessun log');
             }
         } catch (error) {
@@ -1378,7 +1126,7 @@
         }
     };
 
-    const openMessageForm = async () => {
+    const openMessageForm = async ({ targetUser = '' } = {}) => {
         if (!state.cache.characters.length) {
             try {
                 const charData = await api('get_characters.php?limit=1000');
@@ -1442,6 +1190,7 @@
         const targetTypeSel = $('#msgTargetType');
         const targetUserField = $('#msgTargetUserField');
         const targetUserInput = $('#msgTargetUser');
+        if (targetUser) targetUserInput.value = targetUser;
         
         targetTypeSel.addEventListener('change', () => {
             const val = targetTypeSel.value;
@@ -1821,6 +1570,8 @@
         trackUpload,
         discardPendingUploads,
         getQuery: () => state.q,
+        describeLog,
+        openMessageForm,
         pagination,
         refreshCharacterCategories: () => loadCharacterCategories(true),
         registerSection: (name, loader) => {
@@ -1835,7 +1586,6 @@
         $$('[data-section-panel]').forEach((panel) => panel.classList.toggle('is-active', panel.dataset.sectionPanel === section));
         if (externalSections[section]) externalSections[section]();
         if (section === 'dashboard') loadDashboard();
-        if (section === 'users') loadUsers();
         if (section === 'characters') loadCharacters();
         if (section === 'achievements') loadAchievements();
         if (section === 'messages') loadMessages();
@@ -1877,16 +1627,6 @@
             $('#createAchievementBtn')?.addEventListener('click', () => openAchievementForm());
             $('#createHomeSlideBtn')?.addEventListener('click', () => openHomeSlideForm());
             $('#sendNewMessageBtn')?.addEventListener('click', () => openMessageForm());
-            $('#usersStatusFilter')?.addEventListener('change', (e) => { state.users.status = e.target.value; state.users.page = 1; loadUsers(); });
-            $('#usersRoleFilter')?.addEventListener('change', (e) => { state.users.role = e.target.value; state.users.page = 1; loadUsers(); });
-            $('#usersSortFilter')?.addEventListener('change', (e) => {
-                const [sort, dir] = e.target.value.split(':');
-                state.users.sort = sort;
-                state.users.dir = dir === 'ASC' ? 'ASC' : 'DESC';
-                state.users.page = 1;
-                loadUsers();
-            });
-            $('#usersOnlineToggle')?.addEventListener('click',() => { state.users.online = !state.users.online; state.users.page = 1; renderOnlineToggle(null); loadUsers(); });
             $('#shitpostsStatusFilter')?.addEventListener('change', (e) => { state.shitposts.status = e.target.value; state.shitposts.page = 1; loadShitposts(); });
             $('#toprimastiStatusFilter')?.addEventListener('change', (e) => { state.toprimasti.status = e.target.value; state.toprimasti.page = 1; loadToprimasti(); });
             $('#reportsSourceFilter')?.addEventListener('change', (e) => { state.reports.source = e.target.value; state.reports.page = 1; loadReports(); });
@@ -1895,7 +1635,7 @@
 
             $('#adminGlobalSearch')?.addEventListener('input', debounce((e) => {
                 state.q = e.target.value.trim();
-                state.users.page = state.characters.page = state.achievements.page = state.shitposts.page = state.toprimasti.page = state.reports.page = 1;
+                state.characters.page = state.achievements.page = state.shitposts.page = state.toprimasti.page = state.reports.page = 1;
                 if (state.section === 'dashboard') switchSection('users');
                 else reloadCurrent();
             }, 300));

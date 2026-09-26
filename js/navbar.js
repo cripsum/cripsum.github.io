@@ -692,7 +692,7 @@
                 var hasDisplay = u.display_name && u.display_name.trim();
                 var name = hasDisplay ? highlight(u.display_name, query) : highlight(u.username, query);
                 var gem = u.is_premium
-                    ? '<i class="fa-solid fa-gem" style="color:#fbbf24;font-size:0.78rem;margin-left:4px" title="Premium"></i>'
+                    ? '<img class="cr-premium-gem" src="/img/premium.svg" alt="Premium" title="Premium" style="font-size:0.78rem;margin-left:4px">'
                     : '';
                 var handle = hasDisplay && u.display_name !== u.username
                     ? '<span class="search-result-handle">@' + highlight(u.username, query) + '</span>'

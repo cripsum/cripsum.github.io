@@ -437,10 +437,10 @@ label.lm-row:hover {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: -60%;
+    left: 0;
     width: 40%;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transform: skewX(-20deg);
+    transform: translateX(-150%) skewX(-20deg);
     animation: lmShine 3.4s ease infinite;
     pointer-events: none;
 }
@@ -1394,8 +1394,8 @@ a.lm-hrow:hover {
     to { background-position: 0 0; }
 }
 @keyframes lmShine {
-    0%, 55% { left: -60%; }
-    100% { left: 130%; }
+    0%, 55% { transform: translateX(-150%) skewX(-20deg); }
+    100% { transform: translateX(325%) skewX(-20deg); }
 }
 @keyframes lmFloat {
     0%, 100% { transform: translateY(0); }

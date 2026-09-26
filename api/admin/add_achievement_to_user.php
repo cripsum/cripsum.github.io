@@ -9,7 +9,8 @@ try {
     if (!$target) admin_fail('Utente non trovato.', 404);
     if (!admin_can_manage_user($adminUser, $target, true)) admin_fail('Non puoi modificare questi achievement.', 403);
 
-    $stmt = $mysqli->prepare('SELECT id FROM achievement WHERE id = ? LIMIT 1');
+    $nameCol = admin_achievement_columns($mysqli)['name'];
+    $stmt = $mysqli->prepare('SELECT id' . ($nameCol ? ', ' . admin_qcol($nameCol) . ' AS nome' : ', NULL AS nome') . ' FROM achievement WHERE id = ? LIMIT 1');
     if (!$stmt) admin_fail('Tabella achievement non disponibile.', 500);
     $stmt->bind_param('i', $achievementId);
     $stmt->execute();
@@ -34,6 +35,6 @@ try {
     $stmt->bind_param('ii', $userId, $achievementId);
     if (!$stmt->execute()) admin_fail('Non sono riuscito ad assegnare l’achievement.', 500);
     $stmt->close();
-    admin_log($mysqli, (int)$adminUser['id'], 'add_achievement_to_user', $userId, ['achievement_id' => $achievementId]);
+    admin_log($mysqli, (int)$adminUser['id'], 'add_achievement_to_user', $userId, array_filter(['achievement' => $exists['nome'] ?? null, 'achievement_id' => $achievementId], static fn($v) => $v !== null));
     admin_ok(['message' => 'Achievement assegnato.']);
 } catch (Throwable $e) { admin_fail('Errore assegnazione achievement.', 500); }

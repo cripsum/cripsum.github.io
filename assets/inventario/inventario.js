@@ -84,7 +84,7 @@
                 what: 'Cosa sono i frammenti',
                 steps: [
                     ['fa-layer-group', 'Doppioni', 'Ogni personaggio sale fino al livello MAX consumando copie. Quelle oltre ciò che serve per arrivarci sono <b>in eccesso</b>.'],
-                    ['fa-arrows-rotate', 'Frammenti', 'Converti le copie in eccesso: diventano frammenti. Più il personaggio è raro, più frammenti vale. Le casse aperte non si perdono.'],
+                    [FRAG_IMG, 'Frammenti', 'Converti le copie in eccesso: diventano frammenti. Più il personaggio è raro, più frammenti vale. Le casse aperte non si perdono.'],
                     ['fa-store', 'Personaggi', 'Con i frammenti compri personaggi nel <b>negozio della settimana</b>, scelto per te partendo da quelli che ti mancano.'],
                 ],
                 balance: 'I tuoi frammenti',
@@ -148,7 +148,7 @@
                 what: 'What fragments are',
                 steps: [
                     ['fa-layer-group', 'Duplicates', 'Each character levels up to MAX by using copies. Copies beyond what it needs are <b>extra</b>.'],
-                    ['fa-arrows-rotate', 'Fragments', 'Convert extra copies into fragments. Rarer characters are worth more. Your pull count is kept.'],
+                    [FRAG_IMG, 'Fragments', 'Convert extra copies into fragments. Rarer characters are worth more. Your pull count is kept.'],
                     ['fa-store', 'Characters', 'Spend fragments on characters in the <b>weekly shop</b>, picked for you starting from the ones you are missing.'],
                 ],
                 balance: 'Your fragments',
@@ -797,7 +797,7 @@
                 <div>
                     <h2 id="fragWhat">${F.what}</h2>
                     <ol class="inv-frag-steps">
-                        ${F.steps.map(([icon, title, text], i) => `<li style="--i:${i}"><span class="inv-frag-steps__n"><i class="fa-solid ${icon}"></i></span><div><strong>${title}</strong><p>${text}</p></div></li>`).join('')}
+                        ${F.steps.map(([icon, title, text], i) => `<li style="--i:${i}"><span class="inv-frag-steps__n">${icon.startsWith('/') ? `<img src="${icon}" alt="">` : `<i class="fa-solid ${icon}"></i>`}</span><div><strong>${title}</strong><p>${text}</p></div></li>`).join('')}
                     </ol>
                 </div>
             </section>

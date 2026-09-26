@@ -36,7 +36,7 @@
             countdown_reset:  'Aggiornamento...',
             days_suffix:      'g',
             toast_done:       'Missione completata!',
-            toast_pts:        (n) => `+${n} punti`,
+            toast_pts:        (n) => `+${n} Godos`,
             cat: {
                 lootbox:      'Lootbox',
                 rarity:       'Rarità',
@@ -72,7 +72,7 @@
             countdown_reset:  'Updating...',
             days_suffix:      'd',
             toast_done:       'Mission completed!',
-            toast_pts:        (n) => `+${n} pts`,
+            toast_pts:        (n) => `+${n} Godos`,
             cat: {
                 lootbox:      'Lootbox',
                 rarity:       'Rarity',
@@ -301,10 +301,10 @@
             </div>
 
             <div class="msn-card__footer">
-                <div class="msn-reward">
-                    <i class="fa-solid fa-coins"></i>
-                    +${m.punti_reward} pt
-                    ${state.isPremium ? ' <span class="msn-premium-boost" title="Premium 2x Boost"><i class="fa-solid fa-gem"></i> Premium x2</span>' : ''}
+                <div class="msn-reward" title="Godos">
+                    <img src="/img/godos.png" alt="Godos">
+                    +${m.punti_reward}
+                    ${state.isPremium ? ' <span class="msn-premium-boost" title="Premium 2x Boost"><img class="cr-premium-gem" src="/img/premium.svg" alt=""> Premium x2</span>' : ''}
                 </div>
                 <button
                     type="button"
@@ -534,8 +534,8 @@
             els.toast.innerHTML = `
                 <i class="fa-solid fa-circle-check msn-toast__icon"></i>
                 <div>
-                    <div>Missione completata!</div>
-                    ${pts ? `<div class="msn-toast__pts">+${pts} punti</div>` : ''}
+                    <div>${esc(t.toast_done)}</div>
+                    ${pts ? `<div class="msn-toast__pts"><img src="/img/godos.png" alt="">${esc(t.toast_pts(pts))}</div>` : ''}
                 </div>`;
         }
 

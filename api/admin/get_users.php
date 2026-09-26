@@ -19,12 +19,16 @@ try {
     $sort = (string)($_GET['sort'] ?? 'data_creazione');
     $dir = strtoupper((string)($_GET['dir'] ?? 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
     $onlineOnly = (string)($_GET['online'] ?? '') === '1';
+    $premium = (string)($_GET['premium'] ?? 'all');
 
     $hasEmail = admin_column_exists($mysqli, 'utenti', 'email');
     $hasRole = admin_column_exists($mysqli, 'utenti', 'ruolo');
     $hasBan = admin_column_exists($mysqli, 'utenti', 'isBannato');
     $hasCreated = admin_column_exists($mysqli, 'utenti', 'data_creazione');
     $hasLastSeen = admin_column_exists($mysqli, 'utenti', 'ultimo_accesso');
+    $hasPremium = admin_column_exists($mysqli, 'utenti', 'is_premium');
+    $hasDisplayName = admin_column_exists($mysqli, 'utenti', 'display_name');
+    $currencies = admin_user_currencies($mysqli);
 
     $allowedSort = ['id' => 'u.id', 'username' => 'u.username'];
     if ($hasEmail) $allowedSort['email'] = 'u.email';
@@ -32,6 +36,7 @@ try {
     if ($hasRole) $allowedSort['ruolo'] = 'u.ruolo';
     if ($hasBan) $allowedSort['isBannato'] = 'u.isBannato';
     if ($hasLastSeen) $allowedSort['ultimo_accesso'] = 'u.ultimo_accesso';
+    foreach (array_keys($currencies) as $column) $allowedSort[$column] = 'u.' . admin_qcol($column);
     $orderBy = $allowedSort[$sort] ?? ($hasCreated ? 'u.data_creazione' : 'u.id');
 
     // Il confronto si fa tutto in MySQL: `ultimo_accesso` lo scrive NOW(), e
@@ -43,21 +48,38 @@ try {
     $types = '';
 
     if ($q !== '') {
-        $searchParts = ['u.username LIKE ?', 'CAST(u.id AS CHAR) = ?'];
-        $like = '%' . $q . '%';
-        $params[] = $like;
-        $params[] = $q;
-        $types .= 'ss';
-        if ($hasEmail) {
-            array_splice($searchParts, 1, 0, 'u.email LIKE ?');
-            array_splice($params, 1, 0, [$like]);
-            $types = 'sss';
+        // "#123" cerca solo per ID; altrimenti username, nome, email o ID esatto.
+        if (preg_match('/^#(\d+)$/', $q, $m)) {
+            $where[] = 'u.id = ?';
+            $params[] = (int)$m[1];
+            $types .= 'i';
+        } else {
+            $like = '%' . $q . '%';
+            $searchParts = ['u.username LIKE ?'];
+            $params[] = $like;
+            $types .= 's';
+            if ($hasDisplayName) {
+                $searchParts[] = 'u.display_name LIKE ?';
+                $params[] = $like;
+                $types .= 's';
+            }
+            if ($hasEmail) {
+                $searchParts[] = 'u.email LIKE ?';
+                $params[] = $like;
+                $types .= 's';
+            }
+            $searchParts[] = 'CAST(u.id AS CHAR) = ?';
+            $params[] = $q;
+            $types .= 's';
+            $where[] = '(' . implode(' OR ', $searchParts) . ')';
         }
-        $where[] = '(' . implode(' OR ', $searchParts) . ')';
     }
 
     if ($hasBan && $status === 'active') $where[] = 'u.isBannato = 0';
     if ($hasBan && $status === 'banned') $where[] = 'u.isBannato = 1';
+
+    if ($hasPremium && $premium === 'premium') $where[] = 'u.is_premium = 1';
+    if ($hasPremium && $premium === 'free') $where[] = 'u.is_premium = 0';
 
     if ($hasRole && in_array($role, ['utente', 'admin', 'owner'], true)) {
         $where[] = 'u.ruolo = ?';
@@ -90,7 +112,9 @@ try {
     $select .= $hasCreated ? ', u.data_creazione' : ', NULL AS data_creazione';
     $select .= $hasRole ? ', u.ruolo' : ", 'utente' AS ruolo";
     $select .= $hasBan ? ', u.isBannato' : ', 0 AS isBannato';
-    $select .= admin_column_exists($mysqli, 'utenti', 'is_premium') ? ', u.is_premium' : ', 0 AS is_premium';
+    $select .= $hasPremium ? ', u.is_premium' : ', 0 AS is_premium';
+    $select .= $hasDisplayName ? ', u.display_name' : ', NULL AS display_name';
+    foreach (array_keys($currencies) as $column) $select .= ', COALESCE(u.' . admin_qcol($column) . ', 0) AS ' . admin_qcol($column);
     $select .= $hasLastSeen
         ? ', u.ultimo_accesso, TIMESTAMPDIFF(SECOND, u.ultimo_accesso, NOW()) AS seconds_since_active'
         : ', NULL AS ultimo_accesso, NULL AS seconds_since_active';
@@ -140,6 +164,7 @@ try {
         'online_count' => $onlineCount,
         'online_available' => $hasLastSeen,
         'online_window' => (int)USER_ONLINE_WINDOW_SECONDS,
+        'currencies' => admin_user_currencies_public($mysqli),
         'pagination' => ['page' => $page, 'limit' => $limit, 'total' => $total, 'pages' => max(1, (int)ceil($total / $limit))]
     ]);
 } catch (Throwable $e) {

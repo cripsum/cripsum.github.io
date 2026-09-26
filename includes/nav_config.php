@@ -337,7 +337,7 @@ if (!function_exists('nav_lang')) {
 
         $extra = [];
         if (!empty($ctx['can_rewind'])) {
-            // La gemma compare a chi il Rewind non può ancora aprirlo: la voce
+            // La gemma Premium compare a chi il Rewind non può ancora aprirlo: la voce
             // resta cliccabile e porta alla schermata che spiega perché.
             $locked = !empty($ctx['rewind_locked']);
 
@@ -345,7 +345,7 @@ if (!function_exists('nav_lang')) {
                 'icon'  => 'fa-clock-rotate-left',
                 'label' => $t['rewind'],
                 'href'  => "/$lang/rewind",
-                'mark'  => $locked ? 'fa-gem' : null,
+                'mark'  => $locked ? 'premium' : null,
                 'tip'   => $locked ? $t['rewind_premium'] : null,
             ];
         }

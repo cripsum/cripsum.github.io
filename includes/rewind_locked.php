@@ -103,7 +103,7 @@ function rewind_render_locked_page(string $lang = 'it'): void
 
                 <p class="rw-locked__tag">
                     <span class="rw-chip rw-chip--gold">
-                        <i class="fa-solid fa-gem"></i> <?php echo $h($t['premium']); ?>
+                        <img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"> <?php echo $h($t['premium']); ?>
                     </span>
                 </p>
 
@@ -137,7 +137,7 @@ function rewind_render_locked_page(string $lang = 'it'): void
 
                 <div class="rw-actions">
                     <a class="rw-btn rw-btn--cta" href="/<?php echo $h($lang); ?>/checkout-premium">
-                        <i class="fa-solid fa-gem"></i> <?php echo $h($t['cta']); ?>
+                        <img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"> <?php echo $h($t['cta']); ?>
                     </a>
                     <a class="rw-btn rw-btn--ghost" href="/<?php echo $h($lang); ?>/home">
                         <?php echo $h($t['back']); ?>

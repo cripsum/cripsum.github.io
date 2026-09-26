@@ -1707,7 +1707,7 @@
             chip.className = 'pe-stat-chip';
             chip.dataset.key = key;
             chip.innerHTML = `<span class="pe-drag" title="${escape(t('Trascina per spostare', 'Drag to move'))}"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
-                <span class="pe-stat-icon"><i class="${escape(s.icon)}" aria-hidden="true"></i></span>
+                <span class="pe-stat-icon">${s.image ? `<img src="${escape(s.image)}" alt="">` : `<i class="${escape(s.icon)}" aria-hidden="true"></i>`}</span>
                 <span class="pe-stat-text"><span class="pe-stat-label"></span>${statValueHtml(s)}</span>
                 <button type="button" class="pe-icon-btn pe-icon-btn-sm" aria-label="${escape(t('Togli', 'Remove'))}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`;
             chip.querySelector('.pe-stat-label').textContent = s.label;
@@ -1733,7 +1733,7 @@
                 btn.type = 'button';
                 btn.className = 'pe-stat-option' + (selected ? ' is-selected' : '');
                 btn.setAttribute('aria-pressed', String(selected));
-                btn.innerHTML = `<span class="pe-stat-icon"><i class="${escape(s.icon)}" aria-hidden="true"></i></span>
+                btn.innerHTML = `<span class="pe-stat-icon">${s.image ? `<img src="${escape(s.image)}" alt="">` : `<i class="${escape(s.icon)}" aria-hidden="true"></i>`}</span>
                     <span class="pe-stat-text"><span class="pe-stat-label"></span>${statValueHtml(s)}</span>
                     <i class="fa-solid ${selected ? 'fa-check' : 'fa-plus'} pe-stat-toggle" aria-hidden="true"></i>`;
                 btn.querySelector('.pe-stat-label').textContent = s.label;

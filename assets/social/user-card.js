@@ -389,7 +389,7 @@
                 <div class="user-card__name-section">
                     <div class="user-card__display-name">
                         <span>${escapeHtml(user.display_name)}</span>
-                        ${user.is_premium ? '<i class="fa-solid fa-gem text-warning" style="font-size: 14px;" title="Premium"></i>' : ''}
+                        ${user.is_premium ? '<img class="cr-premium-gem" src="/img/premium.svg" alt="Premium" title="Premium" style="font-size: 14px;">' : ''}
                     </div>
                     <div class="user-card__username">@${escapeHtml(user.username)}</div>
                 </div>

@@ -74,8 +74,8 @@ function profile_stats_catalog(): array
         'animespot_points' => ['group' => 'games', 'icon' => 'fa-solid fa-music', 'it' => 'Punti Animespot', 'en' => 'Animespot points', 'format' => 'number'],
 
         // Economia
-        'godos'            => ['group' => 'economy', 'icon' => 'fa-solid fa-coins', 'it' => 'Godos', 'en' => 'Godos', 'format' => 'number'],
-        'godos_earned'     => ['group' => 'economy', 'icon' => 'fa-solid fa-sack-dollar', 'it' => 'Godos guadagnati', 'en' => 'Godos earned', 'format' => 'number'],
+        'godos'            => ['group' => 'economy', 'icon' => 'fa-solid fa-coins', 'image' => '/img/godos.png', 'it' => 'Godos', 'en' => 'Godos', 'format' => 'number'],
+        'godos_earned'     => ['group' => 'economy', 'icon' => 'fa-solid fa-sack-dollar', 'image' => '/img/godos.png', 'it' => 'Godos guadagnati', 'en' => 'Godos earned', 'format' => 'number'],
     ];
 }
 
@@ -545,6 +545,7 @@ function profile_stats_cards(mysqli $mysqli, array $profile, string $lang = 'it'
         $cards[] = [
             'key'    => $key,
             'icon'   => $catalog[$key]['icon'],
+            'image'  => $catalog[$key]['image'] ?? null,
             'label'  => $lang === 'en' ? $catalog[$key]['en'] : $catalog[$key]['it'],
             'value'  => $formatted['value'],
             'unit'   => $formatted['unit'],
@@ -572,6 +573,7 @@ function profile_stats_editor_catalog(mysqli $mysqli, array $profile, string $la
             'key'   => $key,
             'group' => $def['group'],
             'icon'  => $def['icon'],
+            'image' => $def['image'] ?? null,
             'label' => $lang === 'en' ? $def['en'] : $def['it'],
             'value' => $formatted ? $formatted['value'] . ($formatted['unit'] !== '' ? ($def['format'] === 'percent' ? '' : ' ') . $formatted['unit'] : '') : null,
         ];

@@ -216,7 +216,7 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <title><?php echo pe_h($tt('Modifica profilo', 'Edit profile')); ?> · Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="/assets/css/profile-editor.css?v=7.4.1">
+    <link rel="stylesheet" href="/assets/css/profile-editor.css?v=7.4.2">
     <link rel="stylesheet" href="/assets/css/profile-markdown-guide.css?v=6.0.0">
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.1.0">
@@ -230,7 +230,7 @@ $pflag = static fn(string $col, int $default = 1): bool => (int)($profile[$col] 
     <script src="/assets/js/profile-name-effects.js?v=1.1.0" defer></script>
     <script src="/assets/js/profile-cursor.js?v=1.0.0" defer></script>
     <script src="/assets/js/profile-editor/components.js?v=7.4.0" defer></script>
-    <script src="/assets/js/profile-editor/items.js?v=7.4.0" defer></script>
+    <script src="/assets/js/profile-editor/items.js?v=7.4.1" defer></script>
     <script src="/assets/js/profile-editor/editor.js?v=7.4.0" defer></script>
 </head>
 

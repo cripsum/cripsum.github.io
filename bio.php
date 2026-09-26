@@ -262,7 +262,7 @@ $statCards = [
     ['label' => 'Achievement', 'value' => $achievementCount, 'icon' => 'fa-solid fa-trophy'],
     ['label' => 'Personaggi', 'value' => $uniqueCharacters, 'icon' => 'fa-solid fa-user-astronaut'],
     ['label' => 'Pull totali', 'value' => $totalPulls, 'icon' => 'fa-solid fa-dice-d20'],
-    ['label' => 'Crediti', 'value' => (int) ($user['soldi'] ?? 0), 'icon' => 'fa-solid fa-coins'],
+    ['label' => 'Crediti', 'value' => (int) ($user['soldi'] ?? 0), 'icon' => 'fa-solid fa-coins', 'image' => '/img/godos.png'],
 ];
 ?>
 <!DOCTYPE html>
@@ -276,12 +276,12 @@ $statCards = [
     <meta property="og:type" content="profile">
     <meta property="og:url" content="<?= e($profileUrl); ?>">
     <link rel="stylesheet" href="css/style-users.css?v=3">
-    <link rel="stylesheet" href="css/bio-v2.css?v=20260425">
-    <link rel="stylesheet" href="/assets/css/profile.css?v=7.4.0">
+    <link rel="stylesheet" href="css/bio-v2.css?v=20260926">
+    <link rel="stylesheet" href="/assets/css/profile.css?v=7.4.1">
     <title><?= e($profileConfig['display_name']); ?> — Bio</title>
     <script src="js/nomePagina.js" defer></script>
     <script src="js/bio-v2.js?v=20260425" defer></script>
-    <script src="/assets/js/profile.js?v=7.4.0" defer></script>
+    <script src="/assets/js/profile.js?v=7.4.1" defer></script>
 </head>
 <body
     class="bio-v2-body public-profile-body"
@@ -449,7 +449,11 @@ $statCards = [
             <div class="bio-stats-grid js-reveal">
                 <?php foreach ($statCards as $stat): ?>
                     <article class="bio-stat-card">
-                        <i class="<?= e($stat['icon']); ?>"></i>
+                        <?php if (!empty($stat['image'])): ?>
+                            <img class="bio-stat-card__img" src="<?= e($stat['image']); ?>" alt="">
+                        <?php else: ?>
+                            <i class="<?= e($stat['icon']); ?>"></i>
+                        <?php endif; ?>
                         <strong><?= e(formatCompactNumber($stat['value'])); ?></strong>
                         <span><?= e($stat['label']); ?></span>
                     </article>

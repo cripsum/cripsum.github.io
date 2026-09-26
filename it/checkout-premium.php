@@ -321,7 +321,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                     </div>
                     <div class="summary-line" id="summaryBadgeLine">
                         <span>Badge Incluso</span>
-                        <strong id="summaryBadgeText" style="color: #eab308;"><i class="fa-solid fa-gem"></i> Badge Premium</strong>
+                        <strong id="summaryBadgeText" style="color: #eab308;"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"> Badge Premium</strong>
                     </div>
                     <div class="summary-line">
                         <span>Prezzo</span>
@@ -403,7 +403,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                     summaryRecipient.textContent = <?php echo json_encode($username); ?> + ' (Tu)';
                     isRecipientValid = true;
                     if (summaryBadgeText) {
-                        summaryBadgeText.innerHTML = '<i class="fa-solid fa-gem"></i> Badge Premium';
+                        summaryBadgeText.innerHTML = '<img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"> Badge Premium';
                     }
                 } else {
                     optionGiftCard.classList.add('is-active');
