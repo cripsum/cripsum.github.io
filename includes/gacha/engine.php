@@ -398,6 +398,18 @@ function gacha_banner_usage(mysqli $mysqli, int $userId, string $bannerKey): arr
     return $usage;
 }
 
+/**
+ * Banner con un limite fisso di pull per utente (es. il principiante) che
+ * l'utente ha gia' finito: non gli si mostra piu'. Il limite giornaliero
+ * non conta, il giorno dopo si ricomincia.
+ */
+function gacha_banner_exhausted(array $banner, ?array $usage): bool
+{
+    return $banner['limite_pull_utente'] !== null
+        && $usage !== null
+        && $usage['totale'] >= $banner['limite_pull_utente'];
+}
+
 /** Bersaglio del destino scelto su un banner, se c'e'. */
 function gacha_destino_read(mysqli $mysqli, int $userId, int $bannerId): ?array
 {

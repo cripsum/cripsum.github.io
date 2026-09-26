@@ -105,6 +105,7 @@
       limit_total:        (u, m) => `${u} / ${m} pull usate`,
       limit_day:          (u, m) => `${u} / ${m} pull oggi`,
       soon_toast:         'Questo banner non è ancora iniziato.',
+      banner_done:        (n) => `Hai fatto tutte le pull di «${n}»: il banner non c'è più.`,
     },
     en: {
       locale:             'en-GB',
@@ -183,6 +184,7 @@
       limit_total:        (u, m) => `${u} / ${m} pulls used`,
       limit_day:          (u, m) => `${u} / ${m} pulls today`,
       soon_toast:         'This banner has not started yet.',
+      banner_done:        (n) => `You've used every pull on “${n}”: the banner is gone.`,
     },
   }[lang];
 
@@ -1431,6 +1433,7 @@
       $('btn-multi-skip') && ($('btn-multi-skip').style.display = 'none');
       $('multi-counter')  && ($('multi-counter').style.display  = 'none');
       if (btnPullAgain) btnPullAgain.style.display = '';
+      removeExhaustedBanners();
     }, 420);
 
     unlockScroll();
@@ -1772,6 +1775,38 @@
       banner.destino.punti = data.destino.punti;
       const box = document.querySelector(`[data-destiny][data-banner="${CSS.escape(String(banner.key))}"] [data-destiny-points]`);
       if (box) box.textContent = t.destiny_points(data.destino.punti, data.destino.max);
+    }
+  }
+
+  /**
+   * Banner con un limite fisso per utente (es. principiante): finite le
+   * pull sparisce, come fa il server al prossimo caricamento. Quello
+   * giornaliero no, domani si ricomincia.
+   */
+  function removeExhaustedBanners() {
+    if (state.isPulling || state.overlayOpen) return;
+    for (const [key, banner] of bannersByKey) {
+      const uso = banner.uso;
+      if (!uso || !uso.limite || uso.totale < uso.limite) continue;
+      const card = document.querySelector(`.gsb-card[data-banner-id="${CSS.escape(key)}"]`);
+      const view = $(`banner-view-${key}`);
+      if (!card && !view) continue;
+
+      if (state.activeBannerId === key) {
+        const next = document.querySelector('.gsb-card[data-banner-id="standard"]')
+          || document.querySelector(`.gsb-card[data-banner-id]:not([data-banner-id="${CSS.escape(key)}"])`);
+        if (next) switchBanner(next.dataset.bannerId, next.dataset.bannerType);
+      }
+      view?.remove();
+      if (card) {
+        card.style.transition = 'opacity .35s ease, transform .35s ease';
+        card.style.opacity = '0';
+        card.style.transform = 'scale(.92)';
+        card.style.pointerEvents = 'none';
+        setTimeout(() => card.remove(), 360);
+      }
+      bannersByKey.delete(key);
+      showToast(t.banner_done(banner.nome));
     }
   }
 

@@ -109,18 +109,27 @@ function gacha_banner_public(mysqli $mysqli, array $banner, string $lang, array 
 
 /**
  * Tutto quello che serve alla lootbox: i banner da mostrare (attivi e in
- * arrivo annunciati), il pity di ogni gruppo, i saldi.
+ * arrivo annunciati, tolti quelli di cui l'utente ha finito le pull), il
+ * pity di ogni gruppo, i saldi.
  */
 function gacha_lootbox_state(mysqli $mysqli, int $userId, string $lang): array
 {
     gacha_wishlist_dispatch($mysqli);
 
     $visible = [];
+    $usages = [];
     foreach (gacha_banners($mysqli) as $banner) {
         $status = gacha_banner_status($banner);
-        if ($status === 'attivo' || $status === 'prossimamente') {
-            $visible[] = $banner;
+        if ($status !== 'attivo' && $status !== 'prossimamente') {
+            continue;
         }
+        $needsUsage = $banner['limite_pull_utente'] || $banner['limite_pull_giorno'] || $banner['pull_gratis_giorno'];
+        $usage = $needsUsage ? gacha_banner_usage($mysqli, $userId, $banner['key']) : null;
+        if (gacha_banner_exhausted($banner, $usage)) {
+            continue;
+        }
+        $visible[] = $banner;
+        $usages[$banner['key']] = $usage;
     }
 
     $pityAll = gacha_pity_all($mysqli, $userId, array_map(static fn($b) => $b['pity_gruppo'], $visible));
@@ -143,12 +152,10 @@ function gacha_lootbox_state(mysqli $mysqli, int $userId, string $lang): array
 
     $banners = [];
     foreach ($visible as $banner) {
-        $needsUsage = $banner['limite_pull_utente'] || $banner['limite_pull_giorno'] || $banner['pull_gratis_giorno'];
-        $usage = $needsUsage ? gacha_banner_usage($mysqli, $userId, $banner['key']) : null;
         $banners[] = gacha_banner_public(
             $mysqli, $banner, $lang,
             $pityAll[$banner['pity_gruppo']] ?? [],
-            $usage,
+            $usages[$banner['key']],
             $banner['id'] ? ($destini[(int)$banner['id']] ?? null) : null
         );
     }

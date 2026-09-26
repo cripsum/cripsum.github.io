@@ -232,12 +232,16 @@ function gacha_collection_payload(mysqli $mysqli, int $userId, string $lang): ar
     $cardRows = gacha_card_stats_rows($mysqli, array_keys($owned));
 
     // Dove si trova ora ogni personaggio: featured nei banner attivi o
-    // annunciati, e il pool standard.
+    // annunciati (non quelli di cui l'utente ha finito le pull), e il pool
+    // standard.
     $inBanners = [];
     $bannerNames = [];
     foreach (gacha_banners($mysqli) as $banner) {
         $status = gacha_banner_status($banner);
         if ($status !== 'attivo' && $status !== 'prossimamente') {
+            continue;
+        }
+        if ($banner['limite_pull_utente'] !== null && gacha_banner_exhausted($banner, gacha_banner_usage($mysqli, $userId, $banner['key']))) {
             continue;
         }
         $bannerNames[$banner['key']] = [
