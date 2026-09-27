@@ -25,6 +25,11 @@ const pageMap = {
     state: "Guardando il team di Cripsum™",
     imageText: "La nostra storia"
   },
+  "/it/ohpy": {
+    title: "Team OHPY",
+    state: "Guardando il team OHPY di Counter-Strike 2",
+    imageText: "Team esports di Cripsum™"
+  },
   "/it/edits": {
     title: "Edits", 
     state: "Guardando gli edit",
@@ -223,6 +228,11 @@ const pageMap = {
     title: "Chi siamo",
     state: "Guardando il team di Cripsum™",
     imageText: "La nostra storia"
+  },
+  "/en/ohpy": {
+    title: "Team OHPY",
+    state: "Guardando il team OHPY di Counter-Strike 2",
+    imageText: "Team esports di Cripsum™"
   },
   "/en/edits": {
     title: "Edits", 

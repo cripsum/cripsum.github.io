@@ -9,3 +9,5 @@ migrations/
 scratch/animespot/
 scratch/animespot-audio/
 scratch/*.log
+# Catalogo dei music kit di CS2 scaricato dal pannello (Team OHPY).
+scratch/esports/

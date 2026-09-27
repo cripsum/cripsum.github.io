@@ -1088,3 +1088,59 @@ body.modal-open {
 .admin-user-tabs .admin-currency, .shop-admin-tab .admin-currency { width: 1.05rem; height: 1.05rem; }
 .admin-user-timeline-icon .admin-currency { width: 1.1rem; height: 1.1rem; }
 .admin-brand-mark .admin-currency { width: 1.25rem; height: 1.25rem; }
+
+/* ── Esports: Team OHPY (admin-esports.js) ────────────────────────────── */
+.esports-admin-note { margin: 0 0 .7rem; font-size: .82rem; }
+.esports-admin-code { display: inline-block; padding: .05rem .35rem; border: 1px solid var(--admin-border); border-radius: 5px; color: var(--admin-muted); font-size: .68rem; font-weight: 800; letter-spacing: .04em; vertical-align: middle; }
+.esports-admin-role { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
+.esports-admin-role i { color: var(--admin-accent); }
+.esports-admin-color .admin-field { margin: 0; }
+.esports-admin-color[hidden] { display: none !important; }
+
+/* Anteprima della card, come sulla pagina */
+.esports-admin-card { position: relative; overflow: hidden; aspect-ratio: 3 / 4; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); color: #f5f6fa; background: radial-gradient(120% 70% at 50% 100%, color-mix(in srgb, var(--a) 45%, transparent), transparent 62%), #0c0e14; }
+.esports-admin-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; }
+.esports-admin-card::before { content: ""; position: absolute; top: 0; left: 0; z-index: 2; width: 35%; height: 3px; background: var(--a); }
+.esports-admin-card::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(0deg, rgba(4,5,9,.95), transparent); }
+.esports-admin-card__initial { position: absolute; inset: 0; display: grid; place-items: center; padding-bottom: 20%; color: color-mix(in srgb, var(--a) 55%, transparent); font-size: 4rem; font-weight: 900; }
+.esports-admin-card__top { position: absolute; top: .55rem; left: .55rem; right: .55rem; z-index: 2; display: flex; align-items: center; gap: .35rem; }
+.esports-admin-card__top .esports-admin-code { color: #fff; background: rgba(0,0,0,.45); }
+.esports-admin-card__top i { display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; color: #111; background: var(--a); font-size: .6rem; }
+.esports-admin-card__top b { margin-left: auto; padding: .05rem .4rem; border-left: 3px solid var(--t); color: var(--t); background: rgba(12,14,20,.88); font-size: .8rem; transform: skewX(-14deg); }
+.esports-admin-card__top b small { font-size: .62rem; }
+.esports-admin-card__body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: grid; gap: .1rem; padding: .75rem; }
+.esports-admin-card__body small { color: var(--a); font-size: .65rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.esports-admin-card__body strong { overflow: hidden; font-size: 1.2rem; font-weight: 900; line-height: 1; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.esports-admin-card__body span { color: rgba(245,246,250,.7); font-size: .75rem; }
+
+/* Ricerca del music kit, file audio e punto di partenza */
+.esports-admin-kit__box { position: relative; display: flex; align-items: center; }
+.esports-admin-kit__box i { position: absolute; left: .85rem; color: var(--admin-muted-2); pointer-events: none; }
+.esports-admin-kit__box input { width: 100%; padding-left: 2.4rem !important; }
+.esports-admin-kit__results { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .4rem; max-height: 320px; overflow-y: auto; margin-top: .45rem; padding: .5rem; border: 1px solid var(--admin-border); border-radius: 14px; background: rgba(0,0,0,.25); }
+.esports-admin-kit__results[hidden] { display: none; }
+.esports-admin-kit__results p { margin: .3rem; }
+.esports-admin-kit__item { display: flex; align-items: center; gap: .6rem; min-width: 0; padding: .45rem .55rem; border: 1px solid var(--admin-border); border-left: 3px solid var(--c); border-radius: 10px; color: var(--admin-text); background: rgba(255,255,255,.04); text-align: left; cursor: pointer; }
+.esports-admin-kit__item:hover,
+.esports-admin-kit__item:focus-visible { border-color: rgba(var(--admin-accent-rgb), .55); border-left-color: var(--c); background: rgba(var(--admin-accent-rgb), .1); }
+.esports-admin-kit__item img,
+.esports-admin-kit__item > i { display: grid; place-items: center; flex: none; width: 2.6rem; height: 2.6rem; border-radius: 8px; object-fit: contain; background: rgba(0,0,0,.3); color: var(--admin-muted); }
+.esports-admin-kit__item span { display: grid; min-width: 0; }
+.esports-admin-kit__item strong { overflow: hidden; font-size: .85rem; text-overflow: ellipsis; white-space: nowrap; }
+.esports-admin-kit__item small { overflow: hidden; color: var(--admin-muted); font-size: .74rem; text-overflow: ellipsis; white-space: nowrap; }
+.esports-admin-audio { display: block; width: 100%; height: 2.5rem; margin-top: .5rem; }
+.esports-admin-audio[hidden] { display: none; }
+.esports-admin-range { width: 100%; min-height: 2.75rem; accent-color: var(--admin-accent); }
+.esports-admin-theme__title { text-transform: uppercase; }
+
+/* Scheda "Team e pagina" */
+.esports-admin-team { position: relative; isolation: isolate; display: grid; gap: 1rem; overflow: hidden; padding: 1.3rem; border: 1px solid color-mix(in srgb, var(--a) 35%, transparent); border-radius: 22px; color: #f5f6fa; background: radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--a) 30%, transparent), transparent 55%), linear-gradient(135deg, var(--b1), var(--b2)); }
+.esports-admin-team__cover { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; opacity: .25; }
+.esports-admin-team__main { display: flex; align-items: center; gap: 1rem; }
+.esports-admin-team__logo { width: 4rem; height: 4rem; object-fit: contain; }
+.esports-admin-team__main strong { display: block; font-size: 2rem; font-weight: 950; letter-spacing: -.02em; line-height: 1; text-transform: uppercase; }
+.esports-admin-team__main small { color: rgba(245,246,250,.75); }
+.esports-admin-team__facts { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.esports-admin-team__facts li { padding: .35rem .7rem; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(0,0,0,.35); font-size: .82rem; }
+.esports-admin-team__facts b { color: var(--a); }
+.esports-admin-team__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }

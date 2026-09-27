@@ -32,6 +32,25 @@ function admin_upload_folder(string $folder): string
     return implode('/', $segments) . '/';
 }
 
+/**
+ * Anche gli audio possono andare in una sottocartella di audio/, una sola
+ * e dalla lista chiusa ADMIN_AUDIO_FOLDERS (la musica dei player del team).
+ * Senza folder finiscono in audio/ come prima.
+ */
+function admin_upload_audio_folder(string $folder): string
+{
+    $folder = trim($folder, " /");
+    if ($folder === '') {
+        return '';
+    }
+
+    if (!in_array($folder, ADMIN_AUDIO_FOLDERS, true)) {
+        admin_fail('Cartella di destinazione non valida.');
+    }
+
+    return $folder . '/';
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     admin_fail('Metodo non consentito.', 405);
 }
@@ -71,7 +90,8 @@ if ($type === 'image') {
     $targetDir = __DIR__ . '/../../img/' . $subFolder;
 } elseif ($type === 'audio') {
     $allowedExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'aac'];
-    $targetDir = __DIR__ . '/../../audio/';
+    $subFolder = admin_upload_audio_folder((string)($_POST['folder'] ?? ''));
+    $targetDir = __DIR__ . '/../../audio/' . $subFolder;
 } else {
     $allowedExtensions = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'];
     $targetDir = __DIR__ . '/../../vid/';

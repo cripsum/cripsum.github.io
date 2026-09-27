@@ -173,7 +173,7 @@ if ($customAliasDb !== null) {
     if (!preg_match('/^[a-zA-Z0-9_-]{3,30}$/', $customAliasDb)) {
         profile_json_response(['ok' => false, 'message' => 'L\'alias URL personalizzato non è valido.'], 422);
     }
-    $blacklist = ['api', 'assets', 'audio', 'auth', 'config', 'css', 'data', 'en', 'img', 'includes', 'it', 'js', 'mc', 'user', 'vid', 'u', 'admin', 'logout', 'profile', 'bio', 'gaming', 'game', 'negozio', 'shop', 'privacy', 'tos', 'terms', 'about', 'chisiamo', 'merch', 'checkout', 'lootbox', 'shitpost', 'missions', 'index', '404', 'aura', 'discord', 'register', 'registrati', 'login', 'accedi', 'settings', 'impostazioni', 'dashboard', 'help', 'support', 'uwu', 'db', 'search'];
+    $blacklist = ['api', 'assets', 'audio', 'auth', 'config', 'css', 'data', 'en', 'img', 'includes', 'it', 'js', 'mc', 'user', 'vid', 'u', 'admin', 'logout', 'profile', 'bio', 'gaming', 'game', 'negozio', 'shop', 'privacy', 'tos', 'terms', 'about', 'chisiamo', 'merch', 'checkout', 'lootbox', 'shitpost', 'missions', 'index', '404', 'aura', 'discord', 'register', 'registrati', 'login', 'accedi', 'settings', 'impostazioni', 'dashboard', 'help', 'support', 'uwu', 'db', 'search', 'ohpy', 'esports'];
     if (in_array(strtolower($customAliasDb), $blacklist, true)) {
         profile_json_response(['ok' => false, 'message' => 'Questo alias è riservato.'], 422);
     }

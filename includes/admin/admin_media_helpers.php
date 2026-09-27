@@ -13,7 +13,14 @@
  * resta finche' serve a qualcuno.
  */
 
-const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personaggi'];
+const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personaggi', 'esports'];
+
+/**
+ * Cartelle di audio/ in cui carica il pannello (la musica dei player del
+ * team). Gli audio storici nella radice di audio/ restano fuori, come le
+ * immagini nella radice di img/.
+ */
+const ADMIN_AUDIO_FOLDERS = ['esports'];
 
 /**
  * Da un valore salvato nel database (/img/merch/x.jpg, img/merch/x.jpg o
@@ -44,6 +51,25 @@ function admin_media_relative(?string $value): ?string
 }
 
 /**
+ * Da un valore salvato nel database (/audio/esports/x.mp3) al percorso
+ * dentro audio/. Null per tutto il resto: link esterni, audio storici.
+ */
+function admin_media_audio_relative(?string $value): ?string
+{
+    $value = trim(str_replace('\\', '/', rawurldecode((string)$value)));
+
+    if (!str_starts_with($value, '/audio/')) {
+        return null;
+    }
+
+    $value = substr($value, 7);
+    $folders = implode('|', ADMIN_AUDIO_FOLDERS);
+    $pattern = '~^(?:' . $folders . ')/[A-Za-z0-9_.-]{1,160}\.(?:mp3|ogg|m4a|aac|wav|webm)$~i';
+
+    return preg_match($pattern, $value) && !str_contains($value, '..') ? $value : null;
+}
+
+/**
  * Le colonne che possono contenere un'immagine del pannello. Ci sono anche
  * tabelle dove il pannello non carica (achievement, slide, badge, banner):
  * se qualcuno ci ha incollato un percorso, il file resta.
@@ -66,6 +92,8 @@ function admin_media_reference_columns(mysqli $mysqli): array
         'custom_badges' => ['image_url'],
         'banner_eventi' => ['banner_img_url', 'img_url', 'image_url', 'immagine'],
         'gacha_banner' => ['banner_img_url', 'thumb_url', 'arte_url'],
+        'esports_team' => ['logo', 'copertina'],
+        'esports_giocatori' => ['foto', 'sfondo', 'musica_cover', 'musica_audio'],
     ];
 
     $columns = [];
@@ -126,27 +154,33 @@ function admin_media_cleanup(mysqli $mysqli, iterable $values, ?int $adminId = n
     $deleted = [];
 
     try {
-        $root = realpath(__DIR__ . '/../../img');
-        if ($root === false) {
-            return [];
-        }
-        $rootPrefix = rtrim($root, '/\\') . DIRECTORY_SEPARATOR;
-
         $paths = [];
+        $audioPaths = [];
         foreach ($values as $value) {
             if (!is_string($value) || trim($value) === '') {
                 continue;
             }
             $list = str_starts_with(ltrim($value), '[') ? json_decode($value, true) : [$value];
             foreach (is_array($list) ? $list : [] as $item) {
-                $relative = is_string($item) ? admin_media_relative($item) : null;
+                if (!is_string($item)) {
+                    continue;
+                }
+                $relative = admin_media_relative($item);
                 if ($relative !== null) {
                     $paths[$relative] = true;
+                    continue;
+                }
+                $audio = admin_media_audio_relative($item);
+                if ($audio !== null) {
+                    $audioPaths[$audio] = true;
                 }
             }
         }
 
-        foreach (array_keys($paths) as $relative) {
+        $root = realpath(__DIR__ . '/../../img');
+        $rootPrefix = $root !== false ? rtrim($root, '/\\') . DIRECTORY_SEPARATOR : '';
+
+        foreach ($root !== false ? array_keys($paths) : [] as $relative) {
             $file = realpath($root . '/' . $relative);
             if ($file === false || !is_file($file) || !str_starts_with($file, $rootPrefix)) {
                 continue;
@@ -164,6 +198,24 @@ function admin_media_cleanup(mysqli $mysqli, iterable $values, ?int $adminId = n
             $dir = dirname($file);
             if (dirname($dir) !== $root && strcasecmp(dirname(dirname($dir)), $root) === 0 && count(scandir($dir) ?: []) === 2) {
                 @rmdir($dir);
+            }
+        }
+
+        $audioRoot = $audioPaths ? realpath(__DIR__ . '/../../audio') : false;
+        $audioPrefix = $audioRoot !== false ? rtrim($audioRoot, '/\\') . DIRECTORY_SEPARATOR : '';
+
+        foreach ($audioRoot !== false ? array_keys($audioPaths) : [] as $relative) {
+            $file = realpath($audioRoot . '/' . $relative);
+            if ($file === false || !is_file($file) || !str_starts_with($file, $audioPrefix)) {
+                continue;
+            }
+            // Nel database l'audio e' salvato con /audio/ davanti: si cerca
+            // cosi', e non puo' confondersi con un'immagine.
+            if (admin_media_in_use($mysqli, 'audio/' . $relative)) {
+                continue;
+            }
+            if (@unlink($file)) {
+                $deleted[] = 'audio/' . $relative;
             }
         }
 

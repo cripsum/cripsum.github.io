@@ -58,6 +58,8 @@ $csrfToken = admin_csrf_token();
                 <button type="button" data-section="shop-merch"><i class="fa-solid fa-shirt"></i><span>Merch</span></button>
                 <button type="button" data-section="shop-gacha"><i class="fa-solid fa-gem"></i><span>Shop Gacha</span></button>
                 <button type="button" data-section="shop-download"><i class="fa-solid fa-download"></i><span>Download</span></button>
+                <span class="admin-nav-label">Esports</span>
+                <button type="button" data-section="esports"><i class="fa-solid fa-crosshairs"></i><span>Team OHPY</span></button>
                 <span class="admin-nav-label">Community</span>
                 <button type="button" data-section="shitposts"><i class="fa-solid fa-image"></i><span>Shitpost</span></button>
                 <button type="button" data-section="toprimasti"><i class="fa-solid fa-ranking-star"></i><span>Top Rimasti</span></button>
@@ -251,6 +253,16 @@ $csrfToken = admin_csrf_token();
                 <div class="admin-table-card shop-admin" data-shop-admin="download"></div>
             </section>
 
+            <section class="admin-section" id="section-esports" data-section-panel="esports">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Team OHPY</strong>
+                        <small>Il team di Counter-Strike 2: player, schede, musica e pagina <a href="/it/ohpy" target="_blank" rel="noopener">/it/ohpy</a>.</small>
+                    </div>
+                </div>
+                <div class="admin-table-card shop-admin" data-esports-admin></div>
+            </section>
+
             <section class="admin-section" id="section-shitposts" data-section-panel="shitposts">
                 <div class="admin-toolbar">
                     <div>
@@ -391,6 +403,7 @@ $csrfToken = admin_csrf_token();
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-users.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-shop.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-gacha.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-esports.js')); ?>"></script>
 </body>
 
 </html>

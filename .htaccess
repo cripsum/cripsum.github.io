@@ -84,6 +84,10 @@ RewriteRule ^(it|en)/merch/([a-z0-9-]{1,60})/?$ $1/merch.php?collezione=$2 [L,QS
 RewriteRule ^(it|en)/negozio/([a-z0-9-]{1,80})/?$ $1/negozio.php?prodotto=$2 [L,QSA]
 RewriteRule ^(it|en)/download/([a-z0-9-]{1,80})/?$ $1/download.php?item=$2 [L,QSA]
 
+# Team esports: la scheda di un player e' la pagina del team con quella
+# scheda gia' aperta.
+RewriteRule ^(it|en)/ohpy/([a-z0-9-]{1,60})/?$ $1/ohpy.php?player=$2 [L,QSA]
+
 RewriteRule ^u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
 RewriteRule ^profile/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]

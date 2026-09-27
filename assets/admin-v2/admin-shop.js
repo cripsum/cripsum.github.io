@@ -1824,6 +1824,24 @@
         downloadsTable(body, ctx, loadDownloads);
     };
 
+    /* Gli strumenti dei form servono anche ad altre sezioni del pannello
+       (admin-esports.js): li si espone invece di copiarli. */
+    A.forms = {
+        field,
+        fields,
+        sectionTitle,
+        readForm,
+        slugify,
+        uploadImage,
+        bindForm,
+        formModal,
+        moveButtons,
+        grip,
+        bindReorder,
+        tabs,
+        PRESETS,
+    };
+
     A.registerSection('shop-negozio', loadNegozio);
     A.registerSection('shop-merch', loadMerch);
     A.registerSection('shop-gacha', loadGacha);
