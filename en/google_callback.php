@@ -99,44 +99,18 @@ if ($row = $result->fetch_assoc()) {
     auth_complete_login($row, $mysqli);
     auth_record_login_attempt($mysqli, (int)$row['id'], $email, true, 'google_login_ok');
 } else {
-    $base_username = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '', $name));
-    $username = $base_username;
-
-    $check_user = $mysqli->prepare("SELECT id FROM utenti WHERE username = ?");
-    $i = 1;
-    while (true) {
-        $check_user->bind_param("s", $username);
-        $check_user->execute();
-        if ($check_user->get_result()->num_rows == 0) break;
-        $username = $base_username . $i;
-        $i++;
-    }
-
-    $insert = $mysqli->prepare("INSERT INTO utenti (username, email, google_id, data_creazione, email_verificata, ruolo) VALUES (?, ?, ?, NOW(), 1, 'utente')");
-    $insert->bind_param("sss", $username, $email, $google_id);
-    $insert->execute();
-
-    $new_user_id = $insert->insert_id;
-    $insert->close();
-    $user_data = [
-        'id' => $new_user_id,
-        'username' => $username,
+    // Account nuovo: prima di crearlo serve la stessa spunta della
+    // registrazione normale (eta' minima e Termini). I dati di Google restano
+    // in sessione per un quarto d'ora e l'account nasce in
+    // conferma-registrazione.
+    $_SESSION['pending_google_signup'] = [
         'email' => $email,
-        'profile_pic' => '../img/abdul.jpg',
-        'ruolo' => 'utente',
-        'nsfw' => 0,
-        'richpresence' => 0,
-        'password' => ''
+        'google_id' => (string)$google_id,
+        'name' => (string)$name,
+        'started_at' => time(),
     ];
-    auth_complete_login($user_data, $mysqli);
-    auth_record_login_attempt($mysqli, $new_user_id, $email, true, 'google_register_ok');
-
-    if (function_exists('notifyDiscordSiteLogs')) {
-        notifyDiscordSiteLogs('register', 'Nuova Registrazione Utente', "Un nuovo utente **{$username}** si è registrato sul sito!", [
-            ['name' => 'Email', 'value' => $email, 'inline' => true],
-            ['name' => 'Metodo', 'value' => 'Google', 'inline' => true]
-        ], $new_user_id);
-    }
+    header('Location: conferma-registrazione');
+    exit();
 }
 
 $redirect = $_SESSION['redirect_after_login'] ?? 'home';

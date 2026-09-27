@@ -134,7 +134,7 @@
                     <p class="fs-1 text" style="font-weight: bold;">⍑╎! ╎'ᒲ jᔑ||!</p>
                     <p class="fs-4 text mt-3" >↸𝙹 ||𝙹⚍ ∴ᔑリℸ ̣  ℸ ̣ 𝙹 ꖎᒷᔑ∷リ ⍑𝙹∴ ℸ ̣ 𝙹 ↸𝙹 ℸ ̣ ⍑ᒷ ᓭ!¡╎リ⋮╎ℸ ̣ ⨅⚍?</p>
                     <div class="button-container">
-                        <a href="https://payhip.com/b/m0kaT" class="purchase-button">ᓵꖎ╎ᓵꖌ ⍑ᒷ∷ᒷ ℸ ̣ 𝙹 ʖ⚍|| ᒲ|| 𝙹リꖎ╎リᒷ ⍊╎↸ᒷ𝙹-ꖎᒷᓭᓭ𝙹リᓭ</a>
+                        <a href="/it/download" class="purchase-button">ᓵꖎ╎ᓵꖌ ⍑ᒷ∷ᒷ ℸ ̣ 𝙹 ʖ⚍|| ᒲ|| 𝙹リꖎ╎リᒷ ⍊╎↸ᒷ𝙹-ꖎᒷᓭᓭ𝙹リᓭ</a>
                     </div>
                 </div>
                 <div class="col-md-auto spinjitzu spingio">
@@ -180,16 +180,24 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
+        <!-- Google tag (gtag.js): rispetta lo spegnimento scelto nel footer del sito -->
         <script>
             window.dataLayer = window.dataLayer || [];
             function gtag() {
                 dataLayer.push(arguments);
             }
-            gtag("js", new Date());
-
-            gtag("config", "G-T0CTM2SBJJ");
+            (function () {
+                var off = false;
+                try { off = localStorage.getItem("cripsum.analytics") === "off"; } catch (_) {}
+                window["ga-disable-G-T0CTM2SBJJ"] = off;
+                if (off) return;
+                var script = document.createElement("script");
+                script.async = true;
+                script.src = "https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ";
+                document.head.appendChild(script);
+                gtag("js", new Date());
+                gtag("config", "G-T0CTM2SBJJ", { allow_google_signals: false, allow_ad_personalization_signals: false });
+            })();
         </script>
         <meta charset="UTF-8" />
         <link
@@ -434,7 +442,7 @@
                         <p class="fs-1 text" style="font-weight: bold">Ciao! Sono Jay!</p>
                         <p class="fs-4 text mt-3">vuoi imparare l'arte dello Spinjitzu?</p>
                         <button class="btn btn-secondary bottone" type="button">
-                            <a href="https://payhip.com/b/m0kaT" class="testobianco">Clicca qui per acquistare il mio videocorso online</a>
+                            <a href="/it/download" class="testobianco">Clicca qui per scaricare gratis il mio videocorso</a>
                         </button>
                     </div>
                     <div class="col-md-auto spinjitzu spingio">

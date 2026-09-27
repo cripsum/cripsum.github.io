@@ -230,6 +230,27 @@ body.auth-page {
     accent-color: var(--auth-accent);
 }
 
+/* Spunta di Termini e Privacy: testo su piu' righe con dentro dei link. */
+.auth-check--legal {
+    align-items: flex-start;
+    line-height: 1.45;
+}
+
+.auth-check--legal input {
+    flex: 0 0 auto;
+    margin-top: .15rem;
+}
+
+.auth-check a {
+    color: #adc2ff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.auth-check a:hover {
+    color: #fff;
+}
+
 .auth-recaptcha {
     overflow: auto;
 }

@@ -449,6 +449,53 @@
     color: #fff;
 }
 
+/* Rinuncia al recesso: Stripe e PayPal restano spenti finche' manca. */
+.shop-waiver {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(226, 232, 240, 0.85);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.shop-waiver input {
+    flex: 0 0 auto;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-top: 0.2rem;
+    accent-color: #7c3aed;
+}
+
+.shop-waiver a {
+    color: #adc2ff;
+}
+
+.shop-waiver.is-missing {
+    border-color: rgba(248, 113, 113, 0.75);
+}
+
+.shop-waiver-note {
+    margin: 0.55rem 0 1.1rem;
+    font-size: 0.8rem;
+    color: rgba(226, 232, 240, 0.6);
+}
+
+.payment-stripe-btn.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.payment-paypal-container.is-locked {
+    opacity: 0.5;
+}
+
 .shop-payment-separator {
     display: flex;
     align-items: center;

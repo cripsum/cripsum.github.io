@@ -91,6 +91,9 @@
     var sliderMax = document.getElementById('slider-max-label');
     var formError = document.querySelector('[data-shop-form-error]');
     var currentPackageId = '';
+    var waiverCheck = document.getElementById('waiverCheck');
+    var waiverBox = document.getElementById('waiverBox');
+    var paypalActions = null;
     var activeModal = null;
     var lastTrigger = null;
     var userGodos = parseInt(root.getAttribute('data-user-godos') || '0', 10) || 0;
@@ -249,7 +252,41 @@
         });
     }
 
-    /* ── Pagamento (Stripe e PayPal): invariato ─────────────────────── */
+    /* ── Pagamento (Stripe e PayPal) ────────────────────────────────── */
+
+    // Spunta di rinuncia al recesso: finche' manca, Stripe e PayPal restano
+    // spenti (e il server rifiuta comunque l'ordine). Si rimette a ogni
+    // pacchetto, perche' la conferma vale per quel singolo acquisto.
+    function waiverAccepted() {
+        return !waiverCheck || waiverCheck.checked;
+    }
+
+    function syncWaiver() {
+        var ok = waiverAccepted();
+        var stripeLink = document.getElementById('stripe-checkout-btn');
+        var container = document.getElementById('paypal-button-container');
+        if (stripeLink) {
+            stripeLink.classList.toggle('is-disabled', !ok);
+            stripeLink.setAttribute('aria-disabled', ok ? 'false' : 'true');
+        }
+        if (container) container.classList.toggle('is-locked', !ok);
+        if (ok && waiverBox) waiverBox.classList.remove('is-missing');
+        if (paypalActions) {
+            if (ok) {
+                paypalActions.enable();
+            } else {
+                paypalActions.disable();
+            }
+        }
+    }
+
+    function flagWaiver() {
+        if (!waiverBox) return;
+        waiverBox.classList.add('is-missing');
+        try { waiverBox.scrollIntoView({ block: 'center' }); } catch (error) {}
+    }
+
+    if (waiverCheck) waiverCheck.addEventListener('change', syncWaiver);
 
     function renderPayPal() {
         var container = document.getElementById('paypal-button-container');
@@ -265,12 +302,23 @@
             container.innerHTML = '';
             var buttons = window.paypal.Buttons({
                 style: { layout: 'vertical', shape: 'rect', label: 'paypal', height: 46 },
+                onInit: function (data, actions) {
+                    paypalActions = actions;
+                    syncWaiver();
+                },
+                onClick: function () {
+                    if (!waiverAccepted()) flagWaiver();
+                },
                 createOrder: function () {
+                    if (!waiverAccepted()) {
+                        flagWaiver();
+                        return Promise.reject(new Error('waiver'));
+                    }
                     return fetchJson('/api/create_paypal_shard_order.php', {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrfToken },
-                        body: JSON.stringify({ package_id: currentPackageId, csrf_token: csrfToken })
+                        body: JSON.stringify({ package_id: currentPackageId, waiver: true, csrf_token: csrfToken })
                     }).then(function (data) {
                         if (!data.ok || !data.id) throw new Error(data.message || copy.paypalCreateError);
                         return data.id;
@@ -310,6 +358,9 @@
         if (nameNode) nameNode.textContent = name;
         if (priceNode) priceNode.textContent = formatPrice(price);
         if (stripeLink) stripeLink.href = link.href;
+        if (waiverCheck) waiverCheck.checked = false;
+        paypalActions = null;
+        syncWaiver();
     }
 
     /* ── Convertitore Godos -> Shards ───────────────────────────────── */
@@ -439,6 +490,21 @@
     document.addEventListener('click', function (event) {
         var target = event.target instanceof Element ? event.target : null;
         if (!target) return;
+
+        var stripeButton = target.closest('#stripe-checkout-btn');
+        if (stripeButton) {
+            if (!waiverAccepted()) {
+                event.preventDefault();
+                flagWaiver();
+                return;
+            }
+            try {
+                var stripeUrl = new URL(stripeButton.href, window.location.href);
+                stripeUrl.searchParams.set('waiver', '1');
+                stripeButton.href = stripeUrl.toString();
+            } catch (error) {}
+            return;
+        }
 
         var buyLink = target.closest('[data-shop-buy]');
         if (buyLink && paymentModal) {

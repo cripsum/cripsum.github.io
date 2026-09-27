@@ -538,6 +538,61 @@ function auth_complete_login(array $user, $mysqli = null)
     }
 }
 
+/**
+ * Crea l'account di chi si registra con Google.
+ *
+ * Si chiama solo da conferma-registrazione, dopo la spunta su eta' minima e
+ * Termini: google_callback non crea piu' account da solo. Lo username nasce
+ * dal nome Google, con un numero in coda se e' gia' preso.
+ *
+ * Restituisce la riga da passare ad auth_complete_login, oppure null.
+ */
+function auth_google_create_account(mysqli $mysqli, string $email, string $googleId, string $name): ?array
+{
+    $baseUsername = strtolower((string)preg_replace('/[^a-zA-Z0-9_]/', '', $name));
+    $username = $baseUsername;
+
+    $check = $mysqli->prepare("SELECT id FROM utenti WHERE username = ?");
+    if (!$check) {
+        return null;
+    }
+
+    $i = 1;
+    while (true) {
+        $check->bind_param("s", $username);
+        $check->execute();
+        if ($check->get_result()->num_rows == 0) {
+            break;
+        }
+        $username = $baseUsername . $i;
+        $i++;
+    }
+    $check->close();
+
+    $insert = $mysqli->prepare("INSERT INTO utenti (username, email, google_id, data_creazione, email_verificata, ruolo) VALUES (?, ?, ?, NOW(), 1, 'utente')");
+    if (!$insert) {
+        return null;
+    }
+    $insert->bind_param("sss", $username, $email, $googleId);
+    if (!$insert->execute()) {
+        $insert->close();
+        return null;
+    }
+    $newUserId = (int)$insert->insert_id;
+    $insert->close();
+
+    return [
+        'id' => $newUserId,
+        'username' => $username,
+        'email' => $email,
+        'profile_pic' => '../img/abdul.jpg',
+        'ruolo' => 'utente',
+        'nsfw' => 0,
+        'richpresence' => 0,
+        'password' => ''
+    ];
+}
+
 function auth_start_password_login(mysqli $mysqli, string $identifier, string $password): array
 {
     $identifier = trim($identifier);

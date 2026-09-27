@@ -3,7 +3,7 @@ $footerLang = isset($lang) && is_string($lang) && $lang !== '' ? $lang : 'it';
 $footerYear = date('Y');
 ?>
 
-<link rel="stylesheet" href="/assets/global/footer.css?v=2.3">
+<link rel="stylesheet" href="/assets/global/footer.css?v=2.4">
 
 <footer class="modern-footer fadeup" id="siteFooter">
     <div class="footer-content">
@@ -28,6 +28,8 @@ $footerYear = date('Y');
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/tos" class="footer-link"><i class="fa-solid fa-file-contract" style="margin-right: 4px;"></i>Terms</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link"><i class="fa-solid fa-headset" style="margin-right: 4px;"></i>Support</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/chat-policy" class="footer-link"><i class="fa-solid fa-comments" style="margin-right: 4px;"></i>Chat Policy</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/cookie" class="footer-link"><i class="fa-solid fa-cookie-bite" style="margin-right: 4px;"></i>Cookies</a></li>
+                <li data-analytics-item hidden><button type="button" class="footer-link footer-link--button" data-analytics-toggle data-label-on="Google Analytics: on" data-label-off="Google Analytics: off" data-title-on="Click to turn off Google Analytics cookies" data-title-off="Click to turn Google Analytics cookies back on"><i class="fa-solid fa-chart-simple" style="margin-right: 4px;"></i><span data-analytics-label>Google Analytics: on</span></button></li>
                 <li><a href="/status.php" class="footer-link"><i class="fa-solid fa-server" style="margin-right: 4px;"></i>System Status</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/api-docs" class="footer-link"><i class="fa-solid fa-code" style="margin-right: 4px;"></i>API Docs</a></li>
             </ul>
@@ -64,4 +66,4 @@ $footerYear = date('Y');
     </div>
 </footer>
 
-<script src="/assets/global/footer.js?v=2.2-classic" defer></script>
+<script src="/assets/global/footer.js?v=2.3-classic" defer></script>

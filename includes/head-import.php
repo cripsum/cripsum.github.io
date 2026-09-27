@@ -76,16 +76,88 @@
             } catch (_) {}
         </script>
 
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T0CTM2SBJJ"></script>
         <script>
+            /*
+             * Google Analytics: attivo di default, si spegne dal pulsante nel
+             * footer o dalla pagina Cookie. La scelta vive solo in questo
+             * browser (localStorage) e spegnerlo non tocca nessun cookie del
+             * sito: sessione, lingua e tema restano come sono.
+             *
+             * Google Signals e personalizzazione degli annunci restano spenti:
+             * le statistiche servono solo a sapere quante visite fa il sito.
+             */
             window.dataLayer = window.dataLayer || [];
 
             function gtag() {
                 dataLayer.push(arguments);
             }
-            gtag("js", new Date());
 
-            gtag("config", "G-T0CTM2SBJJ");
+            window.cripsumAnalytics = (function() {
+                var id = 'G-T0CTM2SBJJ';
+                var key = 'cripsum.analytics';
+                var loaded = false;
+
+                function enabled() {
+                    try {
+                        return localStorage.getItem(key) !== 'off';
+                    } catch (_) {
+                        return true;
+                    }
+                }
+
+                function load() {
+                    if (loaded) return;
+                    loaded = true;
+                    window['ga-disable-' + id] = false;
+                    var script = document.createElement('script');
+                    script.async = true;
+                    script.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
+                    document.head.appendChild(script);
+                    gtag('js', new Date());
+                    gtag('config', id, {
+                        allow_google_signals: false,
+                        allow_ad_personalization_signals: false
+                    });
+                }
+
+                function clearCookies() {
+                    var host = location.hostname;
+                    var domains = ['', host, '.' + host, '.' + host.split('.').slice(-2).join('.')];
+                    document.cookie.split('; ').forEach(function(part) {
+                        var name = part.split('=')[0];
+                        if (name !== '_ga' && name.indexOf('_ga_') !== 0 && name !== '_gid') return;
+                        domains.forEach(function(domain) {
+                            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' + (domain ? '; domain=' + domain : '');
+                        });
+                    });
+                }
+
+                function set(on) {
+                    try {
+                        if (on) {
+                            localStorage.removeItem(key);
+                        } else {
+                            localStorage.setItem(key, 'off');
+                        }
+                    } catch (_) {}
+
+                    if (on) {
+                        load();
+                    } else {
+                        window['ga-disable-' + id] = true;
+                        clearCookies();
+                    }
+                    document.dispatchEvent(new CustomEvent('cripsum:analytics', { detail: { enabled: on } }));
+                }
+
+                if (enabled()) {
+                    load();
+                } else {
+                    window['ga-disable-' + id] = true;
+                }
+
+                return { enabled: enabled, set: set };
+            })();
         </script>
         <script src="/js/activity-beat.js?v=1" defer></script>
         <link

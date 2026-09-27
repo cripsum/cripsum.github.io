@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($username === '' || $email === '' || $password === '' || $repeatPassword === '') {
         $error = 'Compila tutti i campi.';
     } elseif (!$acceptTerms) {
-        $error = 'Devi accettare i termini.';
+        $error = 'Devi avere almeno 14 anni e accettare i Termini di servizio.';
     } elseif (!auth_is_valid_username($username)) {
         $error = 'Username non valido. Usa 3-20 caratteri, lettere, numeri e underscore.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Cripsum™ - Registrati</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.2">
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.7">
     <script src="/assets/auth/auth.js?v=1.2" defer></script>
 </head>
 
@@ -163,9 +163,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </label>
 
-                    <label class="auth-check">
+                    <label class="auth-check auth-check--legal">
                         <input type="checkbox" name="acceptTerms" required <?php echo isset($_POST['acceptTerms']) ? 'checked' : ''; ?>>
-                        <span>Accetto termini e privacy.</span>
+                        <span>Ho almeno 14 anni e accetto i <a href="tos" target="_blank" rel="noopener">Termini di servizio</a>. Ho letto l'<a href="privacy" target="_blank" rel="noopener">Informativa privacy</a>.</span>
                     </label>
 
                     <div class="auth-recaptcha">

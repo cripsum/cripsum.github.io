@@ -34,6 +34,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] === 'en') {
     $lang = 'en';
 }
 
+// Senza la spunta del checkout (esecuzione immediata e rinuncia al recesso,
+// art. 59 lett. o Codice del Consumo) non si apre nessun pagamento.
+if (empty($_POST['waiver'])) {
+    header("Location: /{$lang}/checkout-premium.php?error=waiver");
+    exit;
+}
+
 $userId = (int)$_SESSION['user_id'];
 $recipientId = $userId;
 $isGift = false;

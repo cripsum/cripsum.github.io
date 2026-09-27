@@ -25,6 +25,8 @@ if ($error === 'user_not_found') {
     $errorMsg = 'L\'utente indicato come destinatario non esiste.';
 } elseif ($error === 'already_premium') {
     $errorMsg = 'Il destinatario indicato possiede già un account Premium.';
+} elseif ($error === 'waiver') {
+    $errorMsg = 'Per continuare conferma di voler ricevere subito il Premium e di rinunciare al diritto di recesso.';
 }
 $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
 ?>
@@ -34,7 +36,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
 <head>
     <?php include '../includes/head-import.php'; ?>
     <meta charset="UTF-8">
-    <title>Abbonamento Cripsum™ Premium</title>
+    <title>Cripsum™ Premium</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
     <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
@@ -187,6 +189,53 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
             display: none;
         }
 
+        /* Rinuncia al recesso: i pagamenti partono solo con questa spunta. */
+        .checkout-waiver {
+            display: flex;
+            align-items: flex-start;
+            gap: .7rem;
+            padding: 1rem 1.1rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            color: #cbd5e1;
+            font-size: .92rem;
+            line-height: 1.5;
+            cursor: pointer;
+            transition: border-color .2s ease;
+        }
+
+        .checkout-waiver input {
+            flex: 0 0 auto;
+            width: 1.1rem;
+            height: 1.1rem;
+            margin-top: .2rem;
+            accent-color: #7c3aed;
+        }
+
+        .checkout-waiver a {
+            color: #adc2ff;
+        }
+
+        .checkout-waiver.is-missing {
+            border-color: rgba(248, 113, 113, .75);
+        }
+
+        .checkout-waiver-note {
+            margin: .6rem 0 0;
+            font-size: .82rem;
+            color: #a8b0c7;
+        }
+
+        #stripe-submit-btn[disabled] {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        #paypal-button-container.is-locked {
+            opacity: .5;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -278,6 +327,16 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                             </div>
                         </div>
 
+                        <div class="form-section">
+                            <h2>3. Conferma</h2>
+
+                            <label class="checkout-waiver" id="waiverBox">
+                                <input type="checkbox" name="waiver" value="1" id="waiverCheck">
+                                <span>Voglio ricevere subito Cripsum™ Premium e prendo atto che, iniziando subito la fornitura, perdo il diritto di recesso di 14 giorni (art. 59, lett. o, Codice del Consumo). Ho letto i <a href="tos" target="_blank" rel="noopener">Termini di servizio</a>.</span>
+                            </label>
+                            <p class="checkout-waiver-note">Se sei minorenne, chiedi il permesso a un genitore prima di comprare. Dopo il pagamento ti arriva una email di conferma.</p>
+                        </div>
+
                         <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="stripe">
 
                         <div class="form-actions">
@@ -331,7 +390,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                         <span>Metodo</span>
                         <strong id="summaryPaymentMethod">Stripe (Carta)</strong>
                     </div>
-                    <p class="form-muted" style="margin-top:1rem;">Nessun abbonamento ricorrente. Paghi una volta e mantieni il Premium per sempre.</p>
+                    <p class="form-muted" style="margin-top:1rem;">Nessun abbonamento ricorrente: paghi una volta e il Premium resta sul tuo account finché l'account e il sito esistono.</p>
                 </aside>
             </div>
         </section>
@@ -499,10 +558,43 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                 }
             }
 
+            // Spunta di rinuncia al recesso: finche' manca, Stripe e PayPal
+            // restano spenti (e il server rifiuta comunque l'ordine).
+            const waiverCheck = document.getElementById('waiverCheck');
+            const waiverBox = document.getElementById('waiverBox');
+            let paypalActions = null;
+
+            function syncWaiver() {
+                const ok = waiverCheck.checked;
+                stripeSubmitBtn.disabled = !ok;
+                paypalButtonContainer.classList.toggle('is-locked', !ok);
+                if (ok) waiverBox.classList.remove('is-missing');
+                if (paypalActions) {
+                    if (ok) {
+                        paypalActions.enable();
+                    } else {
+                        paypalActions.disable();
+                    }
+                }
+            }
+
+            function flagWaiver() {
+                waiverBox.classList.add('is-missing');
+                waiverBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            waiverCheck.addEventListener('change', syncWaiver);
+            syncWaiver();
+
             // Gestione form submit (per Stripe)
             premiumCheckoutForm.addEventListener('submit', function(e) {
                 if (selectedPaymentMethod.value === 'paypal') {
                     e.preventDefault();
+                    return false;
+                }
+                if (!waiverCheck.checked) {
+                    e.preventDefault();
+                    flagWaiver();
                     return false;
                 }
                 if (!isRecipientValid) {
@@ -514,7 +606,19 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
 
             // Configurazione e rendering dei Bottoni PayPal SDK
             paypal.Buttons({
+                onInit: function(data, actions) {
+                    paypalActions = actions;
+                    syncWaiver();
+                },
+                onClick: function() {
+                    if (!waiverCheck.checked) flagWaiver();
+                },
                 createOrder: function(data, actions) {
+                    if (!waiverCheck.checked) {
+                        flagWaiver();
+                        return Promise.reject(new Error('waiver'));
+                    }
+
                     if (!isRecipientValid) {
                         alert('Inserisci un destinatario valido prima di procedere con PayPal.');
                         return Promise.reject(new Error('Destinatario non valido'));
@@ -528,6 +632,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
                             },
                             body: JSON.stringify({
                                 is_gift: purchaseGift.checked,
+                                waiver: waiverCheck.checked,
                                 recipient_username: purchaseGift.checked ? giftUsernameInput.value.trim() : '',
                                 csrf_token: document.querySelector('meta[name="csrf-token"]')?.content || ''
                             })

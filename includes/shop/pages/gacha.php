@@ -57,6 +57,9 @@ $G = $en ? [
     'pay_pending' => 'Payment received: crediting your Shards…',
     'pay_cancel' => 'Payment cancelled.',
     'pay_invalid' => 'That pack is no longer on sale.',
+    'pay_waiver' => 'To buy Shards, first confirm that you want them right away and that you give up your right of withdrawal.',
+    'waiver' => 'I want to receive the Shards right away and I acknowledge that, because delivery starts immediately, I lose my 14-day right of withdrawal. I have read the <a href="tos" target="_blank" rel="noopener">Terms of Service</a>.',
+    'waiver_note' => 'If you are under 18, ask a parent for permission before buying. You will get a confirmation email after paying.',
     'conv_success' => 'Conversion completed',
     'conv_error' => 'Conversion failed. Check your balance and try again.',
     'close' => 'Close',
@@ -122,6 +125,9 @@ $G = $en ? [
     'pay_pending' => 'Pagamento ricevuto: accredito delle Shards in corso…',
     'pay_cancel' => 'Pagamento annullato.',
     'pay_invalid' => 'Questo pacchetto non è più in vendita.',
+    'pay_waiver' => 'Per comprare le Shards conferma prima di volerle ricevere subito e di rinunciare al diritto di recesso.',
+    'waiver' => 'Voglio ricevere subito le Shards e prendo atto che, iniziando subito la fornitura, perdo il diritto di recesso di 14 giorni (art. 59, lett. o, Codice del Consumo). Ho letto i <a href="tos" target="_blank" rel="noopener">Termini di servizio</a>.',
+    'waiver_note' => 'Se sei minorenne, chiedi il permesso a un genitore prima di comprare. Dopo il pagamento ti arriva una email di conferma.',
     'conv_success' => 'Conversione completata',
     'conv_error' => 'Conversione non riuscita. Controlla il saldo e riprova.',
     'close' => 'Chiudi',
@@ -262,6 +268,7 @@ $paymentStatus = (string)($_GET['payment'] ?? '');
 $conversionStatus = (string)($_GET['conversion'] ?? '');
 $convertedShards = max(0, (int)($_GET['shards'] ?? 0));
 $invalidPackage = ($_GET['error'] ?? '') === 'invalid_package';
+$waiverMissing = ($_GET['error'] ?? '') === 'waiver';
 
 // Dopo Stripe le Shards arrivano con il webhook, che puo' metterci qualche
 // secondo: se c'e' lo storico ordini la pagina aspetta quello invece di
@@ -312,6 +319,11 @@ $ogTitle = 'Cripsum™ - ' . $G['title'];
         <div class="shop-toast is-error" id="payment-toast" role="status">
             <i class="fa-solid fa-circle-xmark"></i>
             <span><?php echo shop_h($G['pay_invalid']); ?></span>
+        </div>
+    <?php elseif ($waiverMissing): ?>
+        <div class="shop-toast is-error" id="payment-toast" role="status">
+            <i class="fa-solid fa-circle-xmark"></i>
+            <span><?php echo shop_h($G['pay_waiver']); ?></span>
         </div>
     <?php endif; ?>
 
@@ -558,6 +570,11 @@ $ogTitle = 'Cripsum™ - ' . $G['title'];
             </header>
             <div class="shop-action-modal__body">
                 <p class="shop-action-modal__summary"><?php echo $G['buying']; ?></p>
+                <label class="shop-waiver" id="waiverBox">
+                    <input type="checkbox" id="waiverCheck">
+                    <span><?php echo $G['waiver']; ?></span>
+                </label>
+                <p class="shop-waiver-note"><?php echo shop_h($G['waiver_note']); ?></p>
                 <div class="payment-options-grid">
                     <a class="payment-stripe-btn" id="stripe-checkout-btn" href="/api/create_shard_checkout_session.php"><i class="fa-solid fa-credit-card"></i><span><?php echo shop_h($G['card']); ?></span></a>
                     <div class="shop-payment-separator"><span><?php echo shop_h($G['or']); ?></span></div>

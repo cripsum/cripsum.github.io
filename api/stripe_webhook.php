@@ -246,6 +246,19 @@ if ($eventType === 'checkout.session.completed') {
             // Storico per l'assistenza, a Shards gia' accreditate e fuori
             // dalla transazione: se questa scrittura fallisce l'accredito resta.
             gacha_order_paid($mysqli, $userId, (string)$packageId, 'stripe', $sessionRef, $expectedAmount, $baseShards, $finalShards, $isFirstPurchase);
+
+            // Conferma via email, con la rinuncia al recesso data nel checkout.
+            require_once __DIR__ . '/../includes/purchase_receipt.php';
+            cripsum_send_purchase_receipt($mysqli, $userId, [
+                'product_it' => $finalShards . ' Godo Shards',
+                'product_en' => $finalShards . ' Godo Shards',
+                'detail_it' => $isFirstPurchase ? 'Bonus primo acquisto x2 incluso' : '',
+                'detail_en' => $isFirstPurchase ? 'First purchase x2 bonus included' : '',
+                'amount_cents' => $expectedAmount,
+                'currency' => 'EUR',
+                'gateway' => 'Stripe',
+                'order_id' => $sessionRef,
+            ]);
         }
     } else {
         $userId = (int)($session['client_reference_id'] ?? 0);
@@ -369,6 +382,22 @@ if ($eventType === 'checkout.session.completed') {
                 // il pagamento, che e' gia' registrato.
                 require_once __DIR__ . '/../includes/discord_notify.php';
                 notifyDiscordPremiumPurchase($mysqli, (int)$userId);
+
+                // Conferma via email a chi ha pagato (per un regalo e' chi
+                // regala), con la rinuncia al recesso data nel checkout.
+                $receiptIsGift = $isGift && $buyerId > 0 && $buyerId !== $userId;
+                $receiptGiftTo = $receiptIsGift ? (string)($recipientUsername ?? '') : '';
+                require_once __DIR__ . '/../includes/purchase_receipt.php';
+                cripsum_send_purchase_receipt($mysqli, $receiptIsGift ? $buyerId : (int)$userId, [
+                    'product_it' => 'Cripsum™ Premium',
+                    'product_en' => 'Cripsum™ Premium',
+                    'detail_it' => $receiptIsGift ? 'Regalo per ' . $receiptGiftTo : '',
+                    'detail_en' => $receiptIsGift ? 'Gift for ' . $receiptGiftTo : '',
+                    'amount_cents' => (int)($session['amount_total'] ?? 299),
+                    'currency' => 'EUR',
+                    'gateway' => 'Stripe',
+                    'order_id' => (string)($session['id'] ?? ''),
+                ]);
 
                 stripe_complete_event($mysqli, $eventId);
             } else {

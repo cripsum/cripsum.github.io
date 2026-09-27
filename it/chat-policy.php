@@ -11,7 +11,7 @@ checkBan($mysqli);
     <title>Cripsum™ - Linee guida chat</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static">
+    <link rel="stylesheet" href="/assets/static/static.css?v=1.3-static">
     <script src="/assets/static/static.js?v=1.0-static" defer></script>
 
 </head>
@@ -32,7 +32,7 @@ checkBan($mysqli);
         <section class="static-hero static-hero--split static-reveal">
             <div>
                 <h1>Linee guida</h1>
-                <p>Regole semplici per tenere la chat leggibile e usabile da tutti.</p>
+                <p>Regole semplici per tenere la chat leggibile e sicura per tutti. Fanno parte dei <a href="tos">Termini di servizio</a>.</p>
                 <div class="static-actions">
                     <a href="global-chat" class="static-btn static-btn--primary">
                         <i class="fa-solid fa-comments"></i>
@@ -47,14 +47,29 @@ checkBan($mysqli);
 
             <aside class="static-hero__side">
                 <span class="static-chip"><i class="fa-solid fa-shield-halved"></i> Moderazione attiva</span>
-                <p>Violazioni gravi o ripetute possono portare a mute o ban.</p>
+                <p>Violazioni gravi o ripetute possono portare a mute, sospensione o ban.</p>
             </aside>
         </section>
 
         <section class="static-grid static-grid--2" style="margin-top:1rem;">
             <article class="static-card static-reveal">
                 <h2>Rispetta tutti</h2>
-                <p>Niente insulti, minacce o linguaggio offensivo.</p>
+                <p>Niente insulti, minacce, discriminazioni o linguaggio offensivo.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Niente bullismo</h2>
+                <p>Prendere di mira qualcuno è vietato, anche «per scherzo». Se succede a te, scrivi a <a href="mailto:tos@cripsum.com">tos@cripsum.com</a> con oggetto «Cyberbullismo»: rispondiamo entro 24 ore.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Niente dati degli altri</h2>
+                <p>Non pubblicare foto, numeri di telefono, indirizzi o altri dati di altre persone senza il loro consenso.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Contenuti adatti</h2>
+                <p>In chat ci sono anche minorenni: niente contenuti sessuali, violenti, illegali o chiaramente fuori contesto.</p>
             </article>
 
             <article class="static-card static-reveal">
@@ -63,23 +78,28 @@ checkBan($mysqli);
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Contenuti adatti</h2>
-                <p>Non inviare contenuti violenti, sessuali, illegali o chiaramente fuori contesto.</p>
+                <h2>Allegati sicuri</h2>
+                <p>Niente malware, link sospetti o materiale protetto da diritto d'autore senza permesso.</p>
             </article>
 
             <article class="static-card static-reveal">
                 <h2>Non impersonare</h2>
-                <p>Non fingere di essere un altro utente, un admin o un moderatore.</p>
+                <p>Non fingere di essere un altro utente, un admin, un moderatore o una persona reale.</p>
             </article>
 
             <article class="static-card static-reveal">
-                <h2>Usa buon senso</h2>
-                <p>Non serve essere perfetti. Basta non rovinare la chat agli altri.</p>
+                <h2>Chat private e di gruppo</h2>
+                <p>Valgono le stesse regole. Lo staff non legge queste chat: se qualcuno ti dà fastidio bloccalo e, se serve, apri un ticket.</p>
+            </article>
+
+            <article class="static-card static-reveal">
+                <h2>Segnala</h2>
+                <p>Usa «Segnala» sui messaggi della chat globale. Ogni segnalazione la guarda una persona dello staff.</p>
             </article>
 
             <article class="static-card static-reveal">
                 <h2>Segui i moderatori</h2>
-                <p>Le indicazioni dello staff vanno rispettate.</p>
+                <p>Le indicazioni dello staff vanno rispettate. Se non sei d'accordo con una decisione, puoi contestarla come spiegato nei Termini.</p>
             </article>
         </section>
     </main>

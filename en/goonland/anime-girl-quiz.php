@@ -127,8 +127,8 @@ if (!isLoggedIn()) {
     exit();
 }
 
-if (isset($_SESSION['nsfw']) && $_SESSION['nsfw'] == 0) {
-    $_SESSION['error_message'] = "You need to enable NSFW content in your profile settings to access GoonLand";
+if ((int)($_SESSION['nsfw'] ?? 0) !== 1) {
+    $_SESSION['error_message'] = "GoonLand is for adults only. If you are at least 18 you can turn it on in your account settings.";
     header('Location: ../home');
     exit();
 }

@@ -27,6 +27,12 @@ if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
     echo json_encode(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.']);
     exit;
 }
+// Senza la spunta del checkout (esecuzione immediata e rinuncia al recesso,
+// art. 59 lett. o Codice del Consumo) non si apre nessun pagamento.
+if (empty($input['waiver'])) {
+    echo json_encode(['ok' => false, 'message' => 'Conferma di voler ricevere subito le Shards e di rinunciare al diritto di recesso.']);
+    exit;
+}
 $packageId = isset($input['package_id']) ? trim($input['package_id']) : '';
 
 // Solo i pacchetti in vendita adesso.

@@ -325,11 +325,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $profilePic = "/includes/get_pfp.php?id=" . $userId;
 $otpauthUri = '';
-$qrUrl = '';
 
 if ($twofaSetupSecret) {
     $otpauthUri = totp_otpauth_uri('Cripsum', $username ?: $email, $twofaSetupSecret);
-    $qrUrl = totp_qr_url($otpauthUri, 220);
 }
 
 $discordConnected = !empty($currentUser['discord_id']) && !empty($currentUser['discord_username']);
@@ -376,8 +374,12 @@ unset($_SESSION['account_deletion_cancelled']);
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Impostazioni</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.6">
-    <script src="/assets/auth/auth.js?v=1.5" defer></script>
+    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.7">
+    <?php if ($otpauthUri !== ''): ?>
+        <!-- QR della 2FA disegnato nel browser: il segreto non esce dal sito. -->
+        <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous" defer></script>
+    <?php endif; ?>
+    <script src="/assets/auth/auth.js?v=1.6" defer></script>
 </head>
 
 <body class="auth-page settings-page">
@@ -488,9 +490,9 @@ unset($_SESSION['account_deletion_cancelled']);
                             </label>
 
                             <div class="settings-checks">
-                                <label class="auth-check">
-                                    <input type="checkbox" name="nsfw" <?php echo $nsfw ? 'checked' : ''; ?>>
-                                    <span>Mostra NSFW</span>
+                                <label class="auth-check auth-check--legal">
+                                    <input type="checkbox" name="nsfw" <?php echo $nsfw ? 'checked' : ''; ?> data-confirm-on-check="Confermi di avere almeno 18 anni? GoonLand e le modalità NSFW contengono materiale per adulti.">
+                                    <span>Ho almeno 18 anni e voglio vedere i contenuti per adulti (GoonLand e modalità NSFW)</span>
                                 </label>
                             </div>
 
@@ -630,7 +632,7 @@ unset($_SESSION['account_deletion_cancelled']);
 
                             <?php if (!$twofaStatus['enabled'] && $twofaSetupSecret): ?>
                                 <div class="twofa-setup">
-                                    <img src="<?php echo auth_h($qrUrl); ?>" alt="QR code 2FA">
+                                    <img data-totp-qr="<?php echo auth_h($otpauthUri); ?>" alt="QR code 2FA" width="220" height="220">
                                     <div>
                                         <strong>Scansiona il QR code</strong>
                                         <p>Usa Google Authenticator, Authy, Microsoft Authenticator o simili.</p>

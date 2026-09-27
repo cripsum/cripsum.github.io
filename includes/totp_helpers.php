@@ -104,7 +104,6 @@ function totp_otpauth_uri(string $issuer, string $accountName, string $secret): 
     return "otpauth://totp/{$label}?secret={$secret}&issuer={$issuer}&algorithm=SHA1&digits=6&period=30";
 }
 
-function totp_qr_url(string $otpauthUri, int $size = 220): string
-{
-    return 'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size . '&data=' . rawurlencode($otpauthUri);
-}
+// Il QR non si genera piu' su un servizio esterno (gli si passava il segreto
+// dentro l'URI otpauth://): lo disegna il browser, vedi data-totp-qr in
+// assets/auth/auth.js.

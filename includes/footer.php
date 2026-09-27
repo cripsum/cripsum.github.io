@@ -3,7 +3,7 @@ $footerLang = isset($lang) && is_string($lang) && $lang !== '' ? $lang : 'it';
 $footerYear = date('Y');
 ?>
 
-<link rel="stylesheet" href="/assets/global/footer.css?v=2.3">
+<link rel="stylesheet" href="/assets/global/footer.css?v=2.4">
 
 <footer class="modern-footer fadeup" id="siteFooter">
     <div class="footer-content">
@@ -28,6 +28,8 @@ $footerYear = date('Y');
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/tos" class="footer-link"><i class="fa-solid fa-file-contract" style="margin-right: 4px;"></i>Termini</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link"><i class="fa-solid fa-headset" style="margin-right: 4px;"></i>Supporto</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/chat-policy" class="footer-link"><i class="fa-solid fa-comments" style="margin-right: 4px;"></i>Regolamento chat</a></li>
+                <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/cookie" class="footer-link"><i class="fa-solid fa-cookie-bite" style="margin-right: 4px;"></i>Cookie</a></li>
+                <li data-analytics-item hidden><button type="button" class="footer-link footer-link--button" data-analytics-toggle data-label-on="Google Analytics: attivo" data-label-off="Google Analytics: disattivato" data-title-on="Clicca per disattivare i cookie di Google Analytics" data-title-off="Clicca per riattivare i cookie di Google Analytics"><i class="fa-solid fa-chart-simple" style="margin-right: 4px;"></i><span data-analytics-label>Google Analytics: attivo</span></button></li>
                 <li><a href="/status.php" class="footer-link"><i class="fa-solid fa-server" style="margin-right: 4px;"></i>Stato server</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/api-docs" class="footer-link"><i class="fa-solid fa-code" style="margin-right: 4px;"></i>API Docs</a></li>
             </ul>
@@ -64,4 +66,4 @@ $footerYear = date('Y');
     </div>
 </footer>
 
-<script src="/assets/global/footer.js?v=2.2-classic" defer></script>
+<script src="/assets/global/footer.js?v=2.3-classic" defer></script>

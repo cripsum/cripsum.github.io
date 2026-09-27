@@ -701,3 +701,91 @@ body.static-page .dropdown-menu button:hover {
         transform: none;
     }
 }
+
+/* ── Pagine legali (Termini, Privacy, Cookie) ─────────────────────── */
+
+.static-legal-section p + p,
+.static-legal-section ul + p,
+.static-legal-section p + ul,
+.static-legal-section .static-table-wrap + p,
+.static-legal-section p + .static-table-wrap {
+    margin-top: .75rem;
+}
+
+.static-legal-section a,
+.static-card p a,
+.static-hero p a {
+    color: #adc2ff;
+    text-underline-offset: 2px;
+}
+
+.static-legal-section a:hover,
+.static-card p a:hover,
+.static-hero p a:hover {
+    color: #fff;
+}
+
+.static-legal-section strong {
+    color: var(--static-text);
+}
+
+/* Riassunto in parole semplici in cima alle pagine. */
+.static-legal-section--summary {
+    border-color: rgba(var(--static-accent-rgb), .45);
+    background:
+        linear-gradient(145deg, rgba(var(--static-accent-rgb), .16), rgba(139, 92, 246, .08)),
+        var(--static-card);
+}
+
+/* Gli elementi della griglia non devono allargarsi per le tabelle: sul
+   telefono e' la tabella a scorrere, non la pagina. */
+.static-content,
+.static-legal-section {
+    min-width: 0;
+}
+
+.static-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--static-border);
+    border-radius: var(--static-radius-md);
+}
+
+.static-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.static-table th,
+.static-table td {
+    padding: .7rem .85rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--static-border);
+}
+
+.static-table th {
+    color: var(--static-text);
+    background: rgba(255, 255, 255, .05);
+    font-weight: 850;
+}
+
+.static-table td {
+    color: var(--static-muted);
+}
+
+.static-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.static-table code {
+    color: #c7d4ff;
+    font-size: .85em;
+}
+
+/* Interruttore di Google Analytics nella pagina Cookie. */
+.static-analytics-toggle[aria-pressed="false"] {
+    opacity: .75;
+}

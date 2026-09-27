@@ -135,6 +135,32 @@
         });
     };
 
+    // Spunte che chiedono conferma quando vengono attivate (la dichiarazione
+    // dei 18 anni per GoonLand): se l'utente annulla, la spunta torna vuota.
+    const initConfirmOnCheck = () => {
+        $$('input[type="checkbox"][data-confirm-on-check]').forEach((input) => {
+            input.addEventListener('change', () => {
+                if (input.checked && !window.confirm(input.dataset.confirmOnCheck)) {
+                    input.checked = false;
+                }
+            });
+        });
+    };
+
+    // QR della 2FA disegnato qui, con qrcode-generator caricato solo nella
+    // pagina di attivazione: il segreto non passa da nessun servizio esterno.
+    const initTotpQr = () => {
+        $$('img[data-totp-qr]').forEach((img) => {
+            if (typeof window.qrcode !== 'function') return;
+            try {
+                const qr = window.qrcode(0, 'M');
+                qr.addData(img.dataset.totpQr);
+                qr.make();
+                img.src = qr.createDataURL(5, 2);
+            } catch (_) {}
+        });
+    };
+
     const initDiscordDisconnect = () => {
         $$('[data-discord-disconnect-form]').forEach((form) => {
             form.addEventListener('submit', async (event) => {
@@ -192,5 +218,7 @@
         initDropdownFallback();
         initSettingsTabs();
         initDiscordDisconnect();
+        initConfirmOnCheck();
+        initTotpQr();
     });
 })();

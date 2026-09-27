@@ -277,7 +277,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     }
 
     if ($modes[$mode]['nsfw'] && !$userAllowsNsfw) {
-        sopJson(['ok' => false, 'error' => 'Abilita i contenuti NSFW nel profilo per usare questa modalità'], 403);
+        sopJson(['ok' => false, 'error' => 'Questa modalità è riservata ai maggiorenni: attivala dalle impostazioni del tuo account se hai almeno 18 anni'], 403);
     }
 
     $debug = [];
@@ -450,7 +450,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
                     <p>Ogni volta ti esce un personaggio random. Puoi cliccare, usare le frecce o swipare direttamente sulla foto.</p>
                     <p>Le statistiche vengono salvate nel browser. Se cambi modalità, i contatori restano separati.</p>
                     <?php if (!$userAllowsNsfw): ?>
-                        <p><strong>Nota:</strong> hai i contenuti NSFW disattivati nel profilo, quindi qui vedi solo le modalità safe.</p>
+                        <p><strong>Nota:</strong> le modalità 18+ sono riservate ai maggiorenni. Se hai almeno 18 anni puoi attivarle dalle impostazioni del tuo account.</p>
                     <?php endif; ?>
                 </div>
             </aside>

@@ -14,7 +14,6 @@ checkBan($mysqli);
     <link rel="preload" as="image" href="img/Susremaster.png">
     <meta property="og:image" content="img/Susremaster.png">
     <meta name="description" content="Benvenuto nel sito più fico del congo, dove potrai goonare e divertirti" data-i18n-attr="content|meta.desc">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660"
         crossorigin="anonymous"></script>
 </head>
 

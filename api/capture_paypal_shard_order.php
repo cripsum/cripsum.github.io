@@ -170,6 +170,19 @@ try {
 // transazione: se questa scrittura fallisce l'accredito resta.
 if ($credited) {
     gacha_order_paid($mysqli, $userId, $packageId, 'paypal', $orderId, (int)$package['price_cents'], $baseShards, $finalShards, $isFirstPurchase);
+
+    // Conferma via email, con la rinuncia al recesso data nel checkout.
+    require_once __DIR__ . '/../includes/purchase_receipt.php';
+    cripsum_send_purchase_receipt($mysqli, $userId, [
+        'product_it' => $finalShards . ' Godo Shards',
+        'product_en' => $finalShards . ' Godo Shards',
+        'detail_it' => $isFirstPurchase ? 'Bonus primo acquisto x2 incluso' : '',
+        'detail_en' => $isFirstPurchase ? 'First purchase x2 bonus included' : '',
+        'amount_cents' => (int)$package['price_cents'],
+        'currency' => 'EUR',
+        'gateway' => 'PayPal',
+        'order_id' => $orderId,
+    ]);
 }
 exit;
 

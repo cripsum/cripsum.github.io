@@ -33,8 +33,8 @@
                 media: '../img/jay-quadrato.png',
                 title: 'Ciao! Sono Jay!',
                 description: 'Vuoi imparare l\u2019arte dello Spinjitzu?',
-                buttonText: 'Acquista il videocorso',
-                link: 'https://payhip.com/b/m0kaT'
+                buttonText: 'Scarica il videocorso',
+                link: 'download'
             },
             {
                 media: '../img/chinese-essay-2.jpg',
@@ -98,8 +98,8 @@
                 media: '../img/jay-quadrato.png',
                 title: 'Hi! I\'m Jay!',
                 description: 'Want to learn the art of Spinjitzu?',
-                buttonText: 'Buy the video course',
-                link: 'https://payhip.com/b/m0kaT'
+                buttonText: 'Download the video course',
+                link: 'download'
             },
             {
                 media: '../img/chinese-essay-2.jpg',

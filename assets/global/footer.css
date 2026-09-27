@@ -157,6 +157,25 @@
     text-decoration: none;
 }
 
+/* Interruttore di Google Analytics: un pulsante vestito da link. */
+.footer-link--button {
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    line-height: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.footer-link--button:focus-visible {
+    outline: 2px solid rgba(173, 194, 255, .7);
+    outline-offset: 2px;
+}
+
+.footer-link--button[aria-pressed="false"] {
+    color: rgba(255, 255, 255, .5);
+}
+
 .footer-social {
     display: flex;
     flex-wrap: wrap;

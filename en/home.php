@@ -103,10 +103,9 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/en
     <link rel="preload" as="image" href="../img/amongus.jpg">
     <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.2">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
-    <script src="/assets/home-v5/home.js?v=6.1" defer></script>
+    <script src="/assets/home-v5/home.js?v=6.2" defer></script>
     <script src="/assets/news/news-popup.js?v=1.1" defer></script>
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1527058839538660" crossorigin="anonymous"></script>
 </head>
 
 <body class="home-v5-body">

@@ -270,7 +270,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     }
 
     if ($modes[$mode]['nsfw'] && !$userAllowsNsfw) {
-        sopJson(['ok' => false, 'error' => 'Enable NSFW content in your profile to use this mode'], 403);
+        sopJson(['ok' => false, 'error' => 'This mode is for adults only: turn it on in your account settings if you are at least 18'], 403);
     }
 
     $debug = [];
@@ -444,7 +444,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
                     <p>A random character appears each time. You can click, use the arrow keys, or swipe directly on the photo.</p>
                     <p>Stats are saved in your browser. If you switch modes, the counters remain separate.</p>
                     <?php if (!$userAllowsNsfw): ?>
-                        <p><strong>Note:</strong> You have NSFW content disabled in your profile, so only SFW modes are available here.</p>
+                        <p><strong>Note:</strong> the 18+ modes are for adults only. If you are at least 18 you can turn them on in your account settings.</p>
                     <?php endif; ?>
                 </div>
             </aside>

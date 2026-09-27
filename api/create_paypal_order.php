@@ -26,6 +26,12 @@ if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
     echo json_encode(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.']);
     exit;
 }
+// Senza la spunta del checkout (esecuzione immediata e rinuncia al recesso,
+// art. 59 lett. o Codice del Consumo) non si apre nessun pagamento.
+if (empty($input['waiver'])) {
+    echo json_encode(['ok' => false, 'message' => 'Conferma di voler ricevere subito il Premium e di rinunciare al diritto di recesso.']);
+    exit;
+}
 $isGift = !empty($input['is_gift']);
 $giftTo = isset($input['recipient_username']) ? trim($input['recipient_username']) : '';
 

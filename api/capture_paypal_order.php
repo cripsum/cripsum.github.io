@@ -210,6 +210,20 @@ try {
     require_once __DIR__ . '/../includes/discord_notify.php';
     notifyDiscordPremiumPurchase($mysqli, (int)$recipientId);
 
+    // Conferma via email a chi ha pagato, con la rinuncia al recesso data nel
+    // checkout. Se l'invio fallisce il pagamento resta valido.
+    require_once __DIR__ . '/../includes/purchase_receipt.php';
+    cripsum_send_purchase_receipt($mysqli, $userId, [
+        'product_it' => 'Cripsum™ Premium',
+        'product_en' => 'Cripsum™ Premium',
+        'detail_it' => $isGift ? 'Regalo per ' . $giftTo : '',
+        'detail_en' => $isGift ? 'Gift for ' . $giftTo : '',
+        'amount_cents' => (int)round((float)$capturedAmount * 100),
+        'currency' => $currency,
+        'gateway' => 'PayPal',
+        'order_id' => $orderId,
+    ]);
+
     // Se l'utente loggato è colui che ha ricevuto il premium, aggiorna la sessione attiva
     if ($recipientId === $userId) {
         $_SESSION['is_premium'] = 1;

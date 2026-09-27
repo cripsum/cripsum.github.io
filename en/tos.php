@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = 'June 2026';
+$lastUpdated = 'September 27, 2026';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +14,7 @@ $lastUpdated = 'June 2026';
     <title>Cripsum™ - Terms of Service</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/static/static.css?v=1.2-static">
+    <link rel="stylesheet" href="/assets/static/static.css?v=1.3-static">
     <script src="/assets/static/static.js?v=1.0-static" defer></script>
 </head>
 
@@ -31,10 +31,10 @@ $lastUpdated = 'June 2026';
         <section class="static-hero static-hero--split static-reveal">
             <div>
                 <h1>Terms of Service</h1>
-                <p>Official terms and conditions for using the Cripsum™ platform.</p>
+                <p>The rules for using Cripsum™, buying Premium and Godo Shards and being part of the community.</p>
                 <div class="static-meta">
-                    <span class="static-chip"><i class="fa-solid fa-calendar"></i> Updated: <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <span class="static-chip"><i class="fa-solid fa-scale-balanced"></i> Site Rules</span>
+                    <span class="static-chip"><i class="fa-solid fa-calendar"></i> Updated on <?php echo htmlspecialchars($lastUpdated, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="static-chip"><i class="fa-solid fa-scale-balanced"></i> Site rules</span>
                 </div>
             </div>
             <div class="static-hero__logo-container">
@@ -44,128 +44,293 @@ $lastUpdated = 'June 2026';
 
         <div class="static-layout">
             <aside class="static-toc static-reveal">
-                <h2>Table of Contents</h2>
-                <a href="#accettazione">1. Acceptance of Terms</a>
-                <a href="#natura">2. Nature of the Service</a>
-                <a href="#eta">3. Age Requirements</a>
-                <a href="#account">4. Registration & Security</a>
-                <a href="#discord">5. Discord Integration</a>
-                <a href="#pagamenti">6. Payments & Virtual Currencies</a>
-                <a href="#premium">7. Premium Subscription</a>
-                <a href="#giochi">8. Gacha, Lootboxes & Duels</a>
-                <a href="#contenuti">9. User-Generated Content</a>
-                <a href="#ticket">10. Support Tickets & Chat</a>
-                <a href="#moderazione">11. Suspension & Termination</a>
-                <a href="#responsabilita">12. Limitation of Liability</a>
-                <a href="#manleva">13. Indemnification</a>
-                <a href="#modifiche">14. Modifications to Terms</a>
-                <a href="#contatti">15. Contact</a>
+                <h2>Contents</h2>
+                <a href="#summary">Summary</a>
+                <a href="#operator">1. Who runs the site</a>
+                <a href="#acceptance">2. Acceptance</a>
+                <a href="#service">3. What Cripsum™ is</a>
+                <a href="#age">4. Minimum age and minors</a>
+                <a href="#account">5. Account</a>
+                <a href="#rules">6. Rules of conduct</a>
+                <a href="#content">7. User content</a>
+                <a href="#moderation">8. Reports and moderation</a>
+                <a href="#chat">9. Chat, messages and tickets</a>
+                <a href="#goonland">10. GoonLand and 18+ content</a>
+                <a href="#currencies">11. Godos and Godo Shards</a>
+                <a href="#games">12. Gacha, lootboxes and games</a>
+                <a href="#purchases">13. Purchases</a>
+                <a href="#shop">14. Shop, Merch and Downloads</a>
+                <a href="#donations">15. Donations</a>
+                <a href="#third-parties">16. Third-party services</a>
+                <a href="#ip">17. Intellectual property</a>
+                <a href="#people">18. Real people on the site</a>
+                <a href="#api">19. Public API</a>
+                <a href="#availability">20. Service availability</a>
+                <a href="#termination">21. Suspension and closure</a>
+                <a href="#liability">22. Liability</a>
+                <a href="#indemnity">23. Indemnity</a>
+                <a href="#changes">24. Changes to the Terms</a>
+                <a href="#law">25. Governing law and disputes</a>
+                <a href="#final">26. Final provisions</a>
             </aside>
 
             <div class="static-content">
-                <section class="static-legal-section static-reveal" id="accettazione">
-                    <h2>1. Acceptance of Terms</h2>
-                    <p>By accessing or using the Cripsum™ website (hereinafter "Platform" or "Service"), you agree to be bound by these Terms and Conditions. If you do not agree to all terms set forth herein, you are not authorized to use the Platform.</p>
+                <section class="static-legal-section static-legal-section--summary static-reveal" id="summary">
+                    <h2>Summary</h2>
+                    <p>This summary does not replace the Terms, but it tells you the most important things.</p>
+                    <ul>
+                        <li>You must be <strong>at least 14</strong> to create an account. GoonLand and the 18+ modes are for adults only.</li>
+                        <li>Respect others: no insults, bullying, illegal content or photos of other people without their permission.</li>
+                        <li>Godos and Godo Shards are game currencies: they are not worth real money and cannot be resold.</li>
+                        <li>Premium and Shards are bought with PayPal or Stripe. You get them right away, which is why you give up the 14-day right of withdrawal; if something does not arrive or does not work, we fix it or refund you.</li>
+                        <li>If you are under 18, ask a parent for permission before buying anything.</li>
+                        <li>The Shop and Merch are fake: you pay nothing and nothing arrives.</li>
+                        <li>You can report content and ask for help against cyberbullying: we reply within 24 hours.</li>
+                    </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="natura">
-                    <h2>2. Nature of the Service and Recreational Purpose</h2>
-                    <p>Cripsum™ is a personal project created and managed for recreational, humorous, and entertainment purposes. The Platform contains memes, elements of irony, jokes, and inside references that must not be taken seriously or literally.</p>
-                    <p>Except for actual purchases of Godo Shards and Premium status explicitly processed through PayPal, any other simulated shops or mechanics on the site are strictly for gameplay purposes. Any direct monetary donations to support the project are real, voluntary, and non-refundable.</p>
-                    <p>For transparency, part of the frontend source code of the site is made public on the official GitHub repository at <a href="https://github.com/cripsum/cripsum.github.io" target="_blank" rel="noopener">github.com/cripsum/cripsum.github.io</a>.</p>
+                <section class="static-legal-section static-reveal" id="operator">
+                    <h2>1. Who runs the site</h2>
+                    <p>Cripsum™ (cripsum.com, «the site») is a personal, unincorporated project run by the Cripsum™ team («we»), made up of private individuals living in Italy.</p>
+                    <p>Contacts:</p>
+                    <ul>
+                        <li><a href="mailto:tos@cripsum.com">tos@cripsum.com</a> for these Terms, purchases, reports and appeals;</li>
+                        <li><a href="mailto:privacy@cripsum.com">privacy@cripsum.com</a> for personal data;</li>
+                        <li>the <a href="supporto">Support</a> page for help.</li>
+                    </ul>
+                    <p>These contacts are also the single point of contact for users and authorities under Articles 11 and 12 of Regulation (EU) 2022/2065 on digital services (DSA). You can write to us in Italian or English. If an authority, or someone exercising a right granted by law, needs the operator's identification details, we provide them on a reasoned request.</p>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="eta">
-                    <h2>3. Age Requirements</h2>
-                    <p>The Platform is intended for users who are at least 18 years of age. By declaring that you are 18 years of age or older upon registration, you confirm that you are of legal age under the laws of your country of residence and assume full legal responsibility for your actions on the Platform.</p>
-                    <p>If you are under 18 years of age, you may use the Services only under the supervision and with the explicit consent of a parent or legal guardian, who assumes responsibility for the minor's actions.</p>
+                <section class="static-legal-section static-reveal" id="acceptance">
+                    <h2>2. Acceptance</h2>
+                    <p>By using the site you accept these Terms. When you create an account you accept them expressly by ticking the box on the sign-up page (also when you sign up with Google). The <a href="chat-policy">Chat Policy</a> is part of the Terms too.</p>
+                    <p>The <a href="privacy">Privacy Policy</a> and the <a href="cookie">Cookie Policy</a> are not contracts: they explain how we handle your data. If you do not agree with the Terms, do not use the site.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="service">
+                    <h2>3. What Cripsum™ is</h2>
+                    <p>Cripsum™ is a free entertainment site with customizable profiles, friends and follows, global, private and group chats, user content (Shitpost, Top Rimasti, comments), games (gacha, lootboxes, duels, Subway Surfers, Animespot, Pullspot and other minigames), missions and achievements, Cripsum Rewind, Cripsumpedia, the pages of the OHPY esports team, free downloads and a parody shop.</p>
+                    <p>Much of the content is ironic and meant as memes: it should not be taken literally. Part of the site's code is public on <a href="https://github.com/cripsum/cripsum.github.io" target="_blank" rel="noopener">GitHub</a>.</p>
+                    <p>The only operations involving real money are buying Premium and Godo Shards (section 13) and voluntary donations (section 15).</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="age">
+                    <h2>4. Minimum age and minors</h2>
+                    <ul>
+                        <li>You must be <strong>at least 14</strong> to create an account. By signing up you confirm that you are.</li>
+                        <li>If you are between 14 and 17 you can use the site, except GoonLand and the 18+ modes (section 10). To buy Premium or Shards you need the permission of a parent or guardian.</li>
+                        <li>If we find out that an account belongs to someone under 14, we close it.</li>
+                        <li>If you are a parent and think your child under 14 has an account, or made a purchase without permission, write to <a href="mailto:tos@cripsum.com">tos@cripsum.com</a>: we close the account or consider refunding the purchase.</li>
+                    </ul>
                 </section>
 
                 <section class="static-legal-section static-reveal" id="account">
-                    <h2>4. Registration and Account Security</h2>
-                    <p>To access certain features, you must create an account. You are solely responsible for maintaining the confidentiality of your login credentials (username and password) and for any activity that occurs under your account.</p>
-                    <p>You agree to immediately notify the Cripsum™ team of any unauthorized use or breach of security of your account. Cripsum™ will not be liable for any loss or damage arising from your failure to comply with this obligation.</p>
-                </section>
-
-                <section class="static-legal-section static-reveal" id="discord">
-                    <h2>5. Discord Connection and Presence Bot</h2>
-                    <p>The Platform offers optional integration with Discord by linking your account (storing your `discord_id`). By linking your account and authorizing our Presence Bot, you agree that data regarding your Discord activity (online status, currently running games, presence details) will be displayed publicly within your Cripsum™ profile.</p>
-                    <p>You are free to revoke this authorization at any time by unlinking your Discord account in your profile settings.</p>
-                </section>
-
-                <section class="static-legal-section static-reveal" id="pagamenti">
-                    <h2>6. Payments, Purchases, and Virtual Currencies</h2>
-                    <p>The Platform allows the purchase of virtual currency called <strong>"Godo Shards"</strong> and the acquisition of <strong>"Godos"</strong> (game points). These currencies are purely virtual items intended for entertainment within the Platform:</p>
+                    <h2>5. Account</h2>
                     <ul>
-                        <li>Godo Shards and Godos <strong>do not constitute real money</strong>, have no monetary value, and can under no circumstances be converted, redeemed, or exchanged for real currency or other physical goods.</li>
-                        <li>Payments are processed securely through the third-party platform **PayPal**. You agree to comply with PayPal's terms and conditions during transactions.</li>
-                        <li><strong>Refund Policy:</strong> All purchases of Godo Shards and digital services are final and non-refundable. Pursuant to Article 59, letter o) of the Italian Consumer Code (Legislative Decree 206/2005) and EU consumer protection directives, the right of withdrawal is excluded as this concerns the supply of digital content not supplied on a tangible medium, the performance of which begins immediately after payment.</li>
+                        <li>Use a valid email address of your own: we need it to verify the account, reset your password and send purchase confirmations.</li>
+                        <li>Your account is personal: you cannot sell, lend, trade or transfer it.</li>
+                        <li>Your username must not be offensive or make people think you are someone else or a staff member.</li>
+                        <li>You are responsible for what happens with your account and for keeping your password safe. We recommend turning on two-step verification (2FA). In the settings you can see your connected devices and sign them out.</li>
+                        <li>If you think someone used your account, change your password and tell us right away.</li>
+                        <li>If you sign in with Google or connect Discord, their terms apply too.</li>
                     </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="premium">
-                    <h2>7. Premium Subscription</h2>
-                    <p>Users can purchase **Premium** status to unlock aesthetic perks and exclusive features on the Platform. The benefits associated with Premium are described on the respective purchase pages and are subject to unilateral changes or updates by the Cripsum™ team.</p>
-                    <p>In the event of account suspension or ban for violating these Terms, Premium status will be revoked immediately without any right to a partial or full refund of the remaining period.</p>
+                <section class="static-legal-section static-reveal" id="rules">
+                    <h2>6. Rules of conduct</h2>
+                    <p>On the site it is forbidden to:</p>
+                    <ul>
+                        <li>harass, insult, threaten or discriminate against others; bully or cyberbully; incite hatred or violence;</li>
+                        <li>post personal data, photos or videos of other people without their consent, especially if they are minors;</li>
+                        <li>post sexual content outside GoonLand and, anywhere, any sexual content involving minors, even drawn or generated (zero tolerance: we report it to the authorities);</li>
+                        <li>post illegal or violent content, or content that encourages self-harm;</li>
+                        <li>spam, advertise without permission, phish or spread malware;</li>
+                        <li>impersonate other users, staff or real people;</li>
+                        <li>use cheats, exploits, bots, scripts or automation that alter games, leaderboards, missions or currencies, or exploit a bug instead of reporting it;</li>
+                        <li>scrape data in bulk or overload the site and the API;</li>
+                        <li>get around bans, limits or age checks, including with other accounts.</li>
+                    </ul>
+                    <p>The <a href="chat-policy">Chat Policy</a> adds a few rules specific to the chats.</p>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="giochi">
-                    <h2>8. Gacha, Lootboxes, and Duels (Game Mechanics)</h2>
-                    <p>The Platform includes game mechanics based on probability and luck algorithms, such as character recruitment (Gacha), chest openings (Lootboxes), and virtual battles (Duels):</p>
+                <section class="static-legal-section static-reveal" id="content">
+                    <h2>7. User content</h2>
                     <ul>
-                        <li>These activities are purely for recreational purposes and **do not constitute real gambling**, as the virtual currencies used and digital items obtained have no real-world economic value.</li>
-                        <li>Drop rates and duel outcomes are managed by internal algorithms. Cripsum™ does not guarantee the acquisition of specific virtual items or positive outcomes in duels. The software is provided "as is" and server-calculated results are final.</li>
+                        <li>The content you post (text, images, videos, links, profile) remains yours and you are responsible for it. By posting it you confirm that you have the necessary rights and the consent of the people who appear in it.</li>
+                        <li>You give us a free, non-exclusive, worldwide licence to host it, show it to other users in the sections where you post it and adapt it to the site (thumbnails, previews), only to make the site work.</li>
+                        <li>The licence ends when you delete the content or your account, except for backup copies, which overwrite themselves within a few weeks.</li>
+                        <li>Shitposts and Top Rimasti posts are approved by staff before they are published.</li>
+                        <li>We may remove or hide content that breaks these Terms or the law, as explained in section 8.</li>
                     </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="contenuti">
-                    <h2>9. User-Generated Content and Moderation (Shitposts)</h2>
-                    <p>Users may upload and publish content on the Platform in the form of text, images, memes, or links (including "Shitposts" and "Top Rimasti").</p>
+                <section class="static-legal-section static-reveal" id="moderation">
+                    <h2>8. Reports and moderation</h2>
+                    <h3>How to report</h3>
+                    <p>You can report profiles, posts, comments and global chat messages with the «Report» buttons, or write to <a href="mailto:tos@cripsum.com">tos@cripsum.com</a> saying where the content is (the link), why you think it is illegal or not allowed, and how to reach you. If you report child abuse content you may stay anonymous.</p>
+                    <h3>What we do</h3>
+                    <p>Reports are reviewed by hand by staff, in a timely, diligent and impartial way: we do not use automated systems to decide. Depending on how serious and repeated the violation is, we may remove or hide content, restrict some features (for example a chat mute), suspend the account for a period or close it permanently.</p>
+                    <h3>Reasons and appeals</h3>
+                    <p>If we act on your content or account we tell you what we did and why, in your inbox or by email, unless the law or an authority prevents it or it is spam. If you disagree you can write to <a href="mailto:tos@cripsum.com">tos@cripsum.com</a> within 6 months: the decision is reviewed again, by a different person when possible. You can always turn to an authority or a court.</p>
+                    <p>If content suggests a crime that endangers someone's life or safety, we report it to the authorities.</p>
+                    <h3>Cyberbullying</h3>
+                    <p>If you are at least 14 and are being cyberbullied on the site, or you are the parent of a minor who is, you can ask us to hide, remove or block the content by writing to <a href="mailto:tos@cripsum.com">tos@cripsum.com</a> with the subject «Cyberbullying». We confirm that we have taken charge of the request within 24 hours and act within 48 hours, as required by Italian Law 71/2017. If we do not, you can turn to the Italian Data Protection Authority (Garante per la protezione dei dati personali).</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="chat">
+                    <h2>9. Chat, messages and tickets</h2>
                     <ul>
-                        <li>You are solely responsible for the content you publish. You agree not to upload material that violates copyright, is defamatory, offensive, pornographic, harmful to minors, or incites hatred, violence, or illegal behavior.</li>
-                        <li>By uploading content, you grant Cripsum™ a free, perpetual, non-exclusive, worldwide license to host, display, distribute, and reproduce such material within the Platform.</li>
-                        <li>The Cripsum™ team reserves the absolute right to moderate, hide, edit, or delete any user-uploaded content without prior notice and at its sole discretion.</li>
+                        <li>The global chat is visible to the site's users and is moderated. In private and group chats only the participants write; group admins can manage the members.</li>
+                        <li>Staff do not read private and group chats. They only see global chat messages that someone reports and the messages in support tickets.</li>
+                        <li>You can block other users and choose in the chat settings who can message you.</li>
+                        <li>Attachments must not contain malware, illegal material, explicit content or copyrighted material without permission.</li>
+                        <li>Tickets are for asking staff for help; they may also be handled from our Discord server. Use them respectfully: offensive or harmful use leads to the ticket being closed and may lead to a ban.</li>
                     </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="ticket">
-                    <h2>10. Support Tickets and Chat</h2>
-                    <p>The Message Center and Ticket system allow direct chat between the user and administrators. You agree to use this tool in a civil and respectful manner:</p>
+                <section class="static-legal-section static-reveal" id="goonland">
+                    <h2>10. GoonLand and 18+ content</h2>
                     <ul>
-                        <li>It is strictly forbidden to send attachments containing malware, viruses, copyrighted material without authorization, or images with illegal or explicit content.</li>
-                        <li>Sending harmful or offensive attachments will result in the immediate closure of the ticket and potential permanent suspension of your account.</li>
+                        <li>GoonLand and the modes marked 18+ contain adult material, including explicit material, that partly comes from external services (for example waifu.pics and waifu.im).</li>
+                        <li>They are <strong>for adults only</strong>. To enter you must turn on the «I am at least 18» statement in the settings: by turning it on you declare, under your own responsibility, that you are an adult and that you want to see this content.</li>
+                        <li>If you are under 18 you must not turn it on. A false statement breaks these Terms and leads to the account being closed.</li>
+                        <li>We do not verify age with documents. Parents can use the parental controls of their device or browser to block addresses containing <code>/goonland</code>.</li>
+                        <li>The images come from services we do not check in real time. If you find one that shows, or seems to show, a minor, or that is otherwise illegal, report it right away: we block it.</li>
                     </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="moderazione">
-                    <h2>11. Account Suspension and Termination (Bans)</h2>
-                    <p>Cripsum™ reserves the right to suspend, limit, or permanently delete any user account, at its sole discretion, without prior notice and without any financial or legal liability, in the event of:</p>
+                <section class="static-legal-section static-reveal" id="currencies">
+                    <h2>11. Godos and Godo Shards</h2>
                     <ul>
-                        <li>Violation of these Terms and Conditions.</li>
-                        <li>Fraudulent behavior, manipulation of game data (exploits, hacks, botting), or harassment within the community.</li>
-                        <li>Requests by competent law enforcement or judicial authorities.</li>
+                        <li><strong>Godos</strong> are earned by using the site (missions, daily claims, events, codes). <strong>Godo Shards</strong> are bought with real money, obtained by converting Godos at the rate shown in the shop, or received as gifts.</li>
+                        <li>They are game currencies: they are not money, have no value outside the site, and cannot be converted into money or refunded (except as provided in section 13).</li>
+                        <li>They cannot be transferred to other accounts, except through site features that allow it, and cannot be sold or bought outside the site.</li>
+                        <li>They do not expire as long as your account and the site exist. If you delete your account, you lose them.</li>
+                        <li>We may correct wrong balances caused by bugs, errors or exploits.</li>
                     </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="responsabilita">
-                    <h2>12. Limitation of Liability</h2>
-                    <p>THE PLATFORM AND ALL RELATED SERVICES ARE PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.</p>
-                    <p>Cripsum™ does not guarantee that the service will be uninterrupted, error-free, bug-free, or free of data loss. In no event shall Cripsum™, its administrators, or collaborators be liable for any direct, indirect, incidental, special, or consequential damages (including, without limitation, loss of virtual currencies, game characters, or website unavailability) arising out of the use or inability to use the Platform.</p>
+                <section class="static-legal-section static-reveal" id="games">
+                    <h2>12. Gacha, lootboxes and games</h2>
+                    <ul>
+                        <li>The odds of every banner are published in «Details &amp; rates», together with how pity and rate-ups work. Results are calculated by the server and are final, except for technical errors that we fix.</li>
+                        <li>It is not gambling: prizes are digital items with no economic value and cannot be converted into money. However, some pulls use Shards that can be bought: if you are a minor, talk to a parent and agree on a spending limit.</li>
+                        <li>The Gambling Arcade uses fake credits stored only in your browser: no money is involved and there is nothing to win.</li>
+                        <li>Leaderboards and scores are public. We may remove scores, prizes or items obtained through cheats, exploits or bugs.</li>
+                    </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="manleva">
-                    <h2>13. Indemnification</h2>
-                    <p>You agree to indemnify, defend, and hold harmless Cripsum™, its administrators, and collaborators from and against any claims, damages, losses, liabilities, costs, or expenses (including legal fees) arising out of your violation of these Terms and Conditions or your improper or unlawful use of the Services.</p>
+                <section class="static-legal-section static-reveal" id="purchases">
+                    <h2>13. Purchases: Premium and Godo Shards</h2>
+                    <h3>What you can buy</h3>
+                    <ul>
+                        <li><strong>Cripsum™ Premium</strong>: a one-time purchase, not a subscription, at the price shown at checkout. The benefits are described on the purchase page. Premium can also be given as a gift to another user.</li>
+                        <li><strong>Godo Shards packs</strong>: prices and contents are shown in the shop. The first purchase of each pack counts double, as shown on the page.</li>
+                    </ul>
+                    <p>The seller is the Cripsum™ team (section 1). Prices are in euros and are final: we add no extra costs. You pay with PayPal or Stripe, under their terms; we do not see or store your card details.</p>
+                    <h3>Delivery and confirmation</h3>
+                    <p>Premium and Shards reach your account as soon as the payment is confirmed. After paying you receive a confirmation email with a summary of the purchase.</p>
+                    <h3>Right of withdrawal</h3>
+                    <p>Premium and Shards are digital content supplied immediately. Before you pay we ask you, with a mandatory checkbox, to agree to immediate supply and to acknowledge that you lose the 14-day right of withdrawal (Art. 59(1)(o) of the Italian Consumer Code, implementing Art. 16(m) of Directive 2011/83/EU). We confirm this in the purchase email.</p>
+                    <h3>Guarantee and refunds</h3>
+                    <p>Your statutory rights for digital content still apply (Art. 135-octies and following of the Italian Consumer Code). If Premium or Shards do not arrive or do not work as described, write to <a href="mailto:tos@cripsum.com">tos@cripsum.com</a> with the order ID: we fix the problem or refund you.</p>
+                    <h3>How long Premium lasts</h3>
+                    <p>Premium stays on your account for as long as the account and the site exist. The benefits may change over time, but without taking away the essence of what you bought; if a change did, you can ask for a refund. If we ever decided to close the site or Premium, we would announce it at least 30 days in advance.</p>
+                    <h3>Minors, closures and disputes</h3>
+                    <ul>
+                        <li>If you are a minor you may buy only with a parent's permission. A parent can write to us about a purchase made without permission: we will consider a refund.</li>
+                        <li>If the account is closed for a serious breach of the Terms, you lose Premium and Shards without a refund.</li>
+                        <li>If we close your account without you breaking the Terms, we refund the Shards you bought and have not used yet and, if you bought it less than 12 months earlier, Premium.</li>
+                        <li>If you reverse a payment through PayPal, Stripe or your bank after receiving the product, we may remove the product and suspend the account until the matter is settled.</li>
+                    </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="modifiche">
-                    <h2>14. Modifications to Terms</h2>
-                    <p>The Cripsum™ team reserves the right to update or modify these Terms and Conditions at any time. Changes will be made known by posting the updated version on this page with the date of the last update. Your continued use of the Platform after changes are posted constitutes acceptance of the new Terms.</p>
+                <section class="static-legal-section static-reveal" id="shop">
+                    <h2>14. Shop, Merch and Downloads</h2>
+                    <ul>
+                        <li><strong>The Shop and Merch are a parody</strong>: we sell nothing, you pay nothing and nothing arrives. The checkout is fake, we do not send or store what you type in the form, and the «payment» is a joke. Do not enter real data.</li>
+                        <li>The <a href="download">Downloads</a> page offers free files, such as guides, the video course and editing resources. You may use them for personal, non-commercial purposes unless stated otherwise; do not republish them as your own. Resources containing third-party material remain the property of their owners.</li>
+                    </ul>
                 </section>
 
-                <section class="static-legal-section static-reveal" id="contatti">
-                    <h2>15. Contact</h2>
-                    <p>For any questions, reports, or requests for clarification regarding these Terms, you can contact us at: <a href="mailto:tos@cripsum.com">tos@cripsum.com</a>.</p>
+                <section class="static-legal-section static-reveal" id="donations">
+                    <h2>15. Donations</h2>
+                    <p>Donations are optional, go through Buy Me a Coffee and help keep the site online. They do not entitle you to products or benefits unless explicitly stated. Payments and refunds are governed by Buy Me a Coffee's terms.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="third-parties">
+                    <h2>16. Third-party services</h2>
+                    <ul>
+                        <li><strong>Discord</strong>: you can connect your Discord account and, if you turn on Rich Presence, show your status and the games you are playing on your profile. You can disconnect it at any time in the settings.</li>
+                        <li><strong>Google</strong>: you can sign up and sign in with Google; on the sign-up page we use Google reCAPTCHA against bots.</li>
+                        <li>The site also shows content from external services: YouTube and Streamable videos, Spotify tracks, GIFs, covers and images from other services.</li>
+                    </ul>
+                    <p>Their own terms and privacy policies apply to these services. We are not responsible for their content or how they work; external links take you off the site.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="ip">
+                    <h2>17. Intellectual property</h2>
+                    <ul>
+                        <li>The Cripsum™ name, logo, graphics and original text of the site are ours. You may not copy them or use them commercially without permission. The code published on GitHub is governed by the repository's terms.</li>
+                        <li>Third-party characters, trademarks, games, anime, music and clips on the site (for example in the gacha, Animespot, Pullspot, Subway Surfers and the edits) belong to their owners. They are used as fan content, parody or quotation, with no affiliation with the owners.</li>
+                        <li>If you own a right and want content removed, write to <a href="mailto:tos@cripsum.com">tos@cripsum.com</a> with the content (the link) and the right you claim: we reply quickly.</li>
+                    </ul>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="people">
+                    <h2>18. Real people on the site</h2>
+                    <p>Cripsumpedia, the About us page, the OHPY team pages and some characters may concern real people. We publish them with the consent of the people involved, who can ask at any time to correct or remove what concerns them by writing to <a href="mailto:privacy@cripsum.com">privacy@cripsum.com</a>. The tone is ironic and is not meant to offend anyone.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="api">
+                    <h2>19. Public API</h2>
+                    <p>The public API described in <a href="api-docs">API Docs</a> is free and provided «as is», with no guarantee of availability. Do not use it to collect data in bulk, profile users or republish data out of context, and keep to reasonable request limits. We may block anyone who abuses it and change or shut down the API.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="availability">
+                    <h2>20. Service availability</h2>
+                    <p>We do our best to keep the site running, but there may be outages, maintenance and bugs, and free features may change or be removed. For paid features, section 13 applies.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="termination">
+                    <h2>21. Suspension and account closure</h2>
+                    <ul>
+                        <li><strong>By you</strong>: you can delete your account at any time from Settings → Delete account. You have 30 days to change your mind: just sign in again. After that, the account and the data linked to it are deleted and you lose Godos, Shards, Premium and items.</li>
+                        <li><strong>By us</strong>: we may suspend or close an account that breaks these Terms or the law, or at the request of an authority, with a proportionate and reasoned measure as explained in section 8. In serious or urgent cases the measure may be immediate.</li>
+                        <li>Anyone who has been banned may not create other accounts to get around the ban.</li>
+                    </ul>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="liability">
+                    <h2>22. Liability</h2>
+                    <p>The site is offered free of charge, for entertainment and «as is». To the extent permitted by law we are not liable for service outages, content posted by users or external services, indirect damages, or the loss of game data or currencies caused by bugs (which we still try to restore).</p>
+                    <p>These limitations do not apply in case of wilful misconduct or gross negligence, for personal injury, and in the other cases where the law, including consumer law, does not allow liability to be limited. Your consumer rights on purchases always remain.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="indemnity">
+                    <h2>23. Indemnity</h2>
+                    <p>If you break these Terms or the law and someone claims damages from us because of it, you must hold us harmless from the damages and reasonable costs, including legal costs, caused by your breach, within the limits set by law.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="changes">
+                    <h2>24. Changes to the Terms</h2>
+                    <p>We may update these Terms for new features, changes in the law or security reasons. For important changes we notify you with a message in the site inbox at least 15 days before they take effect, unless the law or security require a shorter time.</p>
+                    <p>If you do not agree you can delete your account before that date; if you keep using the site afterwards, the changes apply to you too. Changes do not affect purchases already made. The date of the last update is always at the top of the page.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="law">
+                    <h2>25. Governing law and disputes</h2>
+                    <p>These Terms are governed by Italian law. If you are a consumer living in another EU country, the mandatory protections of your country's law still apply.</p>
+                    <p>For disputes with a consumer, the court of the place where the consumer lives has jurisdiction (Art. 66-bis of the Italian Consumer Code). Before taking legal action, write to us at <a href="mailto:tos@cripsum.com">tos@cripsum.com</a>: we will try to sort it out together. You can also use an alternative dispute resolution (ADR) procedure provided by law.</p>
+                </section>
+
+                <section class="static-legal-section static-reveal" id="final">
+                    <h2>26. Final provisions</h2>
+                    <ul>
+                        <li>If any part of these Terms is invalid, the rest remains valid.</li>
+                        <li>If we do not enforce a right straight away, it does not mean we waive it.</li>
+                        <li>The Terms are available in Italian and English; if they differ, the Italian version prevails.</li>
+                    </ul>
                 </section>
             </div>
         </div>

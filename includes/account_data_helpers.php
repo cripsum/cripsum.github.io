@@ -1049,6 +1049,37 @@ function account_maybe_run_scheduled_purge(mysqli $mysqli, int $batch = 3): void
     } catch (Throwable $e) {
         error_log('[account_maybe_run_scheduled_purge] ' . $e->getMessage());
     }
+
+    account_cleanup_security_logs($mysqli);
+}
+
+/**
+ * Tempi di conservazione promessi nella Privacy: i tentativi di accesso
+ * (con IP) restano 90 giorni, il registro delle azioni admin 12 mesi.
+ *
+ * Gira insieme alla purga oraria. Cancella a blocchi, cosi' la prima
+ * esecuzione su tabelle mai pulite non si mangia la richiesta; le tabelle che
+ * non esistono vengono saltate.
+ */
+function account_cleanup_security_logs(mysqli $mysqli): void
+{
+    $jobs = [
+        'login_attempts' => 'DELETE FROM `login_attempts` WHERE created_at < DATE_SUB(NOW(), INTERVAL 90 DAY) LIMIT 5000',
+        'admin_logs' => 'DELETE FROM `admin_logs` WHERE created_at < DATE_SUB(NOW(), INTERVAL 12 MONTH) LIMIT 5000',
+    ];
+
+    foreach ($jobs as $table => $sql) {
+        try {
+            $exists = $mysqli->query("SHOW TABLES LIKE '" . $mysqli->real_escape_string($table) . "'");
+            if (!$exists || $exists->num_rows === 0) {
+                continue;
+            }
+            $exists->free();
+            $mysqli->query($sql);
+        } catch (Throwable $e) {
+            error_log('[account_cleanup_security_logs] ' . $table . ': ' . $e->getMessage());
+        }
+    }
 }
 
 /**

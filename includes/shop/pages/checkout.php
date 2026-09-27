@@ -90,17 +90,17 @@ include __DIR__ . '/../partials/top.php';
             <fieldset class="shop-fieldset">
                 <legend><?php echo shop_h($S['payment']); ?></legend>
                 <div class="shop-radios">
-                    <label class="shop-radio"><input type="radio" name="fake_payment" value="credit" checked><span><i class="fa-regular fa-credit-card" aria-hidden="true"></i> <?php echo shop_h($S['credit_card']); ?></span></label>
-                    <label class="shop-radio"><input type="radio" name="fake_payment" value="debit"><span><i class="fa-solid fa-credit-card" aria-hidden="true"></i> <?php echo shop_h($S['debit_card']); ?></span></label>
-                    <label class="shop-radio"><input type="radio" name="fake_payment" value="paypal"><span><i class="fa-brands fa-paypal" aria-hidden="true"></i> PayPal</span></label>
+                    <label class="shop-radio"><input type="radio" name="fake_payment" value="kidney" checked><span><i class="fa-solid fa-lungs" aria-hidden="true"></i> <?php echo shop_h($S['pay_kidney']); ?></span></label>
+                    <label class="shop-radio"><input type="radio" name="fake_payment" value="soul"><span><i class="fa-solid fa-ghost" aria-hidden="true"></i> <?php echo shop_h($S['pay_soul']); ?></span></label>
+                    <label class="shop-radio"><input type="radio" name="fake_payment" value="aura"><span><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> <?php echo shop_h($S['pay_aura']); ?></span></label>
                 </div>
                 <div class="shop-fields shop-fields--2">
                     <label class="shop-field"><span><?php echo shop_h($S['card_name']); ?></span><input type="text" autocomplete="off" required></label>
                     <label class="shop-field"><span><?php echo shop_h($S['card_number']); ?></span><input type="text" inputmode="numeric" autocomplete="off" required></label>
                 </div>
                 <div class="shop-fields shop-fields--2">
-                    <label class="shop-field"><span><?php echo shop_h($S['card_expiry']); ?></span><input type="text" placeholder="MM/AA" autocomplete="off" required></label>
-                    <label class="shop-field"><span><?php echo shop_h($S['card_cvv']); ?></span><input type="text" inputmode="numeric" autocomplete="off" required></label>
+                    <label class="shop-field"><span><?php echo shop_h($S['card_expiry']); ?></span><input type="text" placeholder="<?php echo shop_h($S['card_expiry_placeholder']); ?>" autocomplete="off" required></label>
+                    <label class="shop-field"><span><?php echo shop_h($S['card_cvv']); ?></span><input type="text" inputmode="numeric" maxlength="3" autocomplete="off" required></label>
                 </div>
             </fieldset>
         </div>
