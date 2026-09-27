@@ -7,7 +7,7 @@
  * dopo) e l'API /api/admin/esports.php.
  *
  * I player nascono nascosti: si preparano, si guardano in anteprima dalla
- * loro scheda (lo staff la vede) e poi si mettono in line-up.
+ * loro pagina (lo staff la vede) e poi si mettono in line-up.
  */
 (() => {
     'use strict';
@@ -124,7 +124,7 @@
                 </tbody>
             </table>` : emptyState('fa-solid fa-users', 'Nessun player', ctx.players.length
                 ? 'Nessun risultato con questo filtro.'
-                : 'Aggiungi il primo con «Nuovo player»: nasce nascosto, lo provi dalla sua scheda e poi lo metti in line-up.')}`;
+                : 'Aggiungi il primo con «Nuovo player»: nasce nascosto, lo provi dalla sua pagina e poi lo metti in line-up.')}`;
 
         const find = (id) => ctx.players.find((p) => Number(p.id) === Number(id));
 
@@ -151,7 +151,7 @@
 
         $$('[data-delete-player]', box).forEach((b) => b.addEventListener('click', () => {
             const p = find(b.dataset.deletePlayer);
-            confirmBox('Eliminare il player?', `<p class="admin-muted">«${e(p.nickname)}» sparisce dalla pagina e la sua scheda smette di funzionare. Foto e musica caricate si cancellano, se nessun altro le usa. Se ha solo lasciato il team, mettilo «Ex».</p>`, async () => {
+            confirmBox('Eliminare il player?', `<p class="admin-muted">«${e(p.nickname)}» sparisce dal team e la sua pagina smette di funzionare. Foto e musica caricate si cancellano, se nessun altro le usa. Se ha solo lasciato il team, mettilo «Ex».</p>`, async () => {
                 await post('delete_player', { id: p.id });
                 showToast('Player eliminato.');
                 reload();
@@ -228,7 +228,7 @@
         <div class="admin-field">
             <label for="esVolume">Volume di partenza: <output data-volume-out>${Number(values.musica_volume ?? 60)}</output>%</label>
             <input type="range" id="esVolume" name="musica_volume" min="0" max="100" step="1" value="${Number(values.musica_volume ?? 60)}" class="esports-admin-range">
-            <small class="shop-admin-help">Chi ascolta può cambiarlo dalla scheda.</small>
+            <small class="shop-admin-help">Chi ascolta può cambiarlo dalla pagina del player.</small>
         </div>`;
 
     let kitCatalog = null;
@@ -452,15 +452,15 @@
                         { name: 'ruolo_label', label: 'Ruolo personalizzato (IT)', max: 60, placeholder: 'vuoto = quello scelto sopra', help: 'es. «Entry fragger e meme lord».' },
                         { name: 'ruolo_label_en', label: 'Ruolo personalizzato (EN)', max: 60, placeholder: 'vuoto = usa l\'italiano' },
                         { name: 'nazionalita', label: 'Nazionalità', type: 'select', options: countries },
-                        { name: 'slug', label: 'Indirizzo', max: 60, placeholder: 'vuoto = dal nickname', help: 'La scheda sarà <code>/it/ohpy/<b data-slug-preview>...</b></code>' },
+                        { name: 'slug', label: 'Indirizzo', max: 60, placeholder: 'vuoto = dal nickname', help: 'La pagina sarà <code>/it/ohpy/<b data-slug-preview>...</b></code>' },
                     ], values)}
                 </div>
                 <div class="shop-admin-preview-wrap"><span class="shop-admin-help">Anteprima della card</span><div data-player-preview></div></div>
             </div>
             ${fields([
-                sectionTitle('Aspetto', 'Foto verticale (3:4). Un PNG scontornato su sfondo trasparente rende benissimo: nella scheda ha dietro il nickname gigante.'),
+                sectionTitle('Aspetto', 'Foto verticale (3:4). Un PNG scontornato su sfondo trasparente rende benissimo: nella sua pagina ha dietro il nickname gigante.'),
                 { name: 'foto', label: 'Foto', type: 'image', help: 'Vuota = la foto profilo del suo account Cripsum, se è collegato.' },
-                { name: 'sfondo', label: 'Sfondo della scheda', type: 'image', help: 'Facoltativo: sta dietro la foto, un po\' trasparente.' },
+                { name: 'sfondo', label: 'Sfondo della pagina', type: 'image', help: 'Facoltativo: riempie la testata della sua pagina, dietro la foto.' },
                 { name: 'colore_proprio', label: 'Un colore suo, diverso da quello del team', type: 'checkbox', checked: false },
                 `<div data-color-field class="admin-field--full esports-admin-color">${fields([{ name: 'colore_accento', label: 'Colore del player', type: 'color', value: '#f5a524' }], values)}</div>`,
 
@@ -477,7 +477,7 @@
                 { name: 'statistiche', label: 'Altre statistiche', type: 'textarea', rows: 5, full: true, placeholder: 'K/D: 1.24\nADR: 86.3\nHS%: 54%\nWin rate: 58%\nMappe giocate: 412', help: 'Una per riga, «Etichetta: valore». Le prime 4 diventano i numeri grandi; i valori in % prendono una barra.' },
 
                 sectionTitle('Setup'),
-                { name: 'crosshair', label: 'Codice mirino', max: 64, full: true, placeholder: 'CSGO-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx', help: 'In CS2: Impostazioni › Mirino › Condividi. Sulla scheda c\'è il tasto per copiarlo.' },
+                { name: 'crosshair', label: 'Codice mirino', max: 64, full: true, placeholder: 'CSGO-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx', help: 'In CS2: Impostazioni › Mirino › Condividi. Sulla sua pagina c\'è il tasto per copiarlo.' },
                 { name: 'setup_it', label: 'Setup (IT)', type: 'textarea', rows: 4, placeholder: 'Sensibilità: 1.2\nDPI: 800\nRisoluzione: 1280x960 stretchato\nMouse: Logitech G Pro', help: 'Una riga per voce, «Etichetta: valore».' },
                 { name: 'setup_en', label: 'Setup (EN)', type: 'textarea', rows: 4, placeholder: 'vuoto = usa l\'italiano' },
 
@@ -489,13 +489,13 @@
                 { name: 'utente', label: 'Profilo Cripsum (username)', max: 21, placeholder: 'es. cripsum', help: 'Aggiunge il link al suo profilo sul sito.' },
                 ...ctx.player_socials.map((s) => ({ name: `social_${s.key}`, label: s.label, max: 255, placeholder: 'https://...' })),
 
-                sectionTitle('Musica', 'Parte da sola quando si apre la sua scheda. Carica l\'mp3 del suo music kit o incolla un link https.'),
+                sectionTitle('Musica', 'Parte da sola quando si apre la sua pagina. Carica l\'mp3 del suo music kit o incolla un link https.'),
                 musicFields(values),
             ], values)}`;
 
         formModal({
             title: item ? `Player ${item.nickname}` : 'Nuovo player',
-            subtitle: item ? `/it/ohpy/${item.slug}` : 'Nasce nascosto: lo provi dalla sua scheda e poi lo metti in line-up',
+            subtitle: item ? `/it/ohpy/${item.slug}` : 'Nasce nascosto: lo provi dalla sua pagina e poi lo metti in line-up',
             html,
             endpoint: EP,
             action: 'save_player',

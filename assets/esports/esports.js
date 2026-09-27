@@ -1,30 +1,30 @@
 /*
- * Pagina del team esports: schede dei player e musica di sottofondo.
+ * Pagine del team esports: navigazione tra team e player, musica di
+ * sottofondo, copia del codice mirino.
  *
- * Le schede sono <dialog> gia' nella pagina (le disegna il PHP): cliccando
- * una card si apre la sua con showModal() e l'indirizzo diventa
- * /it/ohpy/{player}, cosi' il link si condivide e il tasto Indietro chiude.
+ * Team (/it/ohpy) e player (/it/ohpy/{player}) sono pagine vere, fatte dal
+ * PHP: si aprono anche da un link diretto. Qui i link con data-es-link si
+ * caricano senza ricaricare tutto il sito: si scarica la pagina e se ne
+ * sostituisce il <main>.
  *
- * La musica parte da sola all'apertura. I browser fanno partire l'audio
- * solo dentro un gesto dell'utente, e il clic sulla card lo e': per questo
- * play() viene chiamato subito, nello stesso giro del clic, senza attese in
- * mezzo. Con un link aperto da fuori (Discord, WhatsApp) il browser puo'
- * rifiutare: allora la musica parte al primo tocco o tasto sulla pagina.
- * Si usa un solo elemento audio per tutti i player: una volta sbloccato da
- * un gesto resta sbloccato anche cambiando brano con le frecce.
+ * Il motivo e' la musica, che deve partire da sola aprendo un player. I
+ * browser fanno partire l'audio solo dentro un gesto dell'utente: il link
+ * porta con se' il brano (data-es-music) e play() viene chiamato nello
+ * stesso clic, prima ancora di scaricare la pagina. Con un ricaricamento
+ * vero, Safari e Firefox la bloccherebbero. Con un link aperto da fuori
+ * (Discord, WhatsApp) il browser puo' bloccarla lo stesso: allora parte al
+ * primo tocco o tasto sulla pagina.
+ *
+ * Un solo elemento audio per tutte le pagine: una volta sbloccato da un
+ * gesto resta sbloccato, e la musica continua senza buchi da un player
+ * all'altro.
  */
 (() => {
     'use strict';
 
     const body = document.body;
+    const root = document.documentElement;
     const base = body.dataset.esBase || '';
-    const teamTitle = body.dataset.esTitle || document.title;
-    const teamPresence = body.dataset.esPresence || '';
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    const sheets = Array.from(document.querySelectorAll('[data-es-sheet]'));
-    const bySlug = new Map(sheets.map((sheet) => [sheet.dataset.esSheet, sheet]));
-    const order = sheets.map((sheet) => sheet.dataset.esSheet);
 
     const store = {
         get(key) {
@@ -35,8 +35,24 @@
         },
     };
 
-    const isModal = (dialog) => {
-        try { return dialog.matches(':modal'); } catch (_) { return true; }
+    const parseTrack = (json) => {
+        if (!json) return null;
+        try {
+            const data = JSON.parse(json);
+            if (!data || !data.src) return null;
+            const volume = Number(data.volume);
+            return {
+                src: String(data.src),
+                title: String(data.title || ''),
+                artist: String(data.artist || ''),
+                cover: String(data.cover || ''),
+                nickname: String(data.nickname || ''),
+                start: Math.max(0, Number(data.start) || 0),
+                volume: Number.isFinite(volume) ? volume : 60,
+            };
+        } catch (_) {
+            return null;
+        }
     };
 
     /* ── Avviso a comparsa ──────────────────────────────────────────── */
@@ -46,9 +62,6 @@
 
     const showToast = (text) => {
         if (!toast || !text) return;
-        // Una scheda aperta sta nello strato in cima alla pagina: l'avviso
-        // deve starci dentro, altrimenti resterebbe sotto.
-        (current || body).appendChild(toast);
         toast.textContent = text;
         toast.classList.add('is-visible');
         clearTimeout(toastTimer);
@@ -65,13 +78,15 @@
         audio.preload = 'none';
         audio.loop = true;
 
-        let box = null;          // .es-music della scheda aperta
+        let box = null;          // riquadro .es-music della pagina aperta
         let track = null;        // brano del player aperto
         let loadedSrc = '';      // il src messo davvero nell'audio
         let pendingStart = null; // secondo da cui partire, finche' non ci si arriva
         let fadeTimer = null;
         let blocked = false;     // il browser ha rifiutato l'avvio automatico
         let resumeOnVisible = false;
+        let playToken = 0;       // cambia a ogni avvio o arresto
+        const broken = new Set();
 
         const isOff = () => store.get(OFF_KEY) === '1';
 
@@ -106,7 +121,7 @@
 
         const paint = () => {
             if (!box) return;
-            const playing = !audio.paused && !blocked;
+            const playing = !audio.paused && !blocked && loadedSrc === track?.src;
             box.classList.toggle('is-playing', playing);
 
             const toggle = box.querySelector('[data-es-music-toggle]');
@@ -119,6 +134,11 @@
 
             const hint = box.querySelector('[data-es-music-hint]');
             if (hint) hint.hidden = !blocked;
+
+            const broke = track && broken.has(track.src);
+            box.classList.toggle('is-broken', Boolean(broke));
+            const error = box.querySelector('[data-es-music-error]');
+            if (error) error.hidden = !broke;
 
             const volume = Math.round(targetVolume() * 100);
             const range = box.querySelector('[data-es-volume]');
@@ -136,20 +156,19 @@
 
         const onGesture = (event) => {
             if (event.type === 'keydown' && (event.key === 'Escape' || event.key === 'Tab')) return;
-            // Chi sta chiudendo la scheda non vuole far partire la musica.
-            if (event.target instanceof Element && event.target.closest('[data-es-close]')) return;
+            // Un link del team fa partire da se' il brano della pagina di arrivo.
+            if (event.target instanceof Element && event.target.closest('a[data-es-link]')) return;
             disarm();
-            if (blocked && box && track && !isOff()) play();
+            if (blocked && track && !isOff()) play();
         };
 
         const arm = () => GESTURES.forEach((type) => document.addEventListener(type, onGesture, true));
         const disarm = () => GESTURES.forEach((type) => document.removeEventListener(type, onGesture, true));
 
         const play = () => {
-            if (!track) return;
-            // Una dissolvenza in uscita ancora in corso (si arriva da un
-            // player senza musica) finirebbe con pause() sul brano appena
-            // ripartito.
+            if (!track || broken.has(track.src)) return;
+            // Una dissolvenza in uscita ancora in corso finirebbe con
+            // pause() sul brano appena ripartito.
             clearInterval(fadeTimer);
             if (loadedSrc !== track.src) {
                 audio.src = track.src;
@@ -163,16 +182,21 @@
             blocked = false;
 
             // Niente await prima di questa riga: deve restare dentro il gesto.
+            const token = ++playToken;
             const attempt = audio.play();
             paint();
 
             if (attempt && typeof attempt.then === 'function') {
                 attempt.then(() => {
+                    // Il brano puo' finire di caricarsi quando si e' gia'
+                    // andati altrove: quell'avvio non conta piu'.
+                    if (token !== playToken) return;
                     blocked = false;
                     disarm();
                     fadeTo(targetVolume(), 700);
                     paint();
                 }).catch((error) => {
+                    if (token !== playToken) return;
                     if (error && error.name === 'NotAllowedError') {
                         blocked = true;
                         arm();
@@ -185,24 +209,18 @@
         };
 
         const fadeOutAndPause = (ms = 350) => {
+            playToken += 1;
             if (audio.paused) return;
             fadeTo(0, ms, () => audio.pause());
         };
 
-        const clearBox = () => {
-            if (!box) return;
-            box.classList.remove('is-playing');
-            const hint = box.querySelector('[data-es-music-hint]');
-            if (hint) hint.hidden = true;
-        };
-
-        const updateMediaSession = (nickname) => {
+        const updateMediaSession = () => {
             if (!('mediaSession' in navigator) || !track) return;
             try {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: track.title,
-                    artist: track.artist || nickname || '',
-                    album: nickname || '',
+                    artist: track.artist || track.nickname,
+                    album: track.nickname,
                     artwork: track.cover ? [{ src: new URL(track.cover, location.href).href, sizes: '512x512' }] : [],
                 });
             } catch (_) { /* browser senza MediaMetadata */ }
@@ -220,10 +238,8 @@
         ['play', 'playing', 'pause'].forEach((type) => audio.addEventListener(type, paint));
 
         audio.addEventListener('error', () => {
-            if (!box || !audio.getAttribute('src')) return;
-            box.classList.add('is-broken');
-            const error = box.querySelector('[data-es-music-error]');
-            if (error) error.hidden = false;
+            if (!loadedSrc) return;
+            broken.add(loadedSrc);
             blocked = false;
             disarm();
             paint();
@@ -239,48 +255,35 @@
                 }
             } else if (resumeOnVisible) {
                 resumeOnVisible = false;
-                if (box && track && !isOff()) audio.play().catch(() => {});
+                if (track && !isOff()) audio.play().catch(() => {});
             }
         });
 
-        return {
-            /** Scheda aperta (o cambiata): parte il suo brano. */
-            load(sheet) {
-                const next = sheet ? sheet.querySelector('[data-es-music]') : null;
-                if (box !== next) clearBox();
-                box = next;
-
-                if (!box) {
+        const api = {
+            /**
+             * Il brano della pagina di arrivo, nello stesso clic che ci porta:
+             * parte subito (o la musica sfuma, se il player non ne ha).
+             */
+            prepare(next) {
+                if (!next) {
                     track = null;
                     blocked = false;
                     disarm();
-                    fadeOutAndPause(250);
+                    fadeOutAndPause(300);
                     return;
                 }
 
-                const data = box.dataset;
-                const volume = Number(data.volume);
-                track = {
-                    src: data.src || '',
-                    title: data.title || '',
-                    artist: data.artist || '',
-                    cover: data.cover || '',
-                    start: Math.max(0, Number(data.start) || 0),
-                    volume: Number.isFinite(volume) ? volume : 60,
-                };
+                const same = track && track.src === next.src;
+                track = next;
+                updateMediaSession();
 
-                const nickname = sheet.querySelector('.es-sheet__nick')?.textContent.trim() || '';
-                updateMediaSession(nickname);
-
-                if (box.classList.contains('is-broken') || !track.src) {
-                    fadeOutAndPause(250);
+                if (isOff()) {
+                    if (loadedSrc !== track.src) fadeOutAndPause(0);
                     paint();
                     return;
                 }
 
-                if (isOff()) {
-                    clearInterval(fadeTimer);
-                    audio.pause();
+                if (same && !audio.paused) {
                     paint();
                     return;
                 }
@@ -292,19 +295,31 @@
                 play();
             },
 
-            close() {
-                clearBox();
-                box = null;
-                blocked = false;
-                disarm();
-                fadeOutAndPause(350);
+            /**
+             * Pagina appena mostrata: si collegano i controlli del suo
+             * riquadro. Se si e' arrivati senza un clic (link diretto, tasto
+             * Indietro) il brano parte da qui.
+             */
+            attach(scope) {
+                if (box) box.classList.remove('is-playing');
+                box = scope.querySelector('[data-es-music-box]');
+                const pageTrack = box ? parseTrack(box.dataset.esMusic) : null;
+
+                if (!pageTrack) {
+                    if (track) api.prepare(null);
+                    return;
+                }
+                if (!track || track.src !== pageTrack.src) {
+                    api.prepare(pageTrack);
+                }
+                paint();
             },
 
             toggle() {
                 if (!box || !track) return;
-                if (!audio.paused && !blocked) {
+                if (!audio.paused && !blocked && loadedSrc === track.src) {
                     store.set(OFF_KEY, '1');
-                    fadeTo(0, 250, () => audio.pause());
+                    fadeOutAndPause(250);
                     blocked = false;
                     paint();
                     return;
@@ -323,175 +338,158 @@
 
             isPlaying: () => !audio.paused,
         };
+
+        return api;
     })();
 
-    /* ── Schede ─────────────────────────────────────────────────────── */
+    /* ── Navigazione tra le pagine del team ─────────────────────────── */
 
-    let current = null;        // scheda aperta
-    let pushed = false;        // aprendola si e' aggiunta una voce alla cronologia
-    let ignorePop = false;     // il popstate provocato da noi con history.back()
+    const cache = new Map();
+    const scrollByPath = new Map();
+    let currentPath = location.pathname;
+    let navToken = 0;
 
-    const setMeta = (title, presence) => {
-        if (title) document.title = title;
+    const isOurs = (url) => Boolean(base)
+        && url.origin === location.origin
+        && (url.pathname === base || url.pathname.startsWith(base + '/'));
+
+    const load = (href) => {
+        if (!cache.has(href)) {
+            const request = fetch(href, { credentials: 'same-origin' }).then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.text();
+            });
+            request.catch(() => cache.delete(href));
+            cache.set(href, request);
+            // Poche pagine, ma non all'infinito.
+            if (cache.size > 24) cache.delete(cache.keys().next().value);
+        }
+        return cache.get(href);
+    };
+
+    const prefetch = (href) => {
+        load(href).catch(() => { /* ci si riprova al clic */ });
+    };
+
+    const updateLangSwitch = (path) => {
+        const lang = path.split('/')[1];
+        const alt = lang === 'en' ? 'it' : 'en';
+        document.querySelectorAll('a.cnav-lang').forEach((link) => {
+            link.setAttribute('href', '/' + alt + path.slice(3));
+        });
+    };
+
+    const scrollTo = (top) => {
+        // Niente scorrimento morbido (style-dark.css lo mette su html): la
+        // pagina nuova deve comparire gia' in cima. 'instant' vince sul CSS.
+        try {
+            window.scrollTo({ top, left: 0, behavior: 'instant' });
+        } catch (_) {
+            window.scrollTo(0, top);
+        }
+    };
+
+    /* Le pagine vicine (precedente e successivo) si scaricano in anticipo:
+       le frecce diventano istantanee. */
+    const warmNeighbours = (scope) => {
+        const run = () => scope.querySelectorAll('a[data-es-step]').forEach((link) => prefetch(new URL(link.href).pathname));
+        if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 2000 });
+        else setTimeout(run, 600);
+    };
+
+    const initPage = (scope) => {
+        music.attach(scope);
+        warmNeighbours(scope);
+    };
+
+    const swap = (html, path) => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const next = doc.querySelector('main.es-shell');
+        const current = document.querySelector('main.es-shell');
+        if (!next || !current || !doc.body.classList.contains('es-page')) return false;
+
+        current.replaceWith(document.importNode(next, true));
+
+        document.title = doc.title;
+        body.setAttribute('style', doc.body.getAttribute('style') || '');
         // richpresence.js rilegge questi meta a ogni cambio di indirizzo.
-        const meta = document.querySelector('meta[name="cripsum:presence-state"]');
-        if (meta && presence) meta.content = presence;
-    };
+        ['cripsum:presence-title', 'cripsum:presence-state'].forEach((name) => {
+            const fresh = doc.querySelector(`meta[name="${name}"]`);
+            const live = document.querySelector(`meta[name="${name}"]`);
+            if (fresh && live) live.content = fresh.content;
+        });
 
-    const lockPage = (locked) => document.documentElement.classList.toggle('es-lock', locked);
-
-    const resetScroll = (sheet) => {
-        const frame = sheet.querySelector('.es-sheet__frame');
-        const content = sheet.querySelector('[data-es-scroll]');
-        if (frame) frame.scrollTop = 0;
-        if (content) content.scrollTop = 0;
-    };
-
-    const clearAnimationClasses = (sheet) => {
-        clearTimeout(sheet.esTimer);
-        sheet.classList.remove('is-closing', 'is-from-next', 'is-from-prev', 'is-swapping');
-    };
-
-    const show = (sheet, direction) => {
-        clearAnimationClasses(sheet);
-
-        // Una scheda aperta dal server e' "open" ma non modale: la si
-        // richiude e riapre come modale, che blocca il resto della pagina.
-        if (sheet.open && !isModal(sheet)) sheet.close();
-
-        if (direction) {
-            sheet.classList.add(direction > 0 ? 'is-from-next' : 'is-from-prev', 'is-swapping');
-            sheet.esTimer = setTimeout(() => clearAnimationClasses(sheet), 420);
-        }
-
-        resetScroll(sheet);
-        if (!sheet.open) sheet.showModal();
-        lockPage(true);
-    };
-
-    /**
-     * Apre la scheda di un player. `history`: 'push' (dalla griglia),
-     * 'replace' (frecce, swipe) o 'none' (indirizzo gia' giusto).
-     */
-    const open = (slug, { history: mode = 'push', direction = 0 } = {}) => {
-        const sheet = bySlug.get(slug);
-        if (!sheet) return false;
-
-        const previous = current;
-        if (previous && previous !== sheet) {
-            clearAnimationClasses(previous);
-            previous.close();
-        }
-
-        current = sheet;
-        show(sheet, previous && previous !== sheet ? direction : 0);
-
-        // Prima il titolo e i meta, poi la cronologia: la Rich Presence
-        // legge i meta quando cambia l'indirizzo.
-        setMeta(sheet.dataset.esDocTitle, sheet.dataset.esPresence);
-
-        const url = sheet.dataset.esUrl;
-        const fromTeam = mode === 'push' || Boolean(window.history.state && window.history.state.esFromTeam);
-        if (mode === 'push' && url) {
-            window.history.pushState({ esPlayer: slug, esFromTeam: true }, '', url);
-            pushed = true;
-        } else if (mode === 'replace' && url) {
-            window.history.replaceState({ esPlayer: slug, esFromTeam: fromTeam }, '', url);
-        }
-
-        // Nello stesso giro del clic: e' questo che permette l'avvio.
-        music.load(sheet);
+        currentPath = path;
+        updateLangSwitch(path);
         return true;
     };
 
-    const focusCard = (slug) => {
-        const card = document.querySelector(`[data-es-player="${CSS.escape(slug)}"]`);
-        if (card) card.focus({ preventScroll: true });
-    };
+    const navigate = async (href, { push = true } = {}) => {
+        const url = new URL(href, location.href);
+        const path = url.pathname + url.search;
+        const token = ++navToken;
 
-    const close = ({ fromHistory = false } = {}) => {
-        const sheet = current;
-        if (!sheet) return;
-        current = null;
-        music.close();
+        // La posizione si ricorda solo andando avanti: tornando indietro con
+        // il browser si ritrova la griglia dov'era quando si e' aperto il player.
+        if (push) scrollByPath.set(currentPath, window.scrollY);
+        window.history.scrollRestoration = 'manual';
 
-        // Il fuoco torna sulla card dell'ultimo player visto, anche se ci si
-        // e' arrivati con le frecce. Solo a scheda chiusa: finche' il dialog
-        // modale e' aperto il resto della pagina non puo' ricevere il fuoco.
-        const finish = () => {
-            if (current === sheet) return; // riaperta nel frattempo
-            clearAnimationClasses(sheet);
-            if (sheet.open) sheet.close();
-            if (!current) {
-                lockPage(false);
-                focusCard(sheet.dataset.esSheet);
-            }
-        };
-
-        clearAnimationClasses(sheet);
-        if (reduceMotion.matches) {
-            finish();
-        } else {
-            sheet.classList.add('is-closing');
-            sheet.esTimer = setTimeout(finish, 220);
+        // Barra in alto solo se la pagina non era gia' pronta.
+        const slow = setTimeout(() => root.classList.add('es-loading'), 120);
+        let html;
+        try {
+            html = await load(path);
+        } catch (_) {
+            window.location.assign(path);
+            return;
+        } finally {
+            clearTimeout(slow);
+            root.classList.remove('es-loading');
         }
+        if (token !== navToken) return; // nel frattempo si e' cliccato altro
 
-        setMeta(teamTitle, teamPresence);
-
-        if (fromHistory) {
-            pushed = false;
+        if (!swap(html, url.pathname)) {
+            window.location.assign(path);
             return;
         }
 
-        if (pushed) {
-            // Si torna alla voce della griglia invece di aggiungerne una:
-            // cosi' il tasto Indietro dopo non riapre la scheda.
-            pushed = false;
-            ignorePop = true;
-            window.history.back();
-        } else if (base) {
-            window.history.replaceState({}, '', base);
-        }
+        if (push) window.history.pushState({ esNav: true }, '', path);
+        scrollTo(push ? 0 : (scrollByPath.get(url.pathname) || 0));
+
+        const scope = document.querySelector('main.es-shell');
+        initPage(scope);
+
+        // Il fuoco va sul titolo della pagina nuova: chi usa uno screen
+        // reader sente dove e' arrivato, come con un caricamento normale.
+        scope.querySelector('h1[tabindex]')?.focus({ preventScroll: true });
     };
 
-    const step = (direction) => {
-        if (!current || order.length < 2) return;
-        const index = order.indexOf(current.dataset.esSheet);
-        const slug = order[(index + direction + order.length) % order.length];
-        open(slug, { history: 'replace', direction });
-    };
-
-    const slugFromPath = (path) => {
-        if (!base || !path.startsWith(base + '/')) return '';
-        try {
-            return decodeURIComponent(path.slice(base.length + 1).replace(/\/+$/, ''));
-        } catch (_) {
-            return '';
+    /** Il gesto che porta a un'altra pagina del team: musica, poi pagina. */
+    const follow = (link) => {
+        const url = new URL(link.href, location.href);
+        if (url.pathname === currentPath) {
+            scrollTo(0);
+            return;
         }
+        music.prepare(parseTrack(link.dataset.esMusic));
+        navigate(url.pathname + url.search);
     };
 
     window.addEventListener('popstate', () => {
-        if (ignorePop) {
-            ignorePop = false;
-            return;
-        }
-        const slug = slugFromPath(window.location.pathname);
-        if (slug && bySlug.has(slug)) {
-            pushed = Boolean(window.history.state && window.history.state.esFromTeam);
-            open(slug, { history: 'none' });
-        } else if (current) {
-            close({ fromHistory: true });
-        }
+        const url = new URL(location.href);
+        if (!isOurs(url) || url.pathname === currentPath) return;
+        navigate(url.pathname + url.search, { push: false });
     });
 
     // Media Session: i tasti avanti/indietro della tastiera o del telefono
-    // cambiano player.
+    // passano al player successivo o precedente.
     if ('mediaSession' in navigator) {
+        const stepLink = (dir) => document.querySelector(`main.es-shell a[data-es-step="${dir}"]`);
         const handlers = {
             play: () => { if (!music.isPlaying()) music.toggle(); },
             pause: () => { if (music.isPlaying()) music.toggle(); },
-            nexttrack: () => step(1),
-            previoustrack: () => step(-1),
+            nexttrack: () => { const link = stepLink('next'); if (link) follow(link); },
+            previoustrack: () => { const link = stepLink('prev'); if (link) follow(link); },
         };
         Object.entries(handlers).forEach(([action, handler]) => {
             try { navigator.mediaSession.setActionHandler(action, handler); } catch (_) { /* non supportato */ }
@@ -506,34 +504,10 @@
         const target = event.target instanceof Element ? event.target : null;
         if (!target) return;
 
-        const card = target.closest('[data-es-player]');
-        if (card && plainClick(event)) {
-            if (open(card.dataset.esPlayer, { history: current ? 'replace' : 'push' })) event.preventDefault();
-            return;
-        }
-
-        if (!current || !current.contains(target)) return;
-
-        if (target === current) {
-            // Clic fuori dal riquadro, sullo sfondo scuro.
-            close();
-            return;
-        }
-
-        const closer = target.closest('[data-es-close]');
-        if (closer && plainClick(event)) {
+        const link = target.closest('a[data-es-link]');
+        if (link && plainClick(event) && !link.target && isOurs(new URL(link.href, location.href))) {
             event.preventDefault();
-            close();
-            return;
-        }
-
-        const stepLink = target.closest('[data-es-step]');
-        if (stepLink && plainClick(event)) {
-            event.preventDefault();
-            const index = order.indexOf(current.dataset.esSheet);
-            const targetIndex = order.indexOf(stepLink.dataset.esStep);
-            const forward = targetIndex === (index + 1) % order.length;
-            open(stepLink.dataset.esStep, { history: 'replace', direction: forward ? 1 : -1 });
+            follow(link);
             return;
         }
 
@@ -546,52 +520,49 @@
         if (copyButton) copyText(copyButton.dataset.esCopy);
     });
 
+    // Passando sopra (o toccando) un link del team la sua pagina si
+    // scarica gia': al clic e' pronta.
+    const warm = (event) => {
+        const link = event.target instanceof Element ? event.target.closest('a[data-es-link]') : null;
+        if (link) prefetch(new URL(link.href, location.href).pathname);
+    };
+    document.addEventListener('pointerover', warm, { passive: true });
+    document.addEventListener('touchstart', warm, { passive: true });
+    document.addEventListener('focusin', warm);
+
     document.addEventListener('input', (event) => {
         if (event.target instanceof HTMLInputElement && event.target.matches('[data-es-volume]')) {
             music.setVolume(event.target.value);
         }
     });
 
-    sheets.forEach((sheet) => {
-        // Esc: la chiusura passa da qui, con animazione e cronologia.
-        sheet.addEventListener('cancel', (event) => {
-            event.preventDefault();
-            if (current === sheet) close();
-        });
-
-        // Swipe orizzontale sul telefono per cambiare player.
-        let startX = 0;
-        let startY = 0;
-        let tracking = false;
-
-        sheet.addEventListener('touchstart', (event) => {
-            const touch = event.touches[0];
-            tracking = event.touches.length === 1 && !(event.target instanceof Element && event.target.closest('input, code'));
-            startX = touch.clientX;
-            startY = touch.clientY;
-        }, { passive: true });
-
-        sheet.addEventListener('touchend', (event) => {
-            if (!tracking || current !== sheet) return;
-            tracking = false;
-            const touch = event.changedTouches[0];
-            const dx = touch.clientX - startX;
-            const dy = touch.clientY - startY;
-            if (Math.abs(dx) > 70 && Math.abs(dy) < 60) step(dx < 0 ? 1 : -1);
-        }, { passive: true });
-    });
-
+    // Frecce della tastiera sulla pagina di un player: precedente/successivo.
     document.addEventListener('keydown', (event) => {
-        if (!current || event.altKey || event.ctrlKey || event.metaKey) return;
-        if (event.target instanceof Element && event.target.closest('input, textarea, select')) return;
-        if (event.key === 'ArrowRight') {
-            event.preventDefault();
-            step(1);
-        } else if (event.key === 'ArrowLeft') {
-            event.preventDefault();
-            step(-1);
-        }
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]')) return;
+        const link = document.querySelector(`main.es-shell a[data-es-step="${event.key === 'ArrowRight' ? 'next' : 'prev'}"]`);
+        if (!link) return;
+        event.preventDefault();
+        follow(link);
     });
+
+    // Swipe orizzontale sulla foto, sul telefono, per cambiare player.
+    let swipe = null;
+    document.addEventListener('touchstart', (event) => {
+        const area = event.target instanceof Element ? event.target.closest('[data-es-swipe]') : null;
+        swipe = area && event.touches.length === 1 ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : null;
+    }, { passive: true });
+    document.addEventListener('touchend', (event) => {
+        if (!swipe) return;
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - swipe.x;
+        const dy = touch.clientY - swipe.y;
+        swipe = null;
+        if (Math.abs(dx) < 70 || Math.abs(dy) > 60) return;
+        const link = document.querySelector(`main.es-shell a[data-es-step="${dx < 0 ? 'next' : 'prev'}"]`);
+        if (link) follow(link);
+    }, { passive: true });
 
     /* ── Copia del codice mirino ────────────────────────────────────── */
 
@@ -606,13 +577,11 @@
             ]);
             showToast(body.dataset.esCopied);
         } catch (_) {
-            // Vecchio metodo: il campo va messo nella scheda aperta, perche'
-            // fuori da un dialog modale non si puo' selezionare.
             const area = document.createElement('textarea');
             area.value = text;
             area.setAttribute('readonly', '');
             area.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
-            (current || body).appendChild(area);
+            body.appendChild(area);
             area.select();
             let ok = false;
             try { ok = document.execCommand('copy'); } catch (__) { ok = false; }
@@ -621,10 +590,13 @@
         }
     };
 
-    /* ── Scheda gia' aperta dal server (/it/ohpy/{player}) ──────────── */
+    /* ── Avvio ──────────────────────────────────────────────────────── */
 
-    const initial = body.dataset.esOpen;
-    if (initial && bySlug.has(initial)) {
-        open(initial, { history: 'none' });
-    }
+    const progress = document.createElement('div');
+    progress.className = 'es-progress';
+    progress.setAttribute('aria-hidden', 'true');
+    body.appendChild(progress);
+
+    const firstScope = document.querySelector('main.es-shell');
+    if (firstScope) initPage(firstScope);
 })();

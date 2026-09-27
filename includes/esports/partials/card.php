@@ -1,8 +1,8 @@
 <?php
 /**
- * Card di un player nella griglia. E' un link vero alla sua scheda: senza
- * JavaScript la pagina si ricarica con la scheda aperta, con JavaScript la
- * scheda si apre sul posto (e la musica parte al clic).
+ * Card di un player nella griglia: un link vero alla sua pagina.
+ * data-es-link la fa caricare a esports.js senza ricaricare il sito, e
+ * data-es-music porta il brano, che parte nello stesso clic.
  *
  * Variabili: $p (player), $esCardSize ('big' | 'small'), $esIndex, $S.
  */
@@ -12,6 +12,8 @@ $esInitial = mb_strtoupper(mb_substr($p['nickname'], 0, 1, 'UTF-8'), 'UTF-8');
 <a class="es-card es-card--<?php echo shop_h($esCardSize); ?><?php echo $p['state'] === 'nascosto' ? ' is-hidden-player' : ''; ?>"
     href="<?php echo shop_h($p['url']); ?>"
     data-es-player="<?php echo shop_h($p['slug']); ?>"
+    data-es-link
+    <?php echo $p['music_data'] !== '' ? 'data-es-music="' . shop_h($p['music_data']) . '"' : ''; ?>
     aria-label="<?php echo shop_h(sprintf($S['open_player'], $p['nickname'])); ?>"
     <?php echo $p['style'] !== '' ? 'style="' . shop_h($p['style']) . '"' : ''; ?>>
     <span class="es-card__frame">

@@ -2,7 +2,7 @@
 
 /**
  * Team esports (OHPY, Counter-Strike 2): lettura dal database e dati pronti
- * per la pagina /it/ohpy e per le schede dei player.
+ * per la pagina /it/ohpy e per le pagine dei player.
  *
  * Riusa i pezzi comuni dello shop (escape, testi che ricadono
  * sull'italiano, percorsi delle immagini, colori del tema): stesse regole
@@ -18,7 +18,7 @@ const ESPORTS_STATES = ['titolare', 'riserva', 'staff', 'ex', 'nascosto'];
 /** Formati audio accettati per la musica dei player. */
 const ESPORTS_AUDIO_EXTENSIONS = ['mp3', 'ogg', 'm4a', 'aac', 'wav', 'webm'];
 
-/** Social mostrati nella testata del team e nelle schede, in quest'ordine. */
+/** Social mostrati nella testata del team e nelle pagine dei player, in quest'ordine. */
 const ESPORTS_TEAM_SOCIALS = ['discord', 'twitch', 'instagram', 'tiktok', 'youtube', 'x', 'faceit'];
 const ESPORTS_PLAYER_SOCIALS = ['steam', 'faceit', 'leetify', 'twitch', 'instagram', 'tiktok', 'youtube', 'x'];
 
@@ -407,6 +407,10 @@ function esports_team_view(array $row, string $lang): array
 {
     $accent = shop_hex($row['colore_accento'] ?? null, '#f5a524');
     $link = trim((string)($row['link_url'] ?? ''));
+    $vars = esports_accent_vars($accent) + [
+        '--es-bg' => shop_hex($row['colore_sfondo'] ?? null, '#07080c'),
+        '--es-bg-2' => shop_hex($row['colore_sfondo_2'] ?? null, '#1c1307'),
+    ];
 
     return [
         'id' => (int)$row['id'],
@@ -418,10 +422,8 @@ function esports_team_view(array $row, string $lang): array
         'logo' => shop_asset_url($row['logo'] ?? ''),
         'cover' => shop_asset_url($row['copertina'] ?? ''),
         'accent' => $accent,
-        'style' => esports_style(esports_accent_vars($accent) + [
-            '--es-bg' => shop_hex($row['colore_sfondo'] ?? null, '#07080c'),
-            '--es-bg-2' => shop_hex($row['colore_sfondo_2'] ?? null, '#1c1307'),
-        ]),
+        'vars' => $vars,
+        'style' => esports_style($vars),
         'socials' => esports_socials($row['social'] ?? null, ESPORTS_TEAM_SOCIALS),
         'link_text' => shop_pick($row, 'link_testo', $lang),
         'link_url' => $link !== '' && shop_valid_link($link) ? shop_localize_link($link, $lang) : '',
@@ -448,6 +450,28 @@ function esports_music_view(array $row): ?array
     ];
 }
 
+/**
+ * Il brano di un player come JSON per l'attributo data-es-music dei link
+ * che portano alla sua pagina: esports.js lo fa partire nello stesso clic,
+ * prima ancora di aver caricato la pagina.
+ */
+function esports_music_data(?array $music, string $nickname): string
+{
+    if (!$music) {
+        return '';
+    }
+
+    return (string)json_encode([
+        'src' => $music['src'],
+        'title' => $music['title'] !== '' ? $music['title'] : $nickname,
+        'artist' => $music['artist'],
+        'cover' => $music['cover'],
+        'start' => $music['start'],
+        'volume' => $music['volume'],
+        'nickname' => $nickname,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+}
+
 function esports_player_view(array $row, string $lang): array
 {
     $roles = esports_roles();
@@ -467,6 +491,7 @@ function esports_player_view(array $row, string $lang): array
 
     $facts = esports_facts($row['curiosita'] ?? null, $lang);
     $crosshair = trim((string)($row['crosshair'] ?? ''));
+    $music = esports_music_view($row);
     $slug = (string)$row['slug'];
 
     return [
@@ -485,6 +510,7 @@ function esports_player_view(array $row, string $lang): array
         'flag' => strtolower($country),
         'photo' => $photo,
         'background' => shop_asset_url($row['sfondo'] ?? ''),
+        'accent_vars' => $accent ? esports_accent_vars($accent) : [],
         'style' => $accent ? esports_style(esports_accent_vars($accent)) : '',
         'tagline' => shop_pick($row, 'frase', $lang),
         'bio' => shop_pick($row, 'bio', $lang),
@@ -502,7 +528,8 @@ function esports_player_view(array $row, string $lang): array
         'socials' => esports_socials($row['social'] ?? null, ESPORTS_PLAYER_SOCIALS),
         'profile_url' => $username !== '' ? '/u/' . rawurlencode($username) : '',
         'username' => $username,
-        'music' => esports_music_view($row),
+        'music' => $music,
+        'music_data' => esports_music_data($music, trim((string)$row['nickname'])),
         'url' => '/' . $lang . '/ohpy/' . rawurlencode($slug),
     ];
 }

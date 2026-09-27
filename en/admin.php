@@ -257,7 +257,7 @@ $csrfToken = admin_csrf_token();
                 <div class="admin-toolbar">
                     <div>
                         <strong>Team OHPY</strong>
-                        <small>Il team di Counter-Strike 2: player, schede, musica e pagina <a href="/it/ohpy" target="_blank" rel="noopener">/it/ohpy</a>.</small>
+                        <small>Il team di Counter-Strike 2: player con le loro pagine, musica e pagina <a href="/it/ohpy" target="_blank" rel="noopener">/it/ohpy</a>.</small>
                     </div>
                 </div>
                 <div class="admin-table-card shop-admin" data-esports-admin></div>

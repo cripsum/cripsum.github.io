@@ -563,7 +563,7 @@ try {
                 'stato' => admin_shop_enum($input, 'stato', 'Stato', ESPORTS_STATES, 'nascosto'),
                 'nazionalita' => $country !== '' ? $country : null,
                 'foto' => admin_shop_image($input, 'foto', 'Foto'),
-                'sfondo' => admin_shop_image($input, 'sfondo', 'Sfondo della scheda'),
+                'sfondo' => admin_shop_image($input, 'sfondo', 'Sfondo della pagina'),
                 'colore_accento' => admin_shop_bool($input, 'colore_proprio')
                     ? admin_shop_color($input, 'colore_accento', 'Colore del player', '#f5a524')
                     : null,
