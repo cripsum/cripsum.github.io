@@ -188,10 +188,23 @@
     multiSkipping:    false,
     multiActionsReady:false,
     multiActionsShownOnce:false,
-    multiAbort:       false,  // FIX 1: salta al resoconto
+    multiWaiter:      null,   // carta della multi in attesa: { next, skip, isLast }
     _covActions:      null,   // riferimento azioni card-over-video multi
     videoPlaying:     false,  // true mentre un video segreto/theone è in riproduzione
     _videoAbortFn:    null,   // funzione per interrompere il video in corso
+    /**
+     * In che punto e' l'overlay. Decide cosa fanno i tasti e da dove puo'
+     * partire una pull (prima c'erano solo isPulling e overlayOpen, che sul
+     * riepilogo della multi dicevano "libero" e lasciavano partire pull
+     * sopra al riepilogo):
+     *   idle        overlay chiuso
+     *   anim        sfera, effetti, video: nessun tasto
+     *   card        carta della pull singola, pull finita
+     *   multi-wait  carta della multi in attesa di "Prossima"
+     *   summary     riepilogo della multi
+     *   closing     dissolvenza di chiusura (0,4 s)
+     */
+    phase:            'idle',
   };
 
   const mediaPreloadCache = new Map();
@@ -253,7 +266,6 @@
     initSidebarCards();
     initPullButtons();
     initOverlayButtons();
-    initSkipButton();
     initKeyboard();
     initAdminCheats();
     injectMultiModal(); // #4
@@ -343,7 +355,7 @@
     // data-pull-qty="10" → multi, altrimenti singola
     $$('[data-pull-btn][data-banner-id]').forEach(btn => {
       btn.addEventListener('click', () => {
-        if (state.isPulling) return;
+        if (!canStartPull()) return;
         const bannerId = btn.dataset.bannerId;
         const qty = btn.dataset.pullQty === '10' ? 10 : 1;
         checkGachaBalanceAndConfirm(bannerId, qty, () => {
@@ -359,10 +371,32 @@
   }
 
   /* ════════════════════════════════════════════════════
+     INGRESSO DELLE PULL
+     Tutte le strade (pulsanti, tasti, "Apri ancora", "Apri x10" del
+     riepilogo) passano da qui: una pull parte solo con l'overlay chiuso o
+     fermo su una carta o sul riepilogo, mai sopra una pull in corso.
+  ════════════════════════════════════════════════════ */
+  const START_PHASES = ['idle', 'card', 'summary', 'closing'];
+  function canStartPull() {
+    return !state.isPulling && START_PHASES.includes(state.phase);
+  }
+  /** Prima di partire: chiusura in sospeso completata subito, riepilogo via. */
+  function prepareStart() {
+    if (closeTimer) finishClose();
+    const summary = $('phase-summary');
+    if (summary) summary.style.display = 'none';
+  }
+  /** La pull e' finita e l'overlay e' ancora aperto: si torna alla carta. */
+  function settleOnCard() {
+    if (state.overlayOpen && (state.phase === 'anim' || state.phase === 'card')) state.phase = 'card';
+  }
+
+  /* ════════════════════════════════════════════════════
      SINGLE PULL
   ════════════════════════════════════════════════════ */
   async function startPull(bannerId, fastMode = false) {
-    if (state.isPulling) return;
+    if (!canStartPull()) return;
+    prepareStart();
 
     const bannerView = document.getElementById('banner-view-' + bannerId) || document.getElementById('banner-view-standard');
     const costPunti = bannerView ? parseInt(bannerView.dataset.costo || '100') : 100;
@@ -370,6 +404,7 @@
 
     state.isPulling  = true;
     state.isFastPull = fastMode;
+    state.phase      = 'anim';
 
     stopAudio();
     lockScroll();
@@ -417,6 +452,7 @@
       if (orbWait > 0) await delay(orbWait);
 
       await revealPull(data);
+      settleOnCard();
       updateBannerUI();
       triggerAchievements(data);
 
@@ -435,7 +471,8 @@
   const API_MULTI = '/api/api_gacha_multi_pull';
 
   async function startMultiPull(bannerId) {
-    if (state.isPulling) return;
+    if (!canStartPull()) return;
+    prepareStart();
 
     const bannerView = document.getElementById('banner-view-' + bannerId) || document.getElementById('banner-view-standard');
     const costPunti = bannerView ? parseInt(bannerView.dataset.costo || '100') : 100;
@@ -447,7 +484,9 @@
     state.multiSkipping = false;
     state.multiActionsReady = false;
     state.multiActionsShownOnce = false;
+    state.multiWaiter   = null;
     state.isPulling     = true;
+    state.phase         = 'anim';
 
     stopAudio();
     lockScroll();
@@ -590,9 +629,6 @@
     const total = pulls.length;
 
     for (let i = 0; i < total; i++) {
-      // FIX 1: se richiesta skip-to-summary esci subito dal loop
-      if (state.multiAbort) break;
-
       const pullData  = pulls[i];
       const rarity    = normalizeRarity(pullData.personaggio.rarità);
       const isSpecial = RARITY_NO_SKIP.has(rarity);
@@ -651,7 +687,7 @@
     if (btnInventory) btnInventory.style.display  = '';
     document.getElementById('card-over-video-multi')?.remove();
     state._covActions = null;
-    state.multiAbort = false;
+    state.multiWaiter = null;
     state.multiActionsReady = false;
     state.multiActionsShownOnce = false;
     showMultiSummary(pulls);
@@ -866,42 +902,38 @@
       }
 
       let resolved = false;
-      const done = (skip, abort = false) => {
+      // skip: salta le prossime carte normali; quelle da vedere per forza
+      // (nuovi, Speciale, Segreto, The One) le mostra comunque il ciclo.
+      const done = (skip) => {
         if (resolved) return;
         resolved = true;
         state.multiSkipping = skip;
-        if (abort) state.multiAbort = true;
         // Ferma il video se ancora in corso (es. video multi con card sovrapposta)
         if (videoEl && !videoEl.paused) { videoEl.pause(); videoEl.src = ''; }
         // Rimuovi card-over-video-multi se presente
         document.getElementById('card-over-video-multi')?.remove();
         state._covActions = null;
+        state.multiWaiter = null;
+        if (state.phase === 'multi-wait') state.phase = 'anim';
         cleanup();
         resolve();
       };
 
-      const onNext  = () => done(false);
-      const onSkip  = () => done(true);
-      // FIX 1: chiudi durante multi → salta al resoconto
-      const onClose = () => done(true, true);
+      const onNext = () => done(false);
+      const onSkip = () => done(!isLast);
 
       function cleanup() {
         btnNext?.removeEventListener('click', onNext);
         btnSkip?.removeEventListener('click', onSkip);
-        btnClose?.removeEventListener('click', onClose);
-        document.removeEventListener('keydown', onKey);
+        btnClose?.removeEventListener('click', onSkip);
       }
-
-      const onKey = e => {
-        if (e.code === 'Enter')  { e.preventDefault(); done(false); }
-        if (e.code === 'KeyS' && !isLast) { e.preventDefault(); done(true); }
-        if (e.code === 'Escape') { e.preventDefault(); done(true, true); }
-      };
 
       btnNext?.addEventListener('click', onNext,  { once: true });
       btnSkip?.addEventListener('click', onSkip,  { once: true });
-      btnClose?.addEventListener('click', onClose, { once: true });
-      document.addEventListener('keydown', onKey);
+      btnClose?.addEventListener('click', onSkip, { once: true });
+      // I tasti li gestisce initKeyboard, che chiama questi.
+      state.multiWaiter = { next: onNext, skip: onSkip, isLast };
+      state.phase = 'multi-wait';
     });
   }
 
@@ -1058,11 +1090,12 @@
       closeOverlay();
     });
     $('btn-multi-again')?.addEventListener('click', () => {
-      summary.style.display = 'none';
-      state.isMulti       = false;
-      state.multiSkipping = false;
+      if (!canStartPull()) return;
+      // Il riepilogo lo toglie startMultiPull quando parte davvero (se il
+      // saldo non basta e si annulla, resta dov'era).
       checkGachaBalanceAndConfirm(state.activeBannerId, 10, () => startMultiPull(state.activeBannerId));
     });
+    state.phase = 'summary';
   }
 
 
@@ -1211,6 +1244,7 @@
       closeOverlay();
     });
     cloneAgain?.addEventListener('click', () => {
+      if (state.phase !== 'card') return;
       abortVideo(); // interrompe il video e rimuove card-over-video
       gachaCard.classList.remove('is-revealed','is-idle');
       showPhase('opening');
@@ -1236,6 +1270,10 @@
       cloneSkip.style.display = origSkip?.style.display ?? 'none';
       cloneSkip.addEventListener('click', () => origSkip?.click());
     }
+
+    // Carta visibile sopra il video: Invio, Spazio ed Esc fanno quello che
+    // fanno i suoi pulsanti.
+    if (!state.isMulti && state.overlayOpen && state.phase === 'anim') state.phase = 'card';
 
     await delay(40);
     cardOverlay.style.opacity = '1';
@@ -1307,48 +1345,96 @@
   function openOverlay() {
     overlay.classList.add('is-visible');
     state.overlayOpen = true;
+    lockPage();
   }
 
+  /**
+   * Con l'overlay aperto la pagina sotto e' inerte e il focus passa
+   * all'overlay: prima il pulsante cliccato ("Apri 10x") restava
+   * selezionato dietro, e Spazio lo ripremeva facendo partire una multi
+   * sopra al riepilogo. Alla chiusura il focus torna dov'era solo per chi
+   * usa la tastiera.
+   */
+  const pageRoots = () => [$('gacha-layout'), document.querySelector('nav.navbar, header.navbar, #navbar, .navbar')].filter(Boolean);
+  function lockPage() {
+    if (state.pageLocked) return;
+    state.pageLocked = true;
+    const active = document.activeElement;
+    state.returnFocus = active && active !== document.body && !overlay.contains(active) ? active : null;
+    state.returnFocusVisible = !!state.returnFocus?.matches?.(':focus-visible');
+    pageRoots().forEach((el) => { el.inert = true; });
+    overlay.tabIndex = -1;
+    overlay.focus({ preventScroll: true });
+  }
+  function releasePage() {
+    if (!state.pageLocked) return;
+    state.pageLocked = false;
+    pageRoots().forEach((el) => { el.inert = false; });
+    const back = state.returnFocus;
+    state.returnFocus = null;
+    if (back && state.returnFocusVisible && document.contains(back)) back.focus({ preventScroll: true });
+    else if (overlay.contains(document.activeElement)) document.activeElement.blur();
+  }
+
+  /**
+   * La chiusura ripulisce l'overlay dopo la dissolvenza (0,4 s). Se nel
+   * frattempo parte un'altra pull, prepareStart() fa la pulizia subito:
+   * prima arrivava a pull gia' avviata (diceva "non sei una multi",
+   * nascondeva i pulsanti giusti, poteva fermare un video).
+   */
+  let closeTimer = null;
   function closeOverlay() {
     stopAudio();
     overlay.classList.remove('is-visible');
     state.overlayOpen = false;
+    state.phase = 'closing';
+    state.multiWaiter = null;
     hideSkipBtn();
 
     // Rimuovi card-over-video se esiste
     $('card-over-video')?.remove();
     $('phase-summary') && ($('phase-summary').style.display = 'none');
 
-    setTimeout(() => {
-      setRarityOnOverlay('comune');
-      gachaCard.classList.remove('is-revealed','is-idle');
-      glowBurst.classList.remove('is-rainbow');
-      phaseVideo.style.display   = 'none';
-      phaseCard.style.display    = 'none';
-      phaseOpening.style.display = 'flex';
-      videoEl.pause();
-      videoEl.src = '';
-      card50Win.style.display  = 'none';
-      card50Loss.style.display = 'none';
-      cardNewBadge.style.display = 'none';
-      state.canSkip    = false;
-      state.isMulti    = false;
-      particlesLayer.innerHTML = '';
-      // Reset multi buttons
-      $('btn-multi-next') && ($('btn-multi-next').style.display = 'none');
-      $('btn-multi-skip') && ($('btn-multi-skip').style.display = 'none');
-      $('multi-counter')  && ($('multi-counter').style.display  = 'none');
-      if (btnPullAgain) btnPullAgain.style.display = '';
-      removeExhaustedBanners();
-    }, 420);
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(finishClose, 420);
 
+    releasePage();
     unlockScroll();
+  }
+
+  function finishClose() {
+    clearTimeout(closeTimer);
+    closeTimer = null;
+    setRarityOnOverlay('comune');
+    gachaCard.classList.remove('is-revealed','is-idle');
+    glowBurst.classList.remove('is-rainbow');
+    phaseVideo.style.display   = 'none';
+    phaseCard.style.display    = 'none';
+    phaseOpening.style.display = 'flex';
+    videoEl.pause();
+    videoEl.src = '';
+    card50Win.style.display  = 'none';
+    card50Loss.style.display = 'none';
+    cardNewBadge.style.display = 'none';
+    state.canSkip    = false;
+    state.isMulti    = false;
+    particlesLayer.innerHTML = '';
+    // Reset multi buttons
+    $('btn-multi-next') && ($('btn-multi-next').style.display = 'none');
+    $('btn-multi-skip') && ($('btn-multi-skip').style.display = 'none');
+    $('multi-counter')  && ($('multi-counter').style.display  = 'none');
+    if (btnPullAgain) btnPullAgain.style.display = '';
+    if (!state.overlayOpen) state.phase = 'idle';
+    removeExhaustedBanners();
   }
 
   function showPhase(p) {
     phaseOpening.style.display = p === 'opening' ? 'flex' : 'none';
     phaseVideo.style.display   = p === 'video'   ? 'flex' : 'none';
     phaseCard.style.display    = p === 'card'    ? 'flex' : 'none';
+    // Il riepilogo non resta mai sotto a un'altra fase.
+    const summary = $('phase-summary');
+    if (summary) summary.style.display = 'none';
   }
 
   // Interrompe qualsiasi video in corso e pulisce lo stato
@@ -1453,20 +1539,8 @@
   }
 
   /* ════════════════════════════════════════════════════
-     SKIP BUTTON
+     SKIP BUTTON (resta solo per compatibilita': nella pagina non c'e')
   ════════════════════════════════════════════════════ */
-  function initSkipButton() {
-    skipBtn?.addEventListener('click', doSkip);
-  }
-
-  function doSkip() {
-    if (!state.canSkip || state.isPulling) return;
-    if (phaseVideo.style.display !== 'none') {
-      videoEl.pause();
-      videoEl.dispatchEvent(new Event('ended'));
-    }
-  }
-
   function showSkipBtn() {
     if (!skipBtn) return;
     skipBtn.style.display = 'flex';
@@ -1484,8 +1558,8 @@
   ════════════════════════════════════════════════════ */
   function initOverlayButtons() {
     btnPullAgain?.addEventListener('click', () => {
-      // Questo listener vale solo quando btnPullAgain è visibile (non durante video)
-      if (state.isPulling) return;
+      // Solo dalla carta di una pull finita (mai dal riepilogo o durante un'altra).
+      if (state.isPulling || state.phase !== 'card') return;
       const { shards: costShards } = pullCost(state.activeBannerId, 1);
 
       // Check balance first BEFORE changing overlay phase to opening
@@ -1517,7 +1591,7 @@
   }
 
   async function pullAgainFromOverlay() {
-    if (state.isPulling) return;
+    if (state.isPulling || state.phase !== 'card' || !state.overlayOpen) return;
 
     const bannerView = document.getElementById('banner-view-' + state.activeBannerId) || document.getElementById('banner-view-standard');
     const costPunti = bannerView ? parseInt(bannerView.dataset.costo || '100') : 100;
@@ -1525,6 +1599,7 @@
 
     state.isPulling  = true;
     state.isFastPull = false;
+    state.phase      = 'anim';
     stopAudio();
     // Assicura che non ci siano residui del video precedente
     abortVideo();
@@ -1561,6 +1636,7 @@
 
       await delay(900);
       await revealPull(data);
+      settleOnCard();
       updateBannerUI();
       triggerAchievements(data);
     } catch(err) {
@@ -1578,12 +1654,16 @@
   window.GachaUI = {
     showToast,
     openRevealWithData: async (p) => {
+      if (state.isPulling || !START_PHASES.includes(state.phase)) return;
+      prepareStart();
+      state.phase = 'anim';
       lockScroll();
       openOverlay();
       showPhase('card');
       setRarityOnOverlay(normalizeRarity(p.rarità ?? ''));
       await delay(60);
       await showCard({ personaggio: p, is_new: true, vinto_50_50: null });
+      settleOnCard();
     },
     // Usato da riscattaCodice() per aggiornare i punti dopo un redeem di tipo 'punti'
     setSoldi: (nuoviSoldi) => {
@@ -1934,6 +2014,7 @@
   let _tl = null;
   function lockScroll() {
     document.body.style.overflow = 'hidden';
+    if (_tl) return;
     _tl = e => e.preventDefault();
     document.addEventListener('touchmove', _tl, { passive:false });
   }
@@ -1956,34 +2037,78 @@
   }
 
   /* ════════════════════════════════════════════════════
-     #2 — KEYBOARD (F = fast pull, Space = pull, S = skip)
+     TASTIERA
+     Un solo gestore, e cosa fa un tasto dipende dalla fase:
+       pagina          Spazio = Apri 1x
+       animazione      niente (sfera, effetti e video non si saltano)
+       carta singola   Invio / Spazio = Apri ancora, Esc = Chiudi
+       carta multi     Invio / Spazio = Prossima, S / Esc = Salta
+                       (si ferma comunque sulle carte da vedere per forza)
+       riepilogo       Invio = Apri x10, Esc = Chiudi
+       chiusura        niente
+     I tasti tenuti premuti non contano. Se col Tab e' selezionato un
+     pulsante dell'overlay, Invio e Spazio premono quello e basta.
   ════════════════════════════════════════════════════ */
+  const SHORTCUT_KEYS = new Set(['Space', 'Enter', 'NumpadEnter', 'KeyS', 'Escape']);
+
+  /** Il pulsante visibile: quello sopra al video se c'e', altrimenti l'originale. */
+  function overlayButton(id) {
+    return document.querySelector(`#card-over-video #${id}`) || $(id);
+  }
+
   function initKeyboard() {
-    document.addEventListener('keydown', e => {
-      if (e.repeat) return;
+    document.addEventListener('keydown', (e) => {
+      if (!SHORTCUT_KEYS.has(e.code) || e.ctrlKey || e.metaKey || e.altKey) return;
       // Un pop-up aperto (impostazioni, conversione...) si prende i tasti.
       if (window.LootboxModal?.anyOpen()) return;
-      // Space = pull normale
-      if (e.code==='Space' && !state.overlayOpen && !state.isPulling) {
-        if (e.target?.closest?.('input, textarea, select, button, a, .modal, dialog')) return;
+
+      const activate = e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter';
+      if (e.repeat) {
+        // Anche la pressione "nativa" di un pulsante a tasto tenuto giu'.
+        if (state.overlayOpen && activate) e.preventDefault();
+        return;
+      }
+
+      if (state.phase === 'idle') {
+        if (e.code !== 'Space') return;
+        if (e.target?.closest?.('input, textarea, select, button, a, [contenteditable], .modal, dialog')) return;
         e.preventDefault();
-        if ($(`banner-view-${state.activeBannerId}`)?.dataset.stato === 'prossimamente') { showToast(t.soon_toast, 'error'); return; }
-        state.isFastPull=false; startPull(state.activeBannerId);
+        if (!canStartPull()) return;
+        const bannerId = state.activeBannerId;
+        checkGachaBalanceAndConfirm(bannerId, 1, () => {
+          state.isFastPull = false;
+          startPull(bannerId);
+        });
+        return;
       }
-      // F = apertura veloce (skip animazione orb se skippabile)
-      // if (e.code==='KeyF' && !state.overlayOpen && !state.isPulling) {
-      //   e.preventDefault(); startPull(state.activeBannerId, true);
-      // }
-      // Enter = pull ancora
-      if (e.code==='Enter' && state.overlayOpen && !state.isPulling) {
-        e.preventDefault(); btnPullAgain?.click();
+
+      if (!state.overlayOpen) return;
+      if (activate && e.target?.closest?.('#gacha-overlay button, #gacha-overlay a')) return;
+      if (activate || e.code === 'Escape') e.preventDefault();
+
+      switch (state.phase) {
+        case 'card':
+          if (activate) overlayButton('btn-pull-again')?.click();
+          else if (e.code === 'Escape') overlayButton('btn-close-overlay')?.click();
+          break;
+        case 'multi-wait': {
+          const w = state.multiWaiter;
+          if (!w) break;
+          if (activate) w.next();
+          else if (e.code === 'Escape' || (e.code === 'KeyS' && !w.isLast)) {
+            e.preventDefault();
+            w.skip();
+          }
+          break;
+        }
+        case 'summary':
+          if (e.code === 'Enter' || e.code === 'NumpadEnter') $('btn-multi-again')?.click();
+          else if (e.code === 'Escape') $('btn-summary-close')?.click();
+          break;
+        default:
+          // anim, closing: niente
+          break;
       }
-      // Escape = chiudi
-      if (e.code==='Escape' && state.overlayOpen && !state.isPulling) {
-        e.preventDefault(); closeOverlay();
-      }
-      // S = skip
-      if (e.code==='KeyS' && state.canSkip) { e.preventDefault(); doSkip(); }
     });
   }
 

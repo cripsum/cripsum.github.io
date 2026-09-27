@@ -1323,6 +1323,12 @@ html.lm-lock body.lb-page {
     display: none;
 }
 
+/* L'overlay della pull prende il focus quando si apre (cosi' Spazio e Invio
+   non premono i pulsanti della pagina sotto): nessun contorno. */
+.lb-page .gacha-overlay:focus {
+    outline: none;
+}
+
 /* ── Pulsante audio: solo durante la pull, com'era ──────────────────── */
 .lb-page .profile-floating-audio-btn-container {
     position: fixed;
