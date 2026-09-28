@@ -50,11 +50,16 @@ $esGroups = esports_group_players($esPlayers, $esTeam['show_ex'], $esIsStaff);
 $esOrdered = array_merge($esGroups['lineup'], $esGroups['bench'], $esGroups['former'], $esGroups['hidden']);
 
 $esTeamTitle = $esTeam['label'];
+
+// Le clip usano il player degli edit: stesse etichette, una sola fonte.
+require_once __DIR__ . '/../../edits/strings.php';
+
 $bodyData = [
     'es-base' => $esTeam['url'],
     'es-copied' => $S['copied'],
     'es-copy-failed' => $S['copy_failed'],
     'es-tap' => $S['music_tap'],
+    'es-player-strings' => (string)json_encode(edits_strings($esLang)['player'] ?? [], JSON_UNESCAPED_UNICODE),
 ];
 
 /* ── Pagina del player ───────────────────────────────────────────────── */

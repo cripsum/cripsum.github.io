@@ -1257,3 +1257,15 @@ body.modal-open {
 .pages-admin-sub { display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .5rem; }
 .pages-admin-serie { color: var(--admin-muted); font-weight: 600; }
 .pages-admin-edit__info small.is-serie { margin-top: -.15rem; color: #aab3c8; font-weight: 700; }
+
+/* ── Esports: clip in game dei player (admin-esports.js) ───────────────── */
+.esports-admin-media { display: flex; flex-wrap: wrap; gap: .3rem; }
+.esports-admin-clip { display: grid; gap: .7rem; padding: .9rem; border: 1px solid var(--admin-border); border-radius: 18px; background: rgba(255,255,255,.025); }
+.esports-admin-clip__head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.esports-admin-clip__head strong { display: inline-flex; align-items: center; gap: .45rem; font-size: .95rem; }
+.esports-admin-clip__head strong i { color: var(--admin-accent); }
+.esports-admin-clip__head [hidden] { display: none; }
+.esports-admin-clip__frame { margin-top: 0; }
+.esports-admin-clip__frame canvas { height: auto; aspect-ratio: auto 16 / 9; }
+.esports-admin-clip__fields { margin: 0; }
+.esports-admin-clip__tools { display: flex; justify-content: flex-end; }

@@ -281,6 +281,73 @@ function esports_admin_audio(array $input): ?string
     return $path;
 }
 
+/**
+ * Le clip in game dal form: campi clip1_* e clip2_* (video, copertina,
+ * titolo IT/EN, larghezza e altezza lette dal pannello). Una clip senza
+ * video non si salva; il video deve essere un file caricato che esiste.
+ * Il JSON si scrive con le barre non escapate: la pulizia dei file cerca i
+ * percorsi nel testo della colonna.
+ */
+function esports_admin_clips(array $input): ?string
+{
+    $clips = [];
+
+    for ($i = 1; $i <= ESPORTS_MAX_CLIPS; $i++) {
+        $label = 'Clip ' . $i;
+        $video = trim((string)($input["clip{$i}_video"] ?? ''));
+        $hasOther = trim((string)($input["clip{$i}_copertina"] ?? '')) !== ''
+            || trim((string)($input["clip{$i}_titolo"] ?? '')) !== '';
+
+        if ($video === '') {
+            if ($hasOther) {
+                admin_fail($label . ': manca il video (o togli anche titolo e copertina).');
+            }
+            continue;
+        }
+
+        $path = '/' . ltrim(rawurldecode($video), '/');
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        if (!str_starts_with($path, '/vid/') || str_contains($path, '..') || str_contains($path, "\0") || mb_strlen($path) > 255) {
+            admin_fail($label . ': carica il video dal pannello.');
+        }
+        if (!in_array($ext, ESPORTS_VIDEO_EXTENSIONS, true)) {
+            admin_fail($label . ': formato non supportato (' . implode(', ', ESPORTS_VIDEO_EXTENSIONS) . ').');
+        }
+
+        $root = realpath(__DIR__ . '/../../vid');
+        $real = $root !== false ? realpath(__DIR__ . '/../..' . $path) : false;
+        $rootNorm = $root !== false ? rtrim(str_replace('\\', '/', $root), '/') . '/' : '';
+        if ($real === false || !is_file($real) || !str_starts_with(str_replace('\\', '/', $real), $rootNorm)) {
+            admin_fail($label . ': il video ' . $path . ' non esiste sul sito.');
+        }
+
+        $clips[] = [
+            'video' => $path,
+            'copertina' => admin_shop_image($input, "clip{$i}_copertina", $label . ': copertina'),
+            'titolo' => admin_shop_text($input, "clip{$i}_titolo", $label . ': titolo (IT)', 80),
+            'titolo_en' => admin_shop_text($input, "clip{$i}_titolo_en", $label . ': titolo (EN)', 80),
+            'larghezza' => admin_shop_int($input, "clip{$i}_larghezza", $label . ': larghezza', 0, 10000, 0),
+            'altezza' => admin_shop_int($input, "clip{$i}_altezza", $label . ': altezza', 0, 10000, 0),
+        ];
+    }
+
+    return $clips ? json_encode($clips, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null;
+}
+
+/** I file di tutte le clip (video e copertine), per ripulirli dopo un salvataggio. */
+function esports_admin_clip_files(?string $json): array
+{
+    $files = [];
+    foreach (esports_json($json) as $clip) {
+        if (is_array($clip)) {
+            $files[] = $clip['video'] ?? null;
+            $files[] = $clip['copertina'] ?? null;
+        }
+    }
+
+    return array_values(array_filter($files, 'is_string'));
+}
+
 /* ── Catalogo dei music kit ─────────────────────────────────────────── */
 
 function esports_admin_http_get(string $url, int $maxBytes): ?string
@@ -409,6 +476,10 @@ if (!$team) {
 }
 $teamId = (int)$team['id'];
 
+// Le clip arrivano con migrations/2026_09_28_esports_clip.sql: prima di
+// allora il pannello nasconde la sezione e il salvataggio non la tocca.
+$clipsReady = admin_column_exists($mysqli, 'esports_giocatori', 'clips');
+
 try {
     if ($action === 'list') {
         $players = admin_shop_rows(
@@ -434,6 +505,16 @@ try {
             $player['colore_proprio'] = $player['colore_accento'] ? 1 : 0;
             $player += esports_admin_socials_fields($player['social']);
             $player['audio_url'] = esports_audio_url($player['musica_audio']);
+
+            // Le clip tornano campi del form: clip1_video, clip1_titolo...
+            $clipList = array_values(array_filter(esports_json($player['clips'] ?? null), 'is_array'));
+            $player['clip_count'] = count($clipList);
+            for ($i = 1; $i <= ESPORTS_MAX_CLIPS; $i++) {
+                $clip = $clipList[$i - 1] ?? [];
+                foreach (['video', 'copertina', 'titolo', 'titolo_en', 'larghezza', 'altezza'] as $key) {
+                    $player["clip{$i}_{$key}"] = $clip[$key] ?? '';
+                }
+            }
         }
         unset($player);
 
@@ -459,6 +540,8 @@ try {
             'team_socials' => array_map(static fn(string $k): array => ['key' => $k] + $networks[$k], ESPORTS_TEAM_SOCIALS),
             'player_socials' => array_map(static fn(string $k): array => ['key' => $k] + $networks[$k], ESPORTS_PLAYER_SOCIALS),
             'audio_extensions' => ESPORTS_AUDIO_EXTENSIONS,
+            'clips_ready' => $clipsReady,
+            'max_clips' => ESPORTS_MAX_CLIPS,
         ]);
     }
 
@@ -587,6 +670,9 @@ try {
                 'musica_inizio' => admin_shop_int($input, 'musica_inizio', 'Parti da (secondi)', 0, 3600, 0),
                 'musica_volume' => admin_shop_int($input, 'musica_volume', 'Volume', 0, 100, 60),
             ];
+            if ($clipsReady) {
+                $fields['clips'] = esports_admin_clips($input);
+            }
 
             $columns = array_keys($fields);
             $values = array_values($fields);
@@ -596,7 +682,12 @@ try {
             if ($existing) {
                 $set = implode(', ', array_map(static fn(string $c): string => "`$c` = ?", $columns));
                 admin_shop_exec($mysqli, "UPDATE esports_giocatori SET $set WHERE id = ? LIMIT 1", $types . 'i', array_merge($values, [$id]), 'Non sono riuscito a salvare il player.')->close();
-                admin_media_cleanup($mysqli, array_map(static fn(string $c) => $existing[$c] ?? null, $media), $adminId);
+                // Foto, brano, video e copertine sostituiti o tolti: via dal
+                // disco, se nessun'altra riga li usa.
+                admin_media_cleanup($mysqli, array_merge(
+                    array_map(static fn(string $c) => $existing[$c] ?? null, $media),
+                    $clipsReady ? esports_admin_clip_files($existing['clips'] ?? null) : []
+                ), $adminId);
                 admin_log($mysqli, $adminId, 'esports_update_player', null, ['player_id' => $id, 'slug' => $fields['slug']]);
                 admin_ok(['message' => 'Player salvato.', 'id' => $id, 'slug' => $fields['slug']]);
             }
@@ -651,7 +742,10 @@ try {
                 admin_fail('Player non trovato.', 404);
             }
             admin_shop_exec($mysqli, 'DELETE FROM esports_giocatori WHERE id = ? LIMIT 1', 'i', [$id], 'Eliminazione non riuscita.')->close();
-            admin_media_cleanup($mysqli, [$player['foto'], $player['sfondo'], $player['musica_cover'], $player['musica_audio']], $adminId);
+            admin_media_cleanup($mysqli, array_merge(
+                [$player['foto'], $player['sfondo'], $player['musica_cover'], $player['musica_audio']],
+                esports_admin_clip_files($player['clips'] ?? null)
+            ), $adminId);
             admin_log($mysqli, $adminId, 'esports_delete_player', null, ['slug' => $player['slug'], 'nickname' => $player['nickname']]);
             admin_ok(['message' => 'Player eliminato.']);
 

@@ -90,6 +90,8 @@
         let fadeTimer = null;
         let blocked = false;     // il browser ha rifiutato l'avvio automatico
         let pausedByUser = false; // pausa premuta su questo player (solo su questo)
+        let clipOn = false;      // sta andando una clip del player
+        let ducked = false;      // la musica si e' fermata per lasciarle spazio
         let resumeOnVisible = false;
         let playToken = 0;       // cambia a ogni avvio o arresto
         const broken = new Set();
@@ -134,7 +136,8 @@
         };
 
         const paint = () => {
-            const waiting = Boolean(blocked && box && track);
+            // Mentre va una clip il bottone "Tocca per ascoltare" non serve.
+            const waiting = Boolean(blocked && box && track && !clipOn);
             tap.hidden = !waiting;
             tap.classList.toggle('is-visible', waiting);
 
@@ -178,7 +181,8 @@
                 // Un link del team fa partire da se' il brano della pagina di
                 // arrivo, e il tasto play/pausa fa da se': se partisse anche
                 // qui, il clic che segue lo rimetterebbe subito in pausa.
-                if (event.target.closest('a[data-es-link], [data-es-music-toggle]')) return;
+                // Dentro una clip il gesto e' per il video, non per la musica.
+                if (event.target.closest('a[data-es-link], [data-es-music-toggle], [data-es-clip]')) return;
             }
             disarm();
             if (blocked && track && !pausedByUser) play();
@@ -277,7 +281,7 @@
                 }
             } else if (resumeOnVisible) {
                 resumeOnVisible = false;
-                if (track && !pausedByUser) audio.play().catch(() => {});
+                if (track && !pausedByUser && !ducked) audio.play().catch(() => {});
             }
         });
 
@@ -288,8 +292,10 @@
              */
             prepare(next) {
                 // Ogni player che si apre riparte: la pausa premuta su un
-                // altro player valeva solo per quello.
+                // altro player valeva solo per quello, e le sue clip sono ferme.
                 pausedByUser = false;
+                clipOn = false;
+                ducked = false;
 
                 if (!next) {
                     track = null;
@@ -351,7 +357,28 @@
                     return;
                 }
                 pausedByUser = false;
+                ducked = false;
                 play();
+            },
+
+            /**
+             * Una clip del player parte o si ferma. Mentre va la clip la
+             * musica sfuma e si ferma; finita (o in pausa) la clip, riparte,
+             * se era lei a suonare e nessuno l'ha messa in pausa a mano.
+             */
+            clipActive(on) {
+                if (on === clipOn) return;
+                clipOn = on;
+                if (on) {
+                    if (track && !audio.paused && !blocked && loadedSrc === track.src) {
+                        ducked = true;
+                        fadeOutAndPause(250);
+                    }
+                } else if (ducked) {
+                    ducked = false;
+                    if (track && !pausedByUser) play();
+                }
+                paint();
             },
 
             setVolume(value) {
@@ -367,6 +394,86 @@
 
         return api;
     })();
+
+    /* ── Clip in game ───────────────────────────────────────────────── */
+
+    /*
+     * Le clip del player (al massimo due) usano il player degli edit
+     * (edits-player.js, window.CripsumPlayer). Non partono da sole: sulla
+     * pagina c'e' gia' la musica. Quando una clip parte la musica si fa da
+     * parte, quando si ferma riparte; va una clip alla volta.
+     */
+    const clips = [];
+    let clipSyncTimer = 0;
+
+    const playerStrings = (() => {
+        try {
+            return JSON.parse(body.dataset.esPlayerStrings || '{}');
+        } catch (_) {
+            return {};
+        }
+    })();
+
+    // Con "Ripeti" acceso il player alterna due video: tra la pausa di uno e
+    // la partenza dell'altro passa un attimo, e la musica non deve ripartire.
+    const syncClips = () => {
+        clearTimeout(clipSyncTimer);
+        clipSyncTimer = setTimeout(() => {
+            music.clipActive(clips.some((c) => !c.player.video.paused));
+        }, 150);
+    };
+
+    const pauseClips = (except = null) => {
+        clips.forEach((c) => {
+            if (c !== except && !c.player.video.paused) c.player.video.pause();
+        });
+    };
+
+    const mountClips = (scope) => {
+        if (!window.CripsumPlayer) return; // resta il player del browser
+        const hosts = Array.from(scope.querySelectorAll('[data-es-clip]'));
+
+        hosts.forEach((host, index) => {
+            const nextHost = hosts[index + 1] || null;
+            const entry = { host, player: null };
+
+            entry.player = window.CripsumPlayer.mount(host, {
+                src: host.dataset.src,
+                poster: host.dataset.poster || '',
+                title: host.dataset.title || '',
+                autoplay: false,
+                // Il video si scarica quando lo si fa partire: la pagina ha
+                // gia' la musica, e due clip intere all'apertura peserebbero.
+                preload: 'metadata',
+                // A fine clip, la card "Prossimo" porta all'altra clip.
+                next: nextHost ? { title: nextHost.dataset.title || '', cover: nextHost.dataset.poster || '' } : null,
+                onNext: nextHost ? () => {
+                    const other = clips.find((c) => c.host === nextHost);
+                    if (!other) return;
+                    nextHost.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    other.player.video.play()?.catch(() => {});
+                } : null,
+                strings: playerStrings,
+            });
+
+            // Gli eventi dei video non salgono: si prendono in cattura.
+            const el = entry.player.element;
+            el.addEventListener('play', (event) => {
+                if (event.target !== entry.player.video) return; // il gemello del loop
+                pauseClips(entry);
+                syncClips();
+            }, true);
+            el.addEventListener('pause', syncClips, true);
+            el.addEventListener('ended', syncClips, true);
+
+            clips.push(entry);
+        });
+    };
+
+    const destroyClips = () => {
+        clearTimeout(clipSyncTimer);
+        clips.splice(0).forEach((c) => c.player.destroy());
+    };
 
     /* ── Navigazione tra le pagine del team ─────────────────────────── */
 
@@ -425,6 +532,7 @@
 
     const initPage = (scope) => {
         music.attach(scope);
+        mountClips(scope);
         warmNeighbours(scope);
     };
 
@@ -434,6 +542,9 @@
         const current = document.querySelector('main.es-shell');
         if (!next || !current || !doc.body.classList.contains('es-page')) return false;
 
+        // I player delle clip si smontano prima di togliere la pagina:
+        // fermano i video e staccano i loro ascoltatori dal documento.
+        destroyClips();
         current.replaceWith(document.importNode(next, true));
 
         document.title = doc.title;
@@ -491,6 +602,8 @@
             scrollTo(0);
             return;
         }
+        // Una clip che sta andando si ferma subito, non quando arriva la pagina.
+        pauseClips();
         music.prepare(parseTrack(link.dataset.esMusic));
         navigate(url.pathname + url.search);
     };
@@ -557,7 +670,15 @@
     });
 
     // Frecce della tastiera sulla pagina di un player: precedente/successivo.
+    // Dentro una clip i tasti sono suoi (spazio, M, F, J/L...) e le frecce
+    // non cambiano player.
     document.addEventListener('keydown', (event) => {
+        const clipHost = event.target instanceof Element ? event.target.closest('[data-es-clip]') : null;
+        if (clipHost) {
+            const entry = clips.find((c) => c.host === clipHost);
+            if (entry && entry.player.handleKey(event)) return;
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') return;
+        }
         if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
         if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
         if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]')) return;

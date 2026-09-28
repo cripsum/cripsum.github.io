@@ -37,7 +37,10 @@ foreach (($bodyData ?? []) as $esAttr => $esValue) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7/css/flag-icons.min.css">
+    <?php // Il player degli edit, per le clip: serve anche sulla pagina del team, da cui si arriva ai player senza ricaricare. ?>
+    <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/esports/esports.css')); ?>">
+    <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo shop_h(cripsum_asset('/assets/esports/esports.js')); ?>" defer></script>
 </head>
 

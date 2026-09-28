@@ -112,8 +112,8 @@ if ($type === 'image') {
     $targetDir = __DIR__ . '/../../audio/' . $subFolder;
 } else {
     $subFolder = admin_upload_video_folder((string)($_POST['folder'] ?? ''));
-    // Gli edit si guardano nel player del browser: solo formati che sa leggere.
-    $allowedExtensions = $subFolder === 'edits/' ? ['mp4', 'webm', 'mov', 'm4v'] : ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'];
+    // Edit e clip del team si guardano nel player del browser: solo formati che sa leggere.
+    $allowedExtensions = in_array($subFolder, ['edits/', 'esports/'], true) ? ['mp4', 'webm', 'mov', 'm4v'] : ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'];
     $targetDir = __DIR__ . '/../../vid/' . $subFolder;
 }
 

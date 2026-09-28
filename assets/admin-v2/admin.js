@@ -118,6 +118,41 @@
         }
     };
 
+    /*
+     * Caricamento di un video con la barra di avanzamento (fetch non la da').
+     * folder: la cartella di vid/ (edits, esports). Il video caricato si
+     * segna come gli altri upload: se il form si chiude senza salvare, va via.
+     */
+    const uploadVideo = (file, folder, onProgress = () => {}) => new Promise((resolve, reject) => {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('type', 'video');
+        fd.append('folder', folder);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${apiBase}/upload_media.php`);
+        xhr.setRequestHeader('X-CSRF-Token', csrf);
+        xhr.setRequestHeader('X-Requested-With', 'fetch');
+        xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) onProgress(event.loaded / event.total);
+        });
+        xhr.addEventListener('load', () => {
+            let data = null;
+            try {
+                data = JSON.parse(xhr.responseText);
+            } catch (_) {
+                // risposta non JSON (limite del server superato)
+            }
+            if (xhr.status >= 200 && xhr.status < 300 && data && data.ok !== false && data.url) {
+                trackUpload(data.url);
+                resolve(data.url);
+            } else {
+                reject(new Error(data?.message || (xhr.status === 413 ? 'Il video supera il limite del server.' : `Caricamento non riuscito (HTTP ${xhr.status}).`)));
+            }
+        });
+        xhr.addEventListener('error', () => reject(new Error('Caricamento interrotto: controlla la connessione.')));
+        xhr.send(fd);
+    });
+
     const setLoading = (container, rows = 4) => {
         if (!container) return;
         container.innerHTML = `<div class="admin-stack">${Array.from({ length: rows }).map(() => '<div class="admin-row-card"><div class="admin-row-main"><span class="admin-avatar"></span><div><div class="admin-row-title">Caricamento...</div><div class="admin-row-sub">Attendi</div></div></div></div>').join('')}</div>`;
@@ -1798,6 +1833,7 @@
         enableRowDrag,
         trackUpload,
         discardPendingUploads,
+        uploadVideo,
         markModalClean: () => leaveGuard.markClean(),
         getQuery: () => state.q,
         describeLog,

@@ -23,10 +23,11 @@ const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personagg
 const ADMIN_AUDIO_FOLDERS = ['esports'];
 
 /**
- * Cartelle di vid/ in cui carica il pannello (i video degli edit). Le
- * animazioni storiche nella radice di vid/ restano fuori.
+ * Cartelle di vid/ in cui carica il pannello (i video degli edit e le clip
+ * dei player del team). Le animazioni storiche nella radice di vid/ restano
+ * fuori.
  */
-const ADMIN_VIDEO_FOLDERS = ['edits'];
+const ADMIN_VIDEO_FOLDERS = ['edits', 'esports'];
 
 /**
  * Da un valore salvato nel database (/img/merch/x.jpg, img/merch/x.jpg o
@@ -118,7 +119,7 @@ function admin_media_reference_columns(mysqli $mysqli): array
         'banner_eventi' => ['banner_img_url', 'img_url', 'image_url', 'immagine'],
         'gacha_banner' => ['banner_img_url', 'thumb_url', 'arte_url'],
         'esports_team' => ['logo', 'copertina'],
-        'esports_giocatori' => ['foto', 'sfondo', 'musica_cover', 'musica_audio'],
+        'esports_giocatori' => ['foto', 'sfondo', 'musica_cover', 'musica_audio', 'clips'],
         'team_membri' => ['foto'],
         'edits' => ['copertina', 'video', 'gif_presence'],
     ];

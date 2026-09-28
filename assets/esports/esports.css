@@ -1191,6 +1191,96 @@ a.es-palmares__name i {
     display: none;
 }
 
+/* ── Clip in game ───────────────────────────────────────────────────── */
+
+/* Al massimo due, affiancate; una sola prende tutta la larghezza. Ogni
+   schermo ha le proporzioni del suo video (--r) e non supera il 70% della
+   finestra in altezza: una clip verticale resta intera e centrata. */
+.es-clips {
+    margin-top: clamp(1rem, 2.4vw, 1.6rem);
+    padding: clamp(1.1rem, 2.4vw, 1.6rem);
+    border: 1px solid var(--es-line);
+    border-radius: 22px;
+    background: var(--es-card);
+    animation: es-rise 0.5s var(--es-ease) both 0.12s;
+}
+
+.es-clips__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: clamp(0.9rem, 2vw, 1.3rem);
+}
+
+.es-clips.is-single .es-clips__grid {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.es-clip {
+    display: grid;
+    gap: 0.65rem;
+    justify-self: center;
+    width: min(100%, calc(70vh * var(--r, 1.7778)));
+    min-width: 0;
+    margin: 0;
+}
+
+.es-clips.is-single .es-clip {
+    width: min(100%, 1000px, calc(72vh * var(--r, 1.7778)));
+}
+
+.es-clip__screen {
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--r, 16 / 9);
+    overflow: hidden;
+    border: 1px solid rgba(var(--es-accent-rgb), 0.24);
+    border-radius: 16px;
+    background: #000;
+}
+
+/* Senza JavaScript: il player del browser. */
+.es-clip__screen > video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+/* Il player degli edit prende i colori del player (o del team). */
+.es-clip .ep {
+    --ep-a1: var(--es-accent);
+    --ep-a2: #ffffff;
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+    .es-clip .ep {
+        --ep-a2: color-mix(in srgb, var(--es-accent) 55%, #ffffff);
+    }
+}
+
+.es-clip .ep__poster {
+    border-radius: 0;
+}
+
+.es-clip__title {
+    margin: 0;
+    padding-inline: 0.2rem;
+    font-family: var(--es-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+    .es-clips__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 /* ── Blocchi della pagina del player ────────────────────────────────── */
 
 .es-block {

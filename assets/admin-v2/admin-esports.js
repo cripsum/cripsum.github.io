@@ -16,7 +16,7 @@
     if (!A || !A.forms) return;
 
     const { api, confirmBox, showToast, thumb, setLoading, emptyState } = A;
-    const { fields, sectionTitle, slugify, bindForm, formModal, moveButtons, grip, bindReorder, tabs, PRESETS } = A.forms;
+    const { fields, sectionTitle, slugify, bindForm, formModal, moveButtons, grip, bindReorder, tabs, PRESETS, uploadImage } = A.forms;
     const e = A.escapeHtml;
     const $ = (sel, root = document) => root.querySelector(sel);
     const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -97,7 +97,7 @@
             <p class="admin-muted esports-admin-note">Sulla pagina i player stanno in gruppi (line-up, panchina e staff, ex); dentro ogni gruppo vale l'ordine di questa lista. Trascina le righe o usa le frecce.</p>
             ${rows.length ? `
             <table class="admin-table">
-                <thead><tr><th>Player</th><th>Ruolo</th><th>Musica</th><th>Stato</th><th>Azioni</th></tr></thead>
+                <thead><tr><th>Player</th><th>Ruolo</th><th>Musica e clip</th><th>Stato</th><th>Azioni</th></tr></thead>
                 <tbody>
                     ${rows.map((p, i) => {
                         const role = roleOf(p.ruolo);
@@ -108,9 +108,11 @@
                                 <div class="admin-row-sub"><a href="/it/ohpy/${e(p.slug)}" target="_blank" rel="noopener">/it/ohpy/${e(p.slug)} <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
                             </div></div></td>
                             <td data-label="Ruolo"><span class="esports-admin-role"><i class="${e(role.icon)}"></i> ${e(p.ruolo_label || role.label)}</span></td>
-                            <td data-label="Musica">${p.musica_audio
+                            <td data-label="Musica e clip"><div class="esports-admin-media">${p.musica_audio
                                 ? `<span class="admin-badge admin-badge--success"><i class="fa-solid fa-music"></i>${e(p.musica_titolo || 'Sì')}</span>`
-                                : '<span class="admin-muted">—</span>'}</td>
+                                : ''}${Number(p.clip_count) > 0
+                                ? `<span class="admin-badge admin-badge--info"><i class="fa-solid fa-clapperboard"></i>${Number(p.clip_count) === 1 ? '1 clip' : `${Number(p.clip_count)} clip`}</span>`
+                                : ''}${!p.musica_audio && !(Number(p.clip_count) > 0) ? '<span class="admin-muted">—</span>' : ''}</div></td>
                             <td data-label="Stato">
                                 <select class="admin-input shop-admin-state" data-state-player="${Number(p.id)}" aria-label="Stato di ${e(p.nickname)}">${stateOptions(p.stato)}</select>
                             </td>
@@ -179,6 +181,7 @@
                 <div class="esports-admin-card__top">
                     ${val('nazionalita') ? `<span class="esports-admin-code">${e(val('nazionalita'))}</span>` : ''}
                     ${val('musica_audio') ? '<i class="fa-solid fa-music"></i>' : ''}
+                    ${val('clip1_video') || val('clip2_video') ? '<i class="fa-solid fa-clapperboard"></i>' : ''}
                     ${premier ? `<b style="--t: ${premierColor(premier)}">${premier >= 1000 ? `${Math.floor(premier / 1000)}<small>,${String(premier % 1000).padStart(3, '0')}</small>` : premier}</b>` : ''}
                 </div>
                 <div class="esports-admin-card__body">
@@ -426,6 +429,254 @@
         setPreview();
     };
 
+    /* ── Clip in game (al massimo 2 per player) ─────────────────────── */
+
+    /*
+     * Due spazi fissi, "Clip 1" e "Clip 2", come il campo video degli Edit:
+     * il video si carica in vid/esports/ con la barra di avanzamento,
+     * proporzioni e fotogramma si leggono dal file locale senza aspettare il
+     * caricamento, e un fotogramma diventa la copertina. I valori stanno in
+     * campi nascosti clipN_*, che il server trasforma nel JSON della colonna.
+     */
+    const CLIP_KEYS = ['video', 'copertina', 'titolo', 'titolo_en', 'larghezza', 'altezza'];
+    const CLIP_EMPTY_INFO = 'MP4 o WebM, fino a 100 MB. Meglio H.264: lo leggono tutti i browser.';
+
+    const fmtSize = (bytes) => (bytes > 1048576 ? `${(bytes / 1048576).toFixed(1).replace('.', ',')} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
+
+    const clipSlot = (i, values) => {
+        const v = (key) => values[`clip${i}_${key}`] ?? '';
+        const has = Boolean(v('video'));
+        return `
+            <div class="admin-field admin-field--full esports-admin-clip" data-clip-slot="${i}">
+                <div class="esports-admin-clip__head">
+                    <strong><i class="fa-solid fa-clapperboard"></i> Clip ${i}</strong>
+                    <button type="button" class="admin-btn admin-btn--small admin-btn--danger" data-clip-remove ${has ? '' : 'hidden'}><i class="fa-solid fa-trash"></i> Togli</button>
+                </div>
+                <input type="hidden" name="clip${i}_video" value="${e(v('video'))}">
+                <input type="hidden" name="clip${i}_larghezza" value="${e(v('larghezza'))}">
+                <input type="hidden" name="clip${i}_altezza" value="${e(v('altezza'))}">
+                <div class="pages-admin-vfile">
+                    <i class="fa-solid fa-file-video"></i>
+                    <div>
+                        <strong data-clip-name></strong>
+                        <small data-clip-info></small>
+                        <span class="pages-admin-progress" data-clip-progress hidden><i></i></span>
+                    </div>
+                    <label class="admin-btn admin-btn--small"><i class="fa-solid fa-upload"></i> <span data-clip-choose></span><input type="file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v" data-clip-file hidden></label>
+                </div>
+                <div class="pages-admin-frame esports-admin-clip__frame" data-clip-frame hidden>
+                    <canvas data-clip-canvas width="160" height="90" aria-hidden="true"></canvas>
+                    <div>
+                        <small class="shop-admin-help" data-clip-time>Scegli il fotogramma per la copertina</small>
+                        <input type="range" class="esports-admin-range" min="0" max="1" step="0.05" value="0" data-clip-range aria-label="Fotogramma della copertina della clip ${i}">
+                        <button type="button" class="admin-btn admin-btn--small" data-clip-use><i class="fa-solid fa-image"></i> Usa questo fotogramma</button>
+                    </div>
+                </div>
+                <div class="admin-form-grid esports-admin-clip__fields">
+                    ${fields([
+                        { name: `clip${i}_copertina`, label: 'Copertina', type: 'image', full: true, help: 'Si vede prima di far partire la clip. Caricando il video se ne prende una da sola: la cambi col cursore qui sopra o caricandone un\'altra.' },
+                        { name: `clip${i}_titolo`, label: 'Titolo (IT)', max: 80, placeholder: 'es. Ace con la Deagle su Mirage' },
+                        { name: `clip${i}_titolo_en`, label: 'Titolo (EN)', max: 80, placeholder: 'vuoto = usa l\'italiano' },
+                    ], values)}
+                </div>
+            </div>`;
+    };
+
+    const clipsSection = (values, ctx) => (ctx.clips_ready
+        ? [
+            sectionTitle('Clip in game', 'Al massimo 2. Si guardano sulla sua pagina nel player del sito, con copertina e titolo; mentre va una clip la musica si ferma.'),
+            clipSlot(1, values),
+            clipSlot(2, values),
+            '<div class="admin-field--full esports-admin-clip__tools"><button type="button" class="admin-btn admin-btn--small" data-clip-swap><i class="fa-solid fa-right-left"></i> Scambia l\'ordine</button></div>',
+        ]
+        : [
+            sectionTitle('Clip in game'),
+            '<p class="shop-admin-note admin-field--full"><i class="fa-solid fa-circle-info"></i> Applica migrations/2026_09_28_esports_clip.sql per caricare le clip dei player.</p>',
+        ]);
+
+    const bindClips = (form) => {
+        const slots = $$('[data-clip-slot]', form);
+        if (!slots.length) return;
+        const views = new Map();
+
+        slots.forEach((slot) => {
+            const i = slot.dataset.clipSlot;
+            const input = (key) => form.elements[`clip${i}_${key}`];
+            const name = $('[data-clip-name]', slot);
+            const info = $('[data-clip-info]', slot);
+            const progress = $('[data-clip-progress]', slot);
+            const choose = $('[data-clip-choose]', slot);
+            const remove = $('[data-clip-remove]', slot);
+            const frame = $('[data-clip-frame]', slot);
+            const canvas = $('[data-clip-canvas]', slot);
+            const range = $('[data-clip-range]', slot);
+            const timeLabel = $('[data-clip-time]', slot);
+            let probe = null;
+            let autoCover = false;
+
+            const setCover = (url) => {
+                const cover = input('copertina');
+                cover.value = url;
+                cover.dispatchEvent(new Event('input', { bubbles: true }));
+            };
+
+            const draw = () => {
+                if (!probe || !probe.videoWidth) return;
+                canvas.width = probe.videoWidth;
+                canvas.height = probe.videoHeight;
+                canvas.getContext('2d').drawImage(probe, 0, 0, canvas.width, canvas.height);
+                timeLabel.textContent = `Fotogramma a ${seconds(probe.currentTime)}`;
+            };
+
+            const useFrame = async (silent = false) => {
+                if (!probe || !probe.videoWidth) return;
+                const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.86));
+                if (!blob) return;
+                try {
+                    if (!silent) showToast('Caricamento copertina...');
+                    setCover(await uploadImage(new File([blob], `clip-${i}.jpg`, { type: 'image/jpeg' }), 'esports'));
+                    if (!silent) showToast('Copertina aggiornata.');
+                } catch (error) {
+                    showToast(error.message, true);
+                }
+            };
+
+            const dropProbe = () => {
+                if (!probe) return;
+                probe.removeAttribute('src');
+                probe.load();
+                probe = null;
+            };
+
+            // fresh: file appena scelto (si legge dal computer, tutto subito,
+            // e se manca la copertina se ne prende una da sola). Altrimenti il
+            // video sul sito: solo quello che serve per il fotogramma.
+            const loadProbe = (src, fresh = false) => {
+                dropProbe();
+                const video = document.createElement('video');
+                probe = video;
+                video.muted = true;
+                video.playsInline = true;
+                video.crossOrigin = 'anonymous';
+                video.preload = fresh ? 'auto' : 'metadata';
+                autoCover = fresh && !input('copertina').value.trim();
+                video.addEventListener('loadedmetadata', () => {
+                    if (probe !== video) return;
+                    input('larghezza').value = video.videoWidth || '';
+                    input('altezza').value = video.videoHeight || '';
+                    // Il video sul sito dice le sue misure vere: quelle salvate possono essere vecchie.
+                    if (!fresh && video.videoWidth) {
+                        info.textContent = `Già sul sito · ${seconds(video.duration)} · ${video.videoWidth}×${video.videoHeight}`;
+                    }
+                    range.max = String(Math.max(0.1, video.duration || 0));
+                    // Un terzo dentro la clip: di solito c'e' gia' l'azione.
+                    range.value = String((video.duration || 0) / 3);
+                    video.currentTime = Number(range.value);
+                    frame.hidden = false;
+                });
+                video.addEventListener('seeked', () => {
+                    if (probe !== video) return;
+                    draw();
+                    if (autoCover) {
+                        autoCover = false;
+                        useFrame(true);
+                    }
+                });
+                video.addEventListener('error', () => {
+                    if (probe === video && fresh) info.textContent = 'Il browser non riesce a leggere questo video: prova un MP4 (H.264).';
+                });
+                video.src = src;
+            };
+
+            // La vista dello spazio dai valori dei campi (all'apertura e dopo "Scambia").
+            const refresh = () => {
+                const video = input('video').value;
+                const width = input('larghezza').value;
+                name.textContent = video ? String(video).split('/').pop() : 'Nessun video';
+                info.textContent = video ? `Già sul sito${width ? ` · ${width}×${input('altezza').value}` : ''}` : CLIP_EMPTY_INFO;
+                choose.textContent = video ? 'Sostituisci' : 'Scegli il video';
+                remove.hidden = !video;
+                frame.hidden = true;
+                if (video) loadProbe(video);
+                else dropProbe();
+            };
+
+            range.addEventListener('input', () => {
+                if (probe) probe.currentTime = Number(range.value);
+            });
+            $('[data-clip-use]', slot).addEventListener('click', () => useFrame(false));
+
+            $('[data-clip-file]', slot).addEventListener('change', async (event) => {
+                const file = event.target.files?.[0];
+                event.target.value = '';
+                if (!file) return;
+                name.textContent = file.name;
+                info.textContent = `${fmtSize(file.size)} · caricamento...`;
+                progress.hidden = false;
+                progress.firstElementChild.style.width = '0%';
+                loadProbe(URL.createObjectURL(file), true);
+                try {
+                    const url = await A.uploadVideo(file, 'esports', (p) => {
+                        progress.firstElementChild.style.width = `${Math.round(p * 100)}%`;
+                    });
+                    input('video').value = url;
+                    const width = input('larghezza').value;
+                    info.textContent = `${fmtSize(file.size)} · caricato${probe?.duration ? ` · ${seconds(probe.duration)}` : ''}${width ? ` · ${width}×${input('altezza').value}` : ''}`;
+                    choose.textContent = 'Sostituisci';
+                    remove.hidden = false;
+                    form.dispatchEvent(new Event('input'));
+                } catch (error) {
+                    info.textContent = error.message;
+                    showToast(error.message, true);
+                } finally {
+                    progress.hidden = true;
+                }
+            });
+
+            // Togli: conferma sullo stesso tasto (dentro una finestra non se
+            // ne apre un'altra). Il video si cancella dal sito quando salvi.
+            remove.addEventListener('click', () => {
+                if (remove.dataset.armed !== '1') {
+                    remove.dataset.armed = '1';
+                    remove.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Sicuro?';
+                    setTimeout(() => {
+                        remove.dataset.armed = '';
+                        remove.innerHTML = '<i class="fa-solid fa-trash"></i> Togli';
+                    }, 3000);
+                    return;
+                }
+                remove.dataset.armed = '';
+                remove.innerHTML = '<i class="fa-solid fa-trash"></i> Togli';
+                CLIP_KEYS.forEach((key) => { input(key).value = ''; });
+                input('copertina').dispatchEvent(new Event('input', { bubbles: true }));
+                refresh();
+                form.dispatchEvent(new Event('input'));
+            });
+
+            views.set(i, { refresh, drop: dropProbe });
+            refresh();
+        });
+
+        $('[data-clip-swap]', form)?.addEventListener('click', () => {
+            CLIP_KEYS.forEach((key) => {
+                const a = form.elements[`clip1_${key}`];
+                const b = form.elements[`clip2_${key}`];
+                [a.value, b.value] = [b.value, a.value];
+            });
+            ['1', '2'].forEach((i) => {
+                form.elements[`clip${i}_copertina`].dispatchEvent(new Event('input', { bubbles: true }));
+                views.get(i)?.refresh();
+            });
+            form.dispatchEvent(new Event('input'));
+            showToast('Ordine delle clip scambiato.');
+        });
+
+        // Chiusa la finestra, i video letti per il fotogramma non restano a scaricare.
+        $('#adminModal')?.addEventListener('hidden.bs.modal', () => {
+            views.forEach((view) => view.drop());
+        }, { once: true });
+    };
+
     const playerForm = (item, ctx, reload) => {
         const values = item
             ? {
@@ -491,6 +742,8 @@
 
                 sectionTitle('Musica', 'Parte da sola quando si apre la sua pagina. Carica l\'mp3 del suo music kit o incolla un link https.'),
                 musicFields(values),
+
+                ...clipsSection(values, ctx),
             ], values)}`;
 
         formModal({
@@ -513,6 +766,7 @@
                 bindForm(form, () => playerPreview(form, ctx), 'esports');
                 bindKitSearch(form);
                 bindMusic(form);
+                bindClips(form);
             },
         });
     };

@@ -3,6 +3,10 @@
  *
  *   const player = CripsumPlayer.mount(el, {
  *       src, poster, title, autoplay: true,
+ *       preload: 'metadata',       // facoltativo (predefinito 'auto'): con
+ *                                  // 'metadata' o 'none' il video si scarica
+ *                                  // solo quando parte, e il gemello del loop
+ *                                  // nasce al primo play (le clip del team)
  *       next: { title, cover },    // facoltativo: la card "Prossimo" a fine video
  *       onNext: () => {...},
  *       strings: { play: 'Riproduci', ... },
@@ -97,7 +101,7 @@
         return `
         <div class="ep" data-state="paused" data-controls="visible" data-started="false">
             <div class="ep__stage">
-                <video class="ep__video is-active" playsinline preload="auto"></video>
+                <video class="ep__video is-active" playsinline preload="${esc(o.preload || 'auto')}"></video>
             </div>
             ${o.poster ? `<img class="ep__poster" src="${esc(o.poster)}" alt="">` : ''}
             <div class="ep__shade" aria-hidden="true"></div>
@@ -938,7 +942,18 @@
         active.src = options.src || '';
         loopBtn.classList.toggle('is-on', prefs.loop);
         loopBtn.setAttribute('aria-pressed', prefs.loop ? 'true' : 'false');
-        if (prefs.loop && options.src) spare = makeTwin();
+        // Con preload leggero il gemello del loop (un secondo download dello
+        // stesso video) nasce solo quando il video parte davvero.
+        const lazy = options.preload === 'metadata' || options.preload === 'none';
+        if (prefs.loop && options.src && !lazy) spare = makeTwin();
+        if (lazy && options.src) {
+            active.addEventListener('play', () => {
+                if (prefs.loop && !spare && !destroyed) {
+                    spare = makeTwin();
+                    watch();
+                }
+            }, { once: true });
+        }
         if (options.autoplay) play();
 
         return {

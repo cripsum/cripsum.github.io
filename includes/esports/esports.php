@@ -18,6 +18,10 @@ const ESPORTS_STATES = ['titolare', 'riserva', 'staff', 'ex', 'nascosto'];
 /** Formati audio accettati per la musica dei player. */
 const ESPORTS_AUDIO_EXTENSIONS = ['mp3', 'ogg', 'm4a', 'aac', 'wav', 'webm'];
 
+/** Clip in game: formati che il player del browser sa leggere (come gli edit). */
+const ESPORTS_VIDEO_EXTENSIONS = ['mp4', 'webm', 'mov', 'm4v'];
+const ESPORTS_MAX_CLIPS = 2;
+
 /** Social mostrati nella testata del team e nelle pagine dei player, in quest'ordine. */
 const ESPORTS_TEAM_SOCIALS = ['discord', 'twitch', 'instagram', 'tiktok', 'youtube', 'x', 'faceit'];
 const ESPORTS_PLAYER_SOCIALS = ['steam', 'faceit', 'leetify', 'twitch', 'instagram', 'tiktok', 'youtube', 'x'];
@@ -349,6 +353,59 @@ function esports_audio_url(?string $value): string
 }
 
 /**
+ * Indirizzo di una clip pronto per <video>: solo file caricati dentro /vid/,
+ * con i pezzi del percorso codificati come per l'audio.
+ */
+function esports_video_url(?string $value): string
+{
+    $path = rawurldecode(trim((string)$value));
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+    if (!str_starts_with($path, '/vid/') || str_contains($path, '..') || str_contains($path, "\0")
+        || !in_array($ext, ESPORTS_VIDEO_EXTENSIONS, true)) {
+        return '';
+    }
+
+    return implode('/', array_map('rawurlencode', explode('/', $path)));
+}
+
+/**
+ * Le clip in game di un player, al massimo due, nell'ordine del pannello:
+ *   [{"video", "copertina", "titolo", "titolo_en", "larghezza", "altezza"}]
+ * Le proporzioni arrivano dal video (le legge il pannello al caricamento):
+ * la pagina riserva lo spazio giusto prima che il video si carichi.
+ */
+function esports_clips(?string $json, string $lang): array
+{
+    $clips = [];
+
+    foreach (esports_json($json) as $item) {
+        if (!is_array($item) || count($clips) >= ESPORTS_MAX_CLIPS) {
+            continue;
+        }
+
+        $src = esports_video_url($item['video'] ?? '');
+        if ($src === '') {
+            continue;
+        }
+
+        $width = (int)($item['larghezza'] ?? 0);
+        $height = (int)($item['altezza'] ?? 0);
+        $ratio = $width > 0 && $height > 0 ? $width / $height : 16 / 9;
+
+        $clips[] = [
+            'src' => $src,
+            'poster' => shop_asset_url($item['copertina'] ?? ''),
+            'title' => shop_pick($item, 'titolo', $lang),
+            'ratio' => round($ratio, 4),
+            'shape' => $ratio > 1.08 ? 'landscape' : ($ratio < 0.93 ? 'portrait' : 'square'),
+        ];
+    }
+
+    return $clips;
+}
+
+/**
  * Le variabili CSS del colore principale. Il testo sopra l'accento
  * diventa scuro quando l'accento e' chiaro, come nelle vetrine dello shop.
  */
@@ -541,6 +598,7 @@ function esports_player_view(array $row, string $lang): array
         'username' => $username,
         'music' => $music,
         'music_data' => esports_music_data($music, trim((string)$row['nickname'])),
+        'clips' => esports_clips($row['clips'] ?? null, $lang),
         'url' => '/' . $lang . '/ohpy/' . rawurlencode($slug),
     ];
 }

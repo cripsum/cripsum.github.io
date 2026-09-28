@@ -384,36 +384,8 @@
         return '<span class="pages-admin-src pages-admin-src--stream"><i class="fa-solid fa-link"></i> Streamable</span>';
     };
 
-    /* Carica il video con la barra di avanzamento (fetch non la da'). */
-    const uploadVideo = (file, onProgress) => new Promise((resolve, reject) => {
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('type', 'video');
-        fd.append('folder', 'edits');
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/admin/upload_media.php');
-        xhr.setRequestHeader('X-CSRF-Token', document.body.dataset.csrf || '');
-        xhr.setRequestHeader('X-Requested-With', 'fetch');
-        xhr.upload.addEventListener('progress', (event) => {
-            if (event.lengthComputable) onProgress(event.loaded / event.total);
-        });
-        xhr.addEventListener('load', () => {
-            let data = null;
-            try {
-                data = JSON.parse(xhr.responseText);
-            } catch (_) {
-                // risposta non JSON (limite del server superato)
-            }
-            if (xhr.status >= 200 && xhr.status < 300 && data && data.ok !== false && data.url) {
-                A.trackUpload?.(data.url);
-                resolve(data.url);
-            } else {
-                reject(new Error(data?.message || (xhr.status === 413 ? 'Il video supera il limite del server.' : `Caricamento non riuscito (HTTP ${xhr.status}).`)));
-            }
-        });
-        xhr.addEventListener('error', () => reject(new Error('Caricamento interrotto: controlla la connessione.')));
-        xhr.send(fd);
-    });
+    /* Carica il video con la barra di avanzamento (in admin.js, lo usano anche le clip del team). */
+    const uploadVideo = (file, onProgress) => A.uploadVideo(file, 'edits', onProgress);
 
     const editPreview = (form, ctx) => {
         const box = $('[data-edit-preview]', form);
