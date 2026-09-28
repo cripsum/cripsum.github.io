@@ -156,7 +156,8 @@ function edits_view(array $row, string $lang): array
         'shape' => $shape,
         // Senza copertina si usa la GIF della presence, poi niente.
         'cover' => $cover !== '' ? $cover : $gif,
-        'presence_image' => $gif !== '' ? $gif : $cover,
+        // PreMiD usa sempre questa immagine: senza GIF e senza copertina, l'anteprima del sito.
+        'presence_image' => $gif !== '' ? $gif : ($cover !== '' ? $cover : '/img/og-default.jpg'),
         'label' => $label !== '' ? $label : '',
         'is_new' => $isNew,
         'featured' => (int)($row['in_evidenza'] ?? 0) === 1,

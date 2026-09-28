@@ -289,9 +289,7 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
                             <?php endif; ?>
                         </div>
                         <button type="button" class="edit-card__hit" data-edit-open="<?php echo (int)$edit['id']; ?>" aria-label="<?php echo shop_h(sprintf($S['watch'], $edit['full_title'])); ?>"></button>
-                        <?php if ($edit['presence_image'] !== ''): ?>
-                            <img class="rpcimg" src="<?php echo shop_h($edit['presence_image']); ?>" alt="" hidden loading="lazy">
-                        <?php endif; ?>
+                        <img class="rpcimg" src="<?php echo shop_h($edit['presence_image']); ?>" alt="" hidden loading="lazy">
                     </article>
                 <?php endforeach; ?>
             </section>

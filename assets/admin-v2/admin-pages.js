@@ -665,7 +665,7 @@
             ${fields([
                 sectionTitle('Immagini'),
                 { name: 'copertina', label: 'Copertina', type: 'image', full: true, help: 'Il fotogramma scelto sopra, quella di Streamable o una tua.' },
-                { name: 'gif_presence', label: 'GIF per la rich presence (PreMiD)', type: 'image', full: true, help: 'Non si vede sulla pagina: è l\'immagine invisibile che PreMiD manda a Discord quando qualcuno apre l\'edit. Di solito una GIF di Tenor. Vuota = la copertina.' },
+                { name: 'gif_presence', label: 'GIF per la rich presence (PreMiD)', type: 'image', full: true, help: 'Non si vede sulla pagina: è l\'immagine invisibile che PreMiD manda a Discord quando qualcuno apre l\'edit. Di solito una GIF di Tenor. Vuota = la copertina, o l\'anteprima del sito se manca anche quella.' },
                 sectionTitle('Extra', 'Tutto facoltativo.'),
                 { name: 'collab_nome', label: 'Collab con', max: 60, placeholder: 'es. Nauz' },
                 { name: 'collab_link', label: 'Link della collab', max: 255, placeholder: 'https://...' },
