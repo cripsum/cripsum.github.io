@@ -25,7 +25,7 @@ $esHasSide = $p['crosshair'] !== '' || $p['setup'] || $p['socials'] || $p['profi
 ?>
 <main class="es-shell es-player" id="es-main" data-es-page="player" data-es-slug="<?php echo shop_h($p['slug']); ?>">
     <a class="es-back" href="<?php echo shop_h($esTeam['url']); ?>" data-es-link>
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> <?php echo shop_h('Team ' . $esTeam['name']); ?>
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> <?php echo shop_h($esTeam['label']); ?>
     </a>
 
     <?php if ($p['state'] === 'nascosto'): ?>

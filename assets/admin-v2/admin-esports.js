@@ -557,7 +557,7 @@
         ], values);
 
         formModal({
-            title: `Team ${ctx.team.nome}`,
+            title: /^team\b/i.test(ctx.team.nome) ? ctx.team.nome : `Team ${ctx.team.nome}`,
             subtitle: 'Testata, colori, social e palmarès della pagina /it/ohpy',
             html,
             endpoint: EP,

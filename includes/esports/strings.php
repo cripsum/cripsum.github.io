@@ -51,9 +51,9 @@ function esports_strings(string $lang): array
             'level' => 'Livello %d',
             'rating_premier' => 'Premier rating',
             'rating_faceit' => 'FACEIT',
-            'presence_team' => 'Guardando il team %s',
+            'presence_team' => 'Guardando il %s',
             'presence_player' => 'Guardando la pagina di %s',
-            'player_fallback_desc' => '%s, %s del team %s.',
+            'player_fallback_desc' => '%s, %s del %s.',
             'swipe_hint' => 'Scorri per cambiare player',
         ],
         'en' => [
@@ -99,9 +99,9 @@ function esports_strings(string $lang): array
             'level' => 'Level %d',
             'rating_premier' => 'Premier rating',
             'rating_faceit' => 'FACEIT',
-            'presence_team' => 'Checking out team %s',
+            'presence_team' => 'Checking out %s',
             'presence_player' => 'Checking out %s',
-            'player_fallback_desc' => '%s, %s of team %s.',
+            'player_fallback_desc' => '%s, %s of %s.',
             'swipe_hint' => 'Swipe to change player',
         ],
     ];

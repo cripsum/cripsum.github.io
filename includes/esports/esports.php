@@ -403,6 +403,16 @@ function esports_player_rows(mysqli $mysqli, int $teamId): array
     );
 }
 
+/**
+ * Il nome del team come lo si legge fuori dalla testata (tasto indietro,
+ * titolo della scheda del browser, Rich Presence): "OHPY" diventa
+ * "Team OHPY", un nome che comincia gia' con "Team" resta com'e'.
+ */
+function esports_team_label(string $name): string
+{
+    return preg_match('/^team\b/iu', $name) ? $name : 'Team ' . $name;
+}
+
 function esports_team_view(array $row, string $lang): array
 {
     $accent = shop_hex($row['colore_accento'] ?? null, '#f5a524');
@@ -416,6 +426,7 @@ function esports_team_view(array $row, string $lang): array
         'id' => (int)$row['id'],
         'slug' => (string)$row['slug'],
         'name' => trim((string)$row['nome']),
+        'label' => esports_team_label(trim((string)$row['nome'])),
         'game' => trim((string)($row['gioco'] ?? '')) ?: 'Counter-Strike 2',
         'tagline' => shop_pick($row, 'frase', $lang),
         'description' => shop_pick($row, 'descrizione', $lang),

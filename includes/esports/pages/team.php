@@ -49,7 +49,7 @@ $esGroups = esports_group_players($esPlayers, $esTeam['show_ex'], $esIsStaff);
 // griglia: si scorrono i player come li vede chi guarda la pagina.
 $esOrdered = array_merge($esGroups['lineup'], $esGroups['bench'], $esGroups['former'], $esGroups['hidden']);
 
-$esTeamTitle = 'Team ' . $esTeam['name'];
+$esTeamTitle = $esTeam['label'];
 $bodyData = [
     'es-base' => $esTeam['url'],
     'es-copied' => $S['copied'],
@@ -89,7 +89,7 @@ if ($esPlayerSlug !== '') {
 
     $pageTitle = $esPlayer['nickname'] . ' · ' . $esTeam['name'];
     $pageDescription = $esPlayer['tagline'] !== '' ? $esPlayer['tagline']
-        : ($esPlayer['bio'] !== '' ? $esPlayer['bio'] : sprintf($S['player_fallback_desc'], $esPlayer['nickname'], $esPlayer['role_label'], $esTeam['name']));
+        : ($esPlayer['bio'] !== '' ? $esPlayer['bio'] : sprintf($S['player_fallback_desc'], $esPlayer['nickname'], $esPlayer['role_label'], $esTeam['label']));
     $pageImage = $esPlayer['photo'] !== '' ? $esPlayer['photo'] : ($esTeam['cover'] ?: $esTeam['logo']);
     $presence = ['title' => $esTeamTitle, 'state' => sprintf($S['presence_player'], $esPlayer['nickname'])];
 
@@ -107,7 +107,7 @@ if ($esPlayerSlug !== '') {
 $pageTitle = $esTeamTitle . ' · ' . $esTeam['game'];
 $pageDescription = $esTeam['tagline'] !== '' ? $esTeam['tagline'] : $esTeam['description'];
 $pageImage = $esTeam['cover'] ?: $esTeam['logo'];
-$presence = ['title' => $esTeamTitle, 'state' => sprintf($S['presence_team'], $esTeam['name'])];
+$presence = ['title' => $esTeamTitle, 'state' => sprintf($S['presence_team'], $esTeam['label'])];
 $bodyStyle = $esTeam['style'];
 
 include __DIR__ . '/../partials/top.php';
