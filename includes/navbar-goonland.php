@@ -34,7 +34,6 @@ if ($isLoggedIn) {
     $profilePic   = $navCtx['profilePic'];
     $ruolo        = $navCtx['ruolo'];
     $nsfw         = $navCtx['nsfw'];
-    $richpresence = $navCtx['richpresence'];
 }
 
 nav_render($navCtx);

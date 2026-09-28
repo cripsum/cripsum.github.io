@@ -490,7 +490,7 @@
     const accountOriginal = (u) => {
         const out = { username: u.username || '', email: u.email || '', ruolo: u.ruolo || 'utente', data_creazione: inputDate(u.data_creazione) };
         if ('display_name' in u) out.display_name = u.display_name || '';
-        ['email_verificata', 'is_premium', 'nsfw', 'richpresence'].forEach((key) => {
+        ['email_verificata', 'is_premium', 'nsfw'].forEach((key) => {
             if (key in u) out[key] = flag(u[key]);
         });
         return out;
@@ -542,7 +542,6 @@
                         </div>
                         <p class="admin-user-premium" data-premium-off hidden><i class="fa-solid fa-circle-info"></i> Toglie anche il badge Premium. I Godos del bonus restano all'utente.</p>` : ''}
                     ${'nsfw' in o ? switchRow('nsfw', 'Contenuti NSFW', 'Come «Mostra NSFW» nelle impostazioni dell\'utente.', o.nsfw) : ''}
-                    ${'richpresence' in o ? switchRow('richpresence', 'Rich Presence', "Preferenza salvata nelle impostazioni dell'account.", o.richpresence) : ''}
                 </div>
 
                 <div class="admin-user-2fa${twofaActive(u) ? ' is-on' : ''}">

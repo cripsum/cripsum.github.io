@@ -97,7 +97,6 @@ if (!function_exists('nav_bootstrap')) {
             'username'     => $isLoggedIn ? ($_SESSION['username'] ?? 'Utente') : '',
             'ruolo'        => $isLoggedIn ? ($_SESSION['ruolo'] ?? '') : '',
             'nsfw'         => $isLoggedIn ? (int)($_SESSION['nsfw'] ?? 0) : 0,
-            'richpresence' => $isLoggedIn ? (int)($_SESSION['richpresence'] ?? 0) : 0,
             'isPremium'    => $isLoggedIn ? (int)($_SESSION['is_premium'] ?? 0) : 0,
         ];
 
@@ -640,10 +639,6 @@ if (!function_exists('nav_bootstrap')) {
                 };
             </script>
             <script src="/js/navbar.js?v=<?= $jsVer ?>" defer></script>
-        <?php endif; ?>
-
-        <?php if ($ctx['richpresence'] === 1): ?>
-            <script src="/js/richpresence.js?v=5" defer></script>
         <?php endif; ?>
 
         <?php if ($isLoggedIn): ?>

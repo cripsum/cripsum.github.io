@@ -9,7 +9,6 @@
  *   $pageImage       immagine per le anteprime (facoltativa)
  *   $bodyStyle       variabili CSS del tema (facoltative)
  *   $bodyData        attributi data-* del body per esports.js (facoltativi)
- *   $presence        ['title' => ..., 'state' => ...] per la Rich Presence (facoltativa)
  *
  * Si include dal livello principale della pagina: la navbar e head-import
  * leggono $mysqli e scrivono $lang e $t nello stesso scope.
@@ -35,7 +34,6 @@ foreach (($bodyData ?? []) as $esAttr => $esValue) {
     <?php include __DIR__ . '/../../head-import.php'; ?>
     <title><?php echo shop_h('Cripsum™ - ' . $pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <?php if (!empty($presence)) echo shop_presence_meta($presence['title'], $presence['state']); ?>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7/css/flag-icons.min.css">

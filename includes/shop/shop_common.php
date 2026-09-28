@@ -252,17 +252,6 @@ function shop_localize_link(string $link, string $lang): string
 }
 
 /**
- * Meta tag letto da richpresence.js: la presenza Discord di una pagina
- * costruita dal database ("Acquistando il merch di Poppy") senza doverla
- * scrivere a mano nella mappa degli URL.
- */
-function shop_presence_meta(string $title, string $state): string
-{
-    return '<meta name="cripsum:presence-title" content="' . shop_h($title) . '">' . "\n"
-        . '<meta name="cripsum:presence-state" content="' . shop_h($state) . '">';
-}
-
-/**
  * Coppie etichetta/valore salvate in JSON con le due lingue dentro:
  *   {"it": [["Materiale", "Cotone"]], "en": [["Material", "Cotton"]]}
  * Una lingua vuota ricade sull'altra. Esce [['label' => ..., 'value' => ...]].

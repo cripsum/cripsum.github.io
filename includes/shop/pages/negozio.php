@@ -53,11 +53,6 @@ $pageDescription = $vetrina['subtitle'];
 $pageImage = $vetrina['cover'] ?: ($products[0]['image'] ?? '');
 $bodyClass = 'shop-theme-store';
 $bodyStyle = $vetrina['style'];
-$presence = [
-    'title' => $shopLang === 'en' ? 'Shop' : 'Negozio',
-    'state' => $shopLang === 'en' ? 'Buying useless stuff' : 'Acquistando minchiate',
-];
-
 include __DIR__ . '/../partials/top.php';
 include __DIR__ . '/vetrina.php';
 include __DIR__ . '/../partials/bottom.php';

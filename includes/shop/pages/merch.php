@@ -92,11 +92,6 @@ if (!$vetrina) {
     // L'elenco ha i colori del Negozio; ogni card tiene quelli della sua collezione.
     $bodyClass = 'shop-theme-store';
     $bodyStyle = shop_store_style($mysqli, $shopLang);
-    $presence = [
-        'title' => 'Merch',
-        'state' => $shopLang === 'en' ? 'Browsing the merch' : 'Guardando il merch',
-    ];
-
     include __DIR__ . '/../partials/top.php';
     include __DIR__ . '/merch_hub.php';
     include __DIR__ . '/../partials/bottom.php';
@@ -122,11 +117,6 @@ $pageDescription = $vetrina['subtitle'];
 $pageImage = $vetrina['cover'] ?: ($vetrina['logo'] ?: ($products[0]['image'] ?? ''));
 $bodyClass = 'shop-theme-merch';
 $bodyStyle = $vetrina['style'];
-$presence = [
-    'title' => 'Merch',
-    'state' => ($shopLang === 'en' ? 'Shopping the ' : 'Acquistando il merch di ') . $vetrina['name'] . ($shopLang === 'en' ? ' merch' : ''),
-];
-
 include __DIR__ . '/../partials/top.php';
 include __DIR__ . '/vetrina.php';
 include __DIR__ . '/../partials/bottom.php';

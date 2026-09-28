@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = 'September 27, 2026';
+$lastUpdated = 'September 28, 2026';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -120,7 +120,7 @@ $lastUpdated = 'September 27, 2026';
                     </ul>
                     <h3>Other data</h3>
                     <ul>
-                        <li>Applications for the About us page: username, email, description, photo, socials and links you send us.</li>
+                        <li>Applications for the About us page: your account, the name to show, description, photo, socials and links you send us. We review them in the site panel and answer in your site inbox; only the staff can see the photo until the application is accepted.</li>
                         <li>Requests to export your data or delete your account.</li>
                         <li>Browsing data (such as IP, pages visited and device) through the server's technical logs and, unless you turn it off, Google Analytics (section 6).</li>
                         <li>The Shop and Merch checkout is fake: what you type in the form is not sent or stored.</li>

@@ -36,6 +36,10 @@ RewriteRule ^uploads/avatar_cache/meta(?:/|$) - [F,L,NC]
 # api/shop/download.php, che conta i download e fa avanzare le missioni.
 RewriteRule ^uploads/downloads(?:/|$) - [F,L,NC]
 
+# Foto delle candidature per Chi siamo: le vede solo il pannello, da
+# api/admin/chisiamo.php. Diventano pubbliche solo se la candidatura passa.
+RewriteRule ^uploads/candidature(?:/|$) - [F,L,NC]
+
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
@@ -87,6 +91,9 @@ RewriteRule ^(it|en)/download/([a-z0-9-]{1,80})/?$ $1/download.php?item=$2 [L,QS
 # Team esports: la scheda di un player e' la pagina del team con quella
 # scheda gia' aperta.
 RewriteRule ^(it|en)/ohpy/([a-z0-9-]{1,60})/?$ $1/ohpy.php?player=$2 [L,QSA]
+
+# Edits: /it/edits/28 e' la pagina degli edit con quell'edit gia' aperto.
+RewriteRule ^(it|en)/edits/([0-9]{1,6})/?$ $1/edits.php?edit=$2 [L,QSA]
 
 RewriteRule ^u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 

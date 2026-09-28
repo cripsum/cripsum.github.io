@@ -91,8 +91,6 @@ if ($esPlayerSlug !== '') {
     $pageDescription = $esPlayer['tagline'] !== '' ? $esPlayer['tagline']
         : ($esPlayer['bio'] !== '' ? $esPlayer['bio'] : sprintf($S['player_fallback_desc'], $esPlayer['nickname'], $esPlayer['role_label'], $esTeam['label']));
     $pageImage = $esPlayer['photo'] !== '' ? $esPlayer['photo'] : ($esTeam['cover'] ?: $esTeam['logo']);
-    $presence = ['title' => $esTeamTitle, 'state' => sprintf($S['presence_player'], $esPlayer['nickname'])];
-
     // Il colore del player, se ne ha uno, vale per tutta la sua pagina.
     $bodyStyle = esports_style(array_merge($esTeam['vars'], $esPlayer['accent_vars']));
 
@@ -107,7 +105,6 @@ if ($esPlayerSlug !== '') {
 $pageTitle = $esTeamTitle . ' · ' . $esTeam['game'];
 $pageDescription = $esTeam['tagline'] !== '' ? $esTeam['tagline'] : $esTeam['description'];
 $pageImage = $esTeam['cover'] ?: $esTeam['logo'];
-$presence = ['title' => $esTeamTitle, 'state' => sprintf($S['presence_team'], $esTeam['label'])];
 $bodyStyle = $esTeam['style'];
 
 include __DIR__ . '/../partials/top.php';

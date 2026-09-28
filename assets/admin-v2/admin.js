@@ -1141,6 +1141,23 @@
         remove_badge_from_user: ['fa-solid fa-certificate', 'Badge tolto'],
         create_message: ['fa-solid fa-envelope', 'Messaggio inviato'],
         export_users_csv: ['fa-solid fa-file-csv', 'Utenti esportati'],
+        chisiamo_create_member: ['fa-solid fa-people-group', 'Membro aggiunto a Chi siamo'],
+        chisiamo_update_member: ['fa-solid fa-people-group', 'Membro di Chi siamo modificato'],
+        chisiamo_visible_member: ['fa-solid fa-eye', 'Visibilità di un membro'],
+        chisiamo_reorder_members: ['fa-solid fa-arrow-down-short-wide', 'Ordine di Chi siamo'],
+        chisiamo_delete_member: ['fa-solid fa-user-minus', 'Membro di Chi siamo eliminato'],
+        chisiamo_approve_application: ['fa-solid fa-user-check', 'Candidatura approvata'],
+        chisiamo_reject_application: ['fa-solid fa-user-xmark', 'Candidatura rifiutata'],
+        chisiamo_delete_application: ['fa-solid fa-trash', 'Candidatura eliminata'],
+        edits_create: ['fa-solid fa-clapperboard', 'Edit pubblicato'],
+        edits_update: ['fa-solid fa-clapperboard', 'Edit modificato'],
+        edits_state: ['fa-solid fa-eye', 'Stato di un edit'],
+        edits_reorder: ['fa-solid fa-arrow-down-short-wide', 'Ordine degli edit'],
+        edits_delete: ['fa-solid fa-trash', 'Edit eliminato'],
+        edits_hide_dead: ['fa-solid fa-eye-slash', 'Edit senza video nascosti'],
+        edits_save_category: ['fa-solid fa-tags', 'Categoria degli edit salvata'],
+        edits_delete_category: ['fa-solid fa-tags', 'Categoria degli edit eliminata'],
+        edits_reorder_categories: ['fa-solid fa-tags', 'Ordine delle categorie degli edit'],
     };
     const LOG_FIELDS = {
         username: 'username', display_name: 'nome', email: 'email', ruolo: 'ruolo', role: 'ruolo',
@@ -1149,6 +1166,7 @@
         premium_bonus_godos: 'bonus Godos', reason: 'motivo', duration: 'durata', banned_until: 'fino al',
         personaggio: 'personaggio', character_id: 'ID personaggio', achievement_id: 'ID achievement', quantity: 'copie', rimaste: 'rimaste',
         badge: 'badge', badge_id: 'badge #', message_id: 'messaggio #', title_it: 'titolo', target_type: 'destinatari',
+        nome: 'nome', titolo: 'titolo', member_id: 'membro #', candidatura_id: 'candidatura #', edit_id: 'edit #', category_id: 'categoria #', visibile: 'visibile', stato: 'stato', nascosti: 'nascosti',
     };
     const LOG_FLAGS = ['email_verificata', 'is_premium', 'nsfw', 'richpresence', 'twofa_enabled'];
     const CURRENCY_IMAGES = { Godos: '/img/godos.png', 'Godo Shards': '/img/godoshards.png', Frammenti: '/img/frammento.svg' };

@@ -43,11 +43,6 @@ $username = (string)($_SESSION['username'] ?? '');
 $pageTitle = $S['checkout'];
 $bodyClass = $vetrina['tipo'] === 'merch' ? 'shop-theme-merch' : 'shop-theme-store';
 $bodyStyle = $vetrina['style'];
-$presence = [
-    'title' => $S['checkout'],
-    'state' => ($shopLang === 'en' ? 'Buying ' : 'Comprando ') . $product['name'],
-];
-
 include __DIR__ . '/../partials/top.php';
 ?>
 <main class="shop-shell shop-shell--checkout">

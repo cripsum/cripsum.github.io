@@ -13,6 +13,7 @@ require_once __DIR__ . '/account_zip.php';
 require_once __DIR__ . '/account_export_labels.php';
 require_once __DIR__ . '/account_export_text.php';
 require_once __DIR__ . '/security_helpers.php';
+require_once __DIR__ . '/chisiamo/candidature_files.php';
 
 const ACCOUNT_DELETION_GRACE_DAYS = 30;
 const ACCOUNT_EXPORT_TTL_DAYS = 7;
@@ -969,6 +970,7 @@ function account_purge_user(mysqli $mysqli, int $userId): array
 
     // Uploaded files first: losing the row would lose the path to them.
     account_delete_directory(__DIR__ . '/../uploads/profile_media/user_' . $userId);
+    chisiamo_delete_user_candidature_files($mysqli, $userId);
 
     try {
         $stmt = $mysqli->prepare("SELECT file_name FROM `user_data_exports` WHERE utente_id = ?");
@@ -1080,6 +1082,9 @@ function account_cleanup_security_logs(mysqli $mysqli): void
             error_log('[account_cleanup_security_logs] ' . $table . ': ' . $e->getMessage());
         }
     }
+
+    // Candidature di Chi siamo: al massimo 12 mesi, come dice la privacy.
+    chisiamo_cleanup_candidature($mysqli);
 }
 
 /**

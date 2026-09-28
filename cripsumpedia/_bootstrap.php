@@ -1182,7 +1182,6 @@ function cp_render_background(): void
 function cp_render_topbar(string $lang, string $active = 'home'): void
 {
     global $mysqli;
-    $richpresence = $richpresence ?? 0;
     $nsfw = $nsfw ?? 0;
     $ruolo = $ruolo ?? '';
     include __DIR__ . '/../includes/navbar.php';

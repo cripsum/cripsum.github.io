@@ -1,112 +1,35 @@
+/*
+ * Chi siamo: le card del team compaiono man mano che si scorre.
+ */
 (() => {
     'use strict';
 
-    const $ = (selector, root = document) => root.querySelector(selector);
-    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-
-    const normalize = (value) => String(value || '').toLowerCase().trim();
-
-    const initSearch = () => {
-        const input = $('#teamSearch');
-        const clear = $('#clearTeamSearch');
-        const members = $$('.team-member');
-        const empty = $('#teamEmpty');
-
-        if (!input || !members.length) return;
-
-        const apply = () => {
-            const query = normalize(input.value);
-            let visible = 0;
-
-            members.forEach((member) => {
-                const match = query === '' || normalize(member.textContent).includes(query);
-                member.classList.toggle('is-hidden', !match);
-                if (match) visible += 1;
-            });
-
-            if (empty) empty.hidden = visible !== 0;
+    const reveal = (member) => {
+        const finish = (event) => {
+            if (event.propertyName !== 'opacity') return;
+            member.classList.add('reveal-complete');
+            member.removeEventListener('transitionend', finish);
         };
-
-        input.addEventListener('input', apply);
-        clear?.addEventListener('click', () => {
-            input.value = '';
-            input.focus();
-            apply();
-        });
+        member.addEventListener('transitionend', finish);
+        member.classList.add('is-visible');
     };
 
-    const initReveal = () => {
-        const items = $$('.chisiamo-section, .team-section, .join-team-section, .team-member');
+    document.addEventListener('DOMContentLoaded', () => {
+        const members = document.querySelectorAll('.team-member');
 
         if (!('IntersectionObserver' in window)) {
-            items.forEach((item) => item.classList.add('about-reveal', 'is-visible'));
+            members.forEach(reveal);
             return;
         }
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (!entry.isIntersecting) return;
-                entry.target.classList.add('is-visible');
+                reveal(entry.target);
                 observer.unobserve(entry.target);
             });
-        }, { threshold: 0.12 });
+        }, { threshold: 0.08, rootMargin: '0px 0px -6% 0px' });
 
-        items.forEach((item) => {
-            item.classList.add('about-reveal');
-            observer.observe(item);
-        });
-    };
-
-    const initNavbarDropdownFallback = () => {
-        const toggles = $$('[data-bs-toggle="dropdown"], .dropdown-toggle');
-
-        toggles.forEach((toggle) => {
-            if (toggle.dataset.aboutDropdownBound === '1') return;
-            toggle.dataset.aboutDropdownBound = '1';
-
-            toggle.addEventListener('click', (event) => {
-                const hasBootstrap = window.bootstrap && window.bootstrap.Dropdown;
-                if (hasBootstrap) return;
-
-                event.preventDefault();
-                event.stopPropagation();
-
-                const parent = toggle.closest('.dropdown') || toggle.parentElement;
-                const menu = parent?.querySelector('.dropdown-menu');
-
-                if (!menu) return;
-
-                $$('.dropdown-menu.show').forEach((other) => {
-                    if (other !== menu) other.classList.remove('show');
-                });
-
-                menu.classList.toggle('show');
-                toggle.setAttribute('aria-expanded', menu.classList.contains('show') ? 'true' : 'false');
-            });
-        });
-
-        document.addEventListener('click', (event) => {
-            if (event.target.closest('.dropdown')) return;
-            $$('.dropdown-menu.show').forEach((menu) => menu.classList.remove('show'));
-        });
-    };
-
-    const initBootstrapAfterLoad = () => {
-        if (!window.bootstrap || !window.bootstrap.Dropdown) return;
-
-        $$('.dropdown-toggle').forEach((toggle) => {
-            try {
-                window.bootstrap.Dropdown.getOrCreateInstance(toggle);
-            } catch {
-                // fallback già attivo
-            }
-        });
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-        initNavbarDropdownFallback();
-        initBootstrapAfterLoad();
-        initSearch();
-        initReveal();
+        members.forEach((member) => observer.observe(member));
     });
 })();

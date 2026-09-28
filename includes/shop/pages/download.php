@@ -59,11 +59,6 @@ if ($itemSlug !== '') {
     $pageTitle = $item['name'];
     $pageDescription = $item['short'] !== '' ? $item['short'] : $item['description'];
     $pageImage = $item['image'];
-    $presence = [
-        'title' => 'Download',
-        'state' => ($shopLang === 'en' ? 'Downloading ' : 'Scaricando ') . $item['name'],
-    ];
-
     include __DIR__ . '/../partials/top.php';
     include __DIR__ . '/download_item.php';
     include __DIR__ . '/../partials/bottom.php';
@@ -77,10 +72,8 @@ $items = shop_downloads($mysqli, $shopLang);
 $faq = shop_catalog_ready($mysqli) ? shop_faq($mysqli, 'download', null, $shopLang) : [];
 $missing = isset($_GET['missing']);
 
-// La lista ha gia' la sua voce in richpresence.js.
 $pageTitle = 'Download';
 $pageDescription = $page['subtitle'] !== '' ? $page['subtitle'] : null;
-$presence = null;
 
 include __DIR__ . '/../partials/top.php';
 include __DIR__ . '/download_list.php';

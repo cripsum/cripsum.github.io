@@ -50,6 +50,9 @@ $csrfToken = admin_csrf_token();
                 <button type="button" data-section="messages"><i class="fa-solid fa-envelope"></i><span>Centro Messaggi</span></button>
                 <button type="button" data-section="tickets"><i class="fa-solid fa-headset"></i><span>Ticket Supporto</span></button>
                 <button type="button" data-section="homeslides"><i class="fa-solid fa-house-laptop"></i><span>Slide homepage</span></button>
+                <span class="admin-nav-label">Pagine</span>
+                <button type="button" data-section="chisiamo"><i class="fa-solid fa-people-group"></i><span>Chi siamo</span></button>
+                <button type="button" data-section="edits"><i class="fa-solid fa-clapperboard"></i><span>Edits</span></button>
                 <span class="admin-nav-label">Gacha</span>
                 <button type="button" data-section="gacha-banner"><i class="fa-solid fa-star"></i><span>Banner</span></button>
                 <button type="button" data-section="gacha-categorie"><i class="fa-solid fa-tags"></i><span>Categorie</span></button>
@@ -253,6 +256,26 @@ $csrfToken = admin_csrf_token();
                 <div class="admin-table-card shop-admin" data-shop-admin="download"></div>
             </section>
 
+            <section class="admin-section" id="section-chisiamo" data-section-panel="chisiamo">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Chi siamo</strong>
+                        <small>Il team della pagina <a href="/it/chisiamo" target="_blank" rel="noopener">/it/chisiamo</a>, le candidature arrivate dal sito e i testi della pagina.</small>
+                    </div>
+                </div>
+                <div class="admin-table-card shop-admin" data-chisiamo-admin></div>
+            </section>
+
+            <section class="admin-section" id="section-edits" data-section-panel="edits">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Edits</strong>
+                        <small>Gli edit della pagina <a href="/it/edits" target="_blank" rel="noopener">/it/edits</a>: file caricati o link Streamable, categorie dei filtri e testi.</small>
+                    </div>
+                </div>
+                <div class="admin-table-card shop-admin" data-edits-admin></div>
+            </section>
+
             <section class="admin-section" id="section-esports" data-section-panel="esports">
                 <div class="admin-toolbar">
                     <div>
@@ -404,6 +427,7 @@ $csrfToken = admin_csrf_token();
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-shop.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-gacha.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-esports.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-pages.js')); ?>"></script>
 </body>
 
 </html>

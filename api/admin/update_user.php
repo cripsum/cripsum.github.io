@@ -98,7 +98,7 @@ try {
         }
     }
 
-    foreach (['email_verificata', 'nsfw', 'richpresence'] as $column) {
+    foreach (['email_verificata', 'nsfw'] as $column) {
         if (!$has($column) || !array_key_exists($column, $target)) continue;
         $value = $flag($input[$column]);
         if ($value !== (int)$target[$column]) $change($column, $value, 'i', (int)$target[$column]);

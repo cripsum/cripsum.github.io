@@ -9,7 +9,6 @@
  *   $pageImage       immagine per le anteprime (facoltativa)
  *   $bodyClass       classi aggiuntive del body (facoltative)
  *   $bodyStyle       variabili CSS del tema (facoltative)
- *   $presence        ['title' => ..., 'state' => ...] per la Rich Presence (facoltativa)
  *
  * Si include dal livello principale della pagina: la navbar e head-import
  * leggono $mysqli e scrivono $lang e $t nello stesso scope.
@@ -30,7 +29,6 @@ if (!empty($pageImage)) {
     <?php include __DIR__ . '/../../head-import.php'; ?>
     <title><?php echo shop_h('Cripsum™ - ' . $pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <?php if (!empty($presence)) echo shop_presence_meta($presence['title'], $presence['state']); ?>
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/shop/catalog.css')); ?>">
     <script src="<?php echo shop_h(cripsum_asset('/assets/shop/catalog.js')); ?>" defer></script>
 </head>

@@ -278,7 +278,7 @@ function admin_user_currencies_public(mysqli $mysqli): array
 function admin_fetch_user(mysqli $mysqli, int $userId): ?array
 {
     $select = "id, username, email, ruolo, isBannato, data_creazione";
-    foreach (['display_name', 'motivo_ban', 'banned_until', 'banned_at', 'banned_by', 'updated_at', 'email_verificata', 'soldi', 'godoshards_balance', 'frammenti', 'nsfw', 'richpresence', 'twofa_enabled', 'twofa_enabled_at', 'is_premium', 'ultimo_accesso', 'profile_views'] as $column) {
+    foreach (['display_name', 'motivo_ban', 'banned_until', 'banned_at', 'banned_by', 'updated_at', 'email_verificata', 'soldi', 'godoshards_balance', 'frammenti', 'nsfw', 'twofa_enabled', 'twofa_enabled_at', 'is_premium', 'ultimo_accesso', 'profile_views'] as $column) {
         if (admin_column_exists($mysqli, 'utenti', $column)) $select .= ", $column";
     }
     // Dei segreti si dice solo se ci sono: il valore non esce dal database.

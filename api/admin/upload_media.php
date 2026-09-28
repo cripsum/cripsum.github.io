@@ -51,6 +51,24 @@ function admin_upload_audio_folder(string $folder): string
     return $folder . '/';
 }
 
+/**
+ * I video possono andare in una sottocartella di vid/ dalla lista chiusa
+ * ADMIN_VIDEO_FOLDERS (gli edit). Senza folder finiscono in vid/ come prima.
+ */
+function admin_upload_video_folder(string $folder): string
+{
+    $folder = trim($folder, " /");
+    if ($folder === '') {
+        return '';
+    }
+
+    if (!in_array($folder, ADMIN_VIDEO_FOLDERS, true)) {
+        admin_fail('Cartella di destinazione non valida.');
+    }
+
+    return $folder . '/';
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     admin_fail('Metodo non consentito.', 405);
 }
@@ -93,8 +111,10 @@ if ($type === 'image') {
     $subFolder = admin_upload_audio_folder((string)($_POST['folder'] ?? ''));
     $targetDir = __DIR__ . '/../../audio/' . $subFolder;
 } else {
-    $allowedExtensions = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'];
-    $targetDir = __DIR__ . '/../../vid/';
+    $subFolder = admin_upload_video_folder((string)($_POST['folder'] ?? ''));
+    // Gli edit si guardano nel player del browser: solo formati che sa leggere.
+    $allowedExtensions = $subFolder === 'edits/' ? ['mp4', 'webm', 'mov', 'm4v'] : ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'];
+    $targetDir = __DIR__ . '/../../vid/' . $subFolder;
 }
 
 $origName = basename($file['name']);

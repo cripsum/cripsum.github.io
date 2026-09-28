@@ -13,7 +13,7 @@
  * resta finche' serve a qualcuno.
  */
 
-const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personaggi', 'esports'];
+const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personaggi', 'esports', 'team', 'edits'];
 
 /**
  * Cartelle di audio/ in cui carica il pannello (la musica dei player del
@@ -21,6 +21,12 @@ const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personagg
  * immagini nella radice di img/.
  */
 const ADMIN_AUDIO_FOLDERS = ['esports'];
+
+/**
+ * Cartelle di vid/ in cui carica il pannello (i video degli edit). Le
+ * animazioni storiche nella radice di vid/ restano fuori.
+ */
+const ADMIN_VIDEO_FOLDERS = ['edits'];
 
 /**
  * Da un valore salvato nel database (/img/merch/x.jpg, img/merch/x.jpg o
@@ -70,6 +76,25 @@ function admin_media_audio_relative(?string $value): ?string
 }
 
 /**
+ * Da un valore salvato nel database (/vid/edits/x.mp4) al percorso dentro
+ * vid/. Null per tutto il resto: link esterni, video storici.
+ */
+function admin_media_video_relative(?string $value): ?string
+{
+    $value = trim(str_replace('\\', '/', rawurldecode((string)$value)));
+
+    if (!str_starts_with($value, '/vid/')) {
+        return null;
+    }
+
+    $value = substr($value, 5);
+    $folders = implode('|', ADMIN_VIDEO_FOLDERS);
+    $pattern = '~^(?:' . $folders . ')/[A-Za-z0-9_.-]{1,160}\.(?:mp4|webm|mov|m4v)$~i';
+
+    return preg_match($pattern, $value) && !str_contains($value, '..') ? $value : null;
+}
+
+/**
  * Le colonne che possono contenere un'immagine del pannello. Ci sono anche
  * tabelle dove il pannello non carica (achievement, slide, badge, banner):
  * se qualcuno ci ha incollato un percorso, il file resta.
@@ -94,6 +119,8 @@ function admin_media_reference_columns(mysqli $mysqli): array
         'gacha_banner' => ['banner_img_url', 'thumb_url', 'arte_url'],
         'esports_team' => ['logo', 'copertina'],
         'esports_giocatori' => ['foto', 'sfondo', 'musica_cover', 'musica_audio'],
+        'team_membri' => ['foto'],
+        'edits' => ['copertina', 'video', 'gif_presence'],
     ];
 
     $columns = [];
@@ -156,6 +183,7 @@ function admin_media_cleanup(mysqli $mysqli, iterable $values, ?int $adminId = n
     try {
         $paths = [];
         $audioPaths = [];
+        $videoPaths = [];
         foreach ($values as $value) {
             if (!is_string($value) || trim($value) === '') {
                 continue;
@@ -173,6 +201,11 @@ function admin_media_cleanup(mysqli $mysqli, iterable $values, ?int $adminId = n
                 $audio = admin_media_audio_relative($item);
                 if ($audio !== null) {
                     $audioPaths[$audio] = true;
+                    continue;
+                }
+                $video = admin_media_video_relative($item);
+                if ($video !== null) {
+                    $videoPaths[$video] = true;
                 }
             }
         }
@@ -216,6 +249,23 @@ function admin_media_cleanup(mysqli $mysqli, iterable $values, ?int $adminId = n
             }
             if (@unlink($file)) {
                 $deleted[] = 'audio/' . $relative;
+            }
+        }
+
+        $videoRoot = $videoPaths ? realpath(__DIR__ . '/../../vid') : false;
+        $videoPrefix = $videoRoot !== false ? rtrim($videoRoot, '/\\') . DIRECTORY_SEPARATOR : '';
+
+        foreach ($videoRoot !== false ? array_keys($videoPaths) : [] as $relative) {
+            $file = realpath($videoRoot . '/' . $relative);
+            if ($file === false || !is_file($file) || !str_starts_with($file, $videoPrefix)) {
+                continue;
+            }
+            // Come l'audio: nel database il video ha /vid/ davanti.
+            if (admin_media_in_use($mysqli, 'vid/' . $relative)) {
+                continue;
+            }
+            if (@unlink($file)) {
+                $deleted[] = 'vid/' . $relative;
             }
         }
 

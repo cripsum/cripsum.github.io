@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = '27 settembre 2026';
+$lastUpdated = '28 settembre 2026';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -120,7 +120,7 @@ $lastUpdated = '27 settembre 2026';
                     </ul>
                     <h3>Altri dati</h3>
                     <ul>
-                        <li>Candidature per la pagina Chi siamo: username, email, descrizione, foto, social e link che ci mandi.</li>
+                        <li>Candidature per la pagina Chi siamo: il tuo account, il nome da mostrare, descrizione, foto, social e link che ci mandi. Le guardiamo dal pannello del sito e ti rispondiamo nella posta del sito; la foto la vede solo lo staff finché la candidatura non viene accettata.</li>
                         <li>Le richieste di esportazione dei dati e di cancellazione dell'account.</li>
                         <li>Dati di navigazione (come IP, pagine visitate e dispositivo) tramite i registri tecnici del server e, se non lo disattivi, Google Analytics (sezione 6).</li>
                         <li>Il checkout del Negozio e del Merch è finto: quello che scrivi nel modulo non viene inviato né salvato.</li>

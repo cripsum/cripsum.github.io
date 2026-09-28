@@ -152,6 +152,7 @@ function account_friendly_table(string $table, string $lang = 'it'): string
             'user_social_settings' => 'Preferenze social',
             'private_user_settings' => 'Preferenze della chat',
             'cripsumpedia_entries' => 'Voci Cripsumpedia',
+            'team_candidature' => 'Candidature per Chi siamo',
         ],
         'en' => [
             'utenti_links' => 'Profile links',
@@ -221,6 +222,7 @@ function account_friendly_table(string $table, string $lang = 'it'): string
             'user_social_settings' => 'Social preferences',
             'private_user_settings' => 'Chat preferences',
             'cripsumpedia_entries' => 'Cripsumpedia entries',
+            'team_candidature' => 'About us applications',
         ],
     ];
 

@@ -35,11 +35,6 @@ unset($_SESSION['shop_achievement_pending']);
 $pageTitle = $S['order_confirmed'];
 $bodyClass = $vetrina['tipo'] === 'merch' ? 'shop-theme-merch' : 'shop-theme-store';
 $bodyStyle = $vetrina['style'];
-$presence = [
-    'title' => $S['order_confirmed'],
-    'state' => ($shopLang === 'en' ? 'Just bought ' : 'Ha appena comprato ') . $product['name'],
-];
-
 include __DIR__ . '/../partials/top.php';
 ?>
 <main class="shop-shell shop-shell--narrow">

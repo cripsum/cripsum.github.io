@@ -438,12 +438,6 @@
 
         document.title = doc.title;
         body.setAttribute('style', doc.body.getAttribute('style') || '');
-        // richpresence.js rilegge questi meta a ogni cambio di indirizzo.
-        ['cripsum:presence-title', 'cripsum:presence-state'].forEach((name) => {
-            const fresh = doc.querySelector(`meta[name="${name}"]`);
-            const live = document.querySelector(`meta[name="${name}"]`);
-            if (fresh && live) live.content = fresh.content;
-        });
 
         currentPath = path;
         updateLangSwitch(path);

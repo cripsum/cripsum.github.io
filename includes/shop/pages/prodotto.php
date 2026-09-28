@@ -78,11 +78,6 @@ $pageDescription = $product['description'] !== '' ? $product['description'] : $p
 $pageImage = $product['image'];
 $bodyClass = $isMerch ? 'shop-theme-merch' : 'shop-theme-store';
 $bodyStyle = $vetrina['style'];
-$presence = [
-    'title' => $isMerch ? 'Merch' : ($shopLang === 'en' ? 'Shop' : 'Negozio'),
-    'state' => ($shopLang === 'en' ? 'Looking at ' : 'Guardando ') . $product['name'],
-];
-
 $shopData = [
     'kind' => 'product',
     'buyUrl' => $buyUrl,

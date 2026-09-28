@@ -12,7 +12,8 @@ require_once __DIR__ . '/../../includes/admin/admin_shop_helpers.php';
  * POST action = save_faq | delete_faq | reorder_faq | save_page
  */
 
-const SHOP_CONTENT_PAGES = ['download', 'merch'];
+// Anche Chi siamo ed Edits tengono qui titolo e testi della testata.
+const SHOP_CONTENT_PAGES = ['download', 'merch', 'chisiamo', 'edits'];
 
 $action = admin_shop_action();
 $adminId = (int)$adminUser['id'];
