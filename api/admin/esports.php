@@ -293,7 +293,7 @@ function esports_admin_clips(array $input): ?string
     $clips = [];
 
     for ($i = 1; $i <= ESPORTS_MAX_CLIPS; $i++) {
-        $label = 'Clip ' . $i;
+        $label = 'Highlight ' . $i;
         $video = trim((string)($input["clip{$i}_video"] ?? ''));
         $hasOther = trim((string)($input["clip{$i}_copertina"] ?? '')) !== ''
             || trim((string)($input["clip{$i}_titolo"] ?? '')) !== '';

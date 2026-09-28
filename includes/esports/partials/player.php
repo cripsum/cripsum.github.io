@@ -4,7 +4,8 @@
  *
  * Testata a tutta larghezza (foto, nickname, ranghi, musica), poi due
  * colonne: statistiche, curiosita' e bio a sinistra, setup e social a
- * destra. In fondo il player precedente e il successivo.
+ * destra. Sotto gli highlights (le clip), in fondo il player precedente e
+ * il successivo.
  *
  * I link verso le altre pagine del team hanno data-es-link: esports.js li
  * carica senza ricaricare il sito, e la musica del player di arrivo parte
@@ -127,33 +128,6 @@ $esHasSide = $p['crosshair'] !== '' || $p['setup'] || $p['socials'] || $p['profi
         </div>
     </section>
 
-    <?php if ($p['clips']): ?>
-        <?php
-        // Clip in game (al massimo due). esports.js ci monta il player degli
-        // edit; senza JavaScript resta il player del browser. Le proporzioni
-        // arrivano dal pannello: lo spazio c'e' gia' prima che il video carichi.
-        ?>
-        <section class="es-clips<?php echo count($p['clips']) === 1 ? ' is-single' : ''; ?>" aria-labelledby="es-clips-title">
-            <h2 class="es-block__title" id="es-clips-title"><i class="fa-solid fa-clapperboard" aria-hidden="true"></i> <?php echo shop_h($S['clips']); ?></h2>
-            <div class="es-clips__grid">
-                <?php foreach ($p['clips'] as $esClip): ?>
-                    <?php $esClipTitle = $esClip['title'] !== '' ? $esClip['title'] : $p['nickname']; ?>
-                    <figure class="es-clip es-clip--<?php echo shop_h($esClip['shape']); ?>" style="--r: <?php echo shop_h((string)$esClip['ratio']); ?>">
-                        <div class="es-clip__screen" data-es-clip
-                            data-src="<?php echo shop_h($esClip['src']); ?>"
-                            data-poster="<?php echo shop_h($esClip['poster']); ?>"
-                            data-title="<?php echo shop_h($esClipTitle); ?>">
-                            <video src="<?php echo shop_h($esClip['src']); ?>" <?php echo $esClip['poster'] !== '' ? 'poster="' . shop_h($esClip['poster']) . '"' : ''; ?> controls playsinline preload="none" aria-label="<?php echo shop_h($esClipTitle); ?>"></video>
-                        </div>
-                        <?php if ($esClip['title'] !== ''): ?>
-                            <figcaption class="es-clip__title"><?php echo shop_h($esClip['title']); ?></figcaption>
-                        <?php endif; ?>
-                    </figure>
-                <?php endforeach; ?>
-            </div>
-        </section>
-    <?php endif; ?>
-
     <?php if ($esHasMain || $esHasSide): ?>
         <div class="es-player__body<?php echo $esHasMain && $esHasSide ? '' : ' is-single'; ?>">
             <?php if ($esHasMain): ?>
@@ -269,6 +243,34 @@ $esHasSide = $p['crosshair'] !== '' || $p['setup'] || $p['socials'] || $p['profi
                 </aside>
             <?php endif; ?>
         </div>
+    <?php endif; ?>
+
+    <?php if ($p['clips']): ?>
+        <?php
+        // Highlights: le clip in game (al massimo due), in fondo alla pagina.
+        // esports.js ci monta il player degli edit; senza JavaScript resta il
+        // player del browser. Le proporzioni arrivano dal pannello: lo spazio
+        // c'e' gia' prima che il video carichi.
+        ?>
+        <section class="es-clips<?php echo count($p['clips']) === 1 ? ' is-single' : ''; ?>" aria-labelledby="es-clips-title">
+            <h2 class="es-block__title" id="es-clips-title"><i class="fa-solid fa-clapperboard" aria-hidden="true"></i> <?php echo shop_h($S['clips']); ?></h2>
+            <div class="es-clips__grid">
+                <?php foreach ($p['clips'] as $esClip): ?>
+                    <?php $esClipTitle = $esClip['title'] !== '' ? $esClip['title'] : $p['nickname']; ?>
+                    <figure class="es-clip es-clip--<?php echo shop_h($esClip['shape']); ?>" style="--r: <?php echo shop_h((string)$esClip['ratio']); ?>">
+                        <div class="es-clip__screen" data-es-clip
+                            data-src="<?php echo shop_h($esClip['src']); ?>"
+                            data-poster="<?php echo shop_h($esClip['poster']); ?>"
+                            data-title="<?php echo shop_h($esClipTitle); ?>">
+                            <video src="<?php echo shop_h($esClip['src']); ?>" <?php echo $esClip['poster'] !== '' ? 'poster="' . shop_h($esClip['poster']) . '"' : ''; ?> controls playsinline preload="none" aria-label="<?php echo shop_h($esClipTitle); ?>"></video>
+                        </div>
+                        <?php if ($esClip['title'] !== ''): ?>
+                            <figcaption class="es-clip__title"><?php echo shop_h($esClip['title']); ?></figcaption>
+                        <?php endif; ?>
+                    </figure>
+                <?php endforeach; ?>
+            </div>
+        </section>
     <?php endif; ?>
 
     <?php if ($esPrev && $esNext): ?>

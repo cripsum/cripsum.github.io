@@ -97,7 +97,7 @@
             <p class="admin-muted esports-admin-note">Sulla pagina i player stanno in gruppi (line-up, panchina e staff, ex); dentro ogni gruppo vale l'ordine di questa lista. Trascina le righe o usa le frecce.</p>
             ${rows.length ? `
             <table class="admin-table">
-                <thead><tr><th>Player</th><th>Ruolo</th><th>Musica e clip</th><th>Stato</th><th>Azioni</th></tr></thead>
+                <thead><tr><th>Player</th><th>Ruolo</th><th>Musica e highlights</th><th>Stato</th><th>Azioni</th></tr></thead>
                 <tbody>
                     ${rows.map((p, i) => {
                         const role = roleOf(p.ruolo);
@@ -108,10 +108,10 @@
                                 <div class="admin-row-sub"><a href="/it/ohpy/${e(p.slug)}" target="_blank" rel="noopener">/it/ohpy/${e(p.slug)} <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
                             </div></div></td>
                             <td data-label="Ruolo"><span class="esports-admin-role"><i class="${e(role.icon)}"></i> ${e(p.ruolo_label || role.label)}</span></td>
-                            <td data-label="Musica e clip"><div class="esports-admin-media">${p.musica_audio
+                            <td data-label="Musica e highlights"><div class="esports-admin-media">${p.musica_audio
                                 ? `<span class="admin-badge admin-badge--success"><i class="fa-solid fa-music"></i>${e(p.musica_titolo || 'Sì')}</span>`
                                 : ''}${Number(p.clip_count) > 0
-                                ? `<span class="admin-badge admin-badge--info"><i class="fa-solid fa-clapperboard"></i>${Number(p.clip_count) === 1 ? '1 clip' : `${Number(p.clip_count)} clip`}</span>`
+                                ? `<span class="admin-badge admin-badge--info"><i class="fa-solid fa-clapperboard"></i>${Number(p.clip_count) === 1 ? '1 highlight' : `${Number(p.clip_count)} highlights`}</span>`
                                 : ''}${!p.musica_audio && !(Number(p.clip_count) > 0) ? '<span class="admin-muted">—</span>' : ''}</div></td>
                             <td data-label="Stato">
                                 <select class="admin-input shop-admin-state" data-state-player="${Number(p.id)}" aria-label="Stato di ${e(p.nickname)}">${stateOptions(p.stato)}</select>
@@ -449,7 +449,7 @@
         return `
             <div class="admin-field admin-field--full esports-admin-clip" data-clip-slot="${i}">
                 <div class="esports-admin-clip__head">
-                    <strong><i class="fa-solid fa-clapperboard"></i> Clip ${i}</strong>
+                    <strong><i class="fa-solid fa-clapperboard"></i> Highlight ${i}</strong>
                     <button type="button" class="admin-btn admin-btn--small admin-btn--danger" data-clip-remove ${has ? '' : 'hidden'}><i class="fa-solid fa-trash"></i> Togli</button>
                 </div>
                 <input type="hidden" name="clip${i}_video" value="${e(v('video'))}">
@@ -468,13 +468,13 @@
                     <canvas data-clip-canvas width="160" height="90" aria-hidden="true"></canvas>
                     <div>
                         <small class="shop-admin-help" data-clip-time>Scegli il fotogramma per la copertina</small>
-                        <input type="range" class="esports-admin-range" min="0" max="1" step="0.05" value="0" data-clip-range aria-label="Fotogramma della copertina della clip ${i}">
+                        <input type="range" class="esports-admin-range" min="0" max="1" step="0.05" value="0" data-clip-range aria-label="Fotogramma della copertina dell'highlight ${i}">
                         <button type="button" class="admin-btn admin-btn--small" data-clip-use><i class="fa-solid fa-image"></i> Usa questo fotogramma</button>
                     </div>
                 </div>
                 <div class="admin-form-grid esports-admin-clip__fields">
                     ${fields([
-                        { name: `clip${i}_copertina`, label: 'Copertina', type: 'image', full: true, help: 'Si vede prima di far partire la clip. Caricando il video se ne prende una da sola: la cambi col cursore qui sopra o caricandone un\'altra.' },
+                        { name: `clip${i}_copertina`, label: 'Copertina', type: 'image', full: true, help: 'Si vede prima di far partire il video. Caricando il video se ne prende una da sola: la cambi col cursore qui sopra o caricandone un\'altra.' },
                         { name: `clip${i}_titolo`, label: 'Titolo (IT)', max: 80, placeholder: 'es. Ace con la Deagle su Mirage' },
                         { name: `clip${i}_titolo_en`, label: 'Titolo (EN)', max: 80, placeholder: 'vuoto = usa l\'italiano' },
                     ], values)}
@@ -484,14 +484,14 @@
 
     const clipsSection = (values, ctx) => (ctx.clips_ready
         ? [
-            sectionTitle('Clip in game', 'Al massimo 2. Si guardano sulla sua pagina nel player del sito, con copertina e titolo; mentre va una clip la musica si ferma.'),
+            sectionTitle('Highlights', 'Le sue clip in game, al massimo 2. Stanno in fondo alla sua pagina, nel player del sito, con copertina e titolo; mentre ne va una la musica si ferma.'),
             clipSlot(1, values),
             clipSlot(2, values),
             '<div class="admin-field--full esports-admin-clip__tools"><button type="button" class="admin-btn admin-btn--small" data-clip-swap><i class="fa-solid fa-right-left"></i> Scambia l\'ordine</button></div>',
         ]
         : [
-            sectionTitle('Clip in game'),
-            '<p class="shop-admin-note admin-field--full"><i class="fa-solid fa-circle-info"></i> Applica migrations/2026_09_28_esports_clip.sql per caricare le clip dei player.</p>',
+            sectionTitle('Highlights'),
+            '<p class="shop-admin-note admin-field--full"><i class="fa-solid fa-circle-info"></i> Applica migrations/2026_09_28_esports_clip.sql per caricare gli highlights dei player.</p>',
         ]);
 
     const bindClips = (form) => {
@@ -668,7 +668,7 @@
                 views.get(i)?.refresh();
             });
             form.dispatchEvent(new Event('input'));
-            showToast('Ordine delle clip scambiato.');
+            showToast('Ordine degli highlights scambiato.');
         });
 
         // Chiusa la finestra, i video letti per il fotogramma non restano a scaricare.
