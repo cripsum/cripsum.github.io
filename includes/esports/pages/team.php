@@ -54,6 +54,7 @@ $bodyData = [
     'es-base' => $esTeam['url'],
     'es-copied' => $S['copied'],
     'es-copy-failed' => $S['copy_failed'],
+    'es-tap' => $S['music_tap'],
 ];
 
 /* ── Pagina del player ───────────────────────────────────────────────── */

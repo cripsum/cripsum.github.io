@@ -1611,6 +1611,45 @@ a.es-palmares__name i {
     animation: es-progress 1.4s var(--es-ease) forwards;
 }
 
+/* ── Musica bloccata dal browser ────────────────────────────────────── */
+
+/* Compare solo quando il browser rifiuta l'avvio automatico (link aperto da
+   fuori, pagina ricaricata): dice dove toccare. Si anima solo transform. */
+.es-tap {
+    position: fixed;
+    left: 50%;
+    bottom: calc(1.2rem + env(safe-area-inset-bottom));
+    z-index: 4000;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: calc(100% - 32px);
+    padding: 0.85rem 1.35rem;
+    border: 0;
+    border-radius: 999px;
+    color: var(--es-on-accent);
+    background: var(--es-accent);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transform: translateX(-50%);
+    animation: es-tap-in 0.4s var(--es-ease) both, es-tap-bob 1.8s ease-in-out 0.6s infinite;
+}
+
+.es-tap[hidden] {
+    display: none;
+}
+
+.es-tap i {
+    font-size: 1.1rem;
+}
+
+.es-tap:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+}
+
 /* ── Avviso a comparsa ──────────────────────────────────────────────── */
 
 .es-toast {
@@ -1765,6 +1804,16 @@ a.es-palmares__name i {
 
 @keyframes es-pulse {
     50% { opacity: 0.45; }
+}
+
+@keyframes es-tap-in {
+    from { opacity: 0; transform: translate(-50%, 1.5rem); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes es-tap-bob {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, -4px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

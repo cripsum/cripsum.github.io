@@ -70,12 +70,17 @@
 
     /* ── Musica ─────────────────────────────────────────────────────── */
 
-    const OFF_KEY = 'cripsum.ohpy.music-off';
     const VOLUME_KEY = 'cripsum.ohpy.volume';
+
+    // Fino al 28/09 la pausa si ricordava per tutti i player e poteva
+    // restare accesa per sbaglio: chi ce l'ha salvata non deve restare muto.
+    try { localStorage.removeItem('cripsum.ohpy.music-off'); } catch (_) { /* niente storage */ }
 
     const music = (() => {
         const audio = new Audio();
-        audio.preload = 'none';
+        // Il file si scarica appena il player si apre: se il browser blocca
+        // l'avvio, al primo tocco la musica parte senza attese.
+        audio.preload = 'auto';
         audio.loop = true;
 
         let box = null;          // riquadro .es-music della pagina aperta
@@ -84,11 +89,20 @@
         let pendingStart = null; // secondo da cui partire, finche' non ci si arriva
         let fadeTimer = null;
         let blocked = false;     // il browser ha rifiutato l'avvio automatico
+        let pausedByUser = false; // pausa premuta su questo player (solo su questo)
         let resumeOnVisible = false;
         let playToken = 0;       // cambia a ogni avvio o arresto
         const broken = new Set();
 
-        const isOff = () => store.get(OFF_KEY) === '1';
+        // Bottone ben visibile quando il browser blocca l'avvio: un tocco
+        // qualsiasi fa partire la musica, questo dice dove toccare.
+        const tap = document.createElement('button');
+        tap.type = 'button';
+        tap.className = 'es-tap';
+        tap.innerHTML = '<i class="fa-solid fa-volume-high" aria-hidden="true"></i> <span></span>';
+        tap.querySelector('span').textContent = body.dataset.esTap || '';
+        tap.hidden = true;
+        body.appendChild(tap);
 
         // Il volume scelto con il cursore vale per tutti i player; finche'
         // non lo si tocca, ogni player usa quello deciso nel pannello.
@@ -120,6 +134,10 @@
         };
 
         const paint = () => {
+            const waiting = Boolean(blocked && box && track);
+            tap.hidden = !waiting;
+            tap.classList.toggle('is-visible', waiting);
+
             if (!box) return;
             const playing = !audio.paused && !blocked && loadedSrc === track?.src;
             box.classList.toggle('is-playing', playing);
@@ -156,10 +174,14 @@
 
         const onGesture = (event) => {
             if (event.type === 'keydown' && (event.key === 'Escape' || event.key === 'Tab')) return;
-            // Un link del team fa partire da se' il brano della pagina di arrivo.
-            if (event.target instanceof Element && event.target.closest('a[data-es-link]')) return;
+            if (event.target instanceof Element) {
+                // Un link del team fa partire da se' il brano della pagina di
+                // arrivo, e il tasto play/pausa fa da se': se partisse anche
+                // qui, il clic che segue lo rimetterebbe subito in pausa.
+                if (event.target.closest('a[data-es-link], [data-es-music-toggle]')) return;
+            }
             disarm();
-            if (blocked && track && !isOff()) play();
+            if (blocked && track && !pausedByUser) play();
         };
 
         const arm = () => GESTURES.forEach((type) => document.addEventListener(type, onGesture, true));
@@ -255,7 +277,7 @@
                 }
             } else if (resumeOnVisible) {
                 resumeOnVisible = false;
-                if (track && !isOff()) audio.play().catch(() => {});
+                if (track && !pausedByUser) audio.play().catch(() => {});
             }
         });
 
@@ -265,11 +287,16 @@
              * parte subito (o la musica sfuma, se il player non ne ha).
              */
             prepare(next) {
+                // Ogni player che si apre riparte: la pausa premuta su un
+                // altro player valeva solo per quello.
+                pausedByUser = false;
+
                 if (!next) {
                     track = null;
                     blocked = false;
                     disarm();
                     fadeOutAndPause(300);
+                    paint();
                     return;
                 }
 
@@ -277,11 +304,9 @@
                 track = next;
                 updateMediaSession();
 
-                if (isOff()) {
-                    if (loadedSrc !== track.src) fadeOutAndPause(0);
-                    paint();
-                    return;
-                }
+                // Un volume lasciato a zero su un player non deve rendere
+                // muti anche i successivi: si torna a quello del pannello.
+                if (userVolume() === 0) store.set(VOLUME_KEY, '');
 
                 if (same && !audio.paused) {
                     paint();
@@ -318,13 +343,14 @@
             toggle() {
                 if (!box || !track) return;
                 if (!audio.paused && !blocked && loadedSrc === track.src) {
-                    store.set(OFF_KEY, '1');
-                    fadeOutAndPause(250);
+                    pausedByUser = true;
                     blocked = false;
+                    disarm();
+                    fadeOutAndPause(250);
                     paint();
                     return;
                 }
-                store.set(OFF_KEY, '0');
+                pausedByUser = false;
                 play();
             },
 
