@@ -1144,3 +1144,18 @@ body.modal-open {
 .esports-admin-team__facts li { padding: .35rem .7rem; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(0,0,0,.35); font-size: .82rem; }
 .esports-admin-team__facts b { color: var(--a); }
 .esports-admin-team__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+
+/* ── Uscire senza salvare: riquadro dentro la finestra (admin.js, leaveGuard) ── */
+.admin-leave { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; padding: 1.2rem; border-radius: inherit; background: rgba(4,6,12,.74); animation: adminLeaveFade .18s ease both; }
+.admin-leave[hidden] { display: none; }
+.admin-leave__card { display: grid; justify-items: center; gap: .55rem; width: min(500px, 100%); padding: 1.5rem 1.4rem 1.3rem; border: 1px solid rgba(245,158,11,.45); border-radius: 22px; background: var(--admin-card-strong); box-shadow: 0 30px 80px rgba(0,0,0,.55); text-align: center; animation: adminLeavePop .22s cubic-bezier(.2,.8,.2,1) both; }
+.admin-leave__icon { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 16px; color: #1a1300; background: linear-gradient(135deg, #fde68a, #f59e0b); font-size: 1.25rem; }
+.admin-leave__card strong { font-size: 1.2rem; font-weight: 950; letter-spacing: -.02em; }
+.admin-leave__card p { margin: 0 0 .4rem; color: var(--admin-muted); font-size: .9rem; line-height: 1.45; }
+.admin-leave__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; width: 100%; }
+.admin-leave__actions .admin-btn { flex: 1 1 190px; justify-content: center; white-space: nowrap; }
+.admin-leave.is-nudged .admin-leave__card { animation: adminLeaveNudge .32s ease; }
+@keyframes adminLeaveFade { from { opacity: 0; } }
+@keyframes adminLeavePop { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+@keyframes adminLeaveNudge { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@media (prefers-reduced-motion: reduce) { .admin-leave, .admin-leave__card, .admin-leave.is-nudged .admin-leave__card { animation: none; } }

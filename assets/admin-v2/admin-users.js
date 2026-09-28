@@ -403,7 +403,7 @@
         if (subtitle) subtitle.textContent = `ID #${Number(user.id)} · registrato il ${fmtDay(user.data_creazione)}`;
 
         body.innerHTML = `
-            <div class="admin-user-sheet" data-user-sheet>
+            <div class="admin-user-sheet" data-user-sheet data-dirty-ignore>
                 <aside class="admin-user-side" data-sheet-side>${sideHtml()}</aside>
                 <div class="admin-user-main">
                     ${canManage() ? '' : `<p class="admin-user-note"><i class="fa-solid fa-lock"></i>${data.permissions.is_self ? 'Questo è il tuo account.' : 'Puoi solo consultare questo account: un admin gestisce gli utenti, un owner tutti.'}</p>`}

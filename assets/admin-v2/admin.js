@@ -185,6 +185,12 @@
         hide() {
             if (!element) return;
             const wasOpen = element.classList.contains('is-open');
+            // Come Bootstrap: chi ascolta hide.bs.modal puo' fermare la chiusura.
+            if (wasOpen) {
+                const request = new Event('hide.bs.modal', { cancelable: true });
+                element.dispatchEvent(request);
+                if (request.defaultPrevented) return;
+            }
             element.classList.remove('is-open');
             element.style.display = 'none';
             element.setAttribute('aria-hidden', 'true');
@@ -193,11 +199,211 @@
         }
     });
 
+    /*
+     * Uscire senza salvare. Un clic fuori dalla finestra, Esc, la X o
+     * Annulla con delle modifiche in sospeso non le buttano via: compare un
+     * riquadro dentro la finestra stessa (niente confirm() del browser,
+     * niente seconda modale sopra la prima) che chiede se uscire davvero.
+     *
+     * Ogni campo si ricorda il valore che aveva quando è comparso, anche
+     * quelli aggiunti dopo (una FAQ nuova, una lista ricaricata dentro la
+     * finestra): ci sono modifiche se almeno un campo ora è diverso e chi usa
+     * il pannello ci ha messo mano. Rimettere il valore di prima rende la
+     * finestra di nuovo pulita. Dopo un salvataggio closeModal() chiude
+     * senza chiedere. I campi dentro [data-dirty-ignore] hanno una guardia
+     * loro (la scheda utente, con la barra di salvataggio).
+     */
+    const leaveGuard = (() => {
+        const baseline = new WeakMap();
+        const SKIP_TYPES = ['file', 'search', 'button', 'submit', 'reset', 'image'];
+        let element = null;
+        let overlay = null;
+        let touched = false;   // un gesto vero dentro la finestra
+        let allowNext = false; // la prossima chiusura passa senza chiedere
+        let lastField = null;  // ultimo campo toccato: il fuoco ci torna
+
+        const bodyEl = () => $('#adminModalBody');
+
+        const valueOf = (field) => {
+            if (field.type === 'checkbox' || field.type === 'radio') return field.checked ? '1' : '0';
+            if (field.tagName === 'SELECT' && field.multiple) return Array.from(field.selectedOptions, (o) => o.value).join('\n');
+            return field.value;
+        };
+
+        const fields = () => {
+            const root = bodyEl();
+            return root
+                ? $$('input, select, textarea', root).filter((f) => !SKIP_TYPES.includes(f.type) && !f.closest('[data-dirty-ignore]'))
+                : [];
+        };
+
+        // Il valore di partenza di ogni campo nuovo (quelli gia' visti restano).
+        const remember = () => fields().forEach((f) => {
+            if (!baseline.has(f)) baseline.set(f, valueOf(f));
+        });
+
+        const changedFields = () => (touched ? fields().filter((f) => baseline.has(f) && baseline.get(f) !== valueOf(f)) : []);
+
+        // Il nome del campo come lo legge chi usa il pannello.
+        const labelOf = (field) => {
+            const wrap = field.closest('.admin-field');
+            const label = (field.id && $(`label[for="${CSS.escape(field.id)}"]`)) || wrap?.querySelector('label');
+            if (!label) return field.getAttribute('aria-label') || '';
+            const copy = label.cloneNode(true);
+            $$('input, select, textarea, small, output, [data-gallery-count], .shop-admin-req', copy).forEach((el) => el.remove());
+            return copy.textContent.replace(/\s+/g, ' ').replace(/[*:]\s*$/, '').trim();
+        };
+
+        const summary = (list) => {
+            const names = Array.from(new Set(list.map(labelOf).filter(Boolean)));
+            if (!names.length) return 'Hai delle modifiche non salvate in questa finestra.';
+            const shown = names.slice(0, 4).join(', ');
+            const more = names.length > 4 ? ` e altri ${names.length - 4}` : '';
+            return `Hai modificato: ${shown}${more}.`;
+        };
+
+        const setInert = (on) => {
+            const content = overlay?.parentElement;
+            if (!content) return;
+            Array.from(content.children).forEach((child) => {
+                if (child !== overlay) child.inert = on;
+            });
+        };
+
+        const hideOverlay = () => {
+            if (!overlay || overlay.hidden) return;
+            overlay.hidden = true;
+            setInert(false);
+            if (lastField && document.contains(lastField)) lastField.focus({ preventScroll: true });
+        };
+
+        const showOverlay = (list) => {
+            $('[data-leave-text]', overlay).textContent = `${summary(list)} Se esci ora le perdi.`;
+            overlay.hidden = false;
+            setInert(true);
+            $('[data-leave-stay]', overlay).focus({ preventScroll: true });
+        };
+
+        const nudge = () => {
+            overlay.classList.remove('is-nudged');
+            void overlay.offsetWidth;
+            overlay.classList.add('is-nudged');
+            $('[data-leave-stay]', overlay).focus({ preventScroll: true });
+        };
+
+        const build = () => {
+            const content = element.querySelector('.modal-content');
+            if (!content) return;
+            overlay = document.createElement('div');
+            overlay.className = 'admin-leave';
+            overlay.hidden = true;
+            overlay.setAttribute('role', 'alertdialog');
+            overlay.setAttribute('aria-modal', 'true');
+            overlay.setAttribute('aria-labelledby', 'adminLeaveTitle');
+            overlay.setAttribute('aria-describedby', 'adminLeaveText');
+            overlay.innerHTML = `
+                <div class="admin-leave__card">
+                    <span class="admin-leave__icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                    <strong id="adminLeaveTitle">Uscire senza salvare?</strong>
+                    <p id="adminLeaveText" data-leave-text></p>
+                    <div class="admin-leave__actions">
+                        <button type="button" class="admin-btn admin-btn--primary" data-leave-stay><i class="fa-solid fa-pen"></i> Continua a modificare</button>
+                        <button type="button" class="admin-btn admin-btn--danger" data-leave-discard><i class="fa-solid fa-trash-can"></i> Esci senza salvare</button>
+                    </div>
+                </div>`;
+            content.appendChild(overlay);
+
+            $('[data-leave-stay]', overlay).addEventListener('click', hideOverlay);
+            $('[data-leave-discard]', overlay).addEventListener('click', () => {
+                allowNext = true;
+                hideOverlay();
+                modal?.hide();
+            });
+
+            // Esc con il riquadro aperto vuol dire "continua a modificare".
+            // Si prende in cattura sulla finestra, prima del gestore di
+            // Bootstrap che la leggerebbe come richiesta di chiusura.
+            element.addEventListener('keydown', (event) => {
+                if (event.key !== 'Escape' || overlay.hidden) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                hideOverlay();
+            }, true);
+        };
+
+        return {
+            init(modalElement) {
+                element = modalElement;
+                const body = bodyEl();
+                if (!element || !body) return;
+                build();
+
+                // I campi che compaiono dopo (liste ricaricate, righe
+                // aggiunte) si ricordano il loro valore di partenza.
+                new MutationObserver(remember).observe(body, { childList: true, subtree: true });
+
+                // Solo i gesti veri contano: i valori messi dal codice
+                // (anteprime, caricamenti in corso) non sono modifiche.
+                ['input', 'change', 'click'].forEach((type) => body.addEventListener(type, (event) => {
+                    if (event.isTrusted) touched = true;
+                }, true));
+
+                body.addEventListener('focusin', (event) => {
+                    if (event.target.matches?.('input, select, textarea')) lastField = event.target;
+                });
+
+                element.addEventListener('hide.bs.modal', (event) => {
+                    if (event.target !== element || event.defaultPrevented) return;
+                    if (allowNext) return;
+
+                    // Riquadro gia' aperto e un altro clic fuori: non chiude,
+                    // il riquadro vibra per dire che la risposta serve.
+                    if (overlay && !overlay.hidden) {
+                        event.preventDefault();
+                        nudge();
+                        return;
+                    }
+
+                    const changed = changedFields();
+                    if (!changed.length) return;
+                    event.preventDefault();
+                    showOverlay(changed);
+                });
+
+                element.addEventListener('hidden.bs.modal', () => {
+                    allowNext = false;
+                    touched = false;
+                    hideOverlay();
+                });
+            },
+
+            /** Finestra nuova: si riparte da pulito. */
+            reset() {
+                allowNext = false;
+                touched = false;
+                lastField = null;
+                hideOverlay();
+            },
+
+            /** La prossima chiusura e' voluta (dopo un salvataggio). */
+            allowClose() {
+                allowNext = true;
+            },
+
+            /** Salvataggio fatto senza chiudere: i valori attuali diventano quelli di partenza. */
+            markClean() {
+                fields().forEach((f) => baseline.set(f, valueOf(f)));
+                touched = false;
+            },
+        };
+    })();
+
     const initModalInstances = () => {
         const adminModalElement = $('#adminModal');
         const confirmModalElement = $('#confirmModal');
 
         adminModalElement?.addEventListener('hidden.bs.modal', discardPendingUploads);
+        leaveGuard.init(adminModalElement);
 
         if (window.bootstrap && window.bootstrap.Modal) {
             modal = adminModalElement ? new window.bootstrap.Modal(adminModalElement) : createFallbackModal(adminModalElement);
@@ -232,6 +438,7 @@
             return;
         }
 
+        leaveGuard.reset();
         titleEl.textContent = title;
         if (subtitleEl) subtitleEl.textContent = subtitle || '';
         bodyEl.innerHTML = bodyHtml;
@@ -241,7 +448,11 @@
         modal.show();
     };
 
-    const closeModal = () => modal?.hide();
+    // Chiusura voluta dal codice (dopo un salvataggio riuscito): non chiede.
+    const closeModal = () => {
+        leaveGuard.allowClose();
+        modal?.hide();
+    };
 
     const confirmBox = (title, bodyHtml, action) => {
         const titleEl = $('#confirmTitle');
@@ -1569,6 +1780,7 @@
         enableRowDrag,
         trackUpload,
         discardPendingUploads,
+        markModalClean: () => leaveGuard.markClean(),
         getQuery: () => state.q,
         describeLog,
         openMessageForm,
