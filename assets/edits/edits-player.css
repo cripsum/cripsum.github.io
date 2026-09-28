@@ -1,0 +1,834 @@
+/*
+ * Player degli edit caricati come file (gli embed Streamable hanno il loro).
+ * Minimale: una sfumatura in basso, la barra e pochi tasti. Tutto quello
+ * che compare e sparisce lo fa con opacita' e trasformazioni, niente salti.
+ */
+
+.ep {
+    --ep-a1: #2f6bff;
+    --ep-a2: #8b5cf6;
+    --ep-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --ep-spring: cubic-bezier(0.2, 0.9, 0.3, 1.35);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+    background: #000;
+    color: #fff;
+    font-family: inherit;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    container-type: inline-size;
+}
+
+/* Due video sovrapposti per il loop: si vede solo quello attivo, lo
+   scambio e' istantaneo (una transizione si vedrebbe come un doppione).
+   Lo z-index dei video resta qui dentro, sotto a controlli e copertina. */
+.ep__stage {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    isolation: isolate;
+    background: #000;
+}
+
+.ep__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+    opacity: 0;
+}
+
+.ep__video.is-active {
+    z-index: 1;
+    opacity: 1;
+}
+
+.ep__poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 300ms ease;
+    pointer-events: none;
+}
+
+.ep[data-started="false"] .ep__poster {
+    opacity: 1;
+}
+
+.ep__shade {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 42%;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72));
+    pointer-events: none;
+    transition: opacity 320ms ease;
+}
+
+.ep[data-controls="hidden"] .ep__shade {
+    opacity: 0;
+}
+
+.ep[data-controls="hidden"][data-state="playing"] {
+    cursor: none;
+}
+
+/* ── Tasto grande al centro ─────────────────────────────────────────── */
+
+.ep__center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    margin: -38px 0 0 -38px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    background: rgba(10, 12, 22, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.7);
+    pointer-events: none;
+    transition: opacity 220ms ease, transform 340ms var(--ep-spring), background 160ms ease, border-color 160ms ease;
+}
+
+.ep[data-state="paused"] .ep__center {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+}
+
+.ep__center:hover {
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--ep-a1), var(--ep-a2));
+    transform: scale(1.06);
+}
+
+.ep__center svg {
+    width: 30px;
+    height: 30px;
+}
+
+.ep__center .ep-i-play {
+    margin-left: 4px;
+}
+
+/* ── Risposte visive: play/pausa e salti di 5 secondi ───────────────── */
+
+.ep__flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin: -32px 0 0 -32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ep__flash svg {
+    width: 26px;
+    height: 26px;
+}
+
+.ep__flash.is-on {
+    animation: epFlash 560ms var(--ep-ease);
+}
+
+@keyframes epFlash {
+    0% { opacity: 0.95; transform: scale(0.6); }
+    55% { opacity: 0.85; }
+    100% { opacity: 0; transform: scale(1.35); }
+}
+
+.ep__seek {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.5);
+    font-size: 0.82rem;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+.ep__seek svg {
+    width: 16px;
+    height: 16px;
+}
+
+.ep__seek--back { left: 7%; }
+.ep__seek--fwd { right: 7%; }
+
+.ep__seek.is-on {
+    animation: epSeek 650ms var(--ep-ease);
+}
+
+@keyframes epSeek {
+    0% { opacity: 0; transform: translateY(-50%) scale(0.8); }
+    25% { opacity: 1; transform: translateY(-50%) scale(1); }
+    100% { opacity: 0; transform: translateY(-50%) scale(1); }
+}
+
+/* ── Caricamento ───────────────────────────────────────────────────── */
+
+/* L'anello sta in un disco scuro: si vede anche sui fotogrammi chiari. */
+.ep__spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
+    border-radius: 50%;
+    background: rgba(8, 10, 20, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+}
+
+.ep__spinner::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: epSpin 0.9s linear infinite;
+}
+
+/* Compare solo se il caricamento dura: niente lampeggi. */
+.ep[data-state="loading"] .ep__spinner {
+    opacity: 1;
+    transition-delay: 250ms;
+}
+
+@keyframes epSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Barra dei controlli ───────────────────────────────────────────── */
+
+.ep__bar {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 0 14px 10px;
+    transition: opacity 260ms ease, transform 320ms var(--ep-ease);
+}
+
+.ep[data-controls="hidden"] .ep__bar {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+.ep__progress {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 20px;
+    cursor: pointer;
+    outline: none;
+    touch-action: none;
+}
+
+.ep__track {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.22);
+    transition: height 180ms var(--ep-ease);
+}
+
+.ep__progress:hover .ep__track,
+.ep__progress.is-dragging .ep__track,
+.ep__progress:focus-visible .ep__track {
+    height: 7px;
+}
+
+.ep__buffered,
+.ep__hoverfill,
+.ep__played {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: inherit;
+}
+
+.ep__buffered {
+    width: var(--ep-buffered, 0%);
+    background: rgba(255, 255, 255, 0.25);
+    transition: width 300ms ease;
+}
+
+.ep__hoverfill {
+    width: var(--ep-hover, 0%);
+    background: rgba(255, 255, 255, 0.22);
+    opacity: 0;
+    transition: opacity 150ms ease;
+}
+
+.ep__progress:hover .ep__hoverfill {
+    opacity: 1;
+}
+
+.ep__played {
+    width: var(--ep-played, 0%);
+    background: linear-gradient(90deg, var(--ep-a1), var(--ep-a2));
+    box-shadow: 0 0 12px rgba(96, 112, 255, 0.6);
+}
+
+.ep__thumb {
+    position: absolute;
+    top: 50%;
+    left: var(--ep-played, 0%);
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.35);
+    transform: scale(0);
+    transition: transform 200ms var(--ep-spring);
+}
+
+.ep__progress:hover .ep__thumb,
+.ep__progress.is-dragging .ep__thumb,
+.ep__progress:focus-visible .ep__thumb {
+    transform: scale(1);
+}
+
+.ep__tip {
+    position: absolute;
+    bottom: 22px;
+    left: var(--ep-hover, 0%);
+    padding: 4px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(10, 12, 22, 0.9);
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 4px);
+    transition: opacity 150ms ease, transform 200ms var(--ep-ease);
+}
+
+.ep__progress:hover .ep__tip,
+.ep__progress.is-dragging .ep__tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.ep__row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 2px;
+}
+
+.ep__btn {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, transform 140ms ease;
+}
+
+.ep__btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.ep__btn:active {
+    transform: scale(0.9);
+}
+
+.ep__btn:focus-visible,
+.ep__center:focus-visible,
+.ep__progress:focus-visible .ep__track,
+.ep__vol-slider:focus-visible .ep__vol-track {
+    outline: 2px solid #9db4ff;
+    outline-offset: 3px;
+}
+
+.ep__btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Due icone sovrapposte che si scambiano ruotando (play/pausa, schermo intero). */
+.ep__swap > svg {
+    position: absolute;
+    transition: opacity 180ms ease, transform 280ms var(--ep-spring);
+}
+
+.ep__swap > svg:last-child {
+    opacity: 0;
+    transform: scale(0.5) rotate(-90deg);
+}
+
+.ep__swap.is-alt > svg:first-child {
+    opacity: 0;
+    transform: scale(0.5) rotate(90deg);
+}
+
+.ep__swap.is-alt > svg:last-child {
+    opacity: 1;
+    transform: none;
+}
+
+.ep__time {
+    margin-left: 4px;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.ep__time i {
+    margin: 0 3px;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: normal;
+}
+
+.ep__spacer {
+    flex: 1;
+}
+
+/* Volume: l'icona cambia col livello, la barretta si apre al passaggio. */
+.ep__vol {
+    display: flex;
+    align-items: center;
+}
+
+.ep__vol-btn svg {
+    position: absolute;
+    transition: opacity 160ms ease, transform 220ms var(--ep-spring);
+}
+
+.ep__vol-btn svg:not(.is-shown) {
+    opacity: 0;
+    transform: scale(0.6);
+}
+
+.ep__vol-slider {
+    display: flex;
+    align-items: center;
+    width: 0;
+    height: 38px;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0;
+    outline: none;
+    touch-action: none;
+    transition: width 280ms var(--ep-ease), opacity 200ms ease, padding 280ms var(--ep-ease);
+}
+
+.ep__vol:hover .ep__vol-slider,
+.ep__vol:focus-within .ep__vol-slider,
+.ep__vol.is-open .ep__vol-slider {
+    width: 92px;
+    padding: 0 12px 0 4px;
+    opacity: 1;
+}
+
+.ep__vol-track {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.ep__vol-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--ep-vol, 100%);
+    border-radius: inherit;
+    background: #fff;
+}
+
+.ep__vol-knob {
+    position: absolute;
+    top: 50%;
+    left: var(--ep-vol, 100%);
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Tasto acceso (ripeti): colore e un puntino sotto. */
+.ep__btn.is-on {
+    color: #c4b5fd;
+}
+
+.ep__btn::after {
+    content: "";
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 160ms ease, transform 220ms var(--ep-spring);
+}
+
+.ep__btn.is-on::after {
+    opacity: 1;
+    transform: none;
+}
+
+/* ── Velocita': un menu che si apre verso l'alto ── */
+
+.ep__speed {
+    position: relative;
+}
+
+.ep__speed-btn {
+    width: auto;
+    min-width: 44px;
+    padding: 0 9px;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.ep__speed-btn::after {
+    display: none;
+}
+
+.ep__speed-btn.is-on {
+    background: rgba(139, 92, 246, 0.22);
+}
+
+.ep__speed-menu {
+    position: absolute;
+    right: -4px;
+    bottom: calc(100% + 10px);
+    z-index: 5;
+    min-width: 150px;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    background: rgba(12, 15, 28, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    outline: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px) scale(0.95);
+    transform-origin: bottom right;
+    transition: opacity 150ms ease, transform 200ms var(--ep-ease), visibility 0s linear 200ms;
+}
+
+.ep__speed.is-open .ep__speed-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 170ms ease, transform 260ms var(--ep-spring), visibility 0s;
+}
+
+.ep__speed-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    color: #cfd6ea;
+    font-size: 0.84rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+        background 130ms ease,
+        color 130ms ease,
+        opacity 180ms ease calc(var(--i, 0) * 30ms),
+        transform 220ms var(--ep-ease) calc(var(--i, 0) * 30ms);
+}
+
+.ep__speed.is-open .ep__speed-option {
+    opacity: 1;
+    transform: none;
+}
+
+.ep__speed-option em {
+    margin-left: 4px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.74rem;
+    font-style: normal;
+}
+
+.ep__speed-option svg {
+    width: 15px;
+    height: 15px;
+    color: #a78bfa;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 150ms ease, transform 200ms var(--ep-spring);
+}
+
+.ep__speed-option.is-active {
+    background: rgba(47, 107, 255, 0.2);
+    color: #fff;
+}
+
+.ep__speed-option[aria-selected="true"] {
+    color: #fff;
+}
+
+.ep__speed-option[aria-selected="true"] svg {
+    opacity: 1;
+    transform: none;
+}
+
+/* Barra sottilissima quando i controlli spariscono. */
+.ep__mini {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.14);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 320ms ease;
+}
+
+.ep__mini i {
+    display: block;
+    width: var(--ep-played, 0%);
+    height: 100%;
+    background: linear-gradient(90deg, var(--ep-a1), var(--ep-a2));
+}
+
+.ep[data-controls="hidden"][data-state="playing"] .ep__mini {
+    opacity: 1;
+}
+
+/* ── Fine del video ────────────────────────────────────────────────── */
+
+.ep__end {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 20px;
+    background: rgba(5, 7, 13, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 300ms ease, visibility 0s linear 300ms;
+}
+
+.ep[data-state="ended"] .ep__end {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 300ms ease;
+}
+
+.ep__end > * {
+    transform: translateY(10px);
+    transition: transform 420ms var(--ep-ease);
+}
+
+.ep[data-state="ended"] .ep__end > * {
+    transform: none;
+}
+
+.ep__next {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 100%;
+    padding: 8px 16px 8px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease;
+}
+
+.ep__next:hover {
+    border-color: rgba(157, 180, 255, 0.6);
+    background: rgba(47, 107, 255, 0.25);
+}
+
+.ep__next[hidden] {
+    display: none;
+}
+
+.ep__next-cover {
+    position: relative;
+    flex: none;
+    width: 52px;
+    height: 52px;
+}
+
+.ep__next-cover img {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    transition: transform 260ms var(--ep-spring);
+}
+
+.ep__next:hover .ep__next-cover img {
+    transform: scale(1.06);
+}
+
+.ep__next small {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.ep__next strong {
+    display: block;
+    overflow: hidden;
+    font-size: 0.92rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.ep__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 160ms ease;
+}
+
+.ep__pill:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.ep__pill[hidden] {
+    display: none;
+}
+
+.ep__pill svg {
+    width: 16px;
+    height: 16px;
+}
+
+.ep:fullscreen {
+    border-radius: 0;
+}
+
+/* ── Player piccoli e telefoni ─────────────────────────────────────── */
+
+@container (max-width: 360px) {
+    .ep__bar {
+        padding: 0 8px 6px;
+    }
+
+    .ep__time {
+        font-size: 0.72rem;
+    }
+}
+
+/* Senza mouse: il volume lo fanno i tasti del telefono, resta il muto.
+   Col video in corsa il tasto centrale serve a mettere in pausa. */
+@media (hover: none) {
+    .ep__vol-slider {
+        display: none;
+    }
+
+    .ep[data-state="playing"][data-controls="visible"] .ep__center {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+    }
+
+    .ep__btn {
+        width: 42px;
+        height: 42px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ep *,
+    .ep *::after {
+        transition-duration: 1ms !important;
+        animation-duration: 1ms !important;
+    }
+
+    .ep__spinner::before {
+        animation-duration: 1.6s !important;
+    }
+}

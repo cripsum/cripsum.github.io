@@ -116,6 +116,7 @@ $eJs = [
         'missing_title' => $S['missing_title'],
         'missing_text' => $S['missing_text'],
         'not_found' => $S['not_found'],
+        'player' => $S['player'],
     ],
     'not_found' => $eNotFound,
 ];
@@ -141,6 +142,8 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
     <title><?php echo shop_h($ogTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits.css')); ?>">
+    <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
+    <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits.js')); ?>" defer></script>
 </head>
 

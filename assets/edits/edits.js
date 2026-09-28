@@ -1,6 +1,7 @@
 /*
  * Edits: filtri, "visti", e il player grande con il suo indirizzo
- * (/it/edits/28), frecce, tastiera e swipe.
+ * (/it/edits/28), frecce, tastiera e swipe. Gli edit caricati come file
+ * usano il player di edits-player.js; quelli di Streamable il loro iframe.
  *
  * PreMiD (il presence di Cripsum.com) ricorda l'ultima .edit-card cliccata
  * e ne legge titolo, musica e .rpcimg. Quando un edit si apre senza un
@@ -327,6 +328,7 @@
 
         const player = dialog ? $('[data-player]', dialog) : null;
         const stage = dialog ? $('[data-theater-stage]', dialog) : null;
+        let videoPlayer = null;
 
         const el = (tag, attrs = {}, text = '') => {
             const node = document.createElement(tag);
@@ -339,6 +341,10 @@
 
         const clearPlayer = () => {
             if (!player) return;
+            if (videoPlayer) {
+                videoPlayer.destroy();
+                videoPlayer = null;
+            }
             $$('video', player).forEach((video) => {
                 try {
                     video.pause();
@@ -365,6 +371,21 @@
                     box.append(link);
                 }
                 player.append(box);
+                return;
+            }
+
+            if (edit.source === 'file' && edit.video && window.CripsumPlayer) {
+                // A fine video resta fermo: "Rivedi", oppure il prossimo della griglia.
+                const next = edits.get(neighbour(1));
+                videoPlayer = window.CripsumPlayer.mount(player, {
+                    src: edit.video,
+                    poster: edit.cover || '',
+                    title: edit.full_title || edit.title,
+                    autoplay: true,
+                    next: next ? { title: next.serie ? `${next.title} · ${next.serie}` : next.title, cover: next.cover || '' } : null,
+                    onNext: next ? () => step(1) : null,
+                    strings: S.player || {},
+                });
                 return;
             }
 
@@ -503,15 +524,19 @@
         };
 
         // Si scorre nell'ordine in cui la griglia li mostra adesso (filtri compresi).
-        const step = (dir) => {
-            if (state.current === null) return;
+        const neighbour = (dir) => {
+            if (state.current === null) return null;
             const inGrid = Array.from(grid.children).filter((card) => card.classList.contains('edit-card'));
             let list = inGrid.filter((card) => !card.hidden).map((card) => Number(card.dataset.editId));
             if (!list.includes(state.current)) list = inGrid.map((card) => Number(card.dataset.editId));
-            if (list.length < 2) return;
+            if (list.length < 2) return null;
             const index = list.indexOf(state.current);
-            const next = list[(index + dir + list.length) % list.length];
-            openEdit(next, { history: 'replace' });
+            return list[(index + dir + list.length) % list.length];
+        };
+
+        const step = (dir) => {
+            const next = neighbour(dir);
+            if (next !== null) openEdit(next, { history: 'replace' });
         };
 
         const copyLink = async () => {
@@ -562,6 +587,8 @@
             });
 
             dialog.addEventListener('keydown', (event) => {
+                // Prima il player (spazio, M, F, J/L...); le frecce restano per cambiare edit.
+                if (videoPlayer?.handleKey(event)) return;
                 if (event.target instanceof HTMLVideoElement || event.target instanceof HTMLInputElement) return;
                 if (event.key === 'ArrowRight') {
                     event.preventDefault();
@@ -576,7 +603,11 @@
             // tocchi non arrivano: si scorre dalla parte delle informazioni.
             let touch = null;
             dialog.addEventListener('touchstart', (event) => {
-                if (event.touches.length !== 1) return;
+                // Trascinare la barra del video o il volume non cambia edit.
+                if (event.touches.length !== 1 || event.target.closest?.('.ep__bar')) {
+                    touch = null;
+                    return;
+                }
                 touch = { x: event.touches[0].clientX, y: event.touches[0].clientY };
             }, { passive: true });
             dialog.addEventListener('touchend', (event) => {
