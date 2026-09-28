@@ -40,34 +40,6 @@ function chisiamo_social_networks(): array
     ];
 }
 
-/**
- * Il testo di una card: prima si neutralizza tutto, poi **grassetto**,
- * [testo](link) e gli a capo. I link accettati sono quelli https e i
- * percorsi del sito (/it/...), che seguono la lingua di chi guarda.
- */
-function chisiamo_rich_text(string $text, string $lang): string
-{
-    $safe = shop_h(trim($text));
-
-    $safe = preg_replace_callback(
-        '~\[([^\]\n]{1,120})\]\(([^)\s]{1,300})\)~u',
-        static function (array $m) use ($lang): string {
-            $url = html_entity_decode($m[2], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            if (!shop_valid_link($url)) {
-                return $m[0];
-            }
-            $url = shop_localize_link($url, $lang);
-            $external = !str_starts_with($url, '/');
-            return '<a href="' . shop_h($url) . '"' . ($external ? ' target="_blank" rel="noopener noreferrer"' : '') . '>' . $m[1] . '</a>';
-        },
-        $safe
-    ) ?? $safe;
-
-    $safe = preg_replace('~\*\*(.+?)\*\*~u', '<strong>$1</strong>', $safe) ?? $safe;
-
-    return nl2br($safe, false);
-}
-
 /** {"instagram": "https://..."} → le icone da mostrare, gia' controllate. */
 function chisiamo_socials(?string $json): array
 {
@@ -150,7 +122,7 @@ function chisiamo_member_view(array $row, string $lang): array
         'profile_url' => $profileUrl,
         'premium' => $username !== '' && (int)($row['profilo_premium'] ?? 0) === 1,
         'tag' => shop_pick($row, 'tag', $lang),
-        'description' => chisiamo_rich_text(shop_pick($row, 'descrizione', $lang), $lang),
+        'description' => shop_rich_text(shop_pick($row, 'descrizione', $lang), $lang),
         'socials' => chisiamo_socials($row['social'] ?? null),
     ];
 }

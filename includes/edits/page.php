@@ -62,7 +62,7 @@ if ($eRequested > 0) {
 }
 
 if ($eOpen) {
-    $ogTitle = 'Cripsum™ - ' . $eOpen['title'];
+    $ogTitle = 'Cripsum™ - ' . $eOpen['full_title'];
     $ogDescription = $eOpen['music'] !== '' ? '🎵 ' . $eOpen['music'] : $S['meta_description'];
     if ($eOpen['cover'] !== '') {
         $ogImage = $eOpen['cover'];
@@ -72,10 +72,20 @@ if ($eOpen) {
     $ogDescription = $eTexts['subtitle'] !== '' ? $eTexts['subtitle'] : $S['meta_description'];
 }
 
+// Il bottone "Guardalo su TikTok" (o YouTube...): testo gia' pronto per il player.
+$ePost = static fn(?array $post): ?array => $post ? [
+    'url' => $post['url'],
+    'icon' => $post['icon'],
+    'label' => $post['name'] !== '' ? sprintf($S['watch_on'], $post['name']) : $S['watch_post'],
+] : null;
+
 // Quello che serve al player: il resto lo legge dalle card.
 $eData = array_map(static fn(array $e): array => [
     'id' => $e['id'],
     'title' => $e['title'],
+    'serie' => $e['serie'],
+    'full_title' => $e['full_title'],
+    'description' => $e['description'],
     'music' => $e['music'],
     'category' => $e['category'],
     'source' => $e['source'],
@@ -88,7 +98,7 @@ $eData = array_map(static fn(array $e): array => [
     'is_new' => $e['is_new'],
     'collab' => $e['collab'],
     'collab_link' => $e['collab_link'],
-    'tiktok' => $e['tiktok'],
+    'post' => $ePost($e['post']),
     'url' => $e['url'],
 ], $eEdits);
 
@@ -105,7 +115,6 @@ $eJs = [
         'seen' => $S['seen'],
         'missing_title' => $S['missing_title'],
         'missing_text' => $S['missing_text'],
-        'tiktok' => $S['tiktok'],
         'not_found' => $S['not_found'],
     ],
     'not_found' => $eNotFound,
@@ -161,7 +170,7 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
             </div>
 
             <?php if ($eFeatured): ?>
-                <button type="button" class="edits-featured edits-featured--<?php echo shop_h($eFeatured['shape']); ?>" data-edit-open="<?php echo (int)$eFeatured['id']; ?>" aria-label="<?php echo shop_h(sprintf($S['watch'], $eFeatured['title'])); ?>">
+                <button type="button" class="edits-featured edits-featured--<?php echo shop_h($eFeatured['shape']); ?>" data-edit-open="<?php echo (int)$eFeatured['id']; ?>" aria-label="<?php echo shop_h(sprintf($S['watch'], $eFeatured['full_title'])); ?>">
                     <?php echo $eCover($eFeatured, 'edits-featured'); ?>
                     <span class="edits-featured__shade" aria-hidden="true"></span>
                     <?php if ($eFeatured['label'] !== '' || $eFeatured['is_new']): ?>
@@ -170,6 +179,9 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
                     <span class="edits-featured__play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
                     <span class="edits-featured__info">
                         <strong><?php echo shop_h($eFeatured['title']); ?></strong>
+                        <?php if ($eFeatured['serie'] !== ''): ?>
+                            <em><?php echo shop_h($eFeatured['serie']); ?></em>
+                        <?php endif; ?>
                         <?php if ($eFeatured['music'] !== ''): ?>
                             <span><i class="fa-solid fa-music" aria-hidden="true"></i> <?php echo shop_h($eFeatured['music']); ?></span>
                         <?php endif; ?>
@@ -193,15 +205,30 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
                         <input type="search" id="editsSearch" placeholder="<?php echo shop_h($S['search']); ?>" aria-label="<?php echo shop_h($S['search_label']); ?>" autocomplete="off">
                         <kbd aria-hidden="true">/</kbd>
                     </label>
-                    <label class="edits-sort">
-                        <span><?php echo shop_h($S['sort']); ?></span>
-                        <select id="editsSort">
-                            <option value="recent"><?php echo shop_h($S['sort_recent']); ?></option>
-                            <option value="popular"><?php echo shop_h($S['sort_popular']); ?></option>
-                            <option value="name"><?php echo shop_h($S['sort_name']); ?></option>
-                        </select>
-                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-                    </label>
+                    <?php
+                    $eSorts = [
+                        'recent' => ['fa-solid fa-clock-rotate-left', $S['sort_recent']],
+                        'popular' => ['fa-solid fa-fire', $S['sort_popular']],
+                        'name' => ['fa-solid fa-arrow-down-a-z', $S['sort_name']],
+                    ];
+                    ?>
+                    <div class="edits-sort" data-edits-sort>
+                        <span class="edits-sort__label" id="editsSortLabel"><?php echo shop_h($S['sort']); ?></span>
+                        <button type="button" class="edits-sort__button" id="editsSortButton" aria-haspopup="listbox" aria-expanded="false" aria-controls="editsSortMenu" aria-labelledby="editsSortLabel editsSortButton">
+                            <span data-sort-current><?php echo shop_h($S['sort_recent']); ?></span>
+                            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <ul class="edits-sort__menu" id="editsSortMenu" role="listbox" tabindex="-1" aria-labelledby="editsSortLabel">
+                            <?php $eSortIndex = 0; ?>
+                            <?php foreach ($eSorts as $value => [$icon, $label]): ?>
+                                <li class="edits-sort__option" id="editsSort-<?php echo $value; ?>" role="option" data-value="<?php echo $value; ?>" aria-selected="<?php echo $value === 'recent' ? 'true' : 'false'; ?>" style="--i: <?php echo $eSortIndex++; ?>">
+                                    <i class="<?php echo $icon; ?>" aria-hidden="true"></i>
+                                    <span><?php echo shop_h($label); ?></span>
+                                    <i class="fa-solid fa-check edits-sort__check" aria-hidden="true"></i>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
                     <label class="edits-toggle">
                         <input type="checkbox" id="editsHideSeen">
                         <span class="edits-toggle__switch" aria-hidden="true"></span>
@@ -227,7 +254,7 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
                         data-order="<?php echo (int)$i; ?>"
                         data-rank="<?php echo (int)($eRanks[$edit['id']] ?? $i + 1); ?>"
                         data-title="<?php echo shop_h($edit['title']); ?>"
-                        data-search="<?php echo shop_h(mb_strtolower($edit['title'] . ' ' . $edit['music'] . ' ' . $edit['collab'] . ' ' . $edit['category']['name'])); ?>">
+                        data-search="<?php echo shop_h(mb_strtolower($edit['title'] . ' ' . $edit['serie'] . ' ' . $edit['music'] . ' ' . $edit['collab'] . ' ' . $edit['category']['name'])); ?>">
                         <div class="edit-cover">
                             <?php echo $eCover($edit, 'edit-cover'); ?>
                             <span class="edit-cover__shade" aria-hidden="true"></span>
@@ -243,7 +270,11 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
                             <span class="edit-cover__play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
                         </div>
                         <div class="edit-info">
-                            <h3 class="character-name"><span><?php echo shop_h($edit['title']); ?></span></h3>
+                            <?php /* PreMiD legge questo span: dentro c'e' anche la serie, nascosta, cosi' su Discord resta "Iuno - Wuthering Waves". */ ?>
+                            <h3 class="character-name"><span><?php echo shop_h($edit['title']); ?><?php if ($edit['serie'] !== ''): ?><span class="edits-sr"> - <?php echo shop_h($edit['serie']); ?></span><?php endif; ?></span></h3>
+                            <?php if ($edit['serie'] !== ''): ?>
+                                <p class="edit-serie" aria-hidden="true"><?php echo shop_h($edit['serie']); ?></p>
+                            <?php endif; ?>
                             <?php if ($edit['music'] !== ''): ?>
                                 <p class="music-info"><i class="fa-solid fa-music" aria-hidden="true"></i><span><?php echo shop_h($edit['music']); ?></span></p>
                             <?php endif; ?>
@@ -257,7 +288,7 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
                                 </p>
                             <?php endif; ?>
                         </div>
-                        <button type="button" class="edit-card__hit" data-edit-open="<?php echo (int)$edit['id']; ?>" aria-label="<?php echo shop_h(sprintf($S['watch'], $edit['title'])); ?>"></button>
+                        <button type="button" class="edit-card__hit" data-edit-open="<?php echo (int)$edit['id']; ?>" aria-label="<?php echo shop_h(sprintf($S['watch'], $edit['full_title'])); ?>"></button>
                         <?php if ($edit['presence_image'] !== ''): ?>
                             <img class="rpcimg" src="<?php echo shop_h($edit['presence_image']); ?>" alt="" hidden loading="lazy">
                         <?php endif; ?>
@@ -281,12 +312,16 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
                         <div class="edit-player" data-player></div>
                         <div class="edit-theater__side">
                             <div class="edit-theater__tags" data-theater-tags></div>
-                            <h2 class="edit-theater__title" id="editTheaterTitle" data-theater-title tabindex="-1" autofocus></h2>
+                            <div class="edit-theater__heading">
+                                <h2 class="edit-theater__title" id="editTheaterTitle" data-theater-title tabindex="-1" autofocus></h2>
+                                <p class="edit-theater__serie" data-theater-serie hidden></p>
+                            </div>
                             <p class="edit-theater__meta" data-theater-music hidden><i class="fa-solid fa-music" aria-hidden="true"></i><span></span></p>
                             <p class="edit-theater__meta" data-theater-collab hidden><i class="fa-solid fa-handshake" aria-hidden="true"></i><span></span></p>
+                            <div class="edit-theater__desc" data-theater-desc hidden></div>
                             <div class="edit-theater__actions">
                                 <button type="button" class="edits-btn edits-btn--primary edits-btn--small" data-theater-copy><i class="fa-solid fa-link" aria-hidden="true"></i> <?php echo shop_h($S['copy_link']); ?></button>
-                                <a class="edits-btn edits-btn--small" data-theater-tiktok href="#" target="_blank" rel="noopener noreferrer" hidden><i class="fa-brands fa-tiktok" aria-hidden="true"></i> <?php echo shop_h($S['tiktok']); ?></a>
+                                <a class="edits-btn edits-btn--small" data-theater-post href="#" target="_blank" rel="noopener noreferrer" hidden><i class="fa-brands fa-tiktok" aria-hidden="true"></i> <span></span></a>
                             </div>
                             <div class="edit-theater__nav">
                                 <button type="button" class="edits-btn edits-btn--small" data-theater-step="-1"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> <?php echo shop_h($S['prev']); ?></button>

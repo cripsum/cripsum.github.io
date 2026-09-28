@@ -68,6 +68,30 @@ function edits_rows(mysqli $mysqli, bool $onlyPublished = true): array
     );
 }
 
+/**
+ * Dove e' stato pubblicato l'edit (link_post): la piattaforma decide nome e
+ * icona del bottone "Guardalo su ...". Null se il link manca o non e' https.
+ */
+function edits_post_link(?string $url): ?array
+{
+    $url = trim((string)$url);
+    if ($url === '' || !preg_match('~^https://[^\s]+$~i', $url) || filter_var($url, FILTER_VALIDATE_URL) === false) {
+        return null;
+    }
+
+    $host = strtolower((string)parse_url($url, PHP_URL_HOST));
+    $host = preg_replace('~^(?:www|m|vm)\.~', '', $host) ?? $host;
+
+    [$name, $icon] = match (true) {
+        str_ends_with($host, 'tiktok.com') => ['TikTok', 'fa-brands fa-tiktok'],
+        str_ends_with($host, 'youtube.com') || $host === 'youtu.be' => ['YouTube', 'fa-brands fa-youtube'],
+        str_ends_with($host, 'instagram.com') => ['Instagram', 'fa-brands fa-instagram'],
+        default => ['', 'fa-solid fa-arrow-up-right-from-square'],
+    };
+
+    return ['url' => $url, 'name' => $name, 'icon' => $icon];
+}
+
 /** Un percorso di vid/edits/ (quello che salva il pannello) pronto per <video>. */
 function edits_video_url(?string $value): string
 {
@@ -104,11 +128,16 @@ function edits_view(array $row, string $lang): array
     }
 
     $collabLink = trim((string)($row['collab_link'] ?? ''));
-    $tiktok = trim((string)($row['tiktok'] ?? ''));
+    $title = shop_pick($row, 'titolo', $lang);
+    $serie = trim((string)($row['serie'] ?? ''));
 
     return [
         'id' => $id,
-        'title' => shop_pick($row, 'titolo', $lang),
+        'title' => $title,
+        // "Iuno" e "Wuthering Waves" su due righe; intero dove serve una riga sola (PreMiD, anteprime).
+        'serie' => $serie,
+        'full_title' => $serie !== '' ? $title . ' - ' . $serie : $title,
+        'description' => shop_rich_text(shop_pick($row, 'descrizione', $lang), $lang),
         'music' => trim((string)($row['musica'] ?? '')),
         'category' => [
             'slug' => (string)($row['categoria_slug'] ?? ''),
@@ -133,7 +162,7 @@ function edits_view(array $row, string $lang): array
         'featured' => (int)($row['in_evidenza'] ?? 0) === 1,
         'collab' => trim((string)($row['collab_nome'] ?? '')),
         'collab_link' => $collabLink !== '' && shop_valid_link($collabLink) ? $collabLink : '',
-        'tiktok' => $tiktok !== '' && shop_valid_link($tiktok) ? $tiktok : '',
+        'post' => edits_post_link($row['link_post'] ?? null),
         'views' => (int)($row['visualizzazioni'] ?? 0),
         'url' => '/' . $lang . '/edits/' . $id,
     ];

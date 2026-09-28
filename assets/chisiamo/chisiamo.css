@@ -137,9 +137,12 @@ body.about-page {
 .about-mosaic__photo--4 { width: 150px; height: 150px; left: 40%; top: 48%; transform: rotate(-3deg); z-index: 5; }
 .about-mosaic__photo--5 { width: 110px; height: 110px; left: 76%; top: 52%; transform: rotate(7deg); z-index: 1; }
 
-.about-mosaic:hover .about-mosaic__photo--1 { transform: rotate(-9deg) translateY(-4px); }
-.about-mosaic:hover .about-mosaic__photo--2 { transform: rotate(8deg) translateY(-6px); }
-.about-mosaic:hover .about-mosaic__photo--4 { transform: rotate(-1deg) translateY(-3px); }
+/* Al passaggio del mouse si muovono tutte, ognuna verso il suo lato. */
+.about-mosaic:hover .about-mosaic__photo--1 { transform: rotate(-9deg) translateY(-6px); }
+.about-mosaic:hover .about-mosaic__photo--2 { transform: rotate(8deg) translate(4px, -7px); }
+.about-mosaic:hover .about-mosaic__photo--3 { transform: rotate(7deg) translate(-6px, 4px); }
+.about-mosaic:hover .about-mosaic__photo--4 { transform: rotate(-1deg) translateY(4px); }
+.about-mosaic:hover .about-mosaic__photo--5 { transform: rotate(11deg) translate(6px, 3px); }
 
 .about-mosaic__more {
     position: absolute;

@@ -253,6 +253,14 @@ body.edits-page {
     line-height: 1.2;
 }
 
+.edits-featured__info em {
+    margin-top: -3px;
+    color: #c9d2ea;
+    font-size: 0.9rem;
+    font-style: normal;
+    font-weight: 600;
+}
+
 .edits-featured__info span {
     display: flex;
     gap: 7px;
@@ -287,7 +295,6 @@ body.edits-page {
 }
 
 .edits-search,
-.edits-sort,
 .edits-toggle {
     display: flex;
     align-items: center;
@@ -303,7 +310,6 @@ body.edits-page {
 }
 
 .edits-search:focus-within,
-.edits-sort:focus-within,
 .edits-toggle:focus-within {
     border-color: rgba(47, 107, 255, 0.6);
 }
@@ -342,34 +348,159 @@ body.edits-page {
     font-size: 0.75rem;
 }
 
+/* Menu "Ordina": un listbox fatto a mano (edits.js), niente <select>. */
 .edits-sort {
     position: relative;
-    padding-right: 34px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 46px;
+    padding: 0 5px 0 14px;
+    border: 1px solid var(--edits-border);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--edits-muted);
+    font-size: 0.9rem;
+    transition: border-color 160ms ease, background 160ms ease;
 }
 
-.edits-sort select {
-    height: 100%;
+.edits-sort:hover,
+.edits-sort.is-open {
+    border-color: rgba(47, 107, 255, 0.6);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.edits-sort__button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 36px;
+    padding: 0 10px;
     border: 0;
-    outline: 0;
+    border-radius: 10px;
     background: transparent;
     color: #fff;
     font: inherit;
     font-weight: 600;
     cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
+    transition: background 160ms ease;
 }
 
-.edits-sort select option {
-    background: #0c0f1b;
+.edits-sort__button:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.edits-sort__button:focus-visible {
+    outline: 2px solid #9db4ff;
+    outline-offset: 2px;
+}
+
+.edits-sort__button i {
+    color: var(--edits-muted);
+    font-size: 0.7rem;
+    transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.edits-sort.is-open .edits-sort__button i {
+    transform: rotate(180deg);
+}
+
+.edits-sort__menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 30;
+    min-width: 230px;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    border: 1px solid var(--edits-border-strong);
+    border-radius: 16px;
+    background: rgba(12, 15, 28, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    outline: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.96);
+    transform-origin: top right;
+    transition:
+        opacity 160ms ease,
+        transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        visibility 0s linear 200ms;
+}
+
+.edits-sort.is-open .edits-sort__menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+        opacity 180ms ease,
+        transform 260ms cubic-bezier(0.2, 0.9, 0.25, 1.15),
+        visibility 0s;
+}
+
+.edits-sort__option {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    border-radius: 11px;
+    color: #cfd6ea;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+        background 140ms ease,
+        color 140ms ease,
+        opacity 200ms ease calc(var(--i, 0) * 40ms),
+        transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--i, 0) * 40ms);
+}
+
+.edits-sort.is-open .edits-sort__option {
+    opacity: 1;
+    transform: none;
+}
+
+.edits-sort__option > i:first-child {
+    width: 18px;
+    color: #8fa7ff;
+    text-align: center;
+    transition: transform 180ms ease;
+}
+
+.edits-sort__option span {
+    flex: 1;
+}
+
+.edits-sort__option.is-active {
+    background: rgba(47, 107, 255, 0.18);
     color: #fff;
 }
 
-.edits-sort i {
-    position: absolute;
-    right: 14px;
-    pointer-events: none;
-    font-size: 0.7rem;
+.edits-sort__option.is-active > i:first-child {
+    transform: scale(1.15);
+}
+
+.edits-sort__option[aria-selected="true"] {
+    color: #fff;
+}
+
+.edits-sort__check {
+    color: #9db4ff;
+    font-size: 0.8rem;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 160ms ease, transform 200ms cubic-bezier(0.2, 0.9, 0.25, 1.3);
+}
+
+.edits-sort__option[aria-selected="true"] .edits-sort__check {
+    opacity: 1;
+    transform: none;
 }
 
 .edits-toggle {
@@ -613,6 +744,27 @@ body.edits-page {
     color: #8fa7ff;
 }
 
+/* La serie sotto il titolo ("Wuthering Waves" sotto "Iuno"). */
+.edit-info .edit-serie {
+    margin-top: -4px;
+    color: #9aa6c4;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* Testo solo per lettori di schermo e PreMiD. */
+.edits-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .edit-collab {
     position: relative;
     z-index: 2;
@@ -798,6 +950,42 @@ body.edits-page {
     display: none;
 }
 
+.edit-theater__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.edit-theater__serie {
+    margin: 0;
+    color: var(--edits-muted);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.edit-theater__serie[hidden],
+.edit-theater__desc[hidden] {
+    display: none;
+}
+
+.edit-theater__desc {
+    max-height: 30vh;
+    overflow-y: auto;
+    padding-right: 4px;
+    color: #d3d9ea;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.edit-theater__desc a {
+    color: #9db4ff;
+}
+
+.edit-theater__desc strong {
+    color: #fff;
+}
+
 .edit-theater__title {
     outline: none;
     margin: 0;
@@ -974,6 +1162,10 @@ body.edits-page {
         border-radius: 0;
     }
 
+    .edit-theater__desc {
+        max-height: none;
+    }
+
     .edit-theater__arrow {
         display: none;
     }
@@ -991,9 +1183,10 @@ body.edits-page {
         padding-top: 6rem;
     }
 
-    /* Sul telefono i filtri non restano fissi: occuperebbero mezzo schermo. */
+    /* Sul telefono i filtri non restano fissi: occuperebbero mezzo schermo.
+       Relative, non static: il menu "Ordina" deve restare sopra le card. */
     .edits-toolbar {
-        position: static;
+        position: relative;
         margin-top: 2rem;
         padding: 10px;
         border-radius: 18px;
@@ -1012,6 +1205,12 @@ body.edits-page {
     .edits-toggle {
         height: 40px;
         font-size: 0.82rem;
+    }
+
+    .edits-sort__menu {
+        right: auto;
+        left: 0;
+        transform-origin: top left;
     }
 
     .edits-grid {
@@ -1041,6 +1240,13 @@ body.edits-page {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .edits-sort__menu,
+    .edits-sort.is-open .edits-sort__menu,
+    .edits-sort__option,
+    .edits-sort__button i {
+        transition: none;
+    }
+
     .edits-btn:hover,
     .edit-card:hover,
     .edits-featured:hover {

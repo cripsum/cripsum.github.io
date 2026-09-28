@@ -156,6 +156,31 @@ function edits_admin_dimension(array $input, string $key): ?int
     return (int)$raw;
 }
 
+/** Dove e' stato pubblicato l'edit: solo un indirizzo https (TikTok, YouTube...). */
+function edits_admin_post_link(array $input): ?string
+{
+    $value = trim((string)($input['link_post'] ?? ''));
+    if ($value === '') {
+        return null;
+    }
+    if (!preg_match('~^[a-z][a-z0-9+.-]*://~i', $value)) {
+        $value = 'https://' . ltrim($value, '/');
+    }
+    if (mb_strlen($value) > 255 || edits_post_link($value) === null) {
+        admin_fail('Link del post: serve un indirizzo https completo, come https://www.tiktok.com/@cripsum/video/...');
+    }
+
+    return $value;
+}
+
+/** I tipi per bind_param, dai nomi delle colonne: interi questi, testo il resto. */
+function edits_admin_types(array $fields): string
+{
+    $ints = ['categoria_id', 'streamable_ok', 'larghezza', 'altezza', 'in_evidenza', 'posizione'];
+
+    return implode('', array_map(static fn(string $c): string => in_array($c, $ints, true) ? 'i' : 's', array_keys($fields)));
+}
+
 function edits_admin_icon(array $input): string
 {
     $icon = trim((string)($input['icona'] ?? ''));
@@ -222,6 +247,12 @@ try {
 
     switch ($action) {
         case 'save_edit':
+            // Serie, descrizione e link del post sono arrivati dopo la prima
+            // versione della migrazione: chi l'aveva gia' applicata la rilancia.
+            if (!admin_column_exists($mysqli, 'edits', 'serie') || !admin_column_exists($mysqli, 'edits', 'link_post')) {
+                admin_fail('Applica di nuovo migrations/2026_09_28_chisiamo_edits.sql: aggiunge serie, descrizione e link del post.', 409);
+            }
+
             $id = (int)($input['id'] ?? 0);
             $existing = $id > 0 ? edits_admin_row($mysqli, $id) : null;
 
@@ -251,6 +282,9 @@ try {
             $fields = [
                 'titolo' => admin_shop_text($input, 'titolo', 'Titolo (IT)', 120, true),
                 'titolo_en' => admin_shop_text($input, 'titolo_en', 'Titolo (EN)', 120),
+                'serie' => admin_shop_text($input, 'serie', 'Gioco, anime o serie', 120),
+                'descrizione' => admin_shop_text($input, 'descrizione', 'Descrizione (IT)', 2000),
+                'descrizione_en' => admin_shop_text($input, 'descrizione_en', 'Descrizione (EN)', 2000),
                 'categoria_id' => $categoryId,
                 'musica' => admin_shop_text($input, 'musica', 'Musica', 160),
                 'video' => $video !== '' ? $video : null,
@@ -262,7 +296,7 @@ try {
                 'gif_presence' => admin_shop_image($input, 'gif_presence', 'GIF per la rich presence'),
                 'collab_nome' => admin_shop_text($input, 'collab_nome', 'Collab con', 60),
                 'collab_link' => admin_shop_link($input, 'collab_link', 'Link della collab'),
-                'tiktok' => admin_shop_link($input, 'tiktok', 'Link al post TikTok'),
+                'link_post' => edits_admin_post_link($input),
                 'etichetta' => admin_shop_text($input, 'etichetta', 'Etichetta (IT)', 30),
                 'etichetta_en' => admin_shop_text($input, 'etichetta_en', 'Etichetta (EN)', 30),
                 'in_evidenza' => admin_shop_bool($input, 'in_evidenza'),
@@ -299,9 +333,7 @@ try {
             }
             $fields['pubblicato_at'] = $publishedAt;
 
-            // titolo, titolo_en, categoria, musica, video, streamable, ok, larghezza, altezza,
-            // copertina, gif, collab, collab_link, tiktok, etichetta x2, evidenza, stato, pubblicato_at
-            $types = 'ssisssiiisssssssiss';
+            $types = edits_admin_types($fields);
 
             $mysqli->begin_transaction();
             if ($existing) {
@@ -313,7 +345,7 @@ try {
                 $fields['posizione'] = (int)($top['p'] ?? 10) - 10;
                 $columns = '`' . implode('`, `', array_keys($fields)) . '`';
                 $marks = implode(', ', array_fill(0, count($fields), '?'));
-                $stmt = admin_shop_exec($mysqli, "INSERT INTO edits ($columns) VALUES ($marks)", $types . 'i', array_values($fields), 'Creazione non riuscita.');
+                $stmt = admin_shop_exec($mysqli, "INSERT INTO edits ($columns) VALUES ($marks)", edits_admin_types($fields), array_values($fields), 'Creazione non riuscita.');
                 $id = (int)$stmt->insert_id;
                 $stmt->close();
             }

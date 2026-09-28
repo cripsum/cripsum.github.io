@@ -28,8 +28,10 @@ if ($cReady) {
 
 $cTexts = chisiamo_page_texts($cReady ? $mysqli : null, $cLang, $S);
 
-// Il collage: le prime 5 foto nell'ordine del pannello.
-$cMosaic = array_slice(array_values(array_filter($cMembers, static fn(array $m): bool => $m['photo'] !== '')), 0, 5);
+// Il collage: 5 foto a caso del team, diverse a ogni caricamento.
+$cMosaic = array_values(array_filter($cMembers, static fn(array $m): bool => $m['photo'] !== ''));
+shuffle($cMosaic);
+$cMosaic = array_slice($cMosaic, 0, 5);
 $cMore = max(0, count($cMembers) - count($cMosaic));
 
 $ogTitle = 'Cripsum™ - ' . $S['page_title'];

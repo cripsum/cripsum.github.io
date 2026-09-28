@@ -90,7 +90,7 @@
         const cards = $$('.edit-card', grid);
         const cardById = new Map(cards.map((card) => [Number(card.dataset.editId), card]));
         const search = $('#editsSearch');
-        const sort = $('#editsSort');
+        const sortBox = $('[data-edits-sort]');
         const hideSeen = $('#editsHideSeen');
         const chips = $$('.edits-chip');
         const empty = $('#editsEmpty');
@@ -111,7 +111,6 @@
 
         if (!chips.some((chip) => chip.dataset.filter === state.filter)) state.filter = 'all';
         if (!['recent', 'popular', 'name'].includes(state.sort)) state.sort = 'recent';
-        if (sort) sort.value = state.sort;
         if (hideSeen) hideSeen.checked = state.hideSeen;
 
         /* ── Avvisi ─────────────────────────────────────────────────── */
@@ -214,11 +213,97 @@
             applyFilters();
         });
 
-        sort?.addEventListener('change', () => {
-            state.sort = sort.value;
-            store.set(STORE.sort, state.sort);
-            applyFilters();
-        });
+        /* ── Menu "Ordina": un listbox fatto a mano, niente <select> del browser ── */
+
+        if (sortBox) {
+            const button = $('.edits-sort__button', sortBox);
+            const menu = $('.edits-sort__menu', sortBox);
+            const current = $('[data-sort-current]', sortBox);
+            const options = $$('[role="option"]', menu);
+            let active = 0;
+
+            const paint = () => {
+                options.forEach((option) => {
+                    const selected = option.dataset.value === state.sort;
+                    option.setAttribute('aria-selected', selected ? 'true' : 'false');
+                    if (selected) current.textContent = $('span', option).textContent;
+                });
+            };
+
+            const highlight = (index) => {
+                active = (index + options.length) % options.length;
+                options.forEach((option, i) => option.classList.toggle('is-active', i === active));
+                menu.setAttribute('aria-activedescendant', options[active].id);
+            };
+
+            const isOpen = () => sortBox.classList.contains('is-open');
+
+            const open = () => {
+                if (isOpen()) return;
+                sortBox.classList.add('is-open');
+                button.setAttribute('aria-expanded', 'true');
+                highlight(Math.max(0, options.findIndex((o) => o.dataset.value === state.sort)));
+                menu.focus({ preventScroll: true });
+            };
+
+            const close = (focusButton = true) => {
+                if (!isOpen()) return;
+                sortBox.classList.remove('is-open');
+                button.setAttribute('aria-expanded', 'false');
+                menu.removeAttribute('aria-activedescendant');
+                if (focusButton) button.focus({ preventScroll: true });
+            };
+
+            const choose = (index) => {
+                const value = options[index]?.dataset.value;
+                if (value && value !== state.sort) {
+                    state.sort = value;
+                    store.set(STORE.sort, value);
+                    paint();
+                    applyFilters();
+                }
+                close();
+            };
+
+            button.addEventListener('click', () => (isOpen() ? close() : open()));
+            button.addEventListener('keydown', (event) => {
+                if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+                    event.preventDefault();
+                    open();
+                }
+            });
+
+            menu.addEventListener('keydown', (event) => {
+                switch (event.key) {
+                    case 'ArrowDown': event.preventDefault(); highlight(active + 1); break;
+                    case 'ArrowUp': event.preventDefault(); highlight(active - 1); break;
+                    case 'Home': event.preventDefault(); highlight(0); break;
+                    case 'End': event.preventDefault(); highlight(options.length - 1); break;
+                    case 'Enter':
+                    case ' ': event.preventDefault(); choose(active); break;
+                    case 'Escape': event.preventDefault(); event.stopPropagation(); close(); break;
+                    case 'Tab': close(false); break;
+                    default: break;
+                }
+            });
+
+            options.forEach((option, index) => {
+                option.addEventListener('mousemove', () => {
+                    if (active !== index) highlight(index);
+                });
+                option.addEventListener('click', () => choose(index));
+            });
+
+            // Un click fuori, o il focus che se ne va, chiude il menu.
+            document.addEventListener('pointerdown', (event) => {
+                if (isOpen() && !sortBox.contains(event.target)) close(false);
+            });
+            menu.addEventListener('focusout', (event) => {
+                if (isOpen() && !sortBox.contains(event.relatedTarget)) close(false);
+            });
+
+            paint();
+        }
 
         hideSeen?.addEventListener('change', () => {
             state.hideSeen = hideSeen.checked;
@@ -274,9 +359,9 @@
                 const box = el('div', { class: 'edit-player__missing' });
                 if (edit.cover) box.style.backgroundImage = `url("${edit.cover.replace(/"/g, '%22')}")`;
                 box.append(el('i', { class: 'fa-solid fa-video-slash', 'aria-hidden': 'true' }), el('strong', {}, S.missing_title || ''), el('p', {}, S.missing_text || ''));
-                if (edit.tiktok) {
-                    const link = el('a', { class: 'edits-btn edits-btn--small', href: edit.tiktok, target: '_blank', rel: 'noopener noreferrer' });
-                    link.append(el('i', { class: 'fa-brands fa-tiktok', 'aria-hidden': 'true' }), document.createTextNode(` ${S.tiktok || 'TikTok'}`));
+                if (edit.post) {
+                    const link = el('a', { class: 'edits-btn edits-btn--small', href: edit.post.url, target: '_blank', rel: 'noopener noreferrer' });
+                    link.append(el('i', { class: edit.post.icon, 'aria-hidden': 'true' }), document.createTextNode(` ${edit.post.label}`));
                     box.append(link);
                 }
                 player.append(box);
@@ -315,6 +400,14 @@
             }
 
             $('[data-theater-title]', dialog).textContent = edit.title;
+            const serie = $('[data-theater-serie]', dialog);
+            serie.hidden = !edit.serie;
+            serie.textContent = edit.serie || '';
+
+            // La descrizione arriva gia' pulita dal server (shop_rich_text).
+            const desc = $('[data-theater-desc]', dialog);
+            desc.hidden = !edit.description;
+            desc.innerHTML = edit.description || '';
 
             const music = $('[data-theater-music]', dialog);
             music.hidden = !edit.music;
@@ -333,9 +426,11 @@
                 collabText.append(document.createTextNode(after));
             }
 
-            const tiktok = $('[data-theater-tiktok]', dialog);
-            tiktok.hidden = !edit.tiktok;
-            tiktok.href = edit.tiktok || '#';
+            const post = $('[data-theater-post]', dialog);
+            post.hidden = !edit.post;
+            post.href = edit.post?.url || '#';
+            $('i', post).className = edit.post?.icon || 'fa-solid fa-arrow-up-right-from-square';
+            $('span', post).textContent = edit.post?.label || '';
         };
 
         // Il click sulla card lo vede anche PreMiD (ascolta sul document).
@@ -376,7 +471,7 @@
                 history.replaceState({ edit: id }, '', url);
             }
 
-            document.title = `${edit.title} · ${pageTitle}`;
+            document.title = `${edit.full_title || edit.title} · ${pageTitle}`;
             markWatched(id);
             trackView(id);
             if (!fromCard) pokePresence(id);

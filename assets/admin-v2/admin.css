@@ -1255,3 +1255,5 @@ body.modal-open {
 .pages-admin-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
 .pages-admin-filters .admin-input { width: auto; min-width: 11rem; }
 .pages-admin-sub { display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .5rem; }
+.pages-admin-serie { color: var(--admin-muted); font-weight: 600; }
+.pages-admin-edit__info small.is-serie { margin-top: -.15rem; color: #aab3c8; font-weight: 700; }

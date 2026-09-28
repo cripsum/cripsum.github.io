@@ -37,7 +37,7 @@
             <span></span>
         </label>`;
 
-    /* Come chisiamo_rich_text(): **grassetto**, [testo](link) e a capo. */
+    /* Come shop_rich_text() in PHP: **grassetto**, [testo](link) e a capo. */
     const richText = (text) => e(String(text || '').trim())
         .replace(/\[([^\]\n]{1,120})\]\(([^)\s]{1,300})\)/g, (all, label, url) => (/^(https?:\/\/|\/)/.test(url) && !url.startsWith('//') ? `<a href="${url}" target="_blank" rel="noopener">${label}</a>` : all))
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -153,7 +153,7 @@
 
         box.innerHTML = `
             <div class="shop-admin-bar">
-                <p class="admin-muted">Trascina le righe o usa le frecce: l'ordine è quello della pagina, e le prime 5 foto finiscono nel collage in alto.</p>
+                <p class="admin-muted">Trascina le righe o usa le frecce: l'ordine è quello della pagina. Il collage in alto prende 5 foto a caso del team, diverse a ogni visita.</p>
                 <button type="button" class="admin-btn admin-btn--primary" data-new-member><i class="fa-solid fa-plus"></i> Nuovo membro</button>
             </div>
             ${rows.length ? `
@@ -435,6 +435,7 @@
                 </div>
                 <div class="pages-admin-edit__info">
                     <strong>${e(val('titolo') || 'Titolo')}</strong>
+                    ${val('serie') ? `<small class="is-serie">${e(val('serie'))}</small>` : ''}
                     ${val('musica') ? `<small><i class="fa-solid fa-music"></i> ${e(val('musica'))}</small>` : ''}
                     ${val('collab_nome') ? `<small class="is-collab"><i class="fa-solid fa-handshake"></i> collab con ${e(val('collab_nome'))}</small>` : ''}
                 </div>
@@ -650,10 +651,13 @@
                     ${videoFields(values)}
                     ${fields([
                         sectionTitle('Testi'),
-                        { name: 'titolo', label: 'Titolo (IT)', required: true, max: 120, placeholder: 'es. Iuno - Wuthering Waves' },
+                        { name: 'titolo', label: 'Titolo (IT)', required: true, max: 120, placeholder: 'es. Iuno', help: 'Il personaggio o il soggetto: la riga grande.' },
                         { name: 'titolo_en', label: 'Titolo (EN)', max: 120, placeholder: 'vuoto = usa l\'italiano' },
-                        { name: 'categoria_id', label: 'Categoria', type: 'select', required: true, options: ctx.categories.map((c) => [c.id, c.nome]) },
+                        { name: 'serie', label: 'Gioco, anime o serie', max: 120, placeholder: 'es. Wuthering Waves', help: 'La riga sotto il titolo. Vuota = niente.' },
                         { name: 'musica', label: 'Musica', max: 160, placeholder: 'es. TWICE - Strategy' },
+                        { name: 'categoria_id', label: 'Categoria', type: 'select', required: true, options: ctx.categories.map((c) => [c.id, c.nome]) },
+                        { name: 'descrizione', label: 'Descrizione (IT)', type: 'textarea', max: 2000, rows: 3, full: true, placeholder: 'facoltativa', help: 'Si legge nell\'edit aperto. <code>**grassetto**</code>, <code>[testo](https://link)</code> e l\'a capo.' },
+                        { name: 'descrizione_en', label: 'Descrizione (EN)', type: 'textarea', max: 2000, rows: 3, full: true, placeholder: 'vuoto = usa l\'italiano' },
                     ], values)}
                 </div>
                 <div class="shop-admin-preview-wrap"><span class="shop-admin-help">Anteprima della card</span><div data-edit-preview></div></div>
@@ -665,7 +669,7 @@
                 sectionTitle('Extra', 'Tutto facoltativo.'),
                 { name: 'collab_nome', label: 'Collab con', max: 60, placeholder: 'es. Nauz' },
                 { name: 'collab_link', label: 'Link della collab', max: 255, placeholder: 'https://...' },
-                { name: 'tiktok', label: 'Link al post TikTok', max: 255, placeholder: 'https://www.tiktok.com/@cripsum/video/...', help: 'Aggiunge «Guardalo su TikTok».' },
+                { name: 'link_post', label: 'Dove l\'hai pubblicato (TikTok o YouTube)', max: 255, full: true, placeholder: 'https://www.tiktok.com/@cripsum/video/...', help: 'Aggiunge il bottone «Guardalo su TikTok» o «Guardalo su YouTube» (vale anche Instagram).' },
                 { name: 'etichetta', label: 'Etichetta (IT)', max: 30, placeholder: 'es. Collab', help: 'Vuota: «Nuovo» si mette da solo per 14 giorni.' },
                 { name: 'etichetta_en', label: 'Etichetta (EN)', max: 30, placeholder: 'vuoto = usa l\'italiano' },
                 sectionTitle('Pagina'),
@@ -719,7 +723,7 @@
     };
 
     const editsTable = (box, ctx, reload) => {
-        let rows = ctx.edits.filter((x) => matches(x.titolo, x.musica, x.collab_nome, x.categoria_nome, x.id));
+        let rows = ctx.edits.filter((x) => matches(x.titolo, x.serie, x.musica, x.collab_nome, x.categoria_nome, x.id));
         if (ed.categoria) rows = rows.filter((x) => String(x.categoria_id) === ed.categoria);
         if (ed.stato) rows = rows.filter((x) => x.stato === ed.stato);
         if (ed.dead) rows = rows.filter((x) => Number(x.video_morto) === 1);
@@ -758,7 +762,7 @@
                     ${rows.map((x, i) => `
                         <tr ${canSort ? `draggable="true" data-shop-row="${Number(x.id)}"` : ''} class="${x.stato === 'pubblicato' ? '' : 'is-off'}">
                             <td data-label="Edit"><div class="admin-name-cell">${grip(canSort)}${thumb(x.copertina_url || x.gif_url, 'fa-solid fa-film')}<div>
-                                <div class="admin-row-title">#${Number(x.id)} ${e(x.titolo)}${Number(x.in_evidenza) === 1 ? ' <i class="fa-solid fa-star pages-admin-star" title="In evidenza"></i>' : ''}</div>
+                                <div class="admin-row-title">#${Number(x.id)} ${e(x.titolo)}${x.serie ? ` <span class="pages-admin-serie">· ${e(x.serie)}</span>` : ''}${Number(x.in_evidenza) === 1 ? ' <i class="fa-solid fa-star pages-admin-star" title="In evidenza"></i>' : ''}</div>
                                 <div class="admin-row-sub pages-admin-sub">${x.categoria_nome ? `<span class="pages-admin-cat"><i class="${e(x.categoria_icona || 'fa-solid fa-film')}"></i> ${e(x.categoria_nome)}</span>` : ''}<a href="/it/edits/${Number(x.id)}" target="_blank" rel="noopener">/it/edits/${Number(x.id)} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>${x.musica ? `<span>${e(x.musica)}</span>` : ''}</div>
                             </div></div></td>
                             <td data-label="Video">${sourceBadge(x)}</td>

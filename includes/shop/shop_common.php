@@ -209,6 +209,35 @@ function shop_linkify(string $text): string
     return nl2br($linked ?? $safe, false);
 }
 
+/**
+ * Testo scritto nel pannello (card di Chi siamo, descrizioni degli edit):
+ * prima si neutralizza tutto, poi **grassetto**,
+ * [testo](link) e gli a capo. I link accettati sono quelli https e i
+ * percorsi del sito (/it/...), che seguono la lingua di chi guarda.
+ */
+function shop_rich_text(string $text, string $lang): string
+{
+    $safe = shop_h(trim($text));
+
+    $safe = preg_replace_callback(
+        '~\[([^\]\n]{1,120})\]\(([^)\s]{1,300})\)~u',
+        static function (array $m) use ($lang): string {
+            $url = html_entity_decode($m[2], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if (!shop_valid_link($url)) {
+                return $m[0];
+            }
+            $url = shop_localize_link($url, $lang);
+            $external = !str_starts_with($url, '/');
+            return '<a href="' . shop_h($url) . '"' . ($external ? ' target="_blank" rel="noopener noreferrer"' : '') . '>' . $m[1] . '</a>';
+        },
+        $safe
+    ) ?? $safe;
+
+    $safe = preg_replace('~\*\*(.+?)\*\*~u', '<strong>$1</strong>', $safe) ?? $safe;
+
+    return nl2br($safe, false);
+}
+
 function shop_is_recent(?string $createdAt, int $days): bool
 {
     if (!$createdAt) {
