@@ -13,13 +13,23 @@ $subwayLang = ($subwayLang ?? 'it') === 'en' ? 'en' : 'it';
 $swT = static fn(string $it, string $en): string => $subwayLang === 'it' ? $it : $en;
 $swE = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-$assetVersion = ['css' => '24.0', 'js' => '25.0', 'profile' => '2.0'];
+$assetVersion = ['css' => '25.0', 'js' => '27.0', 'profile' => '2.0'];
 
-// Il catalogo passa a subway.js cosi' com'e', piu' la base delle build.
+// Il catalogo passa a subway.js cosi' com'e', piu' la base delle build e
+// l'immagine della card per le mappe che ce l'hanno in img/subway/ (vedi
+// scripts/subway/city-images.php); la data del file fa da versione.
+$subwayMaps = array_map(static function (array $map): array {
+    $file = __DIR__ . '/../../img/subway/' . $map['slug'] . '.webp';
+    if (is_file($file)) {
+        $map['image'] = '/img/subway/' . $map['slug'] . '.webp?v=' . filemtime($file);
+    }
+    return $map;
+}, subway_catalog());
+
 $catalogJson = json_encode([
     'base' => SUBWAY_BUILDS_BASE,
     'trainingModes' => array_keys(SUBWAY_TRAINING_MODES),
-    'maps' => subway_catalog(),
+    'maps' => $subwayMaps,
     'sizes' => require __DIR__ . '/build_sizes.php',
 ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
 

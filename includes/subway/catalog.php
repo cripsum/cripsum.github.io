@@ -4,7 +4,7 @@
  * (card, filtri, modalita'), per subway.js (letto dal JSON stampato nella
  * pagina) e per la whitelist delle API (includes/subway_helpers.php).
  *
- * Le build stanno su Hostinger in /subway-builds/<slug>/, compresse in brotli
+ * Le build stanno su Hostinger in /subway-builds-br/<slug>/, compresse in brotli
  * (vedi .htaccess di quella cartella). Per ogni mappa si usa
  * <slug>.alt.json; le varianti di allenamento sono <slug>.<modo>.json,
  * generate offline e verificate byte per byte.
@@ -13,7 +13,9 @@
  * build non risponde. `mb` e' il download compresso (dati + wasm + framework).
  */
 
-const SUBWAY_BUILDS_BASE = '/subway-builds/';
+// Cartella public_html/subway-builds-br su Hostinger (stesso nome della
+// cartella locale da cui si caricano i file).
+const SUBWAY_BUILDS_BASE = '/subway-builds-br/';
 
 // Modi di allenamento: chiave => suffisso dei file.
 const SUBWAY_TRAINING_MODES = [

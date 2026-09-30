@@ -1881,7 +1881,7 @@ body.subway-perf-mode .game-bg span {
 /* Griglia delle mappe */
 .sw-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 0.9rem;
 }
 
@@ -1889,16 +1889,16 @@ body.subway-perf-mode .game-bg span {
     --sw-hue: 200;
     position: relative;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     align-items: center;
-    gap: 0.85rem;
-    min-height: 5.2rem;
-    padding: 0.85rem 0.9rem;
+    gap: 0 0.6rem;
+    padding: 0 0 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 18px;
     color: var(--game-text);
     background:
-        radial-gradient(120% 140% at 0% 0%, hsla(var(--sw-hue), 85%, 55%, 0.22), transparent 60%),
+        radial-gradient(120% 90% at 0% 100%, hsla(var(--sw-hue), 85%, 55%, 0.16), transparent 65%),
         rgba(255, 255, 255, 0.035);
     text-align: left;
     font: inherit;
@@ -1913,9 +1913,9 @@ body.subway-perf-mode .game-bg span {
 
 .sw-card:hover,
 .sw-card:focus-visible {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     border-color: hsla(var(--sw-hue), 85%, 60%, 0.65);
-    box-shadow: 0 12px 28px hsla(var(--sw-hue), 85%, 40%, 0.25);
+    box-shadow: 0 14px 30px hsla(var(--sw-hue), 85%, 35%, 0.28);
     outline: none;
 }
 
@@ -1923,24 +1923,65 @@ body.subway-perf-mode .game-bg span {
     box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.45);
 }
 
+/* Immagine: intera al centro, la stessa sfocata dietro */
 .sw-card-art {
+    position: relative;
+    grid-column: 1 / -1;
     display: grid;
     place-items: center;
-    width: 3.1rem;
-    height: 3.1rem;
-    border-radius: 14px;
-    color: #fff;
-    background: linear-gradient(135deg, hsl(var(--sw-hue), 80%, 55%), hsl(calc(var(--sw-hue) + 40), 80%, 38%));
-    font-weight: 950;
-    font-size: 1.05rem;
-    letter-spacing: 0.02em;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 6px 14px hsla(var(--sw-hue), 80%, 30%, 0.4);
+    aspect-ratio: 16 / 9;
+    margin-bottom: 0.7rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, hsl(var(--sw-hue), 70%, 42%), hsl(calc(var(--sw-hue) + 45), 70%, 22%));
 }
+
+.sw-card-art.has-image::before {
+    content: '';
+    position: absolute;
+    inset: -12%;
+    background: var(--sw-card-image) center / cover no-repeat;
+    filter: blur(14px) saturate(1.2) brightness(0.7);
+}
+
+.sw-card-art img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.sw-card:hover .sw-card-art img,
+.sw-card:focus-visible .sw-card-art img {
+    transform: scale(1.04);
+}
+
+.sw-card-art::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 40%;
+    background: linear-gradient(to top, rgba(8, 11, 20, 0.55), transparent);
+    pointer-events: none;
+}
+
+.sw-card-art-name {
+    position: relative;
+    padding: 0 0.8rem;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 1.35rem;
+    font-weight: 950;
+    letter-spacing: -0.03em;
+    text-align: center;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
+}
+
 
 .sw-card-body {
     display: grid;
     gap: 0.15rem;
     min-width: 0;
+    padding-left: 0.85rem;
 }
 
 .sw-card-body strong {
@@ -1959,6 +2000,7 @@ body.subway-perf-mode .game-bg span {
 
 .sw-card-badges {
     position: absolute;
+    z-index: 1;
     top: 0.5rem;
     right: 0.55rem;
     display: flex;
@@ -1978,13 +2020,13 @@ body.subway-perf-mode .game-bg span {
 }
 
 .sw-badge-training {
-    color: #bbf7d0;
-    background: rgba(34, 197, 94, 0.2);
+    color: #dcfce7;
+    background: rgba(21, 128, 61, 0.85);
 }
 
 .sw-badge-beta {
-    color: #fde68a;
-    background: rgba(245, 158, 11, 0.2);
+    color: #fef3c7;
+    background: rgba(180, 83, 9, 0.85);
 }
 
 .sw-card-play {
@@ -1992,7 +2034,7 @@ body.subway-perf-mode .game-bg span {
     place-items: center;
     width: 2.1rem;
     height: 2.1rem;
-    margin-top: 0.9rem;
+    margin-right: 0.75rem;
     border-radius: 999px;
     color: #fff;
     background: rgba(255, 255, 255, 0.08);
@@ -2526,7 +2568,16 @@ body.sw-modal-open {
     }
 
     .sw-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.6rem;
+    }
+
+    .sw-card-body strong {
+        font-size: 0.9rem;
+    }
+
+    .sw-card-play {
+        display: none;
     }
 
     .sw-modal {

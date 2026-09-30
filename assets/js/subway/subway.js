@@ -4,14 +4,14 @@
     'use strict';
 
     const CDN = 'https://cdn.jsdelivr.net/npm/';
-    // Loader Unity 2019 e modulo di compatibilita' 4399 (che definisce
-    // my4399UnityModule): per le build nuove si prendono da questo pacchetto.
+    // Loader Unity 2019 (versione "4399") per le build nuove. Il suo 4399.js
+    // NON si carica: e' il framework di London, e il loader lo userebbe al
+    // posto di quello della build (vedi patchUnityLoader).
     const RUNTIME_PKG = 'subwaylondon@1.0.0';
     const RUNTIME_LOADER = 'UnityLoader.2019.2.js';
-    const RUNTIME_BOOTSTRAP = '4399.js';
 
     // Catalogo delle mappe: arriva dalla pagina (includes/subway/catalog.php).
-    let buildsBase = '/subway-builds/';
+    let buildsBase = '/subway-builds-br/';
     let maps = [];
     let buildSizes = {};
     function loadCatalog() {
@@ -438,10 +438,6 @@
         return lobby.mode === 'training' ? lobby.training : 'original';
     }
 
-    function initials(name) {
-        return name.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
-    }
-
     function createCard(map) {
         const card = document.createElement('button');
         card.type = 'button';
@@ -449,10 +445,33 @@
         card.dataset.map = map.slug;
         card.style.setProperty('--sw-hue', String(map.hue ?? 200));
 
+        // Immagine della citta' intera al centro, e la stessa sfocata dietro a
+        // riempire: funziona sia con le copertine larghe sia con le icone
+        // quadrate. Senza immagine resta un fondo colorato con il nome.
         const art = document.createElement('span');
         art.className = 'sw-card-art';
         art.setAttribute('aria-hidden', 'true');
-        art.textContent = initials(map.name);
+        if (map.image) {
+            art.classList.add('has-image');
+            art.style.setProperty('--sw-card-image', `url("${map.image}")`);
+            const img = document.createElement('img');
+            img.src = map.image;
+            img.alt = '';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.addEventListener('error', () => {
+                art.classList.remove('has-image');
+                art.style.removeProperty('--sw-card-image');
+                img.remove();
+                art.textContent = map.name;
+            }, { once: true });
+            art.append(img);
+        } else {
+            const label = document.createElement('span');
+            label.className = 'sw-card-art-name';
+            label.textContent = map.name;
+            art.append(label);
+        }
 
         const body = document.createElement('span');
         body.className = 'sw-card-body';
@@ -499,6 +518,29 @@
         applyMapFilters();
     }
 
+    /*
+     * In allenamento, quali varianti sono gia' sul server? Una HEAD sul .json
+     * per mappa, solo quando serve e una volta per variante: cosi' mentre le
+     * build si caricano a pezzi le card mancanti restano disattivate invece
+     * di dare errore dopo il clic.
+     */
+    const trainingOnline = {};
+    async function checkTrainingAvailability() {
+        const variant = lobby.training;
+        if (lobby.mode !== 'training' || trainingOnline[variant]) return;
+        trainingOnline[variant] = {};
+        await Promise.all(maps.filter(map => map.training).map(async map => {
+            const status = await buildStatus(buildConfigUrl(map, variant));
+            trainingOnline[variant][map.slug] = status === 200 || status === 0;
+        }));
+        applyMapFilters();
+    }
+
+    function trainingMissing(map) {
+        const known = trainingOnline[lobby.training];
+        return Boolean(known && known[map.slug] === false);
+    }
+
     function applyMapFilters() {
         const grid = document.getElementById('subwayMapGrid');
         if (!grid) return;
@@ -509,9 +551,16 @@
             if (!map) return;
             const matches = (lobby.region === 'all' || map.region === lobby.region)
                 && (!query || map.name.toLowerCase().includes(query));
-            const unavailable = lobby.mode === 'training' && !map.training;
+            const missing = lobby.mode === 'training' && map.training && trainingMissing(map);
+            const unavailable = lobby.mode === 'training' && (!map.training || missing);
             card.hidden = !matches;
             card.setAttribute('aria-disabled', unavailable ? 'true' : 'false');
+            const meta = card.querySelector('.sw-card-meta');
+            if (meta) {
+                meta.textContent = missing
+                    ? t('Non ancora online', 'Not online yet')
+                    : `${regionName(map.region)} · ${map.mb} MB`;
+            }
             card.setAttribute('aria-label', unavailable
                 ? t(`${map.name}: allenamento non disponibile`, `${map.name}: training not available`)
                 : t(`Gioca a ${map.name} (${modeLabel(selectedMode())})`, `Play ${map.name} (${modeLabel(selectedMode())})`));
@@ -541,6 +590,7 @@
         if (bar) bar.hidden = lobby.mode !== 'training';
         document.getElementById('subwayMapGrid')?.classList.toggle('is-training', lobby.mode === 'training');
         syncQuickPlay();
+        checkTrainingAvailability();
     }
 
     function syncQuickPlay() {
@@ -2805,8 +2855,9 @@
      * ripassato al loader come se la lunghezza fosse nota, usando la
      * dimensione decompressa del file dal catalogo.
      */
-    function patchUnityLoader(map) {
-        const progress = window.UnityLoader?.Progress;
+    function patchUnityLoader(map, legacyBuild) {
+        const loader = window.UnityLoader;
+        const progress = loader?.Progress;
         if (progress && !progress.__cripsumPatched) {
             const originalUpdate = progress.update;
             const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
@@ -2830,6 +2881,34 @@
             };
             Object.defineProperty(progress, '__cripsumPatched', { value: true });
         }
+        /*
+         * Le build nuove si caricano con il loro framework. Questo loader,
+         * per le build Unity 2019 ("modularizzate"), prende il framework da
+         * my4399UnityModule invece che dal file scaricato: qui quel nome
+         * punta a UnityModule, che e' proprio il framework della build appena
+         * eseguito. Le vecchie build di jsDelivr caricano invece il loro 4399.js.
+         */
+        if (!legacyBuild && !('my4399UnityModule' in window)) {
+            Object.defineProperty(window, 'my4399UnityModule', {
+                configurable: true,
+                get() { return window.UnityModule; }
+            });
+        }
+
+        // Il loader scarica il wasm solo se l'URL finisce in ".unityweb":
+        // con un "?v=..." in fondo (i .json di alcune mappe) lo lasciava al
+        // framework, che lo cercava in un percorso sbagliato (/it/shared/...).
+        if (loader?.loadModule && !loader.loadModule.__cripsumPatched) {
+            const originalLoadModule = loader.loadModule;
+            loader.loadModule = function (module, ...rest) {
+                ['dataUrl', 'wasmCodeUrl', 'wasmFrameworkUrl', 'asmCodeUrl', 'asmFrameworkUrl', 'asmMemoryUrl'].forEach(key => {
+                    if (typeof module?.[key] === 'string') module[key] = module[key].split('?')[0];
+                });
+                return originalLoadModule.call(this, module, ...rest);
+            };
+            Object.defineProperty(loader.loadModule, '__cripsumPatched', { value: true });
+        }
+
         // Il gestore d'errore del loader 4399 chiama questa funzione della
         // pagina che lo ospitava: senza, ogni errore ne produceva un secondo.
         if (typeof window.showUnitywebNoSupport !== 'function') {
@@ -2862,7 +2941,8 @@
             let configUrl = buildConfigUrl(map, mode);
             let runtimePkg = RUNTIME_PKG;
             let loader = RUNTIME_LOADER;
-            let bootstrap = RUNTIME_BOOTSTRAP;
+            let bootstrap = null;
+            let legacyBuild = false;
             const status = await buildStatus(configUrl);
             if (status !== 200) {
                 if (status === 404 && mode !== 'original') {
@@ -2881,6 +2961,7 @@
                 runtimePkg = map.legacy.pkg;
                 loader = map.legacy.loader;
                 bootstrap = map.legacy.bootstrap;
+                legacyBuild = true;
                 bootLog(t('Server delle build non raggiungibile: uso la copia di riserva.', 'Build server unreachable: using the backup copy.'));
                 diag('launch_fallback', { map: map.slug, status });
             }
@@ -2895,7 +2976,7 @@
             }
             await loadScript(packageUrl(runtimePkg, loader));
             if (!window.UnityLoader?.instantiate) throw new Error('UnityLoader non inizializzato');
-            patchUnityLoader(map);
+            patchUnityLoader(map, legacyBuild);
 
             if (!window.CripsumSubwayProfile) throw new Error('Profilo Subway non disponibile');
             const preparedProfile = await window.CripsumSubwayProfile.prepare();
