@@ -4,22 +4,24 @@
     'use strict';
 
     const CDN = 'https://cdn.jsdelivr.net/npm/';
-    const maps = [
-        { slug: 'london', name: 'London', region: 'Europe', pkg: 'subwaylondon@1.0.0', build: 'Build/London.json', loader: 'UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'zurich', name: 'Zurich', region: 'Europe', pkg: 'subwayzurich@1.1.3', build: 'Build/ZurichNewPrivacy.json', loader: 'UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'beijing', name: 'Beijing', region: 'Asia', pkg: 'subwaybeijing@1.0.0', build: 'Build/Beijing_2.json', loader: 'loaders/v2/unity/static/UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'berlin', name: 'Berlin', region: 'Europe', pkg: 'subwayberlin@1.0.0', build: 'Build/Berlin.json', loader: 'UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'havana', name: 'Havana', region: 'America', pkg: 'subwayhavana@2.0.0', build: 'Build/Havana_4.json', loader: 'loaders/v2/unity/static/UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'houston', name: 'Houston', region: 'America', pkg: 'subwayhouston@1.1.0', build: 'Build/Houston/Houston.json', loader: 'UnityLoader.2019.2.js', bootstrap: '4399.sf.js', preview: 'screenshots/1.jpg' },
-        { slug: 'iceland', name: 'Iceland', region: 'Europe', pkg: 'subwayiceland@1.0.0', build: 'Build/Iceland/Iceland_1.json', loader: 'UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'icy.webp' },
-        { slug: 'mexico', name: 'Mexico', region: 'America', pkg: 'subwaymexico@1.0.0', build: 'Build/Mexico/Mexico3.json', loader: 'UnityLoader.2019.2.js', bootstrap: 'subwaySurf14.08.js', preview: 'img.webp' },
-        { slug: 'miami', name: 'Miami', region: 'America', pkg: 'subwaymiami@1.0.0', build: 'Build/Miami/subway_miami_v1.json', loader: 'UnityLoader.2019.2.js', preview: 'screenshots/1.jpg' },
-        { slug: 'monaco', name: 'Monaco', region: 'Europe', pkg: 'subwaymonaco@1.1.0', build: 'Build/Monaco.json', loader: 'UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'neworleans', name: 'New Orleans', region: 'America', pkg: 'subwayneworleans@1.0.0', build: 'Build/NewOrleans.json', loader: 'UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'sanfrancisco', name: 'San Francisco', region: 'America', pkg: 'subwaysanfrancisco@1.0.0', build: 'Build/SanFrancisco.json', loader: 'UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'saintpetersburg', name: 'Saint Petersburg', region: 'Europe', pkg: 'subwaystpetersburg@1.0.0', build: 'Build/StPetersburg.json', loader: 'loaders/v2/unity/static/UnityLoader.2019.2.js', bootstrap: '4399.js', preview: 'screenshots/1.jpg' },
-        { slug: 'winterholiday', name: 'Winter Holiday', region: 'Europe', pkg: 'subwaywinterholiday@1.0.0', build: 'Build/WinterHoliday/WinterHoliday.json', loader: 'UnityLoader.2019.2.js', bootstrap: 'subwaySurf14.08.js', preview: null }
-    ];
+    // Loader Unity 2019 e modulo di compatibilita' 4399 (che definisce
+    // my4399UnityModule): per le build nuove si prendono da questo pacchetto.
+    const RUNTIME_PKG = 'subwaylondon@1.0.0';
+    const RUNTIME_LOADER = 'UnityLoader.2019.2.js';
+    const RUNTIME_BOOTSTRAP = '4399.js';
+
+    // Catalogo delle mappe: arriva dalla pagina (includes/subway/catalog.php).
+    let buildsBase = '/subway-builds/';
+    let maps = [];
+    function loadCatalog() {
+        try {
+            const data = JSON.parse(document.getElementById('subwayCatalog')?.textContent || '{}');
+            if (typeof data.base === 'string' && data.base) buildsBase = data.base;
+            if (Array.isArray(data.maps)) maps = data.maps;
+        } catch (_) {
+            maps = [];
+        }
+    }
 
     const storageKey = 'cripsum-subway-settings-v2';
     // Unity stores the source length, while WebAudio sees the AAC-decoded
@@ -99,6 +101,8 @@
         scoreSubmittedForRun: false,
         userBestTimeMs: 0,
         run: null,
+        runMode: 'original',
+        userId: 0,
         autoBoost: false,
         unity: null,
         activeMap: null,
@@ -123,7 +127,7 @@
     const dom = {};
     const isItalian = () => String(document.documentElement.lang || '').toLowerCase().startsWith('it');
     const t = (it, en) => isItalian() ? it : en;
-    const packageUrl = (map, path) => `${CDN}${map.pkg}/${path}`;
+    const packageUrl = (pkg, path) => `${CDN}${pkg}/${path}`;
 
     // Sotto questa durata una "run" chiusa da un nuovo segnale di inizio e'
     // solo il doppione audio/roundStart dello stesso avvio.
@@ -207,7 +211,9 @@
             'hudWidgetSettingsBtn', 'openSubwaySettings', 'closeSettingsModal',
             'subwayPersonalBestCard', 'subwayPersonalBestTime', 'subwayPersonalBestRank',
             'subwayPersonalBestMap', 'subwayLeaderboardTable', 'subwayLeaderboardBody',
-            'subwayLeaderboardEmpty', 'subwayLeaderboardRefresh'
+            'subwayLeaderboardEmpty', 'subwayLeaderboardRefresh',
+            'subwayBootMap', 'subwayBootMode', 'subwayBootBytes', 'subwayModeBadge',
+            'subwayRunCard', 'subwaySavedBadge'
         ].forEach(id => { dom[id] = document.getElementById(id); });
     }
 
@@ -317,8 +323,11 @@
         state.renderScale = normalizeRenderScale(saved.renderScale, lowEnd ? 85 : 100);
     }
 
+    // Senza try/catch un'immagine del timer troppo grande (data URL) faceva
+    // superare la quota e da li' nessuna impostazione veniva piu' salvata.
+    // Se succede si salva tutto il resto senza l'immagine e lo si dice.
     function saveSettings() {
-        localStorage.setItem(storageKey, JSON.stringify({
+        const payload = () => JSON.stringify({
             bindings: state.bindings,
             overlayPositions: state.overlayPositions,
             overlayTheme: state.overlayTheme,
@@ -329,57 +338,271 @@
             fpsLimit: state.fpsLimit,
             renderScale: state.renderScale,
             perfMode: state.perfMode
-        }));
+        });
+        try {
+            localStorage.setItem(storageKey, payload());
+            flashSavedBadge(t('Salvato', 'Saved'));
+        } catch (_) {
+            const image = state.overlayTheme.timer?.bgImage || '';
+            if (image.startsWith('data:')) {
+                state.overlayTheme.timer.bgImage = '';
+                try { localStorage.setItem(storageKey, payload()); } catch (__) {}
+                state.overlayTheme.timer.bgImage = image;
+                flashSavedBadge(t('Immagine troppo grande: usa un URL', 'Image too large: use a URL'), true);
+            } else {
+                flashSavedBadge(t('Impossibile salvare', 'Could not save'), true);
+            }
+        }
+    }
+
+    let savedBadgeTimer = 0;
+    function flashSavedBadge(text, warn = false) {
+        const badge = dom.subwaySavedBadge;
+        if (!badge || !dom.subwaySettingsModal || dom.subwaySettingsModal.hidden) return;
+        badge.textContent = text;
+        badge.classList.toggle('is-warn', warn);
+        badge.classList.add('is-visible');
+        clearTimeout(savedBadgeTimer);
+        savedBadgeTimer = setTimeout(() => badge.classList.remove('is-visible'), warn ? 4000 : 1400);
+    }
+
+    // Le immagini caricate per il timer finiscono in localStorage come data
+    // URL: ridotte a 800 px in WebP/JPEG pesano poche decine di KB.
+    function downscaleImage(file) {
+        return new Promise((resolve, reject) => {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                const scale = Math.min(1, 800 / Math.max(img.naturalWidth, img.naturalHeight));
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+                canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                let data = canvas.toDataURL('image/webp', 0.82);
+                if (!data.startsWith('data:image/webp')) data = canvas.toDataURL('image/jpeg', 0.82);
+                resolve(data);
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
+            img.src = url;
+        });
+    }
+
+    /*
+     * Selezione della mappa. Modalita' (classifica / allenamento), tipo di
+     * allenamento, ricerca e regione vengono ricordati nel browser; le card
+     * senza la variante di allenamento restano visibili ma disattivate.
+     */
+    const lobbyKey = 'cripsum-subway-lobby-v1';
+    const lobby = { mode: 'original', training: 'training', region: 'all', query: '', last: null };
+    const regionLabels = {
+        europe: ['Europa', 'Europe'], america: ['America', 'America'], asia: ['Asia', 'Asia'],
+        africa: ['Africa', 'Africa'], event: ['Evento', 'Event']
+    };
+    const trainingLabels = {
+        training: ['Allenamento', 'Training'],
+        training3rows: ['Allenamento · 3 file', 'Training · 3 rows'],
+        trainingobstacles: ['Allenamento · ostacoli', 'Training · obstacles']
+    };
+
+    function loadLobbyState() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(lobbyKey) || '{}');
+            if (saved.mode === 'training') lobby.mode = 'training';
+            if (trainingLabels[saved.training]) lobby.training = saved.training;
+            if (saved.region === 'all' || regionLabels[saved.region]) lobby.region = saved.region;
+            if (saved.last && typeof saved.last.slug === 'string') lobby.last = saved.last;
+        } catch (_) { /* storage bloccato: valori predefiniti */ }
+    }
+
+    function saveLobbyState() {
+        try {
+            localStorage.setItem(lobbyKey, JSON.stringify({ mode: lobby.mode, training: lobby.training, region: lobby.region, last: lobby.last }));
+        } catch (_) {}
     }
 
     function regionName(region) {
-        if (!isItalian()) return region;
-        return region === 'Europe' ? 'Europa' : region === 'America' ? 'America' : 'Asia';
+        const label = regionLabels[region];
+        return label ? t(label[0], label[1]) : region;
     }
 
-    function mapDescription(map) {
-        return t(
-            `Edizione ${map.name}, caricata direttamente nel player Cripsum.`,
-            `${map.name} edition, loaded directly in the Cripsum player.`
-        );
+    function modeLabel(mode) {
+        if (mode === 'original') return t('Classifica', 'Ranked');
+        const label = trainingLabels[mode] || trainingLabels.training;
+        return t(label[0], label[1]);
     }
 
-    function previewUrl(map) {
-        return map.preview ? packageUrl(map, map.preview) : '/img/Susremaster.png';
+    function selectedMode() {
+        return lobby.mode === 'training' ? lobby.training : 'original';
     }
 
-    function createCard(map, index) {
+    function initials(name) {
+        return name.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
+    }
+
+    function createCard(map) {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'subway-map-card';
+        card.className = 'sw-card';
         card.dataset.map = map.slug;
-        card.setAttribute('aria-label', t(`Gioca a ${map.name}`, `Play ${map.name}`));
+        card.style.setProperty('--sw-hue', String(map.hue ?? 200));
 
-        const background = document.createElement('div');
-        background.className = 'subway-map-bg';
-        background.style.backgroundImage = `url("${previewUrl(map)}")`;
+        const art = document.createElement('span');
+        art.className = 'sw-card-art';
+        art.setAttribute('aria-hidden', 'true');
+        art.textContent = initials(map.name);
 
-        const content = document.createElement('div');
-        content.className = 'subway-map-content';
-        const tag = document.createElement('span');
-        tag.className = `subway-map-tag tier-${(index % 3) + 1}`;
-        tag.textContent = regionName(map.region);
-        const heading = document.createElement('h3');
-        heading.textContent = map.name;
-        const description = document.createElement('p');
-        description.textContent = mapDescription(map);
+        const body = document.createElement('span');
+        body.className = 'sw-card-body';
+        const name = document.createElement('strong');
+        name.textContent = map.name;
+        const meta = document.createElement('span');
+        meta.className = 'sw-card-meta';
+        meta.textContent = `${regionName(map.region)} · ${map.mb} MB`;
+        body.append(name, meta);
 
-        content.append(tag, heading, description);
-        card.append(background, content);
-        card.addEventListener('click', () => launchMap(map));
+        const badges = document.createElement('span');
+        badges.className = 'sw-card-badges';
+        if (map.training) {
+            const badge = document.createElement('span');
+            badge.className = 'sw-badge sw-badge-training';
+            badge.title = t('Allenamento disponibile', 'Training available');
+            badge.innerHTML = '<i class="fa-solid fa-dumbbell"></i>';
+            badges.append(badge);
+        }
+        if (map.beta) {
+            const badge = document.createElement('span');
+            badge.className = 'sw-badge sw-badge-beta';
+            badge.textContent = 'Beta';
+            badges.append(badge);
+        }
+
+        const play = document.createElement('span');
+        play.className = 'sw-card-play';
+        play.setAttribute('aria-hidden', 'true');
+        play.innerHTML = '<i class="fa-solid fa-play"></i>';
+
+        card.append(art, body, badges, play);
+        card.addEventListener('click', () => {
+            if (card.getAttribute('aria-disabled') === 'true') return;
+            launchMap(map, selectedMode());
+        });
         return card;
     }
 
     function buildMapGrid() {
-        const grid = (dom.subwayLobby && dom.subwayLobby.querySelector('.subway-grid')) || document.querySelector('.subway-grid');
+        const grid = document.getElementById('subwayMapGrid');
         if (!grid) return;
         grid.replaceChildren(...maps.map(createCard));
-        grid.hidden = false;
+        applyMapFilters();
+    }
+
+    function applyMapFilters() {
+        const grid = document.getElementById('subwayMapGrid');
+        if (!grid) return;
+        const query = lobby.query.trim().toLowerCase();
+        let visible = 0;
+        grid.querySelectorAll('.sw-card').forEach(card => {
+            const map = maps.find(m => m.slug === card.dataset.map);
+            if (!map) return;
+            const matches = (lobby.region === 'all' || map.region === lobby.region)
+                && (!query || map.name.toLowerCase().includes(query));
+            const unavailable = lobby.mode === 'training' && !map.training;
+            card.hidden = !matches;
+            card.setAttribute('aria-disabled', unavailable ? 'true' : 'false');
+            card.setAttribute('aria-label', unavailable
+                ? t(`${map.name}: allenamento non disponibile`, `${map.name}: training not available`)
+                : t(`Gioca a ${map.name} (${modeLabel(selectedMode())})`, `Play ${map.name} (${modeLabel(selectedMode())})`));
+            if (matches) visible += 1;
+        });
+        const empty = document.getElementById('subwayMapEmpty');
+        if (empty) empty.hidden = visible > 0;
+    }
+
+    function syncLobbyControls() {
+        document.querySelectorAll('[data-mode]').forEach(button => {
+            const active = button.dataset.mode === lobby.mode;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-checked', active ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-training]').forEach(button => {
+            const active = button.dataset.training === lobby.training;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-checked', active ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-region]').forEach(button => {
+            const active = button.dataset.region === lobby.region;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-checked', active ? 'true' : 'false');
+        });
+        const bar = document.getElementById('subwayTrainingBar');
+        if (bar) bar.hidden = lobby.mode !== 'training';
+        document.getElementById('subwayMapGrid')?.classList.toggle('is-training', lobby.mode === 'training');
+        syncQuickPlay();
+    }
+
+    function syncQuickPlay() {
+        const button = document.getElementById('subwayQuickPlay');
+        if (!button) return;
+        const map = lobby.last && maps.find(m => m.slug === lobby.last.slug);
+        const mode = lobby.last?.mode || 'original';
+        if (!map || (mode !== 'original' && !map.training)) {
+            button.hidden = true;
+            return;
+        }
+        button.hidden = false;
+        button.querySelector('span').textContent = mode === 'original'
+            ? t(`Gioca di nuovo: ${map.name}`, `Play again: ${map.name}`)
+            : t(`Di nuovo: ${map.name} (${modeLabel(mode)})`, `Again: ${map.name} (${modeLabel(mode)})`);
+        button.onclick = () => launchMap(map, mode);
+    }
+
+    // Radio group con le frecce, come da ARIA: una sola voce tabulabile.
+    function bindRadioGroup(selector, onPick) {
+        const buttons = [...document.querySelectorAll(selector)];
+        buttons.forEach((button, index) => {
+            button.addEventListener('click', () => onPick(button));
+            button.addEventListener('keydown', event => {
+                const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+                if (!step) return;
+                event.preventDefault();
+                const next = buttons[(index + step + buttons.length) % buttons.length];
+                next.focus();
+                onPick(next);
+            });
+        });
+    }
+
+    function bindLobby() {
+        loadLobbyState();
+        bindRadioGroup('[data-mode]', button => {
+            lobby.mode = button.dataset.mode === 'training' ? 'training' : 'original';
+            saveLobbyState();
+            syncLobbyControls();
+            applyMapFilters();
+        });
+        bindRadioGroup('[data-training]', button => {
+            lobby.training = button.dataset.training;
+            saveLobbyState();
+            syncLobbyControls();
+            applyMapFilters();
+        });
+        bindRadioGroup('[data-region]', button => {
+            lobby.region = button.dataset.region;
+            saveLobbyState();
+            syncLobbyControls();
+            applyMapFilters();
+        });
+        document.getElementById('subwayMapSearch')?.addEventListener('input', event => {
+            lobby.query = event.target.value || '';
+            applyMapFilters();
+        });
+        syncLobbyControls();
+
+        // Il gioco si controlla solo da tastiera: su un dispositivo solo touch
+        // conviene dirlo prima dei 20 MB di download.
+        const notice = document.getElementById('subwayTouchNotice');
+        if (notice && window.matchMedia?.('(hover: none) and (pointer: coarse)').matches) notice.hidden = false;
     }
 
     function updateBindingUi() {
@@ -849,6 +1072,7 @@
                 
                 container.querySelectorAll(`[data-overlay-tab="${targetPane}"]`).forEach(btn => btn.classList.add('active'));
                 container.querySelectorAll(`[data-overlay-pane="${targetPane}"]`).forEach(pane => pane.classList.add('active'));
+                document.getElementById('subwayOverlayPreview')?.setAttribute('data-active', targetPane === 'layout' ? 'keys' : targetPane);
             });
         });
 
@@ -880,18 +1104,14 @@
         document.querySelectorAll('[data-timer-bg-file]').forEach(fileInput => {
             fileInput.addEventListener('change', () => {
                 const file = fileInput.files?.[0];
+                fileInput.value = '';
                 if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const dataUrl = e.target?.result;
-                    if (typeof dataUrl === 'string') {
-                        state.overlayTheme.timer.bgImage = dataUrl;
-                        syncSettingsUi();
-                        applyOverlayTheme();
-                        saveSettings();
-                    }
-                };
-                reader.readAsDataURL(file);
+                downscaleImage(file).then(dataUrl => {
+                    state.overlayTheme.timer.bgImage = dataUrl;
+                    syncSettingsUi();
+                    applyOverlayTheme();
+                    saveSettings();
+                }).catch(() => flashSavedBadge(t('Immagine non leggibile', 'Unreadable image'), true));
             });
         });
 
@@ -947,6 +1167,12 @@
             if (!waitingButton) return;
             event.preventDefault();
             event.stopImmediatePropagation();
+            if (event.code === 'Escape') {
+                waitingButton.classList.remove('waiting');
+                waitingButton = null;
+                updateBindingUi();
+                return;
+            }
             const action = waitingButton.dataset.keybind;
             state.bindings[action] = event.code;
             document.querySelectorAll(`[data-keybind="${action}"]`).forEach(item => item.classList.remove('waiting'));
@@ -955,15 +1181,114 @@
             updateBindingUi();
         }, true);
 
-        const openSettingsModal = () => dom.subwaySettingsModal?.classList.add('show');
+        bindSettingsModal();
+    }
+
+    /*
+     * Finestra delle impostazioni: si apre dalla lobby o dall'ingranaggio in
+     * partita, si chiude con Esc, col clic fuori o con "Fatto"; il focus resta
+     * dentro finche' e' aperta e torna dov'era alla chiusura.
+     */
+    let settingsReturnFocus = null;
+
+    function settingsFocusable() {
+        return [...dom.subwaySettingsModal.querySelectorAll(
+            'button, [href], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])'
+        )].filter(el => !el.disabled && !el.hidden && el.offsetParent !== null);
+    }
+
+    function openSettingsModal() {
+        const modal = dom.subwaySettingsModal;
+        if (!modal || !modal.hidden) return;
+        settingsReturnFocus = document.activeElement;
+        modal.hidden = false;
+        requestAnimationFrame(() => modal.classList.add('show'));
+        document.body.classList.add('sw-modal-open');
+        syncSettingsUi();
+        applyOverlayTheme();
+        modal.querySelector('[data-settings-tab].is-active')?.focus();
+    }
+
+    function closeSettingsModal() {
+        const modal = dom.subwaySettingsModal;
+        if (!modal || modal.hidden) return;
+        modal.classList.remove('show');
+        modal.hidden = true;
+        document.body.classList.remove('sw-modal-open');
+        const back = settingsReturnFocus?.isConnected && settingsReturnFocus !== document.body && !modal.contains(settingsReturnFocus)
+            ? settingsReturnFocus
+            : dom.openSubwaySettings;
+        back?.focus({ preventScroll: true });
+        // In partita il focus deve tornare alla canvas, o i tasti non arrivano al gioco.
+        if (state.activeMap) dom.subwayGameContainer?.querySelector('canvas')?.focus({ preventScroll: true });
+    }
+
+    function selectSettingsTab(name) {
+        const modal = dom.subwaySettingsModal;
+        modal.querySelectorAll('[data-settings-tab]').forEach(tab => {
+            const active = tab.dataset.settingsTab === name;
+            tab.classList.toggle('is-active', active);
+            tab.setAttribute('aria-selected', active ? 'true' : 'false');
+            tab.tabIndex = active ? 0 : -1;
+        });
+        modal.querySelectorAll('[data-settings-pane]').forEach(pane => {
+            const active = pane.dataset.settingsPane === name;
+            pane.hidden = !active;
+            pane.classList.toggle('is-active', active);
+        });
+        // "Overlay predefiniti" ha senso solo nella sezione degli overlay.
+        modal.querySelectorAll('[data-reset-overlay-theme]').forEach(button => { button.hidden = name !== 'overlay'; });
+    }
+
+    function bindSettingsModal() {
+        const modal = dom.subwaySettingsModal;
+        if (!modal) return;
         dom.openSubwaySettings?.addEventListener('click', openSettingsModal);
         dom.hudWidgetSettingsBtn?.addEventListener('click', event => {
             if (event.defaultPrevented) return;
             openSettingsModal();
         });
-        dom.closeSettingsModal?.addEventListener('click', () => dom.subwaySettingsModal?.classList.remove('show'));
-        dom.subwaySettingsModal?.addEventListener('click', event => {
-            if (event.target === dom.subwaySettingsModal) dom.subwaySettingsModal.classList.remove('show');
+        dom.closeSettingsModal?.addEventListener('click', closeSettingsModal);
+        modal.querySelectorAll('[data-close-settings]').forEach(button => button.addEventListener('click', closeSettingsModal));
+        modal.addEventListener('click', event => {
+            if (event.target === modal) closeSettingsModal();
+        });
+
+        selectSettingsTab(modal.querySelector('[data-settings-tab].is-active')?.dataset.settingsTab || 'challenge');
+        const tabs = [...modal.querySelectorAll('[data-settings-tab]')];
+        tabs.forEach((tab, index) => {
+            tab.tabIndex = tab.classList.contains('is-active') ? 0 : -1;
+            tab.addEventListener('click', () => selectSettingsTab(tab.dataset.settingsTab));
+            tab.addEventListener('keydown', event => {
+                const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key];
+                if (!step) return;
+                event.preventDefault();
+                const next = tabs[(index + step + tabs.length) % tabs.length];
+                selectSettingsTab(next.dataset.settingsTab);
+                next.focus();
+            });
+        });
+
+        modal.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                // Esc durante la cattura di un tasto annulla solo quella.
+                if (modal.querySelector('[data-keybind].waiting')) return;
+                event.preventDefault();
+                closeSettingsModal();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+            const items = settingsFocusable();
+            if (!items.length) return;
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         });
     }
 
@@ -1411,6 +1736,7 @@
         state.elapsed = 0;
         state.scoreSubmittedForRun = false;
         state.run = null;
+        hideRunCard();
         renderTimerDisplay(0);
         setChallengeStatus(state.challenge ? 'ready' : 'inactive');
     }
@@ -1461,8 +1787,10 @@
             id: newRunId(),
             map: state.activeMap?.slug || 'london',
             startPerf: state.startTime,
+            mode: state.runMode === 'original' ? 'original' : 'training',
             fromInput
         };
+        hideRunCard();
         setChallengeStatus('running');
         dom.subwayStartHint?.classList.remove('is-visible');
         bootLog(t(`Run avviata (${source})`, `Run started (${source})`));
@@ -1541,7 +1869,7 @@
                         body: JSON.stringify({
                             run_id: run.id,
                             map_slug: run.map,
-                            mode: 'original',
+                            mode: run.mode || 'original',
                             elapsed_ms: Math.max(0, Math.round(performance.now() - run.startPerf))
                         })
                     });
@@ -1594,6 +1922,7 @@
         renderTimerDisplay(state.elapsed);
         setChallengeStatus(state.challenge ? 'ended' : 'inactive');
         bootLog(t(`Run terminata (${source})`, `Run finished (${source})`));
+        showRunCard('ended');
         submitRun(`finish_${source}`);
     }
 
@@ -1614,7 +1943,45 @@
             ? t('Sfida fallita: Hoverboard usato (vietato!)', 'Challenge failed: Hoverboard used (prohibited!)')
             : t(`Sfida fallita (${reason})`, `Challenge failed (${reason})`);
         bootLog(reasonText);
+        showRunCard(typeof reason === 'string' && reason.includes('hoverboard') ? 'hoverboard' : (String(reason).startsWith('manual') ? 'manual' : 'coin'));
         submitRun(`fail_${reason}`);
+    }
+
+    /*
+     * Scheda di fine run in partita: tempo, come e' finita e cosa ha detto il
+     * server. Si nasconde da sola alla run successiva.
+     */
+    function showRunCard(kind) {
+        const card = dom.subwayRunCard;
+        if (!card || !state.challenge) return;
+        const labels = {
+            coin: t('Moneta presa', 'Coin collected'),
+            hoverboard: t('Hoverboard usato', 'Hoverboard used'),
+            manual: t('Run chiusa', 'Run ended'),
+            ended: t('Run terminata', 'Run over')
+        };
+        card.dataset.kind = kind;
+        card.dataset.run = state.run?.id || '';
+        card.querySelector('[data-run-label]').textContent = labels[kind] || labels.ended;
+        card.querySelector('[data-run-time]').textContent = formatTime(state.elapsed);
+        const save = card.querySelector('[data-run-save]');
+        save.dataset.state = 'pending';
+        save.textContent = state.run?.mode === 'training'
+            ? t('Allenamento: fuori classifica', 'Training: not ranked')
+            : t('Salvataggio…', 'Saving…');
+        card.hidden = false;
+    }
+
+    function hideRunCard() {
+        if (dom.subwayRunCard) dom.subwayRunCard.hidden = true;
+    }
+
+    function updateRunCardSave(runId, text, kind) {
+        const card = dom.subwayRunCard;
+        if (!card || card.hidden || card.dataset.run !== runId) return;
+        const save = card.querySelector('[data-run-save]');
+        save.textContent = text;
+        save.dataset.state = kind;
     }
 
     // Mette in coda il tempo della run corrente (una volta sola per run).
@@ -1739,17 +2106,22 @@
                 removePendingScore(item.id);
                 if (data.best_time_ms) state.userBestTimeMs = Math.max(state.userBestTimeMs, data.best_time_ms);
                 showScoreToast(data.is_new_best ? 'best' : 'saved', item.time_ms, data);
+                updateRunCardSave(item.id, data.is_new_best
+                    ? t(`Nuovo record! #${data.rank}`, `New best! #${data.rank}`)
+                    : t(`Salvata · record ${formatTime(data.best_time_ms)}`, `Saved · best ${formatTime(data.best_time_ms)}`), data.is_new_best ? 'best' : 'ok');
                 fetchLeaderboard();
                 return;
             }
             if (data?.status === 'ignored') {
                 removePendingScore(item.id);
+                updateRunCardSave(item.id, t('Allenamento: fuori classifica', 'Training: not ranked'), 'muted');
                 return;
             }
             const definitive = data && status >= 400 && status < 500 && status !== 408 && status !== 429;
             if (definitive) {
                 removePendingScore(item.id);
                 showScoreToast(status === 401 ? 'expired' : 'rejected', item.time_ms, data);
+                updateRunCardSave(item.id, t('Non salvata', 'Not saved'), 'error');
                 return;
             }
 
@@ -1760,6 +2132,7 @@
                 return;
             }
             item.nextAt = Date.now() + saveRetryDelays[item.attempts - 1];
+            updateRunCardSave(item.id, t('Salvataggio non riuscito, riprovo…', 'Save failed, retrying…'), 'warn');
             if (!item.warned) {
                 item.warned = true;
                 showScoreToast('retry', item.time_ms, data);
@@ -1878,7 +2251,13 @@
         }
     }
 
+    // I nomi arrivano gia' escapati dal server; l'URL dell'avatar no.
+    function escapeAttr(value) {
+        return String(value ?? '').replace(/[&"'<>]/g, c => ({ '&': '&amp;', '"': '&quot;', "'": '&#39;', '<': '&lt;', '>': '&gt;' }[c]));
+    }
+
     function renderLeaderboard(list, userRecord) {
+        if (userRecord?.utente_id) state.userId = Number(userRecord.utente_id) || 0;
         // Update personal best card if elements exist
         if (dom.subwayPersonalBestCard) {
             if (userRecord && userRecord.has_record && userRecord.best_time_ms > 0) {
@@ -1923,6 +2302,10 @@
             list.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = `subway-lb-row rank-${item.rank}`;
+                if (state.userId && Number(item.utente_id) === state.userId) {
+                    tr.classList.add('is-me');
+                    tr.setAttribute('aria-current', 'true');
+                }
 
                 let rankHtml = `<span class="subway-lb-badge">${item.rank}</span>`;
                 if (item.rank === 1) {
@@ -1945,7 +2328,7 @@
                     <td class="subway-lb-pos">${rankHtml}</td>
                     <td class="subway-lb-user">
                         <a href="${profileUrl}" class="subway-lb-user-link subway-lb-user-wrap" title="${item.display_name} (@${item.username})">
-                            <img class="subway-lb-avatar" src="${item.avatar_url}" alt="${item.display_name}" loading="lazy" onerror="this.src='/img/abdul.jpg'">
+                            <img class="subway-lb-avatar" src="${escapeAttr(item.avatar_url)}" alt="" loading="lazy">
                             <div class="subway-lb-names">
                                 <strong>${item.display_name} ${isPremiumBadge}</strong>
                                 <small>@${item.username}</small>
@@ -1955,6 +2338,9 @@
                     <td class="subway-lb-time"><code>${timeFormatted}</code></td>
                     <td class="subway-lb-map"><span class="subway-map-pill">${mapName}</span></td>
                 `;
+                tr.querySelector('.subway-lb-avatar')?.addEventListener('error', event => {
+                    event.currentTarget.src = '/img/abdul.jpg';
+                }, { once: true });
                 fragment.appendChild(tr);
             });
 
@@ -2387,44 +2773,93 @@
         });
     }
 
-    async function launchMap(map) {
+    // URL della configurazione della build sul nostro server.
+    function buildConfigUrl(map, mode) {
+        const variant = mode === 'original' ? 'alt' : mode;
+        return `${buildsBase}${map.slug}/${map.slug}.${variant}.json`;
+    }
+
+    // Il server delle build risponde? Una richiesta leggera sul .json, con
+    // timeout: se fallisce e la mappa ha la vecchia build su jsDelivr, si
+    // gioca da li'.
+    async function buildReachable(url) {
+        const controller = typeof AbortController === 'function' ? new AbortController() : null;
+        const timer = setTimeout(() => controller?.abort(), 6000);
+        try {
+            const response = await fetch(url, { cache: 'no-cache', signal: controller?.signal });
+            return response.ok;
+        } catch (_) {
+            return false;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    function formatMb(bytes) {
+        return `${(bytes / 1048576).toFixed(1)} MB`;
+    }
+
+    async function launchMap(map, mode = 'original') {
         if (state.loading || state.activeMap) return;
+        if (mode !== 'original' && !map.training) mode = 'original';
         state.loading = true;
         state.activeMap = map;
+        state.runMode = mode;
+        lobby.last = { slug: map.slug, mode };
+        saveLobbyState();
         resetTimer();
         dom.subwayBootConsole?.replaceChildren();
         dom.subwayBootSplash?.classList.remove('hidden');
-        setBootProgress(0.02, t(`Caricamento ${map.name}`, `Loading ${map.name}`), t('Preparazione del player Unity...', 'Preparing the Unity player...'));
-        bootLog(t(`Build selezionata: ${map.pkg}`, `Selected build: ${map.pkg}`));
+        if (dom.subwayBootMap) dom.subwayBootMap.textContent = map.name;
+        if (dom.subwayBootMode) dom.subwayBootMode.textContent = modeLabel(mode);
+        if (dom.subwayBootBytes) dom.subwayBootBytes.textContent = '';
+        setBootProgress(0.02, t(`Caricamento di ${map.name}`, `Loading ${map.name}`), t('Preparazione del player...', 'Preparing the player...'));
+        diag('launch', { map: map.slug, mode });
 
         try {
+            let configUrl = buildConfigUrl(map, mode);
+            let runtimePkg = RUNTIME_PKG;
+            let loader = RUNTIME_LOADER;
+            let bootstrap = RUNTIME_BOOTSTRAP;
+            if (!(await buildReachable(configUrl))) {
+                if (mode !== 'original' || !map.legacy) {
+                    throw new Error(t('Il server delle build non risponde. Riprova tra poco.', 'The build server is not responding. Try again shortly.'));
+                }
+                // Vecchia build su jsDelivr: piu' pesante, ma sempre raggiungibile.
+                configUrl = packageUrl(map.legacy.pkg, map.legacy.build);
+                runtimePkg = map.legacy.pkg;
+                loader = map.legacy.loader;
+                bootstrap = map.legacy.bootstrap;
+                bootLog(t('Server delle build non raggiungibile: uso la copia di riserva.', 'Build server unreachable: using the backup copy.'));
+                diag('launch_fallback', { map: map.slug });
+            }
+            bootLog(`${map.name} · ${modeLabel(mode)}`);
+
             createPokiCompatibilityLayer();
             installAudioDetector();
-            bootLog(t('Bridge No-Coin installato', 'No-Coin bridge installed'));
-            setBootProgress(0.06, t('Avvio motore', 'Starting engine'), t('Caricamento del runtime Unity 2019...', 'Loading the Unity 2019 runtime...'));
-            if (map.bootstrap) {
-                bootLog(t('Caricamento del modulo di compatibilità...', 'Loading the compatibility module...'));
-                await loadScript(packageUrl(map, map.bootstrap));
+            setBootProgress(0.05, t('Avvio del motore', 'Starting the engine'), t('Caricamento del runtime Unity...', 'Loading the Unity runtime...'));
+            if (bootstrap) {
+                await loadScript(packageUrl(runtimePkg, bootstrap));
                 installAudioDetector();
             }
-            await loadScript(packageUrl(map, map.loader));
+            await loadScript(packageUrl(runtimePkg, loader));
             if (!window.UnityLoader?.instantiate) throw new Error('UnityLoader non inizializzato');
 
             if (!window.CripsumSubwayProfile) throw new Error('Profilo Subway non disponibile');
             const preparedProfile = await window.CripsumSubwayProfile.prepare();
             if (!preparedProfile.ok) throw new Error('Impossibile preparare il profilo Subway');
-            bootLog(t(
-                `Profilo completo preparato (${preparedProfile.files} file)`,
-                `Complete profile prepared (${preparedProfile.files} files)`
-            ));
+            bootLog(t(`Profilo completo preparato (${preparedProfile.files} file)`, `Complete profile prepared (${preparedProfile.files} files)`));
 
             document.body.classList.add('subway-fullscreen-active');
             dom.subwayLobby.style.display = 'none';
             dom.subwayGameArea.style.display = 'block';
+            if (dom.subwayModeBadge) {
+                dom.subwayModeBadge.hidden = mode === 'original';
+                dom.subwayModeBadge.textContent = modeLabel(mode);
+            }
             requestAnimationFrame(restoreOverlayPositions);
             startGameLoop();
             dom.subwayGameContainer.replaceChildren();
-            bootLog(t('Runtime pronto; download degli asset...', 'Runtime ready; downloading assets...'));
 
             const moduleConfig = {
                 mainLoopTimingMode: frameTimingSettings().mode,
@@ -2440,22 +2875,29 @@
                 onRuntimeInitialized() { onUnityReady(); }
             };
 
-            state.unity = window.UnityLoader.instantiate(
-                'subwayGameContainer',
-                packageUrl(map, map.build),
-                {
-                    onProgress(instance, progress) {
-                        setBootProgress(
-                            0.08 + progress * 0.90,
-                            t(`Caricamento ${map.name}`, `Loading ${map.name}`),
-                            progress < 1
-                                ? t('Download e decompressione degli asset di gioco...', 'Downloading and decompressing game assets...')
-                                : t('Inizializzazione della scena...', 'Initializing the scene...')
-                        );
-                    },
-                    Module: moduleConfig
-                }
-            );
+            // Il loader riporta solo una frazione: i MB si stimano dal peso
+            // compresso della mappa, la velocita' dalla media dall'inizio.
+            const totalBytes = (map.mb || 20) * 1048576;
+            const startedAt = performance.now();
+            state.unity = window.UnityLoader.instantiate('subwayGameContainer', configUrl, {
+                onProgress(instance, progress) {
+                    const loaded = totalBytes * Math.min(1, progress);
+                    const seconds = Math.max(0.5, (performance.now() - startedAt) / 1000);
+                    if (dom.subwayBootBytes) {
+                        dom.subwayBootBytes.textContent = progress < 1
+                            ? `${formatMb(loaded)} / ${formatMb(totalBytes)} · ${formatMb(loaded / seconds)}/s`
+                            : formatMb(totalBytes);
+                    }
+                    setBootProgress(
+                        0.08 + progress * 0.9,
+                        t(`Caricamento di ${map.name}`, `Loading ${map.name}`),
+                        progress < 1
+                            ? t('Download della mappa...', 'Downloading the map...')
+                            : t('Avvio della scena...', 'Starting the scene...')
+                    );
+                },
+                Module: moduleConfig
+            });
             window.unityGame = state.unity;
         } catch (error) {
             showLaunchError(error);
@@ -2496,8 +2938,13 @@
     function showLaunchError(error) {
         state.loading = false;
         console.error('[Subway Portal]', error);
-        setBootProgress(0, t('Caricamento non riuscito', 'Loading failed'), t('La build non ha risposto correttamente. Riprova.', 'The build did not respond correctly. Please try again.'));
+        const message = error?.message && !/UnityLoader|Profilo/.test(error.message)
+            ? error.message
+            : t('La mappa non si è avviata correttamente. Riprova.', 'The map did not start correctly. Please try again.');
+        setBootProgress(0, t('Caricamento non riuscito', 'Loading failed'), message);
         bootLog(error?.message || String(error));
+        document.querySelector('.sw-boot-details')?.setAttribute('open', '');
+        diag('launch_error', { map: state.activeMap?.slug, error: String(error?.message || error).slice(0, 120) });
         if (dom.cancelSubwayLoad) dom.cancelSubwayLoad.textContent = t('Torna alle mappe', 'Back to maps');
     }
 
@@ -2524,10 +2971,12 @@
         if (dom.subwaySettingsModal && dom.subwaySettingsModal.parentElement !== document.body) {
             document.body.appendChild(dom.subwaySettingsModal);
         }
+        loadCatalog();
         loadSettings();
         installWebglPerformancePatch();
         installFrameLimiter();
         applyPerformanceMode();
+        bindLobby();
         buildMapGrid();
         bindSettings();
         bindGameInput();

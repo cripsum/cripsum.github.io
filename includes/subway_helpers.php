@@ -12,13 +12,7 @@
  * statistiche e missioni.
  */
 
-const SUBWAY_MAPS = [
-    'bangkok', 'barcelona', 'beijing', 'berlin', 'buenosaires', 'cairo',
-    'havana', 'hongkong', 'houston', 'iceland', 'london', 'mexico', 'miami',
-    'monaco', 'moscow', 'neworleans', 'newyork', 'paris', 'rio',
-    'saintpetersburg', 'sanfrancisco', 'tokyo', 'venice', 'winterholiday',
-    'zurich',
-];
+require_once __DIR__ . '/subway/catalog.php';
 
 const SUBWAY_MODES = ['original', 'training'];
 
@@ -33,7 +27,7 @@ const SUBWAY_MAX_START_OFFSET_MS = 120000;
 function subway_normalize_map($slug): string
 {
     $slug = strtolower(trim((string)$slug));
-    return in_array($slug, SUBWAY_MAPS, true) ? $slug : '';
+    return in_array($slug, subway_catalog_slugs(), true) ? $slug : '';
 }
 
 function subway_valid_run_id($runId): bool

@@ -103,6 +103,7 @@ try {
             $rankStmt->close();
 
             $userRecord = [
+                'utente_id' => $currentUserId,
                 'has_record' => true,
                 'rank' => $userRank,
                 'best_time_ms' => $userBestMs,
@@ -111,6 +112,7 @@ try {
             ];
         } else {
             $userRecord = [
+                'utente_id' => $currentUserId,
                 'has_record' => false,
                 'rank' => null,
                 'best_time_ms' => 0,

@@ -105,10 +105,12 @@ Cause trovate, dalla più probabile:
 4. Integrazione delle nuove build: `maps` in `subway.js` punta alla cartella su Hostinger, file preparati in brotli, `.htaccess`, regola di cache, jsDelivr come riserva, loader 2018 per bangkok.
 5. Modalità allenamento: generazione offline dei `.data`, selettore, modalità nel token.
 
-## Stato attuale del repo
-- **Fasi 0 e 1 fatte il 30/09 (sera), non committate.** File: `includes/subway_helpers.php` (nuovo: lista mappe, run aperte in sessione, upsert), `api/subway/start_run.php`, `save_score.php`, `get_leaderboard.php`, `assets/js/subway/subway.js`, `assets/css/subway.css`, versioni asset alzate a `subway.css?v=23.0` e `subway.js?v=23.0` in IT ed EN.
-- Come funziona ora: l'id della run lo genera il client e lo registra con `start_run` (con `elapsed_ms` per i tentativi ripetuti); in sessione restano fino a 8 run aperte e gli esiti delle ultime 20 salvate (i reinvii rispondono `code: duplicate`). Ogni reset passa da `finalizeRun(reason)`. Coda in `localStorage` (`cripsum-subway-pending-v1`) con backoff, `keepalive`, `sendBeacon` su `pagehide`. Log di diagnosi: `CripsumSubwayDiag.dump()/download()` in console; lato server `error_log` con prefisso `[Subway save_score]` / `[Subway start_run]`.
-- Il timer non parte più da tastiera, tranne come ripiego sulle mappe senza bridge Poki (Mexico, Winter Holiday, Miami) finché non arriva un segnale del gioco.
-- `migrations/2026_09_30_subway_unique_utente.sql`: solo un controllo (l'UNIQUE c'è già in `db_update_v18.sql`); il codice regge anche senza.
-- Prossima: fase 2.
-- Questo file (`scratch/subway-contesto.md`) non è tracciato: va cancellato quando non serve più.
+## Stato attuale del repo (01/10/2026, notte)
+- Fasi 0-1 committate dall'utente (7fcc51e6). Fasi 3-4-5 fatte ma NON committate.
+- **Build**: `subway-builds-br/` (in .gitignore) = build brotli q11 con stessi nomi + `.htaccess` (Content-Encoding: br), 1497 -> 561 MB, ~21 MB a mappa. L'utente le carica in `public_html/subway-builds/`. Script in `scripts/subway/` (README).
+- **Etichetta "by tavvkkj"** era DENTRO il gioco in bangkok cairo hongkong moscow newyork paris rio tokyo venice (.alt.data): sostituita con 10 spazi nei file di subway-builds-br.
+- **Allenamento**: 33 file (11 mappe x training / training3rows / trainingobstacles), verificati con gli SHA-1 delle patch. Regola: oggetti in ordine di tabella, allineati a 8, nessuna coda. Escluse: berlin houston monaco sanfrancisco zurich (core8-inplace) e newyork (base diversa). Il permesso di eseguire il codice del sito di tavvkkj e di avviare altre build nel browser di prova e' stato NEGATO dal classificatore: non riprovare.
+- Verificato in browser solo London (originale e training3rows arrivano al menu del gioco). Le altre famiglie usano la stessa coppia 4399.js + UnityLoader.2019.2.js (da jsDelivr, pacchetto subwaylondon@1.0.0), da provare sul sito. Bangkok (Unity 2018) marcata Beta.
+- **Pagina**: template unico `includes/subway/page.php` (it/en/subway.php sono involucri), catalogo `includes/subway/catalog.php` (usato anche dalla whitelist API). Asset `subway.css/js?v=24.0`. Lobby con modalita' Classifica/Allenamento, ricerca, regioni, "gioca di nuovo"; modale impostazioni a schede con anteprima live; scheda di fine run; riga propria in classifica; ripiego jsDelivr per le 14 mappe vecchie.
+- Da fare: fase 2 (FPS unlock, misure, file morti `assets/js/subway/UnityLoader.js`, `poki.js`, `runtime/`), Cache Rule Cloudflare, prova di tutte le mappe in produzione.
+- Questo file (`scratch/subway-contesto.md`) non e' tracciato: va cancellato quando non serve piu'.
