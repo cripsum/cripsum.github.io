@@ -446,7 +446,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
         215 => [
             'role' => 'DPS',
             'passive_name' => 'Potere della Rovina',
-            'passive_desc' => 'Aumenta il proprio Crit Rate del 20%. Quando mette a segno un colpo critico, infligge Rovina (Veleno 10% HP a turno) al bersaglio per 2 turni.',
+            'passive_desc' => 'Aumenta il proprio Crit Rate del 20%. Quando mette a segno un colpo critico, infligge Rovina (Veleno 10% HP a turno) al bersaglio per 2 turni; un altro critico la rinnova.',
             'passive_effect' => ['type' => 'rias_passive'],
             'special_name' => 'Estinzione di Gremory',
             'special_desc' => 'Infligge il 240% ATK come danno a bersaglio singolo. Se il bersaglio subisce un debuff o stato negativo, infligge il 50% di danni aggiuntivi.',
@@ -454,7 +454,7 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
             'special_cost' => 2,
             'special_cooldown' => 2,
             'ultimate_name' => 'Potere della Distruzione',
-            'ultimate_desc' => 'Scatena una sfera di energia distruttiva da 380% ATK a bersaglio singolo che ignora il 40% della Difesa nemica e dissolve tutti i suoi buff.',
+            'ultimate_desc' => 'Dissolve tutti i buff del bersaglio, Immunità compresa, poi lo colpisce con una sfera di energia distruttiva da 380% ATK che ignora il 40% della Difesa nemica.',
             'ultimate_effect' => ['type' => 'rias_ultimate']
         ],
         153 => [
@@ -487,8 +487,9 @@ function gd_get_character_config(int $pid, string $rarity, string $nome, string 
         ],
     ];
 
+    // 'unique': kit scritto apposta qui sopra (il pannello lo distingue da quello del ruolo).
     if (isset($special_configs[$pid])) {
-        return $special_configs[$pid];
+        return $special_configs[$pid] + ['unique' => true];
     }
 
     $is_special = ($rKey === 'secret' || $rKey === 'secret_limited' || $rKey === 'theone');

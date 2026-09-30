@@ -3125,26 +3125,36 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                     break;
 
                 case 'rias_ultimate':
-                    if ($target_immune) {
-                        $msg .= "Ma l'attacco viene annullato dall'Immunità di {$target_name}!";
-                    } else {
-                        // Dissolve tutti i buff dal bersaglio
-                        $t_effects = array_filter($t_effects, function($eff) {
-                            return !in_array($eff['type'], ['buff_atk', 'buff_def', 'buff_spd', 'immunity', 'regen', 'counter']);
-                        });
-                        $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
-                        
-                        // Ignora il 40% della difesa
-                        $base_dmg = $a_stats['attack'] * 3.80;
-                        $def_reduction = ($t_stats['defense'] * 0.60) * 0.45;
-                        $dmg = max(10, (int)round($base_dmg - $def_reduction));
-                        if (random_int(1, 100) <= $crit_chance) {
-                            $dmg = (int)round($dmg * $crit_dmg_mult);
-                            $is_crit = true;
-                        }
-                        
-                        $msg .= "Scatena il Potere della Distruzione su {$target_name} dissolvendo tutti i suoi buff ed infliggendo {$dmg} danni!";
+                    // Il Potere della Distruzione dissolve i buff PRIMA di colpire,
+                    // Immunita' compresa: per questo l'Immunita' del bersaglio non la annulla.
+                    $rias_buffs = ['buff_atk', 'buff_def', 'buff_spd', 'buff_crit_rate', 'buff_crit_dmg', 'immunity', 'regen', 'counter', 'taunt', 'sossio_speed', 'dante_style', 'crit_ramp'];
+                    $before = count($t_effects);
+                    $t_effects = array_values(array_filter($t_effects, function ($eff) use ($rias_buffs) {
+                        return !in_array($eff['type'] ?? '', $rias_buffs, true);
+                    }));
+                    $dissolved = $before - count($t_effects);
+                    $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode($t_effects)) . "' WHERE id={$target}");
+                    $target_immune = false;
+
+                    // La Difesa si rilegge senza i buff appena dissolti.
+                    $t['status_effects'] = $t_effects;
+                    $t_stats = gd_get_modified_stats($t);
+                    if ((int)($t['personaggio_id'] ?? 0) === 46 && (int)$t['energy'] === 0) {
+                        $t_stats['defense'] = (int)round($t_stats['defense'] * 1.40);
                     }
+
+                    // Ignora il 40% della difesa
+                    $base_dmg = $a_stats['attack'] * 3.80;
+                    $def_reduction = ($t_stats['defense'] * 0.60) * 0.45;
+                    $dmg = max(10, (int)round($base_dmg - $def_reduction));
+                    if (random_int(1, 100) <= $crit_chance) {
+                        $dmg = (int)round($dmg * $crit_dmg_mult);
+                        $is_crit = true;
+                    }
+
+                    $msg .= $dissolved > 0
+                        ? "Scatena il Potere della Distruzione su {$target_name}: dissolve {$dissolved} buff e infligge {$dmg} danni!"
+                        : "Scatena il Potere della Distruzione su {$target_name} infliggendo {$dmg} danni!";
                     break;
 
                 default:
@@ -3431,10 +3441,15 @@ function gd_apply_battle_action(mysqli $m, array $match, int $uid, string $act, 
                 $msg .= " **[You Should... Now!]** Colpo critico! Low Tier God infligge {$pure_dmg} danni puri aggiuntivi!";
             }
 
-            // Rias Gremory - Potere della Rovina (Colpo critico applica Veleno 10% per 2 turni)
-            if ($is_crit && (int)($actor['personaggio_id'] ?? 0) === 215 && $hp > 0 && !$target_immune) {
+            // Rias Gremory - Potere della Rovina (Colpo critico applica Veleno 10% per 2 turni).
+            // Una sola Rovina per bersaglio: un altro critico la rinnova. Zakator
+            // (immune a ogni stato negativo) non la prende.
+            if ($is_crit && (int)($actor['personaggio_id'] ?? 0) === 215 && $hp > 0 && !$target_immune && (int)($t['personaggio_id'] ?? 0) !== 75) {
+                $t_effects = array_values(array_filter($t_effects, function ($eff) {
+                    return ($eff['name'] ?? '') !== 'Rovina (Veleno 10%)';
+                }));
                 $t_effects[] = ['type' => 'poison', 'value' => 10, 'duration' => 2, 'name' => 'Rovina (Veleno 10%)'];
-                $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode(array_values($t_effects))) . "' WHERE id={$target}");
+                $m->query("UPDATE game_match_cards SET status_effects='" . $m->escape_string(json_encode($t_effects)) . "' WHERE id={$target}");
                 $msg .= " **[Potere della Rovina]** Colpo critico! Rias applica Rovina (Veleno) a {$target_name}!";
             }
 

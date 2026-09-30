@@ -9,15 +9,13 @@
     const state = {
         section: 'dashboard',
         q: '',
-        characters: { page: 1, rarita: '', categoria: '', limitati: false },
         achievements: { page: 1 },
         messages: { page: 1 },
         tickets: { page: 1, status: 'all' },
         shitposts: { page: 1, status: 'all' },
         toprimasti: { page: 1, status: 'all' },
         reports: { page: 1, source: 'all', status: 'open' },
-        characterCategories: null,
-        cache: { homeSlides: [], characters: [], achievements: [], messages: [], tickets: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
+        cache: { homeSlides: [], achievements: [], messages: [], tickets: [], shitposts: [], toprimasti: [], reports: [], customBadges: [] }
     };
 
     let toastTimer = null;
@@ -570,271 +568,7 @@
         }
     };
 
-    const RARITIES = [
-        ['comune', 'Comune'], ['raro', 'Raro'], ['epico', 'Epico'], ['leggendario', 'Leggendario'],
-        ['speciale', 'Speciale'], ['segreto', 'Segreto'], ['theone', 'The One'],
-    ];
-    const rarityLabel = (value) => (RARITIES.find(([k]) => k === String(value || '').toLowerCase()) || [null, value || '—'])[1];
-    const CATALOG_LABELS = { visibile: 'Visibile', segreto: '???', nascosto: 'Nascosto' };
-
-    // Categorie dal pannello (tabella personaggi_categorie). Senza migration
-    // l'elenco e' vuoto e il campo resta testo libero, come prima.
-    const loadCharacterCategories = async (force = false) => {
-        if (state.characterCategories && !force) return state.characterCategories;
-        try {
-            const data = await api('gacha_categories.php?action=list');
-            state.characterCategories = data.ready === false ? [] : (data.categories || []).map((c) => c.nome);
-        } catch (error) {
-            state.characterCategories = [];
-        }
-        return state.characterCategories;
-    };
-
-    const renderCharacterFilters = async () => {
-        const bar = $('#charactersFilters');
-        if (!bar || bar.dataset.bound === '1') return;
-        bar.dataset.bound = '1';
-        const categories = await loadCharacterCategories();
-        bar.innerHTML = `
-            <select class="admin-input" data-char-filter="rarita" aria-label="Filtra per rarità">
-                <option value="">Tutte le rarità</option>
-                ${RARITIES.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}
-            </select>
-            <select class="admin-input" data-char-filter="categoria" aria-label="Filtra per categoria">
-                <option value="">Tutte le categorie</option>
-                ${categories.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
-            </select>
-            <label class="admin-btn admin-btn--small" style="gap:.4rem"><input type="checkbox" data-char-filter="limitati"> Solo limitati</label>`;
-        $$('[data-char-filter]', bar).forEach((el) => el.addEventListener('change', () => {
-            const key = el.dataset.charFilter;
-            state.characters[key] = el.type === 'checkbox' ? el.checked : el.value;
-            state.characters.page = 1;
-            loadCharacters();
-        }));
-    };
-
-    const loadCharacters = async () => {
-        renderCharacterFilters();
-        const box = $('#charactersTable'); setLoading(box);
-        try {
-            const params = new URLSearchParams({ q: state.q, page: state.characters.page, limit: 30 });
-            if (state.characters.rarita) params.set('rarita', state.characters.rarita);
-            if (state.characters.categoria) params.set('categoria', state.characters.categoria);
-            if (state.characters.limitati) params.set('limitati', '1');
-            const data = await api(`get_characters.php?${params}`);
-            state.cache.characters = data.characters || [];
-            box.innerHTML = state.cache.characters.length ? `
-                <table class="admin-table"><thead><tr><th>Nome</th><th>Rarità</th><th>Categoria</th><th>Pool</th><th>Azioni</th></tr></thead><tbody>
-                    ${state.cache.characters.map((c) => `<tr>
-                        <td data-label="Nome"><div class="admin-name-cell">${thumb(c.image_url || c.img_url, 'fa-solid fa-box-open')}<div><div class="admin-row-title">${escapeHtml(c.nome)}</div><div class="admin-row-sub">#${Number(c.id)}${Number(c.limitato) === 1 ? ' · <span class="admin-pill admin-pill--limited">Limitato</span>' : ''}${c.catalogo && c.catalogo !== 'visibile' ? ` · <span class="admin-pill">${escapeHtml(CATALOG_LABELS[c.catalogo] || c.catalogo)}</span>` : ''}</div></div></div></td>
-                        <td data-label="Rarità">${escapeHtml(rarityLabel(c.rarita))}</td>
-                        <td data-label="Categoria">${escapeHtml(c.categoria || '—')}</td>
-                        <td data-label="Pool">${Number(c.in_pool_standard) === 1 ? 'Standard' : '<span class="admin-muted">Solo banner</span>'}</td>
-                        <td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-character="${Number(c.id)}"><i class="fa-solid fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-character="${Number(c.id)}"><i class="fa-solid fa-trash"></i> Elimina</button></div></td>
-                    </tr>`).join('')}
-                </tbody></table>` : emptyState('fa-solid fa-box-open', 'Nessun personaggio');
-            $$('[data-edit-character]', box).forEach((b) => b.addEventListener('click', () => openCharacterForm(state.cache.characters.find((c) => Number(c.id) === Number(b.dataset.editCharacter)))));
-            $$('[data-delete-character]', box).forEach((b) => b.addEventListener('click', () => deleteCharacter(Number(b.dataset.deleteCharacter))));
-            pagination('#charactersPagination', data.pagination, (page) => { state.characters.page = page; loadCharacters(); });
-        } catch (error) { box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore personaggi', error.message); }
-    };
-
-    const characterFormHtml = (item = {}, categories = []) => `
-        <form id="characterForm" class="admin-form-grid">
-            ${item.id ? `<input type="hidden" name="id" value="${Number(item.id)}">` : ''}
-            <div class="admin-field">
-                <label>Nome</label>
-                <input name="nome" value="${escapeHtml(item.nome || '')}" required maxlength="80">
-            </div>
-            <div class="admin-field">
-                <label>Ruolo</label>
-                <select name="ruolo">
-                    <option value="">Nessuno / Default</option>
-                    <option value="Tank" ${item.ruolo === 'Tank' ? 'selected' : ''}>Tank</option>
-                    <option value="Bruiser" ${item.ruolo === 'Bruiser' ? 'selected' : ''}>Bruiser</option>
-                    <option value="DPS" ${item.ruolo === 'DPS' ? 'selected' : ''}>DPS</option>
-                    <option value="Burst DPS" ${item.ruolo === 'Burst DPS' ? 'selected' : ''}>Burst DPS</option>
-                    <option value="Sub DPS" ${item.ruolo === 'Sub DPS' ? 'selected' : ''}>Sub DPS</option>
-                    <option value="Support" ${item.ruolo === 'Support' ? 'selected' : ''}>Support</option>
-                    <option value="Healer" ${item.ruolo === 'Healer' ? 'selected' : ''}>Healer</option>
-                    <option value="Controller" ${item.ruolo === 'Controller' ? 'selected' : ''}>Controller</option>
-                    <option value="Debuffer" ${item.ruolo === 'Debuffer' ? 'selected' : ''}>Debuffer</option>
-                    <option value="Buffer" ${item.ruolo === 'Buffer' ? 'selected' : ''}>Buffer</option>
-                </select>
-            </div>
-            <div class="admin-field">
-                <label>Rarità</label>
-                <select name="rarita" required>
-                    ${RARITIES.map(([k, l]) => `<option value="${k}" ${String(item.rarita || 'comune').toLowerCase() === k ? 'selected' : ''}>${l}</option>`).join('')}
-                </select>
-            </div>
-            <div class="admin-field">
-                <label>Categoria</label>
-                ${categories.length ? `<select name="categoria">
-                    <option value="">— nessuna —</option>
-                    ${[...new Set([...(item.categoria && !categories.some((c) => c.toLowerCase() === String(item.categoria).toLowerCase()) ? [item.categoria] : []), ...categories])].map((c) => `<option value="${escapeHtml(c)}" ${String(item.categoria || '').toLowerCase() === c.toLowerCase() ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
-                </select><small class="admin-muted">Le categorie si gestiscono nella sezione «Categorie».</small>` : `<input name="categoria" value="${escapeHtml(item.categoria || '')}" placeholder="anime, poppy...">`}
-            </div>
-            <div class="admin-field">
-                <label>Nel catalogo, a chi non lo possiede</label>
-                <select name="catalogo">
-                    ${[['visibile', 'Visibile (silhouette e nome)'], ['segreto', '??? (solo la rarità)'], ['nascosto', 'Nascosto (non ancora uscito)']].map(([k, l]) => `<option value="${k}" ${(item.catalogo || (['segreto', 'theone'].includes(String(item.rarita || '').toLowerCase()) ? 'segreto' : 'visibile')) === k ? 'selected' : ''}>${l}</option>`).join('')}
-                </select>
-            </div>
-            <div class="admin-field">
-                <label>Video (Nome file o URL)</label>
-                <div class="admin-input-group">
-                    <input type="text" name="video_url" id="char_video_url" value="${escapeHtml(item.video_url || '')}" placeholder="video.mp4 o https://...">
-                    <label class="admin-btn admin-btn--secondary" style="margin: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; height: 2.75rem;">
-                        <i class="fa-solid fa-upload"></i> Carica
-                        <input type="file" id="char_video_file" accept="video/*" style="display: none;">
-                    </label>
-                </div>
-            </div>
-            <div class="admin-field">
-                <label>Immagine (Nome file o URL)</label>
-                <div class="admin-input-group">
-                    <input type="text" name="img_url" id="char_img_url" value="${escapeHtml(item.img_url || '')}" placeholder="abdul.jpg o https://...">
-                    <label class="admin-btn admin-btn--secondary" style="margin: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; height: 2.75rem;">
-                        <i class="fa-solid fa-upload"></i> Carica
-                        <input type="file" id="char_img_file" accept="image/*" style="display: none;">
-                    </label>
-                </div>
-            </div>
-            <div class="admin-field">
-                <label>Audio (Nome file o URL)</label>
-                <div class="admin-input-group">
-                    <input type="text" name="audio_url" id="char_audio_url" value="${escapeHtml(item.audio_url || '')}" placeholder="audio.mp3 o https://...">
-                    <label class="admin-btn admin-btn--secondary" style="margin: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; height: 2.75rem;">
-                        <i class="fa-solid fa-upload"></i> Carica
-                        <input type="file" id="char_audio_file" accept="audio/*" style="display: none;">
-                    </label>
-                </div>
-            </div>
-            <div class="admin-field">
-                <label>Caratteristiche (IT)</label>
-                <input name="caratteristiche" value="${escapeHtml(item.caratteristiche || '')}" placeholder="Caratteristiche separate da virgola">
-            </div>
-            <div class="admin-field">
-                <label>Caratteristiche (EN)</label>
-                <input name="caratteristiche_en" value="${escapeHtml(item.caratteristiche_en || '')}" placeholder="Traits separated by commas">
-            </div>
-            <div class="admin-field" style="display: flex; flex-direction: row; gap: 1.5rem; align-items: center; height: 100%; margin-top: 1.25rem;">
-                <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin-bottom: 0;" title="Esce nel banner standard e nel 50/50 perso dei banner evento">
-                    <input type="checkbox" name="in_pool_standard" id="char_in_pool_standard" value="1" ${item.in_pool_standard === undefined || Number(item.in_pool_standard) === 1 ? 'checked' : ''}>
-                    <span>Pool Standard</span>
-                </label>
-                <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin-bottom: 0;" title="Badge Limitato nell'inventario e costi di potenziamento da limitato">
-                    <input type="checkbox" name="limitato" id="char_limitato" value="1" ${Number(item.limitato) === 1 ? 'checked' : ''}>
-                    <span>Limitato</span>
-                </label>
-            </div>
-            <div class="admin-field admin-field--full">
-                <label>Descrizione (IT)</label>
-                <textarea name="descrizione" rows="3" placeholder="Descrizione del personaggio...">${escapeHtml(item.descrizione || '')}</textarea>
-            </div>
-            <div class="admin-field admin-field--full">
-                <label>Descrizione (EN)</label>
-                <textarea name="descrizione_en" rows="3" placeholder="Character description in English...">${escapeHtml(item.descrizione_en || '')}</textarea>
-            </div>
-        </form>`;
-
-    const openCharacterForm = async (item = null) => {
-        const categories = await loadCharacterCategories(true);
-        openModal(item ? 'Modifica personaggio' : 'Nuovo personaggio', item ? `ID ${item.id}` : '', characterFormHtml(item || {}, categories), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveCharacterBtn">Salva</button>`);
-        
-        // Upload handlers
-        const imgInput = $('#char_img_file');
-        const imgUrlTxt = $('#char_img_url');
-        if (imgInput && imgUrlTxt) {
-            imgInput.addEventListener('change', async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const fd = new FormData();
-                fd.append('file', file);
-                fd.append('type', 'image');
-                // In img/personaggi/: il campo salva "personaggi/nome.jpg" e le
-                // pagine ci mettono davanti /img/ come per i nomi semplici.
-                fd.append('folder', 'personaggi');
-                try {
-                    showToast('Caricamento immagine...');
-                    const res = await api('upload_media.php', { method: 'POST', body: fd });
-                    if (res.ok && res.filename) {
-                        imgUrlTxt.value = res.filename;
-                        trackUpload(res.url);
-                        showToast('Immagine caricata!');
-                    } else {
-                        showToast(res.message || 'Errore caricamento immagine.', true);
-                    }
-                } catch (error) {
-                    showToast(error.message || 'Errore caricamento immagine.', true);
-                }
-            });
-        }
-
-        const audioInput = $('#char_audio_file');
-        const audioUrlTxt = $('#char_audio_url');
-        if (audioInput && audioUrlTxt) {
-            audioInput.addEventListener('change', async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const fd = new FormData();
-                fd.append('file', file);
-                fd.append('type', 'audio');
-                try {
-                    showToast('Caricamento audio...');
-                    const res = await api('upload_media.php', { method: 'POST', body: fd });
-                    if (res.ok && res.filename) {
-                        audioUrlTxt.value = res.filename;
-                        showToast('Audio caricato!');
-                    } else {
-                        showToast(res.message || 'Errore caricamento audio.', true);
-                    }
-                } catch (error) {
-                    showToast(error.message || 'Errore caricamento audio.', true);
-                }
-            });
-        }
-
-        const videoInput = $('#char_video_file');
-        const videoUrlTxt = $('#char_video_url');
-        if (videoInput && videoUrlTxt) {
-            videoInput.addEventListener('change', async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const fd = new FormData();
-                fd.append('file', file);
-                fd.append('type', 'video');
-                try {
-                    showToast('Caricamento video...');
-                    const res = await api('upload_media.php', { method: 'POST', body: fd });
-                    if (res.ok && res.filename) {
-                        videoUrlTxt.value = res.filename;
-                        showToast('Video caricato!');
-                    } else {
-                        showToast(res.message || 'Errore caricamento video.', true);
-                    }
-                } catch (error) {
-                    showToast(error.message || 'Errore caricamento video.', true);
-                }
-            });
-        }
-
-        $('#saveCharacterBtn')?.addEventListener('click', async () => {
-            const form = $('#characterForm');
-            if (!form) return;
-            const payload = Object.fromEntries(new FormData(form).entries());
-            payload.in_pool_standard = $('#char_in_pool_standard')?.checked ? 1 : 0;
-            payload.limitato = $('#char_limitato')?.checked ? 1 : 0;
-            try { await api(item ? 'update_character.php' : 'create_character.php', { method: 'POST', body: payload }); closeModal(); showToast('Personaggio salvato.'); loadCharacters(); loadDashboard(); }
-            catch (error) { showToast(error.message, true); }
-        });
-    };
-
-    const deleteCharacter = (id) => confirmBox('Eliminare personaggio?', '<p class="admin-muted">Verrà rimosso anche dagli inventari utenti.</p>', async () => {
-        await api('delete_character.php', { method: 'POST', body: { id } });
-        showToast('Personaggio eliminato.'); loadCharacters(); loadDashboard();
-    });
+    // I personaggi hanno la loro sezione: admin-characters.js.
 
     const loadAchievements = async () => {
         const box = $('#achievementsTable'); setLoading(box);
@@ -1193,8 +927,13 @@
         edits_save_category: ['fa-solid fa-tags', 'Categoria degli edit salvata'],
         edits_delete_category: ['fa-solid fa-tags', 'Categoria degli edit eliminata'],
         edits_reorder_categories: ['fa-solid fa-tags', 'Ordine delle categorie degli edit'],
+        create_character: ['fa-solid fa-box-open', 'Personaggio creato'],
+        update_character: ['fa-solid fa-box-open', 'Personaggio modificato'],
+        delete_character: ['fa-solid fa-trash', 'Personaggio eliminato'],
     };
     const LOG_FIELDS = {
+        name: 'nome', rarita: 'rarità', categoria: 'categoria', limitato: 'limitato', in_pool_standard: 'banner standard',
+        catalogo: 'catalogo', img_url: 'immagine', audio_url: 'audio', video_url: 'video', testi: 'testi', utenti: 'utenti',
         username: 'username', display_name: 'nome', email: 'email', ruolo: 'ruolo', role: 'ruolo',
         data_creazione: 'registrazione', email_verificata: 'email verificata', is_premium: 'Premium',
         nsfw: 'NSFW', richpresence: 'Rich Presence', twofa_enabled: '2FA', soldi: 'Godos',
@@ -1203,7 +942,7 @@
         badge: 'badge', badge_id: 'badge #', message_id: 'messaggio #', title_it: 'titolo', target_type: 'destinatari',
         nome: 'nome', titolo: 'titolo', member_id: 'membro #', candidatura_id: 'candidatura #', edit_id: 'edit #', category_id: 'categoria #', visibile: 'visibile', stato: 'stato', nascosti: 'nascosti',
     };
-    const LOG_FLAGS = ['email_verificata', 'is_premium', 'nsfw', 'richpresence', 'twofa_enabled'];
+    const LOG_FLAGS = ['email_verificata', 'is_premium', 'nsfw', 'richpresence', 'twofa_enabled', 'limitato', 'in_pool_standard'];
     const CURRENCY_IMAGES = { Godos: '/img/godos.png', 'Godo Shards': '/img/godoshards.png', Frammenti: '/img/frammento.svg' };
     const LOG_DURATIONS = { '1h': '1 ora', '1d': '1 giorno', '3d': '3 giorni', '7d': '7 giorni', '30d': '30 giorni', permanent: 'per sempre', custom: 'data scelta' };
     const logValue = (key, value) => {
@@ -1390,11 +1129,12 @@
         }
     };
 
+    // Tutti i personaggi per i premi: get_characters.php ne dava al massimo 80.
+    let characterOptions = [];
     const openMessageForm = async ({ targetUser = '' } = {}) => {
-        if (!state.cache.characters.length) {
+        if (!characterOptions.length) {
             try {
-                const charData = await api('get_characters.php?limit=1000');
-                state.cache.characters = charData.characters || [];
+                characterOptions = (await api('characters.php?action=options')).characters || [];
             } catch (e) { console.error(e); }
         }
         const badgesList = await loadCustomBadges();
@@ -1482,7 +1222,7 @@
             row.style = 'display: grid; grid-template-columns: 150px 1fr 100px 40px; gap: 10px; align-items: center; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 6px;';
             row.id = `reward-row-${index}`;
             
-            const charOptions = state.cache.characters.map(c => `<option value="${Number(c.id)}">${escapeHtml(c.nome)}</option>`).join('');
+            const charOptions = characterOptions.map(c => `<option value="${Number(c.id)}">${escapeHtml(c.nome)} · #${Number(c.id)}</option>`).join('');
             const badgeOptions = badgesList.map(b => `<option value="${Number(b.id)}">${escapeHtml(b.name)}</option>`).join('');
 
             row.innerHTML = `
@@ -1839,7 +1579,6 @@
         describeLog,
         openMessageForm,
         pagination,
-        refreshCharacterCategories: () => loadCharacterCategories(true),
         registerSection: (name, loader) => {
             externalSections[name] = loader;
             if (state.section === name) loader();
@@ -1852,7 +1591,6 @@
         $$('[data-section-panel]').forEach((panel) => panel.classList.toggle('is-active', panel.dataset.sectionPanel === section));
         if (externalSections[section]) externalSections[section]();
         if (section === 'dashboard') loadDashboard();
-        if (section === 'characters') loadCharacters();
         if (section === 'achievements') loadAchievements();
         if (section === 'messages') loadMessages();
         if (section === 'tickets') loadTicketsAdmin();
@@ -1889,7 +1627,6 @@
             });
 
             $('#adminRefreshBtn')?.addEventListener('click', reloadCurrent);
-            $('#createCharacterBtn')?.addEventListener('click', () => openCharacterForm());
             $('#createAchievementBtn')?.addEventListener('click', () => openAchievementForm());
             $('#createHomeSlideBtn')?.addEventListener('click', () => openHomeSlideForm());
             $('#sendNewMessageBtn')?.addEventListener('click', () => openMessageForm());
@@ -1901,7 +1638,7 @@
 
             $('#adminGlobalSearch')?.addEventListener('input', debounce((e) => {
                 state.q = e.target.value.trim();
-                state.characters.page = state.achievements.page = state.shitposts.page = state.toprimasti.page = state.reports.page = 1;
+                state.achievements.page = state.shitposts.page = state.toprimasti.page = state.reports.page = 1;
                 if (state.section === 'dashboard') switchSection('users');
                 else reloadCurrent();
             }, 300));

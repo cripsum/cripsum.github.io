@@ -164,13 +164,12 @@ $csrfToken = admin_csrf_token();
 
             <section class="admin-section" id="section-characters" data-section-panel="characters">
                 <div class="admin-toolbar">
-                    <div><strong>Personaggi</strong><small>Crea, modifica o rimuovi personaggi dal database.</small></div>
-                    <div class="admin-toolbar-actions">
-                        <div id="charactersFilters" class="admin-toolbar-actions"></div>
-                        <button type="button" class="admin-btn admin-btn--primary" id="createCharacterBtn"><i class="fa-solid fa-plus"></i> Nuovo</button>
+                    <div>
+                        <strong>Personaggi</strong>
+                        <small>Gacha e duelli: scheda, file della pull, catalogo e abilità. Le categorie stanno in Gacha › Categorie, i banner in Gacha › Banner.</small>
                     </div>
                 </div>
-                <div id="charactersTable" class="admin-table-card"></div>
+                <div class="admin-table-card shop-admin" data-characters-admin></div>
                 <div id="charactersPagination" class="admin-pagination"></div>
             </section>
 
@@ -428,6 +427,7 @@ $csrfToken = admin_csrf_token();
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-gacha.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-esports.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-pages.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-characters.js')); ?>"></script>
 </body>
 
 </html>

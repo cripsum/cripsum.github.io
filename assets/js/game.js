@@ -931,7 +931,8 @@
                     141: { glow:'#dc2626', bg:'radial-gradient(ellipse at 40% 60%,rgba(80,5,5,0.96),rgba(15,0,0,0.98))', flash:'#dc2626' },
                     142: { glow:'#60a5fa', bg:'radial-gradient(ellipse at 60% 40%,rgba(10,20,50,0.96),rgba(2,5,15,0.98))', flash:'#60a5fa' },
                     143: { glow:'#a3a3a3', bg:'radial-gradient(ellipse at 50% 50%,rgba(25,25,25,0.97),rgba(5,5,5,0.99))', flash:'#a3a3a3' },
-                    144: { glow:'#f97316', bg:'radial-gradient(ellipse at 50% 70%,rgba(60,20,0,0.96),rgba(12,4,0,0.98))', flash:'#f97316' }
+                    144: { glow:'#f97316', bg:'radial-gradient(ellipse at 50% 70%,rgba(60,20,0,0.96),rgba(12,4,0,0.98))', flash:'#f97316' },
+                    215: { glow:'#ff1f4b', bg:'radial-gradient(ellipse at 65% 45%,rgba(90,0,22,0.96),rgba(14,0,4,0.99))', flash:'#ff1f4b' }
                 };
                 const roleDefaults = {
                     'Tank':      { glow:'#fbbf24', flash:'#fbbf24' },
