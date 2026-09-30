@@ -4,26 +4,17 @@ require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../includes/stats_tracker.php';
 require_once __DIR__ . '/../../includes/mission_tracker.php';
+require_once __DIR__ . '/../../includes/subway_helpers.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Metodo non consentito.'
-    ]);
-    exit();
+    subway_fail(405, 'bad_method', 'Metodo non consentito.', 'save_score');
 }
 
 if (!isLoggedIn()) {
-    http_response_code(401);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Devi essere loggato per salvare il punteggio.'
-    ]);
-    exit();
+    subway_fail(401, 'not_logged_in', 'Devi essere loggato per salvare il punteggio.', 'save_score');
 }
 
 if (function_exists('checkBan')) {
@@ -40,83 +31,67 @@ $userRow = $checkUser->get_result()->fetch_assoc();
 $checkUser->close();
 
 if (!$userRow || !empty($userRow['isBannato'])) {
-    http_response_code(403);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Account non autorizzato o sospeso.'
-    ]);
+    subway_fail(403, 'banned', 'Account non autorizzato o sospeso.', 'save_score', ['user' => $user_id]);
+}
+
+// Il payload arriva come JSON sia da fetch sia da sendBeacon.
+$json = json_decode((string)file_get_contents('php://input'), true);
+if (!is_array($json)) {
+    $json = $_POST;
+}
+
+$time_ms = isset($json['time_ms']) ? (int)$json['time_ms'] : 0;
+$run_id = strtolower(trim((string)($json['run_id'] ?? '')));
+// Perche' il client ha chiuso la run (fine, moneta, uscita...): solo per i log.
+$reason = substr(preg_replace('/[^a-z0-9_]/', '', strtolower((string)($json['reason'] ?? ''))), 0, 32);
+$logContext = ['user' => $user_id, 'run' => substr($run_id, 0, 8), 'time_ms' => $time_ms, 'reason' => $reason];
+
+if (!subway_valid_run_id($run_id)) {
+    subway_fail(400, 'bad_request', 'Run non valida.', 'save_score', $logContext);
+}
+
+// Reinvio di una run gia' salvata (keepalive + beacon, coda dopo un reload):
+// stessa risposta, senza ricontare statistiche e missioni.
+$done = subway_done_run($run_id);
+if ($done !== null) {
+    cripsum_release_session();
+    echo json_encode(array_merge(['status' => 'success', 'code' => 'duplicate', 'duplicate' => true], $done));
     exit();
 }
 
-// Parse request payload
-$rawData = file_get_contents('php://input');
-$json = json_decode($rawData, true);
-
-$time_ms = 0;
-$map_slug = '';
-$run_token = '';
-
-if (is_array($json)) {
-    $time_ms = isset($json['time_ms']) ? (int)$json['time_ms'] : 0;
-    $map_slug = isset($json['map_slug']) ? trim((string)$json['map_slug']) : '';
-    $run_token = isset($json['run_token']) ? trim((string)$json['run_token']) : '';
-} else {
-    $time_ms = isset($_POST['time_ms']) ? (int)$_POST['time_ms'] : 0;
-    $map_slug = isset($_POST['map_slug']) ? trim((string)$_POST['map_slug']) : '';
-    $run_token = isset($_POST['run_token']) ? trim((string)$_POST['run_token']) : '';
+$run = subway_open_run($run_id);
+if ($run === null) {
+    subway_fail(409, 'unknown_run', 'Run non trovata nella sessione.', 'save_score', $logContext);
 }
-
-// Whitelist of valid map slugs
-$valid_maps = [
-    'london', 'zurich', 'beijing', 'berlin', 'havana', 'houston',
-    'iceland', 'mexico', 'miami', 'monaco', 'neworleans', 'sanfrancisco',
-    'saintpetersburg', 'winterholiday', 'tokyo', 'cairo', 'paris',
-    'bangkok', 'buenosaires', 'moscow', 'newyork'
-];
-
-$map_slug = strtolower(preg_replace('/[^a-z0-9_-]/', '', $map_slug));
-if (!in_array($map_slug, $valid_maps, true)) {
-    $map_slug = 'london';
-}
+$logContext['map'] = $run['map'];
 
 // Validate time_ms: must be positive and realistic (< 30 days)
 if ($time_ms <= 0 || $time_ms > 2592000000) {
-    http_response_code(400);
+    subway_close_run($run_id, null);
+    subway_fail(400, 'bad_time', 'Valore del tempo non valido.', 'save_score', $logContext);
+}
+
+// Le run di allenamento non entrano in classifica.
+if (($run['mode'] ?? 'original') !== 'original') {
+    subway_close_run($run_id, ['is_new_best' => false, 'ignored' => true]);
+    cripsum_release_session();
     echo json_encode([
-        'status' => 'error',
-        'message' => 'Valore del tempo non valido.'
+        'status' => 'ignored',
+        'code' => 'training',
+        'message' => 'Le run di allenamento non entrano in classifica.'
     ]);
     exit();
 }
 
-// Anti-Cheat: Validate run token and elapsed server time
-if (!empty($_SESSION['subway_run_token']) && !empty($_SESSION['subway_run_start'])) {
-    if (empty($run_token) || !hash_equals($_SESSION['subway_run_token'], $run_token)) {
-        http_response_code(403);
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Token di sessione run non valido.'
-        ]);
-        exit();
-    }
-
-    $server_now = microtime(true);
-    $server_elapsed_ms = ($server_now - (float)$_SESSION['subway_run_start']) * 1000;
-
-    // Reject if client time exceeds real wall-clock time by more than 5 seconds buffer
-    if ($time_ms > ($server_elapsed_ms + 5000)) {
-        http_response_code(400);
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Rilevata discrepanza temporale nella sessione di gioco.'
-        ]);
-        exit();
-    }
-
-    // Invalidate the token to prevent replay
-    unset($_SESSION['subway_run_token']);
-    unset($_SESSION['subway_run_start']);
-    unset($_SESSION['subway_run_map']);
+// Anti-cheat: il tempo del client non puo' superare quello passato davvero
+// sul server da start_run. Il margine copre la latenza e la deriva tra i due
+// orologi nelle run lunghe.
+$server_elapsed_ms = (microtime(true) - (float)$run['start']) * 1000;
+$allowed_ms = $server_elapsed_ms + 5000 + $server_elapsed_ms * 0.005;
+if ($time_ms > $allowed_ms) {
+    subway_close_run($run_id, null);
+    $logContext['server_ms'] = (int)$server_elapsed_ms;
+    subway_fail(400, 'time_mismatch', 'Rilevata discrepanza temporale nella sessione di gioco.', 'save_score', $logContext);
 }
 
 try {
@@ -124,44 +99,7 @@ try {
         throw new Exception('Connessione al database non disponibile.');
     }
 
-    // Check existing record for this user
-    $stmt = $mysqli->prepare("SELECT best_time_ms, map_slug FROM subway_leaderboard WHERE utente_id = ? LIMIT 1");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $existing = $res->fetch_assoc();
-    $stmt->close();
-
-    $is_new_best = false;
-    $best_time_ms = $time_ms;
-    $final_map = $map_slug;
-
-    if (!$existing) {
-        $ins = $mysqli->prepare("
-            INSERT INTO subway_leaderboard (utente_id, best_time_ms, map_slug, created_at, updated_at)
-            VALUES (?, ?, ?, NOW(), NOW())
-        ");
-        $ins->bind_param("iis", $user_id, $time_ms, $map_slug);
-        $ins->execute();
-        $ins->close();
-        $is_new_best = true;
-    } else {
-        $existing_best = (int)$existing['best_time_ms'];
-        if ($time_ms > $existing_best) {
-            $upd = $mysqli->prepare("
-                UPDATE subway_leaderboard
-                SET best_time_ms = ?, map_slug = ?, updated_at = NOW()
-                WHERE utente_id = ?
-            ");
-            $upd->bind_param("isi", $time_ms, $map_slug, $user_id);
-            $upd->execute();
-            $upd->close();
-            $is_new_best = true;
-        } else {
-            $best_time_ms = $existing_best;
-            $final_map = $existing['map_slug'] ?? $map_slug;
-        }
-    }
+    [$is_new_best, $best_time_ms, $final_map] = subway_store_best($mysqli, $user_id, $time_ms, $run['map']);
 
     // Get current user's global rank
     $rankStmt = $mysqli->prepare("
@@ -175,32 +113,40 @@ try {
     $userRank = (int)($rankRes->fetch_assoc()['user_rank'] ?? 1);
     $rankStmt->close();
 
-    // Statistiche Rewind. `best_time_ms` è un tempo di sopravvivenza, quindi
-    // più alto è meglio: la metrica va tenuta al massimo, non sommata.
-    try {
-        stats_track_many($mysqli, $user_id, [
-            'subway_runs'    => 1,
-            'subway_best_ms' => $time_ms,
-        ]);
-
-        trackMissionProgress($mysqli, $user_id, 'play_subway');
-    } catch (Throwable $trackErr) {
-        error_log('[Stats subway save_score] ' . $trackErr->getMessage());
-    }
-
-    echo json_encode([
-        'status' => 'success',
+    $result = [
         'is_new_best' => $is_new_best,
         'best_time_ms' => $best_time_ms,
         'current_time_ms' => $time_ms,
         'map_slug' => $final_map,
         'rank' => $userRank
-    ]);
+    ];
 
-} catch (Exception $e) {
+    // Da qui la run risulta salvata: un reinvio riceve la stessa risposta.
+    subway_close_run($run_id, $result);
+    cripsum_release_session();
+} catch (Throwable $e) {
+    // La run resta aperta, cosi' il nuovo tentativo del client puo' riuscire.
+    error_log('[Subway save_score] errore db ' . $e->getMessage() . ' user=' . $user_id . ' run=' . substr($run_id, 0, 8));
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
+        'code' => 'db_error',
         'message' => 'Errore durante il salvataggio del record.'
     ]);
+    exit();
 }
+
+// Statistiche Rewind. `best_time_ms` è un tempo di sopravvivenza, quindi
+// più alto è meglio: la metrica va tenuta al massimo, non sommata.
+try {
+    stats_track_many($mysqli, $user_id, [
+        'subway_runs'    => 1,
+        'subway_best_ms' => $time_ms,
+    ]);
+
+    trackMissionProgress($mysqli, $user_id, 'play_subway');
+} catch (Throwable $trackErr) {
+    error_log('[Stats subway save_score] ' . $trackErr->getMessage());
+}
+
+echo json_encode(array_merge(['status' => 'success', 'code' => 'ok'], $result));

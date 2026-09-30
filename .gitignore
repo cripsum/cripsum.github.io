@@ -11,3 +11,5 @@ scratch/animespot-audio/
 scratch/*.log
 # Catalogo dei music kit di CS2 scaricato dal pannello (Team OHPY).
 scratch/esports/
+# Build Unity di Subway Surfers: si caricano a mano su Hostinger, non passano da git.
+subway-builds/

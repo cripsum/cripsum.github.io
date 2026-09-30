@@ -5,6 +5,10 @@ require_once __DIR__ . '/../../config/session_init.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Qui la sessione si legge soltanto: tenerla aperta bloccava start_run e
+// save_score della stessa scheda finche' le query della classifica giravano.
+cripsum_release_session();
+
 if (function_exists('checkBan')) {
     checkBan($mysqli);
 }

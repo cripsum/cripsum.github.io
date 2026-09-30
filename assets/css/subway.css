@@ -1796,6 +1796,42 @@ body.subway-fullscreen-active .main-footer {
     margin-top: 0.15rem;
 }
 
+/* Esiti del salvataggio: salvata, nuovo tentativo, non salvata */
+.subway-score-toast.is-saved {
+    border-color: #22c55e;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(34, 197, 94, 0.3);
+}
+
+.subway-score-toast.is-saved .subway-toast-icon {
+    background: linear-gradient(135deg, #22c55e, #0891b2);
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+}
+
+.subway-score-toast.is-warn {
+    border-color: #f59e0b;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.3);
+}
+
+.subway-score-toast.is-warn .subway-toast-icon {
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+}
+
+.subway-score-toast.is-error {
+    border-color: #ef4444;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(239, 68, 68, 0.3);
+}
+
+.subway-score-toast.is-error .subway-toast-icon {
+    background: linear-gradient(135deg, #ef4444, #be123c);
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+.subway-score-toast.is-warn .subway-toast-content span,
+.subway-score-toast.is-error .subway-toast-content span {
+    color: #e2e8f0;
+}
+
 
 /* ==========================================================================
    12. Performance profile

@@ -92,12 +92,13 @@
         failed: false,
         ended: false,
         runArmed: false,
+        sawGameStartSignal: false,
         startTime: 0,
         accumulatedTime: 0,
         elapsed: 0,
         scoreSubmittedForRun: false,
         userBestTimeMs: 0,
-        runToken: '',
+        run: null,
         autoBoost: false,
         unity: null,
         activeMap: null,
@@ -123,6 +124,78 @@
     const isItalian = () => String(document.documentElement.lang || '').toLowerCase().startsWith('it');
     const t = (it, en) => isItalian() ? it : en;
     const packageUrl = (map, path) => `${CDN}${map.pkg}/${path}`;
+
+    // Sotto questa durata una "run" chiusa da un nuovo segnale di inizio e'
+    // solo il doppione audio/roundStart dello stesso avvio.
+    const minFinalizedRunMs = 3000;
+
+    /*
+     * Log di diagnosi della sfida: eventi Poki, audio riconosciuti, inizio,
+     * pausa e reset della run con la causa, esito HTTP di registrazione e
+     * salvataggio. Resta nel browser (localStorage, ultime 400 righe) e si
+     * legge dalla console:
+     *   CripsumSubwayDiag.dump()      tabella in console
+     *   CripsumSubwayDiag.download()  file .txt da mandare
+     *   CripsumSubwayDiag.clear()
+     * Con localStorage['cripsum-subway-debug'] = '1' (o ?subwaydebug=1) ogni
+     * riga viene anche stampata in console mentre si gioca.
+     */
+    const diagKey = 'cripsum-subway-diag-v1';
+    const diagMax = 400;
+    let diagEntries = [];
+    let diagSaveTimer = 0;
+    let diagEcho = false;
+    try {
+        diagEntries = JSON.parse(localStorage.getItem(diagKey) || '[]');
+        if (!Array.isArray(diagEntries)) diagEntries = [];
+        diagEcho = localStorage.getItem('cripsum-subway-debug') === '1'
+            || new URLSearchParams(location.search).has('subwaydebug');
+    } catch (_) {
+        diagEntries = [];
+    }
+
+    function persistDiag() {
+        clearTimeout(diagSaveTimer);
+        diagSaveTimer = 0;
+        try {
+            localStorage.setItem(diagKey, JSON.stringify(diagEntries));
+        } catch (_) { /* storage pieno o bloccato: il log resta in memoria */ }
+    }
+
+    function diag(event, data = {}) {
+        const now = new Date();
+        const entry = Object.assign({
+            at: `${now.toLocaleDateString('sv-SE')} ${now.toLocaleTimeString('it-IT')}.${String(now.getMilliseconds()).padStart(3, '0')}`,
+            ev: event
+        }, data);
+        diagEntries.push(entry);
+        if (diagEntries.length > diagMax) diagEntries.splice(0, diagEntries.length - diagMax);
+        if (diagEcho) console.debug('[Subway diag]', event, data);
+        if (!diagSaveTimer) diagSaveTimer = setTimeout(persistDiag, 1000);
+    }
+
+    function diagText() {
+        return diagEntries.map(entry => {
+            const { at, ev, ...rest } = entry;
+            const extra = Object.entries(rest).map(([k, v]) => `${k}=${v}`).join(' ');
+            return `${at}  ${ev}${extra ? '  ' + extra : ''}`;
+        }).join('\n');
+    }
+
+    window.CripsumSubwayDiag = {
+        dump() { console.table(diagEntries); return diagEntries.length; },
+        text: diagText,
+        download() {
+            const blob = new Blob([`${navigator.userAgent}\n\n${diagText()}\n`], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `subway-diag-${Date.now()}.txt`;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        },
+        clear() { diagEntries = []; persistDiag(); },
+        pending() { return pendingScores.map(item => Object.assign({}, item)); }
+    };
 
     function cacheDom() {
         [
@@ -696,6 +769,10 @@
         if (dom.toggleNoCoinChallenge) {
             dom.toggleNoCoinChallenge.checked = state.challenge;
             dom.toggleNoCoinChallenge.addEventListener('change', () => {
+                // Spegnere la sfida a run in corso la chiude (e la salva):
+                // altrimenti si potevano raccogliere monete a sfida spenta e
+                // riaccenderla con il timer ancora in marcia.
+                if (!dom.toggleNoCoinChallenge.checked) resetTimer('challenge_off');
                 state.challenge = dom.toggleNoCoinChallenge.checked;
                 saveSettings();
                 setChallengeStatus(state.challenge ? 'ready' : 'inactive');
@@ -916,6 +993,16 @@
             setConsentString() {},
             logError() {}
         };
+        // Ogni chiamata del gioco al bridge finisce nel log di diagnosi: e' la
+        // sequenza di questi eventi che decide quando una run inizia e finisce.
+        Object.keys(pokiHandler).forEach(name => {
+            const original = pokiHandler[name];
+            if (name === 'gameLoadingProgress') return;
+            pokiHandler[name] = function (...args) {
+                diag(`poki_${name}`, { running: state.running, paused: state.isPaused, ended: state.ended });
+                return original.apply(this, args);
+            };
+        });
         window.PokiSDK = Object.assign(window.PokiSDK || {}, pokiHandler);
         window.pokiReady = true;
         window.pokiAdBlock = false;
@@ -1165,9 +1252,13 @@
 
         // The run-start clip is unique in the shipped AudioClip table.
         const looksLikeStart = runStartAudioDurations.some(target => Math.abs(duration - target) <= 0.006);
-        if (looksLikeStart && (!state.running || state.failed || state.ended)) {
-            startNewRound('audio');
-            return;
+        if (looksLikeStart) {
+            diag('audio_start', { running: state.running, paused: state.isPaused, ended: state.ended });
+            // Una run avviata da tastiera (ripiego) si riallinea all'audio.
+            if (!state.running || state.failed || state.ended || state.run?.fromInput) {
+                startNewRound('audio');
+                return;
+            }
         }
 
         if (!state.running && !state.isPaused) return;
@@ -1182,6 +1273,7 @@
             || (Math.abs(sampleRate - 44100) <= 1 && coinDecodedFrames.has(sampleFrames))
         );
         if (looksLikeCoinSound) {
+            diag('audio_coin', { running: state.running, paused: state.isPaused });
             failChallenge('coin_audio');
         }
     }
@@ -1279,7 +1371,35 @@
         return state.accumulatedTime + (state.running ? Math.max(0, now - state.startTime) : 0);
     }
 
-    function resetTimer() {
+    // Chiude la run in corso prima di qualsiasi reset: una run in pausa
+    // (gameplayStop alla morte, pausa del gioco) o ancora in corsa va salvata,
+    // non buttata. Senza questo, una run senza roundEnd spariva al successivo
+    // audio di inizio o a un tasto R.
+    function finalizeRun(reason) {
+        const hadRun = state.running || state.isPaused || state.ended;
+        if (!hadRun || state.scoreSubmittedForRun) return;
+        if (state.running) {
+            state.accumulatedTime = getRunningElapsed();
+            state.running = false;
+        }
+        state.elapsed = state.accumulatedTime;
+        // Il gioco a volte manda due segnali di inizio (audio e roundStart) a
+        // pochi ms uno dall'altro: la "run" in mezzo non e' una run.
+        // Lo stesso per una run partita da tastiera che il segnale vero
+        // riallinea: il suo tempo comprendeva il menu.
+        if (reason.startsWith('new_round') && (state.elapsed < minFinalizedRunMs || state.run?.fromInput)) {
+            diag('run_discarded', { reason, elapsed: Math.round(state.elapsed) });
+            state.scoreSubmittedForRun = true;
+            return;
+        }
+        submitRun(reason);
+    }
+
+    function resetTimer(reason = 'reset') {
+        finalizeRun(reason);
+        if (state.running || state.isPaused || state.ended) {
+            diag('reset', { reason, elapsed: Math.round(state.elapsed), run: state.run?.id.slice(0, 8) });
+        }
         cancelAutoBoost();
         state.running = false;
         state.isPaused = false;
@@ -1290,12 +1410,24 @@
         state.accumulatedTime = 0;
         state.elapsed = 0;
         state.scoreSubmittedForRun = false;
+        state.run = null;
         renderTimerDisplay(0);
         setChallengeStatus(state.challenge ? 'ready' : 'inactive');
     }
 
+    // Le mappe con il bridge Poki (4399.js) mandano roundStart/gameplayStart;
+    // le altre (Mexico, Winter Holiday, Miami) contano solo sull'audio di
+    // inizio. Su queste, finche' non e' arrivato nessun segnale del gioco,
+    // un tasto avvia ancora il timer come prima, per non lasciarlo fermo se
+    // l'impronta audio non venisse riconosciuta.
+    function canStartFromInput() {
+        if (!state.challenge || state.sawGameStartSignal || !state.activeMap) return false;
+        if (state.ended || state.accumulatedTime > 0) return false;
+        return !/^4399(\.sf)?\.js$/.test(state.activeMap.bootstrap || '');
+    }
+
     function startNewRound(source) {
-        resetTimer();
+        resetTimer(`new_round_${source}`);
         startTimer(source);
     }
 
@@ -1311,20 +1443,31 @@
             setChallengeStatus('running');
             dom.subwayStartHint?.classList.remove('is-visible');
             bootLog(t(`Run ripresa (${source})`, `Run resumed (${source})`));
+            diag('run_resume', { source, elapsed: Math.round(state.accumulatedTime), run: state.run?.id.slice(0, 8) });
             updateTimer();
             return;
         }
 
+        const fromInput = source === 'input';
+        if (!fromInput) state.sawGameStartSignal = true;
+
         // Starting a fresh run
-        resetTimer();
+        resetTimer(`start_${source}`);
         state.running = true;
         state.isPaused = false;
         state.startTime = performance.now();
         state.accumulatedTime = 0;
+        state.run = {
+            id: newRunId(),
+            map: state.activeMap?.slug || 'london',
+            startPerf: state.startTime,
+            fromInput
+        };
         setChallengeStatus('running');
         dom.subwayStartHint?.classList.remove('is-visible');
         bootLog(t(`Run avviata (${source})`, `Run started (${source})`));
-        requestRunSession();
+        diag('run_start', { source, run: state.run.id.slice(0, 8), map: state.run.map });
+        registerRun(state.run);
         triggerAutoBoost();
         updateTimer();
     }
@@ -1360,20 +1503,61 @@
         });
     }
 
-    async function requestRunSession() {
-        state.runToken = '';
+    function newRunId() {
+        const bytes = new Uint8Array(16);
+        crypto.getRandomValues(bytes);
+        return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Legge una risposta delle API senza esplodere su una pagina di errore
+    // HTML (LiteSpeed, Cloudflare, redirect del ban).
+    async function readApiResponse(response) {
+        const text = await response.text();
         try {
-            const mapSlug = state.activeMap?.slug || 'london';
-            const response = await fetch('/api/subway/start_run.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ map_slug: mapSlug })
-            });
-            const data = await response.json();
-            if (data.status === 'success') {
-                state.runToken = data.run_token;
+            return JSON.parse(text);
+        } catch (_) {
+            return null;
+        }
+    }
+
+    // Registra la run sul server. L'id lo genera il client, quindi il
+    // salvataggio non dipende dalla risposta: se start_run fallisce si
+    // riprova, dichiarando quanto tempo e' passato dall'inizio della run.
+    const runRegistrations = new Map();
+    const registerRetryDelays = [1000, 3000, 7000, 15000, 30000, 60000];
+
+    function registerRun(run) {
+        const promise = (async () => {
+            for (let attempt = 0; attempt <= registerRetryDelays.length; attempt++) {
+                if (attempt > 0) await new Promise(resolve => setTimeout(resolve, registerRetryDelays[attempt - 1]));
+                let status = 0;
+                let data = null;
+                try {
+                    const response = await fetch('/api/subway/start_run.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        keepalive: true,
+                        body: JSON.stringify({
+                            run_id: run.id,
+                            map_slug: run.map,
+                            mode: 'original',
+                            elapsed_ms: Math.max(0, Math.round(performance.now() - run.startPerf))
+                        })
+                    });
+                    status = response.status;
+                    data = await readApiResponse(response);
+                } catch (_) { /* rete: si riprova */ }
+
+                diag('register', { run: run.id.slice(0, 8), attempt, http: status, code: data?.code || null });
+                if (data?.status === 'success') return true;
+                // Un 4xx con risposta JSON e' definitivo (non loggato, ban, mappa).
+                if (data && status >= 400 && status < 500 && status !== 408 && status !== 429) return false;
             }
-        } catch (_) {}
+            return false;
+        })();
+        runRegistrations.set(run.id, promise);
+        return promise;
     }
 
     function pauseTimer(source) {
@@ -1386,6 +1570,7 @@
         renderTimerDisplay(state.elapsed);
         setChallengeStatus('paused');
         bootLog(t(`Pausa (${source})`, `Paused (${source})`));
+        diag('run_pause', { source, elapsed: Math.round(state.elapsed), run: state.run?.id.slice(0, 8) });
     }
 
     function updateTimer(now = performance.now()) {
@@ -1409,10 +1594,7 @@
         renderTimerDisplay(state.elapsed);
         setChallengeStatus(state.challenge ? 'ended' : 'inactive');
         bootLog(t(`Run terminata (${source})`, `Run finished (${source})`));
-        if (state.challenge && state.elapsed > 0 && !state.scoreSubmittedForRun) {
-            state.scoreSubmittedForRun = true;
-            submitScoreToLeaderboard(state.elapsed);
-        }
+        submitRun(`finish_${source}`);
     }
 
     function failChallenge(reason = 'coin') {
@@ -1432,68 +1614,263 @@
             ? t('Sfida fallita: Hoverboard usato (vietato!)', 'Challenge failed: Hoverboard used (prohibited!)')
             : t(`Sfida fallita (${reason})`, `Challenge failed (${reason})`);
         bootLog(reasonText);
-        if (state.challenge && state.elapsed > 0 && !state.scoreSubmittedForRun) {
-            state.scoreSubmittedForRun = true;
-            submitScoreToLeaderboard(state.elapsed);
-        }
+        submitRun(`fail_${reason}`);
     }
 
-    async function submitScoreToLeaderboard(timeMs) {
-        if (!timeMs || timeMs <= 0) return;
+    // Mette in coda il tempo della run corrente (una volta sola per run).
+    function submitRun(reason) {
+        if (state.scoreSubmittedForRun) return;
+        state.scoreSubmittedForRun = true;
+        const run = state.run;
+        const timeMs = Math.floor(state.elapsed);
+        if (!state.challenge || !run || timeMs <= 0) {
+            diag('run_not_queued', { reason, elapsed: timeMs, challenge: state.challenge, run: !!run });
+            return;
+        }
+        enqueueScore({
+            id: run.id,
+            time_ms: timeMs,
+            map: run.map,
+            reason: String(reason).toLowerCase().replace(/[^a-z0-9_]/g, '_').slice(0, 32)
+        });
+    }
+
+    /*
+     * Coda dei salvataggi. Ogni run chiusa finisce qui e in localStorage prima
+     * di partire, e ne esce solo quando il server ha risposto in modo
+     * definitivo: un errore di rete o un 5xx si ritenta con backoff, e cio' che
+     * resta alla chiusura della pagina parte con sendBeacon e viene
+     * ricontrollato al caricamento successivo (il server risponde "duplicate"
+     * senza contarlo due volte).
+     */
+    const pendingKey = 'cripsum-subway-pending-v1';
+    const pendingMaxAgeMs = 2 * 24 * 60 * 60 * 1000;
+    const saveRetryDelays = [2000, 5000, 15000, 30000, 60000, 120000, 300000];
+    const saveInFlight = new Set();
+    let pendingScores = [];
+    let flushTimer = 0;
+    let flushPromise = null;
+
+    function loadPendingScores() {
         try {
-            const mapSlug = state.activeMap?.slug || 'london';
-            const response = await fetch('/api/subway/save_score.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    time_ms: Math.floor(timeMs),
-                    map_slug: mapSlug,
-                    run_token: state.runToken || ''
-                })
-            });
-            const data = await response.json();
-            if (data.status === 'success') {
-                if (data.is_new_best) {
-                    showScoreToast(timeMs, true, data.rank);
-                    state.userBestTimeMs = data.best_time_ms;
-                }
-                fetchLeaderboard();
+            const raw = JSON.parse(localStorage.getItem(pendingKey) || '[]');
+            const now = Date.now();
+            pendingScores = Array.isArray(raw)
+                ? raw.filter(item => item && typeof item.id === 'string' && now - (item.createdAt || 0) < pendingMaxAgeMs)
+                : [];
+        } catch (_) {
+            pendingScores = [];
+        }
+        if (pendingScores.length) diag('queue_restored', { count: pendingScores.length });
+    }
+
+    function persistPendingScores() {
+        try {
+            if (pendingScores.length) localStorage.setItem(pendingKey, JSON.stringify(pendingScores));
+            else localStorage.removeItem(pendingKey);
+        } catch (_) { /* quota piena o storage bloccato: resta la coda in memoria */ }
+    }
+
+    function enqueueScore(entry) {
+        if (pendingScores.some(item => item.id === entry.id)) return;
+        pendingScores.push(Object.assign({ createdAt: Date.now(), attempts: 0, nextAt: 0, warned: false }, entry));
+        persistPendingScores();
+        diag('run_queued', { run: entry.id.slice(0, 8), time: entry.time_ms, reason: entry.reason });
+        flushScores();
+    }
+
+    function removePendingScore(id) {
+        pendingScores = pendingScores.filter(item => item.id !== id);
+        persistPendingScores();
+    }
+
+    function scoreBody(item) {
+        return JSON.stringify({ run_id: item.id, time_ms: item.time_ms, map_slug: item.map, reason: item.reason });
+    }
+
+    function flushScores() {
+        if (flushPromise) return flushPromise;
+        clearTimeout(flushTimer);
+        flushPromise = (async () => {
+            const now = Date.now();
+            for (const item of pendingScores.slice()) {
+                if (item.nextAt > now || saveInFlight.has(item.id)) continue;
+                await sendScore(item);
             }
-        } catch (err) {
-            console.warn('[Subway Leaderboard] Impossibile salvare il punteggio', err);
+        })().finally(() => {
+            flushPromise = null;
+            scheduleFlush();
+        });
+        return flushPromise;
+    }
+
+    function scheduleFlush() {
+        clearTimeout(flushTimer);
+        if (!pendingScores.length) return;
+        const next = Math.min(...pendingScores.map(item => item.nextAt));
+        flushTimer = setTimeout(flushScores, Math.max(250, next - Date.now()));
+    }
+
+    async function sendScore(item) {
+        saveInFlight.add(item.id);
+        try {
+            // Il salvataggio parte dopo che start_run ha avuto risposta, cosi'
+            // non arriva al server prima della registrazione della run.
+            const registration = runRegistrations.get(item.id);
+            if (registration) await registration;
+
+            let status = 0;
+            let data = null;
+            try {
+                const response = await fetch('/api/subway/save_score.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    keepalive: true,
+                    body: scoreBody(item)
+                });
+                status = response.status;
+                data = await readApiResponse(response);
+            } catch (_) { /* rete */ }
+
+            diag('save', { run: item.id.slice(0, 8), time: item.time_ms, attempt: item.attempts, http: status, code: data?.code || null });
+
+            if (data?.status === 'success') {
+                removePendingScore(item.id);
+                if (data.best_time_ms) state.userBestTimeMs = Math.max(state.userBestTimeMs, data.best_time_ms);
+                showScoreToast(data.is_new_best ? 'best' : 'saved', item.time_ms, data);
+                fetchLeaderboard();
+                return;
+            }
+            if (data?.status === 'ignored') {
+                removePendingScore(item.id);
+                return;
+            }
+            const definitive = data && status >= 400 && status < 500 && status !== 408 && status !== 429;
+            if (definitive) {
+                removePendingScore(item.id);
+                showScoreToast(status === 401 ? 'expired' : 'rejected', item.time_ms, data);
+                return;
+            }
+
+            item.attempts += 1;
+            if (item.attempts > saveRetryDelays.length) {
+                removePendingScore(item.id);
+                showScoreToast('lost', item.time_ms, data);
+                return;
+            }
+            item.nextAt = Date.now() + saveRetryDelays[item.attempts - 1];
+            if (!item.warned) {
+                item.warned = true;
+                showScoreToast('retry', item.time_ms, data);
+            }
+            persistPendingScores();
+        } finally {
+            saveInFlight.delete(item.id);
         }
     }
 
-    function showScoreToast(timeMs, isNewBest, rank) {
+    // All'uscita dalla pagina: chiude la run e rispedisce con sendBeacon
+    // tutto cio' che e' ancora in coda.
+    function flushScoresOnExit(reason) {
+        finalizeRun(reason);
+        // Anche quelle gia' in volo: la fetch potrebbe non essere ancora
+        // partita, e un doppio invio il server lo riconosce come duplicate.
+        pendingScores.forEach(item => {
+            let sent = false;
+            try {
+                sent = navigator.sendBeacon?.('/api/subway/save_score.php', new Blob([scoreBody(item)], { type: 'application/json' })) || false;
+            } catch (_) {}
+            diag('beacon', { run: item.id.slice(0, 8), sent });
+        });
+        persistPendingScores();
+        persistDiag();
+    }
+
+    // Aspetta che la coda si svuoti, al massimo per `timeoutMs`.
+    function waitForScores(timeoutMs) {
+        const deadline = Date.now() + timeoutMs;
+        return new Promise(resolve => {
+            const check = () => {
+                if (!pendingScores.length || Date.now() >= deadline) return resolve(!pendingScores.length);
+                setTimeout(check, 100);
+            };
+            flushScores();
+            check();
+        });
+    }
+
+    function showScoreToast(kind, timeMs, data = {}) {
         const existing = document.getElementById('subwayScoreToast');
         if (existing) existing.remove();
 
+        const formatted = formatTime(timeMs);
+        const rankText = data?.rank ? ` · #${data.rank}` : '';
+        const rejectedReasons = {
+            time_mismatch: t('tempo non coerente con la sessione', 'time does not match the session'),
+            unknown_run: t('run non registrata', 'run not registered'),
+            banned: t('account sospeso', 'account suspended')
+        };
+        const variants = {
+            best: {
+                cls: '', icon: 'fa-trophy',
+                title: t('Nuovo Record Personale! 🎉', 'New Personal Best! 🎉'),
+                detail: `${formatted}${rankText}`
+            },
+            saved: {
+                cls: 'is-saved', icon: 'fa-check',
+                title: t('Run salvata', 'Run saved'),
+                detail: `${formatted} · ${t('record', 'best')} ${formatTime(data?.best_time_ms || state.userBestTimeMs)}`
+            },
+            retry: {
+                cls: 'is-warn', icon: 'fa-rotate',
+                title: t('Salvataggio non riuscito, riprovo…', 'Save failed, retrying…'),
+                detail: formatted
+            },
+            expired: {
+                cls: 'is-error', icon: 'fa-user-clock',
+                title: t('Sessione scaduta: accedi di nuovo', 'Session expired: please log in again'),
+                detail: t(`Run non salvata (${formatted})`, `Run not saved (${formatted})`)
+            },
+            rejected: {
+                cls: 'is-error', icon: 'fa-triangle-exclamation',
+                title: t('Run non salvata', 'Run not saved'),
+                detail: `${formatted} · ${rejectedReasons[data?.code] || data?.code || t('errore', 'error')}`
+            },
+            lost: {
+                cls: 'is-error', icon: 'fa-triangle-exclamation',
+                title: t('Impossibile salvare la run', 'Could not save the run'),
+                detail: t(`${formatted} · server non raggiungibile`, `${formatted} · server unreachable`)
+            }
+        };
+        const variant = variants[kind] || variants.saved;
+
         const toast = document.createElement('div');
         toast.id = 'subwayScoreToast';
-        toast.className = 'subway-score-toast';
-        const formatted = formatTime(timeMs);
-        const rankText = rank ? ` (Rank #${rank})` : '';
-
+        toast.className = `subway-score-toast ${variant.cls}`.trim();
+        toast.setAttribute('role', 'status');
         toast.innerHTML = `
-            <div class="subway-toast-icon"><i class="fa-solid fa-trophy"></i></div>
+            <div class="subway-toast-icon"><i class="fa-solid ${variant.icon}"></i></div>
             <div class="subway-toast-content">
-                <strong>${isNewBest ? t('Nuovo Record Personale! 🎉', 'New Personal Best! 🎉') : t('Run Completata', 'Run Finished')}</strong>
-                <span>${formatted}${rankText}</span>
+                <strong></strong>
+                <span></span>
             </div>
         `;
+        toast.querySelector('strong').textContent = variant.title;
+        toast.querySelector('span').textContent = variant.detail;
         document.body.appendChild(toast);
         requestAnimationFrame(() => toast.classList.add('show'));
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400);
-        }, 5000);
+        }, kind === 'saved' ? 3500 : 5000);
     }
 
     async function fetchLeaderboard() {
         try {
             const response = await fetch('/api/subway/get_leaderboard.php');
-            const result = await response.json();
-            if (result.status === 'success') {
+            const result = await readApiResponse(response);
+            if (result?.status === 'success') {
                 renderLeaderboard(result.data || [], result.user_record);
             }
         } catch (err) {
@@ -1593,9 +1970,11 @@
             if (state.running) {
                 failChallenge('manual');
             } else {
-                resetTimer();
+                resetTimer('manual_button');
             }
         });
+
+        let idleInputLogged = false;
 
         window.addEventListener('keydown', event => {
             if (!state.activeMap) return;
@@ -1622,26 +2001,31 @@
                 return;
             }
 
-            // 'R' key manually flags coin fail if running, or resets timer if stopped
+            // 'R' chiude la run: da ferma o in pausa la salva e azzera il timer.
             if (event.code === 'KeyR') {
                 if (state.running) {
                     failChallenge('manual_hotkey');
                 } else {
-                    resetTimer();
+                    resetTimer('manual_hotkey');
                 }
                 return;
             }
 
-            if (event.code === 'Space') {
-                if (!state.running && !state.isPaused) {
-                    startTimer('space');
-                } else if (state.running && state.challenge) {
-                    // Hoverboard activation via Spacebar during challenge run -> instant fail!
-                    failChallenge('hoverboard');
+            // Il timer parte solo dai segnali del gioco (roundStart,
+            // gameplayStart, audio di inizio run): un tasto premuto nel menu
+            // lo faceva partire prima della run e gonfiava il tempo.
+            if (event.code === 'Space' && state.running && state.challenge) {
+                // Hoverboard activation via Spacebar during challenge run -> instant fail!
+                failChallenge('hoverboard');
+            } else if ((action || event.code === 'Space') && !state.running && !state.isPaused) {
+                if (canStartFromInput()) {
+                    startTimer('input');
+                } else {
+                    if (!idleInputLogged) diag('input_without_run', { key: event.code });
+                    idleInputLogged = true;
                 }
-            } else if (action && !state.running && !state.failed && !state.isPaused && state.accumulatedTime === 0 && state.challenge) {
-                startTimer('input');
             }
+            if (state.running) idleInputLogged = false;
 
             if (!action) return;
             if (nativeCodes.has(event.code)) return;
@@ -2117,8 +2501,18 @@
         if (dom.cancelSubwayLoad) dom.cancelSubwayLoad.textContent = t('Torna alle mappe', 'Back to maps');
     }
 
-    function returnToLobby() {
+    let leavingToLobby = false;
+    async function returnToLobby() {
         if (state.activeMap) {
+            if (leavingToLobby) return;
+            leavingToLobby = true;
+            // Il reload annullava il salvataggio in volo: prima si chiude la
+            // run e si aspetta la coda, al massimo 1,5 s (quello che resta
+            // parte comunque con keepalive/sendBeacon su pagehide).
+            finalizeRun('exit_lobby');
+            const saved = await waitForScores(1500);
+            diag('exit_lobby', { queueEmpty: saved });
+            persistDiag();
             window.location.reload();
             return;
         }
@@ -2147,6 +2541,15 @@
         installAudioDetector();
         bindAudioWidgets();
         applyAudioVolume(state.audioVolume, state.audioMuted);
+        // Salvataggi rimasti in sospeso da una visita precedente (reload,
+        // scheda chiusa, rete caduta): si ritentano subito.
+        loadPendingScores();
+        diag('page_load', { lang: document.documentElement.lang || '' });
+        flushScores();
+        window.addEventListener('pagehide', () => flushScoresOnExit('page_exit'));
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') persistDiag();
+        });
         fetchLeaderboard();
         dom.subwayLeaderboardRefresh?.addEventListener('click', () => {
             const icon = dom.subwayLeaderboardRefresh.querySelector('i');
