@@ -27,3 +27,10 @@ diversa) restano senza allenamento.
 `unitypack.js` legge e scrive UnityWebData1.0 e bundle UnityFS (blocchi LZ4
 in lettura, non compressi in scrittura: il brotli fa il resto);
 `serialized.js` legge la tabella degli oggetti e ricostruisce il file.
+4. `node build-sizes.js <radice-del-repo>`
+   Rigenera `includes/subway/build_sizes.php` (dimensioni decompresse dei
+   file, usate da subway.js per il progresso del loader). Da rilanciare se
+   si aggiungono o cambiano build.
+
+`htaccess-subway-builds.txt` e' la copia dell'`.htaccess` da mettere in
+`public_html/subway-builds/.htaccess`.

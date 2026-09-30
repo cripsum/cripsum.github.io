@@ -13,13 +13,14 @@ $subwayLang = ($subwayLang ?? 'it') === 'en' ? 'en' : 'it';
 $swT = static fn(string $it, string $en): string => $subwayLang === 'it' ? $it : $en;
 $swE = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-$assetVersion = ['css' => '24.0', 'js' => '24.0', 'profile' => '2.0'];
+$assetVersion = ['css' => '24.0', 'js' => '25.0', 'profile' => '2.0'];
 
 // Il catalogo passa a subway.js cosi' com'e', piu' la base delle build.
 $catalogJson = json_encode([
     'base' => SUBWAY_BUILDS_BASE,
     'trainingModes' => array_keys(SUBWAY_TRAINING_MODES),
     'maps' => subway_catalog(),
+    'sizes' => require __DIR__ . '/build_sizes.php',
 ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
 
 $regions = [

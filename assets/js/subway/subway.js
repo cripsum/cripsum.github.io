@@ -13,11 +13,13 @@
     // Catalogo delle mappe: arriva dalla pagina (includes/subway/catalog.php).
     let buildsBase = '/subway-builds/';
     let maps = [];
+    let buildSizes = {};
     function loadCatalog() {
         try {
             const data = JSON.parse(document.getElementById('subwayCatalog')?.textContent || '{}');
             if (typeof data.base === 'string' && data.base) buildsBase = data.base;
             if (Array.isArray(data.maps)) maps = data.maps;
+            if (data.sizes && typeof data.sizes === 'object') buildSizes = data.sizes;
         } catch (_) {
             maps = [];
         }
@@ -2779,19 +2781,59 @@
         return `${buildsBase}${map.slug}/${map.slug}.${variant}.json`;
     }
 
-    // Il server delle build risponde? Una richiesta leggera sul .json, con
-    // timeout: se fallisce e la mappa ha la vecchia build su jsDelivr, si
-    // gioca da li'.
-    async function buildReachable(url) {
+    // La build c'e' sul server? Una richiesta leggera sul .json, con timeout.
+    // Ritorna lo status HTTP (0 = rete o timeout).
+    async function buildStatus(url) {
         const controller = typeof AbortController === 'function' ? new AbortController() : null;
         const timer = setTimeout(() => controller?.abort(), 6000);
         try {
             const response = await fetch(url, { cache: 'no-cache', signal: controller?.signal });
-            return response.ok;
+            return response.status;
         } catch (_) {
-            return false;
+            return 0;
         } finally {
             clearTimeout(timer);
+        }
+    }
+
+    /*
+     * Il loader Unity 2019 (versione 4399), quando un file arriva senza
+     * Content-Length, cerca "/Build/" nell'URL per ricavare il nome del file e
+     * va in errore a ogni evento di download, anche su quello finale: cosi' la
+     * mappa non partiva mai. Succede con le nostre build, perche' Cloudflare
+     * le ricomprime al volo e toglie Content-Length. Qui l'evento viene
+     * ripassato al loader come se la lunghezza fosse nota, usando la
+     * dimensione decompressa del file dal catalogo.
+     */
+    function patchUnityLoader(map) {
+        const progress = window.UnityLoader?.Progress;
+        if (progress && !progress.__cripsumPatched) {
+            const originalUpdate = progress.update;
+            const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+            progress.update = function (instance, id, event) {
+                let e = event;
+                if (e && typeof e === 'object' && !e.lengthComputable) {
+                    const url = String(e.target?.responseURL || '');
+                    const file = url.split('?')[0].split('/').pop();
+                    const sizes = buildSizes[state.activeMap?.slug] || {};
+                    // Firefox conta i byte compressi, Chrome quelli decompressi.
+                    let total = (sizes[file] || 0) * (isFirefox ? 0.4 : 1);
+                    if (e.type === 'load' || !total) total = Math.max(e.loaded || 0, 1);
+                    e = { type: e.type, target: e.target, lengthComputable: true, loaded: Math.min(e.loaded || 0, total), total };
+                }
+                try {
+                    return originalUpdate.call(this, instance, id, e);
+                } catch (error) {
+                    diag('loader_progress_error', { error: String(error?.message || error).slice(0, 80) });
+                    return undefined;
+                }
+            };
+            Object.defineProperty(progress, '__cripsumPatched', { value: true });
+        }
+        // Il gestore d'errore del loader 4399 chiama questa funzione della
+        // pagina che lo ospitava: senza, ogni errore ne produceva un secondo.
+        if (typeof window.showUnitywebNoSupport !== 'function') {
+            window.showUnitywebNoSupport = () => diag('unityweb_no_support', { map: map.slug });
         }
     }
 
@@ -2821,9 +2863,18 @@
             let runtimePkg = RUNTIME_PKG;
             let loader = RUNTIME_LOADER;
             let bootstrap = RUNTIME_BOOTSTRAP;
-            if (!(await buildReachable(configUrl))) {
+            const status = await buildStatus(configUrl);
+            if (status !== 200) {
+                if (status === 404 && mode !== 'original') {
+                    throw new Error(t(
+                        `L'allenamento su ${map.name} non è ancora disponibile. Prova la modalità Classifica o un'altra mappa.`,
+                        `Training on ${map.name} is not available yet. Try Ranked mode or another map.`
+                    ));
+                }
                 if (mode !== 'original' || !map.legacy) {
-                    throw new Error(t('Il server delle build non risponde. Riprova tra poco.', 'The build server is not responding. Try again shortly.'));
+                    throw new Error(status === 404
+                        ? t(`${map.name} non è ancora disponibile. Riprova più tardi.`, `${map.name} is not available yet. Try again later.`)
+                        : t('Il server delle build non risponde. Riprova tra poco.', 'The build server is not responding. Try again shortly.'));
                 }
                 // Vecchia build su jsDelivr: piu' pesante, ma sempre raggiungibile.
                 configUrl = packageUrl(map.legacy.pkg, map.legacy.build);
@@ -2831,7 +2882,7 @@
                 loader = map.legacy.loader;
                 bootstrap = map.legacy.bootstrap;
                 bootLog(t('Server delle build non raggiungibile: uso la copia di riserva.', 'Build server unreachable: using the backup copy.'));
-                diag('launch_fallback', { map: map.slug });
+                diag('launch_fallback', { map: map.slug, status });
             }
             bootLog(`${map.name} · ${modeLabel(mode)}`);
 
@@ -2844,6 +2895,7 @@
             }
             await loadScript(packageUrl(runtimePkg, loader));
             if (!window.UnityLoader?.instantiate) throw new Error('UnityLoader non inizializzato');
+            patchUnityLoader(map);
 
             if (!window.CripsumSubwayProfile) throw new Error('Profilo Subway non disponibile');
             const preparedProfile = await window.CripsumSubwayProfile.prepare();

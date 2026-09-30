@@ -1,0 +1,46 @@
+# Build di Subway Surfers, gia' compresse in brotli (stessi nomi dei file
+# originali). Il server le manda cosi' come sono con Content-Encoding: br e il
+# browser le decomprime da solo: niente decompressione in JavaScript, e il
+# file scaricato pesa circa un quinto.
+#
+# Va nella cartella radice delle build (quella che contiene shared/ e le
+# cartelle delle mappe). Se il server non applicasse queste regole, Unity
+# riceverebbe byte compressi e il caricamento fallirebbe: dopo il caricamento
+# controllare gli header (vedi le istruzioni nella chat).
+
+Options -Indexes
+
+# Senza <IfModule>: su Hostinger (LiteSpeed) il blocco mod_mime veniva
+# ignorato e i .unityweb uscivano come text/plain, che Cloudflare ricomprime.
+AddType application/octet-stream .unityweb
+AddType application/json .json
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.unityweb$">
+        Header set Content-Type application/octet-stream
+        Header set Content-Encoding br
+        Header merge Vary Accept-Encoding
+        # I file di una build non cambiano mai: un anno di cache, anche su
+        # Cloudflare. no-transform: Cloudflare non deve ricomprimerli (se lo fa
+        # toglie Content-Length e il file pesa di piu').
+        Header set Cache-Control "public, max-age=31536000, immutable, no-transform"
+    </FilesMatch>
+
+    # Il codice wasm con il suo tipo vero.
+    <FilesMatch "(wasm_code_shared(_[0-9])?|\.wasm\.code)\.unityweb$">
+        Header set Content-Type application/wasm
+    </FilesMatch>
+
+    <FilesMatch "\.json$">
+        Header set Cache-Control "public, max-age=3600"
+    </FilesMatch>
+
+    # Serve solo se le build finiscono su un sottodominio (es. builds.cripsum.com).
+    Header set Access-Control-Allow-Origin "https://cripsum.com"
+</IfModule>
+
+# Niente ricompressione al volo sopra al brotli gia' fatto.
+<FilesMatch "\.unityweb$">
+    SetEnv no-gzip 1
+    SetEnv no-brotli 1
+</FilesMatch>
