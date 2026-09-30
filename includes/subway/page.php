@@ -13,7 +13,7 @@ $subwayLang = ($subwayLang ?? 'it') === 'en' ? 'en' : 'it';
 $swT = static fn(string $it, string $en): string => $subwayLang === 'it' ? $it : $en;
 $swE = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-$assetVersion = ['css' => '25.0', 'js' => '27.0', 'profile' => '2.0'];
+$assetVersion = ['css' => '25.0', 'js' => '28.0', 'profile' => '2.0'];
 
 // Il catalogo passa a subway.js cosi' com'e', piu' la base delle build e
 // l'immagine della card per le mappe che ce l'hanno in img/subway/ (vedi

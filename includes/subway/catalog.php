@@ -17,6 +17,17 @@
 // cartella locale da cui si caricano i file).
 const SUBWAY_BUILDS_BASE = '/subway-builds-br/';
 
+/*
+ * Il framework (il JavaScript del motore) deve essere quello compilato insieme
+ * al wasm della mappa: con quello "condiviso" dei .json il wasm di quasi tutte
+ * le mappe non si collegava (LinkError: tabella 125739 invece di 126009, e
+ * funzioni mancanti). Abbinamenti trovati confrontando gli hash dei wasm con
+ * quelli dei pacchetti jsDelivr, che hanno ciascuno il proprio framework.
+ * Percorso relativo alla base delle build, oppure URL completo.
+ */
+const SUBWAY_FW_SHARED1 = 'cairo/cairo.alt.wasm.framework.unityweb';   // wasm_code_shared (= Beijing_2)
+const SUBWAY_FW_SHARED2 = 'https://cdn.jsdelivr.net/npm/subwaymexico@1.0.0/Build/Mexico/Mexico3.wasm.framework.unityweb';   // wasm_code_shared_2 e Winter Holiday (= Mexico3)
+
 // Modi di allenamento: chiave => suffisso dei file.
 const SUBWAY_TRAINING_MODES = [
     'training' => 'training',
@@ -32,48 +43,48 @@ function subway_catalog(): array
     $v2Loader = 'loaders/v2/unity/static/UnityLoader.2019.2.js';
 
     return [
-        ['slug' => 'london', 'name' => 'London', 'region' => 'europe', 'mb' => 21, 'training' => true, 'hue' => 350,
+        ['slug' => 'london', 'name' => 'London', 'region' => 'europe', 'mb' => 21, 'training' => true, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 350,
             'legacy' => $legacy('subwaylondon@1.0.0', 'Build/London.json')],
-        ['slug' => 'saintpetersburg', 'name' => 'Saint Petersburg', 'region' => 'europe', 'mb' => 21, 'training' => true, 'hue' => 205,
+        ['slug' => 'saintpetersburg', 'name' => 'Saint Petersburg', 'region' => 'europe', 'mb' => 21, 'training' => true, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 205,
             'legacy' => $legacy('subwaystpetersburg@1.0.0', 'Build/StPetersburg.json', $v2Loader)],
-        ['slug' => 'iceland', 'name' => 'Iceland', 'region' => 'europe', 'mb' => 21, 'training' => true, 'hue' => 190,
+        ['slug' => 'iceland', 'name' => 'Iceland', 'region' => 'europe', 'mb' => 21, 'training' => true, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 190,
             'legacy' => $legacy('subwayiceland@1.0.0', 'Build/Iceland/Iceland_1.json')],
-        ['slug' => 'barcelona', 'name' => 'Barcelona', 'region' => 'europe', 'mb' => 20, 'training' => true, 'hue' => 25],
-        ['slug' => 'berlin', 'name' => 'Berlin', 'region' => 'europe', 'mb' => 22, 'training' => false, 'hue' => 45,
+        ['slug' => 'barcelona', 'name' => 'Barcelona', 'region' => 'europe', 'mb' => 20, 'training' => true, 'framework' => SUBWAY_FW_SHARED2, 'hue' => 25],
+        ['slug' => 'berlin', 'name' => 'Berlin', 'region' => 'europe', 'mb' => 22, 'training' => false, 'framework' => 'https://cdn.jsdelivr.net/npm/subwayberlin@1.0.0/Build/Berlin.wasm.framework.unityweb', 'hue' => 45,
             'legacy' => $legacy('subwayberlin@1.0.0', 'Build/Berlin.json')],
         ['slug' => 'monaco', 'name' => 'Monaco', 'region' => 'europe', 'mb' => 21, 'training' => false, 'hue' => 330,
             'legacy' => $legacy('subwaymonaco@1.1.0', 'Build/Monaco.json')],
         ['slug' => 'moscow', 'name' => 'Moscow', 'region' => 'europe', 'mb' => 20, 'training' => false, 'hue' => 5],
         ['slug' => 'paris', 'name' => 'Paris', 'region' => 'europe', 'mb' => 20, 'training' => false, 'hue' => 225],
-        ['slug' => 'venice', 'name' => 'Venice', 'region' => 'europe', 'mb' => 24, 'training' => false, 'hue' => 170],
-        ['slug' => 'zurich', 'name' => 'Zurich', 'region' => 'europe', 'mb' => 22, 'training' => false, 'hue' => 0,
+        ['slug' => 'venice', 'name' => 'Venice', 'region' => 'europe', 'mb' => 24, 'training' => false, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 170],
+        ['slug' => 'zurich', 'name' => 'Zurich', 'region' => 'europe', 'mb' => 22, 'training' => false, 'framework' => 'https://cdn.jsdelivr.net/npm/subwayzurich@1.1.3/Build/ZurichNewPrivacy.wasm.framework.unityweb', 'hue' => 0,
             'legacy' => $legacy('subwayzurich@1.1.3', 'Build/ZurichNewPrivacy.json')],
 
-        ['slug' => 'neworleans', 'name' => 'New Orleans', 'region' => 'america', 'mb' => 21, 'training' => true, 'hue' => 275,
+        ['slug' => 'neworleans', 'name' => 'New Orleans', 'region' => 'america', 'mb' => 21, 'training' => true, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 275,
             'legacy' => $legacy('subwayneworleans@1.0.0', 'Build/NewOrleans.json')],
-        ['slug' => 'havana', 'name' => 'Havana', 'region' => 'america', 'mb' => 21, 'training' => true, 'hue' => 15,
+        ['slug' => 'havana', 'name' => 'Havana', 'region' => 'america', 'mb' => 21, 'training' => true, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 15,
             'legacy' => $legacy('subwayhavana@2.0.0', 'Build/Havana_4.json', $v2Loader)],
-        ['slug' => 'buenosaires', 'name' => 'Buenos Aires', 'region' => 'america', 'mb' => 21, 'training' => true, 'hue' => 200],
-        ['slug' => 'mexico', 'name' => 'Mexico', 'region' => 'america', 'mb' => 21, 'training' => true, 'hue' => 140,
+        ['slug' => 'buenosaires', 'name' => 'Buenos Aires', 'region' => 'america', 'mb' => 21, 'training' => true, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 200],
+        ['slug' => 'mexico', 'name' => 'Mexico', 'region' => 'america', 'mb' => 21, 'training' => true, 'framework' => SUBWAY_FW_SHARED2, 'hue' => 140,
             'legacy' => $legacy('subwaymexico@1.0.0', 'Build/Mexico/Mexico3.json', 'UnityLoader.2019.2.js', 'subwaySurf14.08.js')],
         ['slug' => 'miami', 'name' => 'Miami', 'region' => 'america', 'mb' => 26, 'training' => true, 'hue' => 310,
             'legacy' => $legacy('subwaymiami@1.0.0', 'Build/Miami/subway_miami_v1.json', 'UnityLoader.2019.2.js', null)],
-        ['slug' => 'houston', 'name' => 'Houston', 'region' => 'america', 'mb' => 21, 'training' => false, 'hue' => 30,
+        ['slug' => 'houston', 'name' => 'Houston', 'region' => 'america', 'mb' => 21, 'training' => false, 'framework' => 'https://cdn.jsdelivr.net/npm/subwayhouston@1.1.0/Build/Houston/Houston.wasm.framework.unityweb', 'hue' => 30,
             'legacy' => $legacy('subwayhouston@1.1.0', 'Build/Houston/Houston.json', 'UnityLoader.2019.2.js', '4399.sf.js')],
         ['slug' => 'sanfrancisco', 'name' => 'San Francisco', 'region' => 'america', 'mb' => 21, 'training' => false, 'hue' => 12,
             'legacy' => $legacy('subwaysanfrancisco@1.0.0', 'Build/SanFrancisco.json')],
-        ['slug' => 'newyork', 'name' => 'New York', 'region' => 'america', 'mb' => 22, 'training' => false, 'hue' => 215],
-        ['slug' => 'rio', 'name' => 'Rio', 'region' => 'america', 'mb' => 24, 'training' => false, 'hue' => 95],
+        ['slug' => 'newyork', 'name' => 'New York', 'region' => 'america', 'mb' => 22, 'training' => false, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 215],
+        ['slug' => 'rio', 'name' => 'Rio', 'region' => 'america', 'mb' => 24, 'training' => false, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 95],
 
-        ['slug' => 'beijing', 'name' => 'Beijing', 'region' => 'asia', 'mb' => 22, 'training' => true, 'hue' => 0,
+        ['slug' => 'beijing', 'name' => 'Beijing', 'region' => 'asia', 'mb' => 22, 'training' => true, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 0,
             'legacy' => $legacy('subwaybeijing@1.0.0', 'Build/Beijing_2.json', $v2Loader)],
-        ['slug' => 'hongkong', 'name' => 'Hong Kong', 'region' => 'asia', 'mb' => 24, 'training' => false, 'hue' => 320],
-        ['slug' => 'tokyo', 'name' => 'Tokyo', 'region' => 'asia', 'mb' => 24, 'training' => false, 'hue' => 340],
+        ['slug' => 'hongkong', 'name' => 'Hong Kong', 'region' => 'asia', 'mb' => 24, 'training' => false, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 320],
+        ['slug' => 'tokyo', 'name' => 'Tokyo', 'region' => 'asia', 'mb' => 24, 'training' => false, 'framework' => SUBWAY_FW_SHARED1, 'hue' => 340],
         ['slug' => 'bangkok', 'name' => 'Bangkok', 'region' => 'asia', 'mb' => 50, 'training' => false, 'hue' => 50, 'beta' => true],
 
         ['slug' => 'cairo', 'name' => 'Cairo', 'region' => 'africa', 'mb' => 19, 'training' => false, 'hue' => 40],
 
-        ['slug' => 'winterholiday', 'name' => 'Winter Holiday', 'region' => 'event', 'mb' => 22, 'training' => true, 'hue' => 185,
+        ['slug' => 'winterholiday', 'name' => 'Winter Holiday', 'region' => 'event', 'mb' => 22, 'training' => true, 'framework' => SUBWAY_FW_SHARED2, 'hue' => 185,
             'legacy' => $legacy('subwaywinterholiday@1.0.0', 'Build/WinterHoliday/WinterHoliday.json', 'UnityLoader.2019.2.js', 'subwaySurf14.08.js')],
     ];
 }

@@ -2867,8 +2867,9 @@
                     const url = String(e.target?.responseURL || '');
                     const file = url.split('?')[0].split('/').pop();
                     const sizes = buildSizes[state.activeMap?.slug] || {};
+                    const size = sizes[file] || Object.values(buildSizes).find(other => other?.[file])?.[file] || 0;
                     // Firefox conta i byte compressi, Chrome quelli decompressi.
-                    let total = (sizes[file] || 0) * (isFirefox ? 0.4 : 1);
+                    let total = size * (isFirefox ? 0.4 : 1);
                     if (e.type === 'load' || !total) total = Math.max(e.loaded || 0, 1);
                     e = { type: e.type, target: e.target, lengthComputable: true, loaded: Math.min(e.loaded || 0, total), total };
                 }
@@ -2904,6 +2905,15 @@
                 ['dataUrl', 'wasmCodeUrl', 'wasmFrameworkUrl', 'asmCodeUrl', 'asmFrameworkUrl', 'asmMemoryUrl'].forEach(key => {
                     if (typeof module?.[key] === 'string') module[key] = module[key].split('?')[0];
                 });
+                // Il framework compilato con il wasm di questa mappa (vedi
+                // catalog.php): quello indicato nel .json spesso non combacia.
+                const framework = state.activeFramework;
+                if (framework && module) {
+                    module.wasmFrameworkUrl = /^https?:\/\//.test(framework)
+                        ? framework
+                        : new URL(buildsBase + framework, location.origin).href;
+                    diag('framework', { file: module.wasmFrameworkUrl.split('/').pop() });
+                }
                 return originalLoadModule.call(this, module, ...rest);
             };
             Object.defineProperty(loader.loadModule, '__cripsumPatched', { value: true });
@@ -2976,6 +2986,7 @@
             }
             await loadScript(packageUrl(runtimePkg, loader));
             if (!window.UnityLoader?.instantiate) throw new Error('UnityLoader non inizializzato');
+            state.activeFramework = legacyBuild ? null : (map.framework || null);
             patchUnityLoader(map, legacyBuild);
 
             if (!window.CripsumSubwayProfile) throw new Error('Profilo Subway non disponibile');
