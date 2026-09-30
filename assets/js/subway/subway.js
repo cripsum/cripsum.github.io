@@ -14,12 +14,14 @@
     let buildsBase = '/subway-builds-br/';
     let maps = [];
     let buildSizes = {};
+    let legacyOnly = false;
     function loadCatalog() {
         try {
             const data = JSON.parse(document.getElementById('subwayCatalog')?.textContent || '{}');
             if (typeof data.base === 'string' && data.base) buildsBase = data.base;
             if (Array.isArray(data.maps)) maps = data.maps;
             if (data.sizes && typeof data.sizes === 'object') buildSizes = data.sizes;
+            legacyOnly = data.legacyOnly === true;
         } catch (_) {
             maps = [];
         }
@@ -627,6 +629,11 @@
 
     function bindLobby() {
         loadLobbyState();
+        // Senza mappe di allenamento la modalita' salvata non ha senso.
+        if (!maps.some(map => map.training)) {
+            lobby.mode = 'original';
+            if (lobby.last && lobby.last.mode !== 'original') lobby.last = null;
+        }
         bindRadioGroup('[data-mode]', button => {
             lobby.mode = button.dataset.mode === 'training' ? 'training' : 'original';
             saveLobbyState();
@@ -2953,8 +2960,9 @@
             let loader = RUNTIME_LOADER;
             let bootstrap = null;
             let legacyBuild = false;
-            const status = await buildStatus(configUrl);
-            if (status !== 200) {
+            // Build nuove spente (catalog.php): si va dritti alla vecchia build.
+            const status = legacyOnly ? 0 : await buildStatus(configUrl);
+            if (legacyOnly || status !== 200) {
                 if (status === 404 && mode !== 'original') {
                     throw new Error(t(
                         `L'allenamento su ${map.name} non è ancora disponibile. Prova la modalità Classifica o un'altra mappa.`,
@@ -2972,7 +2980,7 @@
                 loader = map.legacy.loader;
                 bootstrap = map.legacy.bootstrap;
                 legacyBuild = true;
-                bootLog(t('Server delle build non raggiungibile: uso la copia di riserva.', 'Build server unreachable: using the backup copy.'));
+                if (!legacyOnly) bootLog(t('Server delle build non raggiungibile: uso la copia di riserva.', 'Build server unreachable: using the backup copy.'));
                 diag('launch_fallback', { map: map.slug, status });
             }
             bootLog(`${map.name} · ${modeLabel(mode)}`);

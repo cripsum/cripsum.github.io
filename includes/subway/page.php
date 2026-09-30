@@ -13,7 +13,7 @@ $subwayLang = ($subwayLang ?? 'it') === 'en' ? 'en' : 'it';
 $swT = static fn(string $it, string $en): string => $subwayLang === 'it' ? $it : $en;
 $swE = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-$assetVersion = ['css' => '25.0', 'js' => '28.0', 'profile' => '2.0'];
+$assetVersion = ['css' => '25.0', 'js' => '29.0', 'profile' => '2.0'];
 
 // Il catalogo passa a subway.js cosi' com'e', piu' la base delle build e
 // l'immagine della card per le mappe che ce l'hanno in img/subway/ (vedi
@@ -24,10 +24,13 @@ $subwayMaps = array_map(static function (array $map): array {
         $map['image'] = '/img/subway/' . $map['slug'] . '.webp?v=' . filemtime($file);
     }
     return $map;
-}, subway_catalog());
+}, subway_catalog_active());
+$subwayHasTraining = (bool)array_filter($subwayMaps, static fn(array $map): bool => !empty($map['training']));
+$subwayMb = $subwayMaps ? (int)round(array_sum(array_column($subwayMaps, 'mb')) / count($subwayMaps)) : 20;
 
 $catalogJson = json_encode([
     'base' => SUBWAY_BUILDS_BASE,
+    'legacyOnly' => !SUBWAY_NEW_BUILDS,
     'trainingModes' => array_keys(SUBWAY_TRAINING_MODES),
     'maps' => $subwayMaps,
     'sizes' => require __DIR__ . '/build_sizes.php',
@@ -41,6 +44,13 @@ $regions = [
     'africa' => $swT('Africa', 'Africa'),
     'event' => $swT('Eventi', 'Events'),
 ];
+// Solo le regioni che hanno almeno una mappa (con le sole build vecchie
+// l'Africa resterebbe vuota).
+$regions = array_filter(
+    $regions,
+    static fn(string $key): bool => $key === 'all' || in_array($key, array_column($subwayMaps, 'region'), true),
+    ARRAY_FILTER_USE_KEY
+);
 
 $trainingModes = [
     'training' => [$swT('Standard', 'Standard'), $swT('Percorsi di allenamento', 'Training patterns')],
@@ -222,10 +232,11 @@ $keybinds = [
                     <div>
                         <h2 id="subwayMapsTitle"><?= $swT('Scegli la mappa', 'Choose a map') ?></h2>
                         <p class="game-hint" id="subwayMapsHint"><?= $swT(
-                            'Circa 20 MB a mappa: dalla seconda volta si apre molto prima.',
-                            'About 20 MB per map: from the second time on it opens much faster.'
+                            "Circa {$subwayMb} MB a mappa: dalla seconda volta si apre molto prima.",
+                            "About {$subwayMb} MB per map: from the second time on it opens much faster."
                         ) ?></p>
                     </div>
+                    <?php if ($subwayHasTraining): ?>
                     <div class="sw-mode" role="radiogroup" aria-label="<?= $swT('Modalità', 'Mode') ?>">
                         <button type="button" role="radio" aria-checked="true" class="is-active" data-mode="original">
                             <i class="fa-solid fa-trophy"></i> <?= $swT('Classifica', 'Ranked') ?>
@@ -234,8 +245,10 @@ $keybinds = [
                             <i class="fa-solid fa-dumbbell"></i> <?= $swT('Allenamento', 'Training') ?>
                         </button>
                     </div>
+                    <?php endif; ?>
                 </div>
 
+                <?php if ($subwayHasTraining): ?>
                 <div class="sw-training-bar" id="subwayTrainingBar" hidden>
                     <div class="sw-chips" role="radiogroup" aria-label="<?= $swT('Tipo di allenamento', 'Training type') ?>">
                         <?php foreach ($trainingModes as $key => [$label, $desc]): ?>
@@ -247,6 +260,7 @@ $keybinds = [
                         'Training runs do not count for the leaderboard. Available on maps with the badge.'
                     ) ?></p>
                 </div>
+                <?php endif; ?>
 
                 <div class="sw-toolbar">
                     <label class="sw-search">
