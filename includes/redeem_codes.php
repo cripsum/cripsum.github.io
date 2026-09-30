@@ -195,6 +195,12 @@ function cripsum_redeem_codes(): array
             'starts_at' => '2026-09-24 00:00:01',
             'active' => true,
         ],
+        'wsossio' => [
+            'tipo' => 'punti',
+            'punti' => 2000,
+            'descrizione' => ['it' => 'W SOSSIO W SOSSIO +2000 GODOS', 'en' => 'W SOSSIO W SOSSIO +2000 GODOS'],
+            'active' => true,
+        ],
     ];
 }
 
