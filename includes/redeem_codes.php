@@ -201,6 +201,12 @@ function cripsum_redeem_codes(): array
             'descrizione' => ['it' => 'W SOSSIO W SOSSIO +2000 GODOS', 'en' => 'W SOSSIO W SOSSIO +2000 GODOS'],
             'active' => true,
         ],
+        'wpoppy' => [
+            'tipo' => 'punti',
+            'punti' => 2000,
+            'descrizione' => ['it' => 'W POPPY W POPPY +2000 GODOS', 'en' => 'W POPPY W POPPY +2000 GODOS'],
+            'active' => true,
+        ],
     ];
 }
 
