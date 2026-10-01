@@ -130,7 +130,7 @@ function mission_event_exists(string $evento): bool
  * @param int    $quantita  Incremento (default 1)
  * @return array            Missioni appena completate [{user_mission_id, titolo, punti_reward}]
  */
-function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $quantita = 1): array
+function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $quantita = 1, bool $contaStatistiche = true): array
 {
     // ── Guardie ───────────────────────────────────────────────
     if ($userId <= 0 || $quantita <= 0) {
@@ -146,7 +146,13 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
     // Aggangiate qui e non nei singoli file: ogni chiamata al tracker delle
     // missioni alimenta anche le statistiche annuali, senza toccare i quindici
     // punti del sito che già invocano questa funzione.
-    trackStatsForMissionEvent($mysqli, $userId, $evento, $quantita);
+    //
+    // `$contaStatistiche = false` serve quando la stessa azione fa avanzare
+    // due eventi (uno shitpost è anche un post): le missioni di entrambi
+    // avanzano, il Rewind la conta una volta sola.
+    if ($contaStatistiche) {
+        trackStatsForMissionEvent($mysqli, $userId, $evento, $quantita);
+    }
 
     // Inizializza le missioni per oggi/questa settimana se non ancora fatto in
     // questa sessione.

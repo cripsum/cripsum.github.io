@@ -99,12 +99,17 @@ try {
     // ── Missioni e statistiche ───────────────────────────────────────────
     // Conta la pubblicazione, non l'approvazione: l'utente ha fatto la sua
     // parte, e non deve aspettare un admin per vedersi avanzare la missione.
+    //
+    // «Pubblica 1 post» (create_post) vale per qualsiasi post. Prima uno
+    // shitpost faceva scattare solo create_shitpost, e quella missione
+    // avanzava soltanto con un Top Rimasti.
     try {
-        trackMissionProgress(
-            $mysqli,
-            (int)$user['id'],
-            $type === 'shitpost' ? 'create_shitpost' : 'create_post'
-        );
+        if ($type === 'shitpost') {
+            trackMissionProgress($mysqli, (int)$user['id'], 'create_shitpost');
+            trackMissionProgress($mysqli, (int)$user['id'], 'create_post', 1, false);
+        } else {
+            trackMissionProgress($mysqli, (int)$user['id'], 'create_post');
+        }
     } catch (Throwable $trackErr) {
         error_log('[MissionTracking create_post] ' . $trackErr->getMessage());
     }

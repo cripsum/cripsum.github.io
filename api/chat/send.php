@@ -131,16 +131,12 @@ if ($messageId <= 0) {
 try {
     trackMissionProgress($mysqli, $userId, 'send_message');
 
-    // Chat globale: traccia separatamente se il file è dentro la cartella /chat/global
-    // oppure se il tuo bootstrap espone un flag $isChatGlobal
-    if (defined('IS_GLOBAL_CHAT') && IS_GLOBAL_CHAT) {
-        trackMissionProgress($mysqli, $userId, 'use_global_chat');
-    }
-
-    // Statistiche Rewind: questo endpoint scrive sempre sulla tabella
-    // `messages`, cioè la chat globale, a prescindere da IS_GLOBAL_CHAT
-    // (che resta indefinito in parecchi punti di ingresso).
-    stats_track($mysqli, $userId, 'msg_global');
+    // Questo endpoint scrive sempre sulla tabella `messages`, cioè la chat
+    // globale. Prima `use_global_chat` partiva solo con la costante
+    // IS_GLOBAL_CHAT, che nessun file ha mai definito: le missioni «usa la
+    // chat globale» non avanzavano mai. L'evento porta con sé anche la
+    // statistica `msg_global` del Rewind, che prima si contava qui a mano.
+    trackMissionProgress($mysqli, $userId, 'use_global_chat');
 } catch (Throwable $trackErr) {
     error_log('[MissionTracking send.php] ' . $trackErr->getMessage());
 }
