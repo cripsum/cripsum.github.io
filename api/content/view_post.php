@@ -1,38 +1,59 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 
+/*
+ * Conta le visualizzazioni dei post.
+ *
+ * La pagina manda `ids` con tutti i post visti negli ultimi istanti, cosi' una
+ * sola richiesta (e una sola connessione al database) copre tutto lo
+ * scorrimento. `id` singolo resta accettato: lo mandano ancora le pagine
+ * rimaste aperte con il vecchio script.
+ */
 try {
     $input = cv2_input();
     $type = cv2_normalize_type((string)($input['type'] ?? 'shitpost'));
     $meta = cv2_meta($type);
-    $id = (int)($input['id'] ?? 0);
 
-    if ($id <= 0) cv2_ok();
+    $ids = [];
+    if (is_array($input['ids'] ?? null)) {
+        foreach ($input['ids'] as $value) {
+            $ids[] = (int)$value;
+        }
+    }
+    $ids[] = (int)($input['id'] ?? 0);
+    $ids = array_slice(array_values(array_unique(array_filter($ids, static fn($id) => $id > 0))), 0, 50);
 
-    if (cv2_table_exists($mysqli, 'content_views')) {
-        $userId = (int)($currentUser['id'] ?? 0) ?: null;
-        $ip = cv2_client_ip();
+    if (!$ids) cv2_ok();
 
-        $stmt = $mysqli->prepare("INSERT IGNORE INTO content_views (content_type, post_id, user_id, ip_address, created_at) VALUES (?, ?, ?, ?, NOW())");
-        if ($stmt) {
-            $stmt->bind_param('siis', $type, $id, $userId, $ip);
-            $stmt->execute();
-            $inserted = $stmt->affected_rows > 0;
-            $stmt->close();
+    $hasViewsTable = cv2_table_exists($mysqli, 'content_views');
+    $hasViewsColumn = cv2_column_exists($mysqli, $meta['table'], 'views');
+    $userId = (int)($currentUser['id'] ?? 0) ?: null;
+    $ip = cv2_client_ip();
 
-            if (!$inserted) cv2_ok();
+    $insert = $hasViewsTable
+        ? $mysqli->prepare("INSERT IGNORE INTO content_views (content_type, post_id, user_id, ip_address, created_at) VALUES (?, ?, ?, ?, NOW())")
+        : null;
+    $update = $hasViewsColumn
+        ? $mysqli->prepare('UPDATE ' . cv2_qcol($meta['table']) . ' SET `views` = COALESCE(`views`, 0) + 1 WHERE id = ? LIMIT 1')
+        : null;
+
+    foreach ($ids as $id) {
+        if ($insert) {
+            $insert->bind_param('siis', $type, $id, $userId, $ip);
+            $insert->execute();
+
+            // Gia' contata per questo utente/indirizzo: il contatore non sale.
+            if ($insert->affected_rows <= 0) continue;
+        }
+
+        if ($update) {
+            $update->bind_param('i', $id);
+            $update->execute();
         }
     }
 
-    if (cv2_column_exists($mysqli, $meta['table'], 'views')) {
-        $table = cv2_qcol($meta['table']);
-        $stmt = $mysqli->prepare("UPDATE $table SET `views` = COALESCE(`views`, 0) + 1 WHERE id = ? LIMIT 1");
-        if ($stmt) {
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
-            $stmt->close();
-        }
-    }
+    if ($insert) $insert->close();
+    if ($update) $update->close();
 
     cv2_ok();
 } catch (Throwable $e) {

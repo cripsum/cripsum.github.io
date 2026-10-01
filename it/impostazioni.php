@@ -83,6 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt) {
             $stmt->bind_param('iii', $useAvatar, $useDisplayName, $userId);
             if ($stmt->execute()) {
+                // Passare dalla foto del sito a quella di Discord (o viceversa)
+                // cambia l'avatar: get_pfp.php deve dimenticare il vecchio.
+                require_once __DIR__ . '/../includes/avatar_fastcache.php';
+                avatar_fastcache_bump((int)$userId);
                 $success = 'Impostazioni Discord aggiornate con successo.';
             } else {
                 $error = 'Errore durante l’aggiornamento.';

@@ -43,6 +43,10 @@ try {
     if (!$stmt->execute()) admin_fail('Non sono riuscito a modificare lo shitpost.', 500);
     $stmt->close();
 
+    // Dopo una modifica la copia su file dell'immagine si rifa' da capo.
+    require_once __DIR__ . '/../../includes/content_media_cache.php';
+    content_media_cache_forget('shitpost', $id);
+
     admin_log($mysqli, (int)$adminUser['id'], 'update_shitpost', null, ['post_id' => $id, 'title' => $title]);
     admin_ok(['message' => 'Shitpost aggiornato.']);
 } catch (Throwable $e) {

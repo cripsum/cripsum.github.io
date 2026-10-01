@@ -38,6 +38,10 @@ RewriteRule ^uploads/avatar_cache/meta(?:/|$) - [F,L,NC]
 # api/shop/download.php, che conta i download e fa avanzare le missioni.
 RewriteRule ^uploads/downloads(?:/|$) - [F,L,NC]
 
+# Copie su file delle immagini dei post: escono solo da api/content/media.php,
+# che rispetta la scadenza e non le serve piu' se il post e' stato tolto.
+RewriteRule ^uploads/content_cache(?:/|$) - [F,L,NC]
+
 # Foto delle candidature per Chi siamo: le vede solo il pannello, da
 # api/admin/chisiamo.php. Diventano pubbliche solo se la candidatura passa.
 RewriteRule ^uploads/candidature(?:/|$) - [F,L,NC]

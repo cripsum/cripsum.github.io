@@ -95,6 +95,10 @@ function cripsum_delete_community_post(mysqli $mysqli, string $type, int $postId
 
         $mysqli->commit();
 
+        // La copia su file dell'immagine non deve sopravvivere al post.
+        require_once __DIR__ . '/content_media_cache.php';
+        content_media_cache_forget($type, $postId);
+
         $result['ok'] = true;
         $result['deleted'] = $deleted > 0;
 

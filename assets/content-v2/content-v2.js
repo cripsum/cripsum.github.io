@@ -848,6 +848,42 @@
         }
     };
 
+    // Le visualizzazioni partono a gruppi. Prima ogni post che entrava nello
+    // schermo faceva la sua richiesta: aprendo la pagina ne partivano tante
+    // insieme, ognuna con una connessione al database, e l'hosting ne regge
+    // poche alla volta.
+    let pendingViews = [];
+    let viewTimer = null;
+
+    const flushViews = () => {
+        if (viewTimer) {
+            clearTimeout(viewTimer);
+            viewTimer = null;
+        }
+        if (!pendingViews.length) return;
+
+        const ids = pendingViews;
+        pendingViews = [];
+        api('view_post.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, ids }),
+            keepalive: true,
+        }).catch(() => {});
+    };
+
+    const queueView = (id) => {
+        pendingViews.push(id);
+        if (pendingViews.length >= 25) {
+            flushViews();
+        } else if (!viewTimer) {
+            viewTimer = setTimeout(flushViews, 1500);
+        }
+    };
+
+    // Chi chiude la pagina subito dopo aver letto non perde il conteggio.
+    window.addEventListener('pagehide', flushViews);
+
     const observeViews = () => {
         if (!('IntersectionObserver' in window)) return;
 
@@ -859,11 +895,7 @@
                 if (!id || state.viewed.has(id)) return;
 
                 state.viewed.add(id);
-                api('view_post.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type, id }),
-                }).catch(() => {});
+                queueView(id);
 
                 observer.unobserve(entry.target);
             });

@@ -101,6 +101,10 @@ try {
     if (!$stmt->execute()) throw new RuntimeException('Failed to save Discord information.');
     $stmt->close();
 
+    // Account Discord nuovo (o ricollegato): l'avatar puo' cambiare.
+    require_once __DIR__ . '/../includes/avatar_fastcache.php';
+    avatar_fastcache_bump((int)$targetUserId);
+
     profile_record_activity($mysqli, $targetUserId, 'discord', 'Connected Discord');
     notifyDiscordSiteLogs('discord_connect', 'Account Discord Collegato', "L'utente ha collegato con successo il suo account Discord **{$discordUsername}**.", [], $targetUserId, $discordId);
     $_SESSION['profile_flash_success'] = 'Discord connected.';

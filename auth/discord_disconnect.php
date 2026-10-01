@@ -64,6 +64,11 @@ $stmt->bind_param('i', $targetUserId);
 $disconnected = $stmt->execute();
 $stmt->close();
 
+// Senza Discord l'avatar torna quello del sito: get_pfp.php deve dimenticare
+// il reindirizzamento che ricordava.
+require_once __DIR__ . '/../includes/avatar_fastcache.php';
+avatar_fastcache_bump((int)$targetUserId);
+
 if (!$disconnected) {
     if ($expectsJson) {
         profile_json_response(['ok' => false, 'message' => 'Unable to disconnect Discord. Please try again.'], 500);

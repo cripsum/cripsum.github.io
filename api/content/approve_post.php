@@ -25,6 +25,10 @@ try {
     if (!$stmt->execute()) cv2_fail('Non sono riuscito ad aggiornare lo stato.', 500);
     $stmt->close();
 
+    // Un post nascosto non deve restare leggibile dalla copia su file.
+    require_once __DIR__ . '/../../includes/content_media_cache.php';
+    content_media_cache_forget($type, $id);
+
     cv2_ok(['message' => $approved ? 'Post approvato.' : 'Post nascosto.']);
 } catch (Throwable $e) {
     cv2_fail('Errore approvazione: ' . $e->getMessage(), 500);

@@ -14,6 +14,10 @@ try {
     if (!$stmt->execute()) admin_fail('Non sono riuscito ad aggiornare lo stato.', 500);
     $stmt->close();
 
+    // Un post rimesso in attesa non deve restare leggibile dalla copia su file.
+    require_once __DIR__ . '/../../includes/content_media_cache.php';
+    content_media_cache_forget('rimasto', $id);
+
     if ($approved) {
         try {
             require_once __DIR__ . '/../../includes/discord_notify.php';

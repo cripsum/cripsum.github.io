@@ -62,6 +62,10 @@ try {
     if (!$stmt->execute()) cv2_fail('Non sono riuscito a modificare il post.', 500);
     $stmt->close();
 
+    // Dopo una modifica la copia su file dell'immagine si rifa' da capo.
+    require_once __DIR__ . '/../../includes/content_media_cache.php';
+    content_media_cache_forget($type, $id);
+
     cv2_ok(['message' => 'Post aggiornato.']);
 } catch (Throwable $e) {
     cv2_fail('Errore modifica post: ' . $e->getMessage(), 500);

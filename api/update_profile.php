@@ -485,6 +485,11 @@ try {
     if (!$stmt->execute()) throw new RuntimeException('Error updating profile.');
     $stmt->close();
 
+    // Il salvataggio tocca anche `discord_use_avatar`: l'avatar puo' essere
+    // cambiato, quindi get_pfp.php dimentica quello che ricordava.
+    require_once __DIR__ . '/../includes/avatar_fastcache.php';
+    avatar_fastcache_bump((int)$targetUserId);
+
     if ($isPremium) {
         $layoutSnap = $layoutSnapChoice;
         $cursorEffect = profile_allowed_value((string)($_POST['profile_cursor_effect'] ?? 'none'), ['none', 'follower', 'trail', 'trail_stars', 'cat_follower', 'trail_hearts', 'comet', 'ripple', 'fireflies', 'fireworks', 'bubbles', 'pixels', 'snow'], 'none');
@@ -644,6 +649,11 @@ try {
             $stmt->bind_param('ssi', $relativeUrl, $avatarUpload['mime'], $targetUserId);
             if (!$stmt->execute()) throw new RuntimeException('Error saving avatar.');
             $stmt->close();
+
+            // Le risposte ricordate di get_pfp.php valgono un giorno: senza
+            // questo la foto vecchia resterebbe in giro fino a domani.
+            require_once __DIR__ . '/../includes/avatar_fastcache.php';
+            avatar_fastcache_bump((int)$targetUserId);
 
             if (function_exists('profile_unlock_achievement')) {
                 profile_unlock_achievement($mysqli, $targetUserId, 2);

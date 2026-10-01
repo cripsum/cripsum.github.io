@@ -13,7 +13,14 @@
 // This file must stay dependency free: it is loaded before anything else.
 
 const AVATAR_FASTCACHE_TTL_STAMPED = 604800; // 7 days: the key changes on update
-const AVATAR_FASTCACHE_TTL_PLAIN = 300;      // 5 min when the caller sends no stamp
+// Without a stamp the entry used to live 5 minutes whatever it held. Chat,
+// leaderboard and search ask for avatars that way, so every five minutes a
+// page full of them went back to the database all at once. A stored picture
+// (or the lack of one) now stays for a day, and avatar_fastcache_bump() drops
+// it the moment the user changes it. A Discord redirect keeps the short life:
+// the site cannot know when someone changes picture on Discord.
+const AVATAR_FASTCACHE_TTL_PLAIN = 86400;
+const AVATAR_FASTCACHE_TTL_PLAIN_REDIRECT = 300;
 
 /** Directory holding the lookup records. */
 function avatar_fastcache_dir(): string
@@ -45,6 +52,34 @@ function avatar_fastcache_path(int $userId, int $size, string $stamp, bool $forc
     return $dir . '/' . hash('sha256', $key) . '.json';
 }
 
+/** Marker whose modification time is the last change of a user's avatar. */
+function avatar_fastcache_bump_file(int $userId): string
+{
+    return avatar_fastcache_dir() . '/u' . $userId . '.bump';
+}
+
+/**
+ * Forgets every remembered answer for one user.
+ *
+ * Call it wherever the avatar can change (upload, preset, Discord settings).
+ * Entries are keyed by a hash and cannot be listed per user, so instead of
+ * deleting them a marker is touched: anything written before it is ignored.
+ */
+function avatar_fastcache_bump(int $userId): void
+{
+    if ($userId <= 0) {
+        return;
+    }
+
+    $dir = avatar_fastcache_dir();
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
+        return;
+    }
+
+    @touch(avatar_fastcache_bump_file($userId));
+    clearstatcache(true, avatar_fastcache_bump_file($userId));
+}
+
 /**
  * Returns a remembered answer, or null.
  *
@@ -69,6 +104,13 @@ function avatar_fastcache_get(int $userId, int $size, string $stamp, bool $force
         return null;
     }
     if ((int)$data['exp'] < time()) {
+        return null;
+    }
+
+    // Written before the user's last avatar change: stale. Records from before
+    // this check have no `made`, so one bump retires them too.
+    $bumped = @filemtime(avatar_fastcache_bump_file($userId));
+    if ($bumped !== false && $bumped >= (int)($data['made'] ?? 0)) {
         return null;
     }
 
@@ -99,7 +141,13 @@ function avatar_fastcache_put(int $userId, int $size, string $stamp, bool $force
         return;
     }
 
-    $answer['exp'] = time() + ($stamp !== '' ? AVATAR_FASTCACHE_TTL_STAMPED : AVATAR_FASTCACHE_TTL_PLAIN);
+    if ($stamp !== '') {
+        $ttl = AVATAR_FASTCACHE_TTL_STAMPED;
+    } else {
+        $ttl = $answer['kind'] === 'redirect' ? AVATAR_FASTCACHE_TTL_PLAIN_REDIRECT : AVATAR_FASTCACHE_TTL_PLAIN;
+    }
+    $answer['made'] = time();
+    $answer['exp'] = $answer['made'] + $ttl;
 
     // Written to a temp file first so a concurrent reader never sees a partial
     // record; the whole point is to survive heavy parallel traffic.

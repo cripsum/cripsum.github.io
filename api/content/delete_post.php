@@ -69,6 +69,10 @@ try {
 
     $mysqli->commit();
 
+    // La copia su file dell'immagine non deve sopravvivere al post.
+    require_once __DIR__ . '/../../includes/content_media_cache.php';
+    content_media_cache_forget($type, $id);
+
     if ($postData && $deleted > 0 && (int)$postData['id_utente'] !== (int)$user['id']) {
         $currentTime = date('d/m/Y H:i:s');
         $recipientId = (int)$postData['id_utente'];

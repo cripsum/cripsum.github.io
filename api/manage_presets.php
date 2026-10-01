@@ -471,7 +471,7 @@ switch ($action) {
                 $stmt->bind_param('i', $targetUserId);
                 $stmt->execute();
                 $stmt->close();
-                
+
                 $uploadDir = __DIR__ . '/../uploads/profile_media/user_' . $targetUserId;
                 if (is_dir($uploadDir)) {
                     foreach (glob($uploadDir . '/avatar_*') as $oldFile) {
@@ -479,6 +479,11 @@ switch ($action) {
                     }
                 }
             }
+
+            // La foto e' cambiata (o tolta): get_pfp.php deve dimenticare
+            // quella che ricordava.
+            require_once __DIR__ . '/../includes/avatar_fastcache.php';
+            avatar_fastcache_bump((int)$targetUserId);
         }
 
         // 2. Restore Banner (profile_banner)
