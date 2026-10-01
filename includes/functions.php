@@ -1147,6 +1147,27 @@ function claimMessageRewards($mysqli, $userId, $messageId)
     $claimedList = [];
 
     try {
+        // Il riscatto si segna PRIMA di consegnare i premi, e solo se non era
+        // gia' segnato. Il controllo qui sopra da solo non bastava: due
+        // richieste partite insieme lo passavano entrambe e i premi
+        // arrivavano due volte. Cosi' la seconda aspetta la prima su questa
+        // riga, poi non trova piu' niente da aggiornare. Se una consegna
+        // fallisce il rollback toglie anche il segno.
+        $stmtClaim = $mysqli->prepare("
+            UPDATE site_message_recipients
+            SET claimed_at = NOW(), is_read = 1, read_at = COALESCE(read_at, NOW())
+            WHERE recipient_id = ? AND message_id = ? AND claimed_at IS NULL
+        ");
+        $stmtClaim->bind_param("ii", $userId, $messageId);
+        $stmtClaim->execute();
+        $claimedNow = $stmtClaim->affected_rows > 0;
+        $stmtClaim->close();
+
+        if (!$claimedNow) {
+            $mysqli->rollback();
+            return ['ok' => false, 'error' => 'Premi già riscattati.'];
+        }
+
         foreach ($rewards as $reward) {
             $type = $reward['reward_type'];
             $val = $reward['reward_value'];
@@ -1257,20 +1278,12 @@ function claimMessageRewards($mysqli, $userId, $messageId)
             }
         }
 
-        $stmtUpdate = $mysqli->prepare("
-            UPDATE site_message_recipients 
-            SET claimed_at = NOW(), is_read = 1, read_at = COALESCE(read_at, NOW()) 
-            WHERE recipient_id = ? AND message_id = ?
-        ");
-        $stmtUpdate->bind_param("ii", $userId, $messageId);
-        $stmtUpdate->execute();
-        $stmtUpdate->close();
-
         $mysqli->commit();
         return ['ok' => true, 'rewards' => $claimedList];
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         $mysqli->rollback();
-        return ['ok' => false, 'error' => 'Impossibile riscattare i premi: ' . $e->getMessage()];
+        error_log('[inbox claim] utente ' . $userId . ', messaggio ' . $messageId . ': ' . $e->getMessage());
+        return ['ok' => false, 'error' => 'Impossibile riscattare i premi. Riprova tra poco.'];
     }
 }
 

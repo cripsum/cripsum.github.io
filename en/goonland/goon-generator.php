@@ -411,7 +411,6 @@ if ($stmt) {
 
     <?php include '../../includes/footer-en.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/js/modeChanger.js"></script>
 </body>
 
 </html>

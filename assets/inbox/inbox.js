@@ -22,7 +22,17 @@
     const API_ENDPOINT = '/api/inbox.php';
     const isAdmin = BOOT.isAdmin;
     const csrfToken = BOOT.csrfToken;
-    
+
+    // Tutte le azioni sui messaggi passano da qui: l'API le rifiuta senza
+    // il token, come gia' faceva quella dei ticket.
+    function inboxPost(payload) {
+        return fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+            body: JSON.stringify(payload)
+        });
+    }
+
     // Cache globali caricate una volta sola per evitare il bug dei contatori a 0
     let globalMessages = [];
     let globalTickets = [];
@@ -955,12 +965,9 @@
 
     async function markAsRead(messageId) {
         try {
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'read',
-                    message_id: messageId
-                })
+            const response = await inboxPost({
+                action: 'read',
+                message_id: messageId
             });
             const res = await response.json();
             if (res.ok) {
@@ -983,12 +990,9 @@
 
     async function toggleImportant(messageId) {
         try {
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'toggle_important',
-                    message_id: messageId
-                })
+            const response = await inboxPost({
+                action: 'toggle_important',
+                message_id: messageId
             });
             const res = await response.json();
             if (res.ok) {
@@ -1005,12 +1009,9 @@
         currentMessageId = null;
         renderEmptyDetails();
         try {
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'toggle_archive',
-                    message_id: messageId
-                })
+            const response = await inboxPost({
+                action: 'toggle_archive',
+                message_id: messageId
             });
             const res = await response.json();
             if (res.ok) {
@@ -1030,12 +1031,9 @@
         renderEmptyDetails();
 
         try {
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'delete',
-                    message_id: messageId
-                })
+            const response = await inboxPost({
+                action: 'delete',
+                message_id: messageId
             });
             const res = await response.json();
             if (res.ok) {
@@ -1058,12 +1056,9 @@
         btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i>${T.claiming}`;
 
         try {
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'claim_rewards',
-                    message_id: messageId
-                })
+            const response = await inboxPost({
+                action: 'claim_rewards',
+                message_id: messageId
             });
             const res = await response.json();
 

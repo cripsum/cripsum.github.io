@@ -357,7 +357,10 @@
             const res  = await fetch(API_CLAIM, {
                 method:      'POST',
                 credentials: 'same-origin',
-                headers:     { 'Content-Type': 'application/json' },
+                headers:     {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                },
                 body:        JSON.stringify({ user_mission_id: userMissionId }),
             });
             const json = await res.json();

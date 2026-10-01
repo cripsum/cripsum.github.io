@@ -59,6 +59,16 @@ try {
 
     $mysqli->begin_transaction();
 
+    // Un riscatto alla volta per account: senza questo blocco due richieste
+    // insieme passavano entrambe il controllo "ce l'hai gia'" qui sotto e il
+    // personaggio arrivava in due copie.
+    $stmt = $mysqli->prepare('SELECT id FROM utenti WHERE id = ? LIMIT 1 FOR UPDATE');
+    if (!$stmt) gacha_throw('Query codice non valida.', 500);
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $stmt->get_result();
+    $stmt->close();
+
     $nameCol = gacha_character_columns($mysqli)['name'];
     $stmt = $mysqli->prepare('SELECT ' . gacha_character_select_sql($mysqli, 'p') . ' FROM personaggi p WHERE ' . gacha_qfield('p', $nameCol) . ' = ? LIMIT 1');
     if (!$stmt) gacha_throw('Query codice non valida.', 500);

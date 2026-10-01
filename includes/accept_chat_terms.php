@@ -1,9 +1,4 @@
-<?php  
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', value: 1);
-ini_set('log_errors', 1);
-error_reporting(1);
-
+<?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 

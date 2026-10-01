@@ -121,6 +121,19 @@ if ($method === 'GET') {
     
 } elseif ($method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+    if (!is_array($input)) {
+        $input = [];
+    }
+
+    // Ogni azione qui cambia qualcosa (riscatta premi, archivia, elimina):
+    // senza token una pagina esterna poteva farle fare all'utente.
+    $csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+    if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+        http_response_code(419);
+        echo json_encode(['ok' => false, 'error' => 'Sessione scaduta. Ricarica la pagina.', 'code' => 'CSRF_FAILED']);
+        exit();
+    }
+
     $action = $input['action'] ?? '';
     $messageId = isset($input['message_id']) ? (int)$input['message_id'] : 0;
     

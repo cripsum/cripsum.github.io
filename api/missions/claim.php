@@ -6,7 +6,7 @@
  * Protezione anti-doppio-claim server-side.
  *
  * Endpoint : POST /api/missions/claim.php
- * Auth     : sessione PHP (isLoggedIn())
+ * Auth     : sessione PHP (isLoggedIn()) + token CSRF (header X-CSRF-Token)
  * Body     : JSON { "user_mission_id": int }
  * Response : JSON
  */
@@ -47,6 +47,18 @@ checkBan($mysqli);
 // ── Leggi body JSON ──────────────────────────────────────────
 $body = file_get_contents('php://input');
 $payload = json_decode($body, true);
+
+if (!is_array($payload)) {
+    $payload = [];
+}
+
+// ── CSRF ─────────────────────────────────────────────────────
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($payload['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['error' => 'Sessione scaduta. Ricarica la pagina.', 'code' => 'CSRF_FAILED']);
+    exit();
+}
 
 $userMissionId = isset($payload['user_mission_id']) ? (int)$payload['user_mission_id'] : 0;
 

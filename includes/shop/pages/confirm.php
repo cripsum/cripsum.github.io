@@ -31,6 +31,11 @@ $total = shop_price($product['price'] * $qty, $shopLang);
 
 $achievement = (int)($_SESSION['shop_achievement_pending'] ?? 0);
 unset($_SESSION['shop_achievement_pending']);
+// api/set_achievement.php sblocca quello del merch solo a chi arriva da qui:
+// il permesso vale una volta e lo consuma lo sblocco.
+if ($achievement > 0) {
+    $_SESSION['shop_achievement_ok'] = $achievement;
+}
 
 $pageTitle = $S['order_confirmed'];
 $bodyClass = $vetrina['tipo'] === 'merch' ? 'shop-theme-merch' : 'shop-theme-store';

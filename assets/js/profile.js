@@ -1462,7 +1462,8 @@
                 fetch('/api/report_profile.php', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
                     },
                     body: JSON.stringify({
                         reported_user_id: reportedUserId,

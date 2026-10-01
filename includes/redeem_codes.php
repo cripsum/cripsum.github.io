@@ -329,6 +329,46 @@ function cripsum_redeem_code_apply(mysqli $mysqli, int $userId, string $code, st
         ];
     }
 
+    // Un riscatto alla volta per account. Il controllo "gia' riscattato" e
+    // l'accredito erano query separate senza transazione: due richieste
+    // partite insieme (due browser, o sito e bot) passavano entrambe il
+    // controllo e i punti arrivavano due volte. Il blocco sulla riga
+    // dell'utente mette in fila la seconda, che trova il codice gia' usato.
+    $mysqli->begin_transaction();
+    try {
+        $stmtLock = $mysqli->prepare('SELECT id FROM utenti WHERE id = ? LIMIT 1 FOR UPDATE');
+        $stmtLock->bind_param('i', $userId);
+        $stmtLock->execute();
+        $stmtLock->get_result();
+        $stmtLock->close();
+
+        $result = cripsum_redeem_code_grant($mysqli, $userId, $code, $entry, $lang, $t);
+
+        if (($result['status'] ?? '') === 'success') {
+            $mysqli->commit();
+        } else {
+            $mysqli->rollback();
+        }
+
+        return $result;
+    } catch (Throwable $e) {
+        $mysqli->rollback();
+        error_log('[redeem] utente ' . $userId . ', codice ' . $code . ': ' . $e->getMessage());
+        return ['status' => 'error', 'message' => $t['err_db']];
+    }
+}
+
+/**
+ * Controlla e consegna un codice gia' validato. Va chiamata dentro la
+ * transazione aperta da cripsum_redeem_code_apply(), con la riga dell'utente
+ * bloccata.
+ *
+ * @param array<string, mixed>  $entry
+ * @param array<string, string> $t
+ * @return array<string, mixed>
+ */
+function cripsum_redeem_code_grant(mysqli $mysqli, int $userId, string $code, array $entry, string $lang, array $t): array
+{
     $stmtCheck = $mysqli->prepare(
         'SELECT id FROM codici_riscattati WHERE codice = ? AND user_id = ? LIMIT 1'
     );

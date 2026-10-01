@@ -26,6 +26,15 @@ if (!is_array($input)) {
     $input = $_POST;
 }
 
+// Senza token una pagina esterna poteva far partire segnalazioni a nome
+// dell'utente collegato.
+$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? null);
+if (!csrf_validate(is_string($csrf) ? $csrf : null)) {
+    http_response_code(419);
+    echo json_encode(['ok' => false, 'error' => 'Sessione scaduta. Ricarica la pagina.', 'code' => 'CSRF_FAILED']);
+    exit();
+}
+
 $reported_id = (int)($input['reported_user_id'] ?? 0);
 $reason = trim((string)($input['reason'] ?? ''));
 $detail = mb_substr(trim((string)($input['detail'] ?? '')), 0, 500, 'UTF-8');

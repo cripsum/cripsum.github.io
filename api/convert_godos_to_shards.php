@@ -78,14 +78,14 @@ try {
     $stmtUser->close();
 
     if (!$user) {
-        throw new Exception('Utente non trovato.');
+        throw new DomainException('Utente non trovato.');
     }
 
     $currentSoldi = (int)$user['soldi'];
     $currentShards = (int)$user['godoshards_balance'];
 
     if ($currentSoldi < $costoGodos) {
-        throw new Exception('Godos (punti) insufficienti per effettuare questa conversione.');
+        throw new DomainException('Godos (punti) insufficienti per effettuare questa conversione.');
     }
 
     // Esegui conversione
@@ -125,11 +125,20 @@ try {
         header('Location: ' . $returnTo . '?conversion=success&shards=' . $shardsToBuy);
     }
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     $mysqli->rollback();
+
+    // All'utente arrivano solo i due messaggi scritti qui sopra: un errore
+    // del database prima finiva pari pari nella risposta.
+    $message = $e->getMessage();
+    if (!($e instanceof DomainException)) {
+        error_log('[convert_godos_to_shards] utente ' . $userId . ': ' . $e->getMessage());
+        $message = $lang === 'en' ? 'Conversion failed. Try again shortly.' : 'Conversione non riuscita. Riprova tra poco.';
+    }
+
     if ($isJsonRequest) {
         http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        echo json_encode(['status' => 'error', 'message' => $message]);
     } else {
         header('Location: ' . $returnTo . '?conversion=error');
     }
