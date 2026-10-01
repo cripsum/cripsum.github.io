@@ -1,476 +1,393 @@
-/* assets/social/user-card.js - Discord-style User Card Overlay Engine */
+/**
+ * Cripsum™ — scheda utente.
+ *
+ * Si apre da qualunque elemento con la classe .user-card-trigger (attributi
+ * data-user-id o data-username) oppure da codice:
+ *
+ *     CripsumUserCard.open({ id: 12 })
+ *     CripsumUserCard.open({ username: 'mario' })
+ *
+ * Mostra chi è la persona e permette di fare subito le cose che servono:
+ * amicizia, messaggio, invito in un gruppo, blocco. Ha bisogno di kit.js e
+ * kit.css. Dopo ogni azione lancia l'evento «cripsum:social-changed», che la
+ * pagina Amici ascolta per aggiornarsi.
+ */
+(() => {
+    'use strict';
 
-(function () {
-    const lang = document.documentElement.lang === 'it' ? 'it' : 'en';
-    let activeTrigger = null;
+    const K = window.ChatKit;
+    if (!K) return;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        setupCardContainers();
-        bindTriggers();
+    const { h, icon, t } = K;
+    const lang = K.lang;
+
+    K.extend({
+        uc_add: { it: 'Aggiungi', en: 'Add friend' },
+        uc_accept: { it: 'Accetta richiesta', en: 'Accept request' },
+        uc_decline: { it: 'Rifiuta', en: 'Decline' },
+        uc_pending: { it: 'Richiesta inviata', en: 'Request sent' },
+        uc_cancel_request: { it: 'Annulla richiesta', en: 'Cancel request' },
+        uc_friends: { it: 'Amici', en: 'Friends' },
+        uc_message: { it: 'Messaggio', en: 'Message' },
+        uc_profile: { it: 'Profilo', en: 'Profile' },
+        uc_more: { it: 'Altro', en: 'More' },
+        uc_remove: { it: 'Rimuovi dagli amici', en: 'Remove friend' },
+        uc_remove_title: { it: 'Rimuovere {name} dagli amici?', en: 'Remove {name} from your friends?' },
+        uc_remove_text: { it: 'Non verrà avvisato. Potrete sempre mandarvi una nuova richiesta.', en: 'They will not be notified. You can always send each other a new request.' },
+        uc_invite: { it: 'Invita in un gruppo', en: 'Invite to a group' },
+        uc_invite_none: { it: 'Non hai gruppi in cui invitarlo.', en: 'You have no groups to invite them to.' },
+        uc_invite_done: { it: 'Invito mandato.', en: 'Invitation sent.' },
+        uc_block: { it: 'Blocca', en: 'Block' },
+        uc_unblock: { it: 'Sblocca', en: 'Unblock' },
+        uc_block_title: { it: 'Bloccare {name}?', en: 'Block {name}?' },
+        uc_block_text: { it: 'Non potrà più scriverti né mandarti richieste, e l\'amicizia verrà rimossa. Non verrà avvisato.', en: 'They will no longer be able to message you or send requests, and the friendship will be removed. They will not be notified.' },
+        uc_blocked_note: { it: 'Hai bloccato questa persona.', en: 'You blocked this person.' },
+        uc_report: { it: 'Segnala', en: 'Report' },
+        uc_copy_name: { it: 'Copia nome utente', en: 'Copy username' },
+        uc_about: { it: 'Su di me', en: 'About me' },
+        uc_mutual_one: { it: '1 amico in comune', en: '1 mutual friend' },
+        uc_mutual: { it: '{n} amici in comune', en: '{n} mutual friends' },
+        uc_friends_count_one: { it: '1 amico', en: '1 friend' },
+        uc_friends_count: { it: '{n} amici', en: '{n} friends' },
+        uc_private: { it: 'Questo profilo è privato.', en: 'This profile is private.' },
+        uc_privacy_title: { it: 'Privacy', en: 'Privacy' },
+        uc_privacy_dm: { it: 'Solo gli amici possono scrivermi', en: 'Only friends can message me' },
+        uc_privacy_dm_hint: { it: 'Spento: chi non è tuo amico può scriverti, ma finisce tra le Richieste.', en: 'Off: people who are not your friends can write, but they land in Requests.' },
+        uc_privacy_requests: { it: 'Non accetto richieste di amicizia', en: 'I do not accept friend requests' },
+        uc_privacy_requests_hint: { it: 'Nessuno potrà mandarti una richiesta finché resta acceso.', en: 'Nobody can send you a request while this is on.' },
+        uc_privacy_receipts: { it: 'Conferme di lettura', en: 'Read receipts' },
+        uc_privacy_receipts_hint: { it: 'Se le spegni non vedi nemmeno quelle degli altri.', en: 'If you turn them off you will not see other people\'s either.' },
+        uc_privacy_typing: { it: 'Mostra quando sto scrivendo', en: 'Show when I am typing' },
+        uc_privacy_typing_hint: { it: 'Gli altri vedono «sta scrivendo» mentre componi un messaggio.', en: 'Others see "is typing" while you write a message.' },
+        uc_privacy_off: { it: 'Le impostazioni di privacy non sono ancora attive su questo server.', en: 'Privacy settings are not available on this server yet.' },
+        uc_saved: { it: 'Salvato.', en: 'Saved.' },
+        uc_you: { it: 'Questo sei tu.', en: 'This is you.' }
     });
 
-    // Inject the profile overlay modal into the body
-    function setupCardContainers() {
-        if (!document.getElementById('socialUserCardOverlay')) {
-            const overlay = document.createElement('div');
-            overlay.id = 'socialUserCardOverlay';
-            overlay.className = 'profile-nav-overlay';
-            overlay.setAttribute('aria-hidden', 'true');
-            overlay.setAttribute('role', 'dialog');
-            overlay.setAttribute('aria-modal', 'true');
-            overlay.style.cssText = "position: fixed; inset: 0; z-index: 19000; visibility: hidden; pointer-events: none; display: flex; justify-content: center; align-items: center;";
-            
-            overlay.innerHTML = `
-                <div class="profile-nav-overlay-backdrop js-close-user-card"></div>
-                <div class="profile-nav-overlay-container" style="max-width: 340px; padding: 0; overflow: hidden; border: none; background: transparent; position: relative; animation: pop-in 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-radius: 24px; max-height: 85vh; max-height: 85dvh; display: flex; flex-direction: column;">
-                    <button class="profile-nav-overlay-close-btn js-close-user-card" style="z-index: 10; color: rgba(255, 255, 255, 0.7); right: 16px; top: 16px; font-size: 24px; background: transparent; border: none; cursor: pointer; position: absolute; transition: color 0.2s;">&times;</button>
-                    <div id="userCardPopup" class="user-card" style="display: block; position: relative; margin: 0; top: 0; left: 0; box-shadow: none; width: 100%; animation: none; overflow-y: auto; max-height: 100%; scrollbar-width: thin;">
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
+    let overlay = null;
+    let current = null;
+    let previousFocus = null;
 
-            // Close when clicking backdrop or close button
-            overlay.querySelectorAll('.js-close-user-card').forEach(el => {
-                el.addEventListener('click', closeUserCard);
-            });
+    const isLoggedIn = () => document.body.dataset.loggedIn === '1' || window.isLoggedIn === true
+        || !!(window.CNAV_STATE && window.CNAV_STATE.userId > 0);
+
+    function announce(userId) {
+        document.dispatchEvent(new CustomEvent('cripsum:social-changed', { detail: { userId } }));
+    }
+
+    function close() {
+        if (!overlay) return;
+        const node = overlay;
+        overlay = null;
+        current = null;
+        document.removeEventListener('keydown', onKey, true);
+        node.classList.add('is-closing');
+        setTimeout(() => node.remove(), 160);
+        if (previousFocus && previousFocus.focus) previousFocus.focus();
+    }
+
+    function onKey(event) {
+        // Un menu o una finestra aperti sopra la scheda hanno la precedenza.
+        if (event.key === 'Escape' && !document.querySelector('.ck-menu, .ck-dialog:not(.ck-ucard-overlay)')) {
+            event.stopPropagation();
+            close();
         }
+    }
 
-        // Close on ESC keypress
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeUserCard();
+    function skeleton() {
+        return h('div', { class: 'ck-ucard' },
+            h('div', { class: 'ck-ucard__banner ck-skeleton' }),
+            h('div', { class: 'ck-ucard__top' }, h('span', { class: 'ck-ucard__avatar ck-skeleton' })),
+            h('div', { class: 'ck-ucard__body' },
+                h('span', { class: 'ck-skeleton', style: 'width: 55%; height: 20px' }),
+                h('span', { class: 'ck-skeleton', style: 'width: 35%; height: 13px' }),
+                h('span', { class: 'ck-skeleton', style: 'width: 100%; height: 42px; margin-top: 14px' })));
+    }
+
+    async function open(target) {
+        const id = Number(target && target.id) || 0;
+        const username = String((target && target.username) || '').trim();
+        if (!id && !username) return;
+
+        if (!overlay) {
+            previousFocus = document.activeElement;
+            overlay = h('div', { class: 'ck-dialog ck-ucard-overlay', role: 'dialog', 'aria-modal': 'true' });
+            overlay.addEventListener('mousedown', (event) => {
+                if (event.target === overlay) close();
+            });
+            document.addEventListener('keydown', onKey, true);
+            K.mount(overlay);
+        }
+        const host = overlay;
+        K.clear(host);
+        host.appendChild(skeleton());
+
+        try {
+            const query = id ? 'target_id=' + id : 'username=' + encodeURIComponent(username);
+            const data = await K.api('/api/social/user_card.php?' + query);
+            if (overlay !== host) return;
+            current = data.data;
+            K.clear(host);
+            host.appendChild(render(current));
+            const first = host.querySelector('.ck-ucard__actions .ck-btn, .ck-ucard__close');
+            if (first) first.focus();
+        } catch (error) {
+            if (overlay !== host) return;
+            K.clear(host);
+            host.appendChild(h('div', { class: 'ck-ucard ck-ucard--error' },
+                K.emptyState('fa-solid fa-user-slash', error.message, ''),
+                h('button', { type: 'button', class: 'ck-btn ck-btn--ghost', onClick: close }, t('close'))));
+        }
+    }
+
+    /** Colore valido in forma #rrggbb, altrimenti niente: finisce dentro uno stile. */
+    function safeColor(value) {
+        return /^#[0-9a-f]{6}$/i.test(String(value || '')) ? value : '';
+    }
+
+    function banner(user) {
+        const accent = safeColor(user.style && user.style.accent_color) || '#2f6bff';
+        const node = h('div', { class: 'ck-ucard__banner' });
+        node.style.background = 'linear-gradient(135deg, ' + accent + ', #0a0e1a 130%)';
+
+        const url = K.safeUrl(user.profile_banner_url, '');
+        if (url) {
+            if (String(user.profile_banner_type || '').startsWith('video/')) {
+                node.appendChild(h('video', { src: url, autoplay: true, loop: true, muted: true, playsinline: true }));
+            } else {
+                node.appendChild(h('img', { src: url, alt: '' }));
+            }
+        }
+        return node;
+    }
+
+    async function act(button, endpoint, body, after) {
+        if (button) button.disabled = true;
+        try {
+            const data = await K.api('/api/social/' + endpoint, { body });
+            if (data.message) K.toast(data.message, 'success');
+            announce(current ? current.id : 0);
+            if (window.CripsumRT) window.CripsumRT.refreshCounters();
+            if (after) after(data);
+            else if (current && overlay) open({ id: current.id });
+        } catch (error) {
+            K.toast(error.message, 'error');
+            if (button) button.disabled = false;
+        }
+    }
+
+    async function removeFriend(user) {
+        const ok = await K.confirm({
+            title: t('uc_remove_title', { name: user.display_name }), text: t('uc_remove_text'),
+            confirmLabel: t('uc_remove'), danger: true, icon: 'fa-solid fa-user-minus'
         });
+        if (ok) act(null, 'remove_friend.php', { friend_id: user.id });
     }
 
-    // Attach click listener to all elements with the .user-card-trigger class
-    function bindTriggers() {
-        // Use event delegation on body to capture dynamically loaded elements (AJAX)
-        document.body.addEventListener('click', (e) => {
-            const trigger = e.target.closest('.user-card-trigger');
-            if (trigger) {
-                const isLoggedIn = document.body.dataset.loggedIn === '1' || window.isLoggedIn === true;
-                if (!isLoggedIn) {
-                    return; // Permette la navigazione standard senza mostrare il pop-up/errore
-                }
-
-                e.preventDefault();
-                e.stopPropagation();
-                activeTrigger = trigger;
-                
-                const userId = trigger.dataset.userId ? parseInt(trigger.dataset.userId) : (trigger.dataset.id ? parseInt(trigger.dataset.id) : 0);
-                const username = trigger.dataset.username || '';
-                
-                if (userId === 0 && !username) {
-                    console.warn("User Card: Ignored click because both userId and username are empty.");
-                    return;
-                }
-                
-                openUserCard(userId, username, trigger);
-            }
+    async function block(user) {
+        const ok = await K.confirm({
+            title: t('uc_block_title', { name: user.display_name }), text: t('uc_block_text'),
+            confirmLabel: t('uc_block'), danger: true, icon: 'fa-solid fa-ban'
         });
+        if (ok) act(null, 'block_user.php', { blocked_id: user.id });
     }
 
-    // Open the User Card using the site's native overlay system
-    async function openUserCard(userId, username, triggerElement) {
-        const overlay = document.getElementById('socialUserCardOverlay');
-        const card = document.getElementById('userCardPopup');
-        if (!overlay || !card) return;
-
-        // 1. Show skeleton loader
-        card.innerHTML = getSkeletonHtml();
-        
-        // 2. Open overlay
-        overlay.style.visibility = 'visible';
-        overlay.style.pointerEvents = 'auto';
-        overlay.classList.add('is-visible');
-        overlay.setAttribute('aria-hidden', 'false');
-        document.body.classList.add('profile-overlay-open');
-
-        // 3. Fetch real data from the API
-        const res = await SocialAPI.getUserCard(userId, username);
-        if (res.success) {
-            const html = renderCardHtml(res.data);
-            card.innerHTML = html;
-            applyHeritageStyles(card, res.data.style);
-            
-            // Bind button click handlers
-            bindCardButtons(card, res.data);
-        } else {
-            card.innerHTML = `
-                <div class="text-center py-5 text-danger" style="background: rgba(10, 10, 12, 0.95); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <i class="fa-solid fa-triangle-exclamation mb-2 fs-3"></i><br>
-                    ${escapeHtml(res.error.message)}
-                </div>
-            `;
-        }
-    }
-
-    // Close the User Card overlay
-    function closeUserCard() {
-        const overlay = document.getElementById('socialUserCardOverlay');
-        if (overlay) {
-            overlay.style.visibility = 'hidden';
-            overlay.style.pointerEvents = 'none';
-            overlay.classList.remove('is-visible');
-            overlay.setAttribute('aria-hidden', 'true');
-            
-            // Remove body scrolling lock only if no other overlays are open
-            const anyVisible = document.querySelector('.profile-nav-overlay.is-visible:not(#socialUserCardOverlay), .profile-report-modal.is-visible');
-            if (!anyVisible) {
-                document.body.classList.remove('profile-overlay-open');
+    async function inviteToGroup(user, anchor) {
+        try {
+            const data = await K.api('/api/chat/my_manageable_groups.php?target_id=' + user.id);
+            const groups = data.groups || [];
+            if (!groups.length) {
+                K.toast(t('uc_invite_none'));
+                return;
             }
-        }
-        activeTrigger = null;
-    }
-
-    // Apply custom CSS theme variables from the viewed user's profile
-    function applyHeritageStyles(element, style) {
-        if (!style) return;
-
-        element.classList.remove('custom-profile-inherited');
-        element.style.removeProperty('--profile-accent-color');
-        element.style.removeProperty('--profile-card-color');
-        element.style.removeProperty('--profile-text-color');
-        element.style.removeProperty('--profile-card-blur');
-        element.style.removeProperty('--ring-color');
-
-        const hasCustomTheme = style.accent_color || style.card_color;
-        if (hasCustomTheme) {
-            element.classList.add('custom-profile-inherited');
-            
-            if (style.accent_color) {
-                element.style.setProperty('--profile-accent-color', style.accent_color);
-            }
-            if (style.card_color) {
-                let color = style.card_color;
-                if (style.card_opacity && color.startsWith('#')) {
-                    const alpha = Math.round(parseFloat(style.card_opacity) * 255).toString(16).padStart(2, '0');
-                    color = color + alpha;
-                }
-                element.style.setProperty('--profile-card-color', color);
-            }
-            if (style.text_color) {
-                element.style.setProperty('--profile-text-color', style.text_color);
-            }
-            if (style.card_blur) {
-                element.style.setProperty('--profile-card-blur', style.card_blur + 'px');
-            }
-            if (style.avatar_ring_enabled && style.avatar_ring_color) {
-                element.style.setProperty('--ring-color', style.avatar_ring_color);
-            }
-            if (style.font) {
-                element.style.fontFamily = style.font;
-            }
-        }
-    }
-
-    // Bind click events to inner action buttons (Follow, Friend, Message, Block)
-    function bindCardButtons(cardElement, data) {
-        const friendBtn = cardElement.querySelector('.js-card-friend');
-        const blockBtn = cardElement.querySelector('.js-card-block');
-
-        if (friendBtn) {
-            friendBtn.addEventListener('click', async () => {
-                friendBtn.disabled = true;
-                const action = friendBtn.dataset.action;
-                let res;
-                
-                if (action === 'send') {
-                    res = await SocialAPI.sendFriendRequest(data.id);
-                } else if (action === 'accept') {
-                    res = await SocialAPI.acceptFriendRequest(data.id);
-                } else if (action === 'cancel') {
-                    res = await SocialAPI.cancelFriendRequest(data.id);
-                } else if (action === 'remove') {
-                    const confirmMsg = lang === 'it'
-                        ? `Sei sicuro di voler rimuovere ${data.display_name} dagli amici?`
-                        : `Are you sure you want to remove ${data.display_name} from your friends?`;
-                    if (confirm(confirmMsg)) {
-                        res = await SocialAPI.removeFriend(data.id);
-                    } else {
-                        friendBtn.disabled = false;
-                        return;
+            K.menu(anchor, groups.map((group) => ({
+                label: group.name,
+                icon: 'fa-solid fa-user-group',
+                onSelect: async () => {
+                    try {
+                        await K.api('/api/chat/invite_user.php', { body: { chat_id: group.chat_id, invitee_id: user.id } });
+                        K.toast(t('uc_invite_done'), 'success');
+                    } catch (error) {
+                        K.toast(error.message, 'error');
                     }
                 }
-
-                if (res && res.success) {
-                    openUserCard(data.id, '', activeTrigger);
-                    if (window.SocialUI && typeof window.SocialUI.loadActiveTab === 'function') {
-                        window.SocialUI.loadActiveTab();
-                    }
-                } else if (res) {
-                    alert(res.error.message);
-                }
-                friendBtn.disabled = false;
-            });
-        }
-
-        if (blockBtn) {
-            blockBtn.addEventListener('click', async () => {
-                blockBtn.disabled = true;
-                const action = blockBtn.dataset.action;
-                let res;
-                
-                if (action === 'unblock') {
-                    res = await SocialAPI.unblockUser(data.id);
-                } else {
-                    const confirmMsg = lang === 'it'
-                        ? "Sei sicuro di voler bloccare questo utente? Tutti i collegamenti sociali (amicizia, follow) verranno rimossi."
-                        : "Are you sure you want to block this user? All social connections (friendship, follow) will be removed.";
-                    if (confirm(confirmMsg)) {
-                        res = await SocialAPI.blockUser(data.id);
-                    } else {
-                        blockBtn.disabled = false;
-                        return;
-                    }
-                }
-
-                if (res && res.success) {
-                    openUserCard(data.id, '', activeTrigger);
-                    if (window.SocialUI && typeof window.SocialUI.loadActiveTab === 'function') {
-                        window.SocialUI.loadActiveTab();
-                    }
-                } else if (res) {
-                    alert(res.error.message);
-                }
-                blockBtn.disabled = false;
-            });
+            })), { header: t('uc_invite') });
+        } catch (error) {
+            K.toast(error.message, 'error');
         }
     }
 
-    // Skeleton Loading HTML
-    function getSkeletonHtml() {
-        return `
-            <div class="user-card__banner chat-skeleton" style="height: 100px;"></div>
-            <div class="user-card__avatar-container">
-                <div class="user-card__avatar chat-skeleton" style="width: 88px; height: 88px; border-radius: 50%;"></div>
-            </div>
-            <div class="user-card__body">
-                <div class="user-card__name-section">
-                    <div class="chat-skeleton mb-2" style="width: 160px; height: 24px; border-radius: 6px;"></div>
-                    <div class="chat-skeleton mb-3" style="width: 100px; height: 16px; border-radius: 4px;"></div>
-                </div>
-                <div class="user-card__divider"></div>
-                <div class="chat-skeleton mb-2" style="width: 80px; height: 14px; border-radius: 4px;"></div>
-                <div class="chat-skeleton mb-3" style="width: 100%; height: 44px; border-radius: 8px;"></div>
-            </div>
-        `;
-    }
-
-    // Render User Card HTML
-    function renderCardHtml(user) {
+    function moreMenu(user, anchor) {
         const r = user.relationship;
-        
-        // Relationship badges removed to save space
-
-        // Follow Button
-        let followBtnHtml = '';
-
-        // Friend Button
-        let friendBtnHtml = '';
-        if (!r.is_self) {
-            if (r.is_friend) {
-                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="remove" type="button" title="Remove Friend"><i class="fa-solid fa-user-minus me-2"></i>Friend</button>`;
-            } else if (r.friend_request_sent) {
-                friendBtnHtml = `<button class="social-btn social-btn--secondary js-card-friend" data-action="cancel" type="button" title="Cancel Request"><i class="fa-solid fa-user-clock me-2"></i>Sent</button>`;
-            } else if (r.friend_request_received) {
-                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="accept" type="button"><i class="fa-solid fa-user-check me-2"></i>Accept</button>`;
-            } else if (r.can_send_friend_request) {
-                friendBtnHtml = `<button class="social-btn social-btn--primary js-card-friend" data-action="send" type="button"><i class="fa-solid fa-user-plus me-2"></i>Add Friend</button>`;
-            }
-        }
-
-        // Message Button (Primary Action)
-        let messageBtnHtml = '';
-        if (!r.is_self && r.can_message) {
-            const messageLabel = lang === 'it' ? 'Scrivi' : 'Message';
-            messageBtnHtml = `<a class="social-btn social-btn--secondary" href="/${lang}/chat?user_id=${user.id}"><i class="fa-solid fa-envelope me-2"></i>${messageLabel}</a>`;
-        }
-
-        // View Profile Button (Only shown when popup is triggered from the friends page)
-        let viewProfileBtnHtml = '';
-        const isOnFriendsPage = window.location.pathname.includes('amici');
-        if (!r.is_self && isOnFriendsPage) {
-            const profileLabel = lang === 'it' ? 'Profilo' : 'Profile';
-            viewProfileBtnHtml = `<a class="social-btn social-btn--secondary" href="/u/${encodeURIComponent(user.username)}"><i class="fa-solid fa-user me-2"></i>${profileLabel}</a>`;
-        }
-
-        // Block Button
-        let blockBtnHtml = '';
-        if (!r.is_self) {
-            const blockLabel = r.is_blocked_by_viewer 
-                ? (lang === 'it' ? 'Sblocca' : 'Unblock') 
-                : (lang === 'it' ? 'Blocca' : 'Block');
-            const blockClass = r.is_blocked_by_viewer ? 'social-btn--danger' : 'social-btn--danger-outline';
-            const blockAction = r.is_blocked_by_viewer ? 'unblock' : 'block';
-            blockBtnHtml = `<button class="social-btn ${blockClass} js-card-block" data-action="${blockAction}" type="button" title="${blockLabel}"><i class="fa-solid fa-ban me-2"></i>${blockLabel}</button>`;
-        }
-
-        // Mutual Friends
-        let mutualsHtml = '';
-        if (!r.is_self && user.stats.mutual_friends_count > 0) {
-            const label = lang === 'it'
-                ? (user.stats.mutual_friends_count === 1 ? 'amico in comune' : 'amici in comune')
-                : (user.stats.mutual_friends_count === 1 ? 'mutual friend' : 'mutual friends');
-            const titleLabel = lang === 'it' ? 'Amici in comune' : 'Mutual Friends';
-            mutualsHtml = `
-                <div class="user-card__divider"></div>
-                <div class="user-card__section-title">${titleLabel}</div>
-                <div class="user-card__mutuals">
-                    <div class="user-card__mutual-avatars">
-                        ${user.mutual_friends.map(m => `
-                            <img class="user-card__mutual-avatar" src="/includes/get_pfp.php?id=${m.id}" alt="${escapeHtml(m.username)}">
-                        `).join('')}
-                    </div>
-                    <span class="user-card__mutual-text">${user.stats.mutual_friends_count} ${label}</span>
-                </div>
-            `;
-        }
-
-        // About Me / Bio
-        const bioTitle = lang === 'it' ? 'Su di me' : 'About Me';
-        const bioHtml = user.bio ? `
-            <div class="user-card__divider"></div>
-            <div class="user-card__section-title">${bioTitle}</div>
-            <div class="user-card__bio">${escapeHtml(user.bio)}</div>
-        ` : '';
-
-        const ringClass = user.style.avatar_ring_enabled ? 'has-ring' : '';
-
-        // Structured Grid of Action Buttons
-        let actionsHtml = '';
-        if (!r.is_self) {
-            const mainButtons = [friendBtnHtml, messageBtnHtml].filter(Boolean);
-            const secondaryButtons = [viewProfileBtnHtml, blockBtnHtml].filter(Boolean);
-            
-            actionsHtml = `
-                <div class="user-card__actions" style="display: flex; flex-direction: column; gap: 10px !important; width: 100%;">
-                    ${mainButtons.length > 0 ? `
-                        <div class="user-card__actions-primary" style="display: flex; gap: 10px !important; width: 100%;">
-                            ${mainButtons.join('')}
-                        </div>
-                    ` : ''}
-                    ${secondaryButtons.length > 0 ? `
-                        <div class="user-card__actions-primary" style="display: flex; gap: 10px !important; width: 100%;">
-                            ${secondaryButtons.join('')}
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        let bannerHtml = '';
-        let bannerBgStyle = '';
-        if (user.style && user.style.accent_color) {
-            if (user.style.secondary_color) {
-                bannerBgStyle = `background: linear-gradient(135deg, ${user.style.accent_color} 0%, ${user.style.secondary_color} 100%);`;
-            } else {
-                bannerBgStyle = `background: ${user.style.accent_color};`;
-            }
-        }
-
-        if (user.profile_banner_url) {
-            const isVideo = user.profile_banner_type && user.profile_banner_type.startsWith('video/');
-            if (isVideo) {
-                bannerHtml = `<video class="user-card__banner-media" src="${user.profile_banner_url}" autoplay loop muted></video>`;
-            } else {
-                bannerHtml = `<img class="user-card__banner-media" src="${user.profile_banner_url}" alt="">`;
-            }
-        }
-
-        return `
-            <div class="user-card__banner" style="${bannerBgStyle}">
-                ${bannerHtml}
-            </div>
-            <div class="user-card__avatar-container">
-                <img class="user-card__avatar ${ringClass}" src="/includes/get_pfp.php?id=${user.id}" alt="${escapeHtml(user.display_name)}">
-            </div>
-            <div class="user-card__body">
-                <div class="user-card__name-section">
-                    <div class="user-card__display-name">
-                        <span>${escapeHtml(user.display_name)}</span>
-                        ${user.is_premium ? '<img class="cr-premium-gem" src="/img/premium.svg" alt="Premium" title="Premium" style="font-size: 14px;">' : ''}
-                    </div>
-                    <div class="user-card__username">@${escapeHtml(user.username)}</div>
-                </div>
-
-                ${bioHtml}
-                ${mutualsHtml}
-                ${actionsHtml}
-            </div>
-        `;
+        K.menu(anchor, [
+            { label: t('uc_copy_name'), icon: 'fa-regular fa-copy', onSelect: () => K.copy('@' + user.username) },
+            r.is_friend ? { label: t('uc_invite'), icon: 'fa-solid fa-user-plus', onSelect: () => inviteToGroup(user, anchor) } : null,
+            r.is_friend ? { label: t('uc_remove'), icon: 'fa-solid fa-user-minus', danger: true, onSelect: () => removeFriend(user) } : null,
+            { divider: true },
+            r.is_blocked_by_viewer
+                ? { label: t('uc_unblock'), icon: 'fa-solid fa-unlock', onSelect: () => act(null, 'unblock_user.php', { blocked_id: user.id }) }
+                : { label: t('uc_block'), icon: 'fa-solid fa-ban', danger: true, onSelect: () => block(user) },
+            { label: t('uc_report'), icon: 'fa-regular fa-flag', danger: true, onSelect: () => { window.location.href = '/' + lang + '/supporto'; } }
+        ], { alignRight: true });
     }
 
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    function actions(user) {
+        const r = user.relationship;
+        const row = h('div', { class: 'ck-ucard__actions' });
+        if (r.is_self) return row;
+
+        if (r.is_blocked_by_viewer) {
+            row.appendChild(h('button', {
+                type: 'button', class: 'ck-btn ck-btn--ghost',
+                onClick: (event) => act(event.currentTarget, 'unblock_user.php', { blocked_id: user.id })
+            }, icon('fa-solid fa-unlock'), t('uc_unblock')));
+        } else if (r.is_friend) {
+            row.appendChild(h('span', { class: 'ck-ucard__state' }, icon('fa-solid fa-user-check'), t('uc_friends')));
+        } else if (r.friend_request_received) {
+            row.append(
+                h('button', {
+                    type: 'button', class: 'ck-btn ck-btn--primary',
+                    onClick: (event) => act(event.currentTarget, 'accept_friend_request.php', { sender_id: user.id })
+                }, icon('fa-solid fa-user-check'), t('uc_accept')),
+                h('button', {
+                    type: 'button', class: 'ck-btn ck-btn--ghost',
+                    onClick: (event) => act(event.currentTarget, 'decline_friend_request.php', { sender_id: user.id })
+                }, t('uc_decline')));
+        } else if (r.friend_request_sent) {
+            row.appendChild(h('button', {
+                type: 'button', class: 'ck-btn ck-btn--ghost', title: t('uc_cancel_request'),
+                onClick: (event) => act(event.currentTarget, 'cancel_friend_request.php', { receiver_id: user.id })
+            }, icon('fa-solid fa-user-clock'), t('uc_pending')));
+        } else if (r.can_send_friend_request) {
+            row.appendChild(h('button', {
+                type: 'button', class: 'ck-btn ck-btn--primary',
+                onClick: (event) => act(event.currentTarget, 'send_friend_request.php', { receiver_id: user.id })
+            }, icon('fa-solid fa-user-plus'), t('uc_add')));
+        }
+
+        if (r.can_message && !r.is_blocked_by_viewer) {
+            row.appendChild(h('a', { class: 'ck-btn ck-btn--ghost', href: '/' + lang + '/chat?user_id=' + user.id },
+                icon('fa-solid fa-comment'), t('uc_message')));
+        }
+        return row;
     }
 
-    window.closeUserCard = closeUserCard;
+    function render(user) {
+        const r = user.relationship;
+        const profileUrl = '/u/' + encodeURIComponent(user.username);
+        const stats = user.stats || {};
+        const mutual = Number(stats.mutual_friends_count) || 0;
+        const friends = Number(stats.friends_count) || 0;
 
-    window.openInviteDropdown = async function (e, targetUserId) {
-        e.stopPropagation();
-        e.preventDefault();
-        
-        const existing = document.querySelector('#inviteGroupDropdown');
-        if (existing) existing.remove();
-        
-        // Create drop down list element
-        const dropdown = document.createElement('div');
-        dropdown.id = 'inviteGroupDropdown';
-        dropdown.style.cssText = 'position:absolute;background:#18181b;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 0;min-width:180px;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:999999;';
-        
-        // Fetch groups
-        try {
-            const res = await fetch(`/api/chat/my_manageable_groups.php?target_id=${targetUserId}`).then(r => r.json());
-            if (res.ok && res.groups && res.groups.length > 0) {
-                dropdown.innerHTML = res.groups.map(g => `
-                    <div style="padding:8px 15px;font-size:13px;cursor:pointer;color:white;transition:background 0.2s;" 
-                         onmouseover="this.style.background='rgba(255,255,255,0.05)'" 
-                         onmouseout="this.style.background='transparent'" 
-                         onclick="sendGroupInviteFromCard(${g.chat_id}, ${targetUserId})">
-                        ${escapeHtml(g.name)}
-                    </div>
-                `).join('');
-            } else {
-                dropdown.innerHTML = `<div style="padding:8px 15px;font-size:12px;color:#a1a1aa;text-align:center;">${lang === 'it' ? 'Nessun gruppo disponibile' : 'No groups available'}</div>`;
-            }
-        } catch (err) {
-            dropdown.innerHTML = `<div style="padding:8px 15px;font-size:12px;color:#ef4444;text-align:center;">${lang === 'it' ? 'Errore' : 'Error'}</div>`;
+        const card = h('div', { class: 'ck-ucard' });
+
+        card.appendChild(banner(user));
+        card.appendChild(h('div', { class: 'ck-ucard__tools' },
+            r.is_self ? null : h('button', {
+                type: 'button', class: 'ck-icon-btn ck-ucard__tool', 'aria-label': t('uc_more'), title: t('uc_more'),
+                onClick: (event) => moreMenu(user, event.currentTarget)
+            }, icon('fa-solid fa-ellipsis')),
+            h('button', { type: 'button', class: 'ck-icon-btn ck-ucard__tool ck-ucard__close', 'aria-label': t('close'), onClick: close }, icon('fa-solid fa-xmark'))));
+
+        card.appendChild(h('div', { class: 'ck-ucard__top' },
+            h('a', { class: 'ck-ucard__avatar', href: profileUrl },
+                h('img', { src: K.avatarUrl(user.id), alt: '' }),
+                user.is_online ? h('span', { class: 'ck-dot is-online' }) : null),
+            h('a', { class: 'ck-btn ck-btn--ghost ck-btn--sm', href: profileUrl }, icon('fa-regular fa-user'), t('uc_profile'))));
+
+        const body = h('div', { class: 'ck-ucard__body' });
+        body.appendChild(h('div', { class: 'ck-ucard__name' },
+            h('strong', null, user.display_name),
+            user.is_premium ? K.premiumGem() : null,
+            K.roleBadge(user.ruolo)));
+        body.appendChild(h('div', { class: 'ck-ucard__handle' },
+            h('span', null, '@' + user.username),
+            !r.is_blocked_by_viewer && (user.is_online || user.last_seen_ts)
+                ? h('span', { class: user.is_online ? 'is-online' : '' }, K.presenceLabel(user.is_online, user.last_seen_ts)) : null));
+
+        if (user.custom_status) body.appendChild(h('p', { class: 'ck-ucard__status' }, user.custom_status));
+
+        if (r.is_self) body.appendChild(h('p', { class: 'ck-ucard__note' }, t('uc_you')));
+        else if (r.is_blocked_by_viewer) body.appendChild(h('p', { class: 'ck-ucard__note' }, icon('fa-solid fa-ban'), ' ', t('uc_blocked_note')));
+        else if (user.profile_hidden) body.appendChild(h('p', { class: 'ck-ucard__note' }, icon('fa-solid fa-lock'), ' ', t('uc_private')));
+
+        if (user.bio) {
+            body.appendChild(h('div', { class: 'ck-ucard__section' },
+                h('h4', null, t('uc_about')),
+                h('p', null, user.bio)));
         }
-        
-        // Position next to click
-        document.body.appendChild(dropdown);
-        dropdown.style.left = (e.pageX) + 'px';
-        dropdown.style.top = (e.pageY) + 'px';
-        
-        // Close on clicking outside
-        const closeDropdown = () => {
-            dropdown.remove();
-            document.removeEventListener('click', closeDropdown);
-        };
-        setTimeout(() => document.addEventListener('click', closeDropdown), 50);
-    };
-    
-    window.sendGroupInviteFromCard = async function (chatId, inviteeId) {
-        try {
-            const csrfToken = document.body.dataset.csrf || '';
-            const res = await fetch('/api/chat/invite_user.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': csrfToken
-                },
-                body: JSON.stringify({ chat_id: chatId, invitee_id: inviteeId, csrf_token: csrfToken })
-            }).then(r => r.json());
-            
-            if (res.ok) {
-                alert(lang === 'it' ? "Invito inviato con successo!" : "Invitation sent successfully!");
+
+        if (!r.is_self && (mutual > 0 || friends > 0)) {
+            const line = h('div', { class: 'ck-ucard__mutual' });
+            if (mutual > 0) {
+                const faces = h('span', { class: 'ck-ucard__faces' });
+                (user.mutual_friends || []).slice(0, 4).forEach((friend) => {
+                    faces.appendChild(h('img', { src: K.avatarUrl(friend.id), alt: '', title: '@' + friend.username, loading: 'lazy' }));
+                });
+                line.append(faces, h('span', null, mutual === 1 ? t('uc_mutual_one') : t('uc_mutual', { n: mutual })));
             } else {
-                alert(res.error || (lang === 'it' ? "Errore durante l'invio." : "Error sending invitation."));
+                line.append(icon('fa-solid fa-user-group'), h('span', null, friends === 1 ? t('uc_friends_count_one') : t('uc_friends_count', { n: friends })));
             }
-        } catch (e) {
-            alert(lang === 'it' ? "Errore di connessione." : "Connection error.");
+            body.appendChild(line);
         }
-    };
+
+        body.appendChild(actions(user));
+        card.appendChild(body);
+        return card;
+    }
+
+    /** Finestra delle impostazioni di privacy: chi può scrivere, richieste, conferme di lettura. */
+    async function privacy() {
+        const body = h('div', { class: 'ck-privacy' }, K.spinner());
+        K.dialog({ title: t('uc_privacy_title'), icon: 'fa-solid fa-user-shield', body, actions: [{ label: t('close'), kind: 'ghost', value: null }] });
+        try {
+            const data = await K.api('/api/social/privacy.php');
+            const settings = data.data.settings;
+            K.clear(body);
+            if (!settings.available) {
+                body.appendChild(h('p', { class: 'ck-dialog__text' }, t('uc_privacy_off')));
+                return;
+            }
+
+            const row = (label, hint, checked, toPayload, disabled) => {
+                const input = h('input', { type: 'checkbox', checked, disabled });
+                input.addEventListener('change', async () => {
+                    try {
+                        await K.api('/api/social/privacy.php', { body: toPayload(input.checked) });
+                        K.toast(t('uc_saved'), 'success');
+                    } catch (error) {
+                        input.checked = !input.checked;
+                        K.toast(error.message, 'error');
+                    }
+                });
+                return h('label', { class: 'ck-switch ck-privacy__row' }, h('span', null, h('strong', null, label), h('small', null, hint)), input, h('i'));
+            };
+
+            body.append(
+                row(t('uc_privacy_dm'), t('uc_privacy_dm_hint'), settings.dm_from === 'friends', (on) => ({ dm_from: on ? 'friends' : 'all' })),
+                row(t('uc_privacy_requests'), t('uc_privacy_requests_hint'), settings.requests_from === 'none', (on) => ({ requests_from: on ? 'none' : 'all' }), !settings.requests_setting_available),
+                row(t('uc_privacy_receipts'), t('uc_privacy_receipts_hint'), !!settings.read_receipts, (on) => ({ read_receipts: on })),
+                row(t('uc_privacy_typing'), t('uc_privacy_typing_hint'), !!settings.typing, (on) => ({ typing: on })));
+        } catch (error) {
+            K.clear(body);
+            body.appendChild(h('p', { class: 'ck-dialog__text' }, error.message));
+        }
+    }
+
+    // Clic su avatar e nomi sparsi per il sito: per chi non ha fatto l'accesso
+    // il link resta un link normale al profilo.
+    document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('.user-card-trigger');
+        if (!trigger || !isLoggedIn()) return;
+        const id = parseInt(trigger.dataset.userId || trigger.dataset.id || '0', 10) || 0;
+        const username = trigger.dataset.username || '';
+        if (!id && !username) return;
+        event.preventDefault();
+        event.stopPropagation();
+        open({ id, username });
+    });
+
+    window.CripsumUserCard = { open, close, privacy };
+    // Nome usato dalle pagine vecchie.
+    window.closeUserCard = close;
 })();

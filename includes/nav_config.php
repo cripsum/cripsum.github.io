@@ -327,6 +327,7 @@ if (!function_exists('nav_lang')) {
                     'label' => $t['private_chat'],
                     'href'  => "/$lang/chat",
                     'badge' => ((int)($ctx['unread_chat'] ?? 0)) > 0 ? (int)$ctx['unread_chat'] : null,
+                    'key'   => 'chat',
                 ],
                 ['icon' => 'fa-envelope', 'label' => $t['global_chat'], 'href' => "/$lang/global-chat"],
                 [
@@ -334,6 +335,7 @@ if (!function_exists('nav_lang')) {
                     'label' => $t['friends'],
                     'href'  => "/$lang/amici",
                     'badge' => ((int)($ctx['friends'] ?? 0)) > 0 ? (int)$ctx['friends'] : null,
+                    'key'   => 'friends',
                 ],
             ],
         ];

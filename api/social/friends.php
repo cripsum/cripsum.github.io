@@ -1,73 +1,63 @@
 <?php
+/**
+ * Lista amici. Senza parametri restituisce i propri, con i contatori che la
+ * pagina Amici mostra in testata; con `target_id` quelli di un altro utente,
+ * se il suo profilo è visibile a chi chiede.
+ */
 require_once __DIR__ . '/bootstrap.php';
 
-$targetId = isset($_GET['target_id']) ? (int)$_GET['target_id'] : $userId;
-
-// Verifichiamo se possiamo vedere il profilo dell'utente target
-$targetRel = getRelationshipStatus($mysqli, $userId, $targetId);
-if (!$targetRel['can_view_profile'] && $targetId !== $userId) {
-    send_api_error("Questo profilo è privato o hai un blocco attivo.", "PROFILE_PRIVATE", 403);
-}
-
-$sql = "
-    SELECT 
-        u.id, u.username, u.ruolo, u.is_premium, u.ultimo_accesso,
-        TIMESTAMPDIFF(SECOND, u.ultimo_accesso, NOW()) AS seconds_since_active,
-        EXISTS(SELECT 1 FROM friendships WHERE (user_one_id = LEAST(?, u.id) AND user_two_id = GREATEST(?, u.id))) AS is_friend,
-        EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = ? AND receiver_id = u.id AND status = 'pending') AS request_sent,
-        EXISTS(SELECT 1 FROM friendship_requests WHERE sender_id = u.id AND receiver_id = ? AND status = 'pending') AS request_received
-    FROM friendships f
-    INNER JOIN utenti u ON u.id = IF(f.user_one_id = ?, f.user_two_id, f.user_one_id)
-    WHERE f.user_one_id = ? OR f.user_two_id = ?
-    ORDER BY u.username ASC
-";
-
-$stmt = $mysqli->prepare($sql);
-if (!$stmt) {
-    send_api_error("Errore di database durante il caricamento degli amici.", "DATABASE_ERROR", 500);
-}
-
-$stmt->bind_param(
-    "iiiiiii",
-    $userId, $userId, $userId, $userId,
-    $targetId, $targetId, $targetId
-);
-
-$stmt->execute();
-$res = $stmt->get_result();
-$allFriends = $res->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
-
-$onlineFriends = [];
-$offlineFriends = [];
-
-foreach ($allFriends as &$f) {
-    $f['id'] = (int)$f['id'];
-    $f['is_following'] = false;
-    $f['is_followed_by'] = false;
-    $f['is_mutual_follow'] = false;
-    $f['is_friend'] = (bool)$f['is_friend'];
-    $f['friend_request_sent'] = (bool)$f['request_sent'];
-    $f['friend_request_received'] = (bool)$f['request_received'];
-    
-    // Calcolo stato online
-    $secSince = $f['seconds_since_active'];
-    $isOnline = ($secSince !== null && $secSince < 180);
-    $f['is_online'] = $isOnline;
-    
-    unset($f['request_sent'], $f['request_received'], $f['ultimo_accesso'], $f['seconds_since_active']);
-    
-    if ($isOnline) {
-        $onlineFriends[] = $f;
-    } else {
-        $offlineFriends[] = $f;
+social_run(static function () use ($mysqli, $userId): void {
+    $targetId = isset($_GET['target_id']) ? (int)$_GET['target_id'] : $userId;
+    if ($targetId <= 0) {
+        $targetId = $userId;
     }
-}
-unset($f);
 
-send_api_success([
-    'online' => $onlineFriends,
-    'offline' => $offlineFriends,
-    'all' => $allFriends
-]);
-?>
+    if ($targetId !== $userId) {
+        $rel = sc_relationship($mysqli, $userId, $targetId);
+        if (!$rel['target_exists'] || !$rel['can_view_profile']) {
+            throw new SocialError(rt_t('Questo profilo non è visibile.', 'This profile is not visible.'), 'PROFILE_PRIVATE', 403);
+        }
+
+        // Degli amici di un altro si vede chi sono, non quando sono online.
+        $friends = array_map(static function (array $friend): array {
+            $friend['is_online'] = false;
+            $friend['last_seen_ts'] = null;
+            unset($friend['since_ts']);
+            return $friend;
+        }, sc_friends($mysqli, $targetId));
+
+        $hidden = array_flip(sc_hidden_ids($mysqli, $userId));
+        $friends = array_values(array_filter($friends, static fn($f) => !isset($hidden[$f['id']]) && $f['id'] !== $userId));
+        $friends = sc_attach_relations($mysqli, $userId, $friends);
+
+        send_api_success(['online' => [], 'offline' => $friends, 'all' => $friends]);
+    }
+
+    $friends = sc_friends($mysqli, $userId);
+    $online = array_values(array_filter($friends, static fn($f) => $f['is_online']));
+    $offline = array_values(array_filter($friends, static fn($f) => !$f['is_online']));
+
+    $stmt = $mysqli->prepare("
+        SELECT
+            (SELECT COUNT(*) FROM friendship_requests WHERE receiver_id = ? AND status = 'pending') AS received,
+            (SELECT COUNT(*) FROM friendship_requests WHERE sender_id = ? AND status = 'pending') AS sent,
+            (SELECT COUNT(*) FROM blocked_users WHERE blocker_id = ?) AS blocked
+    ");
+    $stmt->bind_param('iii', $userId, $userId, $userId);
+    $stmt->execute();
+    $counts = $stmt->get_result()->fetch_assoc() ?: [];
+    $stmt->close();
+
+    send_api_success([
+        'online' => $online,
+        'offline' => $offline,
+        'all' => $friends,
+        'counts' => [
+            'friends' => count($friends),
+            'online' => count($online),
+            'requests_received' => (int)($counts['received'] ?? 0),
+            'requests_sent' => (int)($counts['sent'] ?? 0),
+            'blocked' => (int)($counts['blocked'] ?? 0),
+        ],
+    ]);
+});

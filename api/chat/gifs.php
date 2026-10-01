@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
-chat_require_login_json($mysqli);
+// Login e ban li ha già controllati bootstrap.php.
 
 $q = mb_substr(trim((string)($_GET['q'] ?? '')), 0, 60, 'UTF-8');
 $limit = max(8, min(50, (int)KLIPY_LIMIT));

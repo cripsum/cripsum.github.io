@@ -1,0 +1,331 @@
+/*
+ * Avvisi in tempo reale (assets/rt/rt.js): i riquadri in basso e il pannello
+ * delle preferenze. Sta su tutte le pagine con la navbar, quindi usa i suoi
+ * colori e segue il tema chiaro/scuro (data-cnav-theme su <html>).
+ *
+ * Si animano solo opacità e trasformazioni.
+ */
+
+:root {
+    --crt-accent: #2f6bff;
+    --crt-accent-rgb: 47, 107, 255;
+    --crt-bg: rgba(12, 16, 30, 0.96);
+    --crt-border: rgba(255, 255, 255, 0.12);
+    --crt-text: #f7f8ff;
+    --crt-muted: #aab3c8;
+    --crt-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    --crt-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+html[data-cnav-theme="light"] {
+    --crt-bg: rgba(255, 255, 255, 0.98);
+    --crt-border: rgba(20, 20, 20, 0.12);
+    --crt-text: #1c1c1e;
+    --crt-muted: #5f6577;
+    --crt-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
+}
+
+/* Il contatore di una voce della navbar resta nel DOM anche a zero. */
+.cnav-row__badge[hidden] {
+    display: none !important;
+}
+
+/* ── Riquadri ─────────────────────────────────────────────────────────── */
+
+.crt-stack {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 20050;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(360px, calc(100vw - 24px));
+    pointer-events: none;
+}
+
+.crt-toast {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 28px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 12px 12px 14px;
+    border: 1px solid var(--crt-border);
+    border-radius: 16px;
+    background: var(--crt-bg);
+    color: var(--crt-text);
+    box-shadow: var(--crt-shadow);
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+    cursor: pointer;
+    pointer-events: auto;
+    animation: crtToastIn 220ms var(--crt-ease) both;
+    transition: opacity 200ms var(--crt-ease), transform 200ms var(--crt-ease);
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes crtToastIn {
+    from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.98); }
+    to { opacity: 1; transform: none; }
+}
+
+.crt-toast::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--crt-accent);
+}
+
+.crt-toast--friend_request::before,
+.crt-toast--friend_accept::before {
+    background: #34d399;
+}
+
+.crt-toast--mention::before {
+    background: #fbbf24;
+}
+
+.crt-toast.is-out {
+    opacity: 0;
+    transform: translate3d(24px, 0, 0);
+}
+
+.crt-toast:hover {
+    border-color: rgba(var(--crt-accent-rgb), 0.55);
+}
+
+.crt-toast:focus-visible {
+    outline: 2px solid var(--crt-accent);
+    outline-offset: 2px;
+}
+
+.crt-toast__media {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: rgba(var(--crt-accent-rgb), 0.16);
+    color: var(--crt-accent);
+    font-size: 16px;
+}
+
+.crt-toast__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.crt-toast__body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.3;
+}
+
+.crt-toast__body strong {
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.crt-toast__body span {
+    font-size: 0.82rem;
+    color: var(--crt-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
+.crt-toast__close {
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--crt-muted);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background 120ms ease, color 120ms ease;
+}
+
+.crt-toast__close:hover {
+    background: rgba(127, 127, 127, 0.18);
+    color: var(--crt-text);
+}
+
+@media (max-width: 640px) {
+    .crt-stack {
+        right: 12px;
+        left: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        width: auto;
+    }
+}
+
+/* ── Preferenze ───────────────────────────────────────────────────────── */
+
+.crt-settings {
+    position: fixed;
+    inset: 0;
+    z-index: 20060;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(2, 4, 10, 0.62);
+    animation: crtFade 160ms ease both;
+}
+
+.crt-settings__card {
+    width: min(420px, 100%);
+    border: 1px solid var(--crt-border);
+    border-radius: 22px;
+    background: var(--crt-bg);
+    color: var(--crt-text);
+    box-shadow: var(--crt-shadow);
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow: hidden;
+    animation: crtPop 200ms var(--crt-ease) both;
+}
+
+.crt-settings__card header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--crt-border);
+}
+
+.crt-settings__card h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.crt-settings__card h3 i {
+    color: var(--crt-accent);
+}
+
+.crt-settings__close {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--crt-muted);
+    cursor: pointer;
+}
+
+.crt-settings__close:hover {
+    background: rgba(127, 127, 127, 0.18);
+    color: var(--crt-text);
+}
+
+.crt-settings__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    cursor: pointer;
+    position: relative;
+}
+
+.crt-settings__row + .crt-settings__row {
+    border-top: 1px solid var(--crt-border);
+}
+
+.crt-settings__row span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.crt-settings__row strong {
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.crt-settings__row small {
+    font-size: 0.78rem;
+    color: var(--crt-muted);
+    line-height: 1.35;
+}
+
+.crt-settings__row input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.crt-switch {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(127, 127, 127, 0.35);
+    position: relative;
+    transition: background 160ms ease;
+}
+
+.crt-switch::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 180ms var(--crt-ease);
+}
+
+.crt-settings__row input:checked + .crt-switch {
+    background: var(--crt-accent);
+}
+
+.crt-settings__row input:checked + .crt-switch::after {
+    transform: translateX(18px);
+}
+
+.crt-settings__row input:disabled + .crt-switch {
+    opacity: 0.45;
+}
+
+.crt-settings__row input:focus-visible + .crt-switch {
+    outline: 2px solid var(--crt-accent);
+    outline-offset: 2px;
+}
+
+@keyframes crtFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes crtPop {
+    from { opacity: 0; transform: translate3d(0, 10px, 0) scale(0.97); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .crt-toast,
+    .crt-settings,
+    .crt-settings__card,
+    .crt-switch,
+    .crt-switch::after {
+        transition: none;
+        animation: none;
+    }
+}

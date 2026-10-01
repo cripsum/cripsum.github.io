@@ -1,73 +1,70 @@
 <?php
-// api/chat/mute.php
-// Dual endpoint: Mutes a group chat if 'chat_id' is provided, otherwise mutes a user in global chat.
-
+/**
+ * Silenziare.
+ *
+ *   con `chat_id`  → le notifiche di un gruppo, per `duration` secondi
+ *                    (-1 = finché non le riattivi);
+ *   con `user_id`  → un utente nella chat globale (non vedrai i suoi
+ *                    messaggi), `muted: false` per togliere il muto;
+ *   GET            → elenco di chi hai mutato nella chat globale.
+ */
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/../../includes/group_chat_functions.php';
 
-$input = get_json_input();
+chat_run(static function () use ($mysqli, $userId): void {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $list = [];
+        if (rt_has_table($mysqli, 'chat_mutes')) {
+            $stmt = $mysqli->prepare('
+                SELECT u.id, u.username, u.display_name, u.is_premium
+                FROM chat_mutes cm INNER JOIN utenti u ON u.id = cm.muted_id
+                WHERE cm.muter_id = ? ORDER BY cm.created_at DESC LIMIT 200
+            ');
+            $stmt->bind_param('i', $userId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $list[] = [
+                    'id' => (int)$row['id'],
+                    'username' => (string)$row['username'],
+                    'display_name' => (string)($row['display_name'] ?: $row['username']),
+                    'is_premium' => (int)$row['is_premium'] === 1,
+                ];
+            }
+            $stmt->close();
+        }
+        send_success(['muted' => $list]);
+    }
 
-// --- GROUP CHAT MUTE ROUTING ---
-if (isset($input['chat_id'])) {
-    $chatId = (int)$input['chat_id'];
-    $duration = isset($input['duration']) ? (int)$input['duration'] : -1; // -1 = permanent
-    
-    if (!$chatId) {
-        send_error("ID chat non valido.");
+    $input = get_json_input();
+
+    if (isset($input['chat_id'])) {
+        $until = cg_mute($mysqli, $userId, (int)$input['chat_id'], (int)($input['duration'] ?? -1));
+        send_success(['muted_until_ts' => $until, 'muted' => $until !== null]);
     }
-    
-    if (!isChatMember($mysqli, $chatId, $userId)) {
-        send_error("Non partecipi a questo gruppo.", 403);
+
+    $targetId = (int)($input['user_id'] ?? 0);
+    $muted = !empty($input['muted']);
+    if ($targetId <= 0 || $targetId === $userId || !rt_has_table($mysqli, 'chat_mutes')) {
+        throw new ChatError(rt_t('Utente non valido.', 'Invalid user.'), 422);
     }
-    
-    $mutedUntil = null;
-    if ($duration > 0) {
-        $mutedUntil = date('Y-m-d H:i:s', time() + $duration);
-    } elseif ($duration === -1) {
-        // 10 years in future
-        $mutedUntil = date('Y-m-d H:i:s', time() + (10 * 365 * 24 * 3600));
-    }
-    
-    $stmt = $mysqli->prepare("UPDATE chat_members SET muted_until = ? WHERE chat_id = ? AND user_id = ?");
-    if (!$stmt) {
-        send_error("Errore interno del server.", 500);
-    }
-    $stmt->bind_param("sii", $mutedUntil, $chatId, $userId);
-    $ok = $stmt->execute();
-    $stmt->close();
-    
-    if ($ok) {
-        send_success([
-            'muted_until' => $mutedUntil,
-            'message' => "Gruppo silenziato con successo."
-        ]);
+
+    if ($muted) {
+        $stmt = $mysqli->prepare('SELECT COUNT(*) FROM chat_mutes WHERE muter_id = ?');
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $count = (int)($stmt->get_result()->fetch_row()[0] ?? 0);
+        $stmt->close();
+        if ($count >= 200) {
+            throw new ChatError(rt_t('Hai già mutato troppe persone.', 'You already muted too many people.'), 422);
+        }
+        $stmt = $mysqli->prepare('INSERT IGNORE INTO chat_mutes (muter_id, muted_id, created_at) VALUES (?, ?, NOW())');
     } else {
-        send_error("Impossibile silenziare il gruppo.");
+        $stmt = $mysqli->prepare('DELETE FROM chat_mutes WHERE muter_id = ? AND muted_id = ?');
     }
-}
-
-// --- ORIGINAL GLOBAL CHAT USER MUTE LOGIC ---
-$user = chat_require_login_json($mysqli);
-$userId = (int)$user['id'];
-$data = $input; // get_json_input already reads it
-
-$targetId = (int)($data['user_id'] ?? 0);
-$muted = !empty($data['muted']);
-
-if ($targetId <= 0 || $targetId === $userId) {
-    chat_json(['ok' => false, 'error' => 'Utente non valido.'], 422);
-}
-
-if ($muted) {
-    $stmt = $mysqli->prepare('INSERT IGNORE INTO chat_mutes (muter_id, muted_id, created_at) VALUES (?, ?, NOW())');
-    if (!$stmt) chat_json(['ok' => false, 'error' => 'Tabella mute mancante. Esegui SQL.'], 500);
     $stmt->bind_param('ii', $userId, $targetId);
-} else {
-    $stmt = $mysqli->prepare('DELETE FROM chat_mutes WHERE muter_id = ? AND muted_id = ?');
-    if (!$stmt) chat_json(['ok' => false, 'error' => 'Tabella mute mancante. Esegui SQL.'], 500);
-    $stmt->bind_param('ii', $userId, $targetId);
-}
-$ok = $stmt->execute();
-$stmt->close();
-chat_json(['ok' => $ok]);
-?>
+    $stmt->execute();
+    $stmt->close();
+
+    sc_refresh_hidden($mysqli, $userId);
+    send_success(['muted' => $muted]);
+});

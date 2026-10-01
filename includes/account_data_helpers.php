@@ -95,6 +95,8 @@ function account_owner_columns(): array
         // Messaging
         'sender_id', 'recipient_id', 'receiver_id', 'destinatario_id', 'mittente_id',
         'inviter_id', 'invitee_id',
+        // Chat: people muted in the global chat, messages pinned in a private chat
+        'muter_id', 'muted_id', 'pinned_by',
         // Games
         'player_id', 'player1_id', 'player2_id', 'winner_id', 'loser_id',
         // Moderation and authorship
@@ -956,6 +958,141 @@ function account_delete_directory(string $dir): void
 }
 
 /**
+ * Chat leftovers the generic sweep cannot reach.
+ *
+ * Attachment files live on disk and the rows only hold their path; a group
+ * must outlive the account of whoever created it; service lines such as
+ * "@name joined the group" carry the username. Every step is best-effort: a
+ * failure here must never stop the account from being erased.
+ */
+function account_purge_chat_traces(mysqli $mysqli, int $userId): void
+{
+    $unlink = static function ($path): void {
+        $path = (string)$path;
+        if (!preg_match('#^/uploads/chat/\d{4}/\d{2}/[A-Za-z0-9._-]+$#', $path) || str_contains($path, '..')) {
+            return;
+        }
+        $full = dirname(__DIR__) . $path;
+        if (is_file($full)) {
+            @unlink($full);
+        }
+    };
+
+    // Private chats: the files this user sent, then their rows (they are keyed
+    // by message, so the sweep would leave them behind).
+    try {
+        $stmt = $mysqli->prepare('SELECT a.file_path FROM private_message_attachments a INNER JOIN private_messages m ON m.id = a.message_id WHERE m.sender_id = ?');
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $unlink($row['file_path']);
+        }
+        $stmt->close();
+
+        $stmt = $mysqli->prepare('DELETE a FROM private_message_attachments a INNER JOIN private_messages m ON m.id = a.message_id WHERE m.sender_id = ?');
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $stmt->close();
+    } catch (Throwable $e) {
+        error_log('[account_purge_chat_traces] private attachments: ' . $e->getMessage());
+    }
+
+    // Group chats keep their attachments inside the message metadata.
+    try {
+        $stmt = $mysqli->prepare("SELECT metadata_json FROM chat_messages WHERE sender_id = ? AND metadata_json LIKE '%/uploads/chat/%'");
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $meta = json_decode((string)$row['metadata_json'], true);
+            foreach ((array)($meta['attachments'] ?? []) as $attachment) {
+                if (is_array($attachment)) {
+                    $unlink($attachment['file_path'] ?? '');
+                }
+            }
+        }
+        $stmt->close();
+    } catch (Throwable $e) {
+        error_log('[account_purge_chat_traces] group attachments: ' . $e->getMessage());
+    }
+
+    // Groups owned by this user go to the admin (or member) who has been there
+    // the longest. The "created by" marker moves too: the sweep deletes rows by
+    // created_by and would take the whole group with it. A group left without
+    // members keeps the marker and is removed by the sweep.
+    try {
+        $stmt = $mysqli->prepare("SELECT chat_id FROM chat_members WHERE user_id = ? AND role = 'owner' AND status = 'active'");
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $owned = array_map('intval', array_column($stmt->get_result()->fetch_all(MYSQLI_ASSOC), 'chat_id'));
+        $stmt->close();
+
+        foreach ($owned as $chatId) {
+            $stmt = $mysqli->prepare("
+                SELECT user_id FROM chat_members
+                WHERE chat_id = ? AND status = 'active' AND user_id <> ?
+                ORDER BY (role = 'admin') DESC, joined_at ASC, id ASC LIMIT 1
+            ");
+            $stmt->bind_param('ii', $chatId, $userId);
+            $stmt->execute();
+            $heir = $stmt->get_result()->fetch_row();
+            $stmt->close();
+            if (!$heir) {
+                continue;
+            }
+            $heirId = (int)$heir[0];
+            $stmt = $mysqli->prepare("UPDATE chat_members SET role = 'owner' WHERE chat_id = ? AND user_id = ?");
+            $stmt->bind_param('ii', $chatId, $heirId);
+            $stmt->execute();
+            $stmt->close();
+        }
+
+        $stmt = $mysqli->prepare("
+            UPDATE chats c
+            INNER JOIN chat_members m ON m.chat_id = c.id AND m.role = 'owner' AND m.status = 'active' AND m.user_id <> ?
+            SET c.created_by = m.user_id
+            WHERE c.created_by = ?
+        ");
+        $stmt->bind_param('ii', $userId, $userId);
+        $stmt->execute();
+        $stmt->close();
+    } catch (Throwable $e) {
+        error_log('[account_purge_chat_traces] groups: ' . $e->getMessage());
+    }
+
+    // Service lines that name the account ("@name joined the group").
+    try {
+        $stmt = $mysqli->prepare('SELECT username FROM utenti WHERE id = ? LIMIT 1');
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $username = (string)($stmt->get_result()->fetch_row()[0] ?? '');
+        $stmt->close();
+
+        if ($username !== '') {
+            $needle = '%"' . addcslashes($username, '\\%_') . '"%';
+            $stmt = $mysqli->prepare("DELETE FROM chat_messages WHERE message_type = 'system' AND metadata_json LIKE ?");
+            $stmt->bind_param('s', $needle);
+            $stmt->execute();
+            $stmt->close();
+        }
+    } catch (Throwable $e) {
+        error_log('[account_purge_chat_traces] service lines: ' . $e->getMessage());
+    }
+
+    // The real-time stamp of the account (assets/rt/rt.js polls it).
+    try {
+        require_once __DIR__ . '/realtime.php';
+        $stamp = rt_path('u:' . $userId);
+        if (is_file($stamp)) {
+            @unlink($stamp);
+        }
+    } catch (Throwable $e) {
+        error_log('[account_purge_chat_traces] stamp: ' . $e->getMessage());
+    }
+}
+
+/**
  * Permanently erases an account and everything attached to it.
  *
  * Returns ['ok' => bool, 'deleted' => ['table' => rows], 'message' => string].
@@ -971,6 +1108,7 @@ function account_purge_user(mysqli $mysqli, int $userId): array
     // Uploaded files first: losing the row would lose the path to them.
     account_delete_directory(__DIR__ . '/../uploads/profile_media/user_' . $userId);
     chisiamo_delete_user_candidature_files($mysqli, $userId);
+    account_purge_chat_traces($mysqli, $userId);
 
     try {
         $stmt = $mysqli->prepare("SELECT file_name FROM `user_data_exports` WHERE utente_id = ?");

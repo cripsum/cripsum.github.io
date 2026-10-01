@@ -1,0 +1,738 @@
+/*
+ * Chat globale: disposizione della pagina. I componenti (messaggi, riga di
+ * scrittura, dialoghi) e i colori stanno in kit.css.
+ *
+ * La chat occupa lo spazio sotto la navbar e non fa scorrere la pagina:
+ * scorre solo la lista dei messaggi. --ck-nav e --ck-vh li misura
+ * global.js (altezza della navbar, altezza visibile con la tastiera aperta).
+ */
+
+body.gc-page {
+    overflow: hidden;
+    height: 100vh;
+    height: 100dvh;
+}
+
+.gc-shell {
+    position: fixed;
+    top: var(--ck-nav, 96px);
+    left: 0;
+    right: 0;
+    height: calc(var(--ck-vh, 100dvh) - var(--ck-nav, 96px) - 16px);
+    width: min(1480px, calc(100% - 32px));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 296px;
+    gap: 16px;
+}
+
+.gc-panel {
+    position: relative;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--ck-border);
+    border-radius: var(--ck-radius-xl);
+    background: var(--ck-panel);
+    box-shadow: var(--ck-shadow);
+    overflow: hidden;
+}
+
+/* ── Testata ──────────────────────────────────────────────────────────── */
+
+.gc-head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 14px 14px 20px;
+    border-bottom: 1px solid var(--ck-border-soft);
+}
+
+.gc-head__title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.gc-head__icon {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: linear-gradient(135deg, var(--ck-accent), var(--ck-accent-strong));
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: 0 10px 24px rgba(var(--ck-accent-rgb), 0.3);
+}
+
+.gc-head h1 {
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ck-text);
+}
+
+.gc-head p {
+    margin: 2px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.78rem;
+    color: var(--ck-muted);
+}
+
+.gc-live {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ck-green);
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+    animation: gcPulse 2.2s ease-out infinite;
+}
+
+.gc-live.is-off {
+    background: var(--ck-yellow);
+    animation: none;
+}
+
+@keyframes gcPulse {
+    0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+    70%, 100% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+}
+
+.gc-head__actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.gc-people-btn {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 12px;
+    margin-right: 4px;
+    border: 1px solid var(--ck-border);
+    border-radius: 999px;
+    background: var(--ck-surface);
+    color: var(--ck-text);
+    font: 600 0.82rem/1 var(--ck-font);
+    cursor: pointer;
+}
+
+.gc-people-btn .ck-dot {
+    border: 0;
+    width: 8px;
+    height: 8px;
+}
+
+/* ── Avviso fissato, ricerca, striscia «messaggi vecchi» ──────────────── */
+
+.gc-pinned {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px 6px 6px;
+    border-bottom: 1px solid var(--ck-border-soft);
+    background: rgba(var(--ck-accent-rgb), 0.09);
+}
+
+.gc-pinned[hidden],
+.gc-search[hidden],
+.gc-banner[hidden],
+.gc-typing[hidden] {
+    display: none;
+}
+
+.gc-pinned__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--ck-text);
+    font-family: var(--ck-font);
+    text-align: left;
+    cursor: pointer;
+}
+
+.gc-pinned__body:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.gc-pinned__body > i {
+    color: var(--ck-accent);
+}
+
+.gc-pinned__body span {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.gc-pinned__body strong {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #9db9ff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.gc-pinned__body em {
+    font-style: normal;
+    font-size: 0.86rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gc-search {
+    position: absolute;
+    top: 73px;
+    left: 0;
+    right: 0;
+    z-index: 7;
+    max-height: min(70%, 520px);
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--ck-border);
+    background: rgba(11, 16, 32, 0.99);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5);
+    animation: ckSlideUp 180ms var(--ck-ease) both;
+}
+
+.gc-search__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px 10px 16px;
+}
+
+.gc-search__bar > i {
+    position: absolute;
+    left: 30px;
+    color: var(--ck-muted-2);
+    font-size: 0.84rem;
+}
+
+.gc-search__bar .ck-input {
+    padding-left: 38px;
+    border-radius: 999px;
+}
+
+.gc-search__results {
+    overflow-y: auto;
+    padding: 0 8px 10px;
+}
+
+.gc-search__hint {
+    margin: 0;
+    padding: 18px;
+    text-align: center;
+    color: var(--ck-muted);
+    font-size: 0.86rem;
+}
+
+.gc-result {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--ck-text);
+    font-family: var(--ck-font);
+    text-align: left;
+    cursor: pointer;
+}
+
+.gc-result:hover {
+    background: var(--ck-surface-2);
+}
+
+.gc-result img {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gc-result__body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.gc-result__body strong {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.gc-result__body time {
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: var(--ck-muted-2);
+}
+
+.gc-result__body > span {
+    font-size: 0.86rem;
+    color: var(--ck-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
+.gc-banner {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px 8px 18px;
+    border-bottom: 1px solid var(--ck-border-soft);
+    background: rgba(251, 191, 36, 0.09);
+    color: #fde68a;
+    font-size: 0.82rem;
+}
+
+/* ── Lista e «sta scrivendo» ──────────────────────────────────────────── */
+
+.gc-list {
+    flex: 1 1 auto;
+}
+
+.gc-typing {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 22px 8px;
+    font-size: 0.76rem;
+    color: var(--ck-muted);
+}
+
+.gc-typing__dots {
+    display: inline-flex;
+    gap: 3px;
+}
+
+.gc-typing__dots i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ck-accent);
+    animation: ckBounce 900ms ease-in-out infinite;
+}
+
+.gc-typing__dots i:nth-child(2) { animation-delay: 120ms; }
+.gc-typing__dots i:nth-child(3) { animation-delay: 240ms; }
+
+/* ── Colonna «In chat adesso» ─────────────────────────────────────────── */
+
+.gc-side__head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 12px 14px 20px;
+    border-bottom: 1px solid var(--ck-border-soft);
+}
+
+.gc-side__head h2 {
+    margin: 0;
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: var(--ck-text);
+}
+
+.gc-side__head p {
+    margin: 2px 0 0;
+    font-size: 0.76rem;
+    color: var(--ck-muted);
+}
+
+.gc-side__head p strong {
+    color: var(--ck-green);
+}
+
+.gc-side__close {
+    display: none;
+}
+
+.gc-side__list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.gc-side__empty {
+    margin: 0;
+    padding: 12px 12px 4px;
+    font-size: 0.8rem;
+    color: var(--ck-muted-2);
+}
+
+.gc-person {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--ck-text);
+    font-family: var(--ck-font);
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--ck-fast) ease;
+}
+
+.gc-person:hover {
+    background: var(--ck-surface-2);
+}
+
+.gc-person__avatar {
+    position: relative;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+}
+
+.gc-person__avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gc-person__avatar .ck-dot {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+}
+
+.gc-person__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.gc-person__body strong {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gc-person__body small {
+    font-size: 0.72rem;
+    color: var(--ck-muted-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gc-side-backdrop {
+    display: none;
+}
+
+/* ── Dialoghi di questa pagina ────────────────────────────────────────── */
+
+.gc-radio {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gc-radio__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--ck-border-soft);
+    border-radius: 12px;
+    background: var(--ck-surface);
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.gc-radio__row:has(input:checked) {
+    border-color: var(--ck-accent-line);
+    background: var(--ck-accent-soft);
+}
+
+.gc-radio__row input {
+    accent-color: var(--ck-accent);
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.gc-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gc-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 4px;
+}
+
+.gc-row img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gc-row__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.gc-row__body strong {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.gc-row__body small {
+    font-size: 0.76rem;
+    color: var(--ck-muted);
+}
+
+.gc-mod {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.gc-mod__add {
+    display: flex;
+    gap: 8px;
+}
+
+.gc-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 8px;
+}
+
+.gc-word {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 12px;
+    border-radius: 999px;
+    background: var(--ck-surface-2);
+    border: 1px solid var(--ck-border-soft);
+    font-size: 0.82rem;
+}
+
+.gc-word button {
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ck-muted);
+    font-size: 0.66rem;
+    cursor: pointer;
+}
+
+.gc-word button:hover {
+    background: rgba(251, 113, 133, 0.2);
+    color: var(--ck-red);
+}
+
+/* ── Regolamento da accettare ─────────────────────────────────────────── */
+
+.gc-gate {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 110px 16px 32px;
+}
+
+.gc-gate__card {
+    width: min(460px, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 30px 28px;
+    border: 1px solid var(--ck-border);
+    border-radius: var(--ck-radius-xl);
+    background: var(--ck-panel);
+    box-shadow: var(--ck-shadow);
+    text-align: center;
+    animation: ckPop 260ms var(--ck-ease) both;
+}
+
+.gc-gate__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 4px;
+    display: grid;
+    place-items: center;
+    border-radius: 22px;
+    background: var(--ck-accent-soft);
+    color: #8fb0ff;
+    font-size: 1.5rem;
+}
+
+.gc-gate__card h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--ck-text);
+}
+
+.gc-gate__card p {
+    margin: 0;
+    color: var(--ck-muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.gc-gate__check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-top: 4px;
+    border: 1px solid var(--ck-border);
+    border-radius: 14px;
+    background: var(--ck-surface);
+    font-size: 0.9rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.gc-gate__check input {
+    accent-color: var(--ck-accent);
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+/* ── Schermi stretti ──────────────────────────────────────────────────── */
+
+@media (max-width: 1080px) {
+    .gc-shell {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* Il guscio è un contesto a sé: per far passare il pannello sopra la
+       navbar bisogna alzare lui, non il pannello. */
+    .gc-shell.has-side-open {
+        z-index: 1045;
+    }
+
+    .gc-people-btn {
+        display: inline-flex;
+    }
+
+    .gc-side {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1040;
+        width: min(320px, 86vw);
+        border-radius: var(--ck-radius-xl) 0 0 var(--ck-radius-xl);
+        background: var(--ck-panel-solid);
+        transform: translate3d(105%, 0, 0);
+        transition: transform var(--ck-slow) var(--ck-ease);
+    }
+
+    .gc-side.is-open {
+        transform: none;
+    }
+
+    .gc-side__close {
+        display: inline-grid;
+    }
+
+    .gc-side-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1039;
+        background: rgba(2, 4, 10, 0.6);
+    }
+
+    .gc-side-backdrop[hidden] {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .gc-shell {
+        width: 100%;
+        height: calc(var(--ck-vh, 100dvh) - var(--ck-nav, 84px));
+    }
+
+    .gc-main {
+        border-radius: var(--ck-radius-lg) var(--ck-radius-lg) 0 0;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+    }
+
+    .gc-head {
+        padding: 10px 8px 10px 14px;
+    }
+
+    .gc-head__icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 13px;
+        font-size: 0.95rem;
+    }
+
+    .gc-head h1 {
+        font-size: 1rem;
+    }
+
+    .gc-search {
+        top: 59px;
+    }
+}

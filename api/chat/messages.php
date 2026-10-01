@@ -1,155 +1,69 @@
 <?php
-// api/chat/messages.php
-// Dual endpoint: Loads group chat messages if 'chat_id' is provided, otherwise falls back to global chat.
-
+/**
+ * Lettura dei messaggi.
+ *
+ *   con `chat_id`     → messaggi di un gruppo (solo per i membri attivi);
+ *   senza             → chat globale.
+ *
+ * Parametri comuni: before, after, ids=1,2,3, around, limit. Restano
+ * accettati i nomi storici (before_message_id, after_message_id, before_id,
+ * after_id) per le schede aperte con la versione precedente.
+ */
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/../../includes/group_chat_functions.php';
+require_once __DIR__ . '/../../includes/chat_global.php';
 
-// Route: Group Chat Messages
-if (isset($_GET['chat_id'])) {
-    $chatId = (int)$_GET['chat_id'];
-    $beforeId = isset($_GET['before_message_id']) ? (int)$_GET['before_message_id'] : 0;
-    $afterId = isset($_GET['after_message_id']) ? (int)$_GET['after_message_id'] : 0;
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 30;
-    
-    if (!$chatId) {
-        send_error("ID chat non valido.");
+chat_run(static function () use ($mysqli, $userId, $chatUser): void {
+    $options = ['limit' => (int)($_GET['limit'] ?? 0)];
+    if ($options['limit'] <= 0) {
+        unset($options['limit']);
     }
-    
-    if (!canViewChat($mysqli, $chatId, $userId)) {
-        send_error("Accesso negato o non partecipi a questa chat.", 403);
+    $before = (int)($_GET['before'] ?? $_GET['before_message_id'] ?? $_GET['before_id'] ?? 0);
+    $after = (int)($_GET['after'] ?? $_GET['after_message_id'] ?? $_GET['after_id'] ?? 0);
+    if (!empty($_GET['ids'])) {
+        $options['ids'] = explode(',', (string)$_GET['ids']);
+    } elseif (!empty($_GET['around'])) {
+        $options['around'] = (int)$_GET['around'];
+    } elseif ($after > 0) {
+        $options['after'] = $after;
+    } elseif ($before > 0) {
+        $options['before'] = $before;
     }
-    
-    try {
-        // Build query clauses
-        $whereSql = "m.chat_id = ? AND m.deleted_at IS NULL";
-        $params = [$chatId];
-        $types = "i";
-        
-        if ($beforeId > 0) {
-            $whereSql .= " AND m.id < ?";
-            $params[] = $beforeId;
-            $types .= "i";
-        }
-        
-        if ($afterId > 0) {
-            $whereSql .= " AND m.id > ?";
-            $params[] = $afterId;
-            $types .= "i";
-        }
-        
-        $query = "
-            SELECT 
-                m.id,
-                m.chat_id,
-                m.sender_id,
-                u.username AS sender_username,
-                u.display_name AS sender_display_name,
-                u.ruolo AS sender_role,
-                m.body,
-                m.message_type,
-                m.reply_to_message_id,
-                m.metadata_json,
-                m.edited_at,
-                m.created_at
-            FROM chat_messages m
-            LEFT JOIN utenti u ON u.id = m.sender_id
-            WHERE $whereSql
-            ORDER BY m.id DESC
-            LIMIT ?
-        ";
-        
-        $params[] = $limit;
-        $types .= "i";
-        
-        $stmt = $mysqli->prepare($query);
-        if (!$stmt) {
-            send_error("Errore di database: " . $mysqli->error, 500);
-        }
-        
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $messages = $res->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        
-        // Reverse to chronological order for the client
-        $messages = array_reverse($messages);
-        
-        foreach ($messages as &$msg) {
-            $msg['id'] = (int)$msg['id'];
-            $msg['chat_id'] = (int)$msg['chat_id'];
-            $msg['sender_id'] = (int)$msg['sender_id'];
-            $msg['reply_to_message_id'] = $msg['reply_to_message_id'] ? (int)$msg['reply_to_message_id'] : null;
-            $msg['metadata'] = $msg['metadata_json'] ? json_decode($msg['metadata_json'], true) : null;
-            unset($msg['metadata_json']);
-            
-            // Populate attachments from metadata if present
-            if (isset($msg['metadata']['attachments'])) {
-                $msg['attachments'] = $msg['metadata']['attachments'];
-            } else {
-                $msg['attachments'] = [];
-            }
 
-            // Fetch group chat reactions
-            $stmtReact = $mysqli->prepare("
-                SELECT r.reaction, GROUP_CONCAT(u.username SEPARATOR ', ') as usernames, COUNT(*) as count,
-                       MAX(CASE WHEN r.user_id = ? THEN 1 ELSE 0 END) as user_reacted
-                FROM group_chat_reactions r
-                INNER JOIN utenti u ON u.id = r.user_id
-                WHERE r.message_id = ?
-                GROUP BY r.reaction
-            ");
-            if ($stmtReact) {
-                $stmtReact->bind_param("ii", $userId, $msg['id']);
-                $stmtReact->execute();
-                $msg['reactions'] = $stmtReact->get_result()->fetch_all(MYSQLI_ASSOC);
-                $stmtReact->close();
-            } else {
-                $msg['reactions'] = [];
-            }
+    // ── Gruppo ─────────────────────────────────────────────────────────────
+    if (isset($_GET['chat_id'])) {
+        $chatId = (int)$_GET['chat_id'];
+        $member = cg_require($mysqli, $chatId, $userId);
+        $result = cg_fetch($mysqli, $userId, $chatId, $options);
+
+        $isLatestPage = empty($options['ids']) && empty($options['around']) && empty($options['before']) && empty($options['after']);
+        if ($isLatestPage && empty($_GET['noread']) && $result['messages']) {
+            cg_mark_read($mysqli, $member);
         }
-        unset($msg);
-        
-        // Automatically mark as read if we loaded messages
-        if (count($messages) > 0 && $afterId === 0) {
-            $lastMsg = end($messages);
-            markChatAsRead($mysqli, $chatId, $userId, $lastMsg['id']);
-        }
-        
-        send_success([
-            'messages' => $messages,
-            'has_more' => count($messages) >= $limit
-        ]);
-        
-    } catch (Throwable $e) {
-        send_error("Impossibile caricare i messaggi: " . $e->getMessage(), 500);
+
+        send_success($result + ['last_read_id' => $member['last_read_message_id']]);
     }
-}
 
-// Fallback: Original Global Chat Logic
-// We use the function defined in their chat environment
-$user = chat_require_login_json($mysqli);
-$userId = (int)$user['id'];
-chat_touch_user($mysqli, $userId);
+    // ── Chat globale ───────────────────────────────────────────────────────
+    $search = trim((string)($_GET['search'] ?? ''));
+    if ($search !== '') {
+        $options['search'] = $search;
+    }
 
-$afterId = isset($_GET['after_id']) ? (int)$_GET['after_id'] : 0;
-$beforeId = isset($_GET['before_id']) ? (int)$_GET['before_id'] : 0;
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : MESSAGES_PER_PAGE;
-$search = trim((string)($_GET['search'] ?? ''));
+    $hidden = gc_hidden($mysqli, $userId);
+    $messages = gc_views(gc_fetch($mysqli, $options), $chatUser, $hidden);
 
-$messages = chat_fetch_messages($mysqli, $userId, [
-    'after_id' => $afterId,
-    'before_id' => $beforeId,
-    'limit' => $limit,
-    'search' => $search,
-]);
+    gc_presence_touch($userId, gc_presence_entry($chatUser));
+    gc_online_refresh($mysqli);
+    gc_restore_pinned($mysqli);
 
-chat_json([
-    'ok' => true,
-    'messages' => $messages,
-    'online_count' => chat_get_online_count($mysqli),
-    'typing' => chat_get_typing_users($mysqli, $userId),
-    'server_time' => date(DATE_ATOM),
-]);
-?>
+    $stamp = rt_read('g');
+    $aux = gc_aux_view($stamp, $userId, $hidden);
+
+    send_success([
+        'messages' => $messages,
+        'online_count' => $aux['online_count'],
+        'typing' => $aux['typing'],
+        'state' => ['seq' => (int)($stamp['seq'] ?? 0), 'aux' => (int)($stamp['aux'] ?? 0)] + $aux,
+        'server_time' => date(DATE_ATOM),
+    ]);
+});

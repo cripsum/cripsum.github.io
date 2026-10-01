@@ -154,7 +154,14 @@ if (!function_exists('nav_bootstrap')) {
     function nav_row(array $item, int $index, string $uri = ''): string
     {
         $badge = '';
-        if (!empty($item['badge'])) {
+        if (!empty($item['key'])) {
+            // Voce con contatore vivo (chat, amici): il segnaposto c'è sempre,
+            // anche a zero, perché assets/rt/rt.js lo aggiorna senza
+            // ricaricare la pagina.
+            $count = (int)($item['badge'] ?? 0);
+            $badge = '<span class="cnav-row__badge" data-cnav-badge="' . nav_e($item['key']) . '"'
+                . ($count > 0 ? '' : ' hidden') . '>' . ($count > 99 ? '99+' : $count) . '</span>';
+        } elseif (!empty($item['badge'])) {
             $badge = '<span class="cnav-row__badge">' . (int)$item['badge'] . '</span>';
         } elseif (!empty($item['mark'])) {
             // Segno in coda alla riga al posto del contatore: serve alla voce
@@ -626,7 +633,16 @@ if (!function_exists('nav_bootstrap')) {
                 window.CNAV_STATE = {
                     userId: <?= (int)$ctx['userId'] ?>,
                     achvLatest: <?= (int)($ctx['achv_latest'] ?? 0) ?>,
-                    hasNews: <?= nav_account_has_news($ctx) ? 'true' : 'false' ?>
+                    hasNews: <?= nav_account_has_news($ctx) ? 'true' : 'false' ?>,
+                    // Numeri di partenza dei contatori che assets/rt/rt.js
+                    // tiene aggiornati mentre la pagina resta aperta.
+                    lang: <?= json_encode((string)$ctx['lang']) ?>,
+                    counts: {
+                        inbox: <?= (int)$ctx['unreadCount'] ?>,
+                        chat: <?= (int)$ctx['unreadChat'] ?>,
+                        friends: <?= (int)$ctx['friends'] ?>,
+                        missions: <?= (int)$ctx['missions'] ?>
+                    }
                 };
                 window.CNAV_I18N = {
                     noResults: <?= json_encode($t['no_results'], JSON_UNESCAPED_UNICODE) ?>,
@@ -639,6 +655,16 @@ if (!function_exists('nav_bootstrap')) {
                 };
             </script>
             <script src="/js/navbar.js?v=<?= $jsVer ?>" defer></script>
+            <?php if ($isLoggedIn): ?>
+                <?php
+                // Tempo reale e avvisi (messaggi, richieste, menzioni): solo
+                // per chi è collegato, su ogni pagina che ha la navbar.
+                $rtCssVer = @filemtime(__DIR__ . '/../assets/rt/rt.css') ?: 1;
+                $rtJsVer  = @filemtime(__DIR__ . '/../assets/rt/rt.js') ?: 1;
+                ?>
+                <link rel="stylesheet" href="/assets/rt/rt.css?v=<?= $rtCssVer ?>">
+                <script src="/assets/rt/rt.js?v=<?= $rtJsVer ?>" defer></script>
+            <?php endif; ?>
         <?php endif; ?>
 
         <?php if ($isLoggedIn): ?>

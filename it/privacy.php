@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = '28 settembre 2026';
+$lastUpdated = '2 ottobre 2026';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -100,6 +100,9 @@ $lastUpdated = '28 settembre 2026';
                         <li>Amicizie, richieste di amicizia, follow e utenti bloccati.</li>
                         <li>Shitpost, post di Top Rimasti, commenti, like, voti, contenuti salvati e segnalazioni che invii.</li>
                         <li>I messaggi nella chat globale, nelle chat private e di gruppo, con allegati, reazioni e GIF. Per cercare le GIF inviamo a Klipy le parole che scrivi nella ricerca.</li>
+                        <li>Nelle chat private e di gruppo: fino a quale messaggio hai letto (da qui le conferme di lettura, che puoi spegnere dalla Privacy della chat), le chat che hai silenziato, archiviato o fissato, i messaggi salvati, i soprannomi che dai e le tue scelte su chi può scriverti. L'indicazione «sta scrivendo» dura pochi secondi e non viene conservata.</li>
+                        <li>Dalle foto che carichi in chat togliamo i dati nascosti dello scatto, per esempio la posizione GPS, quando il formato lo permette (JPEG e WebP).</li>
+                        <li>Per avvisarti subito di messaggi e richieste teniamo sul server, per poco tempo, un elenco tecnico degli ultimi eventi che ti riguardano (per esempio «nuovo messaggio in una chat»): non contiene il testo dei messaggi privati. Le notifiche del browser le attivi tu, le mostra il tuo browser mentre il sito è aperto e non passano da servizi esterni.</li>
                         <li>I ticket di supporto e i messaggi che ricevi dal sito nella inbox.</li>
                     </ul>
                     <h3>Giochi e statistiche</h3>

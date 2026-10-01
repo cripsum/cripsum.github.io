@@ -14,3 +14,5 @@ scratch/esports/
 # Build Unity di Subway Surfers: si caricano a mano su Hostinger, non passano da git.
 /subway-builds/
 /subway-builds-br/
+# Timbri del tempo reale (chat, notifiche): il sito li crea da solo, cambiano di continuo.
+/uploads/realtime/

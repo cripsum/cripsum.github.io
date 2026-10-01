@@ -1,58 +1,72 @@
 <?php
+/**
+ * Segnalazione di un messaggio della chat globale allo staff.
+ *
+ * La segnalazione vale appena è salvata: l'avviso su Discord è un di più, e
+ * se Discord non risponde chi segnala non deve vedersi un errore.
+ */
 require_once __DIR__ . '/bootstrap.php';
-$user = chat_require_login_json($mysqli);
-$userId = (int)$user['id'];
-$data = chat_read_input();
-chat_verify_csrf($data);
+require_once __DIR__ . '/../../includes/chat_global.php';
 
-$messageId = (int)($data['id'] ?? 0);
-$reason = trim((string)($data['reason'] ?? ''));
-$reason = mb_substr($reason, 0, CHAT_MAX_REPORT_REASON, 'UTF-8');
-if ($reason === '') $reason = 'Segnalazione utente';
-
-if ($messageId <= 0) chat_json(['ok' => false, 'error' => 'Messaggio non valido.'], 422);
-
-$stmt = $mysqli->prepare('
-    SELECT m.user_id, m.message, m.deleted_at, u.username 
-    FROM messages m 
-    LEFT JOIN utenti u ON m.user_id = u.id 
-    WHERE m.id = ? LIMIT 1
-');
-if (!$stmt) chat_json(['ok' => false, 'error' => 'Errore server.'], 500);
-$stmt->bind_param('i', $messageId);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result ? $result->fetch_assoc() : null;
-$stmt->close();
-
-if (!$row || !empty($row['deleted_at'])) chat_json(['ok' => false, 'error' => 'Messaggio non trovato.'], 404);
-if ((int)$row['user_id'] === $userId) chat_json(['ok' => false, 'error' => 'Non puoi segnalare un tuo messaggio.'], 422);
-
-require_once __DIR__ . '/../../includes/discord_notify.php';
-
-$stmt = $mysqli->prepare('INSERT INTO chat_reports (message_id, reporter_id, reason, created_at) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE reason = VALUES(reason), status = "open", created_at = NOW()');
-if (!$stmt) chat_json(['ok' => false, 'error' => 'Tabella segnalazioni mancante. Esegui SQL.'], 500);
-$stmt->bind_param('iis', $messageId, $userId, $reason);
-$ok = $stmt->execute();
-$stmt->close();
-
-if ($ok) {
-    $discordSent = notifyDiscordSupportReport('chat', [
-        'target_id' => $messageId,
-        'target_name' => "Messaggio Chat #{$messageId}",
-        'target_author' => $row['username'] ?? "ID #{$row['user_id']}",
-        'content_snippet' => $row['message'] ?? '',
-        'target_url' => "https://cripsum.com/it/chat?message=" . $messageId,
-        'reason' => $reason,
-        'reporter_id' => $userId,
-        'reporter_username' => $user['username'] ?? null,
-        'reporter_role' => $user['ruolo'] ?? null,
-        'reporter_discord_id' => $user['discord_id'] ?? null
-    ]);
-
-    if (!$discordSent) {
-        chat_json(['ok' => false, 'error' => 'Segnalazione salvata, ma il supporto Discord non è raggiungibile.'], 502);
+chat_run(static function () use ($mysqli, $userId, $chatUser): void {
+    $input = get_json_input();
+    $messageId = (int)($input['id'] ?? 0);
+    $reason = mb_substr(cc_clean_text((string)($input['reason'] ?? '')), 0, (int)CHAT_MAX_REPORT_REASON, 'UTF-8');
+    if ($reason === '') {
+        $reason = 'Segnalazione utente';
     }
-}
 
-chat_json(['ok' => $ok, 'message' => 'Segnalazione inviata.']);
+    if (!rt_has_table($mysqli, 'chat_reports')) {
+        throw new ChatError(rt_t('Le segnalazioni non sono disponibili.', 'Reports are not available.'), 503);
+    }
+
+    $stmt = $mysqli->prepare('SELECT m.user_id, m.message, m.deleted_at, u.username FROM messages m LEFT JOIN utenti u ON u.id = m.user_id WHERE m.id = ? LIMIT 1');
+    $stmt->bind_param('i', $messageId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$row || !empty($row['deleted_at'])) {
+        throw new ChatError(rt_t('Messaggio non trovato.', 'Message not found.'), 404);
+    }
+    if ((int)$row['user_id'] === $userId) {
+        throw new ChatError(rt_t('Non puoi segnalare un tuo messaggio.', 'You cannot report your own message.'), 422);
+    }
+
+    // Al massimo dieci segnalazioni all'ora a testa.
+    $stmt = $mysqli->prepare('SELECT COUNT(*) FROM chat_reports WHERE reporter_id = ? AND created_at > NOW() - INTERVAL 1 HOUR');
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $recent = (int)($stmt->get_result()->fetch_row()[0] ?? 0);
+    $stmt->close();
+    if ($recent >= 10) {
+        throw new ChatError(rt_t('Hai mandato molte segnalazioni: riprova più tardi.', 'You sent many reports: try again later.'), 429);
+    }
+
+    $stmt = $mysqli->prepare('INSERT INTO chat_reports (message_id, reporter_id, reason, created_at) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE reason = VALUES(reason), status = "open", created_at = NOW()');
+    $stmt->bind_param('iis', $messageId, $userId, $reason);
+    $stmt->execute();
+    $stmt->close();
+
+    try {
+        require_once __DIR__ . '/../../includes/discord_notify.php';
+        if (function_exists('notifyDiscordSupportReport')) {
+            notifyDiscordSupportReport('chat', [
+                'target_id' => $messageId,
+                'target_name' => "Messaggio Chat #{$messageId}",
+                'target_author' => $row['username'] ?? "ID #{$row['user_id']}",
+                'content_snippet' => $row['message'] ?? '',
+                'target_url' => 'https://cripsum.com/it/global-chat?message=' . $messageId,
+                'reason' => $reason,
+                'reporter_id' => $userId,
+                'reporter_username' => $chatUser['username'] ?? null,
+                'reporter_role' => $chatUser['ruolo'] ?? null,
+                'reporter_discord_id' => $chatUser['discord_id'] ?? null,
+            ]);
+        }
+    } catch (Throwable $e) {
+        error_log('[chat report] discord: ' . $e->getMessage());
+    }
+
+    send_success(['message' => rt_t('Segnalazione inviata. Grazie.', 'Report sent. Thank you.')]);
+});

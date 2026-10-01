@@ -1,30 +1,23 @@
 <?php
-// api/chat/mark_read.php
-// Marks all messages in a group chat as read.
-
+/**
+ * Segna come letta una chat fino a un certo messaggio: un gruppo
+ * (`chat_id`) o una conversazione privata (`conversation_id`).
+ *
+ * Lo chiama la pagina quando la conversazione è davvero sullo schermo, non
+ * al semplice arrivo dei messaggi: una scheda lasciata in secondo piano non
+ * deve far risultare letto quello che nessuno ha visto.
+ */
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/../../includes/group_chat_functions.php';
 
-$input = get_json_input();
-$chatId = isset($input['chat_id']) ? (int)$input['chat_id'] : 0;
-$messageId = isset($input['message_id']) ? (int)$input['message_id'] : null;
+chat_run(static function () use ($mysqli, $userId): void {
+    $input = get_json_input();
+    $upTo = (int)($input['message_id'] ?? 0);
 
-if (!$chatId) {
-    send_error("ID chat mancante.");
-}
-
-if (!isChatMember($mysqli, $chatId, $userId)) {
-    send_error("Accesso negato. Non sei un partecipante di questo gruppo.", 403);
-}
-
-try {
-    $ok = markChatAsRead($mysqli, $chatId, $userId, $messageId);
-    if ($ok) {
-        send_success(['message' => "Chat segnata come letta."]);
-    } else {
-        send_error("Impossibile aggiornare i messaggi letti.");
+    if (!empty($input['conversation_id'])) {
+        $pair = cc_pm_require($mysqli, (int)$input['conversation_id'], $userId);
+        send_success(['last_read_id' => cc_pm_mark_read($mysqli, $pair, $upTo)]);
     }
-} catch (Throwable $e) {
-    send_error($e->getMessage(), 500);
-}
-?>
+
+    $member = cg_require($mysqli, (int)($input['chat_id'] ?? 0), $userId);
+    send_success(['last_read_id' => cg_mark_read($mysqli, $member, $upTo)]);
+});

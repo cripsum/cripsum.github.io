@@ -1,103 +1,60 @@
 <?php
-// api/chat/update_avatar.php
-// Handles group avatar upload.
-
+/** Immagine di un gruppo. La può cambiare chi può modificare le informazioni del gruppo. */
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/../../includes/group_chat_functions.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    send_error('Metodo non consentito.', 405);
-}
-chat_verify_csrf($_POST);
+chat_run(static function () use ($mysqli, $userId): void {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new ChatError(rt_t('Metodo non consentito.', 'Method not allowed.'), 405);
+    }
 
-$chatId = isset($_POST['chat_id']) ? (int)$_POST['chat_id'] : 0;
+    $chatId = (int)($_POST['chat_id'] ?? 0);
+    $member = cg_require($mysqli, $chatId, $userId);
+    if (!cg_can_edit_info($mysqli, $member)) {
+        throw new ChatError(rt_t('Non puoi modificare questo gruppo.', 'You cannot edit this group.'), 403);
+    }
 
-if (!$chatId) {
-    send_error("ID chat mancante.");
-}
+    $file = $_FILES['avatar'] ?? null;
+    if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file((string)$file['tmp_name'])) {
+        throw new ChatError(rt_t('Caricamento non riuscito.', 'Upload failed.'), 422);
+    }
+    if ((int)$file['size'] > 5 * 1024 * 1024) {
+        throw new ChatError(rt_t('L\'immagine non può superare i 5 MB.', 'The image cannot exceed 5 MB.'), 422);
+    }
 
-if (!canManageChat($mysqli, $chatId, $userId)) {
-    send_error("Non hai i permessi per modificare l'avatar di questo gruppo.", 403);
-}
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = (string)finfo_file($finfo, (string)$file['tmp_name']);
+    finfo_close($finfo);
+    $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+    if (!isset($extensions[$mime]) || @getimagesize((string)$file['tmp_name']) === false) {
+        throw new ChatError(rt_t('Il file non è un\'immagine valida.', 'The file is not a valid image.'), 422);
+    }
 
-if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
-    send_error("Nessun file caricato o errore di upload.");
-}
+    $dir = __DIR__ . '/../../uploads/chat_avatars/';
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
+        throw new ChatError(rt_t('Impossibile salvare l\'immagine.', 'Could not save the image.'), 500);
+    }
+    $name = 'group_' . $chatId . '_' . bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
+    if (!move_uploaded_file((string)$file['tmp_name'], $dir . $name)) {
+        throw new ChatError(rt_t('Impossibile salvare l\'immagine.', 'Could not save the image.'), 500);
+    }
+    cc_strip_image_metadata($dir . $name, $mime);
 
-$file = $_FILES['avatar'];
-$tempPath = $file['tmp_name'];
-$originalName = basename($file['name']);
-$fileSize = $file['size'];
+    $path = '/uploads/chat_avatars/' . $name;
+    $previous = cg_safe_avatar($member['avatar_url']);
 
-// Max size 5MB
-if ($fileSize > 5 * 1024 * 1024) {
-    send_error("L'immagine non può superare i 5MB.");
-}
-
-$finfo = finfo_open(FILEINFO_MIME_TYPE);
-$mimeType = finfo_file($finfo, $tempPath);
-finfo_close($finfo);
-
-$allowedMimes = [
-    'image/jpeg' => 'jpg',
-    'image/png' => 'png',
-    'image/webp' => 'webp',
-    'image/gif' => 'gif',
-];
-if (!isset($allowedMimes[$mimeType]) || @getimagesize($tempPath) === false) {
-    send_error("Il file caricato non è un'immagine valida.");
-}
-
-$extension = $allowedMimes[$mimeType];
-$fileName = 'group_' . $chatId . '_' . bin2hex(random_bytes(16)) . '.' . $extension;
-$uploadDir = __DIR__ . '/../../uploads/chat_avatars/';
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
-}
-
-$destPath = $uploadDir . $fileName;
-$relativePath = '/uploads/chat_avatars/' . $fileName;
-
-if (!move_uploaded_file($tempPath, $destPath)) {
-    send_error("Impossibile salvare l'immagine sul server.");
-}
-
-$mysqli->begin_transaction();
-
-try {
-    // 1. Update DB
-    $stmt = $mysqli->prepare("UPDATE chats SET avatar_url = ? WHERE id = ?");
-    if (!$stmt) throw new Exception("Errore interno.");
-    $stmt->bind_param("si", $relativePath, $chatId);
+    $stmt = $mysqli->prepare('UPDATE chats SET avatar_url = ? WHERE id = ?');
+    $stmt->bind_param('si', $path, $chatId);
     $stmt->execute();
     $stmt->close();
-    
-    // 2. System message
-    $stmtUser = $mysqli->prepare("SELECT username FROM utenti WHERE id = ? LIMIT 1");
-    if ($stmtUser) {
-        $stmtUser->bind_param("i", $userId);
-        $stmtUser->execute();
-        $username = $stmtUser->get_result()->fetch_assoc()['username'] ?? 'Utente';
-        $stmtUser->close();
-    } else {
-        $username = 'Utente';
-    }
-    
-    createSystemMessage($mysqli, $chatId, 'avatar', [
-        'username' => $username
-    ]);
-    
-    $mysqli->commit();
-    
-    send_success([
-        'avatar_url' => $relativePath,
-        'message' => "Immagine del gruppo aggiornata."
-    ]);
 
-} catch (Throwable $e) {
-    $mysqli->rollback();
-    @unlink($destPath);
-    error_log('chat update_avatar failed: ' . $e->getMessage());
-    send_error('Impossibile aggiornare l\'avatar.', 500);
-}
-?>
+    // L'immagine sostituita non serve più a nessuno.
+    if ($previous && is_file(__DIR__ . '/../..' . $previous)) {
+        @unlink(__DIR__ . '/../..' . $previous);
+    }
+
+    $messageId = cg_system($mysqli, $chatId, 'avatar', ['username' => cg_username($mysqli, $userId)]);
+    cg_signal($mysqli, $chatId, ['t' => 'gm', 'm' => $messageId, 'f' => 0, 'q' => 1]);
+    cg_signal($mysqli, $chatId, ['t' => 'gx']);
+
+    send_success(['avatar_url' => $path]);
+});

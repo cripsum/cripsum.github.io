@@ -1,69 +1,56 @@
 <?php
-// api/chat/search_messages.php
-// Searches messages within a specific group chat.
-
+/**
+ * Ricerca nel testo dei messaggi di una chat: un gruppo (`chat_id`) o una
+ * conversazione privata (`conversation_id`). Solo per chi ne fa parte, e
+ * solo fra i messaggi che può vedere.
+ */
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/../../includes/group_chat_functions.php';
 
-$chatId = isset($_GET['chat_id']) ? (int)$_GET['chat_id'] : 0;
-$queryText = isset($_GET['query']) ? trim((string)$_GET['query']) : '';
-
-if (!$chatId) {
-    send_error("ID chat mancante o non valido.");
-}
-
-if ($queryText === '') {
-    send_success(['results' => []]);
-}
-
-if (!canViewChat($mysqli, $chatId, $userId)) {
-    send_error("Accesso negato o non partecipi a questa chat.", 403);
-}
-
-try {
-    $searchLike = "%" . $queryText . "%";
-    
-    $stmt = $mysqli->prepare("
-        SELECT 
-            m.id,
-            m.chat_id,
-            m.sender_id,
-            u.username AS sender_username,
-            u.display_name AS sender_display_name,
-            m.body,
-            m.message_type,
-            m.created_at
-        FROM chat_messages m
-        LEFT JOIN utenti u ON u.id = m.sender_id
-        WHERE m.chat_id = ? 
-          AND m.body LIKE ? 
-          AND m.message_type = 'text' 
-          AND m.deleted_at IS NULL
-        ORDER BY m.id DESC
-        LIMIT 50
-    ");
-    
-    if (!$stmt) {
-        send_error("Errore interno del server.", 500);
+chat_run(static function () use ($mysqli, $userId): void {
+    $query = trim((string)($_GET['query'] ?? $_GET['q'] ?? ''));
+    $query = mb_substr($query, 0, 80, 'UTF-8');
+    if (mb_strlen($query, 'UTF-8') < 2) {
+        send_success(['results' => []]);
     }
-    
-    $stmt->bind_param("is", $chatId, $searchLike);
+    // % e _ scritti dall'utente valgono come caratteri normali.
+    $like = '%' . addcslashes($query, '\\%_') . '%';
+    $results = [];
+
+    if (!empty($_GET['conversation_id'])) {
+        $pair = cc_pm_require($mysqli, (int)$_GET['conversation_id'], $userId);
+        [$visible, $types, $params] = cc_pm_visible_sql($pair);
+        $stmt = $mysqli->prepare("
+            SELECT m.id, m.sender_id, m.message, UNIX_TIMESTAMP(m.created_at) AS ts, u.username
+            FROM private_messages m INNER JOIN utenti u ON u.id = m.sender_id
+            WHERE $visible AND m.deleted_for_all = 0 AND m.message LIKE ?
+            ORDER BY m.id DESC LIMIT 40
+        ");
+        $all = array_merge($params, [$like]);
+        $stmt->bind_param($types . 's', ...$all);
+    } else {
+        $chatId = (int)($_GET['chat_id'] ?? 0);
+        cg_require($mysqli, $chatId, $userId);
+        $stmt = $mysqli->prepare("
+            SELECT m.id, m.sender_id, m.body AS message, UNIX_TIMESTAMP(m.created_at) AS ts, u.username
+            FROM chat_messages m LEFT JOIN utenti u ON u.id = m.sender_id
+            WHERE m.chat_id = ? AND m.deleted_at IS NULL AND m.message_type <> 'system' AND m.body LIKE ?
+            ORDER BY m.id DESC LIMIT 40
+        ");
+        $stmt->bind_param('is', $chatId, $like);
+    }
+
     $stmt->execute();
-    $results = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
-    
-    foreach ($results as &$r) {
-        $r['id'] = (int)$r['id'];
-        $r['chat_id'] = (int)$r['chat_id'];
-        $r['sender_id'] = (int)$r['sender_id'];
+    foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
+        $results[] = [
+            'id' => (int)$row['id'],
+            'sender_id' => (int)$row['sender_id'],
+            'sender_username' => (string)($row['username'] ?? ''),
+            'text' => cc_preview($row['message'], 200),
+            'body' => cc_preview($row['message'], 200),
+            'ts' => (int)$row['ts'],
+        ];
     }
-    unset($r);
-    
-    send_success([
-        'results' => $results
-    ]);
+    $stmt->close();
 
-} catch (Throwable $e) {
-    send_error("Errore durante la ricerca: " . $e->getMessage(), 500);
-}
-?>
+    send_success(['results' => $results]);
+});

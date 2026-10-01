@@ -94,6 +94,11 @@ checkBan($mysqli);
             </article>
 
             <article class="static-card static-reveal">
+                <h2>Messages from people you do not know</h2>
+                <p>People who are not your friends write to you as a request: until you accept or reply they can only send a few messages. In the chat Privacy settings you can choose to be messaged by friends only.</p>
+            </article>
+
+            <article class="static-card static-reveal">
                 <h2>Report</h2>
                 <p>Use «Report» on global chat messages. Every report is reviewed by a staff member.</p>
             </article>

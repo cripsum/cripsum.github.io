@@ -1066,35 +1066,26 @@ function getUnreadMessagesCount($mysqli, $userId)
     return $unreadMessages + $unreadTickets;
 }
 
+/**
+ * Numero del badge «Chat» in navbar: quante chat aspettano qualcosa da te.
+ *
+ * Conta le conversazioni private e i gruppi con messaggi non letti (non i
+ * singoli messaggi), più le richieste di messaggio e gli inviti ai gruppi.
+ * Il conto vero sta in cc_unread_summary(), lo stesso che usano la pagina
+ * delle chat e gli avvisi in tempo reale, così i tre numeri coincidono.
+ *
+ * La navbar sta su ogni pagina: qualunque errore qui deve valere zero e non
+ * interrompere il resto.
+ */
 function getUnreadPrivateChatsCount($mysqli, $userId)
 {
-    $userId = (int)$userId;
-    $unreadPrivateChats = 0;
-    $checkTable = $mysqli->query("SHOW TABLES LIKE 'private_conversation_participants'");
-    if ($checkTable && $checkTable->num_rows > 0) {
-        $stmtPrivate = $mysqli->prepare("
-            SELECT COUNT(*) AS c 
-            FROM private_messages pm
-            INNER JOIN private_conversation_participants cp ON cp.conversation_id = pm.conversation_id
-            WHERE cp.user_id = ? 
-              AND cp.is_archived = 0 
-              AND cp.is_muted = 0
-              AND pm.id > COALESCE(cp.last_read_message_id, 0)
-              AND pm.sender_id != ?
-              AND pm.deleted_at IS NULL
-              AND NOT EXISTS (SELECT 1 FROM private_message_deleted pmd WHERE pmd.message_id = pm.id AND pmd.user_id = ?)
-        ");
-        if ($stmtPrivate) {
-            $stmtPrivate->bind_param("iii", $userId, $userId, $userId);
-            $stmtPrivate->execute();
-            $resPrivate = $stmtPrivate->get_result();
-            if ($rowPrivate = $resPrivate->fetch_assoc()) {
-                $unreadPrivateChats = (int)($rowPrivate['c'] ?? 0);
-            }
-            $stmtPrivate->close();
-        }
+    try {
+        require_once __DIR__ . '/chat_groups.php';
+        $summary = cc_unread_summary($mysqli, (int)$userId);
+        return (int)$summary['chats'] + (int)$summary['requests'] + (int)$summary['invites'];
+    } catch (Throwable $e) {
+        return 0;
     }
-    return $unreadPrivateChats;
 }
 
 function claimMessageRewards($mysqli, $userId, $messageId)
@@ -1359,6 +1350,21 @@ function sendSecurityInboxMessage($mysqli, $recipientId, $titleIt, $titleEn, $co
             $stmtRec->bind_param("ii", $messageId, $recipientId);
             $recOk = $stmtRec->execute();
             $stmtRec->close();
+
+            // Chi ha il sito aperto vede il contatore della posta salire
+            // subito. I messaggi «social» hanno già un avviso loro (richiesta
+            // di amicizia, invito...), quindi qui aggiornano solo il numero.
+            try {
+                require_once __DIR__ . '/realtime.php';
+                rt_push_user((int)$recipientId, [
+                    't' => 'ib',
+                    'q' => $category === 'social' ? 1 : 0,
+                    'xi' => mb_substr((string)$titleIt, 0, 120, 'UTF-8'),
+                    'xe' => mb_substr((string)$titleEn, 0, 120, 'UTF-8'),
+                ]);
+            } catch (Throwable $e) {
+                // Un avviso mancato non deve far fallire il messaggio.
+            }
 
             if ($category === 'security') {
                 $userStmt = $mysqli->prepare("SELECT email, username FROM utenti WHERE id = ? LIMIT 1");

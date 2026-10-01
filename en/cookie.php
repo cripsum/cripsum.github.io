@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = 'September 27, 2026';
+$lastUpdated = 'October 2, 2026';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -94,7 +94,7 @@ $lastUpdated = 'September 27, 2026';
                                 </tr>
                                 <tr>
                                     <td>localStorage (<code>cripsum.*</code> and similar)</td>
-                                    <td>Preferences such as volume, sounds, filters, sorting and your Google Analytics choice</td>
+                                    <td>Preferences such as volume, sounds, filters, sorting, chat alerts and your Google Analytics choice; drafts of messages you have not sent yet and recently used emoji</td>
                                     <td>Until you delete them</td>
                                 </tr>
                                 <tr>

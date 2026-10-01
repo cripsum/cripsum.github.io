@@ -705,7 +705,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <link rel="stylesheet" href="/assets/css/profile-rings.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-effects.css?v=1.1.0">
     <link rel="stylesheet" href="/assets/css/profile-name-effects.css?v=1.1.0">
-    <link rel="stylesheet" href="/assets/social/social.css?v=2.0">
+    <link rel="stylesheet" href="/assets/chat/kit.css?v=<?php echo @filemtime(__DIR__ . '/assets/chat/kit.css') ?: 1; ?>">
     <style>
         .profile-dropdown-item--gift,
         .profile-dropdown-item--gift * {
@@ -2300,8 +2300,8 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
             })();
         </script>
     <?php endif; ?>
-    <script src="/assets/social/social-api.js?v=1.5" defer></script>
-    <script src="/assets/social/user-card.js?v=3.0" defer></script>
+    <script src="/assets/chat/kit.js?v=<?php echo @filemtime(__DIR__ . '/assets/chat/kit.js') ?: 1; ?>" defer></script>
+    <script src="/assets/social/user-card.js?v=<?php echo @filemtime(__DIR__ . '/assets/social/user-card.js') ?: 1; ?>" defer></script>
 </body>
 
 </html>

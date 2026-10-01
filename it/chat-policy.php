@@ -93,6 +93,11 @@ checkBan($mysqli);
             </article>
 
             <article class="static-card static-reveal">
+                <h2>Messaggi da chi non conosci</h2>
+                <p>Chi non è tra i tuoi amici ti scrive come richiesta: finché non accetti o rispondi può mandare solo pochi messaggi. Dalla Privacy della chat puoi decidere che ti scrivano solo gli amici.</p>
+            </article>
+
+            <article class="static-card static-reveal">
                 <h2>Segnala</h2>
                 <p>Usa «Segnala» sui messaggi della chat globale. Ogni segnalazione la guarda una persona dello staff.</p>
             </article>

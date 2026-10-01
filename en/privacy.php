@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = 'September 28, 2026';
+$lastUpdated = 'October 2, 2026';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -100,6 +100,9 @@ $lastUpdated = 'September 28, 2026';
                         <li>Friendships, friend requests, follows and blocked users.</li>
                         <li>Shitposts, Top Rimasti posts, comments, likes, votes, saved content and the reports you send.</li>
                         <li>Messages in the global chat, private and group chats, with attachments, reactions and GIFs. To search GIFs we send Klipy the words you type in the search.</li>
+                        <li>In private and group chats: the last message you have read (this is what read receipts are based on; you can turn them off in the chat Privacy settings), the chats you muted, archived or pinned, saved messages, the nicknames you set and your choices about who can message you. The "is typing" indicator lasts a few seconds and is not stored.</li>
+                        <li>We remove hidden shot data, such as GPS location, from the photos you upload in chat when the format allows it (JPEG and WebP).</li>
+                        <li>To notify you right away about messages and requests we keep on the server, for a short time, a technical list of the latest events that concern you (for example "new message in a chat"): it does not contain the text of private messages. Browser notifications are turned on by you, are shown by your browser while the site is open and do not go through external services.</li>
                         <li>Support tickets and the messages you receive from the site in your inbox.</li>
                     </ul>
                     <h3>Games and statistics</h3>

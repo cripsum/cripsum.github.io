@@ -1,237 +1,87 @@
 <?php
-// api/chat/upload_media.php
-// Dual endpoint: Handles media/file uploads for both private conversations and group chats.
-
+/**
+ * Invio di allegati in un gruppo o in una conversazione privata.
+ *
+ * Fino a sei file per messaggio (`files[]`, o `file` per il vecchio client),
+ * con un testo facoltativo (`message`). Valgono gli stessi controlli di un
+ * messaggio normale: prima un utente bloccato poteva continuare a mandare
+ * file, perché questo endpoint guardava solo l'appartenenza alla chat.
+ */
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/../../includes/group_chat_functions.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    send_error('Metodo non consentito.', 405);
-}
-chat_verify_csrf($_POST);
-
-$conversationId = isset($_POST['conversation_id']) ? (int)$_POST['conversation_id'] : 0;
-$chatId = isset($_POST['chat_id']) ? (int)$_POST['chat_id'] : 0;
-$replyToId = isset($_POST['reply_to_id']) ? (int)$_POST['reply_to_id'] : null;
-$ephemeralTimer = isset($_POST['ephemeral_timer']) ? (int)$_POST['ephemeral_timer'] : 0;
-
-if (!$conversationId && !$chatId) {
-    send_error("ID conversazione o ID chat mancante.");
-}
-
-// 1. Verifica permessi
-if ($chatId > 0) {
-    if (!canSendMessage($mysqli, $chatId, $userId)) {
-        send_error("Non sei autorizzato ad allegare file in questo gruppo.", 403);
+chat_run(static function () use ($mysqli, $userId): void {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new ChatError(rt_t('Metodo non consentito.', 'Method not allowed.'), 405);
     }
-} else {
-    $stmtCheck = $mysqli->prepare("SELECT id FROM private_conversation_participants WHERE conversation_id = ? AND user_id = ? LIMIT 1");
-    $stmtCheck->bind_param("ii", $conversationId, $userId);
-    $stmtCheck->execute();
-    $isPart = $stmtCheck->get_result()->num_rows > 0;
-    $stmtCheck->close();
-    
-    if (!$isPart) {
-        send_error("Non sei autorizzato ad allegare file in questa conversazione.", 403);
+
+    $chatId = (int)($_POST['chat_id'] ?? 0);
+    $conversationId = (int)($_POST['conversation_id'] ?? 0);
+    $recipientId = (int)($_POST['recipient_id'] ?? 0);
+
+    $files = cc_uploaded_files($_FILES);
+    if (!$files) {
+        throw new ChatError(rt_t('Nessun file ricevuto. Forse è troppo grande.', 'No file received. It may be too large.'), 422);
     }
-}
-
-if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-    send_error("Nessun file caricato o si è verificato un errore durante l'upload.");
-}
-
-$file = $_FILES['file'];
-$tempPath = $file['tmp_name'];
-$originalName = mb_substr(basename((string)$file['name']), 0, 255, 'UTF-8');
-$originalName = preg_replace('/[\x00-\x1F\x7F]/u', '', $originalName) ?: 'allegato';
-$fileSize = (int)$file['size'];
-
-if ($fileSize <= 0 || !is_uploaded_file($tempPath)) {
-    send_error('File caricato non valido.');
-}
-
-// Validazione dimensione file
-$maxImageSize = 20 * 1024 * 1024; // 20MB per immagini, sticker e audio
-$maxFileSize = 50 * 1024 * 1024;  // 50MB per video e documenti generici
-
-// Controllo reale del tipo MIME tramite finfo
-$finfo = finfo_open(FILEINFO_MIME_TYPE);
-$mimeType = finfo_file($finfo, $tempPath);
-finfo_close($finfo);
-
-$allowedTypes = [
-    'image/jpeg' => ['ext' => 'jpg', 'type' => 'image'],
-    'image/png' => ['ext' => 'png', 'type' => 'image'],
-    'image/gif' => ['ext' => 'gif', 'type' => 'image'],
-    'image/webp' => ['ext' => 'webp', 'type' => 'image'],
-    'video/mp4' => ['ext' => 'mp4', 'type' => 'video'],
-    'video/webm' => ['ext' => 'webm', 'type' => 'video'],
-    'audio/mpeg' => ['ext' => 'mp3', 'type' => 'audio'],
-    'audio/ogg' => ['ext' => 'ogg', 'type' => 'audio'],
-    'audio/wav' => ['ext' => 'wav', 'type' => 'audio'],
-    'audio/x-wav' => ['ext' => 'wav', 'type' => 'audio'],
-    'application/pdf' => ['ext' => 'pdf', 'type' => 'file'],
-    'application/zip' => ['ext' => 'zip', 'type' => 'file'],
-    'text/plain' => ['ext' => 'txt', 'type' => 'file'],
-];
-
-if (!is_string($mimeType) || !isset($allowedTypes[$mimeType])) {
-    send_error('Tipo di file non consentito.');
-}
-
-// Mappatura tipo MIME a file_type ENUM
-$fileType = $allowedTypes[$mimeType]['type'];
-if ($fileType === 'image') {
-    if (@getimagesize($tempPath) === false) {
-        send_error('Il file non è un’immagine valida.');
+    if (count($files) > CC_MAX_FILES) {
+        throw new ChatError(rt_t('Troppi file in un solo messaggio (massimo ' . CC_MAX_FILES . ').', 'Too many files in one message (max ' . CC_MAX_FILES . ').'), 422);
     }
-    if (isset($_POST['is_sticker']) && (int)$_POST['is_sticker'] === 1) {
-        $fileType = 'sticker';
-    }
-}
 
-// Applica limiti di dimensione in base al tipo
-if (($fileType === 'image' || $fileType === 'audio' || $fileType === 'sticker') && $fileSize > $maxImageSize) {
-    send_error("Il file supera la dimensione massima consentita per questa tipologia (20MB).");
-} elseif ($fileSize > $maxFileSize) {
-    send_error("Il file supera la dimensione massima consentita (50MB).");
-}
-
-// The stored extension comes only from the server-detected MIME type. The
-// original filename is metadata and is never used as a filesystem path.
-$extension = $allowedTypes[$mimeType]['ext'];
-$fileName = bin2hex(random_bytes(20)) . '.' . $extension;
-
-// Creazione directory di upload
-$uploadDir = __DIR__ . '/../../uploads/chat/' . date('Y/m/');
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
-}
-
-$destPath = $uploadDir . $fileName;
-$relativePath = '/uploads/chat/' . date('Y/m/') . $fileName;
-
-// Spostamento del file caricato
-if (!move_uploaded_file($tempPath, $destPath)) {
-    send_error("Impossibile salvare il file caricato sul server.");
-}
-
-$mysqli->begin_transaction();
-
-try {
+    // I permessi si controllano prima di salvare qualsiasi cosa su disco.
+    $table = $chatId > 0 ? 'chat_messages' : 'private_messages';
     if ($chatId > 0) {
-        // --- LOGICA GRUPPO ---
-        $attachmentData = [
-            'attachments' => [[
-                'file_name' => $originalName,
-                'file_path' => $relativePath,
-                'file_size' => $fileSize,
-                'file_mime' => $mimeType,
-                'file_type' => $fileType
-            ]]
-        ];
-        $metaJson = json_encode($attachmentData);
-        $messageType = 'media';
-        
-        $stmtMsg = $mysqli->prepare("
-            INSERT INTO chat_messages (chat_id, sender_id, body, message_type, reply_to_message_id, metadata_json)
-            VALUES (?, ?, NULL, ?, ?, ?)
-        ");
-        $stmtMsg->bind_param("iisis", $chatId, $userId, $messageType, $replyToId, $metaJson);
-        $stmtMsg->execute();
-        $messageId = $mysqli->insert_id;
-        $stmtMsg->close();
-        
-        // Aggiorniamo la conversazione
-        $mysqli->query("UPDATE chats SET last_message_id = $messageId, last_message_at = NOW() WHERE id = $chatId");
-        $mysqli->query("UPDATE chat_members SET is_archived = 0 WHERE chat_id = $chatId");
-        
-        $mysqli->commit();
-        
-        // Seleziona il messaggio appena creato
-        $stmtSelect = $mysqli->prepare("
-            SELECT m.id, m.chat_id, m.sender_id, u.username as sender_username, u.display_name as sender_display_name,
-                   m.body, m.message_type, m.reply_to_message_id, m.metadata_json, m.created_at
-            FROM chat_messages m
-            INNER JOIN utenti u ON u.id = m.sender_id
-            WHERE m.id = ? LIMIT 1
-        ");
-        $stmtSelect->bind_param("i", $messageId);
-        $stmtSelect->execute();
-        $newMsg = $stmtSelect->get_result()->fetch_assoc();
-        $stmtSelect->close();
-        
-        $newMsg['id'] = (int)$newMsg['id'];
-        $newMsg['chat_id'] = (int)$newMsg['chat_id'];
-        $newMsg['sender_id'] = (int)$newMsg['sender_id'];
-        $newMsg['reply_to_message_id'] = $newMsg['reply_to_message_id'] ? (int)$newMsg['reply_to_message_id'] : null;
-        $newMsg['metadata'] = $newMsg['metadata_json'] ? json_decode($newMsg['metadata_json'], true) : null;
-        $newMsg['attachments'] = $newMsg['metadata']['attachments'] ?? [];
-        unset($newMsg['metadata_json']);
-        
-        send_success(['message' => $newMsg]);
-        
+        $member = cg_require($mysqli, $chatId, $userId);
+        if (cg_settings($mysqli, $chatId)['message_permission'] === 'admins_only' && !$member['is_staff']) {
+            throw new ChatError(rt_t('In questo gruppo possono scrivere solo gli amministratori.', 'Only admins can write in this group.'), 403);
+        }
     } else {
-        // --- LOGICA PRIVATA ---
-        $messageType = 'media';
-        $stmtMsg = $mysqli->prepare("
-            INSERT INTO private_messages (conversation_id, sender_id, message, message_type, reply_to_id, ephemeral_timer)
-            VALUES (?, ?, NULL, ?, ?, ?)
-        ");
-        $stmtMsg->bind_param("iisii", $conversationId, $userId, $messageType, $replyToId, $ephemeralTimer);
-        $stmtMsg->execute();
-        $messageId = $mysqli->insert_id;
-        $stmtMsg->close();
-        
-        // Inseriamo l'allegato
-        $stmtAtt = $mysqli->prepare("
-            INSERT INTO private_message_attachments (message_id, file_name, file_path, file_size, file_mime, file_type)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ");
-        $stmtAtt->bind_param("ississ", $messageId, $originalName, $relativePath, $fileSize, $mimeType, $fileType);
-        $stmtAtt->execute();
-        $stmtAtt->close();
-        
-        // Aggiorniamo la conversazione
-        $mysqli->query("UPDATE private_conversations SET updated_at = NOW() WHERE id = $conversationId");
-        $mysqli->query("UPDATE private_conversation_participants SET is_archived = 0 WHERE conversation_id = $conversationId");
-        
-        $mysqli->commit();
-        
-        // Seleziona il messaggio appena creato
-        $stmtSelect = $mysqli->prepare("
-            SELECT m.id, m.conversation_id, m.sender_id, u.username as sender_username, m.message, 
-                   m.reply_to_id, m.ephemeral_timer, m.created_at,
-                   reply_m.message AS reply_message_text, reply_u.username AS reply_username
-            FROM private_messages m
-            INNER JOIN utenti u ON u.id = m.sender_id
-            LEFT JOIN private_messages reply_m ON reply_m.id = m.reply_to_id
-            LEFT JOIN utenti reply_u ON reply_u.id = reply_m.sender_id
-            WHERE m.id = ? LIMIT 1
-        ");
-        $stmtSelect->bind_param("i", $messageId);
-        $stmtSelect->execute();
-        $newMsg = $stmtSelect->get_result()->fetch_assoc();
-        $stmtSelect->close();
-        
-        $newMsg['attachments'] = [[
-            'file_name' => $originalName,
-            'file_path' => $relativePath,
-            'file_size' => $fileSize,
-            'file_mime' => $mimeType,
-            'file_type' => $fileType
-        ]];
-        $newMsg['reactions'] = [];
-        
-        send_success(['message' => $newMsg]);
+        if ($conversationId > 0) {
+            $pair = cc_pm_require($mysqli, $conversationId, $userId);
+            $recipientId = (int)$pair['other']['user_id'];
+        }
+        $allowed = sc_can_message($mysqli, $userId, $recipientId);
+        if (!$allowed['ok']) {
+            throw new ChatError($allowed['message'], 403);
+        }
     }
 
-} catch (Exception $e) {
-    $mysqli->rollback();
-    if (file_exists($destPath)) {
-        unlink($destPath);
+    // Al massimo dieci messaggi con allegati al minuto.
+    $stmt = $mysqli->prepare("SELECT TIMESTAMPDIFF(SECOND, created_at, NOW()) FROM `$table` WHERE sender_id = ? AND message_type = 'media' ORDER BY id DESC LIMIT 1 OFFSET 9");
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $tenth = $stmt->get_result()->fetch_row();
+    $stmt->close();
+    if ($tenth && $tenth[0] !== null && (int)$tenth[0] < 60) {
+        throw new ChatError(rt_t('Stai caricando troppi file. Aspetta un attimo.', 'You are uploading too many files. Wait a moment.'), 429);
     }
-    error_log('chat upload_media failed: ' . $e->getMessage());
-    send_error("Impossibile salvare l'allegato.", 500);
-}
-?>
+
+    $stored = [];
+    try {
+        foreach ($files as $file) {
+            $stored[] = cc_store_upload($file);
+        }
+
+        $input = [
+            'message' => (string)($_POST['message'] ?? ''),
+            'reply_to_id' => (int)($_POST['reply_to_id'] ?? 0),
+            'reply_to_message_id' => (int)($_POST['reply_to_id'] ?? 0),
+            'conversation_id' => $conversationId,
+            'recipient_id' => $recipientId,
+        ];
+
+        $result = $chatId > 0
+            ? cg_send($mysqli, $userId, $chatId, $input, $stored)
+            : cc_pm_send($mysqli, $userId, $input, $stored);
+    } catch (Throwable $e) {
+        // Messaggio non salvato: i file già scritti non devono restare orfani.
+        foreach ($stored as $file) {
+            cc_delete_upload($file['file_path']);
+        }
+        throw $e;
+    }
+
+    send_success([
+        'message' => $result['message'],
+        'conversation_id' => $result['conversation_id'] ?? null,
+        'chat_id' => $chatId ?: null,
+    ]);
+});
