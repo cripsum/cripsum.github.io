@@ -469,12 +469,19 @@ if (!function_exists('gc_fetch')) {
 
     /**
      * Avvisa le persone menzionate, se esistono e non c'è un blocco di mezzo.
-     * La menzione resta «da vedere» (rt_mentions) finché non aprono la chat.
+     * Rispondere a un messaggio vale come menzionare chi l'ha scritto. La
+     * menzione resta «da vedere» (rt_mentions) finché non aprono la chat.
      */
     function gc_notify_mentions(mysqli $mysqli, int $senderId, array $message): void
     {
         try {
-            $targets = gc_mention_targets($mysqli, $message['mentions'] ?? []);
+            // L'autore del messaggio a cui si risponde va per primo: i nomi
+            // oltre il quinto non vengono avvisati, lui sì.
+            $names = $message['mentions'] ?? [];
+            if (!empty($message['reply']['username'])) {
+                array_unshift($names, strtolower((string)$message['reply']['username']));
+            }
+            $targets = gc_mention_targets($mysqli, array_unique($names));
             if (!$targets) {
                 return;
             }
@@ -494,7 +501,19 @@ if (!function_exists('gc_fetch')) {
     function gc_forget_mentions(mysqli $mysqli, int $messageId, string $text): void
     {
         try {
-            foreach (gc_mention_targets($mysqli, gc_mentions($text)) as $targetId) {
+            $targets = gc_mention_targets($mysqli, gc_mentions($text));
+
+            // Anche chi aveva ricevuto questo messaggio come risposta.
+            $stmt = $mysqli->prepare('SELECT r.user_id FROM messages m INNER JOIN messages r ON r.id = m.reply_to WHERE m.id = ?');
+            $stmt->bind_param('i', $messageId);
+            $stmt->execute();
+            $replied = (int)($stmt->get_result()->fetch_row()[0] ?? 0);
+            $stmt->close();
+            if ($replied > 0) {
+                $targets[] = $replied;
+            }
+
+            foreach (array_unique($targets) as $targetId) {
                 rt_mentions_clear($targetId, [$messageId]);
             }
         } catch (Throwable $e) {

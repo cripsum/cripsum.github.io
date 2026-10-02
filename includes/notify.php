@@ -218,7 +218,12 @@ if (!function_exists('notify_counters')) {
         if ($mentionIds && rt_has_table($mysqli, 'messages')) {
             $ids = array_keys($mentionIds);
             $marks = implode(',', array_fill(0, count($ids), '?'));
-            $stmt = $mysqli->prepare("SELECT id, user_id, message FROM messages WHERE id IN ($marks) AND deleted_at IS NULL");
+            $stmt = $mysqli->prepare("
+                SELECT m.id, m.user_id, m.message, r.user_id AS reply_user_id
+                FROM messages m
+                LEFT JOIN messages r ON r.id = m.reply_to
+                WHERE m.id IN ($marks) AND m.deleted_at IS NULL
+            ");
             $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
             $stmt->execute();
             foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
@@ -310,7 +315,9 @@ if (!function_exists('notify_counters')) {
                     'key' => 'm' . $row['id'],
                     'seq' => $seq,
                     'type' => 'mention',
-                    'title' => rt_t('@' . $user['username'] . ' ti ha menzionato', '@' . $user['username'] . ' mentioned you'),
+                    'title' => (int)($row['reply_user_id'] ?? 0) === $userId
+                        ? rt_t('@' . $user['username'] . ' ti ha risposto', '@' . $user['username'] . ' replied to you')
+                        : rt_t('@' . $user['username'] . ' ti ha menzionato', '@' . $user['username'] . ' mentioned you'),
                     'text' => cc_preview($row['message'], 110),
                     'avatar' => '/includes/get_pfp.php?id=' . $from,
                     'url' => "/$lang/global-chat?message=" . (int)$row['id'],

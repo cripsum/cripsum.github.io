@@ -49,8 +49,11 @@ if (!function_exists('gc_view')) {
         $message['can_delete'] = !$deleted && ($mine || $isMod);
         $message['can_report'] = !$deleted && !$mine;
         $message['can_moderate'] = $isMod && !$mine;
-        $message['mentions_me'] = !$deleted && !$mine && $viewerName !== ''
-            && in_array(strtolower($viewerName), $mentions, true);
+        // Una risposta a un proprio messaggio vale come una menzione.
+        $message['mentions_me'] = !$deleted && !$mine && (
+            ($viewerName !== '' && in_array(strtolower($viewerName), $mentions, true))
+            || (int)($message['reply']['user_id'] ?? 0) === $viewerId
+        );
 
         return $message;
     }
