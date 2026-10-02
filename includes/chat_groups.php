@@ -97,6 +97,27 @@ if (!function_exists('cg_member')) {
     }
 
     /**
+     * Come cg_signal, per un messaggio nuovo: chi ha silenziato il gruppo
+     * riceve l'evento con `z`, cioè la chat si aggiorna ma al suo telefono
+     * non parte nessuna notifica push.
+     */
+    function cg_signal_message(mysqli $mysqli, int $chatId, array $event): void
+    {
+        $event['g'] = $chatId;
+        $stmt = $mysqli->prepare("
+            SELECT user_id, (notification_level = 'muted' OR (muted_until IS NOT NULL AND muted_until > NOW())) AS muted
+            FROM chat_members WHERE chat_id = ? AND status = 'active'
+        ");
+        $stmt->bind_param('i', $chatId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_row()) {
+            rt_push_user((int)$row[0], (int)$row[1] === 1 ? $event + ['z' => 1] : $event);
+        }
+        $stmt->close();
+    }
+
+    /**
      * Messaggio di servizio («X è entrato», «Y ha rinominato il gruppo»).
      * Il testo salvato è in italiano per i client vecchi; i metadati portano
      * il tipo di evento e i nomi, così la pagina lo scrive nella lingua di
@@ -452,7 +473,7 @@ if (!function_exists('cg_member')) {
 
         // Un evento nel timbro di ogni membro: niente più messaggio nella
         // posta per ogni riga scritta in un gruppo.
-        cg_signal($mysqli, $chatId, ['t' => 'gm', 'm' => $messageId, 'f' => $userId]);
+        cg_signal_message($mysqli, $chatId, ['t' => 'gm', 'm' => $messageId, 'f' => $userId]);
 
         return ['message' => cg_one($mysqli, $userId, $chatId, $messageId), 'chat_id' => $chatId];
     }

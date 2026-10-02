@@ -234,7 +234,8 @@ if (!function_exists('rt_dir')) {
             return;
         }
 
-        rt_update('u:' . $userId, static function (array $data) use ($event, $mutate): array {
+        $push = null;
+        rt_update('u:' . $userId, static function (array $data) use ($event, $mutate, $userId, &$push): array {
             $seq = rt_next_seq($data);
             $event['s'] = $seq;
             $event['at'] = time();
@@ -261,8 +262,54 @@ if (!function_exists('rt_dir')) {
                     $data = $changed;
                 }
             }
+
+            // Dispositivi iscritti alle notifiche push: l'elenco è già qui,
+            // quindi sapere se serve un segnale non costa una lettura in più.
+            if (!empty($data['push']) && rt_event_wants_push($event, $userId)) {
+                $push = ['subs' => $data['push'], 'seq' => $seq];
+            }
             return $data;
         });
+
+        if ($push !== null) {
+            require_once __DIR__ . '/webpush.php';
+            wp_queue(
+                $userId,
+                wp_subs(['push' => $push['subs']]),
+                ['s' => $push['seq'], 'u' => $userId, 't' => (string)$event['t']],
+                rt_event_topic($event)
+            );
+        }
+    }
+
+    /**
+     * Vero per gli eventi che meritano una notifica sul dispositivo: gli
+     * stessi che in pagina fanno comparire un riquadro. Restano fuori quelli
+     * che l'utente ha provocato da sé e quelli marcati come silenziosi: `q`
+     * (solo contatore, o chat privata silenziata) e `z` (gruppo silenziato).
+     * Un segnale a cui non segue una notifica il browser lo punisce
+     * mostrandone una sua, generica.
+     */
+    function rt_event_wants_push(array $event, int $userId): bool
+    {
+        return in_array($event['t'] ?? '', ['pm', 'gm', 'mn', 'fr', 'fa', 'gi', 'ib', 'tk'], true)
+            && empty($event['q']) && empty($event['z'])
+            && (int)($event['f'] ?? 0) !== $userId;
+    }
+
+    /** Etichetta che fa tenere al servizio push solo l'ultimo segnale di una stessa chat, a dispositivo spento. */
+    function rt_event_topic(array $event): string
+    {
+        switch ($event['t'] ?? '') {
+            case 'pm':
+                return 'c' . (int)($event['c'] ?? 0);
+            case 'gm':
+                return 'g' . (int)($event['g'] ?? 0);
+            case 'mn':
+                return 'gc';
+            default:
+                return '';
+        }
     }
 
     function rt_push_users(array $userIds, array $event): void

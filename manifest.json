@@ -1,0 +1,18 @@
+{
+    "name": "Cripsum™",
+    "short_name": "Cripsum",
+    "description": "Chat, giochi, meme e profili: il sito di Cripsum™.",
+    "id": "/",
+    "start_url": "/it/home",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#0d111c",
+    "theme_color": "#0d111c",
+    "lang": "it",
+    "icons": [
+        { "src": "/img/app-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "/img/app-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "/img/app-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "/img/app-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
+}

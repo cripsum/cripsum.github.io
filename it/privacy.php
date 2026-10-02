@@ -102,7 +102,8 @@ $lastUpdated = '2 ottobre 2026';
                         <li>I messaggi nella chat globale, nelle chat private e di gruppo, con allegati, reazioni e GIF. Per cercare le GIF inviamo a Klipy le parole che scrivi nella ricerca.</li>
                         <li>Nelle chat private e di gruppo: fino a quale messaggio hai letto (da qui le conferme di lettura, che puoi spegnere dalla Privacy della chat), le chat che hai silenziato, archiviato o fissato, i messaggi salvati, i soprannomi che dai e le tue scelte su chi può scriverti. L'indicazione «sta scrivendo» dura pochi secondi e non viene conservata.</li>
                         <li>Dalle foto che carichi in chat togliamo i dati nascosti dello scatto, per esempio la posizione GPS, quando il formato lo permette (JPEG e WebP).</li>
-                        <li>Per avvisarti subito di messaggi e richieste teniamo sul server, per poco tempo, un elenco tecnico degli ultimi eventi che ti riguardano (per esempio «nuovo messaggio in una chat»): non contiene il testo dei messaggi privati. Le notifiche del browser le attivi tu, le mostra il tuo browser mentre il sito è aperto e non passano da servizi esterni.</li>
+                        <li>Per avvisarti subito di messaggi e richieste teniamo sul server, per poco tempo, un elenco tecnico degli ultimi eventi che ti riguardano (per esempio «nuovo messaggio in una chat»): non contiene il testo dei messaggi privati.</li>
+                        <li>Le notifiche sul dispositivo le attivi tu, da «Avvisi». Per farle arrivare anche a sito chiuso salviamo l'indirizzo push che il tuo browser ci assegna, e a ogni avviso mandiamo un segnale attraverso il servizio push del browser (di Google, Mozilla, Microsoft o Apple, secondo il browser). Il segnale è cifrato e contiene solo un numero d'ordine e l'identificativo del tuo account: non il testo dei messaggi, che il dispositivo chiede poi direttamente al sito. Spegnendo l'interruttore, uscendo dall'account o eliminandolo, l'indirizzo viene cancellato.</li>
                         <li>I ticket di supporto e i messaggi che ricevi dal sito nella inbox.</li>
                     </ul>
                     <h3>Giochi e statistiche</h3>
@@ -268,6 +269,11 @@ $lastUpdated = '2 ottobre 2026';
                                     <td>ipwho.is</td>
                                     <td>Posizione approssimativa (città e paese) degli IP nella lista dei dispositivi</td>
                                     <td>Fuori UE</td>
+                                </tr>
+                                <tr>
+                                    <td>Servizio push del tuo browser (Google, Mozilla, Microsoft o Apple)</td>
+                                    <td>Consegna delle notifiche sul dispositivo, solo se le attivi: riceve un segnale cifrato, senza il testo dei messaggi, e sa che il sito ti ha mandato un avviso</td>
+                                    <td>Vari, anche fuori UE</td>
                                 </tr>
                                 <tr>
                                     <td>jsDelivr, Cloudflare (cdnjs)</td>

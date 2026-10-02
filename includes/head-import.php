@@ -169,6 +169,9 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
         <link rel="icon" href="/img/Susremaster.png" type="image/png" />
         <link rel="shortcut icon" href="/img/Susremaster.png" type="image/png" />
+        <?php /* Rende il sito installabile come app: solo così le notifiche arrivano a nome di Cripsum e non del browser. */ ?>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/img/app-192.png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="/css/style.css?v=28" />
         <link rel="stylesheet" href="/css/style-dark.css?v=24" />

@@ -893,6 +893,48 @@
         });
     }
 
+    /* ── Notifiche push di un account uscito ────────────────────
+       Chi attiva le notifiche sul dispositivo iscrive il browser (lo fa
+       assets/rt/rt.js, che gira solo per chi e' collegato). Dopo il logout
+       quell'iscrizione non deve piu' ricevere niente: qui, sulla prima
+       pagina vista da scollegati, la si toglie dal browser e dal server. */
+    function initPushCleanup() {
+        var state = window.CNAV_STATE || {};
+        if (state.userId || !('serviceWorker' in navigator)) {
+            return;
+        }
+
+        var mark = null;
+        try {
+            mark = JSON.parse(localStorage.getItem('cripsum.push') || 'null');
+        } catch (e) {
+            return;
+        }
+        if (!mark || !mark.u) {
+            return;
+        }
+
+        navigator.serviceWorker.getRegistration('/').then(function (registration) {
+            return registration && registration.pushManager ? registration.pushManager.getSubscription() : null;
+        }).then(function (subscription) {
+            if (!subscription) {
+                return null;
+            }
+            fetch('/api/notify/push.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'drop', endpoint: subscription.endpoint, user: mark.u })
+            }).catch(function () {
+                /* al primo segnale respinto la toglie il server */
+            });
+            return subscription.unsubscribe();
+        }).then(function () {
+            localStorage.removeItem('cripsum.push');
+        }).catch(function () {
+            /* si riprovera' alla prossima pagina */
+        });
+    }
+
     function boot() {
         init();
         initCollapse();
@@ -900,6 +942,7 @@
         initSearch();
         initBadges();
         initNotifications();
+        initPushCleanup();
     }
 
     if (document.readyState === 'loading') {

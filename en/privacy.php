@@ -102,7 +102,8 @@ $lastUpdated = 'October 2, 2026';
                         <li>Messages in the global chat, private and group chats, with attachments, reactions and GIFs. To search GIFs we send Klipy the words you type in the search.</li>
                         <li>In private and group chats: the last message you have read (this is what read receipts are based on; you can turn them off in the chat Privacy settings), the chats you muted, archived or pinned, saved messages, the nicknames you set and your choices about who can message you. The "is typing" indicator lasts a few seconds and is not stored.</li>
                         <li>We remove hidden shot data, such as GPS location, from the photos you upload in chat when the format allows it (JPEG and WebP).</li>
-                        <li>To notify you right away about messages and requests we keep on the server, for a short time, a technical list of the latest events that concern you (for example "new message in a chat"): it does not contain the text of private messages. Browser notifications are turned on by you, are shown by your browser while the site is open and do not go through external services.</li>
+                        <li>To notify you right away about messages and requests we keep on the server, for a short time, a technical list of the latest events that concern you (for example "new message in a chat"): it does not contain the text of private messages.</li>
+                        <li>Device notifications are turned on by you, from "Alerts". To deliver them even when the site is closed we store the push address your browser assigns to us, and for each alert we send a signal through the browser's push service (run by Google, Mozilla, Microsoft or Apple, depending on the browser). The signal is encrypted and contains only a sequence number and your account identifier: not the text of messages, which the device then asks the site for directly. Turning the switch off, signing out or deleting the account deletes the address.</li>
                         <li>Support tickets and the messages you receive from the site in your inbox.</li>
                     </ul>
                     <h3>Games and statistics</h3>
@@ -268,6 +269,11 @@ $lastUpdated = 'October 2, 2026';
                                     <td>ipwho.is</td>
                                     <td>Approximate location (city and country) of the IPs in the device list</td>
                                     <td>Outside the EU</td>
+                                </tr>
+                                <tr>
+                                    <td>Your browser's push service (Google, Mozilla, Microsoft or Apple)</td>
+                                    <td>Delivery of device notifications, only if you turn them on: it receives an encrypted signal, without the text of messages, and knows the site sent you an alert</td>
+                                    <td>Various, including outside the EU</td>
                                 </tr>
                                 <tr>
                                     <td>jsDelivr, Cloudflare (cdnjs)</td>

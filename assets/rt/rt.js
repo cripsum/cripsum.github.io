@@ -11,6 +11,12 @@
  *   - agli avvisi: un riquadro in pagina, il suono, il numero nel titolo
  *     della scheda e, se l'utente lo ha attivato, la notifica del browser.
  *
+ * Le notifiche del browser non dipendono da questo giro: una scheda in
+ * secondo piano viene rallentata (su telefono sospesa) e arriverebbero tardi
+ * o mai. Chi le attiva iscrive il browser alle notifiche push: il server
+ * manda un segnale, lo riceve /sw.js anche a sito chiuso, ed è lui a
+ * mostrarle. Qui resta l'iscrizione, e un ripiego per i browser senza push.
+ *
  * Il ritmo si adatta: veloce mentre si chatta, lento sulle altre pagine,
  * più lento ancora a scheda nascosta, e sempre più rado se il server non
  * risponde.
@@ -32,10 +38,17 @@
             soundHint: 'Un suono quando arriva un messaggio o una menzione.',
             popups: 'Riquadri in pagina',
             popupsHint: 'Un riquadro in basso quando succede qualcosa.',
-            desktop: 'Notifiche del browser',
-            desktopHint: 'Anche quando la scheda è in secondo piano.',
+            desktop: 'Notifiche sul dispositivo',
+            desktopHint: 'Arrivano anche a sito chiuso, su questo dispositivo.',
             desktopBlocked: 'Le hai bloccate nelle impostazioni del browser per questo sito.',
             desktopUnsupported: 'Questo browser non le supporta.',
+            desktopLimited: 'Questo browser le mostra solo mentre il sito è aperto.',
+            install: 'Arrivano a nome del browser. Per vederle a nome di Cripsum™, installa il sito come app: dal menu del browser scegli «Installa» o «Aggiungi a schermata Home».',
+            test: 'Manda una notifica di prova',
+            testSent: 'Inviata: dovrebbe comparire fra un attimo.',
+            testNone: 'Nessun dispositivo iscritto: spegni e riaccendi l\'interruttore qui sopra.',
+            testFailed: 'Il servizio push non l\'ha accettata (codice {code}). Spegni e riaccendi l\'interruttore.',
+            testError: 'Non è stato possibile mandarla. Riprova fra poco.',
             close: 'Chiudi',
             open: 'Apri'
         },
@@ -45,10 +58,17 @@
             soundHint: 'A sound when a message or a mention arrives.',
             popups: 'In-page pop-ups',
             popupsHint: 'A small card at the bottom when something happens.',
-            desktop: 'Browser notifications',
-            desktopHint: 'Even when the tab is in the background.',
+            desktop: 'Device notifications',
+            desktopHint: 'They arrive even when the site is closed, on this device.',
             desktopBlocked: 'You blocked them in the browser settings for this site.',
             desktopUnsupported: 'This browser does not support them.',
+            desktopLimited: 'This browser only shows them while the site is open.',
+            install: 'They arrive under the browser\'s name. To see them as Cripsum™, install the site as an app: in the browser menu choose "Install" or "Add to Home screen".',
+            test: 'Send a test notification',
+            testSent: 'Sent: it should show up in a moment.',
+            testNone: 'No device is subscribed: turn the switch above off and on again.',
+            testFailed: 'The push service did not accept it (code {code}). Turn the switch off and on again.',
+            testError: 'It could not be sent. Try again shortly.',
             close: 'Close',
             open: 'Open'
         }
@@ -379,27 +399,199 @@
         if (!visible) {
             unseen += 1;
             document.title = '(' + unseen + ') ' + baseTitle;
-            if (prefs.desktop && 'Notification' in window && Notification.permission === 'granted') {
-                try {
-                    const note = new Notification(item.title, {
-                        body: item.text || '',
-                        icon: item.avatar || '/img/amongus-logo.jpg',
-                        tag: 'cripsum-' + item.key
-                    });
-                    note.onclick = () => {
-                        window.focus();
-                        go(item);
-                        note.close();
-                    };
-                } catch (_) {
-                    /* alcuni browser mobili le accettano solo da un service worker */
-                }
+            // Con il push la notifica l'ha già mostrata /sw.js, e in tempo.
+            if (!pushActive && prefs.desktop && 'Notification' in window && Notification.permission === 'granted') {
+                showLocalNotification(item);
             }
         }
 
         if (!mine) return;
         if (visible && prefs.popups) toast(item);
-        if (prefs.sound) playSound();
+        // Finestra non in primo piano e push attivo: il suono è quello della
+        // notifica di sistema, non serve farlo due volte.
+        if (prefs.sound && !(pushActive && !document.hasFocus())) playSound();
+    }
+
+    /** Ripiego senza push: la notifica la crea la pagina, quando il suo giro di controllo trova qualcosa. */
+    function showLocalNotification(item) {
+        const options = {
+            body: item.text || '',
+            icon: item.avatar || '/img/app-192.png',
+            badge: '/img/app-badge.png',
+            tag: 'cripsum-' + item.key,
+            data: { url: item.url || '', item }
+        };
+        // Su Android una pagina non può crearla da sé: deve passare dal
+        // service worker, che poi gestisce anche il clic.
+        if (worker) {
+            worker.showNotification(item.title, options).catch(() => {});
+            return;
+        }
+        try {
+            const note = new Notification(item.title, options);
+            note.onclick = () => {
+                window.focus();
+                go(item);
+                note.close();
+            };
+        } catch (_) {
+            /* serve il service worker, e qui non c'è */
+        }
+    }
+
+    // ── Notifiche push ─────────────────────────────────────────────────────
+
+    const PUSH_MARK = 'cripsum.push';     // a chi è iscritto questo browser, per non ripeterlo a ogni pagina
+    const pushSupported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    let worker = null;                    // registrazione di /sw.js
+    let pushActive = false;               // questo browser è iscritto per l'utente collegato
+
+    function keyBytes(base64url) {
+        const padded = (base64url + '==='.slice((base64url.length + 3) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+        const raw = atob(padded);
+        const bytes = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; i += 1) bytes[i] = raw.charCodeAt(i);
+        return bytes;
+    }
+
+    function sameKey(buffer, base64url) {
+        if (!buffer) return false;
+        const a = new Uint8Array(buffer);
+        const b = keyBytes(base64url);
+        return a.length === b.length && a.every((value, i) => value === b[i]);
+    }
+
+    async function pushRequest(payload) {
+        const response = await fetch('/api/notify/push.php', {
+            method: payload ? 'POST' : 'GET',
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: payload
+                ? { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || document.body.dataset.csrf || '' }
+                : { 'Accept': 'application/json' },
+            body: payload ? JSON.stringify(payload) : undefined
+        });
+        const data = await response.json();
+        if (!response.ok || !data || !data.ok) throw new Error('push');
+        return data;
+    }
+
+    async function ensureWorker() {
+        if (!worker) worker = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        return worker;
+    }
+
+    /**
+     * Iscrive questo browser, se non lo è già. Al server lo dice solo quando
+     * cambia qualcosa, o una volta al giorno: così, se il server ha perso
+     * l'elenco, entro un giorno si rimette a posto da solo.
+     */
+    async function enablePush() {
+        if (!pushSupported || Notification.permission !== 'granted') return false;
+        const registration = await ensureWorker();
+        await navigator.serviceWorker.ready;
+
+        const mark = readJson(PUSH_MARK);
+        let subscription = await registration.pushManager.getSubscription();
+        const fresh = subscription && mark.u === userId && mark.e === subscription.endpoint
+            && mark.k && sameKey(subscription.options.applicationServerKey, mark.k)
+            && Date.now() - (Number(mark.at) || 0) < 86400000;
+        if (fresh) {
+            pushActive = true;
+            return true;
+        }
+
+        const info = await pushRequest();
+        if (!info.key) return false;
+
+        // Iscrizione fatta con una chiave che non è più quella del sito: non
+        // riceverebbe nulla, va rifatta.
+        if (subscription && !sameKey(subscription.options.applicationServerKey, info.key)) {
+            await subscription.unsubscribe();
+            subscription = null;
+        }
+        if (!subscription) {
+            subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(info.key) });
+        }
+
+        await pushRequest({
+            action: 'subscribe',
+            endpoint: subscription.endpoint,
+            keys: subscription.toJSON().keys,
+            replace_user: mark.u && Number(mark.u) !== userId ? Number(mark.u) : 0
+        });
+        writeJson(PUSH_MARK, { u: userId, e: subscription.endpoint, k: info.key, at: Date.now() });
+        pushActive = true;
+        return true;
+    }
+
+    /** Toglie l'iscrizione di questo browser: per chi spegne l'interruttore, o per un account che qui non c'è più. */
+    async function disablePush(ownerId) {
+        pushActive = false;
+        try {
+            const registration = await navigator.serviceWorker.getRegistration('/');
+            const subscription = registration ? await registration.pushManager.getSubscription() : null;
+            if (subscription) {
+                if (ownerId === userId) await pushRequest({ action: 'unsubscribe', endpoint: subscription.endpoint });
+                else {
+                    await fetch('/api/notify/push.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'drop', endpoint: subscription.endpoint, user: ownerId })
+                    });
+                }
+                await subscription.unsubscribe();
+            }
+        } catch (_) {
+            /* il server la toglierà da sé al primo segnale respinto */
+        }
+        try {
+            localStorage.removeItem(PUSH_MARK);
+        } catch (_) {
+            /* niente memoria, niente da togliere */
+        }
+    }
+
+    /** Butta via l'iscrizione di questo browser senza toccare la preferenza: la prossima enablePush() ne fa una nuova. */
+    async function resetPush() {
+        pushActive = false;
+        try {
+            localStorage.removeItem(PUSH_MARK);
+            const registration = await navigator.serviceWorker.getRegistration('/');
+            const subscription = registration ? await registration.pushManager.getSubscription() : null;
+            if (subscription) await subscription.unsubscribe();
+        } catch (_) {
+            /* si riparte comunque da un'iscrizione nuova */
+        }
+    }
+
+    function onWorkerMessage(event) {
+        const data = event.data || {};
+        if (data.type === 'cripsum-push') {
+            // È arrivato un segnale: inutile aspettare il prossimo giro.
+            lastActivity = Date.now();
+            schedule(0);
+        } else if (data.type === 'cripsum-open') {
+            const url = String(data.url || '');
+            const item = data.item && typeof data.item === 'object' ? data.item : {};
+            go(Object.assign({}, item, { url: url.startsWith('/') && !url.startsWith('//') ? url : '' }));
+        }
+    }
+
+    function initPush() {
+        if (!pushSupported) return;
+        navigator.serviceWorker.addEventListener('message', onWorkerMessage);
+
+        if (prefs.desktop && Notification.permission === 'granted') {
+            enablePush().catch(() => {
+                /* resta il ripiego: le notifiche create dalla pagina */
+            });
+            return;
+        }
+        // Un'iscrizione rimasta da prima (interruttore spento, permesso tolto,
+        // o un altro account su questo browser) non deve continuare a ricevere.
+        const mark = readJson(PUSH_MARK);
+        if (mark.u) disablePush(Number(mark.u));
     }
 
     let audio = null;
@@ -539,6 +731,11 @@
                 row('popups', T.popups, T.popupsHint) +
                 row('sound', T.sound, T.soundHint) +
                 row('desktop', T.desktop, T.desktopHint) +
+                '<div class="crt-settings__extra" hidden>' +
+                    '<p class="crt-settings__note"></p>' +
+                    '<button type="button" class="crt-settings__test"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> ' + T.test + '</button>' +
+                    '<p class="crt-settings__result" role="status" hidden></p>' +
+                '</div>' +
             '</div>';
 
         function row(key, label, hint) {
@@ -568,6 +765,51 @@
             desktopBox.checked = false;
         }
 
+        // Sotto l'interruttore, quando è acceso: come farle arrivare a nome
+        // del sito, e una prova per vedere se questo dispositivo le riceve.
+        const extra = overlay.querySelector('.crt-settings__extra');
+        const note = overlay.querySelector('.crt-settings__note');
+        const testButton = overlay.querySelector('.crt-settings__test');
+        const testResult = overlay.querySelector('.crt-settings__result');
+        const installed = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const paintExtra = () => {
+            const on = desktopBox.checked && !desktopBox.disabled;
+            extra.hidden = !on;
+            if (!on) return;
+            note.textContent = pushSupported ? T.install : T.desktopLimited;
+            note.hidden = pushSupported && installed;
+            testButton.hidden = !pushSupported;
+        };
+        paintExtra();
+
+        testButton.addEventListener('click', async () => {
+            testButton.disabled = true;
+            testResult.hidden = false;
+            testResult.textContent = '…';
+            try {
+                const attempt = async () => {
+                    await enablePush();
+                    const answer = await pushRequest({ action: 'test' });
+                    answer.failed = (answer.results || []).find((row) => row.code < 200 || row.code >= 300);
+                    return answer;
+                };
+                let data = await attempt();
+                // Iscrizione persa o scaduta: si rifà da capo e si riprova una volta.
+                if (!data.devices || data.failed) {
+                    await resetPush();
+                    data = await attempt();
+                }
+                const failed = data.failed;
+                if (!data.devices) testResult.textContent = T.testNone;
+                else if (failed) testResult.textContent = T.testFailed.replace('{code}', String(failed.code || 0));
+                else testResult.textContent = T.testSent;
+            } catch (_) {
+                testResult.textContent = T.testError;
+            } finally {
+                testButton.disabled = false;
+            }
+        });
+
         overlay.addEventListener('change', async (event) => {
             const box = event.target.closest('[data-pref]');
             if (!box) return;
@@ -588,6 +830,12 @@
             prefs[key] = box.checked;
             writeJson(PREF_KEY, prefs);
             if (key === 'sound' && box.checked) playSound();
+            if (key === 'desktop') {
+                paintExtra();
+                testResult.hidden = true;
+                if (box.checked) enablePush().catch(() => {});
+                else disablePush(userId);
+            }
         });
 
         overlay.style.position = 'fixed';
@@ -672,4 +920,5 @@
 
     paintCounters();
     schedule(document.visibilityState === 'visible' ? 600 : 3000);
+    initPush();
 })();

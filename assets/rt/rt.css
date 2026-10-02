@@ -309,6 +309,62 @@ html[data-cnav-theme="light"] {
     outline-offset: 2px;
 }
 
+/* Sotto «Notifiche sul dispositivo», quando è acceso. */
+.crt-settings__extra {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0 18px 16px;
+}
+
+.crt-settings__extra[hidden],
+.crt-settings__extra [hidden] {
+    display: none;
+}
+
+.crt-settings__note,
+.crt-settings__result {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--crt-muted);
+}
+
+.crt-settings__result {
+    color: var(--crt-text);
+}
+
+.crt-settings__test {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--crt-border);
+    border-radius: 10px;
+    background: rgba(127, 127, 127, 0.12);
+    color: var(--crt-text);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 140ms ease;
+}
+
+.crt-settings__test:hover {
+    background: rgba(127, 127, 127, 0.22);
+}
+
+.crt-settings__test:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.crt-settings__test:focus-visible {
+    outline: 2px solid var(--crt-accent);
+    outline-offset: 2px;
+}
+
 @keyframes crtFade {
     from { opacity: 0; }
     to { opacity: 1; }

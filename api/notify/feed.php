@@ -3,7 +3,8 @@
  * Contatori della navbar e avvisi da mostrare.
  *
  * GET since=<numero>   avvisi per gli eventi personali successivi a quel
- *                      numero (quello che api/rt/poll.php ha appena segnalato)
+ *                      numero (quello che api/rt/poll.php ha appena segnalato,
+ *                      o che è arrivato a /sw.js con un segnale push)
  *     (senza since)    solo i contatori
  *
  * Questa richiesta passa dal database, quindi il browser la fa solo quando
@@ -47,6 +48,8 @@ try {
 
     echo json_encode([
         'ok' => true,
+        // /sw.js controlla che il segnale push sia per chi è collegato ora.
+        'uid' => $notifyUserId,
         'counters' => notify_counters($mysqli, $notifyUserId, $notifyRole),
         'items' => $items,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
