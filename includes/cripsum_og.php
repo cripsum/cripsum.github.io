@@ -211,9 +211,18 @@ function cripsum_og_content(mysqli $mysqli, string $type): array
     $mime = (string)($post['media_mime'] ?? '');
     $isVideo = str_starts_with($mime, 'video/');
 
-    $image = $isVideo
-        ? cripsum_og_abs('/img/og-default.jpg')
-        : cripsum_og_abs('/api/content/media.php?type=' . $type . '&id=' . $postId);
+    // Di un video si mostra la copertina, se chi l'ha caricato ne ha mandata una.
+    $image = cripsum_og_abs('/api/content/media.php?type=' . $type . '&id=' . $postId);
+    if ($isVideo) {
+        $image = cripsum_og_abs('/img/og-default.jpg');
+        $table = $type === 'rimasto' ? 'toprimasti' : 'shitposts';
+        if (cripsum_og_column_exists($mysqli, $table, 'anteprima')) {
+            $check = $mysqli->query("SELECT 1 FROM `$table` WHERE id = " . (int)$postId . ' AND anteprima IS NOT NULL');
+            if ($check && $check->num_rows > 0) {
+                $image = cripsum_og_abs('/api/content/get_media.php?type=' . $type . '&id=' . $postId . '&v=poster');
+            }
+        }
+    }
 
     return [
         'title' => ($title !== '' ? $title : $suffix) . ' - Cripsum™',

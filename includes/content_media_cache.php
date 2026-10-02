@@ -12,6 +12,11 @@
 // The folder is closed to the web in .htaccess: files leave it only through
 // media.php, which honours the expiry.
 //
+// A post can have several media, and each one a few versions: the file itself,
+// the feed thumbnail, the cover frame of a video. They are told apart in the
+// file name: {type}-{id}[-{n}][.{variant}].{ext}. The first media of a post,
+// in full, keeps the plain name it always had.
+//
 // This file must stay dependency free: it is loaded before anything else.
 
 const CONTENT_MEDIA_CACHE_TTL = 3600;
@@ -36,10 +41,25 @@ function content_media_cache_type(string $type): string
     return $type === 'rimasto' || $type === 'toprimasti' || $type === 'rimasti' ? 'rimasto' : 'shitpost';
 }
 
-/** Every file that may hold the copy of one post (one per known extension). */
-function content_media_cache_candidates(string $type, int $id): array
+function content_media_cache_variant(string $variant): string
 {
-    $base = content_media_cache_dir() . '/' . content_media_cache_type($type) . '-' . $id . '.';
+    return $variant === 'thumb' || $variant === 'poster' ? $variant : '';
+}
+
+/** File name without the extension for one media of a post, in one version. */
+function content_media_cache_base(string $type, int $id, int $n = 0, string $variant = ''): string
+{
+    $variant = content_media_cache_variant($variant);
+
+    return content_media_cache_dir() . '/' . content_media_cache_type($type) . '-' . $id
+        . ($n > 0 ? '-' . $n : '')
+        . ($variant !== '' ? '.' . $variant : '');
+}
+
+/** Every file that may hold that copy (one per known extension). */
+function content_media_cache_candidates(string $type, int $id, int $n = 0, string $variant = ''): array
+{
+    $base = content_media_cache_base($type, $id, $n, $variant) . '.';
     $files = [];
     foreach (CONTENT_MEDIA_CACHE_EXT as $mime => $ext) {
         $files[$base . $ext] = $mime;
@@ -48,16 +68,105 @@ function content_media_cache_candidates(string $type, int $id): array
 }
 
 /**
+ * Sends a media and stops the request. Give either a file or the bytes.
+ *
+ * Honours Range: without it a video cannot be seeked, and Safari on iPhone
+ * refuses to play it at all.
+ */
+function content_media_send(string $mime, ?string $file, ?string $blob = null, ?string $etag = null): void
+{
+    $size = $file !== null ? (int)@filesize($file) : strlen((string)$blob);
+    if ($size <= 0) {
+        http_response_code(404);
+        exit;
+    }
+
+    header('Content-Type: ' . $mime);
+    header('X-Content-Type-Options: nosniff');
+    header('Content-Disposition: inline');
+    header('Cache-Control: private, max-age=3600');
+    header('Accept-Ranges: bytes');
+    if ($etag !== null) {
+        header('ETag: ' . $etag);
+        if (trim((string)($_SERVER['HTTP_IF_NONE_MATCH'] ?? '')) === $etag) {
+            http_response_code(304);
+            exit;
+        }
+    }
+
+    $start = 0;
+    $end = $size - 1;
+    $range = (string)($_SERVER['HTTP_RANGE'] ?? '');
+
+    if ($range !== '' && preg_match('/^bytes=(\d*)-(\d*)$/', trim($range), $m) && ($m[1] !== '' || $m[2] !== '')) {
+        if ($m[1] === '') {
+            // "The last N bytes".
+            $start = max(0, $size - (int)$m[2]);
+        } else {
+            $start = (int)$m[1];
+            if ($m[2] !== '') {
+                $end = min($end, (int)$m[2]);
+            }
+        }
+
+        if ($start > $end || $start >= $size) {
+            http_response_code(416);
+            header('Content-Range: bytes */' . $size);
+            exit;
+        }
+
+        http_response_code(206);
+        header('Content-Range: bytes ' . $start . '-' . $end . '/' . $size);
+    }
+
+    $length = $end - $start + 1;
+    header('Content-Length: ' . $length);
+
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
+        exit;
+    }
+
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    if ($file === null) {
+        echo $length === $size ? $blob : substr((string)$blob, $start, $length);
+        exit;
+    }
+
+    $handle = @fopen($file, 'rb');
+    if (!$handle) {
+        exit;
+    }
+    if ($start > 0) {
+        fseek($handle, $start);
+    }
+    $left = $length;
+    while ($left > 0 && !feof($handle)) {
+        $chunk = fread($handle, min(262144, $left));
+        if ($chunk === false || $chunk === '') {
+            break;
+        }
+        echo $chunk;
+        $left -= strlen($chunk);
+        flush();
+    }
+    fclose($handle);
+    exit;
+}
+
+/**
  * Sends the stored copy and stops the request, or returns when there is none
  * (or it has expired) so the caller goes on to the database.
  */
-function content_media_cache_serve(string $type, int $id): void
+function content_media_cache_serve(string $type, int $id, int $n = 0, string $variant = ''): void
 {
-    if ($id <= 0) {
+    if ($id <= 0 || $n < 0) {
         return;
     }
 
-    foreach (content_media_cache_candidates($type, $id) as $file => $mime) {
+    foreach (content_media_cache_candidates($type, $id, $n, $variant) as $file => $mime) {
         $mtime = @filemtime($file);
         if ($mtime === false) {
             continue;
@@ -72,26 +181,14 @@ function content_media_cache_serve(string $type, int $id): void
             continue;
         }
 
-        $etag = '"' . md5($file . '|' . $mtime . '|' . $size) . '"';
-        header('Content-Type: ' . $mime);
-        header('Cache-Control: private, max-age=3600');
-        header('ETag: ' . $etag);
-
-        if (trim((string)($_SERVER['HTTP_IF_NONE_MATCH'] ?? '')) === $etag) {
-            http_response_code(304);
-            exit;
-        }
-
-        header('Content-Length: ' . $size);
-        readfile($file);
-        exit;
+        content_media_send($mime, $file, null, '"' . md5($file . '|' . $mtime . '|' . $size) . '"');
     }
 }
 
-/** Stores the media of an approved post. Unknown types are simply not kept. */
-function content_media_cache_store(string $type, int $id, string $mime, string $blob): void
+/** Stores one media of an approved post. Unknown types are simply not kept. */
+function content_media_cache_store(string $type, int $id, string $mime, string $blob, int $n = 0, string $variant = ''): void
 {
-    if ($id <= 0 || $blob === '' || !isset(CONTENT_MEDIA_CACHE_EXT[$mime])) {
+    if ($id <= 0 || $n < 0 || $blob === '' || !isset(CONTENT_MEDIA_CACHE_EXT[$mime])) {
         return;
     }
 
@@ -100,10 +197,14 @@ function content_media_cache_store(string $type, int $id, string $mime, string $
         return;
     }
 
-    // A post has one media: a copy left under another extension is stale.
-    content_media_cache_forget($type, $id);
+    // One copy per media and version: one left under another extension is stale.
+    foreach (content_media_cache_candidates($type, $id, $n, $variant) as $old => $ignored) {
+        if (is_file($old)) {
+            @unlink($old);
+        }
+    }
 
-    $file = $dir . '/' . content_media_cache_type($type) . '-' . $id . '.' . CONTENT_MEDIA_CACHE_EXT[$mime];
+    $file = content_media_cache_base($type, $id, $n, $variant) . '.' . CONTENT_MEDIA_CACHE_EXT[$mime];
     $tmp = $file . '.' . getmypid() . '.tmp';
     if (@file_put_contents($tmp, $blob, LOCK_EX) !== false) {
         if (!@rename($tmp, $file)) {
@@ -118,14 +219,19 @@ function content_media_cache_store(string $type, int $id, string $mime, string $
     }
 }
 
-/** Drops the stored copy of one post. Call it on delete, unapprove and edit. */
+/**
+ * Drops every stored copy of one post: all its media, in all versions.
+ * Call it on delete, unapprove and edit.
+ */
 function content_media_cache_forget(string $type, int $id): void
 {
     if ($id <= 0) {
         return;
     }
 
-    foreach (content_media_cache_candidates($type, $id) as $file => $mime) {
+    // "type-12." and "type-12-": post 123 must not be caught.
+    $prefix = content_media_cache_dir() . '/' . content_media_cache_type($type) . '-' . $id;
+    foreach (array_merge(glob($prefix . '.*') ?: [], glob($prefix . '-*') ?: []) as $file) {
         if (is_file($file)) {
             @unlink($file);
         }

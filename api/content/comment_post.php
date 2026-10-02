@@ -4,53 +4,33 @@ require_once __DIR__ . '/bootstrap.php';
 try {
     cv2_check_csrf();
     $user = cv2_require_login($mysqli);
-    cv2_rate_limit('cv2_last_comment', 6, 'Stai commentando troppo velocemente.');
 
     $input = cv2_input();
     $type = cv2_normalize_type((string)($input['type'] ?? 'shitpost'));
     $id = (int)($input['id'] ?? 0);
-    $comment = cv2_validate_text((string)($input['commento'] ?? ''), 500, 'Commento');
+    $parentId = (int)($input['parent'] ?? 0);
+    $text = trim((string)($input['commento'] ?? ''));
 
-    if ($id <= 0) cv2_fail('ID non valido.');
-    if ($comment === '') cv2_fail('Il commento non può essere vuoto.');
-
-    if ($type === 'shitpost') {
-        if (!cv2_table_exists($mysqli, 'commenti_shitpost')) cv2_fail('Tabella commenti mancante.', 500);
-
-        $stmt = $mysqli->prepare("INSERT INTO commenti_shitpost (id_shitpost, id_utente, commento, data_commento) VALUES (?, ?, ?, NOW())");
-        if (!$stmt) cv2_fail('Query commento non valida.', 500);
-        $stmt->bind_param('iis', $id, $user['id'], $comment);
-        if (!$stmt->execute()) cv2_fail('Non sono riuscito a commentare.', 500);
-        $stmt->close();
-
-
-        // Missioni: il commento è appena stato salvato, il tipo dice dove.
-        try {
-            trackMissionProgress($mysqli, (int)$user['id'], 'comment_post');
-        } catch (Throwable $trackErr) {
-            error_log('[MissionTracking comment_post] ' . $trackErr->getMessage());
-        }
-
-        cv2_ok(['message' => 'Commento inviato.']);
+    if ($text === '') {
+        cv2_fail(cm_t('Il commento non può essere vuoto.', 'The comment cannot be empty.'));
+    }
+    if (mb_strlen($text, 'UTF-8') > CM_COMMENT_LENGTH) {
+        cv2_fail(cm_t('Commento troppo lungo: massimo ' . CM_COMMENT_LENGTH . ' caratteri.', 'Comment too long: ' . CM_COMMENT_LENGTH . ' characters at most.'));
     }
 
-    if (!cv2_table_exists($mysqli, 'content_comments')) cv2_fail('Tabella commenti mancante. Esegui SQL upgrade.', 500);
+    $post = cm_require_post($mysqli, $type, $id, $user, true);
+    $commentId = cm_comment_add($mysqli, $type, $post, $user, $text, $parentId);
 
-    $stmt = $mysqli->prepare("INSERT INTO content_comments (content_type, post_id, user_id, comment, created_at) VALUES ('rimasto', ?, ?, ?, NOW())");
-    if (!$stmt) cv2_fail('Query commento non valida.', 500);
-    $stmt->bind_param('iis', $id, $user['id'], $comment);
-    if (!$stmt->execute()) cv2_fail('Non sono riuscito a commentare.', 500);
-    $stmt->close();
-
-
-    // Missioni: il commento è appena stato salvato, il tipo dice dove.
-    try {
-        trackMissionProgress($mysqli, (int)$user['id'], 'comment_post');
-    } catch (Throwable $trackErr) {
-        error_log('[MissionTracking comment_post] ' . $trackErr->getMessage());
+    // Missioni: un commento per post al giorno, non uno a messaggio.
+    if (cm_action_once($mysqli, (int)$user['id'], $type, $post['id'], 'comment')) {
+        cm_track($mysqli, (int)$user['id'], ['comment_post' => true]);
     }
 
-    cv2_ok(['message' => 'Commento inviato.']);
+    cv2_ok([
+        'message' => cm_t('Commento inviato.', 'Comment posted.'),
+        'comment_id' => $commentId,
+        'comments' => cm_comments($mysqli, $type, $post['id'], $user),
+    ]);
 } catch (Throwable $e) {
-    cv2_fail('Errore commento: ' . $e->getMessage(), 500);
+    cm_crash('nuovo commento', $e);
 }

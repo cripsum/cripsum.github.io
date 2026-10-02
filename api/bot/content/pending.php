@@ -24,9 +24,12 @@ foreach (cripsum_community_post_types() as $type => $meta) {
     }
 
     $dateColumn = auth_column_exists($mysqli, $table, 'data_creazione') ? 'data_creazione' : 'id';
+    $mimeColumn = $type === 'rimasto' ? 'tipo_foto_rimasto' : 'tipo_foto_shitpost';
+    $posterSql = auth_column_exists($mysqli, $table, 'anteprima') ? '(p.anteprima IS NOT NULL)' : '0';
 
     $sql =
-        "SELECT p.id, p.titolo, p.descrizione, p.id_utente, u.username, p.`$dateColumn` AS creato
+        "SELECT p.id, p.titolo, p.descrizione, p.id_utente, u.username, p.`$dateColumn` AS creato,
+                p.`$mimeColumn` AS media_mime, $posterSql AS has_poster
          FROM `$table` p
          LEFT JOIN utenti u ON u.id = p.id_utente
          WHERE p.approvato = 0
@@ -39,6 +42,12 @@ foreach (cripsum_community_post_types() as $type => $meta) {
     }
 
     while ($row = $result->fetch_assoc()) {
+        // Discord mostra solo immagini: di un video si manda la copertina, se c'e'.
+        $mediaUrl = '/api/content/get_media.php?id=' . (int)$row['id'] . '&type=' . rawurlencode($type);
+        if (strncmp((string)$row['media_mime'], 'video/', 6) === 0) {
+            $mediaUrl = (int)$row['has_poster'] === 1 ? $mediaUrl . '&v=poster' : null;
+        }
+
         $pending[] = [
             'type' => $type,
             'id' => (int)$row['id'],
@@ -48,7 +57,7 @@ foreach (cripsum_community_post_types() as $type => $meta) {
             'author_id' => (int)($row['id_utente'] ?? 0),
             'created_at' => $row['creato'],
             'url' => '/it/' . ($type === 'rimasto' ? 'rimasti' : 'shitpost') . '?post=' . (int)$row['id'],
-            'media_url' => '/api/content/get_media.php?id=' . (int)$row['id'] . '&type=' . rawurlencode($type),
+            'media_url' => $mediaUrl,
         ];
     }
 

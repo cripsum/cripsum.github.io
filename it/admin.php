@@ -289,38 +289,21 @@ $csrfToken = admin_csrf_token();
                 <div class="admin-toolbar">
                     <div>
                         <strong>Shitpost</strong>
-                        <small>Modera contenuti, testo e approvazione.</small>
-                    </div>
-                    <div class="admin-toolbar-actions">
-                        <select id="shitpostsStatusFilter" class="admin-input">
-                            <option value="all">Tutti</option>
-                            <option value="approved">Approvati</option>
-                            <option value="pending">In attesa</option>
-                        </select>
+                        <small>Coda di approvazione, post pubblicati, segnalazioni e regole.</small>
                     </div>
                 </div>
-                <div id="shitpostsTable" class="admin-table-card"></div>
-                <div id="shitpostsPagination" class="admin-pagination"></div>
+                <div class="admin-table-card cmod" data-community-admin="shitpost"></div>
             </section>
 
             <section class="admin-section" id="section-toprimasti" data-section-panel="toprimasti">
                 <div class="admin-toolbar">
                     <div>
                         <strong>Top Rimasti</strong>
-                        <small>Modera post, motivazioni e voti.</small>
-                    </div>
-                    <div class="admin-toolbar-actions">
-                        <select id="toprimastiStatusFilter" class="admin-input">
-                            <option value="all">Tutti</option>
-                            <option value="approved">Approvati</option>
-                            <option value="pending">In attesa</option>
-                        </select>
+                        <small>Coda di approvazione, classifica, voti, segnalazioni e regole.</small>
                     </div>
                 </div>
-                <div id="toprimastiTable" class="admin-table-card"></div>
-                <div id="toprimastiPagination" class="admin-pagination"></div>
+                <div class="admin-table-card cmod" data-community-admin="rimasto"></div>
             </section>
-
 
             <section class="admin-section" id="section-reports" data-section-panel="reports">
                 <div class="admin-toolbar">
@@ -428,6 +411,7 @@ $csrfToken = admin_csrf_token();
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-esports.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-pages.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-characters.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-community.js')); ?>"></script>
 </body>
 
 </html>

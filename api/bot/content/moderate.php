@@ -4,9 +4,11 @@ declare(strict_types=1);
 /**
  * Approva o rifiuta un contenuto in attesa, dai bottoni su Discord.
  *
- * Approvare fa esattamente quello che fa il pannello: alza `approvato` e fa
- * partire l'annuncio sul webhook. Rifiutare elimina il contenuto e avvisa
- * l'autore, con la stessa funzione condivisa usata dal pannello.
+ * Approvare e rifiutare passano dalle stesse funzioni del pannello e della
+ * pagina (includes/content_moderation.php): approvare mette online, annuncia
+ * una volta sola e avvisa l'autore; rifiutare elimina il contenuto e avvisa
+ * l'autore. `reason` e' facoltativo: una chiave di cripsum_rejection_reasons()
+ * o un testo libero, che finisce nel messaggio all'autore.
  */
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -39,7 +41,10 @@ if ($postId <= 0) {
 $table = $types[$type]['table'];
 
 if ($action === 'reject') {
-    $deleted = cripsum_delete_community_post($mysqli, $type, $postId);
+    $deleted = cripsum_delete_community_post($mysqli, $type, $postId, [
+        'reason' => bot_text('reason', 300),
+        'reviewer_id' => (int)$actor['id'],
+    ]);
 
     if (!$deleted['ok']) {
         bot_fail($deleted['error'] ?? 'Unable to reject the content.', 500);
@@ -63,36 +68,19 @@ if ($action === 'reject') {
     ]);
 }
 
-if (!auth_column_exists($mysqli, $table, 'approvato')) {
-    bot_fail('This content type has no approval column.', 500);
+$approved = cripsum_set_community_post_approval($mysqli, $type, $postId, true, ['actor_id' => (int)$actor['id']]);
+
+if (!$approved['ok']) {
+    bot_fail($approved['error'] ?? 'Unable to approve the content.', 500);
 }
 
-$stmt = $mysqli->prepare("UPDATE `$table` SET approvato = 1 WHERE id = ? LIMIT 1");
-if (!$stmt) {
-    bot_fail('Unable to approve the content.', 500);
-}
-
-$stmt->bind_param('i', $postId);
-if (!$stmt->execute()) {
-    $stmt->close();
-    bot_fail('Unable to approve the content.', 500);
-}
-
-$changed = $stmt->affected_rows;
-$stmt->close();
-
-// L'annuncio automatico sul canale dei post, come dal pannello admin.
-try {
-    notifyDiscordNewPost($mysqli, $postId, $type === 'rimasto' ? 'rimasto' : 'shitpost');
-} catch (Throwable $e) {
-    error_log('[Discord Webhook Error approve from bot] ' . $e->getMessage());
-}
+$changed = $approved['changed'] ? 1 : 0;
 
 bot_log_action(
     $mysqli,
     $actor,
     $type === 'rimasto' ? 'approve_toprimasti' : 'approve_shitpost',
-    null,
+    $approved['author_id'],
     ['post_id' => $postId, 'from' => 'approval_queue']
 );
 

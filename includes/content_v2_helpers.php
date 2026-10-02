@@ -3,6 +3,13 @@ if (!defined('CONTENT_V2_LOADED')) {
     define('CONTENT_V2_LOADED', true);
 }
 
+/*
+ * Mattoni di base degli endpoint di Shitpost e Top Rimasti: risposte JSON,
+ * token anti-CSRF, utente collegato, nomi delle colonne delle due tabelle.
+ * Le regole vere (chi vede cosa, feed, limiti, avvisi) stanno in
+ * includes/community/community.php, che include questo file.
+ */
+
 function cv2_h($value): string
 {
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -12,7 +19,7 @@ function cv2_json(array $payload, int $status = 200): void
 {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 
@@ -24,6 +31,12 @@ function cv2_ok(array $payload = []): void
 function cv2_fail(string $message, int $status = 400, array $extra = []): void
 {
     cv2_json(array_merge(['ok' => false, 'message' => $message], $extra), $status);
+}
+
+/** Una frase nella lingua della pagina che chiama (cm_t), o in italiano se non si sa. */
+function cv2_say(string $it, string $en): string
+{
+    return function_exists('cm_t') ? cm_t($it, $en) : $it;
 }
 
 function cv2_input(): array
@@ -49,47 +62,7 @@ function cv2_check_csrf(): void
 {
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_POST['csrf_token'] ?? '');
     if (!is_string($token) || $token === '' || !hash_equals($_SESSION['content_v2_csrf'] ?? '', $token)) {
-        cv2_fail('Sessione scaduta. Ricarica la pagina.', 419);
-    }
-}
-
-function cv2_table_exists(mysqli $mysqli, string $table): bool
-{
-    static $cache = [];
-    if (isset($cache[$table])) return $cache[$table];
-
-    if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) return $cache[$table] = false;
-
-    try {
-        $result = $mysqli->query("SHOW TABLES LIKE '" . $mysqli->real_escape_string($table) . "'");
-        return $cache[$table] = ($result && $result->num_rows > 0);
-    } catch (Throwable $e) {
-        return $cache[$table] = false;
-    }
-}
-
-function cv2_column_exists(mysqli $mysqli, string $table, string $column): bool
-{
-    static $cache = [];
-    $key = $table . '.' . $column;
-    if (isset($cache[$key])) return $cache[$key];
-
-    if (!preg_match('/^[a-zA-Z0-9_]+$/', $table) || !preg_match('/^[\p{L}\p{N}_]+$/u', $column)) {
-        return $cache[$key] = false;
-    }
-
-    try {
-        $result = $mysqli->query('SHOW COLUMNS FROM `' . str_replace('`', '``', $table) . '`');
-        if (!$result) return $cache[$key] = false;
-
-        while ($row = $result->fetch_assoc()) {
-            if (($row['Field'] ?? '') === $column) {
-                return $cache[$key] = true;
-            }
-        }
-        return $cache[$key] = false;
-    } catch (Throwable $e) {
-        return $cache[$key] = false;
+        cv2_fail(cv2_say('Sessione scaduta. Ricarica la pagina.', 'Session expired. Reload the page.'), 419);
     }
 }
 
@@ -119,10 +92,10 @@ function cv2_is_admin(?array $user): bool
 function cv2_require_login(mysqli $mysqli): array
 {
     $user = cv2_current_user($mysqli);
-    if (!$user) cv2_fail('Devi essere loggato.', 401);
+    if (!$user) cv2_fail(cv2_say('Devi accedere.', 'You need to log in.'), 401);
 
     if ((int)($user['isBannato'] ?? 0) === 1) {
-        cv2_fail('Account bannato.', 403);
+        cv2_fail(cv2_say('Account bannato.', 'Account banned.'), 403);
     }
 
     return $user;
@@ -174,47 +147,6 @@ function cv2_meta(string $type): array
     ];
 }
 
-function cv2_qcol(string $name): string
-{
-    return '`' . str_replace('`', '``', $name) . '`';
-}
-
-function cv2_rate_limit(string $key, int $seconds, string $message): void
-{
-    $now = time();
-    $last = (int)($_SESSION[$key] ?? 0);
-    if ($last > 0 && ($now - $last) < $seconds) {
-        cv2_fail($message . ' Riprova tra ' . ($seconds - ($now - $last)) . 's.', 429);
-    }
-    $_SESSION[$key] = $now;
-}
-
-function cv2_validate_title(string $title): string
-{
-    $title = trim($title);
-    if ($title === '' || mb_strlen($title, 'UTF-8') > 120) {
-        cv2_fail('Titolo non valido. Max 120 caratteri.');
-    }
-    return $title;
-}
-
-function cv2_validate_text(string $text, int $max, string $field): string
-{
-    $text = trim($text);
-    if (mb_strlen($text, 'UTF-8') > $max) {
-        cv2_fail($field . ' troppo lungo. Max ' . $max . ' caratteri.');
-    }
-    return $text;
-}
-
-function cv2_validate_tag(?string $tag): ?string
-{
-    $tag = trim((string)$tag);
-    if ($tag === '') return null;
-    $tag = mb_substr($tag, 0, 40, 'UTF-8');
-    return preg_replace('/[^a-zA-Z0-9_\-àèéìòù ]/u', '', $tag) ?: null;
-}
-
 function cv2_allowed_mime(string $mime): bool
 {
     return in_array($mime, [
@@ -240,57 +172,6 @@ function cv2_detect_mime(string $tmpPath): string
     return (string)$mime;
 }
 
-function cv2_upload_file(string $field): array
-{
-    if (empty($_FILES[$field]) || !isset($_FILES[$field]['error']) || $_FILES[$field]['error'] !== UPLOAD_ERR_OK) {
-        cv2_fail('File mancante o non valido.');
-    }
-
-    $tmp = $_FILES[$field]['tmp_name'];
-    $size = (int)($_FILES[$field]['size'] ?? 0);
-    $mime = cv2_detect_mime($tmp);
-
-    if (!cv2_allowed_mime($mime)) {
-        cv2_fail('Formato non supportato. Usa JPG, PNG, GIF, WEBP, MP4 o WEBM.');
-    }
-
-    $max = cv2_is_video($mime) ? 20 * 1024 * 1024 : 8 * 1024 * 1024;
-    if ($size <= 0 || $size > $max) {
-        cv2_fail(cv2_is_video($mime) ? 'Video troppo grande. Max 20MB.' : 'Immagine/GIF troppo grande. Max 8MB.');
-    }
-
-    $blob = file_get_contents($tmp);
-    if ($blob === false || $blob === '') {
-        cv2_fail('Non sono riuscito a leggere il file.');
-    }
-
-    return ['blob' => $blob, 'mime' => $mime, 'size' => $size];
-}
-
-function cv2_post_owner(mysqli $mysqli, array $meta, int $postId): ?int
-{
-    $table = cv2_qcol($meta['table']);
-    $userCol = cv2_qcol($meta['user']);
-
-    $stmt = $mysqli->prepare("SELECT $userCol AS user_id FROM $table WHERE id = ? LIMIT 1");
-    if (!$stmt) return null;
-
-    $stmt->bind_param('i', $postId);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    return $row ? (int)$row['user_id'] : null;
-}
-
-function cv2_can_manage_post(mysqli $mysqli, array $user, array $meta, int $postId): bool
-{
-    if (cv2_is_admin($user)) return true;
-
-    $owner = cv2_post_owner($mysqli, $meta, $postId);
-    return $owner !== null && $owner === (int)$user['id'];
-}
-
 function cv2_bool_int($value): int
 {
     return in_array((string)$value, ['1', 'true', 'on', 'yes'], true) ? 1 : 0;
@@ -299,10 +180,4 @@ function cv2_bool_int($value): int
 function cv2_client_ip(): string
 {
     return substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45);
-}
-
-function cv2_post_url(string $type, int $id): string
-{
-    $base = $type === 'rimasto' ? '/it/rimasti' : '/it/shitpost';
-    return $base . '?post=' . $id;
 }

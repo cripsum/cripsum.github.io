@@ -9,47 +9,34 @@ try {
     $type = cv2_normalize_type((string)($input['type'] ?? 'shitpost'));
     $id = (int)($input['comment_id'] ?? 0);
 
-    if ($id <= 0) cv2_fail('ID commento non valido.');
-
-    if ($type === 'shitpost') {
-        if (!cv2_table_exists($mysqli, 'commenti_shitpost')) cv2_fail('Tabella commenti mancante.', 500);
-
-        $stmt = $mysqli->prepare("SELECT id_utente FROM commenti_shitpost WHERE id = ? LIMIT 1");
-        if (!$stmt) cv2_fail('Query commento non valida.', 500);
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        if (!$row) cv2_fail('Commento non trovato.', 404);
-        if (!cv2_is_admin($user) && (int)$row['id_utente'] !== (int)$user['id']) cv2_fail('Non puoi eliminare questo commento.', 403);
-
-        $stmt = $mysqli->prepare("DELETE FROM commenti_shitpost WHERE id = ? LIMIT 1");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $stmt->close();
-
-        cv2_ok(['message' => 'Commento eliminato.']);
+    $comment = cm_comment_row($mysqli, $type, $id);
+    if (!$comment) {
+        cv2_fail(cm_t('Commento non trovato.', 'Comment not found.'), 404);
+    }
+    if (!cv2_is_admin($user) && $comment['user_id'] !== (int)$user['id']) {
+        cv2_fail(cm_t('Non puoi eliminare questo commento.', 'You cannot delete this comment.'), 403);
     }
 
-    if (!cv2_table_exists($mysqli, 'content_comments')) cv2_fail('Tabella commenti mancante.', 500);
+    $c = cm_comment_meta($type);
+    $scope = $type === 'rimasto' ? " AND content_type = 'rimasto'" : '';
 
-    $stmt = $mysqli->prepare("SELECT user_id FROM content_comments WHERE id = ? LIMIT 1");
-    if (!$stmt) cv2_fail('Query commento non valida.', 500);
+    // Con il commento vanno via anche le sue risposte.
+    if (cm_schema($mysqli, $type)['replies']) {
+        $stmt = $mysqli->prepare("DELETE FROM `{$c['table']}` WHERE parent_id = ?$scope");
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    $stmt = $mysqli->prepare("DELETE FROM `{$c['table']}` WHERE id = ?$scope LIMIT 1");
     $stmt->bind_param('i', $id);
     $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    if (!$row) cv2_fail('Commento non trovato.', 404);
-    if (!cv2_is_admin($user) && (int)$row['user_id'] !== (int)$user['id']) cv2_fail('Non puoi eliminare questo commento.', 403);
-
-    $stmt = $mysqli->prepare("DELETE FROM content_comments WHERE id = ? LIMIT 1");
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $stmt->close();
-
-    cv2_ok(['message' => 'Commento eliminato.']);
+    cv2_ok([
+        'message' => cm_t('Commento eliminato.', 'Comment deleted.'),
+        'comments' => cm_comments($mysqli, $type, $comment['post_id'], $user),
+    ]);
 } catch (Throwable $e) {
-    cv2_fail('Errore eliminazione commento: ' . $e->getMessage(), 500);
+    cm_crash('elimina commento', $e);
 }

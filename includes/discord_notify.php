@@ -14,7 +14,7 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
     // Fetch post details from database
     if ($type === 'rimasto') {
         $stmt = $mysqli->prepare("
-            SELECT t.id, t.titolo, t.descrizione, u.username 
+            SELECT t.id, t.titolo, t.descrizione, t.tipo_foto_rimasto AS media_mime, u.username 
             FROM toprimasti t 
             LEFT JOIN utenti u ON t.id_utente = u.id 
             WHERE t.id = ? AND t.approvato = 1 
@@ -22,7 +22,7 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
         ");
     } else {
         $stmt = $mysqli->prepare("
-            SELECT s.id, s.titolo, s.descrizione, u.username 
+            SELECT s.id, s.titolo, s.descrizione, s.tipo_foto_shitpost AS media_mime, u.username 
             FROM shitposts s 
             LEFT JOIN utenti u ON s.id_utente = u.id 
             WHERE s.id = ? AND s.approvato = 1 
@@ -55,6 +55,19 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
     $postTypeLabel = ($type === 'rimasto') ? 'Top Rimasti' : 'Shitpost';
     $postUrl = "https://cripsum.com/it/" . ($type === 'rimasto' ? 'rimasti' : 'shitpost') . "?post=" . $postId;
     $mediaUrl = "https://cripsum.com/api/content/get_media.php?id=" . $postId . "&type=" . $type;
+
+    // Discord non mostra un video come immagine dell'annuncio: per i video si
+    // manda la copertina, se c'e'; altrimenti l'annuncio esce senza immagine.
+    if (strncmp((string)($post['media_mime'] ?? ''), 'video/', 6) === 0) {
+        $table = $type === 'rimasto' ? 'toprimasti' : 'shitposts';
+        $hasPoster = false;
+        $column = $mysqli->query("SHOW COLUMNS FROM `$table` LIKE 'anteprima'");
+        if ($column && $column->num_rows > 0) {
+            $check = $mysqli->query("SELECT 1 FROM `$table` WHERE id = $postId AND anteprima IS NOT NULL");
+            $hasPoster = $check && $check->num_rows > 0;
+        }
+        $mediaUrl = $hasPoster ? $mediaUrl . '&v=poster' : null;
+    }
     
     // L'annuncio lo pubblica il bot, non piu' un webhook anonimo: cosi' porta
     // nome e immagine di Poppy e resta modificabile come ogni suo messaggio.
@@ -66,9 +79,11 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
         'url' => $postUrl,
         'color' => ($type === 'rimasto') ? 10070784 : 15728895,
         'author_name' => 'Nuovo ' . $postTypeLabel . ' da @' . $author,
-        'image' => $mediaUrl,
         'footer_text' => 'Cripsum.com • ' . date('d/m/Y H:i'),
     ];
+    if ($mediaUrl !== null) {
+        $payload['image'] = $mediaUrl;
+    }
 
     $ch = curl_init(cripsum_bot_endpoint('/v1/announce'));
     curl_setopt_array($ch, [

@@ -1,119 +1,143 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/../../includes/mission_tracker.php';
 
+/*
+ * Reazione a uno shitpost, o voto a un Top Rimasti.
+ *
+ * POST type, id
+ *      reaction   (shitpost) una chiave di CM_REACTIONS; la stessa di prima la toglie
+ *      set        facoltativo: true/false per dire lo stato voluto invece di invertirlo
+ *
+ * Ogni scrittura decide in base alle righe davvero toccate: due clic nello
+ * stesso istante non producono né un errore né un conteggio sbagliato.
+ */
 try {
     cv2_check_csrf();
 
     $user = cv2_require_login($mysqli);
+    cm_throttle('react', 40, 60);
+
     $input = cv2_input();
     $type = cv2_normalize_type((string)($input['type'] ?? 'shitpost'));
-    $id = (int)($input['id'] ?? 0);
+    $userId = (int)$user['id'];
+    $wanted = array_key_exists('set', $input) ? cv2_bool_int($input['set']) === 1 || $input['set'] === true : null;
 
-    if ($id <= 0) cv2_fail('ID non valido.');
+    $post = cm_require_post($mysqli, $type, (int)($input['id'] ?? 0), $user, true);
+    $id = $post['id'];
+    $schema = cm_schema($mysqli, $type);
 
     if ($type === 'rimasto') {
-        if (!cv2_table_exists($mysqli, 'voti_toprimasti')) cv2_fail('Tabella voti mancante.', 500);
+        if (!$schema['votes']) {
+            cv2_fail(cm_t('I voti non sono disponibili.', 'Votes are not available.'), 503);
+        }
 
-        $check = $mysqli->prepare("SELECT id FROM voti_toprimasti WHERE id_utente = ? AND id_post = ? LIMIT 1");
-        if (!$check) cv2_fail('Query voto non valida.', 500);
-        $check->bind_param('ii', $user['id'], $id);
-        $check->execute();
-        $has = $check->get_result()->num_rows > 0;
-        $check->close();
-
-        $mysqli->begin_transaction();
-
-        if ($has) {
-            $stmt = $mysqli->prepare("DELETE FROM voti_toprimasti WHERE id_utente = ? AND id_post = ?");
-            $stmt->bind_param('ii', $user['id'], $id);
+        $delta = 0;
+        $remove = static function () use ($mysqli, $userId, $id): bool {
+            $stmt = $mysqli->prepare('DELETE FROM voti_toprimasti WHERE id_utente = ? AND id_post = ?');
+            $stmt->bind_param('ii', $userId, $id);
             $stmt->execute();
+            $done = $stmt->affected_rows > 0;
             $stmt->close();
-
-            $stmt = $mysqli->prepare("UPDATE toprimasti SET reazioni = GREATEST(0, COALESCE(reazioni, 0) - 1) WHERE id = ?");
-            $stmt->bind_param('i', $id);
+            return $done;
+        };
+        $add = static function () use ($mysqli, $userId, $id): bool {
+            $stmt = $mysqli->prepare('INSERT IGNORE INTO voti_toprimasti (id_utente, id_post, data_voto) VALUES (?, ?, NOW())');
+            $stmt->bind_param('ii', $userId, $id);
             $stmt->execute();
+            $done = $stmt->affected_rows > 0;
             $stmt->close();
+            return $done;
+        };
+
+        if ($wanted === true) {
+            $delta = $add() ? 1 : 0;
+            $active = true;
+        } elseif ($wanted === false) {
+            $delta = $remove() ? -1 : 0;
+            $active = false;
+        } elseif ($remove()) {
+            $delta = -1;
             $active = false;
         } else {
-            $stmt = $mysqli->prepare("INSERT INTO voti_toprimasti (id_utente, id_post, data_voto) VALUES (?, ?, NOW())");
-            $stmt->bind_param('ii', $user['id'], $id);
-            $stmt->execute();
-            $stmt->close();
-
-            $stmt = $mysqli->prepare("UPDATE toprimasti SET reazioni = COALESCE(reazioni, 0) + 1 WHERE id = ?");
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
-            $stmt->close();
+            $delta = $add() ? 1 : 0;
             $active = true;
         }
 
-        $stmt = $mysqli->prepare("SELECT COALESCE(reazioni, 0) AS score FROM toprimasti WHERE id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $score = (int)($stmt->get_result()->fetch_assoc()['score'] ?? 0);
-        $stmt->close();
-
-        $mysqli->commit();
-
-        // ── MISSION TRACKING ─────────────────────────────────────────────
-        // Traccia solo quando il like viene aggiunto, non rimosso.
-        if ($active) {
-            try {
-                trackMissionProgress($mysqli, (int)$user['id'], 'add_like');
-                trackMissionProgress($mysqli, (int)$user['id'], 'vote_rimasti');
-            } catch (Throwable $trackErr) {
-                error_log('[MissionTracking react_post rimasto] ' . $trackErr->getMessage());
-            }
+        if ($delta !== 0) {
+            $stmt = $mysqli->prepare('UPDATE toprimasti SET reazioni = GREATEST(0, COALESCE(reazioni, 0) + ?) WHERE id = ?');
+            $stmt->bind_param('ii', $delta, $id);
+            $stmt->execute();
+            $stmt->close();
         }
-        // ── /MISSION TRACKING ────────────────────────────────────────────
 
-        cv2_ok(['active' => $active, 'score' => $score]);
+        if ($delta === 1 && cm_action_once($mysqli, $userId, $type, $id, 'like')) {
+            cm_track($mysqli, $userId, ['add_like' => true, 'vote_rimasti' => true]);
+        }
+
+        cv2_ok([
+            'active' => $active,
+            'delta' => $delta,
+            'score' => cm_count($mysqli, 'SELECT COALESCE(reazioni, 0) FROM toprimasti WHERE id = ?', 'i', [$id]),
+        ]);
     }
 
-    if (!cv2_table_exists($mysqli, 'shitpost_likes')) cv2_fail('Tabella like mancante. Esegui SQL upgrade.', 500);
-
-    $check = $mysqli->prepare("SELECT id FROM shitpost_likes WHERE id_utente = ? AND id_shitpost = ? LIMIT 1");
-    if (!$check) cv2_fail('Query like non valida.', 500);
-    $check->bind_param('ii', $user['id'], $id);
-    $check->execute();
-    $has = $check->get_result()->num_rows > 0;
-    $check->close();
-
-    if ($has) {
-        $stmt = $mysqli->prepare("DELETE FROM shitpost_likes WHERE id_utente = ? AND id_shitpost = ?");
-        $stmt->bind_param('ii', $user['id'], $id);
-        $stmt->execute();
-        $stmt->close();
-        $active = false;
-    } else {
-        $stmt = $mysqli->prepare("INSERT INTO shitpost_likes (id_utente, id_shitpost, created_at) VALUES (?, ?, NOW())");
-        $stmt->bind_param('ii', $user['id'], $id);
-        $stmt->execute();
-        $stmt->close();
-        $active = true;
+    if (!$schema['likes']) {
+        cv2_fail(cm_t('Le reazioni non sono disponibili.', 'Reactions are not available.'), 503);
     }
 
-    $stmt = $mysqli->prepare("SELECT COUNT(*) AS total FROM shitpost_likes WHERE id_shitpost = ?");
-    $stmt->bind_param('i', $id);
+    $reaction = (string)($input['reaction'] ?? 'fire');
+    if (!isset(CM_REACTIONS[$reaction]) || !$schema['reactions']) {
+        $reaction = 'fire';
+    }
+
+    $column = $schema['reactions'] ? 'reazione' : "'fire'";
+    $stmt = $mysqli->prepare("SELECT $column FROM shitpost_likes WHERE id_utente = ? AND id_shitpost = ? LIMIT 1");
+    $stmt->bind_param('ii', $userId, $id);
     $stmt->execute();
-    $score = (int)($stmt->get_result()->fetch_assoc()['total'] ?? 0);
+    $current = $stmt->get_result()->fetch_row()[0] ?? null;
     $stmt->close();
 
-    // ── MISSION TRACKING ─────────────────────────────────────────────
-    // Traccia solo quando il like viene aggiunto, non rimosso.
-    if ($active) {
-        try {
-            trackMissionProgress($mysqli, (int)$user['id'], 'add_like');
-            trackMissionProgress($mysqli, (int)$user['id'], 'like_shitpost');
-        } catch (Throwable $trackErr) {
-            error_log('[MissionTracking react_post shitpost] ' . $trackErr->getMessage());
-        }
-    }
-    // ── /MISSION TRACKING ────────────────────────────────────────────
+    $off = $wanted === false || ($wanted === null && $current !== null && $current === $reaction);
+    $added = false;
 
-    cv2_ok(['active' => $active, 'score' => $score]);
+    if ($off) {
+        $stmt = $mysqli->prepare('DELETE FROM shitpost_likes WHERE id_utente = ? AND id_shitpost = ?');
+        $stmt->bind_param('ii', $userId, $id);
+        $stmt->execute();
+        $stmt->close();
+        $mine = null;
+    } else {
+        if ($schema['reactions']) {
+            $stmt = $mysqli->prepare('INSERT INTO shitpost_likes (id_utente, id_shitpost, created_at, reazione) VALUES (?, ?, NOW(), ?) ON DUPLICATE KEY UPDATE reazione = VALUES(reazione)');
+            $stmt->bind_param('iis', $userId, $id, $reaction);
+        } else {
+            $stmt = $mysqli->prepare('INSERT IGNORE INTO shitpost_likes (id_utente, id_shitpost, created_at) VALUES (?, ?, NOW())');
+            $stmt->bind_param('ii', $userId, $id);
+        }
+        $stmt->execute();
+        // 1 = riga nuova; 2 = c'era già e ha cambiato reazione; 0 = identica.
+        $added = $stmt->affected_rows === 1 && $current === null;
+        $stmt->close();
+        $mine = $reaction;
+    }
+
+    if ($added && cm_action_once($mysqli, $userId, $type, $id, 'like')) {
+        cm_track($mysqli, $userId, ['add_like' => true, 'like_shitpost' => true]);
+    }
+
+    $reactions = [];
+    $result = $mysqli->query("SELECT $column AS reazione, COUNT(*) AS n FROM shitpost_likes WHERE id_shitpost = $id GROUP BY $column");
+    while ($result && ($row = $result->fetch_assoc())) {
+        $key = isset(CM_REACTIONS[$row['reazione']]) ? $row['reazione'] : 'fire';
+        $reactions[$key] = ($reactions[$key] ?? 0) + (int)$row['n'];
+    }
+
+    cv2_ok([
+        'active' => $mine !== null,
+        'reaction' => $mine,
+        'score' => array_sum($reactions),
+        'reactions' => (object)$reactions,
+    ]);
 } catch (Throwable $e) {
-    @$mysqli->rollback();
-    cv2_fail('Errore reazione: ' . $e->getMessage(), 500);
+    cm_crash('reazione', $e);
 }
