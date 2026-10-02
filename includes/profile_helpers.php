@@ -1264,23 +1264,10 @@ function profile_fetch_discord_server_data(?string $inviteCode): ?array
 
 function profile_unlock_achievement(mysqli $mysqli, int $userId, int $achievementId): bool
 {
-    if ($userId <= 0 || $achievementId <= 0) return false;
-
-    $stmt = $mysqli->prepare("
-        INSERT INTO utenti_achievement (utente_id, achievement_id, data)
-        SELECT ?, ?, NOW()
-        WHERE EXISTS (SELECT 1 FROM achievement WHERE id = ?)
-          AND NOT EXISTS (
-              SELECT 1 FROM utenti_achievement
-              WHERE utente_id = ? AND achievement_id = ?
-          )
-    ");
-    if (!$stmt) return false;
-
-    $stmt->bind_param('iiiii', $userId, $achievementId, $achievementId, $userId, $achievementId);
-    $ok = $stmt->execute() && $stmt->affected_rows > 0;
-    $stmt->close();
-    return $ok;
+    // Passa dal motore unico: così lo sblocco arriva anche al Rewind, alle
+    // missioni e al popup in pagina, come tutti gli altri.
+    require_once __DIR__ . '/achievements.php';
+    return ach_grant($mysqli, $userId, $achievementId);
 }
 
 function profile_recent_activity(mysqli $mysqli, int $userId): array

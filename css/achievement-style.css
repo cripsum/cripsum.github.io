@@ -1,297 +1,367 @@
-:root {
-    --ach-popup-blue: #2f6bff;
-    --ach-popup-purple: #8b5cf6;
-    --ach-popup-gold: #fbbf24;
-    --ach-popup-green: #34d399;
-    --ach-popup-red: #fb7185;
-    --ach-popup-text: #f7f8ff;
-    --ach-popup-muted: #aab3c8;
-    --ach-popup-border: rgba(255, 255, 255, .14);
-    --ach-popup-bg: rgba(7, 10, 22, .92);
-}
+/*
+ * Cripsum™ — popup «Achievement sbloccato», su ogni pagina.
+ *
+ * Il markup lo scrive js/achievements-popup.js dentro #achievement-popup.
+ * Il colore segue il livello dell'achievement (classe tier-*). Si muovono
+ * solo transform e opacity; con «riduci movimento» resta una dissolvenza.
+ */
 
-@keyframes achPopupIn {
-    0% {
-        opacity: 0;
-        transform: translate3d(28px, -10px, 0) scale(.96);
-        filter: blur(6px);
-    }
-    100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-        filter: blur(0);
-    }
-}
-
-@keyframes achPopupOut {
-    0% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-        filter: blur(0);
-    }
-    100% {
-        opacity: 0;
-        transform: translate3d(28px, -10px, 0) scale(.96);
-        filter: blur(6px);
-    }
-}
-
-@keyframes achPopupShine {
-    0% {
-        transform: translateX(-120%) rotate(12deg);
-    }
-    70%, 100% {
-        transform: translateX(220%) rotate(12deg);
-    }
-}
-
-@keyframes achPopupPulse {
-    0%, 100% {
-        box-shadow: 0 0 0 rgba(251, 191, 36, 0);
-    }
-    50% {
-        box-shadow: 0 0 34px rgba(251, 191, 36, .22);
-    }
-}
-
-/* Compatibilità con il vecchio markup: #achievement-popup.popup */
 .popup,
 .achievement-popup {
+    --ach-tier: 217, 138, 82;
+
     position: fixed;
-    top: max(96px, env(safe-area-inset-top, 0px) + 86px);
+    top: max(92px, env(safe-area-inset-top, 0px) + 82px);
     right: max(18px, env(safe-area-inset-right, 0px) + 18px);
     z-index: 100000;
-    width: min(420px, calc(100vw - 28px));
-    min-height: 112px;
-    display: grid;
-    grid-template-columns: 78px minmax(0, 1fr) auto;
-    gap: .85rem;
-    align-items: center;
-    padding: .85rem;
-    color: var(--ach-popup-text);
+    box-sizing: border-box;
+    width: min(410px, calc(100vw - 28px));
+    margin: 0;
+    padding: 0;
+    color: #f7f8ff;
+    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    text-align: left;
     background:
-        radial-gradient(circle at 13% 18%, rgba(251, 191, 36, .22), transparent 28%),
-        linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .035)),
-        var(--ach-popup-bg);
-    border: 1px solid var(--ach-popup-border);
-    border-radius: 24px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, .44), 0 0 44px rgba(47, 107, 255, .15);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+        radial-gradient(120% 140% at 0% 0%, rgba(var(--ach-tier), 0.22), transparent 55%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
+        rgba(8, 11, 23, 0.96);
+    border: 1px solid rgba(var(--ach-tier), 0.42);
+    border-radius: 22px;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 0 46px rgba(var(--ach-tier), 0.16);
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transform: translate3d(28px, -10px, 0) scale(.96);
     overflow: hidden;
 }
 
-.popup::before,
+/* Il vecchio markup statico di alcune pagine, finché lo script non lo riscrive. */
+.popup:not(.achievement-popup) > * {
+    display: none;
+}
+
+.achievement-popup.tier-bronzo { --ach-tier: 217, 138, 82; }
+.achievement-popup.tier-argento { --ach-tier: 184, 194, 211; }
+.achievement-popup.tier-oro { --ach-tier: 244, 195, 67; }
+.achievement-popup.tier-platino { --ach-tier: 134, 214, 234; }
+.achievement-popup.tier-diamante { --ach-tier: 167, 139, 255; }
+
+.achievement-popup.is-showing {
+    visibility: visible;
+    pointer-events: auto;
+    animation: achPopupIn 460ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+.achievement-popup.is-hiding {
+    visibility: visible;
+    animation: achPopupOut 280ms ease-in both;
+}
+
+/* Riflesso che attraversa il riquadro una volta, all'ingresso. */
 .achievement-popup::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: 0 auto 0 0;
+    width: 42%;
     pointer-events: none;
-    border-radius: inherit;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
-    width: 36%;
-    transform: translateX(-120%) rotate(12deg);
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+    transform: translateX(-130%) skewX(-14deg);
 }
 
-.popup.show,
-.achievement-popup.show,
-.popup.is-showing,
-.achievement-popup.is-showing {
-    pointer-events: auto;
-    animation: achPopupIn 380ms cubic-bezier(.2, .85, .2, 1) forwards, achPopupPulse 1500ms ease-in-out 260ms 1;
-}
-
-.popup.show::before,
-.achievement-popup.show::before,
-.popup.is-showing::before,
 .achievement-popup.is-showing::before {
-    animation: achPopupShine 1600ms ease-out 240ms 1;
+    animation: achPopupShine 900ms ease-out 260ms both;
 }
 
-.popup.is-hiding,
-.achievement-popup.is-hiding {
-    pointer-events: none;
-    animation: achPopupOut 260ms ease forwards;
+.achievement-popup__link {
+    display: grid;
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: center;
+    padding: 0.9rem 2.6rem 1.05rem 0.95rem;
+    color: inherit;
+    text-decoration: none;
 }
 
-.popup img,
-.achievement-popup__image,
-#popup-image {
-    width: 74px;
-    height: 74px;
-    min-width: 74px;
-    object-fit: cover;
-    margin: 0;
+.achievement-popup__link:hover,
+.achievement-popup__link:focus-visible {
+    color: inherit;
+    text-decoration: none;
+}
+
+.achievement-popup__link:focus-visible {
+    outline: 2px solid rgba(var(--ach-tier), 0.9);
+    outline-offset: -4px;
     border-radius: 20px;
-    border: 1px solid rgba(251, 191, 36, .32);
-    background:
-        radial-gradient(circle at 50% 10%, rgba(251, 191, 36, .2), transparent 60%),
-        rgba(255,255,255,.055);
-    box-shadow: 0 0 26px rgba(251, 191, 36, .18);
 }
 
-.achievement-popup__content,
-.popup > div {
+.achievement-popup__medal {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+}
+
+/* Anello che si allarga dietro la medaglia. */
+.achievement-popup__medal::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    border: 2px solid rgba(var(--ach-tier), 0.8);
+    opacity: 0;
+}
+
+.achievement-popup.is-showing .achievement-popup__medal::before {
+    animation: achPopupRing 1100ms ease-out 300ms both;
+}
+
+.achievement-popup__image {
+    position: relative;
+    display: block;
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(var(--ach-tier), 0.35));
+}
+
+.achievement-popup.is-showing .achievement-popup__image {
+    animation: achPopupMedal 620ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms both;
+}
+
+.achievement-popup__content {
+    display: grid;
+    gap: 0.14rem;
     min-width: 0;
 }
 
 .achievement-popup__kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    min-height: 1.55rem;
-    padding: .18rem .48rem;
-    border: 1px solid rgba(251, 191, 36, .28);
-    border-radius: 999px;
-    color: #fde68a;
-    background: rgba(251, 191, 36, .1);
-    font-size: .68rem;
-    font-weight: 950;
-    letter-spacing: .08em;
+    color: rgb(var(--ach-tier));
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
 }
 
-.popup h3,
-.achievement-popup__title,
-#popup-title {
-    margin: .35rem 0 .15rem;
-    color: var(--ach-popup-text);
-    font-size: 1.02rem;
-    line-height: 1.1;
-    letter-spacing: -.03em;
-    font-weight: 950;
+.achievement-popup__title {
+    overflow: hidden;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.22;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 
-.popup p,
-.achievement-popup__description,
-#popup-description {
-    margin: 0;
-    color: var(--ach-popup-muted);
-    font-size: .84rem;
+.achievement-popup__description {
+    overflow: hidden;
+    color: #aab3c8;
+    font-size: 0.8rem;
     line-height: 1.35;
-    font-weight: 650;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 
 .achievement-popup__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: .35rem;
-    margin-top: .45rem;
+    gap: 0.35rem;
+    margin-top: 0.3rem;
 }
 
-.achievement-popup__meta span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 1.55rem;
-    padding: .2rem .46rem;
-    border: 1px solid rgba(255,255,255,.12);
+.achievement-popup__meta > span {
+    padding: 0.14rem 0.5rem;
+    border: 1px solid rgba(var(--ach-tier), 0.34);
     border-radius: 999px;
-    color: rgba(247,248,255,.86);
-    background: rgba(255,255,255,.055);
-    font-size: .68rem;
-    font-weight: 850;
+    color: rgb(var(--ach-tier));
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(var(--ach-tier), 0.1);
+}
+
+.achievement-popup__meta > span[hidden] {
+    display: none;
+}
+
+.achievement-popup__meta > .achievement-popup__reward {
+    border-color: rgba(251, 191, 36, 0.4);
+    color: #fcd34d;
+    background: rgba(251, 191, 36, 0.1);
 }
 
 .achievement-popup__close {
-    align-self: start;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
     display: grid;
     place-items: center;
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 999px;
-    color: rgba(247,248,255,.72);
-    background: rgba(255,255,255,.055);
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #8f9ab3;
+    background: transparent;
     cursor: pointer;
-    transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+    transition: color 160ms ease, background-color 160ms ease;
 }
 
-.achievement-popup__close:hover {
+.achievement-popup__close:hover,
+.achievement-popup__close:focus-visible {
     color: #fff;
-    background: rgba(251, 191, 36, .13);
-    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
 }
 
 .achievement-popup__bar {
     position: absolute;
-    left: 1rem;
-    right: 1rem;
-    bottom: .5rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
     height: 3px;
-    overflow: hidden;
-    border-radius: 999px;
-    background: rgba(255,255,255,.1);
+    background: rgba(255, 255, 255, 0.06);
 }
 
-.achievement-popup__bar span {
+.achievement-popup__bar > span {
     display: block;
-    width: 100%;
     height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, var(--ach-popup-gold), var(--ach-popup-blue), var(--ach-popup-purple));
+    background: linear-gradient(90deg, rgba(var(--ach-tier), 0.5), rgb(var(--ach-tier)));
     transform-origin: left center;
-    animation: achPopupProgress var(--ach-popup-duration, 4200ms) linear forwards;
+    transform: scaleX(0);
+}
+
+.achievement-popup.is-showing .achievement-popup__bar > span {
+    animation: achPopupProgress var(--ach-popup-duration, 5200ms) linear both;
+}
+
+.achievement-popup.is-paused .achievement-popup__bar > span {
+    animation-play-state: paused;
+}
+
+.achievement-popup.is-summary .achievement-popup__meta {
+    display: none;
+}
+
+@keyframes achPopupIn {
+    from {
+        opacity: 0;
+        transform: translate3d(26px, -12px, 0) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes achPopupOut {
+    from {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate3d(26px, -8px, 0) scale(0.96);
+    }
+}
+
+@keyframes achPopupMedal {
+    from {
+        opacity: 0;
+        transform: scale(0.35) rotate(-22deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes achPopupRing {
+    from {
+        opacity: 0.9;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 0;
+        transform: scale(1.75);
+    }
+}
+
+@keyframes achPopupShine {
+    from {
+        transform: translateX(-130%) skewX(-14deg);
+    }
+    to {
+        transform: translateX(320%) skewX(-14deg);
+    }
 }
 
 @keyframes achPopupProgress {
-    from { transform: scaleX(1); }
-    to { transform: scaleX(0); }
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
 }
 
 @media (max-width: 620px) {
     .popup,
     .achievement-popup {
-        top: auto;
-        right: max(12px, env(safe-area-inset-right, 0px) + 12px);
-        left: max(12px, env(safe-area-inset-left, 0px) + 12px);
-        bottom: max(14px, env(safe-area-inset-bottom, 0px) + 14px);
+        top: max(78px, env(safe-area-inset-top, 0px) + 70px);
+        right: 14px;
+        left: 14px;
         width: auto;
-        grid-template-columns: 64px minmax(0, 1fr) auto;
-        gap: .68rem;
-        padding: .75rem;
         border-radius: 20px;
     }
 
-    .popup img,
-    .achievement-popup__image,
-    #popup-image {
-        width: 62px;
-        height: 62px;
-        min-width: 62px;
-        border-radius: 17px;
+    .achievement-popup__link {
+        grid-template-columns: 56px minmax(0, 1fr);
+        gap: 0.75rem;
+        padding: 0.8rem 2.4rem 0.95rem 0.8rem;
     }
 
-    .popup h3,
-    .achievement-popup__title,
-    #popup-title {
-        font-size: .95rem;
+    .achievement-popup__medal {
+        width: 56px;
+        height: 56px;
     }
 
-    .popup p,
-    .achievement-popup__description,
-    #popup-description {
-        font-size: .78rem;
+    .achievement-popup__image {
+        width: 54px;
+        height: 54px;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .popup,
-    .achievement-popup,
-    .popup::before,
-    .achievement-popup::before,
-    .achievement-popup__bar span {
-        animation: none !important;
-        transition: none !important;
+    .achievement-popup.is-showing,
+    .achievement-popup.is-hiding {
+        animation-duration: 160ms;
+        animation-timing-function: linear;
     }
 
-    .popup.show,
-    .achievement-popup.show,
-    .popup.is-showing,
     .achievement-popup.is-showing {
+        animation-name: achPopupFade;
+    }
+
+    .achievement-popup.is-hiding {
+        animation-name: achPopupFade;
+        animation-direction: reverse;
+    }
+
+    .achievement-popup::before,
+    .achievement-popup__medal::before,
+    .achievement-popup.is-showing .achievement-popup__image {
+        animation: none;
+    }
+}
+
+@keyframes achPopupFade {
+    from {
+        opacity: 0;
+    }
+    to {
         opacity: 1;
-        transform: none;
     }
 }

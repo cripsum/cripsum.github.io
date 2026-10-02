@@ -570,15 +570,40 @@
 
     // I personaggi hanno la loro sezione: admin-characters.js.
 
+    // Categorie, livelli e metriche arrivano dal server insieme alla lista
+    // (includes/achievements.php): il pannello non ne tiene una copia sua.
+    let achievementMeta = { categories: {}, tiers: {}, tier_points: {}, metrics: {} };
+    let achievementV3 = false;
+
+    /** Come si sblocca, in parole: «Casse aperte ≥ 100», «Lo chiede il browser», «Solo dal codice». */
+    const achievementUnlockLabel = (a) => {
+        if (a.metrica) return `${escapeHtml(achievementMeta.metrics[a.metrica] || a.metrica)} ≥ ${Number(a.soglia || 1).toLocaleString('it-IT')}`;
+        return Number(a.claim_client) === 1 ? 'Lo chiede il browser' : 'Solo dal codice';
+    };
+
     const loadAchievements = async () => {
         const box = $('#achievementsTable'); setLoading(box);
         try {
             const params = new URLSearchParams({ q: state.q, page: state.achievements.page, limit: 30 });
             const data = await api(`get_achievements.php?${params}`);
             state.cache.achievements = data.achievements || [];
+            achievementMeta = Object.assign(achievementMeta, data.meta || {});
+            achievementV3 = !!data.v3;
+            const badges = (a) => achievementV3 ? `
+                <span class="admin-badge admin-badge--info">${escapeHtml(achievementMeta.categories[a.categoria] || a.categoria || '—')}</span>
+                <span class="admin-badge">${escapeHtml(achievementMeta.tiers[a.livello] || a.livello || '—')}</span>
+                ${Number(a.segreto) === 1 ? '<span class="admin-badge admin-badge--warning"><i class="fa-solid fa-user-secret"></i>Segreto</span>' : ''}
+                ${Number(a.attivo) === 0 ? '<span class="admin-badge admin-badge--danger">Spento</span>' : ''}` : '';
             box.innerHTML = state.cache.achievements.length ? `
-                <table class="admin-table"><thead><tr><th>Nome</th><th>Descrizione</th><th>Punti</th><th>Azioni</th></tr></thead><tbody>
-                    ${state.cache.achievements.map((a) => `<tr><td data-label="Nome"><div class="admin-name-cell">${thumb(a.image_url || a.img_url, 'fa-solid fa-trophy')}<div><div class="admin-row-title">${escapeHtml(a.nome)}</div><div class="admin-row-sub">#${Number(a.id)}</div></div></div></td><td data-label="Descrizione">${escapeHtml(a.descrizione || '—')}</td><td data-label="Punti">${Number(a.punti || 0)}</td><td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-achievement="${Number(a.id)}"><i class="fa-solid fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-achievement="${Number(a.id)}"><i class="fa-solid fa-trash"></i> Elimina</button></div></td></tr>`).join('')}
+                <table class="admin-table"><thead><tr><th>Nome</th><th>${achievementV3 ? 'Si sblocca con' : 'Descrizione'}</th><th>Punti</th>${achievementV3 ? '<th>Premio</th>' : ''}<th>Sbloccato da</th><th>Azioni</th></tr></thead><tbody>
+                    ${state.cache.achievements.map((a) => `<tr>
+                        <td data-label="Nome"><div class="admin-name-cell">${thumb(a.image_url || a.img_url, 'fa-solid fa-trophy')}<div><div class="admin-row-title">${escapeHtml(a.nome)}</div><div class="admin-row-sub">#${Number(a.id)} ${badges(a)}</div></div></div></td>
+                        <td data-label="${achievementV3 ? 'Si sblocca con' : 'Descrizione'}">${achievementV3 ? achievementUnlockLabel(a) : escapeHtml(a.descrizione || '—')}</td>
+                        <td data-label="Punti">${Number(a.punti || 0)}</td>
+                        ${achievementV3 ? `<td data-label="Premio">${Number(a.ricompensa || 0) > 0 ? Number(a.ricompensa).toLocaleString('it-IT') + ' Godos' : '—'}</td>` : ''}
+                        <td data-label="Sbloccato da">${Number(a.owners || 0).toLocaleString('it-IT')}</td>
+                        <td data-label="Azioni"><div class="admin-row-actions"><button class="admin-btn admin-btn--small" data-edit-achievement="${Number(a.id)}"><i class="fa-solid fa-pen"></i> Modifica</button><button class="admin-btn admin-btn--small admin-btn--danger" data-delete-achievement="${Number(a.id)}"><i class="fa-solid fa-trash"></i> Elimina</button></div></td>
+                    </tr>`).join('')}
                 </tbody></table>` : emptyState('fa-solid fa-trophy', 'Nessun achievement');
             $$('[data-edit-achievement]', box).forEach((b) => b.addEventListener('click', () => openAchievementForm(state.cache.achievements.find((a) => Number(a.id) === Number(b.dataset.editAchievement)))));
             $$('[data-delete-achievement]', box).forEach((b) => b.addEventListener('click', () => deleteAchievement(Number(b.dataset.deleteAchievement))));
@@ -586,30 +611,92 @@
         } catch (error) { box.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Errore achievement', error.message); }
     };
 
-    const achievementFormHtml = (item = {}) => `
+    const achievementOptions = (map, selected) => Object.entries(map)
+        .map(([value, label]) => `<option value="${escapeHtml(value)}" ${value === selected ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('');
+
+    const achievementFormHtml = (item = {}) => {
+        const mode = item.metrica ? 'server' : (Number(item.claim_client) === 1 ? 'client' : (item.id ? 'code' : 'server'));
+        const extra = achievementV3 ? `
+            <div class="admin-field"><label>Categoria</label><select name="categoria">${achievementOptions(achievementMeta.categories, item.categoria || 'esplorazione')}</select></div>
+            <div class="admin-field"><label>Livello</label><select name="livello" id="achLivello">${achievementOptions(achievementMeta.tiers, item.livello || 'bronzo')}</select></div>
+            <div class="admin-field"><label>Punti</label><input type="number" min="0" max="100000" name="punti" id="achPunti" value="${Number(item.punti ?? 100)}"></div>
+            <div class="admin-field"><label>Premio in Godos</label><input type="number" min="0" max="100000" name="ricompensa" id="achRicompensa" value="${Number(item.ricompensa || 0)}"></div>
+            <div class="admin-field admin-field--full"><label>Come si sblocca</label>
+                <select name="modo" id="achModo">
+                    <option value="server" ${mode === 'server' ? 'selected' : ''}>Lo conta il server (consigliato)</option>
+                    <option value="client" ${mode === 'client' ? 'selected' : ''}>Lo chiede il browser (minigiochi, cookie): mai premi in Godos</option>
+                    <option value="code" ${mode === 'code' ? 'selected' : ''}>Solo dal codice o dal pannello utenti</option>
+                </select>
+            </div>
+            <div class="admin-field" data-ach-server><label>Cosa conta</label><select name="metrica">${achievementOptions(achievementMeta.metrics, item.metrica || 'boxes')}</select></div>
+            <div class="admin-field" data-ach-server><label>Quanto serve</label><input type="number" min="1" name="soglia" value="${Number(item.soglia || 1)}"></div>
+            <div class="admin-field"><label>Serie (facoltativa)</label><input name="serie" value="${escapeHtml(item.serie || '')}" maxlength="40" placeholder="casse, amici…" pattern="[a-z0-9\\-]*"></div>
+            <div class="admin-field"><label>Ordine nella pagina</label><input type="number" min="0" name="ordine" value="${Number(item.ordine ?? 9000)}"></div>
+            <label class="admin-check"><input type="checkbox" name="segreto" value="1" ${Number(item.segreto || 0) === 1 ? 'checked' : ''}><span>Segreto: nome e descrizione nascosti finché non si sblocca</span></label>
+            <label class="admin-check"><input type="checkbox" name="attivo" value="1" ${item.id && Number(item.attivo) === 0 ? '' : 'checked'}><span>Attivo: visibile nella pagina e sbloccabile</span></label>` : `
+            <div class="admin-field"><label>Punti</label><input type="number" min="0" name="punti" value="${Number(item.punti || 0)}"></div>`;
+
+        return `
         <form id="achievementForm" class="admin-form-grid">
             ${item.id ? `<input type="hidden" name="id" value="${Number(item.id)}">` : ''}
-            <div class="admin-field"><label>Nome</label><input name="nome" value="${escapeHtml(item.nome || '')}" required maxlength="90"></div>
-            <div class="admin-field"><label>Punti</label><input type="number" min="0" name="punti" value="${Number(item.punti || 0)}"></div>
-            <div class="admin-field admin-field--full"><label>Immagine / icona</label><input name="img_url" value="${escapeHtml(item.img_url || '')}" placeholder="badge.png o https://..."></div>
-            <div class="admin-field admin-field--full"><label>Descrizione</label><textarea name="descrizione" maxlength="255">${escapeHtml(item.descrizione || '')}</textarea></div>
+            <div class="admin-field"><label>Nome</label><input name="nome" value="${escapeHtml(item.nome || '')}" required maxlength="100"></div>
+            <div class="admin-field"><label>Nome in inglese</label><input name="nome_en" value="${escapeHtml(item.nome_en || '')}" maxlength="100"></div>
+            <div class="admin-field admin-field--full"><label>Descrizione</label><textarea name="descrizione" maxlength="600">${escapeHtml(item.descrizione || '')}</textarea></div>
+            <div class="admin-field admin-field--full"><label>Descrizione in inglese</label><textarea name="descrizione_en" maxlength="600">${escapeHtml(item.descrizione_en || '')}</textarea></div>
+            ${extra}
+            <div class="admin-field admin-field--full"><label>Icona</label><input name="img_url" value="${escapeHtml(item.img_url || '')}" placeholder="achievements/nome.svg (dentro img/) oppure https://…"></div>
         </form>`;
+    };
 
     const openAchievementForm = (item = null) => {
-        openModal(item ? 'Modifica achievement' : 'Nuovo achievement', item ? `ID ${item.id}` : '', achievementFormHtml(item || {}), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveAchievementBtn">Salva</button>`);
+        openModal(item ? 'Modifica achievement' : 'Nuovo achievement', item ? `ID ${item.id}${item.chiave ? ' · ' + item.chiave : ''}` : '', achievementFormHtml(item || {}), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveAchievementBtn">Salva</button>`);
+
+        // Metrica e soglia servono solo se conta il server; il premio non
+        // esiste per quelli che chiede il browser.
+        const mode = $('#achModo');
+        const syncMode = () => {
+            if (!mode) return;
+            $$('[data-ach-server]').forEach((field) => { field.hidden = mode.value !== 'server'; });
+            const reward = $('#achRicompensa');
+            if (reward) {
+                reward.disabled = mode.value === 'client';
+                if (reward.disabled) reward.value = 0;
+            }
+        };
+        mode?.addEventListener('change', syncMode);
+        syncMode();
+
+        // Su un achievement nuovo il livello propone i punti che vale di solito.
+        if (!item) {
+            $('#achLivello')?.addEventListener('change', (event) => {
+                const points = achievementMeta.tier_points[event.target.value];
+                if (points && $('#achPunti')) $('#achPunti').value = points;
+            });
+        }
+
         $('#saveAchievementBtn')?.addEventListener('click', async () => {
             const form = $('#achievementForm');
             if (!form) return;
+            if (!form.reportValidity()) return;
             const payload = Object.fromEntries(new FormData(form).entries());
             try { await api(item ? 'update_achievement.php' : 'create_achievement.php', { method: 'POST', body: payload }); closeModal(); showToast('Achievement salvato.'); loadAchievements(); loadDashboard(); }
             catch (error) { showToast(error.message, true); }
         });
     };
 
-    const deleteAchievement = (id) => confirmBox('Eliminare achievement?', '<p class="admin-muted">Verrà rimosso anche dagli utenti che lo hanno sbloccato.</p>', async () => {
-        await api('delete_achievement.php', { method: 'POST', body: { id } });
-        showToast('Achievement eliminato.'); loadAchievements(); loadDashboard();
-    });
+    const deleteAchievement = (id) => {
+        const item = state.cache.achievements.find((a) => Number(a.id) === id) || {};
+        const owners = Number(item.owners || 0);
+        const warning = owners > 0
+            ? `<p class="admin-muted"><strong>${owners.toLocaleString('it-IT')} ${owners === 1 ? 'utente lo ha sbloccato' : 'utenti lo hanno sbloccato'}</strong>: lo perderanno, insieme al badge in vetrina sul profilo.</p>`
+            : '<p class="admin-muted">Nessun utente lo ha ancora sbloccato.</p>';
+        const hint = achievementV3 ? '<p class="admin-muted">Per toglierlo solo dalla pagina senza levarlo a chi ce l’ha, spegni «Attivo» nella modifica.</p>' : '';
+        // Il titolo della conferma è testo semplice: niente escape qui.
+        confirmBox(`Eliminare «${item.nome || 'achievement'}»?`, warning + hint, async () => {
+            await api('delete_achievement.php', { method: 'POST', body: { id } });
+            showToast('Achievement eliminato.'); loadAchievements(); loadDashboard();
+        });
+    };
 
     const approvalBadge = (approved) => Number(approved) === 1
         ? '<span class="admin-badge admin-badge--success"><i class="fa-solid fa-check"></i>Approvato</span>'

@@ -86,32 +86,11 @@ try {
             error_log('[MissionTracking upgrade_character] ' . $trackErr->getMessage());
         }
 
-        // Controlla e assegna gli achievement per i personaggi a livello MAX
-        $cnt_stmt = $mysqli->prepare('SELECT COUNT(*) AS max_lvl_count FROM utenti_personaggi WHERE utente_id = ? AND livello = 6');
-        $cnt_stmt->bind_param('i', $uid);
-        $cnt_stmt->execute();
-        $cnt_row = $cnt_stmt->get_result()->fetch_assoc();
-        $cnt_stmt->close();
-
-        $maxLvlCount = (int)($cnt_row['max_lvl_count'] ?? 0);
-        $unlockedAchievements = [];
-
-        if ($maxLvlCount >= 1) {
-            $aid = gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore I');
-            if ($aid !== null) $unlockedAchievements[] = $aid;
-        }
-        if ($maxLvlCount >= 5) {
-            $aid = gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore V');
-            if ($aid !== null) $unlockedAchievements[] = $aid;
-        }
-        if ($maxLvlCount >= 10) {
-            $aid = gd_award_achievement_by_name($mysqli, $uid, 'Massimo Splendore X');
-            if ($aid !== null) $unlockedAchievements[] = $aid;
-        }
-        if ($maxLvlCount >= 50) {
-            $aid = gd_award_achievement_by_name($mysqli, $uid, 'Esercito Dorato');
-            if ($aid !== null) $unlockedAchievements[] = $aid;
-        }
+        // Achievement dei potenziamenti (primo potenziamento, personaggi al
+        // MAX): li conta e li assegna il motore. Il premio in Godos non si
+        // accredita più qui: si riscuote dalla pagina degli achievement.
+        require_once __DIR__ . '/../../includes/achievements.php';
+        $unlockedAchievements = ach_sync($mysqli, $uid, ['collection']);
 
         // 5. Ricalcola le statistiche attuali e del prossimo livello per inviarle al client
         $statsNow = gd_stats($mysqli, $characterId, $nextLevel);
@@ -137,42 +116,4 @@ try {
 
 } catch (Exception $e) {
     gd_fail($e->getMessage(), 400);
-}
-
-function gd_award_achievement_by_name(mysqli $mysqli, int $userId, string $name): ?int {
-    // 1. Cerca l'achievement nel DB
-    $stmt = $mysqli->prepare('SELECT id, punti FROM achievement WHERE nome = ? LIMIT 1');
-    if (!$stmt) return null;
-    $stmt->bind_param('s', $name);
-    $stmt->execute();
-    $ach = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if (!$ach) return null;
-
-    $achId = (int)$ach['id'];
-    $punti = (int)$ach['punti'];
-
-    // 2. Controlla se l'utente lo possiede già
-    $stmt = $mysqli->prepare('SELECT 1 FROM utenti_achievement WHERE utente_id = ? AND achievement_id = ? LIMIT 1');
-    $stmt->bind_param('ii', $userId, $achId);
-    $stmt->execute();
-    $hasIt = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if ($hasIt) return null;
-
-    // 3. Assegna l'achievement
-    $stmt = $mysqli->prepare('INSERT INTO utenti_achievement (utente_id, achievement_id, data) VALUES (?, ?, NOW())');
-    $stmt->bind_param('ii', $userId, $achId);
-    $stmt->execute();
-    $stmt->close();
-
-    // 4. Assegna i soldi/punti all'utente
-    $stmt = $mysqli->prepare('UPDATE utenti SET soldi = soldi + ? WHERE id = ?');
-    $stmt->bind_param('ii', $punti, $userId);
-    $stmt->execute();
-    $stmt->close();
-
-    return $achId;
 }

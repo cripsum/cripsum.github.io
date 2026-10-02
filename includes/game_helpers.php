@@ -566,6 +566,13 @@ function gd_finish(mysqli $m, array $match, int $winner, int $loser): void
                 trackMissionProgress($m, $loser, 'play_duel');
             }
         }
+
+        // Achievement «vinci N duelli» e vittorie di fila: solo chi ha vinto
+        // può averne raggiunto uno.
+        if ($winner !== $botId) {
+            require_once __DIR__ . '/achievements.php';
+            ach_sync($m, $winner, ['duels']);
+        }
     } catch (Throwable $trackErr) {
         error_log('[Stats gd_finish] ' . $trackErr->getMessage());
     }

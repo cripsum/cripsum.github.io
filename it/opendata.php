@@ -32,14 +32,13 @@ checkBan($mysqli);
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="../css/style-dark.css" />
   <link rel="stylesheet" href="../css/animations.css" />
-  <link rel="stylesheet" href="../css/achievement-style.css" />
+  <link rel="stylesheet" href="../css/achievement-style.css?v=3.0" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="../js/animations.js"></script>
 
   <script src="../js/controlloLingua-it.js"></script>
   <script src="../js/controlloTema.js"></script>
-  <script src="../js/unlockAchievement-it.js?v=2.2"></script>
-  <script src="../js/achievements-globali.js"></script>
+  <script src="../js/achievements-popup.js?v=3.0"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Opendata™</title>
@@ -120,8 +119,6 @@ checkBan($mysqli);
 
   <div class="testobianco paginaprincipale">
     <script>
-      unlockAchievement(1);
-
       function salvaImpostazioni() {
         controllaLingua();
         controllaTema();

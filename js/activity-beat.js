@@ -129,6 +129,12 @@
             headers: { 'Content-Type': 'text/plain' },
             body,
             keepalive: isFinal
+        }).then((response) => (response.ok ? response.json() : null)).then((data) => {
+            // Achievement assegnati da questo battito (sezione aperta, tempo
+            // sul sito...): il popup parte subito.
+            if (data && Array.isArray(data.ach) && typeof window.showAchievementPopup === 'function') {
+                data.ach.forEach((id) => window.showAchievementPopup(id));
+            }
         }).catch(() => {
             /* Una statistica persa non deve disturbare la pagina. */
         });

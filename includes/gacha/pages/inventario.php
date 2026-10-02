@@ -213,7 +213,6 @@ $ogImage = '/img/waguri.jpeg';
     <?php include __DIR__ . '/../../' . ($gEn ? 'footer-en.php' : 'footer.php'); ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="<?= $h(cripsum_asset('/js/unlockAchievement-' . $gLang . '.js')) ?>"></script>
 </body>
 
 </html>

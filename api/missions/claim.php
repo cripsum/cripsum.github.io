@@ -184,6 +184,10 @@ try {
         // da sola: il tracker aggiorna solo le missioni non ancora riscattate,
         // quindi quella appena incassata qui sopra è già fuori dal giro.
         trackMissionProgress($mysqli, $userId, 'claim_mission');
+
+        // Achievement «completa N missioni»: il conto lo rifà il motore.
+        require_once __DIR__ . '/../../includes/achievements.php';
+        ach_sync($mysqli, $userId, ['missions']);
     } catch (Throwable $trackErr) {
         error_log("[Stats missions/claim] " . $trackErr->getMessage());
     }

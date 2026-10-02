@@ -72,12 +72,20 @@ $points = 0;
 
 while ($row = $result->fetch_assoc()) {
     $points += (int)($row['punti'] ?? 0);
+
+    // Le icone nuove sono SVG e Discord negli embed non li mostra: al bot
+    // va l'icona generica in PNG, così la miniatura non resta vuota.
+    $image = $row['img_url'] ?? null;
+    if (is_string($image) && preg_match('/\.svg$/i', $image)) {
+        $image = 'achievement-default.png';
+    }
+
     $unlocked[] = [
         'id' => (int)$row['id'],
         'name' => (string)($row['nome'] ?? ''),
         'description' => (string)($row['descrizione'] ?? ''),
         'points' => (int)($row['punti'] ?? 0),
-        'image_url' => $row['img_url'] ?? null,
+        'image_url' => $image,
         'unlocked_at' => $row['data'] ?? null,
     ];
 }

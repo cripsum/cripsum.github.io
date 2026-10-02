@@ -523,6 +523,10 @@ if (!function_exists('sc_settings')) {
                     trackMissionProgress($mysqli, $receiverId, 'add_friend');
                     trackMissionProgress($mysqli, $senderId, 'add_friend');
                 }
+                // Achievement «stringi N amicizie», per tutti e due.
+                require_once __DIR__ . '/achievements.php';
+                ach_sync($mysqli, $receiverId, ['friends']);
+                ach_sync($mysqli, $senderId, ['friends']);
             } catch (Throwable $e) {
                 error_log('[social accept tracking] ' . $e->getMessage());
             }

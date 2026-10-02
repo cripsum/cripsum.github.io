@@ -744,15 +744,8 @@ if (!function_exists('nav_bootstrap')) {
                 <script src="/assets/rt/panel.js?v=<?= $rtPanelVer ?>" defer></script>
             <?php endif; ?>
         <?php endif; ?>
-
-        <?php if ($isLoggedIn): ?>
-            <script>
-                if (typeof unlockAchievement === 'function' && typeof getCookie === 'function' && !getCookie('achievement1Unlocked')) {
-                    unlockAchievement(1);
-                    setCookie('achievement1Unlocked', true);
-                }
-            </script>
-        <?php endif; ?>
         <?php
+        // «Primi passi» non lo chiede più il browser da qui: lo assegna il
+        // server al primo battito di presenza (ach_heartbeat).
     }
 }

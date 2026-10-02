@@ -34,6 +34,22 @@ if ($userEvents !== null) {
     $out['u'] = $userEvents;
 }
 
+// Achievement sbloccati negli ultimi minuti. Una pagina appena aperta parte
+// dal numero attuale e non rivedrebbe quello assegnato mentre si cambiava
+// pagina: al primo giro li riceve qui, e il browser scarta quelli che ha già
+// mostrato.
+if ($userCursor < 0 && !empty($userStamp['events']) && is_array($userStamp['events'])) {
+    $recent = [];
+    foreach ($userStamp['events'] as $event) {
+        if (($event['t'] ?? '') === 'ach' && (int)($event['at'] ?? 0) >= time() - 600) {
+            $recent[] = (int)($event['a'] ?? 0);
+        }
+    }
+    if ($recent) {
+        $out['ach'] = array_values(array_unique(array_filter($recent)));
+    }
+}
+
 if (isset($_GET['g'])) {
     $hidden = isset($userStamp['hidden']) && is_array($userStamp['hidden']) ? array_map('intval', $userStamp['hidden']) : [];
     $hiddenMap = array_flip($hidden);

@@ -151,7 +151,7 @@ Run it locally however you want.
 ### Achievements / Gameplay
 
 - [x] Daily and weelky missions
-- [ ] New achievements
+- [x] New achievements
 - [ ] Complete character descriptions
 - [ ] Remove or replace old useless characters
 - [x] Rework character tags

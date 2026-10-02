@@ -257,15 +257,3 @@ function gacha_frammenti_slot(): array
         'segreto' => 1,
     ];
 }
-
-/* ── Achievement del gacha ────────────────────────────────────────────── */
-
-/**
- * Gli achievement che prima sbloccava il browser dopo ogni pull. Adesso li
- * assegna il server, con gli stessi id e le stesse soglie.
- */
-const GACHA_ACH_FIRST_PULL = 5;
-const GACHA_ACH_100_BOXES = 8;
-const GACHA_ACH_500_BOXES = 16;
-const GACHA_ACH_10_COMMONS = 9;
-const GACHA_ACH_100_CHARACTERS = 18;

@@ -6,15 +6,6 @@
             $lang = 'it';
         }
 
-        $t = [
-            'it' => [
-                'achievement'        => 'unlockAchievement-it.js?v=2.2',
-            ],
-            'en' => [
-                'achievement'        => 'unlockAchievement-en.js?v=2.2',
-            ],
-        ][$lang];
-
         ?>
 
         <?php if (function_exists('csrf_token')): ?>
@@ -159,7 +150,7 @@
                 return { enabled: enabled, set: set };
             })();
         </script>
-        <script src="/js/activity-beat.js?v=1" defer></script>
+        <script src="/js/activity-beat.js?v=2" defer></script>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -177,7 +168,7 @@
         <link rel="stylesheet" href="/css/style-dark.css?v=24" />
         <link rel="stylesheet" href="/css/navbar-search.css?v=4.2" />
         <link rel="stylesheet" href="/css/animations.css" />
-        <link rel="stylesheet" href="/css/achievement-style.css" />
+        <link rel="stylesheet" href="/css/achievement-style.css?v=3.0" />
         <link rel="stylesheet" href="/assets/auth/password-strength.css?v=1.1" />
         <script src="/assets/auth/password-strength.js?v=1.1" defer></script>
 
@@ -186,8 +177,8 @@
         <script src="/js/controlloLingua-it.js?v=2"></script>
         <script src="/js/controlloTema.js"></script>
         <script src="/js/impostazioni.js?v=2"></script>
-        <script src="/js/<?php echo $t['achievement']; ?>"></script>
-        <script src="/js/achievements-globali.js?v=5"></script>
+        <?php /* Popup e richieste di sblocco: un file solo per le due lingue. Il resto lo conta il server (includes/achievements.php). */ ?>
+        <script src="/js/achievements-popup.js?v=3.0"></script>
         <!-- <script src="/js/nomePagina.js"></script> -->
 
         <meta charset="UTF-8" />

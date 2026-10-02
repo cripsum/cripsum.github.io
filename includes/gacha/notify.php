@@ -13,102 +13,21 @@ require_once __DIR__ . '/schema.php';
 /* ── Achievement ──────────────────────────────────────────────────────── */
 
 /**
- * Assegna un achievement se esiste e l'utente non ce l'ha. Come faceva
- * set_achievement dal browser: niente Godos, solo l'achievement.
- */
-function gacha_grant_achievement(mysqli $mysqli, int $userId, int $achievementId): bool
-{
-    try {
-        $stmt = $mysqli->prepare(
-            'INSERT INTO utenti_achievement (utente_id, achievement_id, data)
-             SELECT ?, ?, NOW() FROM DUAL
-             WHERE EXISTS (SELECT 1 FROM achievement WHERE id = ?)
-               AND NOT EXISTS (SELECT 1 FROM utenti_achievement WHERE utente_id = ? AND achievement_id = ?)'
-        );
-        if (!$stmt) {
-            return false;
-        }
-        $stmt->bind_param('iiiii', $userId, $achievementId, $achievementId, $userId, $achievementId);
-        $ok = $stmt->execute() && $stmt->affected_rows > 0;
-        $stmt->close();
-        return $ok;
-    } catch (Throwable $e) {
-        error_log('[gacha achievement] ' . $e->getMessage());
-        return false;
-    }
-}
-
-/**
- * Gli achievement del gacha, con le soglie che prima controllava gacha.js:
- * prima pull, 100 e 500 casse aperte, 10 comuni di fila, 100 personaggi.
- * Restituisce gli id appena sbloccati, per il popup.
+ * Gli achievement che una pull può far scattare: casse aperte, personaggi
+ * diversi, prime rarità, 50/50, pity, comuni di fila. Soglie e conti stanno
+ * in includes/achievements.php, qui si chiede solo di rifarli per le due
+ * sorgenti che una pull muove. Restituisce gli id appena sbloccati, per il
+ * popup.
  */
 function gacha_award_achievements(mysqli $mysqli, int $userId): array
 {
-    $ids = [GACHA_ACH_FIRST_PULL, GACHA_ACH_100_BOXES, GACHA_ACH_500_BOXES, GACHA_ACH_10_COMMONS, GACHA_ACH_100_CHARACTERS];
-    $granted = [];
-
     try {
-        $have = [];
-        $in = implode(',', array_map('intval', $ids));
-        $stmt = $mysqli->prepare("SELECT achievement_id FROM utenti_achievement WHERE utente_id = ? AND achievement_id IN ($in)");
-        $stmt->bind_param('i', $userId);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        while ($row = $res->fetch_row()) {
-            $have[(int)$row[0]] = true;
-        }
-        $stmt->close();
-
-        $missing = array_values(array_filter($ids, static fn($id) => !isset($have[$id])));
-        if (!$missing) {
-            return [];
-        }
-
-        $want = [];
-        if (in_array(GACHA_ACH_FIRST_PULL, $missing, true)) {
-            $want[] = GACHA_ACH_FIRST_PULL;
-        }
-
-        if (array_intersect([GACHA_ACH_100_BOXES, GACHA_ACH_500_BOXES, GACHA_ACH_100_CHARACTERS], $missing)) {
-            $stmt = $mysqli->prepare('SELECT COALESCE(SUM(' . cripsum_boxes_sql($mysqli) . '), 0) AS casse, COUNT(*) AS unici FROM utenti_personaggi WHERE utente_id = ?');
-            $stmt->bind_param('i', $userId);
-            $stmt->execute();
-            $row = $stmt->get_result()->fetch_assoc() ?: [];
-            $stmt->close();
-            $boxes = (int)($row['casse'] ?? 0);
-            $unique = (int)($row['unici'] ?? 0);
-            if ($boxes >= 100) $want[] = GACHA_ACH_100_BOXES;
-            if ($boxes >= 500) $want[] = GACHA_ACH_500_BOXES;
-            if ($unique >= 100) $want[] = GACHA_ACH_100_CHARACTERS;
-        }
-
-        if (in_array(GACHA_ACH_10_COMMONS, $missing, true) && gacha_schema($mysqli)['history']) {
-            $stmt = $mysqli->prepare('SELECT `rarità` FROM gacha_pull_history WHERE utente_id = ? ORDER BY id DESC LIMIT 10');
-            $stmt->bind_param('i', $userId);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            $commons = 0;
-            while ($row = $res->fetch_row()) {
-                if (gacha_rarity_key($row[0]) !== 'comune') {
-                    break;
-                }
-                $commons++;
-            }
-            $stmt->close();
-            if ($commons >= 10) $want[] = GACHA_ACH_10_COMMONS;
-        }
-
-        foreach (array_intersect($want, $missing) as $id) {
-            if (gacha_grant_achievement($mysqli, $userId, (int)$id)) {
-                $granted[] = (int)$id;
-            }
-        }
+        require_once __DIR__ . '/../achievements.php';
+        return ach_sync($mysqli, $userId, ['collection', 'gacha']);
     } catch (Throwable $e) {
         error_log('[gacha achievement] ' . $e->getMessage());
+        return [];
     }
-
-    return $granted;
 }
 
 /* ── Wishlist ─────────────────────────────────────────────────────────── */

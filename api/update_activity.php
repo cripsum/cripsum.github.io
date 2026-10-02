@@ -199,9 +199,24 @@ try {
     error_log('[MissionTracking update_activity] ' . $trackErr->getMessage());
 }
 
+// ── Achievement ──────────────────────────────────────────────
+// «Hai aperto la sezione X» si assegna qui, per lo stesso motivo delle
+// missioni qui sopra. E una volta ogni dieci minuti, sul battito che scrive
+// già le statistiche, il motore rifà i conti di tutto il resto (tempo sul
+// sito, giorni, messaggi, amici...): prima lo facevano tre richieste del
+// browser a ogni pagina aperta.
+$achGranted = [];
+try {
+    require_once __DIR__ . '/../includes/achievements.php';
+    $achGranted = ach_heartbeat($mysqli, $userId, $pageKey, $shouldFlush);
+} catch (Throwable $achErr) {
+    error_log('[Achievements update_activity] ' . $achErr->getMessage());
+}
+
 // La sessione non serve più: liberiamo il lock così le altre richieste
 // della stessa scheda non si mettono in coda dietro a questa.
 cripsum_release_session();
 
 http_response_code(200);
-echo json_encode(['ok' => true]);
+// `ach`: achievement assegnati da questo battito, per il popup immediato.
+echo json_encode($achGranted ? ['ok' => true, 'ach' => $achGranted] : ['ok' => true]);

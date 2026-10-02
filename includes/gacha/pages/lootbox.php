@@ -812,7 +812,6 @@ $gClaimLeft = strtotime('tomorrow') - time();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
-    <script src="<?= $h(cripsum_asset('/js/unlockAchievement-' . $gLang . '.js')) ?>"></script>
     <script src="<?= $h(cripsum_asset('/js/lootbox-modal.js')) ?>"></script>
     <script src="<?= $h(cripsum_asset('/js/gacha-effects.js')) ?>"></script>
     <script src="<?= $h(cripsum_asset('/js/gacha.js')) ?>"></script>

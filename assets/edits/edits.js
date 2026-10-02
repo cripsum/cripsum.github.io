@@ -13,7 +13,6 @@
 
     const COOKIE_WATCHED = 'watchedVideos';
     const STORE = { filter: 'cripsum.edits.filter', sort: 'cripsum.edits.sort', hideSeen: 'cripsum.edits.hideSeen' };
-    const ACHIEVEMENT_VISIT = 6;
     const ACHIEVEMENT_ALL_WATCHED = 17;
 
     const $ = (sel, root = document) => root.querySelector(sel);
@@ -72,7 +71,8 @@
     const normalize = (value) => String(value || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
     const init = () => {
-        unlock(ACHIEVEMENT_VISIT);
+        // «Edits enjoyer» (visita alla pagina) lo assegna il server dal
+        // battito di presenza: da qui non si chiede più.
 
         const dataEl = $('#editsData');
         const grid = $('#editsGrid');

@@ -199,6 +199,13 @@
     }
 
     function handle(data) {
+        // Achievement sbloccati poco prima che questa pagina si aprisse: li
+        // mostra il popup di js/achievements-popup.js, che li riceve come
+        // gli altri eventi.
+        if (Array.isArray(data.ach)) {
+            data.ach.forEach((id) => emit('user', { t: 'ach', a: id, late: true }));
+        }
+
         if (data.u) {
             const first = cursor.u < 0;
             cursor.u = data.u.seq;

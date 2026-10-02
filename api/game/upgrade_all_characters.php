@@ -94,30 +94,12 @@ try {
         gd_fail('Errore durante il potenziamento: ' . $e->getMessage(), 500);
     }
 
+    // Achievement dei potenziamenti (primo potenziamento, personaggi al MAX):
+    // li conta e li assegna il motore, dopo il commit.
     $unlockedAchievements = [];
     if ($levelsGained > 0) {
-        $cntStmt = $mysqli->prepare('SELECT COUNT(*) AS max_lvl_count FROM utenti_personaggi WHERE utente_id = ? AND livello = 6');
-        if ($cntStmt) {
-            $cntStmt->bind_param('i', $uid);
-            $cntStmt->execute();
-            $cntRow = $cntStmt->get_result()->fetch_assoc();
-            $cntStmt->close();
-
-            $maxLvlCount = (int)($cntRow['max_lvl_count'] ?? 0);
-            foreach ([
-                1 => 'Massimo Splendore I',
-                5 => 'Massimo Splendore V',
-                10 => 'Massimo Splendore X',
-                50 => 'Esercito Dorato',
-            ] as $threshold => $achievementName) {
-                if ($maxLvlCount >= $threshold) {
-                    $achievementId = gd_award_achievement_by_name($mysqli, $uid, $achievementName);
-                    if ($achievementId !== null) {
-                        $unlockedAchievements[] = $achievementId;
-                    }
-                }
-            }
-        }
+        require_once __DIR__ . '/../../includes/achievements.php';
+        $unlockedAchievements = ach_sync($mysqli, $uid, ['collection']);
     }
 
     gd_ok([
@@ -130,43 +112,4 @@ try {
     ]);
 } catch (Throwable $e) {
     gd_fail($e->getMessage(), 400);
-}
-
-function gd_award_achievement_by_name(mysqli $mysqli, int $userId, string $name): ?int
-{
-    $stmt = $mysqli->prepare('SELECT id, punti FROM achievement WHERE nome = ? LIMIT 1');
-    if (!$stmt) return null;
-    $stmt->bind_param('s', $name);
-    $stmt->execute();
-    $ach = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if (!$ach) return null;
-
-    $achId = (int)$ach['id'];
-    $points = (int)$ach['punti'];
-
-    $stmt = $mysqli->prepare('SELECT 1 FROM utenti_achievement WHERE utente_id = ? AND achievement_id = ? LIMIT 1');
-    if (!$stmt) return null;
-    $stmt->bind_param('ii', $userId, $achId);
-    $stmt->execute();
-    $alreadyUnlocked = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if ($alreadyUnlocked) return null;
-
-    $stmt = $mysqli->prepare('INSERT INTO utenti_achievement (utente_id, achievement_id, data) VALUES (?, ?, NOW())');
-    if (!$stmt) return null;
-    $stmt->bind_param('ii', $userId, $achId);
-    $stmt->execute();
-    $stmt->close();
-
-    $stmt = $mysqli->prepare('UPDATE utenti SET soldi = soldi + ? WHERE id = ?');
-    if ($stmt) {
-        $stmt->bind_param('ii', $points, $userId);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    return $achId;
 }
