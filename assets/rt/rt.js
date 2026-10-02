@@ -6,8 +6,8 @@
  *
  *   - alle pagine che si sono registrate (chat private, chat globale, amici),
  *     che così non hanno un loro giro di controllo separato;
- *   - alla navbar, che aggiorna i contatori di posta, chat e amici senza
- *     ricaricare;
+ *   - alla navbar, che aggiorna i contatori di posta, chat, menzioni e
+ *     amici senza ricaricare;
  *   - agli avvisi: un riquadro in pagina, il suono, il numero nel titolo
  *     della scheda e, se l'utente lo ha attivato, la notifica del browser.
  *
@@ -82,9 +82,11 @@
     const counters = {
         inbox: Number(nav.counts?.inbox) || 0,
         chat: Number(nav.counts?.chat) || 0,
+        mentions: Number(nav.counts?.mentions) || 0,
         friends: Number(nav.counts?.friends) || 0,
         missions: Number(nav.counts?.missions) || 0,
         chats: 0,
+        messages: 0,
         requests: 0,
         invites: 0
     };
@@ -226,10 +228,11 @@
     // ── Contatori della navbar ─────────────────────────────────────────────
 
     function paintCounters() {
-        // Il numero sulla campanella: posta da leggere più richieste di
-        // amicizia in sospeso. Le chat hanno il loro contatore. Si scrive
-        // sulla copia desktop; navbar.js la ricopia su quella mobile.
-        const bell = counters.inbox + counters.friends;
+        // Il numero sulla campanella: tutto quello che il suo menu mostra
+        // come da leggere, cioè posta, richieste di amicizia, messaggi nelle
+        // chat e menzioni nella chat globale. Si scrive sulla copia desktop;
+        // navbar.js la ricopia su quella mobile.
+        const bell = counters.inbox + counters.friends + counters.chat + counters.mentions;
         const inbox = document.getElementById('inbox-unread-count');
         if (inbox) {
             inbox.textContent = bell > 99 ? '99+' : String(bell);
@@ -243,11 +246,12 @@
             });
         };
         setBadge('chat', counters.chat);
+        setBadge('global', counters.mentions);
         setBadge('friends', counters.friends);
 
         const achvDot = document.querySelector('[data-cnav-new-key="achv"] .cnav-dot');
-        const lit = counters.chat > 0 || counters.friends > 0 || counters.missions > 0 || !!(achvDot && !achvDot.hidden);
-        nav.hasNews = counters.chat > 0 || counters.friends > 0 || counters.missions > 0;
+        nav.hasNews = counters.chat > 0 || counters.mentions > 0 || counters.friends > 0 || counters.missions > 0;
+        const lit = nav.hasNews || !!(achvDot && !achvDot.hidden);
         document.querySelectorAll('.cnav-trigger--account, .cnav-avatar-btn').forEach((el) => {
             el.classList.toggle('has-news', lit);
         });
@@ -260,9 +264,12 @@
         counters.inbox = Number(fresh.inbox) || 0;
         counters.friends = Number(fresh.friends) || 0;
         counters.chats = Number(fresh.chats) || 0;
+        // Il badge delle chat conta i messaggi, non le conversazioni.
+        counters.messages = Number(fresh.messages ?? fresh.chats) || 0;
         counters.requests = Number(fresh.requests) || 0;
         counters.invites = Number(fresh.invites) || 0;
-        counters.chat = counters.chats + counters.requests + counters.invites;
+        counters.chat = counters.messages + counters.requests + counters.invites;
+        counters.mentions = Number(fresh.mentions) || 0;
         paintCounters();
     }
 
@@ -311,7 +318,7 @@
     // ── Avvisi ─────────────────────────────────────────────────────────────
 
     const NOTIFY_TYPES = { pm: 1, gm: 1, mn: 1, fr: 1, fa: 1, gi: 1, ib: 1, tk: 1 };
-    const COUNTER_TYPES = { rd: 1, ls: 1, sl: 1, pu: 1, gu: 1 };
+    const COUNTER_TYPES = { rd: 1, ls: 1, sl: 1, pu: 1, gu: 1, mr: 1 };
 
     function considerNotifications(events, resync) {
         let since = null;
@@ -355,6 +362,8 @@
     function isActiveChat(item) {
         if (document.visibilityState !== 'visible' || !document.hasFocus()) return false;
         if (item.ticket) return activeTicket === item.ticket;
+        // Una menzione mentre si guarda la chat globale si vede già lì.
+        if (item.global) return !!activeChat && activeChat.kind === 'global';
         return !!(item.chat && activeChat
             && activeChat.kind === item.chat.kind && Number(activeChat.id) === Number(item.chat.id));
     }

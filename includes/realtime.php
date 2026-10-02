@@ -35,6 +35,7 @@ if (!defined('CRIPSUM_RT_GUARD')) {
     define('CRIPSUM_RT_GUARD', "<?php exit; ?>\n");
     define('CRIPSUM_RT_RING_GLOBAL', 45);
     define('CRIPSUM_RT_RING_USER', 60);
+    define('CRIPSUM_RT_MENTIONS_MAX', 120);
     define('CRIPSUM_RT_TYPING_TTL', 6);
 }
 
@@ -223,14 +224,17 @@ if (!function_exists('rt_dir')) {
         $data['events'] = array_values($events);
     }
 
-    /** Aggiunge un evento al registro personale di un utente. */
-    function rt_push_user(int $userId, array $event): void
+    /**
+     * Aggiunge un evento al registro personale di un utente. `$mutate`
+     * permette di cambiare nello stesso passaggio anche il resto del timbro.
+     */
+    function rt_push_user(int $userId, array $event, ?callable $mutate = null): void
     {
         if ($userId <= 0 || empty($event['t'])) {
             return;
         }
 
-        rt_update('u:' . $userId, static function (array $data) use ($event): array {
+        rt_update('u:' . $userId, static function (array $data) use ($event, $mutate): array {
             $seq = rt_next_seq($data);
             $event['s'] = $seq;
             $event['at'] = time();
@@ -250,6 +254,13 @@ if (!function_exists('rt_dir')) {
 
             $events[] = $event;
             rt_trim_events($data, $events, CRIPSUM_RT_RING_USER);
+
+            if ($mutate !== null) {
+                $changed = $mutate($data);
+                if (is_array($changed)) {
+                    $data = $changed;
+                }
+            }
             return $data;
         });
     }
@@ -259,6 +270,71 @@ if (!function_exists('rt_dir')) {
         foreach (array_unique(array_map('intval', $userIds)) as $userId) {
             rt_push_user($userId, $event);
         }
+    }
+
+    // ── Menzioni nella chat globale ancora da vedere ───────────────────────
+    //
+    // La chat globale non ha un «letto fin qui» per utente come le chat
+    // private. Gli id dei messaggi in cui si è stati menzionati stanno nel
+    // timbro personale, fuori dalla coda degli eventi (che si accorcia da
+    // sola e li perderebbe): si contano senza database e si svuotano quando
+    // la chat globale viene aperta.
+
+    /** Id dei messaggi con una menzione non ancora vista, dal più vecchio. */
+    function rt_mentions(int $userId): array
+    {
+        if ($userId <= 0) {
+            return [];
+        }
+        $data = rt_read('u:' . $userId);
+        $list = isset($data['mentions']) && is_array($data['mentions']) ? $data['mentions'] : [];
+        return array_values(array_unique(array_map('intval', $list)));
+    }
+
+    /** Segna una menzione da vedere e avvisa l'utente (evento `mn`). */
+    function rt_mention_add(int $userId, int $messageId, int $senderId): void
+    {
+        rt_push_user($userId, ['t' => 'mn', 'm' => $messageId, 'f' => $senderId], static function (array $data) use ($messageId): array {
+            $list = isset($data['mentions']) && is_array($data['mentions']) ? array_map('intval', $data['mentions']) : [];
+            if (!in_array($messageId, $list, true)) {
+                $list[] = $messageId;
+            }
+            $data['mentions'] = array_slice($list, -CRIPSUM_RT_MENTIONS_MAX);
+            return $data;
+        });
+    }
+
+    /**
+     * Toglie le menzioni viste: tutte, oppure solo quelle indicate (un
+     * messaggio eliminato). Se cambia qualcosa lo dice alle schede aperte,
+     * che rifanno i contatori. Restituisce vero se c'era qualcosa da togliere.
+     */
+    function rt_mentions_clear(int $userId, ?array $only = null): bool
+    {
+        // Letto prima senza bloccare: quasi sempre l'elenco è vuoto, e così
+        // non nasce un timbro per chi non ne ha mai avuto bisogno.
+        $pending = rt_mentions($userId);
+        if (!$pending || ($only !== null && !array_intersect($pending, array_map('intval', $only)))) {
+            return false;
+        }
+
+        $cleared = false;
+        rt_update('u:' . $userId, static function (array $data) use ($only, &$cleared): ?array {
+            $list = isset($data['mentions']) && is_array($data['mentions']) ? array_map('intval', $data['mentions']) : [];
+            $next = $only === null ? [] : array_values(array_diff($list, array_map('intval', $only)));
+            if (count($next) === count($list)) {
+                return null;
+            }
+            $cleared = true;
+            $data['mentions'] = $next;
+
+            $events = isset($data['events']) && is_array($data['events']) ? $data['events'] : [];
+            $events[] = ['t' => 'mr', 's' => rt_next_seq($data), 'at' => time()];
+            rt_trim_events($data, $events, CRIPSUM_RT_RING_USER);
+            return $data;
+        });
+
+        return $cleared;
     }
 
     /**

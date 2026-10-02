@@ -1162,38 +1162,43 @@ if (!function_exists('cg_member')) {
     }
 
     /**
-     * Quante chat hanno qualcosa di nuovo. È il numero del badge in navbar:
-     * conta le conversazioni (private e di gruppo), non i singoli messaggi,
-     * e ignora quelle silenziate, archiviate o ancora da accettare.
+     * Cosa c'è di nuovo nelle chat. `messages` è il numero del badge in
+     * navbar: i messaggi non letti, privati e di gruppo, contati come li
+     * conta l'elenco delle chat. `chats` dice in quante conversazioni stanno.
+     * Quelle silenziate, archiviate o ancora da accettare non contano; le
+     * richieste di messaggio e gli inviti ai gruppi valgono uno ciascuno.
      */
     function cc_unread_summary(mysqli $mysqli, int $userId): array
     {
-        $summary = ['chats' => 0, 'requests' => 0, 'invites' => 0];
+        $summary = ['chats' => 0, 'messages' => 0, 'requests' => 0, 'invites' => 0];
 
         $hasRequest = rt_has_col($mysqli, 'private_conversation_participants', 'is_request');
         $hasCleared = rt_has_col($mysqli, 'private_conversation_participants', 'cleared_before_id');
         $hasUntil = rt_has_col($mysqli, 'private_conversation_participants', 'muted_until');
 
-        $unreadExists = 'EXISTS (
-            SELECT 1 FROM private_messages pm
-            WHERE pm.conversation_id = cp.conversation_id
+        $unreadWhere = 'pm.conversation_id = cp.conversation_id
               AND pm.id > COALESCE(cp.last_read_message_id, 0)
               AND pm.sender_id <> cp.user_id AND pm.deleted_at IS NULL'
             . ($hasCleared ? ' AND pm.id > COALESCE(cp.cleared_before_id, 0)' : '') . '
-              AND NOT EXISTS (SELECT 1 FROM private_message_deleted d WHERE d.message_id = pm.id AND d.user_id = cp.user_id)
-        )';
+              AND NOT EXISTS (SELECT 1 FROM private_message_deleted d WHERE d.message_id = pm.id AND d.user_id = cp.user_id)';
+        $unreadExists = 'EXISTS (SELECT 1 FROM private_messages pm WHERE ' . $unreadWhere . ')';
 
+        // Una riga per messaggio non letto: quante righe, e in quante conversazioni.
         $stmt = $mysqli->prepare(
-            'SELECT COUNT(*) FROM private_conversation_participants cp
+            'SELECT COUNT(DISTINCT cp.conversation_id), COUNT(*)
+             FROM private_conversation_participants cp
+             INNER JOIN private_conversations c ON c.id = cp.conversation_id AND c.is_group = 0
+             INNER JOIN private_messages pm ON ' . $unreadWhere . '
              WHERE cp.user_id = ? AND cp.is_archived = 0 AND cp.is_muted = 0'
             . ($hasRequest ? ' AND cp.is_request = 0' : '')
             . ($hasUntil ? ' AND (cp.muted_until IS NULL OR cp.muted_until < NOW())' : '')
-            . ' AND ' . $unreadExists
         );
         $stmt->bind_param('i', $userId);
         $stmt->execute();
-        $summary['chats'] = (int)($stmt->get_result()->fetch_row()[0] ?? 0);
+        $row = $stmt->get_result()->fetch_row();
         $stmt->close();
+        $summary['chats'] = (int)($row[0] ?? 0);
+        $summary['messages'] = (int)($row[1] ?? 0);
 
         if ($hasRequest) {
             $stmt = $mysqli->prepare(
@@ -1208,25 +1213,27 @@ if (!function_exists('cg_member')) {
 
         if (rt_has_table($mysqli, 'chat_members')) {
             $stmt = $mysqli->prepare("
-                SELECT
-                    SUM(m.status = 'active' AND m.is_archived = 0 AND m.notification_level <> 'muted'
-                        AND (m.muted_until IS NULL OR m.muted_until < NOW())
-                        AND EXISTS (
-                            SELECT 1 FROM chat_messages x
-                            WHERE x.chat_id = m.chat_id AND x.id > COALESCE(m.last_read_message_id, 0)
-                              AND x.deleted_at IS NULL AND x.sender_id <> m.user_id AND x.message_type <> 'system'
-                        )) AS unread,
-                    SUM(m.status = 'invited') AS invites
-                FROM chat_members m
-                INNER JOIN chats c ON c.id = m.chat_id AND c.is_archived = 0
-                WHERE m.user_id = ? AND m.status IN ('active', 'invited')
+                SELECT SUM(g.unread > 0), SUM(g.unread), SUM(g.invited)
+                FROM (
+                    SELECT m.status = 'invited' AS invited,
+                           IF(m.status = 'active' AND m.is_archived = 0 AND m.notification_level <> 'muted'
+                                AND (m.muted_until IS NULL OR m.muted_until < NOW()),
+                              (SELECT COUNT(*) FROM chat_messages x
+                                WHERE x.chat_id = m.chat_id AND x.id > COALESCE(m.last_read_message_id, 0)
+                                  AND x.deleted_at IS NULL AND x.sender_id <> m.user_id AND x.message_type <> 'system'),
+                              0) AS unread
+                    FROM chat_members m
+                    INNER JOIN chats c ON c.id = m.chat_id AND c.is_archived = 0
+                    WHERE m.user_id = ? AND m.status IN ('active', 'invited')
+                ) g
             ");
             $stmt->bind_param('i', $userId);
             $stmt->execute();
             $row = $stmt->get_result()->fetch_row();
             $stmt->close();
             $summary['chats'] += (int)($row[0] ?? 0);
-            $summary['invites'] = (int)($row[1] ?? 0);
+            $summary['messages'] += (int)($row[1] ?? 0);
+            $summary['invites'] = (int)($row[2] ?? 0);
         }
 
         return $summary;

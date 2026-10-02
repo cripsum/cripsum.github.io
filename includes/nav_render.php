@@ -38,6 +38,7 @@ if (!function_exists('nav_bootstrap')) {
 
         $unreadCount = 0;
         $unreadChat  = 0;
+        $mentions    = 0;
         $snap        = [
             'money'        => null,
             'streak'       => null,
@@ -57,8 +58,18 @@ if (!function_exists('nav_bootstrap')) {
             if (function_exists('getUnreadMessagesCount')) {
                 $unreadCount = (int)getUnreadMessagesCount($mysqli, $userId);
             }
-            if (function_exists('getUnreadPrivateChatsCount')) {
-                $unreadChat = (int)getUnreadPrivateChatsCount($mysqli, $userId);
+            // Badge «Chat»: i messaggi non letti (non le chat), più una
+            // unità per ogni richiesta di messaggio e invito a un gruppo.
+            // Badge «Chat globale»: le menzioni ancora da vedere. Sono gli
+            // stessi conti che rifà api/notify/feed.php a pagina aperta. La
+            // navbar sta su ogni pagina: un errore qui deve valere zero.
+            try {
+                require_once __DIR__ . '/notify.php';
+                $summary    = cc_unread_summary($mysqli, $userId);
+                $unreadChat = (int)$summary['messages'] + (int)$summary['requests'] + (int)$summary['invites'];
+                $mentions   = count(notify_mentions($mysqli, $userId));
+            } catch (Throwable $e) {
+                error_log('[navbar] contatori chat: ' . $e->getMessage());
             }
             $snap = nav_user_snapshot($mysqli, $userId);
         }
@@ -88,6 +99,7 @@ if (!function_exists('nav_bootstrap')) {
             'isLoggedIn'  => $isLoggedIn,
             'unreadCount' => $unreadCount,
             'unreadChat'  => $unreadChat,
+            'mentions'    => $mentions,
             'stats'       => $snap,
             'missions'    => $snap['missions'],
             'friends'     => $snap['friends'],
@@ -248,6 +260,7 @@ if (!function_exists('nav_bootstrap')) {
             'can_rewind'    => $ctx['can_rewind'],
             'rewind_locked' => $ctx['rewind_locked'] ?? false,
             'unread_chat' => $ctx['unreadChat'],
+            'mentions'    => $ctx['mentions'],
             'missions'    => $ctx['missions'],
             'friends'     => $ctx['friends'],
             'achv_latest' => $ctx['achv_latest'],
@@ -409,7 +422,8 @@ if (!function_exists('nav_bootstrap')) {
     {
         return ((int)$ctx['missions'] > 0)
             || ((int)$ctx['friends'] > 0)
-            || ((int)$ctx['unreadChat'] > 0);
+            || ((int)$ctx['unreadChat'] > 0)
+            || ((int)$ctx['mentions'] > 0);
     }
 
     function nav_render_lang_switch(array $ctx): void
@@ -436,8 +450,10 @@ if (!function_exists('nav_bootstrap')) {
      * `popovertarget` su un link non fa niente da solo: serve a js/navbar.js,
      * che da lì sa a quale pulsante ancorare il menu.
      *
-     * Il numero è posta da leggere più richieste di amicizia in sospeso, lo
-     * stesso conto che rifà assets/rt/rt.js mentre la pagina è aperta.
+     * Il numero è tutto quello che il menu mostra come da leggere: posta,
+     * richieste di amicizia, messaggi nelle chat e menzioni nella chat
+     * globale. È lo stesso conto che rifà assets/rt/rt.js mentre la pagina è
+     * aperta.
      *
      * `$badgeId` distingue la copia mobile da quella desktop: il badge si
      * aggiorna per id, quindi `inbox-unread-count` deve restare quello che era.
@@ -445,7 +461,7 @@ if (!function_exists('nav_bootstrap')) {
     function nav_render_inbox(array $ctx, string $badgeId): void
     {
         $t     = $ctx['t'];
-        $count = (int)$ctx['unreadCount'] + (int)$ctx['friends'];
+        $count = (int)$ctx['unreadCount'] + (int)$ctx['friends'] + (int)$ctx['unreadChat'] + (int)$ctx['mentions'];
         $tip   = $count > 0
             ? $count . ' ' . $t['inbox_unread']
             : $t['inbox_empty'];
@@ -699,6 +715,7 @@ if (!function_exists('nav_bootstrap')) {
                     counts: {
                         inbox: <?= (int)$ctx['unreadCount'] ?>,
                         chat: <?= (int)$ctx['unreadChat'] ?>,
+                        mentions: <?= (int)$ctx['mentions'] ?>,
                         friends: <?= (int)$ctx['friends'] ?>,
                         missions: <?= (int)$ctx['missions'] ?>
                     }

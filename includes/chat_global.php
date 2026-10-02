@@ -447,34 +447,58 @@ if (!function_exists('gc_fetch')) {
         return $message;
     }
 
-    /** Avvisa le persone menzionate, se esistono e non c'è un blocco di mezzo. */
+    /** Id degli utenti (non bannati) con uno di questi nomi: al massimo cinque per messaggio. */
+    function gc_mention_targets(mysqli $mysqli, array $names): array
+    {
+        $names = array_slice(array_values($names), 0, 5);
+        if (!$names) {
+            return [];
+        }
+        $marks = implode(',', array_fill(0, count($names), '?'));
+        $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE username IN ($marks) AND isBannato = 0");
+        $stmt->bind_param(str_repeat('s', count($names)), ...$names);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $targets = [];
+        while ($row = $result->fetch_row()) {
+            $targets[] = (int)$row[0];
+        }
+        $stmt->close();
+        return $targets;
+    }
+
+    /**
+     * Avvisa le persone menzionate, se esistono e non c'è un blocco di mezzo.
+     * La menzione resta «da vedere» (rt_mentions) finché non aprono la chat.
+     */
     function gc_notify_mentions(mysqli $mysqli, int $senderId, array $message): void
     {
-        $names = array_slice($message['mentions'] ?? [], 0, 5);
-        if (!$names) {
-            return;
-        }
         try {
-            $marks = implode(',', array_fill(0, count($names), '?'));
-            $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE username IN ($marks) AND isBannato = 0");
-            $stmt->bind_param(str_repeat('s', count($names)), ...$names);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $targets = [];
-            while ($row = $result->fetch_row()) {
-                $targets[] = (int)$row[0];
+            $targets = gc_mention_targets($mysqli, $message['mentions'] ?? []);
+            if (!$targets) {
+                return;
             }
-            $stmt->close();
-
             $hidden = array_flip(sc_hidden_ids($mysqli, $senderId));
             foreach ($targets as $targetId) {
                 if ($targetId === $senderId || isset($hidden[$targetId])) {
                     continue;
                 }
-                rt_push_user($targetId, ['t' => 'mn', 'm' => (int)$message['id'], 'f' => $senderId]);
+                rt_mention_add($targetId, (int)$message['id'], $senderId);
             }
         } catch (Throwable $e) {
             error_log('[chat globale] menzioni: ' . $e->getMessage());
+        }
+    }
+
+    /** Un messaggio eliminato non è più una menzione da vedere per nessuno. */
+    function gc_forget_mentions(mysqli $mysqli, int $messageId, string $text): void
+    {
+        try {
+            foreach (gc_mention_targets($mysqli, gc_mentions($text)) as $targetId) {
+                rt_mentions_clear($targetId, [$messageId]);
+            }
+        } catch (Throwable $e) {
+            error_log('[chat globale] menzioni eliminate: ' . $e->getMessage());
         }
     }
 
@@ -567,6 +591,8 @@ if (!function_exists('gc_fetch')) {
             $stmt->execute();
             $stmt->close();
         }
+
+        gc_forget_mentions($mysqli, $messageId, (string)$row['message']);
 
         if (!$mine) {
             $reason = mb_substr(cc_clean_text($reason), 0, 200, 'UTF-8');

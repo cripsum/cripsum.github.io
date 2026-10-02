@@ -282,7 +282,7 @@ if (!function_exists('nav_lang')) {
     /**
      * Contenuto del pannello account.
      *
-     * $ctx: ruolo, nsfw, can_rewind, unread_chat.
+     * $ctx: ruolo, nsfw, can_rewind, unread_chat, mentions.
      * Le sezioni con layout `tiles` diventano una griglia di riquadri, quelle
      * con `rows` righe piene: le tre voci di gioco sono destinazioni note e
      * riconoscibili dall'icona, quindi occupano una riga sola invece di tre.
@@ -333,7 +333,14 @@ if (!function_exists('nav_lang')) {
                     'badge' => ((int)($ctx['unread_chat'] ?? 0)) > 0 ? (int)$ctx['unread_chat'] : null,
                     'key'   => 'chat',
                 ],
-                ['icon' => 'fa-envelope', 'label' => $t['global_chat'], 'href' => "/$lang/global-chat"],
+                [
+                    'icon'  => 'fa-envelope',
+                    'label' => $t['global_chat'],
+                    'href'  => "/$lang/global-chat",
+                    // Menzioni ancora da vedere.
+                    'badge' => ((int)($ctx['mentions'] ?? 0)) > 0 ? (int)$ctx['mentions'] : null,
+                    'key'   => 'global',
+                ],
                 [
                     'icon'  => 'fa-user-group',
                     'label' => $t['friends'],

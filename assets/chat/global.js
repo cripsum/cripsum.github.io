@@ -937,6 +937,25 @@
         RT.watchGlobal(cfg.state);
         RT.onGlobal(onGlobalEvent);
         RT.onAux(applyAux);
+
+        // Con la chat davanti una menzione è già vista: niente riquadro, e
+        // il numero in navbar non deve restare acceso. A scheda nascosta
+        // resta da vedere, e si spegne al ritorno.
+        RT.setActiveChat({ kind: 'global', id: 0 });
+        let pings = false;
+        const seePings = () => {
+            if (!pings || document.visibilityState !== 'visible') return;
+            pings = false;
+            K.api('/api/chat/mentions_read.php', { body: {} }).catch(() => {
+                pings = true;
+            });
+        };
+        RT.onUser((event) => {
+            if (event.t !== 'mn') return;
+            pings = true;
+            seePings();
+        });
+        document.addEventListener('visibilitychange', seePings);
         // Senza timbri sul server si ripiega su un controllo lento che passa dal database.
         let lastFallback = 0;
         RT.onFallback(async () => {

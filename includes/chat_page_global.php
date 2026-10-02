@@ -92,6 +92,10 @@ if ($accepted) {
     gc_online_refresh($mysqli);
     gc_restore_pinned($mysqli);
 
+    // Aprire la chat vale come aver visto le menzioni: va fatto prima della
+    // navbar, che altrimenti mostrerebbe ancora il numero.
+    rt_mentions_clear($userId);
+
     // I messaggi prima, il timbro dopo: se nel mezzo ne arriva uno nuovo il
     // browser lo riceve due volte (e lo riconosce dall'id) invece di perderlo.
     $stamp = rt_read('g');

@@ -8,8 +8,9 @@
  *
  * Due linguette. «Notifiche» è quello che aspetta una risposta o una lettura
  * (richieste di amicizia e inviti, con i pulsanti per rispondere sul posto;
- * chat non lette; menzioni; ticket). «Posta» sono gli ultimi messaggi del
- * sito. Le due sezioni stanno una accanto all'altra e si scorre dall'una
+ * chat non lette e menzioni nella chat globale, col numero di messaggi;
+ * ticket). «Posta» sono gli ultimi messaggi del sito. Il numero accanto a
+ * «Notifiche» conta i messaggi, non le righe. Le due sezioni stanno una accanto all'altra e si scorre dall'una
  * all'altra; quella scelta è scritta in `data-tab` sul popover, ed è il CSS
  * a muovere cursore e binario. Il contenuto si chiede al server solo quando
  * il menu viene aperto (api/notify/panel.php) e si aggiorna da solo finché
@@ -244,12 +245,22 @@
         if (focus) ui.tab[name].focus({ preventScroll: true });
     }
 
+    /** Una voce passata dal timbro (un'amicizia accettata) è nuova solo finché il menu non è stato aperto. */
+    function isFresh(item) {
+        return !item.passing || Number(item.ts) > state.seenBefore;
+    }
+
+    /** Quanto c'è da leggere fra le notifiche: i messaggi di ogni chat, uno per ogni altra voce. */
+    function pendingCount(items) {
+        return items.reduce((sum, item) => sum + (isFresh(item) ? Math.max(1, Number(item.count) || 0) : 0), 0);
+    }
+
     /** Si parte da dove c'è qualcosa: prima le notifiche, altrimenti la posta. */
     function pickTab() {
         const counters = RT.counters || {};
         const pendingNews = state.data && Date.now() - state.loadedAt < 15000
-            ? (state.data.notifications || []).length
-            : (Number(counters.friends) || 0) + (Number(counters.chat) || 0);
+            ? pendingCount(state.data.notifications || [])
+            : (Number(counters.friends) || 0) + (Number(counters.chat) || 0) + (Number(counters.mentions) || 0);
         return pendingNews > 0 || !(Number(counters.inbox) > 0) ? 'news' : 'mail';
     }
 
@@ -400,8 +411,8 @@
             sub: item.text,
             ts: item.ts,
             count: item.count,
-            unread: true,
-            dot: !!item.passing && item.ts > state.seenBefore,
+            unread: isFresh(item),
+            dot: !!item.passing && isFresh(item),
             onClick: (event) => {
                 if (event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0) return;
                 // Sulle pagine di chat la conversazione si apre sul posto;
@@ -482,7 +493,7 @@
         const mailPane = ui.pane.mail;
 
         ui.intro.hidden = !state.firstTime;
-        setBadge('news', news.length);
+        setBadge('news', pendingCount(news));
         setBadge('mail', mailUnread);
 
         rowIndex = 0;
@@ -595,7 +606,7 @@
     }
 
     RT.onUser((event) => {
-        if (isOpen() && ['pm', 'gm', 'fr', 'fa', 'gi', 'ib', 'tk', 'mn', 'ls', 'sl', 'rd', 'resync'].includes(event.t)) reloadSoon();
+        if (isOpen() && ['pm', 'gm', 'fr', 'fa', 'gi', 'ib', 'tk', 'mn', 'mr', 'ls', 'sl', 'rd', 'resync'].includes(event.t)) reloadSoon();
         else state.loadedAt = 0;
     });
 

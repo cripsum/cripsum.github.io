@@ -9,17 +9,56 @@
  * l'anteprima di un messaggio privato esce solo se chi chiede partecipa a
  * quella conversazione.
  *
- * Qui stanno anche i contatori della navbar (posta, chat, amici), così
- * pagina e avvisi mostrano sempre gli stessi numeri.
+ * Qui stanno anche i contatori della navbar (posta, chat, menzioni, amici),
+ * così pagina e avvisi mostrano sempre gli stessi numeri.
  */
 
 require_once __DIR__ . '/chat_groups.php';
 
 if (!function_exists('notify_counters')) {
 
+    /**
+     * Menzioni nella chat globale ancora da vedere, dalla più vecchia.
+     *
+     * L'elenco degli id sta nel timbro dell'utente; qui si tengono solo i
+     * messaggi che esistono ancora e che non vengono da qualcuno bloccato nel
+     * frattempo. Gli id rimasti orfani (un messaggio tolto dal bot o dal
+     * pannello, che non passano da gc_delete) escono anche dal timbro.
+     */
+    function notify_mentions(mysqli $mysqli, int $userId): array
+    {
+        $ids = rt_mentions($userId);
+        if (!$ids) {
+            return [];
+        }
+
+        $marks = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $mysqli->prepare("
+            SELECT m.id, m.user_id, m.message, UNIX_TIMESTAMP(m.created_at) AS ts, u.username
+            FROM messages m
+            INNER JOIN utenti u ON u.id = m.user_id
+            WHERE m.id IN ($marks) AND m.deleted_at IS NULL
+            ORDER BY m.id ASC
+        ");
+        $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
+        $stmt->execute();
+        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        $hidden = array_flip(sc_hidden_ids($mysqli, $userId));
+        $rows = array_values(array_filter($rows, static fn($row) => !isset($hidden[(int)$row['user_id']])));
+
+        $gone = array_diff($ids, array_map(static fn($row) => (int)$row['id'], $rows));
+        if ($gone) {
+            rt_mentions_clear($userId, array_values($gone));
+        }
+
+        return $rows;
+    }
+
     function notify_counters(mysqli $mysqli, int $userId, string $role = 'utente'): array
     {
-        $out = ['inbox' => 0, 'chats' => 0, 'requests' => 0, 'invites' => 0, 'friends' => 0];
+        $out = ['inbox' => 0, 'chats' => 0, 'messages' => 0, 'requests' => 0, 'invites' => 0, 'friends' => 0, 'mentions' => 0];
 
         try {
             if (function_exists('getUnreadMessagesCount')) {
@@ -32,6 +71,7 @@ if (!function_exists('notify_counters')) {
         try {
             $summary = cc_unread_summary($mysqli, $userId);
             $out['chats'] = $summary['chats'];
+            $out['messages'] = $summary['messages'];
             $out['requests'] = $summary['requests'];
             $out['invites'] = $summary['invites'];
         } catch (Throwable $e) {
@@ -46,6 +86,12 @@ if (!function_exists('notify_counters')) {
             $stmt->close();
         } catch (Throwable $e) {
             $out['friends'] = 0;
+        }
+
+        try {
+            $out['mentions'] = count(notify_mentions($mysqli, $userId));
+        } catch (Throwable $e) {
+            error_log('[notify] menzioni: ' . $e->getMessage());
         }
 
         return $out;
@@ -268,6 +314,8 @@ if (!function_exists('notify_counters')) {
                     'text' => cc_preview($row['message'], 110),
                     'avatar' => '/includes/get_pfp.php?id=' . $from,
                     'url' => "/$lang/global-chat?message=" . (int)$row['id'],
+                    // Chi ha la chat globale davanti la menzione la vede già.
+                    'global' => true,
                     'silent' => false,
                 ];
                 continue;
@@ -354,9 +402,10 @@ if (!function_exists('notify_counters')) {
      *
      * Non c'è una tabella delle notifiche: l'elenco si ricava da ciò che è
      * vero adesso (richieste di amicizia e inviti in sospeso, chat con
-     * messaggi non letti, ticket con risposte nuove) più gli ultimi eventi
-     * passati dal timbro dell'utente che non lasciano altra traccia
-     * (menzioni in chat globale, amicizie accettate).
+     * messaggi non letti, menzioni nella chat globale ancora da vedere,
+     * ticket con risposte nuove) più le amicizie accettate degli ultimi
+     * giorni, che passano solo dal timbro dell'utente (`passing`: il menu le
+     * mostra come nuove solo finché non è stato aperto).
      *
      * `do` dice al menu quali pulsanti mostrare; i dati per l'azione stanno
      * in `user_id` o `chat_id`.
@@ -453,6 +502,28 @@ if (!function_exists('notify_counters')) {
             error_log('[notify] chat: ' . $e->getMessage());
         }
 
+        // Menzioni nella chat globale: una riga sola, come una chat, con
+        // il numero di menzioni e l'ultima in anteprima. Sparisce quando la
+        // chat globale viene aperta.
+        try {
+            $pings = notify_mentions($mysqli, $userId);
+            if ($pings) {
+                $last = $pings[count($pings) - 1];
+                $items[] = [
+                    'key' => 'gc',
+                    'type' => 'mention',
+                    'title' => rt_t('Chat globale', 'Global chat'),
+                    'text' => '@' . $last['username'] . ': ' . cc_preview($last['message'], 100),
+                    'avatar' => '/includes/get_pfp.php?id=' . (int)$last['user_id'],
+                    'url' => "/$lang/global-chat?message=" . (int)$last['id'],
+                    'ts' => (int)$last['ts'],
+                    'count' => count($pings),
+                ];
+            }
+        } catch (Throwable $e) {
+            error_log('[notify] menzioni: ' . $e->getMessage());
+        }
+
         // Ticket con novità da leggere.
         try {
             if (rt_has_table($mysqli, 'site_tickets') && rt_has_col($mysqli, 'site_tickets', 'user_read')) {
@@ -482,13 +553,13 @@ if (!function_exists('notify_counters')) {
             error_log('[notify] ticket: ' . $e->getMessage());
         }
 
-        // Menzioni e amicizie accettate degli ultimi tre giorni: passano solo
-        // dal timbro, che tiene gli ultimi eventi.
+        // Amicizie accettate degli ultimi tre giorni: passano solo dal
+        // timbro, che tiene gli ultimi eventi.
         try {
             $stamp = rt_read('u:' . $userId);
             $recent = array_values(array_filter(
                 isset($stamp['events']) && is_array($stamp['events']) ? $stamp['events'] : [],
-                static fn($event) => in_array($event['t'] ?? '', ['mn', 'fa'], true)
+                static fn($event) => ($event['t'] ?? '') === 'fa'
                     && (int)($event['at'] ?? 0) > time() - 3 * 86400
             ));
             $times = [];

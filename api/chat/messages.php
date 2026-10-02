@@ -52,6 +52,11 @@ chat_run(static function () use ($mysqli, $userId, $chatUser): void {
     $hidden = gc_hidden($mysqli, $userId);
     $messages = gc_views(gc_fetch($mysqli, $options), $chatUser, $hidden);
 
+    // Chi ricarica gli ultimi messaggi ha la chat davanti: le menzioni sono viste.
+    if ($search === '' && empty($options['ids']) && empty($options['around']) && empty($options['before']) && empty($options['after'])) {
+        rt_mentions_clear($userId);
+    }
+
     gc_presence_touch($userId, gc_presence_entry($chatUser));
     gc_online_refresh($mysqli);
     gc_restore_pinned($mysqli);
