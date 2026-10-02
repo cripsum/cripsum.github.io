@@ -406,7 +406,8 @@ if (!function_exists('rt_dir')) {
             'private_message_attachments', 'private_message_deleted', 'private_message_reactions',
             'private_pinned_messages', 'private_conversation_pins', 'private_favorites', 'private_user_settings',
             'friendships', 'friendship_requests', 'blocked_users', 'user_follows',
-            'site_messages', 'site_message_recipients', 'site_tickets', 'admin_logs',
+            'site_messages', 'site_message_recipients', 'site_message_rewards',
+            'site_tickets', 'site_ticket_messages', 'admin_logs',
         ];
 
         $schema = [];

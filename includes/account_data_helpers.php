@@ -976,6 +976,11 @@ function account_purge_chat_traces(mysqli $mysqli, int $userId): void
         if (is_file($full)) {
             @unlink($full);
         }
+        // A video keeps its cover image next to it (see cc_poster_path).
+        $poster = preg_replace('/\.[a-z0-9]{2,5}$/', '.poster.jpg', $full);
+        if ($poster !== $full && is_file($poster)) {
+            @unlink($poster);
+        }
     };
 
     // Private chats: the files this user sent, then their rows (they are keyed

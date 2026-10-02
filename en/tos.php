@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = 'September 27, 2026';
+$lastUpdated = 'October 2, 2026';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -181,7 +181,7 @@ $lastUpdated = 'September 27, 2026';
                     <h2>9. Chat, messages and tickets</h2>
                     <ul>
                         <li>The global chat is visible to the site's users and is moderated. In private and group chats only the participants write; group admins can manage the members.</li>
-                        <li>Staff do not read private and group chats. They only see global chat messages that someone reports and the messages in support tickets.</li>
+                        <li>Staff do not read private and group chats. They only see the messages that someone reports (those of the global chat, and those of a private or group chat when a participant reports them) and the messages in support tickets.</li>
                         <li>You can block other users and choose in the chat settings who can message you.</li>
                         <li>Attachments must not contain malware, illegal material, explicit content or copyrighted material without permission.</li>
                         <li>Tickets are for asking staff for help; they may also be handled from our Discord server. Use them respectfully: offensive or harmful use leads to the ticket being closed and may lead to a ban.</li>

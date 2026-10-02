@@ -163,7 +163,6 @@ $jsVer = @filemtime(__DIR__ . '/../assets/chat/global.js') ?: 1;
             <section class="gc-panel gc-main" aria-label="<?= $gcE($T['title']) ?>">
                 <header class="gc-head">
                     <div class="gc-head__title">
-                        <span class="gc-head__icon"><i class="fa-solid fa-earth-europe" aria-hidden="true"></i></span>
                         <div>
                             <h1><?= $gcE($T['title']) ?></h1>
                             <p><span class="gc-live" id="gcLive"></span><span id="gcSubtitle"><?= $gcE($T['kicker']) ?></span></p>

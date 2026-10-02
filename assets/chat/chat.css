@@ -671,6 +671,34 @@ body.pc-page {
     min-height: 0;
 }
 
+/* Il messaggio citato nella finestra di segnalazione. */
+.pc-quote {
+    margin: 0;
+    padding: 9px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-left: 3px solid var(--ck-red);
+    border-radius: 0 12px 12px 0;
+    background: var(--ck-surface);
+}
+
+.pc-quote strong {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--ck-muted);
+}
+
+.pc-quote span {
+    font-size: 0.9rem;
+    color: var(--ck-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
 .pc-conversation > #pcComposer {
     flex: 0 0 auto;
 }

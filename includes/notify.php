@@ -109,6 +109,9 @@ if (!function_exists('notify_counters')) {
                         $wanted[] = $event;
                     }
                     break;
+                case 'tk':
+                    $wanted[] = $event;
+                    break;
             }
         }
         if (!$wanted) {
@@ -270,6 +273,31 @@ if (!function_exists('notify_counters')) {
                 continue;
             }
 
+            if ($type === 'tk') {
+                // Risposta a un ticket, o ticket chiuso/riaperto. Chi riceve
+                // l'evento è il proprietario o lo staff: il codice del ticket
+                // da solo non dice niente a nessun altro.
+                $code = preg_replace('/[^A-Za-z0-9-]/', '', (string)($event['k'] ?? ''));
+                if ($code === '') {
+                    continue;
+                }
+                $items['tk' . $code] = [
+                    'key' => 'tk' . $code,
+                    'seq' => $seq,
+                    'type' => 'ticket',
+                    'title' => rt_t('Ticket ', 'Ticket ') . $code,
+                    'text' => $from > 0
+                        ? rt_t('C\'è una nuova risposta', 'There is a new reply')
+                        : rt_t('Lo stato del ticket è cambiato', 'The ticket status changed'),
+                    'avatar' => null,
+                    'icon' => 'fa-headset',
+                    'url' => "/$lang/inbox?section=tickets&t=" . rawurlencode($code),
+                    'ticket' => $code,
+                    'silent' => false,
+                ];
+                continue;
+            }
+
             if ($type === 'ib') {
                 $items['ib'] = [
                     'key' => 'ib',
@@ -319,5 +347,168 @@ if (!function_exists('notify_counters')) {
         $items = array_values($items);
         usort($items, static fn($a, $b) => $a['seq'] <=> $b['seq']);
         return array_slice($items, -12);
+    }
+
+    /**
+     * Quello che aspetta l'utente, per il menu delle notifiche in navbar.
+     *
+     * Non c'è una tabella delle notifiche: l'elenco si ricava da ciò che è
+     * vero adesso (richieste di amicizia e inviti in sospeso, chat con
+     * messaggi non letti, ticket con risposte nuove) più gli ultimi eventi
+     * passati dal timbro dell'utente che non lasciano altra traccia
+     * (menzioni in chat globale, amicizie accettate).
+     *
+     * `do` dice al menu quali pulsanti mostrare; i dati per l'azione stanno
+     * in `user_id` o `chat_id`.
+     */
+    function notify_panel(mysqli $mysqli, int $userId, string $role = 'utente'): array
+    {
+        $lang = rt_lang();
+        $items = [];
+        $hidden = array_flip(sc_hidden_ids($mysqli, $userId));
+
+        // Richieste di amicizia ricevute.
+        try {
+            foreach (array_slice(sc_requests($mysqli, $userId)['received'], 0, 6) as $row) {
+                $items[] = [
+                    'key' => 'fr' . $row['id'],
+                    'type' => 'friend_request',
+                    'title' => (string)($row['display_name'] ?: $row['username']),
+                    'text' => rt_t('Vuole essere tuo amico', 'Wants to be your friend'),
+                    'avatar' => '/includes/get_pfp.php?id=' . (int)$row['id'],
+                    'url' => "/$lang/amici?tab=requests",
+                    'ts' => (int)($row['sent_ts'] ?? 0),
+                    'do' => 'friend',
+                    'user_id' => (int)$row['id'],
+                ];
+            }
+        } catch (Throwable $e) {
+            error_log('[notify] richieste: ' . $e->getMessage());
+        }
+
+        // Inviti ai gruppi e chat con messaggi da leggere.
+        try {
+            $groups = cg_list($mysqli, $userId);
+            foreach (array_slice($groups['invites'], 0, 6) as $row) {
+                $items[] = [
+                    'key' => 'gi' . $row['chat_id'],
+                    'type' => 'group_invite',
+                    'title' => (string)$row['chat_name'],
+                    'text' => rt_t('Invito da @', 'Invite from @') . $row['inviter_username'],
+                    'avatar' => $row['chat_avatar'] ?: '/img/Susremaster.png',
+                    'url' => "/$lang/chat",
+                    'ts' => (int)$row['invited_ts'],
+                    'do' => 'invite',
+                    'chat_id' => (int)$row['chat_id'],
+                ];
+            }
+
+            $unread = [];
+            foreach ($groups['groups'] as $row) {
+                if ((int)$row['unread_count'] > 0 && empty($row['is_archived']) && empty($row['is_muted'])) {
+                    $body = $row['last_message_type'] === 'gif' ? 'GIF'
+                        : ($row['last_message_type'] === 'media' && trim((string)$row['last_message_body']) === ''
+                            ? notify_attachment_label(null) : (string)$row['last_message_body']);
+                    $who = $row['last_message_type'] === 'system' || empty($row['last_message_sender_username'])
+                        ? '' : '@' . $row['last_message_sender_username'] . ': ';
+                    $unread[] = [
+                        'key' => 'g' . $row['chat_id'],
+                        'type' => 'group',
+                        'title' => (string)$row['name'],
+                        'text' => $who . $body,
+                        'avatar' => $row['avatar_url'] ?: '/img/Susremaster.png',
+                        'url' => "/$lang/chat?g=" . (int)$row['chat_id'],
+                        'ts' => (int)$row['last_ts'],
+                        'count' => (int)$row['unread_count'],
+                        'chat' => ['kind' => 'group', 'id' => (int)$row['chat_id']],
+                    ];
+                }
+            }
+            foreach (cc_pm_list($mysqli, $userId) as $row) {
+                if ((int)$row['unread_count'] <= 0 || !empty($row['is_archived']) || !empty($row['is_muted']) || !empty($row['is_blocked'])) {
+                    continue;
+                }
+                $body = $row['last_message_type'] === 'deleted' ? rt_t('Messaggio eliminato', 'Message deleted')
+                    : ($row['last_message_type'] === 'gif' ? 'GIF'
+                        : ($row['last_message_type'] === 'media' && trim((string)$row['last_message_text']) === ''
+                            ? notify_attachment_label($row['last_message_attachment_type']) : (string)$row['last_message_text']));
+                $isRequest = !empty($row['is_request']);
+                $unread[] = [
+                    'key' => 'p' . $row['conversation_id'],
+                    'type' => $isRequest ? 'request' : 'dm',
+                    'title' => (string)($row['other_nickname'] ?: ($row['other_display_name'] ?: $row['other_username'])),
+                    'text' => ($isRequest ? rt_t('Vuole scriverti: ', 'Wants to message you: ') : '') . $body,
+                    'avatar' => '/includes/get_pfp.php?id=' . (int)$row['other_user_id'],
+                    'url' => "/$lang/chat?c=" . (int)$row['conversation_id'],
+                    'ts' => (int)$row['last_ts'],
+                    'count' => (int)$row['unread_count'],
+                    'chat' => ['kind' => 'private', 'id' => (int)$row['conversation_id']],
+                ];
+            }
+            usort($unread, static fn($a, $b) => $b['ts'] <=> $a['ts']);
+            foreach (array_slice($unread, 0, 8) as $item) {
+                $items[] = $item;
+            }
+        } catch (Throwable $e) {
+            error_log('[notify] chat: ' . $e->getMessage());
+        }
+
+        // Ticket con novità da leggere.
+        try {
+            if (rt_has_table($mysqli, 'site_tickets') && rt_has_col($mysqli, 'site_tickets', 'user_read')) {
+                $staff = in_array($role, ['admin', 'owner'], true);
+                if ($staff) {
+                    $stmt = $mysqli->prepare("SELECT ticket_id, title, UNIX_TIMESTAMP(updated_at) AS ts FROM site_tickets WHERE admin_read = 0 AND status = 'open' ORDER BY updated_at DESC LIMIT 5");
+                } else {
+                    $stmt = $mysqli->prepare("SELECT ticket_id, title, UNIX_TIMESTAMP(updated_at) AS ts FROM site_tickets WHERE user_id = ? AND user_read = 0 AND status = 'open' ORDER BY updated_at DESC LIMIT 5");
+                    $stmt->bind_param('i', $userId);
+                }
+                $stmt->execute();
+                foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
+                    $items[] = [
+                        'key' => 'tk' . $row['ticket_id'],
+                        'type' => 'ticket',
+                        'title' => 'Ticket ' . $row['ticket_id'],
+                        'text' => (string)$row['title'],
+                        'avatar' => null,
+                        'icon' => 'fa-headset',
+                        'url' => "/$lang/inbox?section=tickets&t=" . rawurlencode((string)$row['ticket_id']),
+                        'ts' => (int)$row['ts'],
+                    ];
+                }
+                $stmt->close();
+            }
+        } catch (Throwable $e) {
+            error_log('[notify] ticket: ' . $e->getMessage());
+        }
+
+        // Menzioni e amicizie accettate degli ultimi tre giorni: passano solo
+        // dal timbro, che tiene gli ultimi eventi.
+        try {
+            $stamp = rt_read('u:' . $userId);
+            $recent = array_values(array_filter(
+                isset($stamp['events']) && is_array($stamp['events']) ? $stamp['events'] : [],
+                static fn($event) => in_array($event['t'] ?? '', ['mn', 'fa'], true)
+                    && (int)($event['at'] ?? 0) > time() - 3 * 86400
+            ));
+            $times = [];
+            foreach ($recent as $event) {
+                $times[(int)$event['s']] = (int)$event['at'];
+            }
+            foreach (notify_items($mysqli, $userId, $recent) as $item) {
+                unset($item['silent']);
+                $item['ts'] = $times[(int)$item['seq']] ?? 0;
+                $item['passing'] = true;
+                $items[] = $item;
+            }
+        } catch (Throwable $e) {
+            error_log('[notify] eventi: ' . $e->getMessage());
+        }
+
+        $items = array_values(array_filter($items, static function ($item) use ($hidden) {
+            return empty($item['user_id']) || !isset($hidden[(int)$item['user_id']]);
+        }));
+        usort($items, static fn($a, $b) => $b['ts'] <=> $a['ts']);
+        return array_slice($items, 0, 20);
     }
 }

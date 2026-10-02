@@ -389,8 +389,15 @@ if (!function_exists('sc_settings')) {
     // ── Notifiche ──────────────────────────────────────────────────────────
 
     /**
-     * Avvisa un utente: messaggio nella posta (resta) ed evento nel timbro
-     * (arriva subito a chi ha una pagina aperta).
+     * Avvisa un utente con un evento nel timbro (arriva subito a chi ha una
+     * pagina aperta) e, solo se viene passato `$inbox`, con un messaggio
+     * nella posta.
+     *
+     * Richieste di amicizia e inviti non passano più dalla posta: restano
+     * visibili finché sono in sospeso nel menu delle notifiche in navbar
+     * (notify_panel), con i pulsanti per rispondere, e la posta non si
+     * riempie di messaggi che dicono «vai a vedere altrove». La posta resta
+     * per ciò che non lascia altra traccia.
      */
     function sc_notify(mysqli $mysqli, int $recipientId, array $event, ?array $inbox = null): void
     {
@@ -521,14 +528,7 @@ if (!function_exists('sc_settings')) {
             }
         }
 
-        $me = sc_user_brief($mysqli, $receiverId);
-        $name = $me['username'] ?? 'utente';
-        sc_notify($mysqli, $senderId, ['t' => 'fa', 'f' => $receiverId], [
-            'title_it' => "@$name ha accettato la tua richiesta di amicizia!",
-            'title_en' => "@$name accepted your friend request!",
-            'content_it' => "**@$name** ha accettato la tua richiesta di amicizia. Ora siete amici! Visita il suo profilo [qui](/u/$name).",
-            'content_en' => "**@$name** accepted your friend request. You are now friends! View their profile [here](/u/$name).",
-        ]);
+        sc_notify($mysqli, $senderId, ['t' => 'fa', 'f' => $receiverId]);
         rt_push_user($receiverId, ['t' => 'sl']);
 
         return $created;
@@ -606,14 +606,7 @@ if (!function_exists('sc_settings')) {
             sc_unlock($mysqli, $lock);
         }
 
-        $me = sc_user_brief($mysqli, $senderId);
-        $name = $me['username'] ?? 'utente';
-        sc_notify($mysqli, $receiverId, ['t' => 'fr', 'f' => $senderId], [
-            'title_it' => "@$name ti ha inviato una richiesta di amicizia!",
-            'title_en' => "@$name sent you a friend request!",
-            'content_it' => "**@$name** vuole fare amicizia con te su Cripsum™. Apri la pagina [Amici](/it/amici) per rispondere.",
-            'content_en' => "**@$name** wants to be friends with you on Cripsum™. Open the [Friends](/en/amici) page to answer.",
-        ]);
+        sc_notify($mysqli, $receiverId, ['t' => 'fr', 'f' => $senderId]);
         rt_push_user($senderId, ['t' => 'sl']);
 
         return 'pending';

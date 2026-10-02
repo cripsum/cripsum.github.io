@@ -3,7 +3,8 @@
  * Invio di allegati in un gruppo o in una conversazione privata.
  *
  * Fino a sei file per messaggio (`files[]`, o `file` per il vecchio client),
- * con un testo facoltativo (`message`). Valgono gli stessi controlli di un
+ * con un testo facoltativo (`message`) e, per i video, la copertina
+ * preparata dal browser (`posters[i]`). Valgono gli stessi controlli di un
  * messaggio normale: prima un utente bloccato poteva continuare a mandare
  * file, perché questo endpoint guardava solo l'appartenenza alla chat.
  */
@@ -56,8 +57,16 @@ chat_run(static function () use ($mysqli, $userId): void {
 
     $stored = [];
     try {
-        foreach ($files as $file) {
-            $stored[] = cc_store_upload($file);
+        // Le copertine dei video arrivano in `posters[i]`, con lo stesso
+        // indice del file a cui appartengono. Sono facoltative.
+        $posters = $_FILES['posters'] ?? null;
+        foreach ($files as $index => $file) {
+            $saved = cc_store_upload($file);
+            $stored[] = $saved;
+            if ($saved['file_type'] === 'video' && is_array($posters) && is_array($posters['tmp_name'] ?? null)
+                && ($posters['error'][$index] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                cc_store_poster($saved['file_path'], (string)$posters['tmp_name'][$index], (int)($posters['size'][$index] ?? 0));
+            }
         }
 
         $input = [

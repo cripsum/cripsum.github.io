@@ -143,6 +143,49 @@ function cripsum_ticket_attach_thread(mysqli $mysqli, string $ticketId, string $
 }
 
 /**
+ * Avvisa in tempo reale chi ha il sito aperto che un ticket è cambiato.
+ *
+ * `$audience`: "user" avvisa chi ha aperto il ticket, "admin" lo staff,
+ * "both" tutti e due. Passa di qui sia quello che succede sul sito sia
+ * quello che arriva dal bot Discord (api/bot/tickets/*), così una risposta
+ * scritta nel thread compare subito anche nella pagina.
+ *
+ * Un avviso mancato non deve mai far fallire il ticket.
+ */
+function cripsum_ticket_signal(mysqli $mysqli, string $ticketId, int $senderId, string $audience = 'user'): void
+{
+    try {
+        require_once __DIR__ . '/realtime.php';
+
+        $targets = [];
+        if ($audience === 'user' || $audience === 'both') {
+            $stmt = $mysqli->prepare('SELECT user_id FROM site_tickets WHERE ticket_id = ? LIMIT 1');
+            if ($stmt) {
+                $stmt->bind_param('s', $ticketId);
+                $stmt->execute();
+                $ownerId = (int)($stmt->get_result()->fetch_row()[0] ?? 0);
+                $stmt->close();
+                if ($ownerId > 0) {
+                    $targets[] = $ownerId;
+                }
+            }
+        }
+        if ($audience === 'admin' || $audience === 'both') {
+            $result = $mysqli->query("SELECT id FROM utenti WHERE ruolo IN ('admin', 'owner') LIMIT 50");
+            if ($result) {
+                while ($row = $result->fetch_row()) {
+                    $targets[] = (int)$row[0];
+                }
+            }
+        }
+
+        rt_push_users($targets, ['t' => 'tk', 'k' => $ticketId, 'f' => $senderId]);
+    } catch (Throwable $e) {
+        error_log('[Tickets] avviso in tempo reale: ' . $e->getMessage());
+    }
+}
+
+/**
  * Aggiunge un messaggio alla conversazione di un ticket.
  *
  * `$unreadFor` dice a chi va segnalato il messaggio come non letto: "user" se
@@ -194,6 +237,8 @@ function cripsum_ticket_add_message(
         }
     }
 
+    cripsum_ticket_signal($mysqli, $ticketId, $senderId, 'both');
+
     return true;
 }
 
@@ -242,6 +287,10 @@ function cripsum_ticket_set_status(mysqli $mysqli, string $ticketId, string $sta
     $stmt->bind_param('ss', $status, $ticketId);
     $ok = $stmt->execute();
     $stmt->close();
+
+    if ($ok) {
+        cripsum_ticket_signal($mysqli, $ticketId, 0, 'both');
+    }
 
     return $ok;
 }

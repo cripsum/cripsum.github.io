@@ -90,7 +90,7 @@ checkBan($mysqli);
 
             <article class="static-card static-reveal">
                 <h2>Private and group chats</h2>
-                <p>The same rules apply. Staff do not read these chats: if someone bothers you, block them and, if needed, open a ticket.</p>
+                <p>The same rules apply. Staff do not read these chats: they only see the messages a participant reports. If someone bothers you, you can report the message from its menu, block the person and, if needed, open a ticket.</p>
             </article>
 
             <article class="static-card static-reveal">
@@ -100,7 +100,7 @@ checkBan($mysqli);
 
             <article class="static-card static-reveal">
                 <h2>Report</h2>
-                <p>Use «Report» on global chat messages. Every report is reviewed by a staff member.</p>
+                <p>Use «Report» on messages, in the global chat as well as in private and group chats. Every report is reviewed by a staff member; the author of the message is not notified.</p>
             </article>
 
             <article class="static-card static-reveal">

@@ -62,7 +62,7 @@ $lastUpdated = 'October 2, 2026';
                     <h2>Summary (also for under-18s)</h2>
                     <ul>
                         <li>To use the site we need a username, an email and a password. We do not ask for your name, address or date of birth.</li>
-                        <li>Everyone can see your profile, posts and leaderboards. Private and group chats cannot be seen by others: not even staff read them.</li>
+                        <li>Everyone can see your profile, posts and leaderboards. Private and group chats cannot be seen by others: not even staff read them, except for the single messages a participant chooses to report.</li>
                         <li>We do not sell your data and there are no ads on the site.</li>
                         <li>We use Google Analytics to count visits: you can turn it off at any time with the button at the bottom of every page.</li>
                         <li>If you buy something, PayPal or Stripe handle the payment: we never see your card details.</li>
@@ -204,7 +204,7 @@ $lastUpdated = 'October 2, 2026';
                         <li>your Rewind, if you share it with the public link. Your username may appear in the Rewind of a friend you interacted with a lot, if your settings allow it;</li>
                         <li>the thank-you on our Discord server when you buy Premium.</li>
                     </ul>
-                    <p>Private and group chats are visible only to their participants.</p>
+                    <p>Private and group chats are visible only to their participants. If a participant reports a message, staff receive a copy of it inside a support ticket, together with the few messages before it if the reporter chooses to include them. The rest of the conversation stays out.</p>
                 </section>
 
                 <section class="static-legal-section static-reveal" id="minors">

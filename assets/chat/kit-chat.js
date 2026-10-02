@@ -272,6 +272,93 @@
      * nuovo o una reazione toccano solo ciò che cambia, quindi le GIF non
      * ripartono e la posizione di lettura non salta.
      */
+    /**
+     * Indirizzo di un allegato da mostrare. Quelli veri passano dal controllo
+     * di sempre; quelli di un messaggio non ancora partito (`local`) sono
+     * indirizzi blob creati qui, nel browser di chi sta inviando.
+     */
+    function mediaUrl(file, key) {
+        const value = String(file[key] || '');
+        if (file.local) return value.startsWith('blob:') ? value : '';
+        return K.safeUrl(value, '');
+    }
+
+    /**
+     * Fotogramma di un video come JPEG, preso mezzo secondo dopo l'inizio (il
+     * primo è spesso nero). Null se il browser non sa leggere il file: in
+     * quel caso il video parte lo stesso, solo senza copertina.
+     */
+    function videoPoster(file) {
+        return new Promise((resolve) => {
+            const url = URL.createObjectURL(file);
+            const video = document.createElement('video');
+            let done = false;
+            const finish = (blob) => {
+                if (done) return;
+                done = true;
+                clearTimeout(timer);
+                video.removeAttribute('src');
+                video.load();
+                URL.revokeObjectURL(url);
+                resolve(blob || null);
+            };
+            const timer = setTimeout(() => finish(null), 6000);
+            const draw = () => {
+                try {
+                    const width = video.videoWidth;
+                    const height = video.videoHeight;
+                    if (!width || !height) return finish(null);
+                    const scale = Math.min(1, 640 / Math.max(width, height));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.max(1, Math.round(width * scale));
+                    canvas.height = Math.max(1, Math.round(height * scale));
+                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob((blob) => finish(blob), 'image/jpeg', 0.82);
+                } catch (_) {
+                    finish(null);
+                }
+                return undefined;
+            };
+
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = 'auto';
+            video.addEventListener('error', () => finish(null));
+            video.addEventListener('seeked', draw);
+            video.addEventListener('loadeddata', () => {
+                const target = Math.min(0.5, (video.duration || 0) / 2);
+                if (target > 0 && Number.isFinite(target)) video.currentTime = target;
+                else draw();
+            });
+            video.src = url;
+        });
+    }
+
+    /** Allegati di un messaggio non ancora partito, visti da chi lo invia. */
+    function localAttachments(files) {
+        return files.map((file) => {
+            const type = file.type.startsWith('image/') ? 'image'
+                : file.type.startsWith('video/') ? 'video'
+                    : file.type.startsWith('audio/') ? 'audio' : 'file';
+            return {
+                local: true,
+                file_type: type,
+                file_name: file.name,
+                file_size: file.size,
+                file_path: type === 'image' ? URL.createObjectURL(file) : '',
+                poster: type === 'video' && file.ckPosterBlob ? URL.createObjectURL(file.ckPosterBlob) : null
+            };
+        });
+    }
+
+    function releaseLocalAttachments(attachments) {
+        (attachments || []).forEach((file) => {
+            if (!file.local) return;
+            if (file.file_path) URL.revokeObjectURL(file.file_path);
+            if (file.poster) URL.revokeObjectURL(file.poster);
+        });
+    }
+
     class MessageList {
         constructor(options) {
             this.el = options.container;
@@ -284,6 +371,10 @@
             this.newCount = 0;
 
             this.el.classList.add('ck-list');
+            // Senza azioni sui messaggi (i ticket) il clic destro e la selezione
+            // del testo restano quelli del browser.
+            this.plain = options.tools === false;
+            this.el.classList.toggle('ck-list--plain', this.plain);
             this.top = h('div', { class: 'ck-list__top' });
             this.inner = h('div', { class: 'ck-list__inner' });
             // Il tasto «torna in basso» sta dentro l'area che scorre, incollato
@@ -302,12 +393,16 @@
             this.inner.addEventListener('click', (event) => this.onClick(event));
             this.inner.addEventListener('contextmenu', (event) => {
                 const article = event.target.closest('.ck-msg');
-                if (!article || event.target.closest('a, video, audio, input, textarea')) return;
+                if (this.plain || !article || event.target.closest('a, video, audio, input, textarea')) return;
                 const message = this.items.get(article.dataset.id);
                 if (!message || message.system || message.status === 'sending') return;
                 event.preventDefault();
+                // Su Android la pressione prolungata lancia anche questo
+                // evento: il menu è già aperto, non va riaperto.
+                if (this.pressedUntil > Date.now()) return;
                 this.emit('more', message, event, article);
             });
+            this.watchLongPress();
 
             // Le immagini cambiano l'altezza quando finiscono di caricarsi:
             // se si stava leggendo l'ultimo messaggio, si resta lì.
@@ -329,6 +424,44 @@
 
         emit(action, message, event, element) {
             if (this.options.onAction) this.options.onAction(action, message, event, element);
+        }
+
+        /**
+         * Su telefono il menu del messaggio si apre tenendo premuto: i
+         * pulsanti che compaiono al passaggio del mouse lì non esistono, e
+         * iOS non lancia l'evento del clic destro.
+         */
+        watchLongPress() {
+            let timer = null;
+            let start = null;
+            const cancel = () => {
+                clearTimeout(timer);
+                timer = null;
+            };
+
+            this.pressedUntil = 0;
+            this.inner.addEventListener('touchstart', (event) => {
+                cancel();
+                const article = event.target.closest('.ck-msg');
+                if (this.plain || !article || event.touches.length !== 1 || event.target.closest('a, audio, input, textarea, .ck-reaction')) return;
+                start = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+                timer = setTimeout(() => {
+                    timer = null;
+                    const message = this.items.get(article.dataset.id);
+                    if (!message || message.system || message.status === 'sending') return;
+                    // Il dito che si alza non deve aprire l'immagine che c'era sotto.
+                    this.pressedUntil = Date.now() + 700;
+                    if (navigator.vibrate) navigator.vibrate(8);
+                    this.emit('more', message, { type: 'contextmenu', clientX: start.x, clientY: start.y, preventDefault() {} }, article);
+                }, 480);
+            }, { passive: true });
+            this.inner.addEventListener('touchmove', (event) => {
+                if (!timer || !start) return;
+                const touch = event.touches[0];
+                if (Math.abs(touch.clientX - start.x) > 10 || Math.abs(touch.clientY - start.y) > 10) cancel();
+            }, { passive: true });
+            this.inner.addEventListener('touchend', cancel, { passive: true });
+            this.inner.addEventListener('touchcancel', cancel, { passive: true });
         }
 
         key(id) {
@@ -656,7 +789,7 @@
                     author.premium ? K.premiumGem() : null,
                     K.roleBadge(author.role),
                     author.badge ? h('span', { class: 'ck-user-badge', title: author.badge.name },
-                        author.badge.image ? h('img', { src: K.safeUrl(author.badge.image, ''), alt: '' }) : icon('fa-solid fa-medal'),
+                        author.badge.image ? h('img', { src: K.safeUrl(author.badge.image, ''), alt: '' }) : icon(author.badge.icon || 'fa-solid fa-medal'),
                         author.badge.name) : null));
             }
 
@@ -690,7 +823,7 @@
             bubble.appendChild(this.buildFoot(message));
 
             const row = h('div', { class: 'ck-msg__row' }, bubble);
-            if (!message.deleted && message.status !== 'sending' && message.status !== 'error') {
+            if (this.options.tools !== false && !message.deleted && message.status !== 'sending' && message.status !== 'error') {
                 row.appendChild(h('div', { class: 'ck-msg__tools' },
                     h('button', { type: 'button', class: 'ck-tool', title: t('act_react'), 'aria-label': t('act_react'), dataset: { action: 'react-pick' } }, icon('fa-regular fa-face-smile')),
                     h('button', { type: 'button', class: 'ck-tool', title: t('act_reply'), 'aria-label': t('act_reply'), dataset: { action: 'reply' } }, icon('fa-solid fa-reply')),
@@ -754,11 +887,26 @@
             if (visual.length) {
                 const grid = h('div', { class: 'ck-media__grid ck-media__grid--' + Math.min(visual.length, 4) });
                 visual.forEach((file, index) => {
-                    const src = K.safeUrl(file.file_path, '');
-                    if (!src) return;
+                    const src = mediaUrl(file, 'file_path');
+                    if (!src && !file.local) return;
                     const cell = h('button', { type: 'button', class: 'ck-media__item', dataset: { action: 'open-media', index: String(index) } });
                     if (file.file_type === 'video') {
-                        cell.append(h('video', { src: src + '#t=0.1', preload: 'metadata', muted: true, playsinline: true }), h('span', { class: 'ck-media__play' }, icon('fa-solid fa-play')));
+                        const poster = mediaUrl(file, 'poster');
+                        if (poster) {
+                            cell.appendChild(h('img', { src: poster, alt: file.file_name || '', loading: 'lazy' }));
+                        } else if (file.local) {
+                            cell.classList.add('is-blank');
+                        } else {
+                            // Senza copertina (video vecchi, formati che il browser
+                            // di chi inviava non leggeva): il fotogramma arriva
+                            // quando il browser ha scaricato abbastanza file, e
+                            // fino ad allora si vede un segnaposto, non un buco nero.
+                            const video = h('video', { src: src + '#t=0.1', preload: 'metadata', muted: true, playsinline: true });
+                            cell.classList.add('is-blank');
+                            video.addEventListener('loadeddata', () => cell.classList.remove('is-blank'), { once: true });
+                            cell.appendChild(video);
+                        }
+                        cell.appendChild(h('span', { class: 'ck-media__play' }, icon('fa-solid fa-play')));
                     } else {
                         cell.appendChild(h('img', { src, alt: file.file_name || '', loading: 'lazy' }));
                     }
@@ -768,6 +916,12 @@
             }
 
             others.forEach((file) => {
+                const body = h('span', { class: 'ck-file__body' }, h('strong', null, file.file_name || t('att_file')), h('small', null, K.fileSize(file.file_size)));
+                if (file.local) {
+                    wrap.appendChild(h('div', { class: 'ck-file' },
+                        h('span', { class: 'ck-file__icon' }, icon(file.file_type === 'audio' ? 'fa-solid fa-music' : 'fa-solid fa-file')), body));
+                    return;
+                }
                 const src = K.safeUrl(file.file_path, '');
                 if (!src) return;
                 if (file.file_type === 'audio') {
@@ -775,8 +929,7 @@
                     return;
                 }
                 wrap.appendChild(h('a', { class: 'ck-file', href: src, download: file.file_name || '', target: '_blank', rel: 'noopener' },
-                    h('span', { class: 'ck-file__icon' }, icon('fa-solid fa-file-arrow-down')),
-                    h('span', { class: 'ck-file__body' }, h('strong', null, file.file_name || t('att_file')), h('small', null, K.fileSize(file.file_size)))));
+                    h('span', { class: 'ck-file__icon' }, icon('fa-solid fa-file-arrow-down')), body));
             });
 
             return wrap.childNodes.length ? wrap : null;
@@ -785,6 +938,10 @@
         onClick(event) {
             const target = event.target.closest('[data-action]');
             if (!target) return;
+            if (this.pressedUntil > Date.now()) {
+                event.preventDefault();
+                return;
+            }
             const article = target.closest('.ck-msg');
             const message = article ? this.items.get(article.dataset.id) : null;
             const action = target.dataset.action;
@@ -798,6 +955,8 @@
             if (!message) return;
 
             if (action === 'open-media') {
+                // Finché il messaggio non è partito i file stanno solo qui.
+                if (String(message.id).startsWith('tmp-')) return;
                 const visual = (message.attachments || []).filter((a) => ['image', 'video', 'sticker'].includes(a.file_type));
                 K.lightbox(visual.map((a) => ({ type: a.file_type === 'video' ? 'video' : 'image', src: a.file_path, name: a.file_name })), Number(target.dataset.index) || 0);
                 return;
@@ -1014,6 +1173,15 @@
                     K.toast(t('cmp_too_big', { name: file.name }), 'error');
                     continue;
                 }
+                // La copertina si prepara subito, mentre si scrive: all'invio
+                // è già pronta e il video non parte in ritardo.
+                if (file.type.startsWith('video/') && !file.ckPoster) {
+                    file.ckPoster = videoPoster(file).then((blob) => {
+                        file.ckPosterBlob = blob;
+                        if (blob && this.files.includes(file)) this.paintFiles();
+                        return blob;
+                    });
+                }
                 this.files.push(file);
             }
             this.paintFiles();
@@ -1031,10 +1199,12 @@
             K.clear(this.filesBar);
             this.filesBar.hidden = this.files.length === 0;
             this.files.forEach((file, index) => {
-                const isImage = file.type.startsWith('image/');
+                const preview = file.type.startsWith('image/') ? file : (file.ckPosterBlob || null);
+                const isImage = !!preview;
                 const chip = h('div', { class: 'ck-filechip' + (isImage ? ' ck-filechip--image' : '') });
                 if (isImage) {
-                    chip.appendChild(h('img', { src: URL.createObjectURL(file), alt: '', dataset: { blob: '1' } }));
+                    chip.appendChild(h('img', { src: URL.createObjectURL(preview), alt: '', dataset: { blob: '1' } }));
+                    if (preview !== file) chip.appendChild(h('span', { class: 'ck-filechip__play' }, icon('fa-solid fa-play')));
                 } else {
                     chip.append(icon(file.type.startsWith('video/') ? 'fa-solid fa-film' : (file.type.startsWith('audio/') ? 'fa-solid fa-music' : 'fa-solid fa-file')),
                         h('span', { class: 'ck-filechip__name' }, file.name), h('small', null, K.fileSize(file.size)));
@@ -1316,5 +1486,5 @@
         });
     }
 
-    Object.assign(K, { EmojiPicker, GifPanel, MessageList, Composer, reactionPicker, dropZone });
+    Object.assign(K, { EmojiPicker, GifPanel, MessageList, Composer, reactionPicker, dropZone, videoPoster, localAttachments, releaseLocalAttachments });
 })();

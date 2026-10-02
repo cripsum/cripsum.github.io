@@ -7,6 +7,22 @@ require_once '../includes/ticket_helpers.php';
 checkBan($mysqli);
 
 $isLogged = function_exists('isLoggedIn') && isLoggedIn();
+
+// Ticket links written by the bot on Discord land here
+// (/supporto?ticket=TK-…): they lead to the conversation, which lives in the inbox.
+$linkedTicket = isset($_GET['ticket']) ? preg_replace('/[^A-Za-z0-9-]/', '', (string)$_GET['ticket']) : '';
+if ($linkedTicket !== '' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $ticketUrl = '/en/inbox?section=tickets&t=' . rawurlencode($linkedTicket);
+    if ($isLogged) {
+        header('Location: ' . $ticketUrl);
+    } else {
+        $_SESSION['redirect_after_login'] = $ticketUrl;
+        $_SESSION['login_message'] = 'You must be logged in to open the ticket';
+        header('Location: accedi');
+    }
+    exit();
+}
+
 $username = $_SESSION['username'] ?? '';
 $userId = $_SESSION['user_id'] ?? 'N/A';
 $userRole = $_SESSION['ruolo'] ?? 'utente';
@@ -344,6 +360,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         Your request has been registered with the code <strong><?php echo htmlspecialchars($ticketId); ?></strong>.
                         The staff has received it in the Discord channel and will reply as soon as possible.
                     </p>
+                    <?php if ($isLogged): ?>
+                    <p style="font-size: 0.95rem; opacity: 0.9;">
+                        You can follow the conversation in your inbox:
+                        <a href="/en/inbox?section=tickets&amp;t=<?php echo rawurlencode($ticketId); ?>" style="color: inherit; text-decoration: underline; font-weight: 700;">open the ticket</a>.
+                    </p>
+                    <?php endif; ?>
                     <?php if ($discord_thread_url !== ''): ?>
                     <p style="font-size: 0.95rem; opacity: 0.9;">
                         The ticket is open on <strong>Discord</strong> too:

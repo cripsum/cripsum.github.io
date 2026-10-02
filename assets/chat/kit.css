@@ -1067,6 +1067,14 @@ select.ck-input option {
     align-items: flex-end;
 }
 
+/* Su telefono le bolle possono prendersi più spazio: i pulsanti accanto
+   non ci sono e una foto al 76% della larghezza sarebbe un francobollo. */
+@media (max-width: 640px) {
+    .ck-msg__main {
+        max-width: 88%;
+    }
+}
+
 .ck-msg__meta {
     display: flex;
     align-items: center;
@@ -1095,6 +1103,7 @@ select.ck-input option {
 }
 
 .ck-msg__row {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -1279,21 +1288,38 @@ select.ck-input option {
 }
 
 /* Strumenti accanto alla bolla (solo dove c'è un puntatore) */
+/*
+ * I tre pulsanti del messaggio galleggiano sull'angolo della bolla. Prima le
+ * stavano accanto e occupavano un centinaio di pixel anche da invisibili:
+ * nelle colonne strette la bolla si stringeva e foto e video ne uscivano.
+ */
 .ck-msg__tools {
+    position: absolute;
+    top: -17px;
+    left: max(6px, calc(100% - 52px));
+    z-index: 3;
     display: flex;
-    gap: 2px;
+    gap: 0;
+    padding: 2px;
+    border: 1px solid var(--ck-border);
+    border-radius: 999px;
+    background: var(--ck-panel-solid);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.38);
     opacity: 0;
-    transform: translate3d(-4px, 0, 0);
+    pointer-events: none;
+    transform: translate3d(0, 4px, 0);
     transition: opacity var(--ck-fast) ease, transform var(--ck-fast) var(--ck-ease);
 }
 
 .ck-msg.is-mine .ck-msg__tools {
-    transform: translate3d(4px, 0, 0);
+    left: auto;
+    right: max(6px, calc(100% - 52px));
 }
 
 .ck-msg:hover .ck-msg__tools,
 .ck-msg:focus-within .ck-msg__tools {
     opacity: 1;
+    pointer-events: auto;
     transform: none;
 }
 
@@ -1319,6 +1345,21 @@ select.ck-input option {
 @media (hover: none) {
     .ck-msg__tools {
         display: none;
+    }
+
+    /* Tenere premuto apre il menu del messaggio: senza questo il telefono
+       seleziona il testo o propone di salvare l'immagine. Per copiare c'è
+       la voce nel menu. */
+    .ck-msg {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+
+    .ck-list--plain .ck-msg {
+        -webkit-user-select: text;
+        user-select: text;
+        -webkit-touch-callout: default;
     }
 }
 
@@ -1394,6 +1435,8 @@ select.ck-input option {
     flex-direction: column;
     gap: 6px;
     margin-bottom: 4px;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .ck-bubble.has-media {
@@ -1416,10 +1459,13 @@ select.ck-input option {
     margin-right: 7px;
 }
 
+/* La larghezza è della bolla, non della finestra: in una colonna stretta la
+   griglia si restringe con lei invece di uscirne. */
 .ck-media__grid {
     display: grid;
     gap: 3px;
-    width: min(340px, 62vw);
+    width: 340px;
+    max-width: 100%;
     border-radius: 14px;
     overflow: hidden;
 }
@@ -1464,8 +1510,20 @@ select.ck-input option {
 
 .ck-media--gif .ck-media__item {
     border-radius: 14px;
-    width: min(300px, 60vw);
+    width: 300px;
+    max-width: 100%;
     min-height: 60px;
+}
+
+/* Video senza copertina, o non ancora caricato: un fondo neutro col tasto
+   di riproduzione al posto del riquadro nero del browser. */
+.ck-media__item.is-blank {
+    min-height: 170px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.35));
+}
+
+.ck-media__item.is-blank video {
+    opacity: 0;
 }
 
 .ck-media--gif .ck-media__item img {
@@ -1484,7 +1542,8 @@ select.ck-input option {
 }
 
 .ck-media__audio {
-    width: min(300px, 62vw);
+    width: 300px;
+    max-width: 100%;
     height: 40px;
 }
 
@@ -1492,8 +1551,8 @@ select.ck-input option {
     display: flex;
     align-items: center;
     gap: 10px;
-    min-width: 200px;
-    max-width: min(320px, 62vw);
+    width: 320px;
+    max-width: 100%;
     padding: 9px 12px;
     border-radius: 12px;
     background: rgba(0, 0, 0, 0.24);
@@ -1655,6 +1714,16 @@ select.ck-input option {
     height: 100%;
     object-fit: cover;
     border-radius: 0;
+}
+
+.ck-filechip__play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .ck-filechip__name {

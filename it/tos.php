@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = '27 settembre 2026';
+$lastUpdated = '2 ottobre 2026';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -181,7 +181,7 @@ $lastUpdated = '27 settembre 2026';
                     <h2>9. Chat, messaggi e ticket</h2>
                     <ul>
                         <li>La chat globale è visibile agli utenti del sito ed è moderata. Nelle chat private e di gruppo scrivono solo i partecipanti; gli amministratori di un gruppo possono gestirne i membri.</li>
-                        <li>Lo staff non legge le chat private e di gruppo. Vede solo i messaggi della chat globale che qualcuno segnala e i messaggi dei ticket di supporto.</li>
+                        <li>Lo staff non legge le chat private e di gruppo. Vede solo i messaggi che qualcuno segnala (quelli della chat globale, e quelli di una chat privata o di gruppo quando a segnalarli è un partecipante) e i messaggi dei ticket di supporto.</li>
                         <li>Puoi bloccare altri utenti e scegliere dalle impostazioni della chat chi può scriverti.</li>
                         <li>Negli allegati sono vietati malware, materiale illegale, contenuti espliciti e materiale protetto da diritto d'autore senza permesso.</li>
                         <li>I ticket servono per chiedere assistenza allo staff; possono essere gestiti anche dal nostro server Discord. Usali con rispetto: un uso offensivo o dannoso porta alla chiusura del ticket e può portare al ban.</li>

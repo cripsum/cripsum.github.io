@@ -62,7 +62,7 @@ $lastUpdated = '2 ottobre 2026';
                     <h2>In breve (anche per chi ha meno di 18 anni)</h2>
                     <ul>
                         <li>Per usare il sito ci servono username, email e password. Non ti chiediamo nome, cognome, indirizzo o data di nascita.</li>
-                        <li>Il tuo profilo, i post e le classifiche li possono vedere tutti. Le chat private e di gruppo no: nemmeno lo staff le legge.</li>
+                        <li>Il tuo profilo, i post e le classifiche li possono vedere tutti. Le chat private e di gruppo no: nemmeno lo staff le legge, salvo i singoli messaggi che un partecipante sceglie di segnalare.</li>
                         <li>Non vendiamo i tuoi dati e sul sito non c'è pubblicità.</li>
                         <li>Usiamo Google Analytics per contare le visite: puoi spegnerlo quando vuoi dal pulsante in fondo a ogni pagina.</li>
                         <li>Se compri qualcosa, il pagamento lo gestiscono PayPal o Stripe: i dati della carta non li vediamo.</li>
@@ -204,7 +204,7 @@ $lastUpdated = '2 ottobre 2026';
                         <li>il Rewind, se lo condividi con il link pubblico. Il tuo username può comparire nel Rewind di un amico con cui hai interagito molto, se le vostre impostazioni lo permettono;</li>
                         <li>il ringraziamento sul nostro server Discord quando compri il Premium.</li>
                     </ul>
-                    <p>Le chat private e di gruppo sono visibili solo ai partecipanti.</p>
+                    <p>Le chat private e di gruppo sono visibili solo ai partecipanti. Se un partecipante segnala un messaggio, lo staff ne riceve una copia dentro un ticket di supporto, insieme ai pochi messaggi precedenti se chi segnala sceglie di includerli. Il resto della conversazione resta fuori.</p>
                 </section>
 
                 <section class="static-legal-section static-reveal" id="minori">

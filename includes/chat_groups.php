@@ -705,7 +705,7 @@ if (!function_exists('cg_member')) {
      * Invita una persona. Si possono invitare solo gli amici: un gruppo non
      * deve diventare il modo per scrivere a chi non ti ha tra i contatti.
      */
-    function cg_invite_one(mysqli $mysqli, int $chatId, int $inviterId, int $inviteeId, string $chatName, string $inviterName, bool $notify = true): bool
+    function cg_invite_one(mysqli $mysqli, int $chatId, int $inviterId, int $inviteeId): bool
     {
         if ($inviteeId <= 0 || $inviteeId === $inviterId) {
             return false;
@@ -732,13 +732,6 @@ if (!function_exists('cg_member')) {
             throw new ChatError(rt_t('Il gruppo è pieno.', 'The group is full.'), 422);
         }
 
-        // Lo stesso invito ripetuto nelle ultime 24 ore non manda un'altra notifica.
-        $stmt = $mysqli->prepare('SELECT COUNT(*) FROM chat_invites WHERE chat_id = ? AND invitee_id = ? AND created_at > NOW() - INTERVAL 1 DAY');
-        $stmt->bind_param('ii', $chatId, $inviteeId);
-        $stmt->execute();
-        $recent = (int)($stmt->get_result()->fetch_row()[0] ?? 0);
-        $stmt->close();
-
         $stmt = $mysqli->prepare("
             INSERT INTO chat_members (chat_id, user_id, role, status) VALUES (?, ?, 'member', 'invited')
             ON DUPLICATE KEY UPDATE status = 'invited', role = 'member', joined_at = NULL, left_at = NULL
@@ -757,17 +750,9 @@ if (!function_exists('cg_member')) {
         $stmt->execute();
         $stmt->close();
 
-        $inbox = null;
-        if ($notify && $recent === 0) {
-            $safeName = str_replace(['[', ']', '*'], '', $chatName);
-            $inbox = [
-                'title_it' => 'Invito a un gruppo',
-                'title_en' => 'Group invitation',
-                'content_it' => "@$inviterName ti ha invitato nel gruppo \"$safeName\". Apri le [chat](/it/chat) per rispondere.",
-                'content_en' => "@$inviterName invited you to the group \"$safeName\". Open your [chats](/en/chat) to answer.",
-            ];
-        }
-        sc_notify($mysqli, $inviteeId, ['t' => 'gi', 'g' => $chatId, 'f' => $inviterId], $inbox);
+        // L'invito resta in sospeso nell'elenco delle chat e nel menu delle
+        // notifiche finché non riceve risposta: non serve anche una lettera.
+        sc_notify($mysqli, $inviteeId, ['t' => 'gi', 'g' => $chatId, 'f' => $inviterId]);
         return true;
     }
 
@@ -797,8 +782,6 @@ if (!function_exists('cg_member')) {
             throw new ChatError(rt_t('Hai creato troppi gruppi oggi. Riprova domani.', 'You created too many groups today. Try again tomorrow.'), 429);
         }
 
-        $creator = cg_username($mysqli, $userId);
-
         $mysqli->begin_transaction();
         try {
             $stmt = $mysqli->prepare("INSERT INTO chats (type, name, description, created_by) VALUES ('group_private', ?, ?, ?)");
@@ -821,7 +804,7 @@ if (!function_exists('cg_member')) {
 
             $invited = 0;
             foreach ($inviteeIds as $inviteeId) {
-                if (cg_invite_one($mysqli, $chatId, $userId, $inviteeId, $name, $creator)) {
+                if (cg_invite_one($mysqli, $chatId, $userId, $inviteeId)) {
                     $invited++;
                 }
             }
@@ -856,7 +839,7 @@ if (!function_exists('cg_member')) {
         }
 
         $inviter = cg_username($mysqli, $userId);
-        if (!cg_invite_one($mysqli, $chatId, $userId, $inviteeId, (string)$member['name'], $inviter)) {
+        if (!cg_invite_one($mysqli, $chatId, $userId, $inviteeId)) {
             throw new ChatError(rt_t('Non puoi invitare questa persona: puoi invitare solo amici che non sono già nel gruppo.', 'You cannot invite this person: only friends who are not already in the group can be invited.'), 403);
         }
 

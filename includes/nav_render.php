@@ -427,16 +427,21 @@ if (!function_exists('nav_bootstrap')) {
     }
 
     /**
-     * Pulsante della posta.
+     * Pulsante delle notifiche (la campanella).
      *
-     * `$idSuffix` distingue la copia mobile da quella desktop: inbox.php
-     * aggiorna il badge per id, quindi `inbox-unread-count` deve restare
-     * quello che era.
+     * Con JavaScript apre il menu di assets/rt/panel.js: notifiche da una
+     * parte, posta dall'altra. Senza, e con Ctrl+clic, resta un link alla
+     * posta. Il numero è posta da leggere più richieste di amicizia in
+     * sospeso, lo stesso conto che rifà assets/rt/rt.js mentre la pagina è
+     * aperta.
+     *
+     * `$badgeId` distingue la copia mobile da quella desktop: il badge si
+     * aggiorna per id, quindi `inbox-unread-count` deve restare quello che era.
      */
     function nav_render_inbox(array $ctx, string $badgeId): void
     {
         $t     = $ctx['t'];
-        $count = (int)$ctx['unreadCount'];
+        $count = (int)$ctx['unreadCount'] + (int)$ctx['friends'];
         $tip   = $count > 0
             ? $count . ' ' . $t['inbox_unread']
             : $t['inbox_empty'];
@@ -445,7 +450,7 @@ if (!function_exists('nav_bootstrap')) {
             class="cnav-icon-btn cnav-inbox<?= $count > 0 ? ' has-unread' : '' ?>"
             data-cnav-tip="<?= nav_e($tip) ?>"
             aria-label="<?= nav_e($t['inbox']) ?>">
-            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
             <span id="<?= nav_e($badgeId) ?>" class="cnav-icon-btn__badge <?= $count > 0 ? '' : 'd-none' ?>">
                 <?= $count > 99 ? '99+' : $count ?>
             </span>
@@ -661,9 +666,11 @@ if (!function_exists('nav_bootstrap')) {
                 // per chi è collegato, su ogni pagina che ha la navbar.
                 $rtCssVer = @filemtime(__DIR__ . '/../assets/rt/rt.css') ?: 1;
                 $rtJsVer  = @filemtime(__DIR__ . '/../assets/rt/rt.js') ?: 1;
+                $rtPanelVer = @filemtime(__DIR__ . '/../assets/rt/panel.js') ?: 1;
                 ?>
                 <link rel="stylesheet" href="/assets/rt/rt.css?v=<?= $rtCssVer ?>">
                 <script src="/assets/rt/rt.js?v=<?= $rtJsVer ?>" defer></script>
+                <script src="/assets/rt/panel.js?v=<?= $rtPanelVer ?>" defer></script>
             <?php endif; ?>
         <?php endif; ?>
 

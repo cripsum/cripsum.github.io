@@ -72,8 +72,6 @@
         pc_pinned_done: { it: 'Messaggio fissato.', en: 'Message pinned.' },
         pc_unpinned_done: { it: 'Messaggio tolto dai fissati.', en: 'Message unpinned.' },
         pc_pinned_label: { it: 'Fissato', en: 'Pinned' },
-        pc_uploading: { it: 'Caricamento di {n} file...', en: 'Uploading {n} files...' },
-        pc_uploading_one: { it: 'Caricamento del file...', en: 'Uploading file...' },
         pc_menu_saved: { it: 'Messaggi salvati', en: 'Saved messages' },
         pc_menu_privacy: { it: 'Privacy', en: 'Privacy' },
         pc_menu_alerts: { it: 'Avvisi e notifiche', en: 'Alerts and notifications' },
@@ -122,8 +120,15 @@
         pc_block_title: { it: 'Bloccare {name}?', en: 'Block {name}?' },
         pc_block_text: { it: 'Non potrà più scriverti né mandarti richieste, e l\'amicizia verrà rimossa. Non verrà avvisato.', en: 'They will no longer be able to message you or send requests, and the friendship will be removed. They will not be notified.' },
         pc_report: { it: 'Segnala', en: 'Report' },
+        pc_report_msg: { it: 'Segnala messaggio', en: 'Report message' },
+        pc_report_msg_title: { it: 'Segnalare questo messaggio?', en: 'Report this message?' },
+        pc_report_msg_text: { it: 'Lo staff riceve una copia di questo messaggio e la tua spiegazione, in un ticket che trovi nella tua posta. Non legge il resto della chat e chi ha scritto il messaggio non viene avvisato.', en: 'The staff receives a copy of this message and your explanation, in a ticket you can find in your inbox. They do not read the rest of the chat and the author is not notified.' },
+        pc_report_msg_reason: { it: 'Cosa non va? (facoltativo)', en: 'What is wrong? (optional)' },
+        pc_report_msg_context: { it: 'Includi anche i 4 messaggi precedenti', en: 'Also include the 4 previous messages' },
+        pc_report_msg_context_hint: { it: 'Aiuta lo staff a capire il contesto.', en: 'It helps the staff understand the context.' },
+        pc_report_msg_send: { it: 'Invia segnalazione', en: 'Send report' },
         pc_report_title: { it: 'Segnalare questa persona', en: 'Report this person' },
-        pc_report_text: { it: 'Lo staff non legge le chat private. Per segnalare qualcuno apri un ticket e racconta cosa è successo: puoi allegare tu i messaggi che vuoi mostrare. Intanto puoi bloccare la persona.', en: 'The staff does not read private chats. To report someone, open a ticket and explain what happened: you can attach the messages you want to show. Meanwhile you can block the person.' },
+        pc_report_text: { it: 'Lo staff non legge le chat private. Per segnalare un messaggio preciso usa «Segnala messaggio» nel suo menu: allo staff ne arriva una copia. Per raccontare altro apri un ticket. Intanto puoi bloccare la persona.', en: 'The staff does not read private chats. To report a specific message use "Report message" in its menu: the staff receives a copy. To explain anything else, open a ticket. Meanwhile you can block the person.' },
         pc_report_ticket: { it: 'Apri un ticket', en: 'Open a ticket' },
         pc_media: { it: 'Media', en: 'Media' },
         pc_files: { it: 'File', en: 'Files' },
@@ -863,16 +868,17 @@
     }
 
     function pendingItem(nonce, payload) {
-        const count = payload.files.length;
         return {
             id: 'tmp-' + nonce,
             ts: Math.floor(Date.now() / 1000),
             mine: true,
             author: { id: me.id, name: me.displayName, username: me.username, avatar: K.avatarUrl(me.id) },
-            text: payload.text || (count ? (count === 1 ? t('pc_uploading_one') : t('pc_uploading', { n: count })) : ''),
+            text: payload.text,
             gif: payload.gif ? { url: payload.gif.url, preview: payload.gif.preview_url || payload.gif.url, title: payload.gif.title || 'GIF' } : null,
             reply: payload.replyTo ? { id: payload.replyTo.id, name: payload.replyTo.name, text: payload.replyTo.text } : null,
-            attachments: [],
+            // Foto e copertine dei video si vedono subito, prese dai file
+            // scelti: non c'è da aspettare la fine del caricamento.
+            attachments: K.localAttachments(payload.files),
             reactions: [],
             status: 'sending'
         };
@@ -911,6 +917,7 @@
 
         if (list.size === 0) list.showPlaceholder(null);
         const temp = pendingItem(nonce, payload);
+        job.local = temp.attachments;
         list.upsert([temp]);
         await deliver(temp.id, job);
     }
@@ -926,7 +933,12 @@
                 else form.append('recipient_id', job.recipient);
                 form.append('message', job.text);
                 if (job.replyId) form.append('reply_to_id', job.replyId);
-                job.files.forEach((file) => form.append('files[]', file, file.name));
+                // Le copertine dei video viaggiano con lo stesso indice del file.
+                const posters = await Promise.all(job.files.map((file) => file.ckPoster || null));
+                job.files.forEach((file, index) => {
+                    form.append('files[]', file, file.name);
+                    if (posters[index]) form.append('posters[' + index + ']', posters[index], 'poster.jpg');
+                });
                 data = await K.upload('/api/chat/upload_media.php', form, (fraction) => composer.setProgress(fraction));
             } else {
                 const body = { message: job.text, message_type: job.gif ? 'gif' : 'text' };
@@ -946,6 +958,7 @@
             }
 
             state.pending.delete(tempId);
+            K.releaseLocalAttachments(job.local);
 
             // Primo messaggio a qualcuno: la conversazione adesso esiste.
             if (job.kind === 'private' && !job.id && data.conversation_id) {
@@ -973,6 +986,7 @@
             const refused = error.status >= 400 && error.status < 500;
             if (refused) {
                 state.pending.delete(tempId);
+                K.releaseLocalAttachments(job.local);
                 list.remove(tempId);
                 if (list.size === 0 && state.active) list.showPlaceholder(emptyConversation());
                 K.toast(error.message, 'error');
@@ -1026,6 +1040,7 @@
                 break;
             }
             case 'discard':
+                K.releaseLocalAttachments((state.pending.get(item.id) || {}).local);
                 state.pending.delete(item.id);
                 list.remove(item.id);
                 break;
@@ -1066,6 +1081,7 @@
             }
         }
         if (canEdit(item)) items.push({ label: t('pc_edit'), icon: 'fa-solid fa-pen', onSelect: () => composer.setEdit(item) });
+        if (!item.mine) items.push({ label: t('pc_report_msg'), icon: 'fa-regular fa-flag', onSelect: () => reportMessage(item) });
 
         items.push({ divider: true });
         if (!isGroup) {
@@ -1078,6 +1094,47 @@
         }
 
         K.menu(anchor, items);
+    }
+
+    /**
+     * Segnalazione di un singolo messaggio: allo staff arriva una copia di
+     * quello (e dei precedenti, se lo si sceglie), non l'accesso alla chat.
+     */
+    function reportMessage(item) {
+        const kind = state.active.kind;
+        const reason = h('textarea', { class: 'ck-input', rows: '3', maxlength: '500', placeholder: t('pc_report_msg_reason'), autofocus: true });
+        const context = h('input', { type: 'checkbox' });
+        const quote = h('blockquote', { class: 'pc-quote' },
+            h('strong', null, item.author.name || item.author.username || ''),
+            h('span', null, item.text || (item.gif ? 'GIF' : attachmentLabel(((item.attachments || [])[0] || {}).file_type))));
+
+        K.dialog({
+            title: t('pc_report_msg_title'),
+            icon: 'fa-regular fa-flag',
+            body: h('div', { class: 'ck-field' },
+                quote,
+                h('p', { class: 'ck-hint' }, t('pc_report_msg_text')),
+                reason,
+                h('label', { class: 'ck-switch pc-switch' }, h('span', null, h('strong', null, t('pc_report_msg_context')), h('small', null, t('pc_report_msg_context_hint'))), context, h('i'))),
+            actions: [
+                { label: t('cancel'), value: null, kind: 'ghost' },
+                {
+                    label: t('pc_report_msg_send'), kind: 'danger',
+                    onClick: async () => {
+                        try {
+                            const data = await K.api('/api/chat/report_message.php', {
+                                body: { kind, message_id: item.id, reason: reason.value.trim(), context: context.checked }
+                            });
+                            K.toast(data.message, 'success');
+                            return true;
+                        } catch (error) {
+                            K.toast(error.message, 'error');
+                            return false;
+                        }
+                    }
+                }
+            ]
+        });
     }
 
     async function messageAction(item, action) {

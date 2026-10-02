@@ -432,7 +432,58 @@ if (!function_exists('cc_clean_text')) {
         ];
     }
 
-    /** Cancella dal disco un allegato della chat, e solo quello. */
+    /** Dove sta la copertina di un video: accanto al file, stesso nome. */
+    function cc_poster_path(string $videoPath): string
+    {
+        return preg_replace('/\.[a-z0-9]{2,5}$/', '.poster.jpg', $videoPath);
+    }
+
+    /**
+     * Salva la copertina di un video, preparata dal browser di chi lo invia.
+     *
+     * Senza copertina l'anteprima in chat resta nera finché il browser non ha
+     * scaricato abbastanza video da disegnarne un fotogramma (con i file dei
+     * telefoni può voler dire tutto il file). L'immagine viene ricodificata
+     * qui: su disco finisce solo un JPEG scritto dal server, piccolo.
+     */
+    function cc_store_poster(string $videoPath, string $tmp, int $size): bool
+    {
+        if (!function_exists('imagecreatefromjpeg') || $size <= 0 || $size > 1024 * 1024 || !is_uploaded_file($tmp)) {
+            return false;
+        }
+        if (!preg_match('#^/uploads/chat/\d{4}/\d{2}/[a-f0-9]{40}\.(mp4|webm)$#', $videoPath)) {
+            return false;
+        }
+
+        try {
+            $info = @getimagesize($tmp);
+            if (!$info || ($info['mime'] ?? '') !== 'image/jpeg') {
+                return false;
+            }
+            $image = @imagecreatefromjpeg($tmp);
+            if (!$image) {
+                return false;
+            }
+            $width = imagesx($image);
+            $height = imagesy($image);
+            $scale = min(1, 640 / max(1, max($width, $height)));
+            if ($scale < 1) {
+                $small = imagescale($image, max(1, (int)round($width * $scale)), max(1, (int)round($height * $scale)));
+                if ($small) {
+                    imagedestroy($image);
+                    $image = $small;
+                }
+            }
+            $ok = imagejpeg($image, dirname(__DIR__) . cc_poster_path($videoPath), 80);
+            imagedestroy($image);
+            return (bool)$ok;
+        } catch (Throwable $e) {
+            error_log('[chat] copertina video: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /** Cancella dal disco un allegato della chat (e la sua copertina), e solo quello. */
     function cc_delete_upload(string $path): void
     {
         if (!preg_match('#^/uploads/chat/\d{4}/\d{2}/[a-f0-9]{40}\.[a-z0-9]{2,5}$#', $path)) {
@@ -441,6 +492,10 @@ if (!function_exists('cc_clean_text')) {
         $full = dirname(__DIR__) . $path;
         if (is_file($full)) {
             @unlink($full);
+        }
+        $poster = dirname(__DIR__) . cc_poster_path($path);
+        if (is_file($poster)) {
+            @unlink($poster);
         }
     }
 
@@ -460,13 +515,19 @@ if (!function_exists('cc_clean_text')) {
                 continue;
             }
             $type = (string)($item['file_type'] ?? 'file');
-            $out[] = [
+            $clean = [
                 'file_name' => (string)($item['file_name'] ?? 'allegato'),
                 'file_path' => $path,
                 'file_size' => (int)($item['file_size'] ?? 0),
                 'file_mime' => (string)($item['file_mime'] ?? ''),
                 'file_type' => in_array($type, ['image', 'video', 'audio', 'file', 'sticker'], true) ? $type : 'file',
             ];
+            if ($clean['file_type'] === 'video') {
+                // La copertina non sta nel database: se c'è, è il file accanto.
+                $poster = cc_poster_path($path);
+                $clean['poster'] = is_file(dirname(__DIR__) . $poster) ? $poster : null;
+            }
+            $out[] = $clean;
         }
         return $out;
     }
@@ -685,13 +746,18 @@ if (!function_exists('cc_clean_text')) {
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
-            $attachments[(int)$row['message_id']][] = [
+            $file = [
                 'file_name' => (string)$row['file_name'],
                 'file_path' => (string)$row['file_path'],
                 'file_size' => (int)$row['file_size'],
                 'file_mime' => (string)$row['file_mime'],
                 'file_type' => (string)$row['file_type'],
             ];
+            if ($file['file_type'] === 'video') {
+                $poster = cc_poster_path($file['file_path']);
+                $file['poster'] = $poster !== $file['file_path'] && is_file(dirname(__DIR__) . $poster) ? $poster : null;
+            }
+            $attachments[(int)$row['message_id']][] = $file;
         }
         $stmt->close();
 

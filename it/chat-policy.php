@@ -89,7 +89,7 @@ checkBan($mysqli);
 
             <article class="static-card static-reveal">
                 <h2>Chat private e di gruppo</h2>
-                <p>Valgono le stesse regole. Lo staff non legge queste chat: se qualcuno ti dà fastidio bloccalo e, se serve, apri un ticket.</p>
+                <p>Valgono le stesse regole. Lo staff non legge queste chat: vede solo i messaggi che un partecipante segnala. Se qualcuno ti dà fastidio puoi segnalare il messaggio dal suo menu, bloccare la persona e, se serve, aprire un ticket.</p>
             </article>
 
             <article class="static-card static-reveal">
@@ -99,7 +99,7 @@ checkBan($mysqli);
 
             <article class="static-card static-reveal">
                 <h2>Segnala</h2>
-                <p>Usa «Segnala» sui messaggi della chat globale. Ogni segnalazione la guarda una persona dello staff.</p>
+                <p>Usa «Segnala» sui messaggi, in chat globale come nelle chat private e di gruppo. Ogni segnalazione la guarda una persona dello staff; chi ha scritto il messaggio non viene avvisato.</p>
             </article>
 
             <article class="static-card static-reveal">

@@ -96,6 +96,7 @@
     let lastActivity = Date.now();
     let off = false;              // il server non ha i timbri: si ripiega su controlli lenti
     let activeChat = null;        // chat aperta e visibile: per quella niente avvisi
+    let activeTicket = null;      // lo stesso per il ticket aperto nella posta
     let openChatHandler = null;
     let unseen = 0;
     const baseTitle = document.title;
@@ -225,10 +226,14 @@
     // ── Contatori della navbar ─────────────────────────────────────────────
 
     function paintCounters() {
+        // Il numero sulla campanella: posta da leggere più richieste di
+        // amicizia in sospeso. Le chat hanno il loro contatore. Si scrive
+        // sulla copia desktop; navbar.js la ricopia su quella mobile.
+        const bell = counters.inbox + counters.friends;
         const inbox = document.getElementById('inbox-unread-count');
         if (inbox) {
-            inbox.textContent = counters.inbox > 99 ? '99+' : String(counters.inbox);
-            inbox.classList.toggle('d-none', counters.inbox <= 0);
+            inbox.textContent = bell > 99 ? '99+' : String(bell);
+            inbox.classList.toggle('d-none', bell <= 0);
         }
 
         const setBadge = (key, value) => {
@@ -305,7 +310,7 @@
 
     // ── Avvisi ─────────────────────────────────────────────────────────────
 
-    const NOTIFY_TYPES = { pm: 1, gm: 1, mn: 1, fr: 1, fa: 1, gi: 1, ib: 1 };
+    const NOTIFY_TYPES = { pm: 1, gm: 1, mn: 1, fr: 1, fa: 1, gi: 1, ib: 1, tk: 1 };
     const COUNTER_TYPES = { rd: 1, ls: 1, sl: 1, pu: 1, gu: 1 };
 
     function considerNotifications(events, resync) {
@@ -348,9 +353,10 @@
     }
 
     function isActiveChat(item) {
+        if (document.visibilityState !== 'visible' || !document.hasFocus()) return false;
+        if (item.ticket) return activeTicket === item.ticket;
         return !!(item.chat && activeChat
-            && activeChat.kind === item.chat.kind && Number(activeChat.id) === Number(item.chat.id)
-            && document.visibilityState === 'visible' && document.hasFocus());
+            && activeChat.kind === item.chat.kind && Number(activeChat.id) === Number(item.chat.id));
     }
 
     function announce(item) {
@@ -400,12 +406,18 @@
         }
     }
 
-    function go(item) {
+    /**
+     * Porta dove indica un avviso. Sulle pagine di chat la conversazione si
+     * apre sul posto (e torna true); altrove si segue il link, a meno che
+     * chi chiama non voglia pensarci da sé (`onlyInPlace`).
+     */
+    function go(item, onlyInPlace) {
         if (item.chat && openChatHandler) {
             openChatHandler(item.chat);
-            return;
+            return true;
         }
-        if (item.url) window.location.href = item.url;
+        if (!onlyInPlace && item.url) window.location.href = item.url;
+        return false;
     }
 
     // ── Riquadri in pagina ─────────────────────────────────────────────────
@@ -448,7 +460,10 @@
             img.loading = 'lazy';
             media.appendChild(img);
         } else {
-            media.innerHTML = '<i class="fa-solid ' + (item.icon || 'fa-envelope') + '" aria-hidden="true"></i>';
+            const glyph = document.createElement('i');
+            glyph.className = 'fa-solid ' + (/^fa-[a-z0-9-]+$/.test(item.icon || '') ? item.icon : 'fa-envelope');
+            glyph.setAttribute('aria-hidden', 'true');
+            media.appendChild(glyph);
         }
 
         const body = document.createElement('div');
@@ -625,6 +640,10 @@
         setActiveChat(chat) {
             activeChat = chat || null;
         },
+        /** Ticket aperto nella posta: le risposte si vedono già, niente avviso. */
+        setActiveTicket(code) {
+            activeTicket = code || null;
+        },
         /** Le pagine di chat aprono la conversazione sul posto invece di ricaricare. */
         setOpenChatHandler(fn) {
             openChatHandler = typeof fn === 'function' ? fn : null;
@@ -635,6 +654,7 @@
         },
         refreshCounters: () => requestFeed(),
         applyCounters,
+        open: go,
         toast,
         playSound,
         openSettings,

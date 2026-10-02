@@ -329,3 +329,485 @@ html[data-cnav-theme="light"] {
         animation: none;
     }
 }
+
+/* ── Menu delle notifiche (assets/rt/panel.js) ────────────────────────── */
+
+.crt-panel-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 20039;
+    background: rgba(2, 4, 10, 0.55);
+    animation: crtFade 160ms ease both;
+}
+
+.crt-panel {
+    position: fixed;
+    z-index: 20040;
+    width: min(400px, calc(100vw - 24px));
+    max-height: min(620px, calc(100vh - 110px));
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--crt-border);
+    border-radius: 20px;
+    background: var(--crt-bg);
+    color: var(--crt-text);
+    box-shadow: var(--crt-shadow);
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow: hidden;
+    outline: none;
+    transform-origin: top right;
+    animation: crtPanelIn 190ms var(--crt-ease) both;
+}
+
+.crt-panel *,
+.crt-panel *::before,
+.crt-panel *::after {
+    box-sizing: border-box;
+}
+
+@keyframes crtPanelIn {
+    from { opacity: 0; transform: translate3d(0, -8px, 0) scale(0.97); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes crtFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.crt-panel__head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 10px 6px 18px;
+}
+
+.crt-panel__head h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--crt-text);
+}
+
+.crt-panel__tools {
+    display: flex;
+    gap: 2px;
+}
+
+.crt-panel__tool {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--crt-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+}
+
+.crt-panel__tool:hover {
+    background: rgba(var(--crt-accent-rgb), 0.14);
+    color: var(--crt-text);
+}
+
+.crt-panel__tabs {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 4px;
+    margin: 4px 12px 0;
+    padding: 4px;
+    border-radius: 13px;
+    background: rgba(127, 127, 127, 0.12);
+}
+
+.crt-panel__tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--crt-muted);
+    font: 600 0.84rem/1 "Poppins", system-ui, sans-serif;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+}
+
+.crt-panel__tab b {
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(127, 127, 127, 0.22);
+    font-size: 0.66rem;
+    font-weight: 700;
+}
+
+.crt-panel__tab.is-active {
+    background: var(--crt-accent);
+    color: #fff;
+}
+
+.crt-panel__tab.is-active b {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.crt-panel__intro {
+    flex: 0 0 auto;
+    margin: 10px 12px 0;
+    padding: 9px 12px;
+    border-radius: 12px;
+    background: rgba(var(--crt-accent-rgb), 0.12);
+    color: var(--crt-text);
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.crt-panel__intro[hidden],
+.crt-panel__readall[hidden] {
+    display: none;
+}
+
+.crt-panel__list {
+    flex: 1 1 auto;
+    min-height: 120px;
+    overflow-y: auto;
+    padding: 8px;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+.crt-panel__row {
+    border-radius: 14px;
+    transition: opacity 180ms ease, transform 180ms var(--crt-ease), background 140ms ease;
+}
+
+.crt-panel__row:hover {
+    background: rgba(127, 127, 127, 0.1);
+}
+
+.crt-panel__row.is-busy {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.crt-panel__row.is-gone {
+    opacity: 0;
+    transform: translate3d(18px, 0, 0);
+}
+
+.crt-panel__link {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 10px;
+    border-radius: 14px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.crt-panel__link:focus-visible,
+.crt-panel__tab:focus-visible,
+.crt-panel__tool:focus-visible,
+.crt-panel__btn:focus-visible,
+.crt-panel__open:focus-visible,
+.crt-panel__readall:focus-visible {
+    outline: 2px solid var(--crt-accent);
+    outline-offset: -2px;
+}
+
+.crt-panel__media {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: rgba(127, 127, 127, 0.16);
+}
+
+.crt-panel__media img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.crt-panel__media.is-icon {
+    border-radius: 14px;
+    background: rgba(var(--crt-accent-rgb), 0.16);
+    color: var(--crt-accent);
+    font-size: 0.95rem;
+}
+
+.crt-panel__media--rewards.is-icon {
+    background: rgba(251, 191, 36, 0.16);
+    color: #f5b522;
+}
+
+.crt-panel__media--social.is-icon {
+    background: rgba(52, 211, 153, 0.15);
+    color: #26b584;
+}
+
+.crt-panel__media--special.is-icon {
+    background: rgba(56, 189, 248, 0.16);
+    color: #2ea6dc;
+}
+
+.crt-panel__body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.3;
+}
+
+.crt-panel__body strong {
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.crt-panel__body span {
+    font-size: 0.78rem;
+    color: var(--crt-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.crt-panel__row.is-unread .crt-panel__body strong {
+    font-weight: 700;
+}
+
+.crt-panel__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    font-size: 0.68rem;
+    color: var(--crt-muted);
+}
+
+.crt-panel__meta time {
+    white-space: nowrap;
+}
+
+.crt-panel__count {
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--crt-accent);
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 700;
+}
+
+.crt-panel__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--crt-accent);
+}
+
+.crt-panel__gift {
+    color: #f5b522;
+    font-size: 0.82rem;
+}
+
+.crt-panel__actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 10px 10px 64px;
+}
+
+.crt-panel__btn {
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--crt-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--crt-text);
+    font: 600 0.76rem/1 "Poppins", system-ui, sans-serif;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, transform 140ms var(--crt-ease);
+}
+
+.crt-panel__btn:hover {
+    background: rgba(127, 127, 127, 0.14);
+}
+
+.crt-panel__btn:active {
+    transform: scale(0.96);
+}
+
+.crt-panel__btn--primary {
+    border-color: transparent;
+    background: var(--crt-accent);
+    color: #fff;
+}
+
+.crt-panel__btn--primary:hover {
+    background: #4a7fff;
+}
+
+.crt-panel__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 34px 20px;
+    text-align: center;
+    color: var(--crt-muted);
+}
+
+.crt-panel__empty > i {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 6px;
+    border-radius: 18px;
+    background: rgba(var(--crt-accent-rgb), 0.14);
+    color: var(--crt-accent);
+    font-size: 1.2rem;
+}
+
+.crt-panel__empty strong {
+    color: var(--crt-text);
+    font-size: 0.94rem;
+    font-weight: 600;
+}
+
+.crt-panel__empty span {
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
+.crt-panel__empty .crt-panel__btn {
+    margin-top: 8px;
+}
+
+.crt-panel__row--skeleton {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 12px;
+    padding: 9px 10px;
+    pointer-events: none;
+}
+
+.crt-panel__row--skeleton .crt-panel__media,
+.crt-panel__row--skeleton .crt-panel__body {
+    background: rgba(127, 127, 127, 0.16);
+    animation: crtPulse 1.2s ease-in-out infinite;
+}
+
+.crt-panel__row--skeleton .crt-panel__body {
+    height: 14px;
+    width: 70%;
+    align-self: center;
+    border-radius: 8px;
+}
+
+@keyframes crtPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.crt-panel__foot {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--crt-border);
+}
+
+.crt-panel__readall {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--crt-muted);
+    font: 500 0.78rem/1.2 "Poppins", system-ui, sans-serif;
+    cursor: pointer;
+}
+
+.crt-panel__readall:hover {
+    color: var(--crt-text);
+}
+
+.crt-panel__open {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--crt-accent);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.crt-panel__open i {
+    font-size: 0.72rem;
+    transition: transform 160ms var(--crt-ease);
+}
+
+.crt-panel__open:hover i {
+    transform: translate3d(3px, 0, 0);
+}
+
+/* Su telefono il menu sale dal basso e prende tutta la larghezza. */
+.crt-panel--sheet {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-height: 82vh;
+    max-height: 82dvh;
+    border-radius: 22px 22px 0 0;
+    border-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    transform-origin: bottom center;
+    animation-name: crtSheetIn;
+}
+
+@keyframes crtSheetIn {
+    from { transform: translate3d(0, 100%, 0); }
+    to { transform: none; }
+}
+
+@media (max-width: 640px) {
+    .crt-panel-backdrop {
+        display: block;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .crt-panel,
+    .crt-panel-backdrop,
+    .crt-panel__row {
+        animation: none;
+        transition: none;
+    }
+}
