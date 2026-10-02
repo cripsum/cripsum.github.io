@@ -883,6 +883,18 @@
         paintNear();
         render(true);
         if (state.openId && dialog.open) openDetail(state.openId, true);
+
+        // Quello che si sblocca mentre questa pagina è aperta lo si è già
+        // visto: senza questo il pallino della navbar si accenderebbe alla
+        // pagina dopo (la chiave è quella di navbar.js).
+        const latest = Math.max(0, ...items.map((item) => Number(item.unlocked_ts) || 0));
+        if (latest > 0) {
+            try {
+                localStorage.setItem('cnav.achvSeen.' + userId, String(latest));
+            } catch (_) {
+                /* senza memoria il pallino resta alla navbar */
+            }
+        }
     }
 
     let refreshTimer = null;

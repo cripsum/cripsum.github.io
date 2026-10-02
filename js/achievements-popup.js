@@ -380,7 +380,33 @@
 
         if (id) {
             markKnown(id);
+            lightNavbarDot();
             document.dispatchEvent(new CustomEvent('cripsum:achievement', { detail: { id } }));
+        }
+    }
+
+    /**
+     * Accende subito il pallino degli achievement nella navbar (sulla voce
+     * del menu e sull'avatar). Al caricamento di una pagina lo decide
+     * navbar.js dalla data dell'ultimo sblocco; ma uno sblocco che arriva a
+     * pagina già aperta lì non si vedeva fino alla pagina dopo.
+     */
+    function lightNavbarDot() {
+        let lit = false;
+        document.querySelectorAll('[data-cnav-new-key="achv"]').forEach((tile) => {
+            // Sulla pagina degli achievement lo si sta già guardando.
+            if (tile.classList.contains('is-current')) return;
+            const dot = tile.querySelector('.cnav-dot');
+            if (!dot) return;
+            dot.hidden = false;
+            const tip = (window.CNAV_I18N || {}).achvNew;
+            if (tip) tile.setAttribute('data-cnav-tip', tip);
+            lit = true;
+        });
+        if (lit) {
+            document.querySelectorAll('.cnav-trigger--account, .cnav-avatar-btn').forEach((element) => {
+                element.classList.add('has-news');
+            });
         }
     }
 
@@ -388,7 +414,7 @@
      * Chiede al server di sbloccare un achievement. Risolve `true` solo se
      * è stato sbloccato adesso.
      */
-    async function unlockAchievement(rawId) {
+    async function unlockAchievement(rawId, retried) {
         const id = Number.parseInt(rawId, 10) || 0;
         if (!id) return false;
 
@@ -406,6 +432,15 @@
                 headers: { 'X-CSRF-Token': token },
                 body: new URLSearchParams({ achievement_id: String(id), csrf_token: token, lang })
             });
+
+            if (response.status === 403 && retried !== true) {
+                // Il server vuole sapere che si è passati da questa pagina, e
+                // lo impara dal primo battito di presenza: una richiesta
+                // partita appena la pagina si apre può arrivare prima. Si
+                // riprova una volta, qualche secondo dopo.
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+                return unlockAchievement(id, true);
+            }
 
             if (!response.ok) {
                 // Rifiutato (non è il momento, o non si sblocca da qui): non

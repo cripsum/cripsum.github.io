@@ -864,9 +864,24 @@
         unseen = 0;
         document.title = baseTitle;
     });
+    // Fuori dalle chat il giro è lento (20 secondi). Ma quello che può
+    // arrivare lì — un achievement sbloccato, una missione finita — nasce
+    // quasi sempre da un clic: poco dopo un'interazione si controlla una
+    // volta in più, mai più spesso di ogni dieci secondi. La domanda non
+    // apre il database, quindi costa poco.
+    let nudgedAt = 0;
+    function nudge() {
+        if (mode === 'chat' || off || document.visibilityState !== 'visible') return;
+        const now = Date.now();
+        if (now - nudgedAt < 10000) return;
+        nudgedAt = now;
+        schedule(2500);
+    }
+
     ['pointerdown', 'keydown'].forEach((name) => {
         window.addEventListener(name, () => {
             lastActivity = Date.now();
+            nudge();
         }, { passive: true, capture: true });
     });
     window.addEventListener('online', () => {

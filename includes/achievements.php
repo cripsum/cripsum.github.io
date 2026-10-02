@@ -14,7 +14,7 @@
  *      tabelle che ha già — casse aperte, amici, giorni attivi — e assegna
  *      quando il numero arriva alla soglia. Il conto parte:
  *        - dopo l'azione che lo fa salire (pull, duello, amicizia, missione);
- *        - dal battito di presenza, una volta ogni dieci minuti per sessione;
+ *        - dal battito di presenza, una volta ogni tre minuti per sessione;
  *        - quando si apre la pagina degli achievement.
  *      Nessuno di questi numeri arriva dal browser.
  *   2. `claim_client = 1`: quelli che il server non può vedere (il jackpot
@@ -106,8 +106,31 @@ const ACH_LEGACY_SERVER_ONLY = [2];
 /** Quanti sblocchi può chiedere un browser in un minuto. */
 const ACH_CLIENT_CLAIMS_PER_MINUTE = 12;
 
-/** Ogni quanto il battito di presenza rifà i conti, per sessione. */
-const ACH_HEARTBEAT_SYNC_SECONDS = 600;
+/** Ogni quanto il battito di presenza rifà tutti i conti, per sessione. */
+const ACH_HEARTBEAT_SYNC_SECONDS = 180;
+
+/**
+ * Le azioni del sito che possono far scattare un achievement, e la sorgente
+ * da ricontare. Le chiavi sono gli eventi di includes/mission_tracker.php:
+ * passa già tutto di lì, quindi non serve toccare i singoli endpoint.
+ * Gacha, potenziamenti, duelli e amicizie hanno il loro aggancio diretto.
+ */
+const ACH_EVENT_SOURCES = [
+    'use_global_chat'      => ['chat'],
+    'send_private_message' => ['chat'],
+    'comment_post'         => ['content'],
+    'vote_rimasti'         => ['stats'],
+    'win_animespot'        => ['stats'],
+    'animespot_first_try'  => ['stats'],
+    'win_pullspot'         => ['stats'],
+    'play_subway'          => ['stats'],
+    'visit_cripsumpedia'   => ['stats'],
+    'shop_purchase'        => ['shop'],
+    'edit_profile'         => ['profile', 'user'],
+];
+
+/** Sorgenti mosse da azioni frequenti: non più di un conto ogni tanti secondi. */
+const ACH_EVENT_THROTTLE = ['chat' => 30];
 
 /** Per quanto vale il conto di «ce l'ha il 3% dei giocatori». */
 const ACH_RARITY_TTL = 600;
@@ -887,7 +910,7 @@ function ach_grant(mysqli $mysqli, int $userId, int $achievementId, array $optio
     }
 
     if ($granted) {
-        ach_queue_effects($mysqli, $userId, $achievementId, !empty($options['quiet']));
+        ach_queue_effects($mysqli, $userId, $achievementId, !empty($options['quiet']), !empty($options['synced']));
     }
 
     return $granted;
@@ -900,12 +923,12 @@ function &ach_effects_queue(): array
     return $queue;
 }
 
-function ach_queue_effects(mysqli $mysqli, int $userId, int $achievementId, bool $quiet = false): void
+function ach_queue_effects(mysqli $mysqli, int $userId, int $achievementId, bool $quiet = false, bool $synced = false): void
 {
     static $registered = false;
 
     $queue = &ach_effects_queue();
-    $queue[] = ['user' => $userId, 'id' => $achievementId, 'quiet' => $quiet];
+    $queue[] = ['user' => $userId, 'id' => $achievementId, 'quiet' => $quiet, 'synced' => $synced];
 
     if (!$registered) {
         $registered = true;
@@ -927,11 +950,20 @@ function ach_queue_effects(mysqli $mysqli, int $userId, int $achievementId, bool
 function ach_flush_effects(mysqli $mysqli): void
 {
     $queue = &ach_effects_queue();
-    if ($queue === []) {
-        return;
+
+    // Più giri: «sbloccane 10» può scattare proprio per l'achievement appena
+    // assegnato, e a sua volta ha i suoi effetti.
+    for ($round = 0; $round < 4 && $queue !== []; $round++) {
+        $pending = $queue;
+        $queue = [];
+        ach_flush_effects_round($mysqli, $pending);
     }
-    $pending = $queue;
-    $queue = [];
+}
+
+/** Un giro di effetti: vedi ach_flush_effects(). */
+function ach_flush_effects_round(mysqli $mysqli, array $pending): void
+{
+    $direct = [];
 
     try {
         $catalog = ach_catalog($mysqli);
@@ -943,6 +975,9 @@ function ach_flush_effects(mysqli $mysqli): void
             $exists = ach_scalar($mysqli, 'SELECT COUNT(*) FROM utenti_achievement WHERE utente_id = ? AND achievement_id = ?', 'ii', [$userId, $id]);
             if (!$exists) {
                 continue;
+            }
+            if (empty($item['synced'])) {
+                $direct[$userId] = true;
             }
 
             stats_track_many($mysqli, $userId, [
@@ -967,11 +1002,113 @@ function ach_flush_effects(mysqli $mysqli): void
             }
         }
 
+        // Chi ha ricevuto un achievement senza passare da ach_sync (lo ha
+        // chiesto il browser, o lo ha assegnato il codice) può aver raggiunto
+        // «sbloccane 10»: si riconta solo quello.
+        foreach (array_keys($direct) as $userId) {
+            ach_sync($mysqli, (int)$userId, []);
+        }
+
         // Le statistiche si scrivono a fine richiesta con un'altra funzione
         // di chiusura, che può essere già passata: meglio svuotare qui.
         stats_flush($mysqli);
     } catch (Throwable $e) {
         error_log('[achievements] effetti: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Un'azione del sito è appena successa (la chiama il tracker delle missioni).
+ *
+ * Prima gli achievement «commenta 10 volte» o «compra al negozio» si
+ * accorgevano del traguardo solo al ricalcolo periodico, o quando si apriva
+ * la pagina degli achievement — dove l'assegnazione è silenziosa: niente
+ * popup e niente pallino. Qui il conto riparte subito, per la sola sorgente
+ * che quell'azione muove.
+ *
+ * Il conto vero si fa a fine richiesta (ach_run_deferred): così vede anche
+ * i contatori del Rewind che questa richiesta non ha ancora scritto, e non
+ * entra nella transazione di chi chiama.
+ */
+function ach_on_event(mysqli $mysqli, int $userId, string $event, bool $missionDone = false): void
+{
+    if ($userId <= 0) {
+        return;
+    }
+
+    $sources = ACH_EVENT_SOURCES[$event] ?? [];
+    if ($missionDone) {
+        $sources[] = 'missions';
+    }
+    if (!$sources) {
+        return;
+    }
+
+    // In chat si scrive a raffica: un conto ogni mezzo minuto basta. Il
+    // promemoria sta in sessione; a sessione già chiusa si conta e basta.
+    $now = time();
+    $mine = session_status() === PHP_SESSION_ACTIVE && (int)($_SESSION['user_id'] ?? 0) === $userId;
+    foreach ($sources as $i => $source) {
+        $every = ACH_EVENT_THROTTLE[$source] ?? 0;
+        if ($every <= 0 || !$mine) {
+            continue;
+        }
+        $last = is_array($_SESSION['ach_evt'] ?? null) ? (int)($_SESSION['ach_evt'][$source] ?? 0) : 0;
+        if ($now - $last < $every) {
+            unset($sources[$i]);
+            continue;
+        }
+        $_SESSION['ach_evt'] = [$source => $now] + (is_array($_SESSION['ach_evt'] ?? null) ? $_SESSION['ach_evt'] : []);
+    }
+
+    if ($sources) {
+        ach_defer_sync($mysqli, $userId, array_values($sources));
+    }
+}
+
+/** Sorgenti da ricontare a fine richiesta: utente => sorgente => true. */
+function &ach_deferred_queue(): array
+{
+    static $queue = [];
+    return $queue;
+}
+
+function ach_defer_sync(mysqli $mysqli, int $userId, array $sources): void
+{
+    static $registered = false;
+
+    $queue = &ach_deferred_queue();
+    foreach ($sources as $source) {
+        $queue[$userId][(string)$source] = true;
+    }
+
+    if (!$registered) {
+        $registered = true;
+        register_shutdown_function(static function () use ($mysqli) {
+            ach_run_deferred($mysqli);
+        });
+    }
+}
+
+function ach_run_deferred(mysqli $mysqli): void
+{
+    $queue = &ach_deferred_queue();
+    if ($queue === []) {
+        return;
+    }
+    $pending = $queue;
+    $queue = [];
+
+    try {
+        // I contatori del Rewind di questa richiesta sono ancora in memoria:
+        // senza scriverli il conto sarebbe indietro di uno.
+        stats_flush($mysqli);
+
+        foreach ($pending as $userId => $sources) {
+            ach_sync($mysqli, (int)$userId, array_keys($sources));
+        }
+    } catch (Throwable $e) {
+        error_log('[achievements] conti a fine richiesta: ' . $e->getMessage());
     }
 }
 
@@ -1018,7 +1155,7 @@ function ach_sync(mysqli $mysqli, int $userId, ?array $sources = null, array $op
             $values = ach_values($mysqli, $userId, array_column($pending, 'metrica'));
             foreach ($pending as $id => $entry) {
                 $value = $values[$entry['metrica']] ?? null;
-                if ($value !== null && $value >= $entry['soglia'] && ach_grant($mysqli, $userId, $id, $options)) {
+                if ($value !== null && $value >= $entry['soglia'] && ach_grant($mysqli, $userId, $id, $options + ['synced' => true])) {
                     $granted[] = $id;
                     $unlocked[$id] = ['at' => null, 'claimed' => false];
                 }
@@ -1031,7 +1168,7 @@ function ach_sync(mysqli $mysqli, int $userId, ?array $sources = null, array $op
             $values = ach_values_from_unlocked($catalog, $unlocked);
             $again = false;
             foreach ($selfPending as $id => $entry) {
-                if (($values[$entry['metrica']] ?? 0) >= $entry['soglia'] && ach_grant($mysqli, $userId, $id, $options)) {
+                if (($values[$entry['metrica']] ?? 0) >= $entry['soglia'] && ach_grant($mysqli, $userId, $id, $options + ['synced' => true])) {
                     $granted[] = $id;
                     $unlocked[$id] = ['at' => null, 'claimed' => false];
                     unset($selfPending[$id]);
@@ -1054,7 +1191,8 @@ function ach_sync(mysqli $mysqli, int $userId, ?array $sources = null, array $op
  *
  * Due cose: «hai aperto la sezione X» — che vale anche per chi ha spento le
  * statistiche del Rewind, perché non passa da lì — e il ricalcolo generale,
- * al massimo una volta ogni dieci minuti.
+ * al massimo una volta ogni tre minuti (le azioni che fanno scattare un
+ * achievement lo fanno ripartire da sole: vedi ach_on_event).
  *
  * @return int[] id appena assegnati: il battito li rimanda al browser, che
  *               mostra il popup senza aspettare il giro del tempo reale
@@ -1089,9 +1227,16 @@ function ach_heartbeat(mysqli $mysqli, int $userId, string $pageKey, bool $flush
         }
     }
 
-    if ($flushed && $now - (int)($_SESSION['ach_sync_at'] ?? 0) >= ACH_HEARTBEAT_SYNC_SECONDS) {
-        $_SESSION['ach_sync_at'] = $now;
-        $granted = array_merge($granted, ach_sync($mysqli, $userId));
+    if ($flushed) {
+        if ($now - (int)($_SESSION['ach_sync_at'] ?? 0) >= ACH_HEARTBEAT_SYNC_SECONDS) {
+            $_SESSION['ach_sync_at'] = $now;
+            $granted = array_merge($granted, ach_sync($mysqli, $userId));
+        } else {
+            // Fra un ricalcolo completo e l'altro si guarda solo la riga
+            // dell'utente (una query): Godos, Premium, verifica in due
+            // passaggi, Discord, visite al profilo.
+            $granted = array_merge($granted, ach_sync($mysqli, $userId, ['user']));
+        }
     }
 
     return array_values(array_unique($granted));

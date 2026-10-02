@@ -178,7 +178,7 @@
         <script src="/js/controlloTema.js"></script>
         <script src="/js/impostazioni.js?v=2"></script>
         <?php /* Popup e richieste di sblocco: un file solo per le due lingue. Il resto lo conta il server (includes/achievements.php). */ ?>
-        <script src="/js/achievements-popup.js?v=3.0"></script>
+        <script src="/js/achievements-popup.js?v=3.1"></script>
         <!-- <script src="/js/nomePagina.js"></script> -->
 
         <meta charset="UTF-8" />

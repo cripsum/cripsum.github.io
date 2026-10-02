@@ -38,7 +38,7 @@ checkBan($mysqli);
 
   <script src="../js/controlloLingua-it.js"></script>
   <script src="../js/controlloTema.js"></script>
-  <script src="../js/achievements-popup.js?v=3.0"></script>
+  <script src="../js/achievements-popup.js?v=3.1"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Opendata™</title>

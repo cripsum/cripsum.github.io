@@ -154,6 +154,12 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
         trackStatsForMissionEvent($mysqli, $userId, $evento, $quantita);
     }
 
+    // ── Achievement ───────────────────────────────────────────
+    // Stesso principio: l'azione è già passata di qui, quindi gli
+    // achievement che ne dipendono si ricontano subito invece di aspettare
+    // il ricalcolo periodico. Il conto vero parte a fine richiesta.
+    trackAchievementsForMissionEvent($mysqli, $userId, $evento);
+
     // Inizializza le missioni per oggi/questa settimana se non ancora fatto in
     // questa sessione.
     //
@@ -269,6 +275,11 @@ function trackMissionProgress(mysqli $mysqli, int $userId, string $evento, int $
         $mysqli->rollback();
         error_log('[MissionTracker] Errore su evento "' . $evento . '" user ' . $userId . ': ' . $e->getMessage());
         return [];
+    }
+
+    // Una missione appena completata può valere «completa N missioni».
+    if ($newlyDone) {
+        trackAchievementsForMissionEvent($mysqli, $userId, $evento, true);
     }
 
     return $newlyDone;
@@ -422,4 +433,28 @@ function trackStatsForMissionEvent(mysqli $mysqli, int $userId, string $evento, 
     // stats_track() non lancia mai: se la migration non è stata applicata
     // esce da sola e le missioni proseguono normalmente.
     stats_track($mysqli, $userId, $map[$evento], $quantita);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  PONTE VERSO GLI ACHIEVEMENT
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Dice al motore degli achievement che un'azione è appena successa.
+ *
+ * Quali azioni contano e cosa fanno ricontare lo decide
+ * includes/achievements.php (ACH_EVENT_SOURCES): qui si passa solo la
+ * notizia. Non lancia mai: un achievement che non parte non deve far
+ * fallire il messaggio, il voto o l'acquisto che lo ha provocato.
+ *
+ * @param bool $missioneCompletata vero se l'evento ha appena chiuso una missione
+ */
+function trackAchievementsForMissionEvent(mysqli $mysqli, int $userId, string $evento, bool $missioneCompletata = false): void
+{
+    try {
+        require_once __DIR__ . '/achievements.php';
+        ach_on_event($mysqli, $userId, $evento, $missioneCompletata);
+    } catch (Throwable $e) {
+        error_log('[MissionTracker achievement] ' . $e->getMessage());
+    }
 }
