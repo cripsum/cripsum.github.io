@@ -67,6 +67,7 @@
             minutes: 'min',
             rankNext: (n, name) => `${n} punti a ${name}`,
             rankMax: 'Grado massimo raggiunto',
+            konamiAgain: 'Codice riconosciuto. L\'achievement ce l\'hai già, ma che stile.',
             of: (a, b) => `${a} su ${b}`
         },
         en: {
@@ -106,6 +107,7 @@
             minutes: 'min',
             rankNext: (n, name) => `${n} points to ${name}`,
             rankMax: 'Highest rank reached',
+            konamiAgain: 'Code accepted. You already have the achievement, but nice moves.',
             of: (a, b) => `${a} of ${b}`
         }
     }[lang];
@@ -1050,20 +1052,226 @@
         // da una richiesta di questa pagina): si rileggono i dati.
         document.addEventListener('cripsum:achievement', refresh);
 
-        // ↑ ↑ ↓ ↓ ← → ← → B A
-        const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-        let konamiIndex = 0;
-        document.addEventListener('keydown', (event) => {
-            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
-            const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-            konamiIndex = key === konami[konamiIndex] ? konamiIndex + 1 : (key === konami[0] ? 1 : 0);
-            if (konamiIndex === konami.length) {
-                konamiIndex = 0;
-                const id = Number(data.extras && data.extras.konami_id) || 0;
-                if (id && typeof window.unlockAchievement === 'function') {
-                    window.unlockAchievement(id);
-                }
+        bindKonami();
+    }
+
+    // ── Codice segreto ─────────────────────────────────────────────────────
+    //
+    // ↑ ↑ ↓ ↓ ← → ← → B A. Da tastiera, oppure col dito sull'anello della
+    // testata (quattro direzioni e due tocchi). Dal secondo tasto giusto
+    // compare in basso una fila di tasti che si accendono uno alla volta:
+    // chi lo sta facendo vede che la pagina se n'è accorta, senza che la
+    // fila sveli quelli che mancano.
+
+    const KONAMI = ['U', 'U', 'D', 'D', 'L', 'R', 'L', 'R', 'B', 'A'];
+    const KONAMI_KEYS = { ArrowUp: 'U', ArrowDown: 'D', ArrowLeft: 'L', ArrowRight: 'R', b: 'B', a: 'A' };
+    const KONAMI_GLYPH = {
+        U: '<i class="fa-solid fa-arrow-up" aria-hidden="true"></i>',
+        D: '<i class="fa-solid fa-arrow-down" aria-hidden="true"></i>',
+        L: '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i>',
+        R: '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i>',
+        B: 'B',
+        A: 'A'
+    };
+    const KONAMI_NOTES = [392, 440, 494, 523, 587, 659, 698, 784, 880, 988];
+
+    const konami = { index: 0, hud: null, timer: null, busy: false, audio: null };
+
+    /** Una nota breve: sale a ogni tasto giusto. Rispetta l'interruttore «Suono» degli avvisi. */
+    function konamiTone(frequency, duration, delay) {
+        try {
+            const rt = window.CripsumRT;
+            if (rt && rt.prefs && rt.prefs.sound === false) return;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            konami.audio = konami.audio || new AudioContext();
+            const context = konami.audio;
+            const start = context.currentTime + (delay || 0);
+            const oscillator = context.createOscillator();
+            const gain = context.createGain();
+            oscillator.type = 'triangle';
+            oscillator.frequency.value = frequency;
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.exponentialRampToValueAtTime(0.07, start + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+            oscillator.connect(gain).connect(context.destination);
+            oscillator.start(start);
+            oscillator.stop(start + duration + 0.02);
+        } catch (_) {
+            /* niente audio: il resto funziona lo stesso */
+        }
+    }
+
+    function konamiHud() {
+        if (konami.hud && document.contains(konami.hud)) return konami.hud;
+        const hud = document.createElement('div');
+        hud.className = 'ach-konami';
+        hud.setAttribute('aria-hidden', 'true');
+        hud.style.position = 'fixed';
+        hud.innerHTML = KONAMI.map(() => '<span class="ach-konami__key"></span>').join('');
+        document.body.appendChild(hud);
+        konami.hud = hud;
+        return hud;
+    }
+
+    function konamiPaint() {
+        const hud = konamiHud();
+        $$('.ach-konami__key', hud).forEach((key, i) => {
+            const on = i < konami.index;
+            if (on && !key.classList.contains('is-on')) {
+                key.innerHTML = KONAMI_GLYPH[KONAMI[i]];
+                key.classList.add('is-on');
+            } else if (!on) {
+                key.classList.remove('is-on');
+                key.innerHTML = '';
             }
+        });
+        hud.classList.remove('is-wrong', 'is-done');
+        hud.classList.add('is-visible');
+    }
+
+    function konamiHide(delay) {
+        clearTimeout(konami.timer);
+        konami.timer = setTimeout(() => {
+            konami.index = 0;
+            if (konami.hud) konami.hud.classList.remove('is-visible', 'is-wrong', 'is-done');
+        }, delay);
+    }
+
+    /** Il gran finale: lampo, coriandoli dall'alto, le card che fanno l'onda. */
+    function konamiParty() {
+        [523, 659, 784, 1047].forEach((note, i) => konamiTone(note, 0.22, i * 0.09));
+        if (reduceMotion) return;
+
+        const layer = document.createElement('div');
+        layer.className = 'ach-konami-fx';
+        layer.setAttribute('aria-hidden', 'true');
+        layer.style.position = 'fixed';
+        const colors = ['#5b8cff', '#a78bfa', '#f4c343', '#34d399', '#ff7bd5', '#86d6ea'];
+        let pieces = '<span class="ach-konami-fx__flash"></span>';
+        for (let i = 0; i < 70; i += 1) {
+            pieces += `<i style="left:${(Math.random() * 100).toFixed(2)}%;background:${colors[i % colors.length]};`
+                + `--d:${Math.round(Math.random() * 700)}ms;--t:${1500 + Math.round(Math.random() * 1300)}ms;`
+                + `--x:${Math.round(Math.random() * 160 - 80)}px;--r:${Math.round(Math.random() * 900 - 450)}deg"></i>`;
+        }
+        layer.innerHTML = pieces;
+        document.body.appendChild(layer);
+        setTimeout(() => layer.remove(), 3400);
+
+        // L'onda parte dalle card che si vedono, una dopo l'altra.
+        $$('.ach-card', grid).filter((card) => {
+            const rect = card.getBoundingClientRect();
+            return rect.bottom > 0 && rect.top < window.innerHeight;
+        }).forEach((card, i) => {
+            card.style.setProperty('--k', String(i));
+            card.classList.remove('is-enter');
+            card.classList.add('is-wave');
+            setTimeout(() => card.classList.remove('is-wave'), 1500 + i * 45);
+        });
+
+        const ring = $('.ach-ring');
+        if (ring) {
+            ring.classList.add('is-spin');
+            setTimeout(() => ring.classList.remove('is-spin'), 1300);
+        }
+    }
+
+    function konamiFeed(symbol) {
+        if (konami.busy) return false;
+        const expected = KONAMI[konami.index];
+
+        if (symbol !== expected) {
+            const wasVisible = konami.index >= 2;
+            // ↑ ↑ ↑ resta a due: gli ultimi due tasti sono ancora quelli giusti.
+            konami.index = symbol === 'U' ? Math.min(konami.index === 2 ? 2 : 1, 2) : 0;
+            if (wasVisible && konami.index < 2) {
+                konami.hud.classList.add('is-wrong');
+                konamiTone(140, 0.18);
+                konamiHide(520);
+            } else if (konami.index >= 2) {
+                konamiHide(4000);
+            }
+            return false;
+        }
+
+        konami.index += 1;
+        if (konami.index >= 2) {
+            konamiPaint();
+            konamiTone(KONAMI_NOTES[konami.index - 1], 0.11);
+            konamiHide(4000);
+        }
+
+        if (konami.index === KONAMI.length) {
+            konami.busy = true;
+            clearTimeout(konami.timer);
+            konami.hud.classList.add('is-done');
+            konamiParty();
+
+            const id = Number(data.extras && data.extras.konami_id) || 0;
+            if (id && typeof window.unlockAchievement === 'function') {
+                window.unlockAchievement(id);
+            } else {
+                toast(T.konamiAgain, 'gold');
+            }
+
+            setTimeout(() => {
+                konami.busy = false;
+                konamiHide(0);
+            }, 2200);
+        }
+
+        return true;
+    }
+
+    function bindKonami() {
+        // In cattura: quando il codice è in corso frecce e lettere non devono
+        // far scorrere la pagina né cambiare linguetta.
+        document.addEventListener('keydown', (event) => {
+            if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+            const target = event.target;
+            if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+            if ((dialog && dialog.open) || (target instanceof Element && target.closest('[data-ach-sort]'))) return;
+
+            const symbol = KONAMI_KEYS[event.key.length === 1 ? event.key.toLowerCase() : event.key];
+            if (!symbol) {
+                if (konami.index >= 2 && !['Shift', 'Control', 'Alt', 'Meta', 'Tab'].includes(event.key)) konamiFeed('?');
+                return;
+            }
+
+            const inProgress = konami.index >= 2;
+            const matched = konamiFeed(symbol);
+            if (matched && inProgress) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }, true);
+
+        // Col dito: sull'anello della testata, dove uno scorrimento non
+        // trascina la pagina. Quattro direzioni, poi due tocchi per B e A.
+        const pad = $('.ach-ring');
+        if (!pad) return;
+        let start = null;
+
+        pad.addEventListener('pointerdown', (event) => {
+            if (event.pointerType === 'mouse') return;
+            start = { x: event.clientX, y: event.clientY };
+        });
+        pad.addEventListener('pointerup', (event) => {
+            if (!start || event.pointerType === 'mouse') return;
+            const dx = event.clientX - start.x;
+            const dy = event.clientY - start.y;
+            start = null;
+
+            if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) {
+                // Un tocco vale il tasto che manca, se è B o A.
+                const expected = KONAMI[konami.index];
+                konamiFeed(expected === 'B' || expected === 'A' ? expected : '?');
+                return;
+            }
+            konamiFeed(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'D' : 'U'));
+        });
+        pad.addEventListener('pointercancel', () => {
+            start = null;
         });
     }
 

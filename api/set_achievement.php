@@ -4,8 +4,9 @@
  *
  * Chi decide è includes/achievements.php (ach_client_claim): quelli che conta
  * il server si ricontrollano sul momento, quelli che solo il browser può
- * vedere (gambling, le 3 di notte) passano con un limite al minuto, tutti gli
- * altri si rifiutano. Da qui non esce mai valuta.
+ * vedere (gambling, le 3 di notte) passano se la richiesta è plausibile e con
+ * un limite al minuto, tutti gli altri si rifiutano. Da qui non esce mai
+ * valuta: il premio si riscuote a parte, da api/achievements/claim.php.
  *
  * Endpoint : POST /api/set_achievement.php
  * Auth     : sessione PHP + token CSRF (header X-CSRF-Token o campo csrf_token)

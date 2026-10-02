@@ -3,7 +3,7 @@
  * Achievement: incassa il premio in Godos.
  *
  * Il browser dice solo quale achievement (o «tutti»): quanto vale lo legge il
- * server dal catalogo, e solo per gli achievement che ha assegnato lui.
+ * server dal catalogo, e solo per gli achievement che risultano sbloccati.
  * Doppio clic e richieste in parallelo sono coperti da ach_claim(), che
  * blocca la riga dell'utente prima di toccare qualsiasi cosa.
  *

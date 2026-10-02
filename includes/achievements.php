@@ -19,8 +19,9 @@
  *      Nessuno di questi numeri arriva dal browser.
  *   2. `claim_client = 1`: quelli che il server non può vedere (il jackpot
  *      del gambling, le 3 di notte secondo l'orologio di chi guarda). Li
- *      chiede il browser ad api/set_achievement.php. Sono un ricordo, non una
- *      prova: per questo non hanno mai un premio in Godos.
+ *      chiede il browser ad api/set_achievement.php. Hanno un premio anche
+ *      loro (scelta del 2/10/2026), ma piccolo: il server controlla solo
+ *      quello che può — vedi ach_client_plausible().
  *   3. Né l'uno né l'altro: li assegna solo il codice, con ach_grant()
  *      (la foto profilo personalizzata).
  *
@@ -757,12 +758,6 @@ function ach_catalog(mysqli $mysqli, bool $refresh = false): array
             ];
         }
 
-        // Un premio su un achievement che il browser può chiedere sarebbe
-        // Godos gratis per chiunque sappia fare una POST: non esiste.
-        if ($entry['claim_client']) {
-            $entry['ricompensa'] = 0;
-        }
-
         $catalog[$id] = $entry + [
             'id'             => $id,
             'nome'           => (string)($row['nome'] ?? ''),
@@ -1107,13 +1102,104 @@ function ach_heartbeat(mysqli $mysqli, int $userId, string $pageKey, bool $flush
 // ─────────────────────────────────────────────────────────────
 
 /**
+ * La pagina su cui scatta ogni achievement che chiede il browser: chi lo
+ * chiede deve esserci passato in questa sessione (lo sa il battito di
+ * presenza, vedi ach_heartbeat). «Tocca l'erba» scatta ovunque e il merch ha
+ * il suo permesso, quindi qui non ci sono.
+ */
+const ACH_CLIENT_SECTIONS = [
+    'jackpot'        => 'gambling',
+    'speedrunner'    => 'gambling',
+    'clickbaitato'   => 'home',
+    'goat'           => 'donazioni',
+    'fanatico-edit'  => 'edits',
+    'gooning-streak' => 'goonland',
+    'konami'         => 'achievements',
+];
+
+/** Un cookie JSON scritto dal browser (`encodeURIComponent(JSON.stringify(v))`), come lista. */
+function ach_cookie_list(string $name): array
+{
+    $raw = (string)($_COOKIE[$name] ?? '');
+    if ($raw === '') {
+        return [];
+    }
+    $value = json_decode($raw, true);
+    if (!is_array($value)) {
+        $value = json_decode(urldecode($raw), true);
+    }
+
+    return is_array($value) ? $value : [];
+}
+
+/**
+ * Quello che si può controllare di un achievement che chiede il browser.
+ *
+ * Il server non vede il jackpot né l'orologio di chi guarda, e da quando
+ * questi achievement hanno un premio in Godos non basta più fidarsi: chi
+ * manda la richiesta deve almeno essere stato sulla pagina giusta, e dove c'è
+ * un cookie che racconta il progresso (edit guardati, giorni di Goon
+ * Generator) il cookie deve tornare con quello che sa il server. Non è una
+ * prova — un cookie si scrive a mano — ma una richiesta mandata a vuoto da
+ * uno script non passa, e i premi di questi achievement restano piccoli.
+ *
+ * Senza la migration v3 (nessun premio in gioco) vale la regola di sempre.
+ */
+function ach_client_plausible(mysqli $mysqli, int $userId, array $entry): bool
+{
+    $key = (string)$entry['chiave'];
+    if ($key === '') {
+        return true;
+    }
+
+    $section = ACH_CLIENT_SECTIONS[$key] ?? null;
+    if ($section !== null && empty($_SESSION['ach_sections'][$section])) {
+        return false;
+    }
+
+    if ($key === 'fanatico-edit') {
+        // Tutti gli edit pubblicati devono stare fra quelli segnati come visti.
+        $rows = ach_rows($mysqli, "SELECT id FROM edits WHERE stato = 'pubblicato'");
+        if ($rows) {
+            $watched = array_flip(array_map('intval', ach_cookie_list('watchedVideos')));
+            foreach ($rows as $row) {
+                if (!isset($watched[(int)$row['id']])) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    if ($key === 'gooning-streak') {
+        // Dieci giorni diversi, nessuno nel futuro, e un account che esiste
+        // da abbastanza tempo per averli vissuti.
+        $today = date('Y-m-d');
+        $days = [];
+        foreach (ach_cookie_list('daysVisitedGoon') as $day) {
+            if (is_string($day) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $day) && $day <= $today) {
+                $days[$day] = true;
+            }
+        }
+        if (count($days) < max(1, (int)$entry['soglia'])) {
+            return false;
+        }
+        $age = ach_values($mysqli, $userId, ['account_days'])['account_days'] ?? null;
+        if ($age !== null && $age < (int)$entry['soglia'] - 1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
  * Il browser chiede un achievement (api/set_achievement.php).
  *
  * - Se è uno di quelli che conta il server, la richiesta vale «controlla
  *   adesso»: si rifà il conto e si assegna solo se torna.
- * - Se è uno di quelli che solo il browser può vedere, si assegna — per il
- *   merch solo col permesso lasciato in sessione dalla pagina di conferma
- *   dell'ordine.
+ * - Se è uno di quelli che solo il browser può vedere, si assegna se la
+ *   richiesta è almeno plausibile (ach_client_plausible) — per il merch solo
+ *   col permesso lasciato in sessione dalla pagina di conferma dell'ordine.
  * - Tutti gli altri si rifiutano.
  * In ogni caso con un limite di richieste al minuto per sessione.
  *
@@ -1171,6 +1257,10 @@ function ach_client_claim(mysqli $mysqli, int $userId, int $achievementId): stri
         return 'not_eligible';
     }
 
+    if (!ach_client_plausible($mysqli, $userId, $entry)) {
+        return 'not_eligible';
+    }
+
     if (!ach_grant($mysqli, $userId, $achievementId)) {
         return 'already_unlocked';
     }
@@ -1220,7 +1310,7 @@ function ach_claim(mysqli $mysqli, int $userId, ?int $achievementId = null): arr
                 FROM utenti_achievement ua
                 INNER JOIN achievement a ON a.id = ua.achievement_id
                 WHERE ua.utente_id = ? AND ua.riscattato = 0
-                  AND a.ricompensa > 0 AND a.claim_client = 0';
+                  AND a.ricompensa > 0';
         if ($achievementId !== null) {
             $sql .= ' AND a.id = ?';
         }
@@ -1594,8 +1684,7 @@ function ach_admin_fields(array $input, bool $v3)
         'soglia'       => max(1, min(100000000, (int)($input['soglia'] ?? 1))),
         'serie'        => $series !== '' ? $series : null,
         'ordine'       => max(0, min(1000000, (int)($input['ordine'] ?? 0))),
-        // Quello che chiede il browser non paga mai: vedi ach_catalog().
-        'ricompensa'   => $client ? 0 : max(0, min(100000, (int)($input['ricompensa'] ?? 0))),
+        'ricompensa'   => max(0, min(100000, (int)($input['ricompensa'] ?? 0))),
         'claim_client' => $client,
         'attivo'       => $flag('attivo'),
     ];

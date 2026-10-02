@@ -624,7 +624,7 @@
             <div class="admin-field admin-field--full"><label>Come si sblocca</label>
                 <select name="modo" id="achModo">
                     <option value="server" ${mode === 'server' ? 'selected' : ''}>Lo conta il server (consigliato)</option>
-                    <option value="client" ${mode === 'client' ? 'selected' : ''}>Lo chiede il browser (minigiochi, cookie): mai premi in Godos</option>
+                    <option value="client" ${mode === 'client' ? 'selected' : ''}>Lo chiede il browser (minigiochi, cookie): il server non può verificarlo, tieni il premio basso</option>
                     <option value="code" ${mode === 'code' ? 'selected' : ''}>Solo dal codice o dal pannello utenti</option>
                 </select>
             </div>
@@ -651,17 +651,11 @@
     const openAchievementForm = (item = null) => {
         openModal(item ? 'Modifica achievement' : 'Nuovo achievement', item ? `ID ${item.id}${item.chiave ? ' · ' + item.chiave : ''}` : '', achievementFormHtml(item || {}), `<button class="admin-btn" data-admin-close="1">Annulla</button><button class="admin-btn admin-btn--primary" id="saveAchievementBtn">Salva</button>`);
 
-        // Metrica e soglia servono solo se conta il server; il premio non
-        // esiste per quelli che chiede il browser.
+        // Metrica e soglia servono solo se conta il server.
         const mode = $('#achModo');
         const syncMode = () => {
             if (!mode) return;
             $$('[data-ach-server]').forEach((field) => { field.hidden = mode.value !== 'server'; });
-            const reward = $('#achRicompensa');
-            if (reward) {
-                reward.disabled = mode.value === 'client';
-                if (reward.disabled) reward.value = 0;
-            }
         };
         mode?.addEventListener('change', syncMode);
         syncMode();
