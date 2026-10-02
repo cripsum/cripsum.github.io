@@ -2,16 +2,21 @@
  * Cripsum™ — contenuto del menu delle notifiche della navbar.
  *
  * Il menu è un popover della navbar come quello dell'account (`#cnav-bell`,
- * emesso da includes/nav_render.php): aprirlo, chiuderlo, posizionarlo e
- * farlo diventare uno sheet su telefono è compito di js/navbar.js, lo stile
- * sta in css/navbar.css. Qui c'è solo ciò che ci va dentro.
+ * emesso da includes/nav_render.php): posizionarlo, chiuderlo e farlo
+ * diventare uno sheet su telefono è compito di js/navbar.js, lo stile sta in
+ * css/navbar.css. Qui c'è ciò che ci va dentro, e il clic sulla campanella.
  *
- * Due sezioni. «Notifiche» è quello che aspetta una risposta o una lettura
+ * Due linguette. «Notifiche» è quello che aspetta una risposta o una lettura
  * (richieste di amicizia e inviti, con i pulsanti per rispondere sul posto;
  * chat non lette; menzioni; ticket). «Posta» sono gli ultimi messaggi del
- * sito. Il contenuto si chiede al server solo quando il menu viene aperto
- * (api/notify/panel.php) e si aggiorna da solo finché resta aperto, con gli
- * eventi che assets/rt/rt.js riceve già.
+ * sito. Le due sezioni stanno una accanto all'altra e si scorre dall'una
+ * all'altra; quella scelta è scritta in `data-tab` sul popover, ed è il CSS
+ * a muovere cursore e binario. Il contenuto si chiede al server solo quando
+ * il menu viene aperto (api/notify/panel.php) e si aggiorna da solo finché
+ * resta aperto, con gli eventi che assets/rt/rt.js riceve già.
+ *
+ * La campanella è un link alla posta: il clic normale apre il menu, con
+ * Ctrl, Shift o il tasto centrale resta un link.
  */
 (() => {
     'use strict';
@@ -61,11 +66,13 @@
         }
     }[lang];
 
+    const TABS = ['news', 'mail'];
     const MAIL_ICONS = { system: 'fa-gear', social: 'fa-user-group', rewards: 'fa-gift', special: 'fa-star' };
     const TYPE_ICONS = { ticket: 'fa-headset', mention: 'fa-at', inbox: 'fa-envelope' };
     const SEEN_KEY = 'cripsum.rt.panel.' + RT.userId;
 
-    const state = { data: null, loadedAt: 0, loading: false, failed: false, seenBefore: 0, firstTime: false };
+    const state = { tab: 'news', data: null, loadedAt: 0, loading: false, failed: false, seenBefore: 0, firstTime: false };
+    const ui = { intro: null, panes: null, tab: {}, badge: {}, pane: {} };
     let reloadTimer = null;
 
     // ── Piccoli aiuti ──────────────────────────────────────────────────────
@@ -99,6 +106,15 @@
         return new Date(ts * 1000).toLocaleDateString(lang === 'en' ? 'en-GB' : 'it-IT', { day: 'numeric', month: 'short' });
     }
 
+    function capped(count) {
+        return count > 99 ? '99+' : String(count);
+    }
+
+    /** Falso dove manca l'API popover: lì navbar.js toglie l'attributo e apre con una classe. */
+    function usesPopover() {
+        return pop.hasAttribute('popover') && typeof pop.showPopover === 'function';
+    }
+
     function isOpen() {
         try {
             if (pop.matches(':popover-open')) return true;
@@ -110,7 +126,7 @@
 
     function close() {
         try {
-            if (pop.hasAttribute('popover') && typeof pop.hidePopover === 'function') {
+            if (usesPopover()) {
                 pop.hidePopover();
                 return;
             }
@@ -187,6 +203,133 @@
         reloadTimer = setTimeout(() => load(true), 700);
     }
 
+    // ── Linguette ──────────────────────────────────────────────────────────
+
+    /**
+     * Il riquadro prende l'altezza della sezione in vista: senza, resterebbe
+     * alto quanto la più lunga delle due. Con il menu chiuso non c'è niente
+     * da misurare, e si lascia com'è.
+     */
+    function fitHeight() {
+        const pane = ui.pane[state.tab];
+        if (!pane || !pane.offsetHeight) return;
+        ui.panes.style.height = pane.offsetHeight + 'px';
+    }
+
+    /**
+     * La sezione nascosta resta nel documento, accanto all'altra: va tolta
+     * dalla tastiera, e dalle voci che navbar.js percorre con le frecce.
+     */
+    function syncPanes() {
+        TABS.forEach((name) => {
+            const active = name === state.tab;
+            const pane = ui.pane[name];
+            ui.tab[name].setAttribute('aria-selected', active ? 'true' : 'false');
+            ui.tab[name].tabIndex = active ? 0 : -1;
+            pane.inert = !active;
+            pane.setAttribute('aria-hidden', active ? 'false' : 'true');
+            pane.querySelectorAll('.cnav-bell__row').forEach((link) => {
+                if (active) link.setAttribute('role', 'menuitem');
+                else link.removeAttribute('role');
+            });
+        });
+    }
+
+    function selectTab(name, focus) {
+        if (!TABS.includes(name)) return;
+        state.tab = name;
+        pop.dataset.tab = name;
+        syncPanes();
+        fitHeight();
+        if (focus) ui.tab[name].focus({ preventScroll: true });
+    }
+
+    /** Si parte da dove c'è qualcosa: prima le notifiche, altrimenti la posta. */
+    function pickTab() {
+        const counters = RT.counters || {};
+        const pendingNews = state.data && Date.now() - state.loadedAt < 15000
+            ? (state.data.notifications || []).length
+            : (Number(counters.friends) || 0) + (Number(counters.chat) || 0);
+        return pendingNews > 0 || !(Number(counters.inbox) > 0) ? 'news' : 'mail';
+    }
+
+    function build() {
+        body.textContent = '';
+
+        ui.intro = el('p', 'cnav-bell__intro', T.intro);
+        ui.intro.hidden = true;
+
+        const tabs = el('div', 'cnav-bell__tabs');
+        tabs.setAttribute('role', 'tablist');
+        const thumb = el('span', 'cnav-bell__thumb');
+        thumb.setAttribute('aria-hidden', 'true');
+        tabs.appendChild(thumb);
+
+        ui.panes = el('div', 'cnav-bell__panes');
+        const track = el('div', 'cnav-bell__track');
+
+        TABS.forEach((name) => {
+            const tab = el('button', 'cnav-bell__tab');
+            tab.type = 'button';
+            tab.id = 'cnavBellTab-' + name;
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('aria-controls', 'cnavBellPane-' + name);
+            const badge = el('span', 'cnav-row__badge');
+            badge.hidden = true;
+            tab.append(el('span', null, T[name]), badge);
+            tab.addEventListener('click', () => selectTab(name, false));
+            tabs.appendChild(tab);
+
+            const pane = el('div', 'cnav-bell__pane');
+            pane.id = 'cnavBellPane-' + name;
+            pane.dataset.pane = name;
+            pane.setAttribute('role', 'tabpanel');
+            pane.setAttribute('aria-labelledby', tab.id);
+            track.appendChild(pane);
+
+            ui.tab[name] = tab;
+            ui.badge[name] = badge;
+            ui.pane[name] = pane;
+        });
+
+        ui.panes.appendChild(track);
+        body.append(ui.intro, tabs, ui.panes);
+
+        // Frecce a destra e sinistra cambiano linguetta da qualsiasi punto
+        // del menu: su e giù sono già di navbar.js, e Tab lo chiude.
+        pop.addEventListener('keydown', (event) => {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+            if (event.target.closest('input, textarea')) return;
+            event.preventDefault();
+            selectTab(event.key === 'ArrowRight' ? 'mail' : 'news', true);
+        });
+
+        // Su telefono le due sezioni si sfogliano anche col dito.
+        let startX = 0;
+        let startY = 0;
+        ui.panes.addEventListener('touchstart', (event) => {
+            const touch = event.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+        }, { passive: true });
+        ui.panes.addEventListener('touchend', (event) => {
+            const touch = event.changedTouches[0];
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+            selectTab(dx < 0 ? 'mail' : 'news', false);
+        }, { passive: true });
+
+        // Le righe arrivano dopo, e un carattere caricato tardi le allunga:
+        // l'altezza del riquadro segue quella della sezione, non il contrario.
+        if (typeof ResizeObserver === 'function') {
+            const watcher = new ResizeObserver(fitHeight);
+            TABS.forEach((name) => watcher.observe(ui.pane[name]));
+        }
+
+        selectTab(state.tab, false);
+    }
+
     // ── Disegno ────────────────────────────────────────────────────────────
 
     let rowIndex = 0;
@@ -196,7 +339,6 @@
         const item = el('div', 'cnav-bell__item' + (options.unread ? ' is-unread' : ''));
         const link = el('a', 'cnav-row cnav-bell__row');
         link.href = options.href;
-        link.setAttribute('role', 'menuitem');
         link.style.setProperty('--i', String(rowIndex++));
         if (options.onClick) link.addEventListener('click', options.onClick);
 
@@ -217,7 +359,7 @@
 
         const meta = el('span', 'cnav-bell__meta');
         meta.appendChild(el('time', null, ago(options.ts)));
-        if (options.count > 0) meta.appendChild(el('span', 'cnav-row__badge', options.count > 99 ? '99+' : String(options.count)));
+        if (options.count > 0) meta.appendChild(el('span', 'cnav-row__badge', capped(options.count)));
         else if (options.gift) {
             const gift = iconEl('fa-gift', 'cnav-bell__gift');
             gift.title = T.rewards;
@@ -296,16 +438,6 @@
         });
     }
 
-    function section(title, count, action) {
-        const wrap = el('div', 'cnav-sect');
-        const head = el('div', 'cnav-bell__head');
-        head.appendChild(el('p', 'cnav-sect__label', title));
-        if (count > 0) head.appendChild(el('span', 'cnav-bell__count', count > 99 ? '99+' : String(count)));
-        if (action) head.appendChild(action);
-        wrap.appendChild(head);
-        return wrap;
-    }
-
     function skeleton(wrap) {
         for (let i = 0; i < 3; i += 1) {
             const line = el('div', 'cnav-bell__skel');
@@ -314,20 +446,49 @@
         }
     }
 
+    function setBadge(name, count) {
+        const badge = ui.badge[name];
+        badge.hidden = !(count > 0);
+        badge.textContent = count > 0 ? capped(count) : '';
+    }
+
+    function readAllBar() {
+        const bar = el('div', 'cnav-bell__bar');
+        const button = el('button', 'cnav-bell__link', T.readAll);
+        button.type = 'button';
+        button.addEventListener('click', async () => {
+            button.disabled = true;
+            try {
+                await request('/api/inbox.php', { action: 'read_all' });
+                // La pagina della posta, se è quella aperta sotto, rilegge l'elenco.
+                document.dispatchEvent(new CustomEvent('cripsum:inbox-changed'));
+                RT.refreshCounters();
+                await load(true);
+            } catch (error) {
+                button.disabled = false;
+                fail(error);
+            }
+        });
+        bar.appendChild(button);
+        return bar;
+    }
+
     function paint() {
         const data = state.data;
-        rowIndex = 0;
-        body.textContent = '';
-
-        if (state.firstTime) body.appendChild(el('p', 'cnav-bell__intro', T.intro));
-
         const news = data ? data.notifications || [] : [];
         const mail = data ? data.mail || [] : [];
-        const mailUnread = data ? Number(data.mail_unread) || 0 : 0;
+        const mailUnread = data ? Number(data.mail_unread) || 0 : Number((RT.counters || {}).inbox) || 0;
+        const newsPane = ui.pane.news;
+        const mailPane = ui.pane.mail;
 
-        const newsSection = section(T.news, news.length);
+        ui.intro.hidden = !state.firstTime;
+        setBadge('news', news.length);
+        setBadge('mail', mailUnread);
+
+        rowIndex = 0;
+        newsPane.textContent = '';
         if (!data && state.failed) {
-            newsSection.appendChild(el('p', 'cnav-bell__note', T.error));
+            newsPane.appendChild(el('p', 'cnav-bell__note', T.error));
             const actions = el('div', 'cnav-bell__actions');
             const retry = el('button', 'cnav-bell__btn', T.retry);
             retry.type = 'button';
@@ -337,37 +498,30 @@
                 load(true);
             });
             actions.appendChild(retry);
-            newsSection.appendChild(actions);
+            newsPane.appendChild(actions);
         } else if (!data) {
-            skeleton(newsSection);
+            skeleton(newsPane);
         } else if (!news.length) {
-            newsSection.appendChild(el('p', 'cnav-bell__note', T.emptyNews));
+            newsPane.appendChild(el('p', 'cnav-bell__note', T.emptyNews));
         } else {
-            news.forEach((item) => newsSection.appendChild(newsRow(item)));
+            news.forEach((item) => newsPane.appendChild(newsRow(item)));
         }
-        body.appendChild(newsSection);
 
-        let readAll = null;
-        if (mailUnread > 0) {
-            readAll = el('button', 'cnav-bell__link', T.readAll);
-            readAll.type = 'button';
-            readAll.addEventListener('click', async () => {
-                readAll.disabled = true;
-                try {
-                    await request('/api/inbox.php', { action: 'read_all' });
-                    RT.refreshCounters();
-                    await load(true);
-                } catch (error) {
-                    readAll.disabled = false;
-                    fail(error);
-                }
-            });
+        rowIndex = 0;
+        mailPane.textContent = '';
+        if (!data && state.failed) {
+            mailPane.appendChild(el('p', 'cnav-bell__note', T.error));
+        } else if (!data) {
+            skeleton(mailPane);
+        } else if (!mail.length) {
+            mailPane.appendChild(el('p', 'cnav-bell__note', T.emptyMail));
+        } else {
+            if (mailUnread > 0) mailPane.appendChild(readAllBar());
+            mail.forEach((item) => mailPane.appendChild(mailRow(item)));
         }
-        const mailSection = section(T.mail, mailUnread, readAll);
-        if (!data && !state.failed) skeleton(mailSection);
-        else if (!mail.length) mailSection.appendChild(el('p', 'cnav-bell__note', T.emptyMail));
-        else mail.forEach((item) => mailSection.appendChild(mailRow(item)));
-        body.appendChild(mailSection);
+
+        syncPanes();
+        fitHeight();
     }
 
     // ── Collegamenti ───────────────────────────────────────────────────────
@@ -381,16 +535,55 @@
         load(false);
     }
 
-    // Con l'API popover l'apertura la annuncia il browser; senza, navbar.js
-    // mette una classe al clic sul pulsante.
+    build();
+
+    // La linguetta di partenza si sceglie prima che il menu compaia: fatto
+    // dopo, cursore e binario scorrerebbero mentre il menu si sta aprendo.
+    pop.addEventListener('beforetoggle', (event) => {
+        if (event.newState !== 'open') return;
+        ui.panes.style.height = '';
+        selectTab(pickTab(), false);
+    });
     pop.addEventListener('toggle', (event) => {
         if (event.newState === 'open') onOpened();
     });
+
+    // La campanella è un link: il clic normale apre il menu, al posto di
+    // seguirlo. Cliccare fuori da un popover lo chiude, e la campanella è
+    // fuori: per non riaprirlo subito va ricordato com'era alla pressione.
+    let pressedWhileOpen = false;
+    document.addEventListener('pointerdown', (event) => {
+        pressedWhileOpen = isOpen() && !!(event.target.closest && event.target.closest('.cnav-inbox'));
+    }, true);
+
     document.addEventListener('click', (event) => {
-        if (!event.target.closest('.cnav-inbox') || pop.hasAttribute('popover')) return;
-        setTimeout(() => {
-            if (isOpen()) onOpened();
-        }, 0);
+        const trigger = event.target.closest('.cnav-inbox');
+        if (!trigger) return;
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+
+        // Da tastiera non c'è stata alcuna pressione: conta solo lo stato.
+        const wasOpen = event.detail > 0 && pressedWhileOpen;
+        pressedWhileOpen = false;
+
+        if (!usesPopover()) {
+            // Senza API popover ha già aperto o chiuso navbar.js.
+            if (isOpen()) {
+                selectTab(pickTab(), false);
+                onOpened();
+            }
+            return;
+        }
+
+        if (wasOpen || isOpen()) {
+            close();
+            return;
+        }
+        try {
+            pop.showPopover();
+        } catch (_) {
+            window.location.href = trigger.href;
+        }
     });
 
     const alerts = document.getElementById('cnavBellAlerts');

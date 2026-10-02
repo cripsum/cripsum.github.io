@@ -1095,6 +1095,9 @@
         RT.setMode('chat');
     }
 
+    // «Segna tutto come letto» dal menu della campanella, con la posta aperta sotto.
+    document.addEventListener('cripsum:inbox-changed', () => reloadQuiet());
+
     // Senza tempo reale la posta si riallinea da sola ogni minuto, a scheda visibile.
     setInterval(() => {
         if (document.visibilityState !== 'visible' || (RT && !RT.isOff())) return;

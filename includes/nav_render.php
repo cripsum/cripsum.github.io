@@ -429,11 +429,15 @@ if (!function_exists('nav_bootstrap')) {
     /**
      * Pulsante delle notifiche (la campanella).
      *
-     * Apre il menu `#cnav-bell`, un popover come quello dell'account: stesse
-     * classi, stesso stile, sheet dal basso sotto i 1200px. Il contenuto lo
-     * riempie assets/rt/panel.js quando si apre. Il numero è posta da
-     * leggere più richieste di amicizia in sospeso, lo stesso conto che
-     * rifà assets/rt/rt.js mentre la pagina è aperta.
+     * È un link alla posta: Ctrl+clic, clic centrale e chi non ha JavaScript
+     * ci arrivano direttamente. Il clic normale lo intercetta
+     * assets/rt/panel.js e apre il menu `#cnav-bell`, un popover come quello
+     * dell'account (stesse classi, sheet dal basso sotto i 1200px).
+     * `popovertarget` su un link non fa niente da solo: serve a js/navbar.js,
+     * che da lì sa a quale pulsante ancorare il menu.
+     *
+     * Il numero è posta da leggere più richieste di amicizia in sospeso, lo
+     * stesso conto che rifà assets/rt/rt.js mentre la pagina è aperta.
      *
      * `$badgeId` distingue la copia mobile da quella desktop: il badge si
      * aggiorna per id, quindi `inbox-unread-count` deve restare quello che era.
@@ -446,7 +450,7 @@ if (!function_exists('nav_bootstrap')) {
             ? $count . ' ' . $t['inbox_unread']
             : $t['inbox_empty'];
         ?>
-        <button type="button"
+        <a href="/<?= $ctx['lang'] ?>/inbox"
             class="cnav-icon-btn cnav-inbox<?= $count > 0 ? ' has-unread' : '' ?>"
             popovertarget="cnav-bell"
             aria-haspopup="dialog"
@@ -457,7 +461,7 @@ if (!function_exists('nav_bootstrap')) {
             <span id="<?= nav_e($badgeId) ?>" class="cnav-icon-btn__badge <?= $count > 0 ? '' : 'd-none' ?>">
                 <?= $count > 99 ? '99+' : $count ?>
             </span>
-        </button>
+        </a>
         <?php
     }
 
