@@ -1592,3 +1592,319 @@ html[data-cnav-theme="light"] .cnav-trigger__pfp-wrap .cnav-dot,
 html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
     --cn-dot-ring: #e9e7e3;
 }
+
+/* ── Menu delle notifiche (campanella) ───────────────────────
+   Stesso contenitore del pannello account (.cnav-pop), stesse righe e
+   stesso piede: qui c'e' solo quello che al pannello account non serve,
+   cioe' righe con avatar, due righe di testo e i pulsanti per rispondere
+   a una richiesta. Il contenuto lo scrive assets/rt/panel.js. */
+
+.cnav-inbox {
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.cnav-inbox[aria-expanded="true"] {
+    background: var(--cn-press);
+    border-color: var(--cn-border);
+    color: var(--cn-text);
+}
+
+.cnav-pop--bell {
+    width: 360px;
+}
+
+/* Etichetta di sezione con il numero e, a destra, un'azione. */
+.cnav-bell__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px 4px 5px 10px;
+}
+
+.cnav-bell__head .cnav-sect__label {
+    margin: 0;
+}
+
+.cnav-bell__count {
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--cn-raise);
+    color: var(--cn-muted);
+    font-size: 0.66rem;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.cnav-bell__link {
+    margin-left: auto;
+    padding: 2px 6px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--cn-muted);
+    font: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: background-color var(--cn-hover-dur) ease, color var(--cn-hover-dur) ease;
+}
+
+.cnav-bell__link:hover,
+.cnav-bell__link:focus-visible {
+    background: var(--cn-hover);
+    color: var(--cn-text);
+}
+
+.cnav-bell__link:focus-visible,
+.cnav-bell__btn:focus-visible {
+    outline: 2px solid var(--cn-accent);
+    outline-offset: -2px;
+}
+
+.cnav-bell__item {
+    border-radius: var(--cn-radius-sm);
+    transition: opacity var(--cn-in) ease, transform var(--cn-in) var(--cn-ease);
+}
+
+.cnav-bell__item.is-busy {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.cnav-bell__item.is-gone {
+    opacity: 0;
+    transform: translateX(14px);
+}
+
+/* La riga e' una .cnav-row: da li' prende rientri, hover e animazione. */
+.cnav-bell__row {
+    align-items: center;
+    gap: 11px;
+}
+
+.cnav-bell__media {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--cn-raise);
+    color: var(--cn-muted);
+    font-size: 0.88rem;
+    overflow: hidden;
+    transition: color var(--cn-hover-dur) ease;
+}
+
+.cnav-bell__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cnav-bell__media.is-icon {
+    border-radius: var(--cn-radius-sm);
+}
+
+.cnav-row:hover .cnav-bell__media.is-icon {
+    color: var(--cn-text);
+}
+
+.cnav-bell__media--rewards {
+    background: var(--cn-staff-bg);
+    color: var(--cn-staff);
+}
+
+.cnav-row:hover .cnav-bell__media--rewards.is-icon {
+    color: var(--cn-staff);
+}
+
+.cnav-bell__text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    line-height: 1.3;
+}
+
+.cnav-bell__title {
+    font-size: 0.86rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cnav-bell__item.is-unread .cnav-bell__title {
+    font-weight: 600;
+}
+
+.cnav-bell__sub {
+    font-size: 0.75rem;
+    color: var(--cn-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cnav-bell__meta {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-size: 0.68rem;
+    color: var(--cn-faint);
+}
+
+.cnav-bell__meta time {
+    white-space: nowrap;
+}
+
+.cnav-bell__meta .cnav-row__badge {
+    font-size: 0.66rem;
+    padding: 0 6px;
+}
+
+.cnav-bell__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--cn-danger);
+}
+
+.cnav-bell__gift {
+    color: var(--cn-staff);
+    font-size: 0.8rem;
+}
+
+/* Accetta / Rifiuta, sotto la riga, allineati al testo. */
+.cnav-bell__actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 10px 8px 55px;
+}
+
+.cnav-bell__btn {
+    padding: 5px 12px;
+    border: 1px solid var(--cn-border-soft);
+    border-radius: var(--cn-radius-sm);
+    background: var(--cn-raise);
+    color: var(--cn-text);
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color var(--cn-hover-dur) ease,
+        border-color var(--cn-hover-dur) ease,
+        color var(--cn-hover-dur) ease;
+}
+
+.cnav-bell__btn:hover {
+    background: var(--cn-hover);
+    border-color: var(--cn-border);
+}
+
+/* Lo stesso segno del pulsante «Registrati» della barra. */
+.cnav-bell__btn--go {
+    background: transparent;
+    border-color: var(--cn-accent);
+    color: var(--cn-accent);
+}
+
+.cnav-bell__btn--go:hover {
+    background: var(--cn-hover);
+    border-color: var(--cn-accent);
+    color: var(--cn-accent);
+}
+
+.cnav-bell__note {
+    margin: 0;
+    padding: 8px 10px 10px;
+    font-size: 0.8rem;
+    color: var(--cn-faint);
+}
+
+.cnav-bell__intro {
+    margin: 0 0 6px;
+    padding: 8px 10px;
+    border-radius: var(--cn-radius-sm);
+    background: var(--cn-raise);
+    color: var(--cn-muted);
+    font-size: 0.76rem;
+    line-height: 1.4;
+}
+
+.cnav-bell__skel {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 8px 10px;
+}
+
+.cnav-bell__skel span {
+    border-radius: 6px;
+    background: var(--cn-raise);
+    animation: cnavBellPulse 1.2s ease-in-out infinite;
+}
+
+.cnav-bell__skel span:first-child {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+}
+
+.cnav-bell__skel span:last-child {
+    width: 62%;
+    height: 12px;
+}
+
+@keyframes cnavBellPulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
+}
+
+@media (max-width: 1199.98px) {
+    .cnav-pop--bell {
+        width: 100%;
+    }
+
+    .cnav-bell__media {
+        width: 40px;
+        height: 40px;
+    }
+
+    .cnav-bell__title {
+        font-size: 0.95rem;
+    }
+
+    .cnav-bell__sub {
+        font-size: 0.8rem;
+    }
+
+    .cnav-bell__actions {
+        padding: 0 12px 10px 63px;
+    }
+
+    .cnav-bell__btn {
+        padding: 9px 16px;
+        font-size: 0.84rem;
+    }
+
+    .cnav-bell__skel span:first-child {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cnav-bell__item,
+    .cnav-bell__skel span {
+        transition: none;
+        animation: none;
+    }
+}

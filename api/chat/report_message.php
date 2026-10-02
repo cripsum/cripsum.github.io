@@ -28,7 +28,7 @@ chat_run(static function () use ($mysqli, $userId, $chatUser): void {
     $reason = mb_substr(cc_clean_text((string)($input['reason'] ?? '')), 0, 500, 'UTF-8');
     $withContext = !empty($input['context']);
 
-    if (!rt_has_table($mysqli, 'site_tickets') || !rt_has_table($mysqli, 'site_ticket_messages')) {
+    if (!cripsum_ticket_tables_ready($mysqli)) {
         throw new ChatError(rt_t('Le segnalazioni non sono disponibili.', 'Reports are not available.'), 503);
     }
     if ($messageId <= 0) {

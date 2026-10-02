@@ -13,6 +13,31 @@ declare(strict_types=1);
 require_once __DIR__ . '/security_helpers.php';
 
 /**
+ * Le tabelle dei ticket esistono? Si chiede al database una volta per
+ * richiesta: è la differenza tra «non hai ticket» e «i ticket non sono
+ * disponibili», e non deve dipendere da una cache.
+ */
+function cripsum_ticket_tables_ready(mysqli $mysqli): bool
+{
+    static $ready = null;
+
+    if ($ready === null) {
+        $ready = false;
+        try {
+            $result = $mysqli->query(
+                "SELECT COUNT(*) FROM information_schema.TABLES
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN ('site_tickets', 'site_ticket_messages')"
+            );
+            $ready = $result instanceof mysqli_result && (int)($result->fetch_row()[0] ?? 0) === 2;
+        } catch (Throwable $e) {
+            error_log('[Tickets] controllo tabelle: ' . $e->getMessage());
+        }
+    }
+
+    return $ready;
+}
+
+/**
  * Argomenti ammessi, gli stessi del modulo di supporto sul sito.
  *
  * @return string[]

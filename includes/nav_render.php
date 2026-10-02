@@ -429,11 +429,11 @@ if (!function_exists('nav_bootstrap')) {
     /**
      * Pulsante delle notifiche (la campanella).
      *
-     * Con JavaScript apre il menu di assets/rt/panel.js: notifiche da una
-     * parte, posta dall'altra. Senza, e con Ctrl+clic, resta un link alla
-     * posta. Il numero è posta da leggere più richieste di amicizia in
-     * sospeso, lo stesso conto che rifà assets/rt/rt.js mentre la pagina è
-     * aperta.
+     * Apre il menu `#cnav-bell`, un popover come quello dell'account: stesse
+     * classi, stesso stile, sheet dal basso sotto i 1200px. Il contenuto lo
+     * riempie assets/rt/panel.js quando si apre. Il numero è posta da
+     * leggere più richieste di amicizia in sospeso, lo stesso conto che
+     * rifà assets/rt/rt.js mentre la pagina è aperta.
      *
      * `$badgeId` distingue la copia mobile da quella desktop: il badge si
      * aggiorna per id, quindi `inbox-unread-count` deve restare quello che era.
@@ -446,15 +446,64 @@ if (!function_exists('nav_bootstrap')) {
             ? $count . ' ' . $t['inbox_unread']
             : $t['inbox_empty'];
         ?>
-        <a href="/<?= $ctx['lang'] ?>/inbox"
+        <button type="button"
             class="cnav-icon-btn cnav-inbox<?= $count > 0 ? ' has-unread' : '' ?>"
+            popovertarget="cnav-bell"
+            aria-haspopup="dialog"
+            data-cnav-anchor="end"
             data-cnav-tip="<?= nav_e($tip) ?>"
             aria-label="<?= nav_e($t['inbox']) ?>">
             <i class="fa-solid fa-bell" aria-hidden="true"></i>
             <span id="<?= nav_e($badgeId) ?>" class="cnav-icon-btn__badge <?= $count > 0 ? '' : 'd-none' ?>">
                 <?= $count > 99 ? '99+' : $count ?>
             </span>
-        </a>
+        </button>
+        <?php
+    }
+
+    /**
+     * Menu delle notifiche: il guscio. Dentro `#cnavBellBody` ci scrive
+     * assets/rt/panel.js; fino ad allora (e senza JavaScript) c'è la riga
+     * che porta alla posta.
+     */
+    function nav_render_bell_panel(array $ctx): void
+    {
+        $t     = $ctx['t'];
+        $lang  = $ctx['lang'];
+        $inbox = (int)$ctx['unreadCount'];
+        ?>
+        <div class="cnav-pop cnav-pop--account cnav-pop--bell" id="cnav-bell" popover role="dialog" aria-label="<?= nav_e($t['inbox']) ?>">
+            <div class="cnav-sheet-head">
+                <span class="cnav-sheet-grip" aria-hidden="true"></span>
+                <span class="cnav-sheet-title"><?= nav_e($t['inbox']) ?></span>
+                <button type="button" class="cnav-sheet-close" popovertarget="cnav-bell" popovertargetaction="hide" aria-label="<?= nav_e($t['close']) ?>">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="cnav-pop__body" id="cnavBellBody">
+                <div class="cnav-sect">
+                    <a class="cnav-row" role="menuitem" href="/<?= $lang ?>/inbox">
+                        <i class="fa-solid fa-envelope cnav-row__ico" aria-hidden="true"></i>
+                        <span class="cnav-row__label"><?= nav_e($t['bell_inbox']) ?></span>
+                        <?php if ($inbox > 0): ?>
+                            <span class="cnav-row__badge"><?= $inbox > 99 ? '99+' : $inbox ?></span>
+                        <?php endif; ?>
+                    </a>
+                </div>
+            </div>
+
+            <div class="cnav-acct-foot">
+                <a class="cnav-foot-btn" role="menuitem" href="/<?= $lang ?>/inbox">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    <span class="cnav-foot-btn__label"><?= nav_e($t['bell_inbox']) ?></span>
+                </a>
+                <button type="button" class="cnav-foot-btn" id="cnavBellAlerts">
+                    <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                    <span class="cnav-foot-btn__label"><?= nav_e($t['bell_alerts']) ?></span>
+                </button>
+            </div>
+        </div>
         <?php
     }
 
@@ -629,6 +678,7 @@ if (!function_exists('nav_bootstrap')) {
 
         <?php if ($isLoggedIn && $ctx['show_account']) {
             nav_render_account_panel($ctx);
+            nav_render_bell_panel($ctx);
         } ?>
 
         <?php if ($emitAssets): ?>

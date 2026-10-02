@@ -386,19 +386,10 @@ if (!function_exists('rt_dir')) {
      * a ogni richiesta (lo faceva la chat globale, sei volte per controllo)
      * costa più della richiesta stessa: qui la risposta sta in un file.
      */
-    function rt_schema(mysqli $mysqli): array
+    /** Le tabelle di cui si tiene la struttura in cache. */
+    function rt_schema_tables(): array
     {
-        static $schema = null;
-        if ($schema !== null) {
-            return $schema;
-        }
-
-        $cached = rt_read('schema');
-        if (!empty($cached['at']) && (time() - (int)$cached['at']) < 600 && isset($cached['tables'])) {
-            return $schema = $cached['tables'];
-        }
-
-        $tables = [
+        return [
             'utenti', 'messages', 'chat_reactions', 'chat_mutes', 'chat_reports', 'chat_typing',
             'chat_word_filters', 'game_emojis', 'utenti_profile_badges', 'achievement',
             'chats', 'chat_members', 'chat_messages', 'chat_invites', 'chat_settings', 'group_chat_reactions',
@@ -409,6 +400,27 @@ if (!function_exists('rt_dir')) {
             'site_messages', 'site_message_recipients', 'site_message_rewards',
             'site_tickets', 'site_ticket_messages', 'admin_logs',
         ];
+    }
+
+    function rt_schema(mysqli $mysqli): array
+    {
+        static $schema = null;
+        if ($schema !== null) {
+            return $schema;
+        }
+
+        // La cache vale solo per l'elenco di tabelle con cui è stata scritta.
+        // Senza questo controllo, aggiungere una tabella all'elenco la faceva
+        // risultare «inesistente» finché la cache vecchia non scadeva: così
+        // sono spariti per qualche minuto i premi dalla posta.
+        $tables = rt_schema_tables();
+        $signature = md5(implode(',', $tables));
+
+        $cached = rt_read('schema');
+        if (!empty($cached['at']) && (time() - (int)$cached['at']) < 600 && isset($cached['tables'])
+            && ($cached['sig'] ?? '') === $signature) {
+            return $schema = $cached['tables'];
+        }
 
         $schema = [];
         try {
@@ -430,7 +442,7 @@ if (!function_exists('rt_dir')) {
         }
 
         if ($schema) {
-            rt_update('schema', static fn() => ['at' => time(), 'tables' => $schema]);
+            rt_update('schema', static fn() => ['at' => time(), 'sig' => $signature, 'tables' => $schema]);
         }
 
         return $schema;
@@ -438,7 +450,30 @@ if (!function_exists('rt_dir')) {
 
     function rt_has_table(mysqli $mysqli, string $table): bool
     {
-        return isset(rt_schema($mysqli)[strtolower($table)]);
+        $name = strtolower($table);
+        if (isset(rt_schema($mysqli)[$name])) {
+            return true;
+        }
+        if (in_array($name, rt_schema_tables(), true)) {
+            return false;
+        }
+
+        // Una tabella fuori dall'elenco non è «assente»: semplicemente non è
+        // in cache. Si chiede al database, una volta per richiesta.
+        static $direct = [];
+        if (!array_key_exists($name, $direct)) {
+            $direct[$name] = false;
+            try {
+                $stmt = $mysqli->prepare('SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? LIMIT 1');
+                $stmt->bind_param('s', $name);
+                $stmt->execute();
+                $direct[$name] = $stmt->get_result()->num_rows > 0;
+                $stmt->close();
+            } catch (Throwable $e) {
+                error_log('[realtime] tabella ' . $name . ': ' . $e->getMessage());
+            }
+        }
+        return $direct[$name];
     }
 
     function rt_has_col(mysqli $mysqli, string $table, string $column): bool

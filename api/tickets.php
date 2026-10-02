@@ -48,7 +48,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     @$mysqli->set_charset('utf8mb4');
 }
 
-if (!rt_has_table($mysqli, 'site_tickets') || !rt_has_table($mysqli, 'site_ticket_messages')) {
+if (!cripsum_ticket_tables_ready($mysqli)) {
     if ($method === 'GET' && ($_GET['ticket_id'] ?? '') === '') {
         $reply(['ok' => true, 'tickets' => []]);
     }

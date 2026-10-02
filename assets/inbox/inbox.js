@@ -1055,8 +1055,8 @@
     els.more.addEventListener('click', (event) => openPageMenu(event.currentTarget));
 
     document.addEventListener('keydown', (event) => {
-        if (event.target.closest('input, textarea, [contenteditable]') || event.ctrlKey || event.metaKey || event.altKey) return;
-        if (document.querySelector('.ck-dialog, .ck-menu, .crt-panel')) return;
+        if (event.target.closest('input, textarea, [contenteditable], .cnav-pop') || event.ctrlKey || event.metaKey || event.altKey) return;
+        if (document.querySelector('.ck-dialog, .ck-menu')) return;
         if (event.key === '/') {
             event.preventDefault();
             els.search.focus();

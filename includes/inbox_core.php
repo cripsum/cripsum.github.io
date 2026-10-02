@@ -19,7 +19,38 @@ if (!function_exists('ib_available')) {
 
     function ib_available(mysqli $mysqli): bool
     {
-        return rt_has_table($mysqli, 'site_messages') && rt_has_table($mysqli, 'site_message_recipients');
+        static $ready = null;
+        if ($ready === null) {
+            $ready = false;
+            try {
+                $result = $mysqli->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN ('site_messages', 'site_message_recipients')");
+                $ready = $result instanceof mysqli_result && (int)($result->fetch_row()[0] ?? 0) === 2;
+            } catch (Throwable $e) {
+                error_log('[inbox] tabelle della posta: ' . $e->getMessage());
+            }
+        }
+        return $ready;
+    }
+
+    /**
+     * La tabella dei premi esiste? Lo si chiede al database, una volta per
+     * richiesta, e non alla cache di realtime.php: se la risposta fosse
+     * sbagliata i messaggi comparirebbero senza i loro regali, che è peggio
+     * di una query in più.
+     */
+    function ib_has_rewards(mysqli $mysqli): bool
+    {
+        static $has = null;
+        if ($has === null) {
+            $has = false;
+            try {
+                $result = $mysqli->query("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'site_message_rewards' LIMIT 1");
+                $has = $result instanceof mysqli_result && $result->num_rows > 0;
+            } catch (Throwable $e) {
+                error_log('[inbox] tabella premi: ' . $e->getMessage());
+            }
+        }
+        return $has;
     }
 
     /** Le categorie «di servizio» stanno sotto un'unica voce. */
@@ -79,11 +110,11 @@ if (!function_exists('ib_available')) {
     function ib_rewards(mysqli $mysqli, array $messageIds): array
     {
         $messageIds = array_values(array_unique(array_filter(array_map('intval', $messageIds))));
-        if (!$messageIds || !rt_has_table($mysqli, 'site_message_rewards')) {
+        if (!$messageIds || !ib_has_rewards($mysqli)) {
             return [];
         }
         $marks = implode(',', array_fill(0, count($messageIds), '?'));
-        $stmt = $mysqli->prepare("SELECT message_id, reward_type, reward_value, quantity FROM site_message_rewards WHERE message_id IN ($marks) ORDER BY id ASC");
+        $stmt = $mysqli->prepare("SELECT message_id, reward_type, reward_value, quantity FROM site_message_rewards WHERE message_id IN ($marks)");
         $stmt->bind_param(str_repeat('i', count($messageIds)), ...$messageIds);
         $stmt->execute();
         $out = [];
@@ -188,7 +219,7 @@ if (!function_exists('ib_available')) {
             return $out;
         }
 
-        $pending = rt_has_table($mysqli, 'site_message_rewards')
+        $pending = ib_has_rewards($mysqli)
             ? 'SUM(r.is_archived = 0 AND r.claimed_at IS NULL AND EXISTS (SELECT 1 FROM site_message_rewards w WHERE w.message_id = m.id))'
             : '0';
         $stmt = $mysqli->prepare("
@@ -286,7 +317,7 @@ if (!function_exists('ib_available')) {
     function ib_claim_all(mysqli $mysqli, int $userId): array
     {
         $out = ['claimed' => 0, 'rewards' => [], 'message_ids' => []];
-        if (!ib_available($mysqli) || !rt_has_table($mysqli, 'site_message_rewards') || !function_exists('claimMessageRewards')) {
+        if (!ib_available($mysqli) || !ib_has_rewards($mysqli) || !function_exists('claimMessageRewards')) {
             return $out;
         }
 
@@ -323,7 +354,7 @@ if (!function_exists('ib_available')) {
             return [];
         }
         $limit = max(1, min(12, $limit));
-        $pending = rt_has_table($mysqli, 'site_message_rewards')
+        $pending = ib_has_rewards($mysqli)
             ? '(r.claimed_at IS NULL AND EXISTS (SELECT 1 FROM site_message_rewards w WHERE w.message_id = m.id))'
             : '0';
         $stmt = $mysqli->prepare("
