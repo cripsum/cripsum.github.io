@@ -129,22 +129,22 @@ Run it locally however you want.
 - [x] Real-time notifications
 - [x] Online status system
 - [x] Live activity feed
-- [ ] Better mobile experience
-- [ ] More profile customization
-- [ ] Improve existing customization systems
+- [x] Better mobile experience
+- [x] More profile customization
+- [x] Improve existing customization systems
 - [x] Popup for new updates with changelog + previous versions history
 - [x] Show update popup only once per version
 - [x] Google login support
-- [ ] More profile activity updates using the `profile-helper` system
+- [x] More profile activity updates using the `profile-helper` system
 - [x] Full English version of the website
 
 ---
 
 ### Profiles / Social
 
-- [ ] Followers / following / friends system
-- [ ] More social interactions between profiles
-- [ ] New profile-related features
+- [x] Followers / following / friends system
+- [x] More social interactions between profiles
+- [x] New profile-related features
 
 ---
 
@@ -153,14 +153,14 @@ Run it locally however you want.
 - [x] Daily and weelky missions
 - [x] New achievements
 - [ ] Complete character descriptions
-- [ ] Remove or replace old useless characters
+- [x] Remove or replace old useless characters
 - [x] Rework character tags
 
 ---
 
 ### Projects / Ideas
 
-- [ ] Blog system
+- [x] Blog system
 - [ ] Finish TikTokpedia after 4 years
 - [ ] Finish Cripsumpedia (lore, people, events and memes archive)
 - [ ] Editing section with resources, pages and useful content for video editors
@@ -186,7 +186,7 @@ If you find bugs or weird behavior, open an issue.
 
 This project is mainly personal.
 
-Please don't fully copy/reupload the website pretending it's your own project.
+Please don't copy/reupload the website pretending it's your own project.
 
 ---
 
