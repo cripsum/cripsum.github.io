@@ -21,6 +21,7 @@ if (!isset($mysqli) || !($mysqli instanceof mysqli)) {
 
 require_once __DIR__ . '/community.php';
 require_once __DIR__ . '/strings.php';
+require_once __DIR__ . '/../edits/strings.php';
 require_once __DIR__ . '/../cripsum_og.php';
 
 @$mysqli->set_charset('utf8mb4');
@@ -106,6 +107,8 @@ $cmData = [
     'failed' => $cmFailed,
     'now' => time(),
     'strings' => $cmS,
+    // I video usano il player degli edit (edits-player.js), con i suoi testi.
+    'player' => edits_strings($cmLang)['player'] ?? [],
 ];
 
 $cmTabs = $cmRimasto
@@ -119,7 +122,9 @@ $cmTabs = $cmRimasto
     <?php include __DIR__ . '/../head-import.php'; ?>
     <title>Cripsum™ - <?php echo cv2_h($cmS['title']); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="<?php echo cv2_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
     <link rel="stylesheet" href="<?php echo cv2_h(cripsum_asset('/assets/community/community.css')); ?>">
+    <script src="<?php echo cv2_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo cv2_h(cripsum_asset('/assets/community/community.js')); ?>" defer></script>
 </head>
 
@@ -206,17 +211,25 @@ $cmTabs = $cmRimasto
             <div class="cm-stage" data-cm-stage>
                 <div class="cm-stage__glow" data-cm-stage-glow aria-hidden="true"></div>
                 <div class="cm-stage__media" data-cm-stage-media></div>
-                <button type="button" class="cm-stage__arrow cm-stage__arrow--prev" data-cm-step="-1" aria-label="<?php echo cv2_h($cmS['prev']); ?>"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
-                <button type="button" class="cm-stage__arrow cm-stage__arrow--next" data-cm-step="1" aria-label="<?php echo cv2_h($cmS['next']); ?>"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                <?php /* Le frecce sul media scorrono solo i file di questo post; da un post all'altro si va con la barra di fianco. */ ?>
+                <button type="button" class="cm-stage__arrow cm-stage__arrow--prev" data-cm-media-step="-1" aria-label="<?php echo cv2_h($cmS['media_prev']); ?>" title="<?php echo cv2_h($cmS['media_prev']); ?> (←)" hidden><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                <button type="button" class="cm-stage__arrow cm-stage__arrow--next" data-cm-media-step="1" aria-label="<?php echo cv2_h($cmS['media_next']); ?>" title="<?php echo cv2_h($cmS['media_next']); ?> (→)" hidden><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                <span class="cm-stage__count" data-cm-stage-count hidden></span>
                 <div class="cm-stage__dots" data-cm-stage-dots hidden></div>
                 <div class="cm-stage__tools">
-                    <button type="button" class="cm-icon cm-icon--dark" data-cm-zoom aria-label="<?php echo cv2_h($cmS['zoom']); ?>" aria-pressed="false"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></button>
-                    <button type="button" class="cm-icon cm-icon--dark" data-cm-fullscreen aria-label="<?php echo cv2_h($cmS['fullscreen']); ?>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+                    <button type="button" class="cm-icon cm-icon--dark" data-cm-zoom aria-label="<?php echo cv2_h($cmS['zoom']); ?>" title="<?php echo cv2_h($cmS['zoom']); ?>" aria-pressed="false"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></button>
+                    <button type="button" class="cm-icon cm-icon--dark" data-cm-fullscreen aria-label="<?php echo cv2_h($cmS['fullscreen']); ?>" title="<?php echo cv2_h($cmS['fullscreen']); ?> (F)" aria-pressed="false"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
                 </div>
                 <button type="button" class="cm-icon cm-icon--dark cm-stage__close" data-cm-viewer-close aria-label="<?php echo cv2_h($cmS['close']); ?>"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
             </div>
 
             <div class="cm-side">
+                <div class="cm-side__bar">
+                    <button type="button" class="cm-navbtn" data-cm-post-step="-1" aria-label="<?php echo cv2_h($cmS['post_prev']); ?>" title="<?php echo cv2_h($cmS['post_prev']); ?> (↑)"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i> <span><?php echo cv2_h($cmS['prev']); ?></span></button>
+                    <button type="button" class="cm-navbtn" data-cm-post-step="1" aria-label="<?php echo cv2_h($cmS['post_next']); ?>" title="<?php echo cv2_h($cmS['post_next']); ?> (↓)"><span><?php echo cv2_h($cmS['next']); ?></span> <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+                    <span class="cm-side__bar-gap"></span>
+                    <button type="button" class="cm-icon" data-cm-viewer-close aria-label="<?php echo cv2_h($cmS['close']); ?>" title="<?php echo cv2_h($cmS['close']); ?> (Esc)"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
                 <div class="cm-side__scroll" data-cm-side-scroll>
                     <div class="cm-side__top" data-cm-side-top></div>
                     <div class="cm-comments" data-cm-comments></div>

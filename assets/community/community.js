@@ -10,7 +10,10 @@
  *     così l'ordine resta leggibile e aggiungere post non sposta gli altri.
  *   - Top Rimasti: podio e righe; dopo un voto la classifica si riordina.
  *   - Post aperto: ?post=ID nell'indirizzo, quindi i link funzionano e
- *     «indietro» chiude. Le frecce scorrono prima i media del post, poi i post.
+ *     «indietro» chiude. Due navigazioni separate: le frecce sul media (← →)
+ *     scorrono i file del post, «Precedente» e «Successivo» (↑ ↓) cambiano
+ *     post. Le immagini si vedono sempre intere; zoom con clic, rotella o
+ *     pizzico. I video usano il player degli edit (edits-player.js).
  *   - Nuovo post: i file si caricano uno alla volta appena scelti, ognuno
  *     con il suo avanzamento; il post li aggancia quando si pubblica.
  *
@@ -625,7 +628,7 @@
                 appendCards(fresh);
                 renderEmpty();
             }
-            if (viewer.post) updateArrows();
+            if (viewer.post) updateNav();
         } catch (error) {
             if (token !== state.token) return;
             state.loading = false;
@@ -1198,7 +1201,7 @@
     }
 
     // ── Post aperto ─────────────────────────────────────────────────────────
-    const viewer = { post: null, index: 0, pushed: false, comments: [], replyTo: null, token: 0 };
+    const viewer = { post: null, index: 0, pushed: false, comments: [], replyTo: null, token: 0, player: null, stepping: false };
 
     const stage = viewerEl ? $('[data-cm-stage]', viewerEl) : null;
     const stageMedia = viewerEl ? $('[data-cm-stage-media]', viewerEl) : null;
@@ -1208,54 +1211,301 @@
     const commentInput = viewerEl ? $('[data-cm-comment-input]', viewerEl) : null;
 
     const listIndex = () => (viewer.post ? state.posts.findIndex((post) => post.id === viewer.post.id) : -1);
+    const currentMedia = () => (viewer.post ? viewer.post.media[viewer.index] || null : null);
 
-    const updateArrows = () => {
+    /** Le frecce sul media si fermano al primo e all'ultimo file; i bottoni di fianco cambiano post. */
+    const updateNav = () => {
         if (!viewer.post || !stage) return;
-        const position = listIndex();
         const count = viewer.post.media.length;
-        const hasPrev = viewer.index > 0 || position > 0;
-        const hasNext = viewer.index < count - 1 || (position >= 0 && (position < state.posts.length - 1 || state.page < state.pages));
-        $('[data-cm-step="-1"]', stage).disabled = !hasPrev;
-        $('[data-cm-step="1"]', stage).disabled = !hasNext;
+        const position = listIndex();
+
+        $$('[data-cm-media-step]', stage).forEach((button) => {
+            button.hidden = count < 2;
+            button.disabled = Number(button.dataset.cmMediaStep) < 0 ? viewer.index <= 0 : viewer.index >= count - 1;
+        });
+        $('[data-cm-post-step="-1"]', viewerEl).disabled = position <= 0;
+        $('[data-cm-post-step="1"]', viewerEl).disabled = position < 0 || (position >= state.posts.length - 1 && state.page >= state.pages);
     };
 
-    const renderStage = () => {
+    // ── Zoom ────────────────────────────────────────────────────────────────
+    // A zoom 1 l'immagine sta tutta nello stage. Lo zoom è una trasformazione:
+    // rotella e pizzico ingrandiscono sul punto che si sta guardando,
+    // trascinando ci si sposta senza mai uscire dai bordi dell'immagine.
+    const MAX_UPSCALE = 2;
+    const zoom = { scale: 1, x: 0, y: 0 };
+    const pointers = new Map();
+    let drag = null;
+    let pinch = null;
+    let lastTap = null;
+
+    const stageImage = () => (stageMedia ? $('.cm-stage__img', stageMedia) : null);
+    const isZoomed = () => zoom.scale > 1.001;
+
+    const stagePoint = (event) => {
+        const box = stageMedia.getBoundingClientRect();
+        return { x: event.clientX - box.left, y: event.clientY - box.top };
+    };
+
+    /** Le misure dell'immagine a zoom 1, e lo zoom che la porta alle sue misure vere. */
+    const fitOf = (img) => {
+        const media = currentMedia();
+        const boxW = stageMedia.clientWidth || 1;
+        const boxH = stageMedia.clientHeight || 1;
+        const width = img.naturalWidth || (media && media.w) || boxW;
+        const height = img.naturalHeight || (media && media.h) || boxH;
+        const k = Math.min(boxW / width, boxH / height, MAX_UPSCALE);
+        return { w: width * k, h: height * k, boxW, boxH, natural: 1 / k };
+    };
+
+    const clampZoom = (fit) => {
+        if (!isZoomed()) {
+            zoom.scale = 1;
+            zoom.x = 0;
+            zoom.y = 0;
+            return;
+        }
+        const maxX = Math.max(0, (fit.w * zoom.scale - fit.boxW) / 2);
+        const maxY = Math.max(0, (fit.h * zoom.scale - fit.boxH) / 2);
+        zoom.x = Math.min(maxX, Math.max(-maxX, zoom.x));
+        zoom.y = Math.min(maxY, Math.max(-maxY, zoom.y));
+    };
+
+    const applyZoom = (animate = false) => {
+        const img = stageImage();
+        const zoomed = isZoomed();
+        if (img) {
+            img.style.transition = animate && !reducedMotion ? '' : 'none';
+            img.style.transform = zoomed ? `translate3d(${zoom.x.toFixed(1)}px, ${zoom.y.toFixed(1)}px, 0) scale(${zoom.scale.toFixed(4)})` : '';
+        }
+        if (stage.classList.contains('is-zoomed') === zoomed) return;
+
+        stage.classList.toggle('is-zoomed', zoomed);
+        const button = $('[data-cm-zoom]', stage);
+        button.setAttribute('aria-pressed', zoomed ? 'true' : 'false');
+        button.setAttribute('aria-label', zoomed ? S.zoom_out : S.zoom);
+        button.title = zoomed ? S.zoom_out : S.zoom;
+        $('i', button).className = `fa-solid fa-magnifying-glass-${zoomed ? 'minus' : 'plus'}`;
+    };
+
+    /** Porta lo zoom a `scale` tenendo fermo sotto il cursore il punto (x, y) dello stage. */
+    const zoomTo = (scale, x, y, animate = false) => {
+        const img = stageImage();
+        if (!img) return;
+        const fit = fitOf(img);
+        const next = Math.min(Math.min(8, Math.max(3, fit.natural * 1.5)), Math.max(1, scale));
+        const cx = (x ?? fit.boxW / 2) - fit.boxW / 2;
+        const cy = (y ?? fit.boxH / 2) - fit.boxH / 2;
+        const ratio = next / zoom.scale;
+        zoom.x = cx - (cx - zoom.x) * ratio;
+        zoom.y = cy - (cy - zoom.y) * ratio;
+        zoom.scale = next;
+        clampZoom(fit);
+        applyZoom(animate);
+    };
+
+    const resetZoom = (animate = false) => {
+        zoom.scale = 1;
+        zoom.x = 0;
+        zoom.y = 0;
+        applyZoom(animate);
+    };
+
+    /**
+     * Clic, doppio tocco e bottone: dentro fino a vedere i pixel veri
+     * dell'immagine (fra il doppio e il quadruplo), oppure di nuovo intera.
+     */
+    const toggleZoom = (x, y) => {
+        const img = stageImage();
+        if (!img) return;
+        if (isZoomed()) resetZoom(true);
+        else zoomTo(Math.min(4, Math.max(2, fitOf(img).natural / (window.devicePixelRatio || 1))), x, y, true);
+    };
+
+    // ── Schermo intero ──────────────────────────────────────────────────────
+    // Va a schermo intero lo stage, con frecce e pallini: vale per immagini e
+    // video (il player usa lo stesso). Dove il browser non lo permette (iPhone)
+    // lo stage copre tutta la finestra del post.
+    const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+    const isFull = () => !!stage && (fullscreenElement() === stage || viewerEl.classList.contains('is-immersive'));
+
+    const syncFull = () => {
+        if (!stage) return;
+        const on = isFull();
+        stage.classList.toggle('is-full', on);
+        const button = $('[data-cm-fullscreen]', stage);
+        button.setAttribute('aria-pressed', on ? 'true' : 'false');
+        button.setAttribute('aria-label', on ? S.fullscreen_exit : S.fullscreen);
+        button.title = `${on ? S.fullscreen_exit : S.fullscreen} (F)`;
+        $('i', button).className = `fa-solid ${on ? 'fa-compress' : 'fa-expand'}`;
+        if (viewer.player) viewer.player.syncFullscreen();
+        resetZoom();
+    };
+
+    let fullTimer = 0;
+
+    /** Il ripiego: lo stage copre la finestra del post. */
+    const fillViewer = () => {
+        clearTimeout(fullTimer);
+        if (!viewer.post || fullscreenElement() === stage) return;
+        viewerEl.classList.add('is-immersive');
+        syncFull();
+    };
+
+    const setFull = (on) => {
+        if (!stage || on === isFull()) return;
+        clearTimeout(fullTimer);
+
+        if (!on) {
+            viewerEl.classList.remove('is-immersive');
+            if (fullscreenElement()) {
+                const leaving = (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+                if (leaving && leaving.catch) leaving.catch(() => {});
+            }
+            syncFull();
+            return;
+        }
+
+        const request = stage.requestFullscreen || stage.webkitRequestFullscreen;
+        if (!request) {
+            fillViewer();
+            return;
+        }
+        try {
+            const entering = request.call(stage);
+            if (entering && entering.catch) entering.catch(fillViewer);
+        } catch (error) {
+            fillViewer();
+            return;
+        }
+        // I browser dentro certe app non rispondono né sì né no: dopo un attimo si passa al ripiego.
+        fullTimer = setTimeout(fillViewer, 800);
+    };
+
+    const onFullscreenChange = () => {
+        clearTimeout(fullTimer);
+        // Entrati o usciti dallo schermo intero vero, il ripiego non serve più.
+        if (viewerEl) viewerEl.classList.remove('is-immersive');
+        syncFull();
+    };
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+    /** Il tasto del player. Su iPhone lo schermo intero vero c'è solo per i video, con i controlli di iOS. */
+    const toggleVideoFull = () => {
+        const video = viewer.player ? viewer.player.video : null;
+        const native = !stage.requestFullscreen && !stage.webkitRequestFullscreen && video && video.webkitEnterFullscreen;
+        if (native && !isFull()) video.webkitEnterFullscreen();
+        else setFull(!isFull());
+    };
+
+    // ── Stage ───────────────────────────────────────────────────────────────
+    const coverOf = (post) => {
+        const media = post.media && post.media[0];
+        if (!media) return '';
+        return media.thumb || (media.kind === 'video' ? '' : media.url);
+    };
+
+    /** Su telefono lo stage prende le proporzioni del media più alto del post: scorrendoli non cambia altezza. */
+    const setStageRatio = (post) => {
+        const ratios = post.media.map((media) => (media.w && media.h ? media.w / media.h : 0)).filter(Boolean);
+        viewerEl.style.setProperty('--cm-ratio', (ratios.length ? Math.min(...ratios) : 1).toFixed(4));
+    };
+
+    const clearStage = () => {
+        if (!stageMedia) return;
+        if (viewer.player) {
+            viewer.player.destroy();
+            viewer.player = null;
+        }
+        $$('video', stageMedia).forEach((video) => {
+            try {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+            } catch (error) {
+                // niente
+            }
+        });
+        stageMedia.innerHTML = '';
+        pointers.clear();
+        drag = null;
+        pinch = null;
+        lastTap = null;
+        stage.classList.remove('is-loading', 'is-panning');
+        resetZoom();
+    };
+
+    const mountVideo = (post, media) => {
+        if (!window.CripsumPlayer) {
+            // Senza il player del sito restano i controlli del browser.
+            stageMedia.innerHTML = `<video src="${esc(media.url)}" ${media.thumb ? `poster="${esc(media.thumb)}"` : ''} controls playsinline preload="metadata"></video>`;
+            $('video', stageMedia).play().catch(() => {});
+            return;
+        }
+
+        // A fine video resta fermo su «Rivedi»; se era l'ultimo file del post propone il post dopo.
+        const position = listIndex();
+        const next = position >= 0 && viewer.index >= post.media.length - 1 ? state.posts[position + 1] : null;
+        viewer.player = window.CripsumPlayer.mount(stageMedia, {
+            src: media.url,
+            poster: media.thumb || '',
+            title: titleOf(post),
+            autoplay: true,
+            fullscreen: { isOn: isFull, toggle: toggleVideoFull },
+            next: next ? { title: titleOf(next), cover: coverOf(next) } : null,
+            onNext: next ? () => stepPost(1) : null,
+            strings: D.player || {},
+        });
+    };
+
+    /** `direction` dice da che parte entra il media nuovo (0: nessun movimento). */
+    const renderStage = (direction = 0) => {
         const post = viewer.post;
         if (!post || !stage) return;
 
-        stage.classList.remove('is-zoomed');
-        const media = post.media[viewer.index] || null;
+        clearStage();
+        const count = post.media.length;
+        const media = currentMedia();
+        const isVideo = !!media && media.kind === 'video';
+        const isImage = !!media && !isVideo;
         const glow = $('[data-cm-stage-glow]', stage);
-        const zoom = $('[data-cm-zoom]', stage);
-        const full = $('[data-cm-fullscreen]', stage);
+
+        stage.classList.toggle('is-video', isVideo);
+        stageMedia.dataset.dir = direction > 0 ? 'next' : (direction < 0 ? 'prev' : '');
+        setStageRatio(post);
 
         if (!media) {
             stageMedia.innerHTML = NO_IMAGE;
             glow.style.backgroundImage = '';
-        } else if (media.kind === 'video') {
-            stageMedia.innerHTML = `<video src="${esc(media.url)}" ${media.thumb ? `poster="${esc(media.thumb)}"` : ''} controls playsinline preload="metadata"></video>`;
+        } else if (isVideo) {
             glow.style.backgroundImage = media.thumb ? `url("${media.thumb}")` : '';
-            const video = $('video', stageMedia);
-            if (video) video.play().catch(() => {});
+            mountVideo(post, media);
         } else {
-            stageMedia.innerHTML = `<img class="godomedia" src="${esc(media.url)}" alt="${esc(titleOf(post))}" decoding="async">`;
+            // Un'immagine piccola cresce al massimo del doppio: oltre si sgrana.
+            const cap = media.w && media.h ? ` style="max-width:${media.w * MAX_UPSCALE}px;max-height:${media.h * MAX_UPSCALE}px"` : '';
+            stageMedia.innerHTML = `<img class="cm-stage__img godomedia" src="${esc(media.url)}" alt="${esc(titleOf(post))}" decoding="async" draggable="false"${cap}>`;
             glow.style.backgroundImage = `url("${media.thumb || media.url}")`;
+            stage.classList.toggle('is-loading', !stageImage().complete);
         }
 
-        const isImage = !!media && media.kind !== 'video';
-        zoom.hidden = !isImage;
-        zoom.setAttribute('aria-pressed', 'false');
-        full.hidden = !isImage || !stage.requestFullscreen;
+        $('[data-cm-zoom]', stage).hidden = !isImage;
+        // Sui video lo schermo intero è il tasto del player; senza media resta solo per uscirne.
+        $('[data-cm-fullscreen]', stage).hidden = isVideo || (!isImage && !isFull());
+
+        const counter = $('[data-cm-stage-count]', stage);
+        counter.hidden = count < 2;
+        counter.textContent = count < 2 ? '' : `${viewer.index + 1} / ${count}`;
 
         const dots = $('[data-cm-stage-dots]', stage);
-        dots.hidden = post.media.length < 2;
-        dots.innerHTML = post.media.length < 2 ? '' : post.media.map((item, index) => `<button type="button" data-cm-dot="${index}" class="${index === viewer.index ? 'is-active' : ''}" aria-label="${index + 1}"></button>`).join('');
+        dots.hidden = count < 2;
+        dots.innerHTML = count < 2 ? '' : post.media.map((item, index) => `<button type="button" data-cm-dot="${index}"${index === viewer.index ? ' class="is-active" aria-current="true"' : ''} aria-label="${esc(fmt(S.media_position, index + 1, count))}"></button>`).join('');
 
         // Il prossimo media si prepara in anticipo.
         const upcoming = post.media[viewer.index + 1];
         if (upcoming && upcoming.kind !== 'video') new Image().src = upcoming.url;
 
-        updateArrows();
+        updateNav();
     };
 
     const linkify = (text) => esc(text).replace(/(^|[^\w@])@([A-Za-z0-9_]{3,20})/g, '$1<a href="/u/$2">@$2</a>');
@@ -1296,10 +1546,8 @@
                         <small>${esc(meta.join(' · '))}</small>
                     </span>
                 </a>
-                <span class="cm-who__gap"></span>
                 ${actions}
                 <button type="button" class="cm-icon" data-act="menu" aria-label="${esc(S.more)}" aria-haspopup="menu"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>
-                <button type="button" class="cm-icon" data-cm-viewer-close aria-label="${esc(S.close)}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             <h2 class="cm-side__title" id="cmViewerTitle" tabindex="-1">${esc(titleOf(post))}</h2>
             ${post.description ? `<p class="cm-side__desc">${esc(post.description)}</p>` : ''}
@@ -1445,14 +1693,14 @@
 
     const closeViewer = ({ fromHistory = false } = {}) => {
         if (!viewer.post) return;
-        const video = $('video', stageMedia);
-        if (video) video.pause();
-        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        // L'audio si ferma subito; il media resta a vista finché la finestra si chiude.
+        $$('video', stageMedia).forEach((video) => video.pause());
+        setFull(false);
 
         viewer.post = null;
         viewer.token++;
         window.__presencePost = null;
-        hideDialog(viewerEl).then(() => { stageMedia.innerHTML = ''; });
+        hideDialog(viewerEl).then(() => { if (!viewer.post) clearStage(); });
 
         if (fromHistory) {
             viewer.pushed = false;
@@ -1464,34 +1712,57 @@
         }
     };
 
-    /** Avanti o indietro: prima fra i media del post, poi fra i post. */
-    const step = async (direction) => {
+    /** Dentro al post: il file prima o dopo. Arrivati in fondo ci si ferma, non si cambia post. */
+    const stepMedia = (direction) => {
         const post = viewer.post;
-        if (!post) return;
+        if (!post || post.media.length < 2) return;
 
         const target = viewer.index + direction;
-        if (target >= 0 && target < post.media.length) {
-            viewer.index = target;
-            renderStage();
+        if (target < 0 || target >= post.media.length) {
+            // Un colpetto dice che i file sono finiti.
+            if (reducedMotion) return;
+            stageMedia.classList.remove('is-bump-next', 'is-bump-prev');
+            void stageMedia.offsetWidth;
+            stageMedia.classList.add(direction > 0 ? 'is-bump-next' : 'is-bump-prev');
             return;
         }
+        viewer.index = target;
+        renderStage(direction);
+    };
 
+    /** Il post prima o dopo, nell'ordine in cui sono in pagina; in fondo alla lista si carica la pagina dopo. */
+    const stepPost = async (direction) => {
+        if (!viewer.post || viewer.stepping) return;
         let position = listIndex();
         if (position < 0) return;
-        if (direction > 0 && position === state.posts.length - 1 && state.page < state.pages) await load(false);
-        position = listIndex();
-        const next = state.posts[position + direction];
-        if (!next) return;
 
-        openPost(next);
-        if (direction < 0) {
-            viewer.index = Math.max(0, next.media.length - 1);
-            renderStage();
+        if (direction > 0 && position === state.posts.length - 1 && state.page < state.pages) {
+            viewer.stepping = true;
+            try {
+                await load(false);
+            } finally {
+                viewer.stepping = false;
+            }
+            if (!viewer.post) return;
+            position = listIndex();
         }
+
+        const next = state.posts[position + direction];
+        if (next) openPost(next);
     };
 
     if (viewerEl) {
-        viewerEl.addEventListener('cancel', (event) => { event.preventDefault(); closeViewer(); });
+        // Esc: prima toglie lo zoom o lo schermo intero, poi chiude.
+        viewerEl.addEventListener('cancel', (event) => {
+            if (event.cancelable && (isZoomed() || isFull())) {
+                event.preventDefault();
+                if (isZoomed()) resetZoom(true);
+                else setFull(false);
+                return;
+            }
+            event.preventDefault();
+            closeViewer();
+        });
         viewerEl.addEventListener('click', (event) => {
             if (event.target === viewerEl) {
                 closeViewer();
@@ -1501,27 +1772,20 @@
             if (!target) return;
 
             if (target.closest('[data-cm-viewer-close]')) return closeViewer();
-            const stepButton = target.closest('[data-cm-step]');
-            if (stepButton) return step(Number(stepButton.dataset.cmStep));
+            const mediaStep = target.closest('[data-cm-media-step]');
+            if (mediaStep) return stepMedia(Number(mediaStep.dataset.cmMediaStep));
+            const postStep = target.closest('[data-cm-post-step]');
+            if (postStep) return stepPost(Number(postStep.dataset.cmPostStep));
             const dot = target.closest('[data-cm-dot]');
             if (dot) {
-                viewer.index = Number(dot.dataset.cmDot);
-                return renderStage();
+                const index = Number(dot.dataset.cmDot);
+                if (index === viewer.index) return undefined;
+                const direction = index > viewer.index ? 1 : -1;
+                viewer.index = index;
+                return renderStage(direction);
             }
-            if (target.closest('[data-cm-zoom]') || (target.tagName === 'IMG' && target.parentElement === stageMedia)) {
-                const zoomed = stage.classList.toggle('is-zoomed');
-                $('[data-cm-zoom]', stage).setAttribute('aria-pressed', zoomed ? 'true' : 'false');
-                if (zoomed) {
-                    stageMedia.scrollLeft = (stageMedia.scrollWidth - stageMedia.clientWidth) / 2;
-                    stageMedia.scrollTop = (stageMedia.scrollHeight - stageMedia.clientHeight) / 2;
-                }
-                return undefined;
-            }
-            if (target.closest('[data-cm-fullscreen]')) {
-                if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-                else stage.requestFullscreen?.().catch(() => {});
-                return undefined;
-            }
+            if (target.closest('[data-cm-zoom]')) return toggleZoom();
+            if (target.closest('[data-cm-fullscreen]')) return setFull(!isFull());
             if (target.closest('[data-cm-reply-cancel]')) return setReply(null);
 
             const replyButton = target.closest('[data-comment-reply]');
@@ -1577,20 +1841,176 @@
             }
         });
 
-        // Scorrere col dito sul media: avanti e indietro.
-        let swipe = null;
+        // Gesti sul media. Mouse: clic ingrandisce, trascinando ci si sposta.
+        // Dito: doppio tocco e pizzico ingrandiscono; a immagine intera,
+        // scorrere di lato passa al file prima o dopo.
+        const pinchNow = () => {
+            const [a, b] = Array.from(pointers.values());
+            return { distance: Math.hypot(a.x - b.x, a.y - b.y) || 1, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        };
+
         stage.addEventListener('pointerdown', (event) => {
-            if (event.pointerType === 'mouse' || stage.classList.contains('is-zoomed') || event.target.closest('video, button')) return;
-            swipe = { x: event.clientX, y: event.clientY };
+            const target = event.target instanceof Element ? event.target : null;
+            const touch = event.pointerType !== 'mouse';
+            if (!target || (!touch && event.button !== 0)) return;
+            // I bottoni e la barra del player hanno i loro gesti.
+            if (target.closest('button, .ep__bar, .ep__end')) return;
+
+            const img = stageImage();
+            const onImage = !!img && target === img;
+            if (!onImage && !touch) return;
+
+            const point = stagePoint(event);
+            if (onImage) {
+                pointers.set(event.pointerId, point);
+                try {
+                    img.setPointerCapture(event.pointerId);
+                } catch (error) {
+                    // il puntatore non c'è già più
+                }
+                if (pointers.size === 2) {
+                    pinch = pinchNow();
+                    drag = null;
+                    return;
+                }
+                if (pointers.size > 2) return;
+            }
+            drag = { id: event.pointerId, x: point.x, y: point.y, zoomX: zoom.x, zoomY: zoom.y, moved: false, onImage, touch };
         });
-        stage.addEventListener('pointerup', (event) => {
-            if (!swipe) return;
-            const dx = event.clientX - swipe.x;
-            const dy = event.clientY - swipe.y;
-            swipe = null;
-            if (Math.abs(dx) > 50 && Math.abs(dy) < 70) step(dx < 0 ? 1 : -1);
+
+        stage.addEventListener('pointermove', (event) => {
+            if (pointers.has(event.pointerId)) pointers.set(event.pointerId, stagePoint(event));
+
+            if (pinch && pointers.size >= 2) {
+                const now = pinchNow();
+                zoom.x += now.x - pinch.x;
+                zoom.y += now.y - pinch.y;
+                zoomTo(zoom.scale * (now.distance / pinch.distance), now.x, now.y);
+                pinch = now;
+                return;
+            }
+            if (!drag || drag.id !== event.pointerId) return;
+
+            const point = stagePoint(event);
+            const dx = point.x - drag.x;
+            const dy = point.y - drag.y;
+            if (!drag.moved && Math.hypot(dx, dy) < (drag.touch ? 10 : 4)) return;
+            drag.moved = true;
+            if (!drag.onImage || !isZoomed()) return;
+
+            zoom.x = drag.zoomX + dx;
+            zoom.y = drag.zoomY + dy;
+            clampZoom(fitOf(stageImage()));
+            stage.classList.add('is-panning');
+            applyZoom();
         });
-        stage.addEventListener('pointercancel', () => { swipe = null; });
+
+        const endPointer = (event) => {
+            pointers.delete(event.pointerId);
+
+            if (pinch) {
+                if (pointers.size >= 2) return;
+                pinch = null;
+                if (zoom.scale < 1.06) resetZoom(true);
+                // Il dito rimasto continua a spostare da dov'è.
+                const [id, point] = pointers.entries().next().value || [];
+                drag = point ? { id, x: point.x, y: point.y, zoomX: zoom.x, zoomY: zoom.y, moved: true, onImage: true, touch: true } : null;
+                return;
+            }
+            if (!drag || drag.id !== event.pointerId) return;
+
+            const done = drag;
+            drag = null;
+            stage.classList.remove('is-panning');
+            if (event.type === 'pointercancel') return;
+
+            const point = stagePoint(event);
+            if (!done.moved) {
+                if (!done.onImage) return;
+                const now = performance.now();
+                if (!done.touch) {
+                    // Il secondo clic di un doppio clic non rifà il contrario del primo.
+                    if (lastTap && now - lastTap.time < 350) return;
+                    lastTap = { time: now, x: point.x, y: point.y };
+                    toggleZoom(point.x, point.y);
+                    return;
+                }
+                if (lastTap && now - lastTap.time < 320 && Math.hypot(point.x - lastTap.x, point.y - lastTap.y) < 36) {
+                    lastTap = null;
+                    toggleZoom(point.x, point.y);
+                } else {
+                    lastTap = { time: now, x: point.x, y: point.y };
+                }
+                return;
+            }
+
+            if (done.touch && !isZoomed()) {
+                const dx = point.x - done.x;
+                const dy = point.y - done.y;
+                if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) stepMedia(dx < 0 ? 1 : -1);
+            }
+        };
+        stage.addEventListener('pointerup', endPointer);
+        stage.addEventListener('pointercancel', endPointer);
+
+        stage.addEventListener('wheel', (event) => {
+            if (!stageImage() || (event.target instanceof Element && event.target.closest('button'))) return;
+            event.preventDefault();
+            const unit = event.deltaMode === 1 ? 33 : (event.deltaMode === 2 ? 400 : 1);
+            // Il pizzico sul trackpad arriva come rotella con Ctrl, a passi piccoli.
+            const factor = Math.exp(-event.deltaY * unit * (event.ctrlKey ? 0.01 : 0.0022));
+            const point = stagePoint(event);
+            zoomTo(zoom.scale * Math.min(2, Math.max(0.5, factor)), point.x, point.y);
+        }, { passive: false });
+
+        // «load» ed «error» non salgono: si prendono in cattura.
+        stageMedia.addEventListener('load', (event) => {
+            const img = event.target;
+            if (!(img instanceof HTMLImageElement) || !img.classList.contains('cm-stage__img')) return;
+            stage.classList.remove('is-loading');
+            img.style.maxWidth = `${img.naturalWidth * MAX_UPSCALE}px`;
+            img.style.maxHeight = `${img.naturalHeight * MAX_UPSCALE}px`;
+
+            const media = currentMedia();
+            if (media && !(media.w && media.h) && img.naturalWidth) {
+                media.w = img.naturalWidth;
+                media.h = img.naturalHeight;
+                setStageRatio(viewer.post);
+            }
+        }, true);
+
+        stageMedia.addEventListener('error', (event) => {
+            const img = event.target;
+            if (!(img instanceof HTMLImageElement) || !img.classList.contains('cm-stage__img')) return;
+            stage.classList.remove('is-loading');
+            resetZoom();
+            stageMedia.innerHTML = NO_IMAGE;
+            $('[data-cm-zoom]', stage).hidden = true;
+            $('[data-cm-fullscreen]', stage).hidden = !isFull();
+        }, true);
+
+        stageMedia.addEventListener('loadedmetadata', (event) => {
+            const video = event.target;
+            const media = currentMedia();
+            if (!(video instanceof HTMLVideoElement) || !media || media.kind !== 'video' || (media.w && media.h) || !video.videoWidth) return;
+            media.w = video.videoWidth;
+            media.h = video.videoHeight;
+            setStageRatio(viewer.post);
+        }, true);
+
+        stageMedia.addEventListener('animationend', (event) => {
+            if (event.target === stageMedia) stageMedia.classList.remove('is-bump-next', 'is-bump-prev');
+        });
+
+        // Lo stage cambia misura (finestra, schermo intero): lo zoom resta dentro i bordi.
+        if ('ResizeObserver' in window) {
+            new ResizeObserver(() => {
+                const img = stageImage();
+                if (!img || !isZoomed()) return;
+                clampZoom(fitOf(img));
+                applyZoom();
+            }).observe(stageMedia);
+        }
     }
 
     window.addEventListener('popstate', () => {
@@ -2240,9 +2660,23 @@
     document.addEventListener('keydown', (event) => {
         const typing = event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]');
 
+        // Post aperto: ← → i file del post, ↑ ↓ il post prima o dopo, F schermo
+        // intero. Sui video spazio, M, F, J/L e < > sono del player.
         if (viewer.post && topDialog() === viewerEl && !typing) {
-            if (event.key === 'ArrowRight') { event.preventDefault(); step(1); }
-            if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); }
+            const target = event.target instanceof Element ? event.target : null;
+            // Menu aperto, barre del player: le frecce lì fanno già altro.
+            if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+            if (target && target.closest('.cm-menu, .cm-picker, [role="slider"], [role="listbox"]')) return;
+            if (viewer.player && viewer.player.handleKey(event)) return;
+
+            const steps = { ArrowRight: () => stepMedia(1), ArrowLeft: () => stepMedia(-1), ArrowDown: () => stepPost(1), ArrowUp: () => stepPost(-1) };
+            if (steps[event.key]) {
+                event.preventDefault();
+                steps[event.key]();
+            } else if ((event.key === 'f' || event.key === 'F') && stageImage()) {
+                event.preventDefault();
+                setFull(!isFull());
+            }
             return;
         }
         if (event.key === '/' && !typing && !topDialog() && searchInput && !event.ctrlKey && !event.metaKey && !event.altKey) {

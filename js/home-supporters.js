@@ -166,8 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto scroll speed configuration (pixels per frame)
     const speed = 0.4;
 
+    // People who asked the system for less motion get a still row: it can
+    // still be dragged, swiped and wheeled, it just does not move on its own.
+    const reducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+
     function scrollLoop() {
-        if (autoScrollActive && !isDown && !momentumActive) {
+        if (autoScrollActive && !isDown && !momentumActive && !(reducedMotion && reducedMotion.matches)) {
             isAutoScrolling = true;
             currentScrollLeft += speed;
             // Seamless wrap around when hitting original width boundary

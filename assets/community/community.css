@@ -3,8 +3,9 @@
  *
  * Shitpost: feed a colonne dove ogni card tiene le proporzioni vere del suo
  * media. Top Rimasti: podio per i primi tre, righe numerate per gli altri,
- * albo d'oro in fondo. Le due pagine condividono barra, card, post aperto e
- * finestre; cambia l'accento (blu-viola / oro) con .cm-page--rimasto.
+ * albo d'oro in fondo. Le due pagine condividono barra, card, post aperto,
+ * finestre e colori: stesso accento del resto del sito. Di oro, argento e
+ * bronzo restano solo le tre medaglie del podio.
  *
  * Prestazioni: il vetro sfocato sta solo sulla barra e sugli sfondi delle
  * finestre. Le card sono tante e si muovono solo con transform e opacity.
@@ -40,13 +41,6 @@
     --cm-on-accent: #fff;
     --cm-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
     --cm-sticky: 5.4rem;
-}
-
-.cm-page--rimasto {
-    --cm-accent: var(--cm-gold);
-    --cm-accent-rgb: 244, 195, 67;
-    --cm-grad: linear-gradient(135deg, #ffd95e, #f0a92b);
-    --cm-on-accent: #1a1304;
 }
 
 body.cm-page {
@@ -120,7 +114,6 @@ html.cm-lock body {
 
 .cm-orb--one { top: -9rem; left: -11rem; background: var(--cm-blue); }
 .cm-orb--two { top: 22%; right: -14rem; background: var(--cm-purple); opacity: 0.2; }
-.cm-page--rimasto .cm-orb--one { background: #c98a1c; opacity: 0.2; }
 
 .cm-shell {
     width: min(1240px, calc(100% - 32px));
@@ -701,7 +694,8 @@ html.cm-lock body {
 .cm-act:active { transform: scale(0.94); }
 .cm-act.is-on { background: rgba(255, 122, 26, 0.14); color: #ffb37a !important; }
 .cm-act.is-saved { color: #8fb0ff !important; }
-.cm-page--rimasto .cm-act.is-on { background: rgba(244, 195, 67, 0.12); color: var(--cm-gold) !important; }
+/* Il voto non è una reazione: prende l'accento della pagina. */
+.cm-page--rimasto .cm-act.is-on { background: rgba(var(--cm-accent-rgb), 0.16); color: #8fb0ff !important; }
 .cm-act--danger { color: #ff8ea1 !important; }
 .cm-act .cm-emo { font-size: 1rem; }
 .cm-act .cm-emo + .cm-emo { margin-left: -6px; }
@@ -773,8 +767,8 @@ html.cm-lock body {
 .cm-pod--3 { order: 3; animation-delay: 220ms; }
 
 .cm-pod--1 {
-    border-color: rgba(244, 195, 67, 0.55);
-    box-shadow: 0 0 0 1px rgba(244, 195, 67, 0.16), 0 30px 90px rgba(244, 195, 67, 0.14);
+    border-color: rgba(var(--cm-accent-rgb), 0.6);
+    box-shadow: 0 0 0 1px rgba(var(--cm-accent-rgb), 0.2), 0 24px 60px rgba(0, 0, 0, 0.35);
 }
 
 .cm-podium[data-count="1"] { grid-template-columns: minmax(0, 520px); justify-content: center; }
@@ -852,7 +846,7 @@ html.cm-lock body {
     display: -webkit-box;
     margin: 12px 0 0;
     padding-left: 12px;
-    border-left: 3px solid rgba(244, 195, 67, 0.55);
+    border-left: 3px solid rgba(var(--cm-accent-rgb), 0.6);
     color: var(--cm-muted);
     font-size: 0.88rem;
     font-style: italic;
@@ -876,7 +870,7 @@ html.cm-lock body {
     letter-spacing: -0.03em;
 }
 
-.cm-pod--1 .cm-vote__n { color: var(--cm-gold); font-size: 2.2rem; }
+.cm-pod--1 .cm-vote__n { font-size: 2.2rem; }
 .cm-vote__n small { display: block; margin-top: 4px; color: var(--cm-muted-2); font-size: 0.72rem; font-weight: 500; letter-spacing: 0; }
 .cm-vote__gap { flex: 1; }
 
@@ -897,9 +891,9 @@ html.cm-lock body {
     transition: transform 180ms var(--cm-ease), border-color 180ms ease, background 180ms ease, color 180ms ease;
 }
 
-.cm-votebtn:hover { border-color: rgba(244, 195, 67, 0.6); transform: translateY(-2px); }
+.cm-votebtn:hover { border-color: rgba(var(--cm-accent-rgb), 0.7); transform: translateY(-2px); }
 .cm-votebtn:active { transform: scale(0.95); }
-.cm-votebtn.is-on { border-color: rgba(244, 195, 67, 0.5); background: rgba(244, 195, 67, 0.1); color: var(--cm-gold) !important; }
+.cm-votebtn.is-on { border-color: rgba(var(--cm-accent-rgb), 0.6); background: rgba(var(--cm-accent-rgb), 0.16); color: #8fb0ff !important; }
 .cm-votebtn.is-pop i { animation: cm-pop 420ms var(--cm-ease); }
 
 /* ── Top Rimasti: righe ──────────────────────────────────────────────────── */
@@ -977,7 +971,7 @@ html.cm-lock body {
 
 .cm-meter { display: flex; align-items: center; gap: 12px; }
 .cm-meter__bar { flex: 1; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
-.cm-meter__bar b { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #f0a92b, #ffd95e); transition: width 600ms var(--cm-ease); }
+.cm-meter__bar b { display: block; height: 100%; border-radius: 4px; background: var(--cm-grad); transition: width 600ms var(--cm-ease); }
 .cm-meter__n { min-width: 34px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
 
 .cm-sect {
@@ -1011,12 +1005,12 @@ html.cm-lock body {
     transition: border-color 200ms ease, transform 200ms var(--cm-ease);
 }
 
-.cm-fame:hover { border-color: rgba(244, 195, 67, 0.5); transform: translateY(-2px); }
+.cm-fame:hover { border-color: rgba(var(--cm-accent-rgb), 0.6); transform: translateY(-2px); }
 .cm-fame img,
 .cm-fame .cm-noimg { flex: none; width: 68px; height: 68px; border-radius: 14px !important; object-fit: cover; background: #0b0f1c; }
 .cm-fame .cm-noimg { display: grid; place-items: center; color: var(--cm-muted-2); }
 .cm-fame div { min-width: 0; }
-.cm-fame small { display: block; color: var(--cm-gold); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.cm-fame small { display: block; color: #8fb0ff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 .cm-fame b { display: block; margin: 2px 0; font-size: 0.92rem; font-weight: 600; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-fame span { color: var(--cm-muted-2); font-size: 0.78rem; }
 
@@ -1073,14 +1067,17 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
     box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7);
 }
 
+/* «clip» e non solo «hidden»: l'alone esce dai bordi, e con «hidden» lo stage
+   resterebbe scorribile (basta il fuoco su un bottone a spostare tutto). */
 .cm-stage {
     position: relative;
-    display: grid;
-    place-items: center;
     min-width: 0;
     min-height: 0;
     background: #02030a;
     overflow: hidden;
+    overflow: clip;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .cm-stage__glow {
@@ -1093,31 +1090,80 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
     transition: background-image 300ms ease;
 }
 
+/* Lo spazio del media ha misure sue, che non dipendono da quello che contiene:
+   un'immagine più alta dello stage si rimpicciolisce invece di uscire dai bordi. */
 .cm-stage__media {
-    position: relative;
-    display: grid;
-    place-items: center;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.cm-stage__media > * { animation: cm-fade 240ms ease both; }
+.cm-stage__media[data-dir="next"] > * { animation: cm-slide-next 300ms var(--cm-ease) both; }
+.cm-stage__media[data-dir="prev"] > * { animation: cm-slide-prev 300ms var(--cm-ease) both; }
+.cm-stage__media.is-bump-next { animation: cm-bump-next 320ms var(--cm-ease); }
+.cm-stage__media.is-bump-prev { animation: cm-bump-prev 320ms var(--cm-ease); }
+
+/* Sempre intera (contain), mai tagliata. Lo zoom la trasforma da qui. */
+.cm-stage__img {
+    display: block;
+    flex: none;
     width: 100%;
     height: 100%;
-    min-height: 0;
-    overflow: hidden;
-}
-
-.cm-stage__media img,
-.cm-stage__media video {
-    display: block;
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
     object-fit: contain;
-    animation: cm-fade 240ms ease both;
+    cursor: zoom-in;
+    transition: transform 260ms var(--cm-ease);
+    -webkit-user-drag: none;
 }
 
-.cm-stage__media img { cursor: zoom-in; }
+.cm-stage.is-zoomed .cm-stage__img { cursor: grab; will-change: transform; }
+.cm-stage.is-panning .cm-stage__img { cursor: grabbing; }
 
-.cm-stage.is-zoomed .cm-stage__media { display: block; overflow: auto; overscroll-behavior: contain; }
-.cm-stage.is-zoomed .cm-stage__media img { max-width: none; max-height: none; margin: auto; cursor: zoom-out; }
+.cm-stage__media > video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+.cm-stage__media .cm-noimg { color: var(--cm-muted-2); font-size: 2rem; }
+
+/* Il player dei video porta i suoi stili: qui si rimette quello che i ritocchi generici della finestra gli tolgono. */
+.cm-stage .ep { border-radius: 0; background: transparent; }
+.cm-stage .ep__stage,
+.cm-stage .ep__video { background: transparent; }
+.cm-stage .ep__speed-btn { font-size: 0.8rem; font-weight: 700; }
+.cm-stage .ep__pill { font-size: 0.85rem; font-weight: 600; }
+.cm-stage .ep__next-cover img { border-radius: 12px; }
+/* Barre e menu del player disegnano da soli il loro fuoco. */
+.cm-stage .ep__progress:focus-visible,
+.cm-stage .ep__vol-slider:focus-visible,
+.cm-stage .ep__speed-menu:focus-visible { outline: 0; }
+
+/* Compare solo se l'immagine tarda ad arrivare. */
+.cm-stage::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+    animation: cm-spin 0.9s linear infinite paused;
+}
+
+.cm-stage.is-loading::after { opacity: 1; transition-delay: 350ms; animation-play-state: running; }
 
 .cm-stage__arrow {
     position: absolute;
@@ -1144,32 +1190,67 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
 .cm-stage__arrow--prev { left: 18px; }
 .cm-stage__arrow--next { right: 18px; }
 
+/* «2 / 4»: a che punto si è fra i file del post. */
+.cm-stage__count {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 3;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none;
+    transition: opacity 200ms ease;
+}
+
 .cm-stage__dots {
     position: absolute;
     left: 50%;
     bottom: 22px;
     z-index: 3;
     display: flex;
-    gap: 7px;
-    padding: 7px 10px;
+    gap: 2px;
+    padding: 3px 6px;
     border-radius: 999px;
     background: rgba(0, 0, 0, 0.5);
     transform: translateX(-50%);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    transition: opacity 200ms ease;
 }
 
+/* Il pallino è piccolo, ma si tocca su tutta l'area del bottone. */
 .cm-stage__dots button {
-    width: 8px;
-    height: 8px;
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.35);
+    background: transparent;
+}
+
+.cm-stage__dots button::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
     transition: background 160ms ease, transform 160ms var(--cm-ease);
 }
 
-.cm-stage__dots button.is-active { background: #fff; transform: scale(1.3); }
+.cm-stage__dots button:hover::before { background: rgba(255, 255, 255, 0.75); }
+.cm-stage__dots button.is-active::before { background: #fff; transform: scale(1.3); }
+
+/* In basso c'è la barra del player: sui video i pallini salgono in cima. */
+.cm-stage.is-video .cm-stage__dots { top: 16px; bottom: auto; }
 
 .cm-stage__tools {
     position: absolute;
@@ -1182,6 +1263,27 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
 
 .cm-stage__close { position: absolute; top: 14px; left: 14px; z-index: 4; display: none; }
 
+/* Con lo zoom restano solo i due strumenti: frecce e pallini coprirebbero l'immagine. */
+.cm-stage.is-zoomed .cm-stage__arrow,
+.cm-stage.is-zoomed .cm-stage__dots,
+.cm-stage.is-zoomed .cm-stage__count { opacity: 0; pointer-events: none; }
+
+/* Quando il player nasconde i suoi controlli spariscono anche quelli dello stage (tornano passandoci sopra). */
+.cm-stage:has(.ep[data-controls="hidden"]) .cm-stage__arrow:not(:hover):not(:focus-visible),
+.cm-stage:has(.ep[data-controls="hidden"]) .cm-stage__dots:not(:hover):not(:focus-within),
+.cm-stage:has(.ep[data-controls="hidden"]) .cm-stage__count { opacity: 0; }
+
+/* ── Schermo intero ──────────────────────────────────────────────────────── */
+
+.cm-stage:fullscreen { width: 100%; height: 100%; background: #000; }
+.cm-stage:-webkit-full-screen { width: 100%; height: 100%; background: #000; }
+.cm-stage.is-full .cm-stage__close { display: none; }
+
+/* Dove il browser non dà lo schermo intero, lo stage copre tutta la finestra del post. */
+dialog.cm-viewer.is-immersive { padding: 0; }
+.cm-viewer.is-immersive .cm-viewer__panel { width: 100%; height: 100%; border: 0; border-radius: 0; }
+.cm-viewer.is-immersive .cm-stage { position: absolute; inset: 0; z-index: 10; background: #000; }
+
 .cm-side {
     display: flex;
     flex-direction: column;
@@ -1189,6 +1291,41 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
     min-height: 0;
     border-left: 1px solid var(--cm-line);
 }
+
+/* Da un post all'altro: sempre qui, ferma mentre i commenti scorrono. */
+.cm-side__bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px 12px 22px;
+    border-bottom: 1px solid var(--cm-line);
+}
+
+.cm-side__bar-gap { flex: 1; }
+.cm-side__bar .cm-icon { width: 36px; height: 36px; border-radius: 11px; }
+
+.cm-navbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 13px;
+    border: 1px solid var(--cm-line);
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--cm-muted) !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    white-space: nowrap;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms var(--cm-ease), opacity 160ms ease;
+}
+
+.cm-navbtn i { font-size: 0.72rem; }
+.cm-navbtn:hover { color: var(--cm-text) !important; background: rgba(255, 255, 255, 0.09); border-color: var(--cm-line-2); }
+.cm-navbtn:active { transform: scale(0.96); }
+.cm-navbtn:disabled { opacity: 0.35; pointer-events: none; }
 
 .cm-side__scroll {
     flex: 1;
@@ -1201,14 +1338,15 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
 
 .cm-side__top { padding: 20px 22px 18px; border-bottom: 1px solid var(--cm-line); }
 
-.cm-who { display: flex; align-items: center; gap: 11px; }
-.cm-who__user { display: flex; align-items: center; gap: 11px; min-width: 0; color: var(--cm-text); text-decoration: none; }
+.cm-who { display: flex; align-items: center; gap: 8px; }
+/* Nome e ruolo si accorciano con i puntini invece di finire sotto ai bottoni. */
+.cm-who__user { flex: 1; display: flex; align-items: center; gap: 11px; min-width: 0; margin-right: 3px; color: var(--cm-text); text-decoration: none; }
+.cm-who__user > span { min-width: 0; }
 .cm-who__user:hover { color: #fff; }
 .cm-page .cm-who img.cm-avatar { width: 42px; height: 42px; border-radius: 14px; }
 .cm-who__name { display: flex; align-items: center; gap: 6px; font-weight: 600; min-width: 0; }
 .cm-who__name b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
-.cm-who small { display: block; color: var(--cm-muted-2); font-size: 0.78rem; }
-.cm-who__gap { flex: 1; }
+.cm-who small { display: block; color: var(--cm-muted-2); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-who .cm-icon { width: 36px; height: 36px; border-radius: 11px; }
 
 .cm-side__title {
@@ -1737,6 +1875,12 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
 @keyframes cm-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 @keyframes cm-toast { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes cm-burst { 0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); } 25% { opacity: 1; transform: translate(-50%, -18px) scale(1.25); } 100% { opacity: 0; transform: translate(-50%, -70px) scale(1); } }
+@keyframes cm-spin { to { transform: rotate(360deg); } }
+/* Con «translate» e non «transform»: quello resta libero per lo zoom dell'immagine. */
+@keyframes cm-slide-next { from { opacity: 0; translate: 28px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes cm-slide-prev { from { opacity: 0; translate: -28px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes cm-bump-next { 40% { translate: -14px 0; } }
+@keyframes cm-bump-prev { 40% { translate: 14px 0; } }
 
 /* Scambi di posto in classifica (View Transitions). */
 ::view-transition-group(*) { animation-duration: 420ms; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -1756,6 +1900,13 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
     .cm-row__pos, .cm-row__thumb { grid-row: 1 / span 2; }
     .cm-row__thumb { width: 68px; height: 68px; }
     .cm-viewer__panel { grid-template-columns: minmax(0, 1fr) 360px; }
+    /* Pannello più stretto: margini e bottoni un filo più piccoli, così nome e ruolo ci stanno. */
+    .cm-side__bar { padding-left: 18px; }
+    .cm-side__top { padding-left: 18px; padding-right: 18px; }
+    .cm-comments { padding-left: 18px; padding-right: 18px; }
+    .cm-who { gap: 6px; }
+    .cm-who__user { gap: 9px; margin-right: 0; }
+    .cm-who .cm-icon { width: 34px; height: 34px; }
     .cm-sheet__body { grid-template-columns: 300px minmax(0, 1fr); }
 }
 
@@ -1831,9 +1982,12 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
     dialog.cm-viewer,
     dialog.cm-sheet { padding: 0; place-items: end center; }
 
+    /* Lo stage segue le proporzioni del media, fra un minimo e poco più di metà
+       schermo: una foto larga lascia spazio ai commenti, una alta si vede bene.
+       I 18px in più sono quelli su cui sale il pannello dei commenti. */
     .cm-viewer__panel {
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(180px, 44dvh) minmax(0, 1fr);
+        grid-template-rows: clamp(238px, calc(100vw / var(--cm-ratio, 1) + 18px), 58dvh) minmax(0, 1fr);
         width: 100%;
         height: 100%;
         border: 0;
@@ -1846,15 +2000,27 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
     dialog.is-closing .cm-sheet__panel { animation: cm-sheet-down 200ms ease both !important; }
 
     .cm-stage__close { display: grid; }
-    .cm-stage__tools { left: auto; right: 14px; bottom: 14px; }
-    .cm-stage__tools [data-cm-fullscreen] { display: none; }
-    .cm-stage__arrow { width: 38px; height: 38px; }
+    .cm-stage__media { bottom: 18px; }
+    .cm-stage__tools { left: auto; right: 14px; bottom: 30px; }
+    .cm-stage__dots { bottom: 34px; }
+    .cm-stage__count { top: 18px; right: 14px; }
+    .cm-stage__arrow { width: 38px; height: 38px; margin-top: -9px; }
     .cm-stage__arrow--prev { left: 10px; }
     .cm-stage__arrow--next { right: 10px; }
+
+    /* A schermo intero il pannello non copre più niente. */
+    .cm-stage.is-full .cm-stage__media { bottom: 0; }
+    .cm-stage.is-full .cm-stage__tools { bottom: calc(16px + env(safe-area-inset-bottom)); }
+    .cm-stage.is-full .cm-stage__dots { bottom: calc(20px + env(safe-area-inset-bottom)); }
+    .cm-stage.is-full .cm-stage__arrow { margin-top: 0; }
+
     .cm-side { border-left: 0; border-top: 1px solid var(--cm-line-2); border-radius: 22px 22px 0 0; margin-top: -18px; background: var(--cm-solid); position: relative; z-index: 5; }
-    .cm-side__top { padding: 16px 16px 14px; }
+    .cm-side__bar { padding: 10px 12px; }
+    .cm-side__bar .cm-navbtn { flex: 1; height: 38px; }
+    .cm-side__bar-gap,
+    .cm-side__bar [data-cm-viewer-close] { display: none; }
+    .cm-side__top { padding: 14px 16px; }
     .cm-side__title { font-size: 1.1rem; margin-top: 12px; }
-    .cm-who [data-cm-viewer-close] { display: none; }
     .cm-comments { padding: 14px 16px 6px; }
     .cm-composer { padding: 10px 12px calc(12px + env(safe-area-inset-bottom)); }
     .cm-react { height: 34px; padding: 0 9px; }

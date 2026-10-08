@@ -16,7 +16,13 @@ $currentUsername = $_SESSION['username'] ?? null;
 
 $isPremium = false;
 $supporters = [];
+$supportersTotal = 0;
 $onlineCount = 0;
+
+/** Riga di chi sta guardando: serve al suo posto fisso tra i supporter e al riscatto giornaliero. */
+$viewerRow = [];
+$premiumClaimedToday = false;
+$premiumClaimLeft = 0;
 
 /** Oltre questo silenzio non si e' piu' "online adesso". */
 const HOME_ONLINE_WINDOW_MINUTES = 5;
@@ -26,14 +32,22 @@ const HOME_SUPPORTERS_LIMIT = 40;
 
 if (isset($mysqli) && $mysqli instanceof mysqli) {
     if ($isLoggedIn && isset($_SESSION['user_id'])) {
-        $stmtPrem = $mysqli->prepare("SELECT is_premium FROM utenti WHERE id = ? LIMIT 1");
+        $stmtPrem = $mysqli->prepare("SELECT is_premium, last_premium_claim, accent_color, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
         if ($stmtPrem) {
             $stmtPrem->bind_param('i', $_SESSION['user_id']);
             $stmtPrem->execute();
-            $resPrem = $stmtPrem->get_result()->fetch_assoc();
-            $isPremium = ((int)($resPrem['is_premium'] ?? 0) === 1);
+            $viewerRow = $stmtPrem->get_result()->fetch_assoc() ?: [];
+            $isPremium = ((int)($viewerRow['is_premium'] ?? 0) === 1);
             $stmtPrem->close();
         }
+    }
+
+    if ($isPremium) {
+        // Stesso "oggi" di api/premium_daily_claim.php: il pulsante della home
+        // e l'API devono essere d'accordo su quando il riscatto e' gia' fatto.
+        require_once __DIR__ . '/../includes/mission_generator.php';
+        $premiumClaimedToday = (($viewerRow['last_premium_claim'] ?? null) === getMissionDailyPeriod());
+        $premiumClaimLeft = max(0, strtotime('tomorrow') - time());
     }
 
     require_once __DIR__ . '/../includes/account_data_helpers.php';
@@ -48,6 +62,15 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             $supporters[] = $row;
         }
         $stmtSupp->close();
+    }
+
+    // La fila si ferma a HOME_SUPPORTERS_LIMIT facce, il conteggio no.
+    $supportersTotal = count($supporters);
+    $stmtSuppCount = $mysqli->prepare("SELECT COUNT(*) AS totale FROM utenti WHERE is_premium = 1 $suppActiveClause");
+    if ($stmtSuppCount) {
+        $stmtSuppCount->execute();
+        $supportersTotal = max($supportersTotal, (int)($stmtSuppCount->get_result()->fetch_assoc()['totale'] ?? 0));
+        $stmtSuppCount->close();
     }
 
     /**
@@ -101,9 +124,12 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
     <link rel="preload" as="image" href="../img/amongus.jpg">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.2">
+    <?php /* head-import carica solo Poppins 400: senza questi pesi ogni
+             grassetto della home era simulato dal browser. */ ?>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;1,600&amp;display=swap">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.3">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
-    <script src="/assets/home-v5/home.js?v=6.2" defer></script>
+    <script src="/assets/home-v5/home.js?v=6.3" defer></script>
     <script src="/assets/news/news-popup.js?v=1.1" defer></script>
 
 </head>
@@ -147,6 +173,25 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                             <i class="fa-solid fa-user"></i>
                             <span>Vai al profilo</span>
                         </a>
+                        <?php if ($isPremium): ?>
+                            <?php /* Il riscatto giornaliero sta qui e non piu' solo in
+                                     Lootbox: e' il motivo per cui un Premium torna ogni
+                                     giorno. Etichette e conto alla rovescia li gestisce
+                                     home.js. */ ?>
+                            <button class="home-btn <?php echo $premiumClaimedToday ? 'is-claimed' : 'home-btn--premium'; ?>"
+                                type="button"
+                                data-premium-claim
+                                data-seconds-left="<?php echo (int)$premiumClaimLeft; ?>"
+                                <?php echo $premiumClaimedToday ? 'disabled' : ''; ?>>
+                                <?php if ($premiumClaimedToday): ?>
+                                    <i class="fa-solid fa-check"></i>
+                                    <span><strong>Riscattati</strong> · tra <span data-claim-countdown>--:--:--</span></span>
+                                <?php else: ?>
+                                    <img class="home-btn__coin" src="/img/godos.png" alt="" width="20" height="20">
+                                    <span>Riscatta 500 Godos</span>
+                                <?php endif; ?>
+                            </button>
+                        <?php endif; ?>
                     <?php else: ?>
                         <a class="home-btn home-btn--primary" href="registrati">
                             <i class="fa-solid fa-user-plus"></i>
@@ -267,59 +312,96 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
         <!-- PREMIUM AD BLOCK & SUPPORTERS (ITALIAN) -->
         <?php if (!$isPremium): ?>
-            <section class="home-premium-promo-card home-reveal">
-                <div class="promo-copy">
-                    <span class="promo-tag">Cripsum™ Premium</span>
-                    <h3>Sblocca l'esperienza Cripsum™ definitiva</h3>
-                    <p>Ottieni vantaggi esclusivi, raddoppia i tuoi Godos e supporta la community.</p>
-                    <div class="promo-benefits">
-                        <div class="benefit-item"><img class="benefit-currency" src="/img/godos.png" alt=""><span>25.000 Godos subito all'acquisto</span></div>
-                        <div class="benefit-item"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"><span>Sblocco della personalizzazione premium nei profili</span></div>
-                        <div class="benefit-item"><img class="benefit-currency" src="/img/godos.png" alt=""><span>Riscatto giornaliero di 500 Godos Lootbox</span></div>
-                        <div class="benefit-item"><img class="benefit-currency" src="/img/godos.png" alt=""><span>Doppio boost (2x) sui Godos delle missioni</span></div>
-                        <div class="benefit-item"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"><span>Cripsum Rewind quando vuoi, non solo una settimana l'anno</span></div>
-                        <div class="benefit-item"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"><span>Tag premium con diamante vicino al tuo nome</span></div>
-                        <div class="benefit-item"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"><span>Nome in evidenza nella lista sostenitori</span></div>
-                    </div>
-                    <div class="promo-actions">
-                        <a href="checkout-premium" class="promo-btn-primary">
-                            <i class="fa-solid fa-cart-shopping"></i>
-                            <span>Diventa Premium</span>
-                        </a>
+            <section class="home-premium-promo-card home-reveal" aria-labelledby="homePremiumTitle">
+                <div class="promo-main">
+                    <h2 id="homePremiumTitle">Sblocca l'esperienza Cripsum™ definitiva</h2>
+                    <p class="promo-lead">Ottieni vantaggi esclusivi, raddoppia i tuoi Godos e supporta la community.</p>
+                    <div class="promo-perks">
+                        <ul>
+                            <li><img class="benefit-currency" src="/img/godos.png" alt="" width="22" height="22"><span><strong>25.000 Godos</strong> subito all'acquisto</span></li>
+                            <li><img class="benefit-currency" src="/img/godos.png" alt="" width="22" height="22"><span>Riscatto giornaliero di <strong>500 Godos Lootbox</strong></span></li>
+                            <li><img class="benefit-currency" src="/img/godos.png" alt="" width="22" height="22"><span><strong>Doppio boost (2x)</strong> sui Godos delle missioni</span></li>
+                        </ul>
+                        <ul>
+                            <li><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="22" height="22"><span>Sblocco della <strong>personalizzazione premium</strong> nei profili</span></li>
+                            <li><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="22" height="22"><span><strong>Cripsum Rewind quando vuoi</strong>, non solo una settimana l'anno</span></li>
+                            <li><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="22" height="22"><span><strong>Tag premium</strong> con diamante vicino al tuo nome</span></li>
+                            <li><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="22" height="22"><span><strong>Nome in evidenza</strong> nella lista sostenitori</span></li>
+                        </ul>
                     </div>
                 </div>
-                <div class="promo-art" aria-hidden="true">
-                    <img class="cr-premium-gem" src="/img/premium.svg" alt="" width="96" height="96">
+                <?php /* Prezzo e condizioni sono quelli di checkout-premium: se
+                         cambiano li' vanno cambiati anche qui. */ ?>
+                <div class="promo-offer">
+                    <img class="cr-premium-gem promo-offer__gem" src="/img/premium.svg" alt="" width="92" height="92">
+                    <p class="promo-offer__name">Cripsum™ Premium</p>
+                    <p class="promo-offer__price">€2,99</p>
+                    <p class="promo-offer__terms">Una tantum, nessun abbonamento</p>
+                    <a href="checkout-premium" class="home-btn home-btn--premium promo-offer__cta">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Diventa Premium</span>
+                    </a>
                 </div>
             </section>
         <?php endif; ?>
 
         <?php if (!empty($supporters)): ?>
-            <section class="home-supporters-section home-reveal">
+            <section class="home-supporters-section home-reveal" aria-labelledby="homeSupportersTitle">
                 <div class="home-supporters-title">
                     <div>
-                        <h2>I nostri Supporter Premium</h2>
+                        <h2 id="homeSupportersTitle">I nostri Supporter Premium</h2>
                         <p>Un grazie speciale agli utenti che supportano Cripsum™!</p>
                     </div>
+                    <p class="supporters-count">
+                        <img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14">
+                        <span><strong><?= home_h(number_format($supportersTotal, 0, ',', '.')) ?></strong> supporter</span>
+                    </p>
                 </div>
-                <div class="supporters-scroll-wrapper">
-                    <div class="supporters-grid">
-                        <?php foreach ($supporters as $s):
-                            $useDiscord = (int)($s['discord_use_display_name'] ?? 0) === 1;
-                            $discord = trim((string)($s['discord_global_name'] ?? '')) ?: trim((string)($s['discord_username'] ?? ''));
-                            $dispName = ($useDiscord && $discord !== '') ? $discord : (trim((string)($s['display_name'] ?? '')) ?: $s['username']);
-                            $stamp = !empty($s['profile_updated_at']) ? strtotime((string)$s['profile_updated_at']) : time();
-
-                            $suppColor = !empty($s['accent_color']) ? $s['accent_color'] : '#db2777';
+                <div class="supporters-row">
+                    <?php /* Il posto di chi guarda sta fuori dalla fila che scorre: chi
+                             e' Premium ci trova se stesso, gli altri un posto vuoto
+                             che porta al checkout. */ ?>
+                    <div class="supporters-you">
+                        <?php if ($isPremium):
+                            $viewerStamp = !empty($viewerRow['profile_updated_at']) ? strtotime((string)$viewerRow['profile_updated_at']) : time();
+                            $viewerColor = !empty($viewerRow['accent_color']) ? $viewerRow['accent_color'] : '#db2777';
                         ?>
-                            <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>" style="--supporter-color: <?= htmlspecialchars($suppColor) ?>;">
-                                <div class="supporter-avatar-container">
-                                    <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>&amp;t=<?= $stamp ?>&amp;size=96" alt="" class="supporter-pfp" width="48" height="48" decoding="async">
-                                    <div class="supporter-badge"><img class="cr-premium-gem" src="/img/premium.svg" alt="" width="14" height="14"></div>
-                                </div>
-                                <span class="supporter-name"><?= htmlspecialchars($dispName) ?></span>
+                            <a href="<?= home_h($profileUrl) ?>" class="supporter-card supporter-card--me" style="--supporter-color: <?= home_h($viewerColor) ?>;">
+                                <span class="supporter-avatar-container">
+                                    <img src="/includes/get_pfp.php?id=<?= (int)$_SESSION['user_id'] ?>&amp;t=<?= (int)$viewerStamp ?>&amp;size=96" alt="" class="supporter-pfp" width="64" height="64" decoding="async">
+                                </span>
+                                <span class="supporter-name">Tu</span>
                             </a>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <a href="checkout-premium" class="supporter-card supporter-card--slot" aria-label="Il tuo posto: diventa Premium">
+                                <span class="supporter-avatar-container"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+                                <span class="supporter-name">Il tuo posto</span>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    <div class="supporters-scroll-wrapper">
+                        <div class="supporters-grid">
+                            <?php foreach ($supporters as $s):
+                                // Chi guarda da Premium ha gia' il suo posto fisso qui accanto.
+                                if ($isPremium && (int)$s['id'] === (int)$_SESSION['user_id']) {
+                                    continue;
+                                }
+
+                                $useDiscord = (int)($s['discord_use_display_name'] ?? 0) === 1;
+                                $discord = trim((string)($s['discord_global_name'] ?? '')) ?: trim((string)($s['discord_username'] ?? ''));
+                                $dispName = ($useDiscord && $discord !== '') ? $discord : (trim((string)($s['display_name'] ?? '')) ?: $s['username']);
+                                $stamp = !empty($s['profile_updated_at']) ? strtotime((string)$s['profile_updated_at']) : time();
+
+                                $suppColor = !empty($s['accent_color']) ? $s['accent_color'] : '#db2777';
+                            ?>
+                                <a href="/u/<?= rawurlencode(strtolower($s['username'])) ?>" class="supporter-card" title="<?= htmlspecialchars($dispName) ?>" style="--supporter-color: <?= htmlspecialchars($suppColor) ?>;">
+                                    <span class="supporter-avatar-container">
+                                        <img src="/includes/get_pfp.php?id=<?= (int)$s['id'] ?>&amp;t=<?= $stamp ?>&amp;size=96" alt="" class="supporter-pfp" width="64" height="64" decoding="async">
+                                    </span>
+                                    <span class="supporter-name"><?= htmlspecialchars($dispName) ?></span>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -371,7 +453,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <?php if (!empty($supporters)): ?>
-        <script src="/js/home-supporters.js?v=1.9" defer></script>
+        <script src="/js/home-supporters.js?v=2.0" defer></script>
     <?php endif; ?>
 </body>
 

@@ -16,6 +16,10 @@
     --home-radius-md: 18px;
     --home-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
     --home-transition: 180ms ease;
+    /* Premium: gli stessi due colori che Lootbox e Gacha usano gia'. */
+    --home-premium-a: #a21caf;
+    --home-premium-b: #db2777;
+    --home-premium-ink: rgba(255, 234, 247, 0.76);
 }
 
 * {
@@ -108,6 +112,7 @@ body.home-v5-body {
 .home-feature,
 .home-social-section,
 .home-account,
+.home-supporters-section,
 .home-modal-content {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.058), rgba(255, 255, 255, 0.022)), var(--home-card);
     border: 1px solid var(--home-border);
@@ -329,6 +334,18 @@ body.home-v5-body {
     border-color: rgba(var(--home-accent-rgb), 0.46);
     color: #fff;
     background: rgba(var(--home-accent-rgb), 0.13);
+}
+
+/* Senza questa regola il passaggio del mouse toglieva il colore al pulsante
+   principale, che diventava trasparente proprio mentre lo si sta per premere. */
+.home-btn--primary:hover {
+    border-color: transparent;
+    background: linear-gradient(135deg, rgba(var(--home-accent-rgb), 1), rgba(139, 92, 246, 1));
+}
+
+.home-btn:focus-visible {
+    outline: 2px solid #9bb7ff;
+    outline-offset: 3px;
 }
 
 /* Mood images without boxed square feel */
@@ -1685,7 +1702,10 @@ body.home-v5-body {
         padding: 0.85rem;
     }
 
+    /* Tre pulsanti in riga non ci stanno su un telefono: "Registrati" finiva
+       tagliato dal bordo del riquadro. */
     .home-account__actions {
+        flex-direction: column;
         width: 100%;
     }
 
@@ -1767,266 +1787,163 @@ body.home-v5-body {
     }
 }
 
-/* Supporters List Section */
-.home-supporters-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    padding: 2rem 1.5rem;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--home-radius-xl);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+/* Premium e Supporter
+   Le due sezioni dicono la stessa cosa da due lati (cosa compri, chi l'ha
+   gia' fatto): stanno vicine tra loro e staccate dal resto della pagina. */
+
+/* Pulsante Premium: forma e misura degli altri, nel magenta di Lootbox e Gacha. */
+.home-btn--premium {
+    border-color: transparent;
+    color: #fff;
+    background: linear-gradient(135deg, var(--home-premium-a), var(--home-premium-b));
+    box-shadow: 0 12px 30px rgba(190, 24, 93, 0.3);
+    transition: transform var(--home-transition), box-shadow var(--home-transition), filter var(--home-transition);
 }
 
-.home-supporters-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
+.home-btn--premium:hover {
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--home-premium-a), var(--home-premium-b));
+    filter: brightness(1.12);
 }
 
-.home-supporters-title h2 {
-    margin: 0;
-    font-size: clamp(1.4rem, 3.5vw, 2rem);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    background: linear-gradient(135deg, #f472b6 0%, #c084fc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.home-btn__coin {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0;
+    object-fit: contain;
 }
 
-.home-supporters-title p {
-    margin: 0.25rem 0 0;
-    font-size: 0.9rem;
+/* Riscatto giornaliero gia' fatto: il pulsante resta al suo posto ma smette
+   di chiamare, e dice quanto manca al prossimo. */
+.home-btn.is-claimed,
+.home-btn.is-claimed:hover {
+    transform: none;
+    border-color: var(--home-border);
     color: var(--home-muted);
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: none;
+    filter: none;
+    cursor: default;
+    font-variant-numeric: tabular-nums;
 }
 
-.supporters-scroll-wrapper {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    padding: 0.5rem 0;
-    /* Edge fade effect */
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+.home-btn.is-claimed i {
+    color: #34d399;
 }
 
-.supporters-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 1.25rem;
-    overflow-x: auto;
-    scrollbar-width: none; /* Hide scrollbar in Firefox */
-    -ms-overflow-style: none;  /* Hide scrollbar in IE/Edge */
-    padding: 0.5rem 10px;
-    transition: cursor 0.1s ease;
-    user-select: none;
+.home-btn.is-claimed strong {
+    color: var(--home-text);
+    font-weight: inherit;
 }
 
-.supporters-grid::-webkit-scrollbar {
-    display: none; /* Hide scrollbar in Chrome/Safari/Webkit */
+.home-btn.is-busy {
+    opacity: 0.75;
+    cursor: progress;
 }
 
-.supporter-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    width: 100px;
-    flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 18px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    text-decoration: none !important;
-}
-
-.supporter-card:hover {
-    transform: translateY(-4px) scale(1.03);
-    background: rgba(255, 255, 255, 0.07);
-    border-color: color-mix(in srgb, var(--supporter-color, #db2777) 40%, transparent);
-    box-shadow: 0 8px 24px color-mix(in srgb, var(--supporter-color, #db2777) 15%, transparent);
-}
-
-.supporter-avatar-container {
-    position: relative;
-    width: 52px;
-    height: 52px;
-}
-
-.supporter-pfp {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--supporter-color, #db2777);
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.supporter-badge {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    background: var(--supporter-color, #db2777);
-    color: #fff;
-    font-size: 0.65rem;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid #080810;
-}
-
-.supporter-badge i {
-    font-size: 0.55rem;
-}
-
-.supporter-name {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--supporter-color, rgba(255, 255, 255, 0.85));
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-    transition: all 0.2s ease;
-}
-
-.supporter-card:hover .supporter-name {
-    color: #fff;
-    text-shadow: 0 0 8px var(--supporter-color, #db2777);
-}
-
-/* Premium Promo Card */
+/* Scheda Premium */
 .home-premium-promo-card {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-top: 2rem;
-    padding: 2.5rem;
-    background: linear-gradient(135deg, rgba(88, 28, 135, 0.2) 0%, rgba(131, 24, 67, 0.2) 100%);
-    border: 1px solid rgba(219, 39, 119, 0.3);
-    border-radius: var(--home-radius-xl);
-    box-shadow: 0 15px 50px rgba(131, 24, 67, 0.15);
     position: relative;
-    overflow: hidden;
-}
-
-.home-premium-promo-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(219, 39, 119, 0.08) 0%, transparent 60%);
-    pointer-events: none;
-}
-
-.promo-copy {
-    flex: 1;
-    z-index: 2;
-}
-
-.promo-tag {
-    display: inline-block;
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #db2777;
-    background: rgba(219, 39, 119, 0.15);
-    border-radius: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.75rem;
-}
-
-.promo-copy h3 {
-    margin: 0 0 0.5rem;
-    font-size: clamp(1.5rem, 4vw, 2.2rem);
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    color: #fff;
-}
-
-.promo-copy p {
-    margin: 0 0 1.5rem;
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.75);
-    line-height: 1.5;
-}
-
-.promo-benefits {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.75rem;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    min-width: 0;
+    margin-top: 2.75rem;
+    overflow: hidden;
+    border: 1px solid rgba(219, 39, 119, 0.28);
+    border-radius: var(--home-radius-xl);
+    background: radial-gradient(34rem 22rem at 100% 0%, rgba(219, 39, 119, 0.24), transparent 64%),
+        radial-gradient(30rem 20rem at 0% 115%, rgba(124, 58, 237, 0.16), transparent 60%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)), rgba(14, 9, 24, 0.84);
+    box-shadow: var(--home-shadow);
 }
 
-.benefit-item {
-    display: flex;
-    align-items: center;
+.promo-main {
+    min-width: 0;
+    padding: 2.5rem 2.5rem 2.6rem;
+}
+
+.promo-main h2 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(1.7rem, 3.4vw, 2.35rem);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+}
+
+.promo-lead {
+    margin: 0.8rem 0 0;
+    color: var(--home-premium-ink);
+    line-height: 1.55;
+}
+
+/* Due elenchi affiancati: a sinistra quello che arriva in Godos, a destra
+   quello che cambia su profilo e nome. L'icona dice gia' di che gruppo e'. */
+.promo-perks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.95rem 2.25rem;
+    margin-top: 1.75rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.promo-perks ul {
+    display: grid;
+    gap: 0.95rem;
+    align-content: start;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.promo-perks li {
+    display: grid;
+    grid-template-columns: 1.375rem minmax(0, 1fr);
     gap: 0.75rem;
-    font-size: 0.88rem;
-    color: rgba(255, 255, 255, 0.85);
+    align-items: start;
+    color: var(--home-premium-ink);
+    font-size: 0.94rem;
+    line-height: 1.45;
+}
+
+.promo-perks li span {
+    text-wrap: pretty;
+}
+
+/* La parte in evidenza non si spezza mai su due righe. */
+.promo-perks li strong {
+    color: #fff;
     font-weight: 600;
+    white-space: nowrap;
 }
 
-.benefit-item i {
-    color: #fb7185;
-    font-size: 0.95rem;
+.promo-perks .benefit-currency,
+.promo-perks .cr-premium-gem {
+    width: 1.375rem;
+    height: 1.375rem;
+    margin-top: 0.02rem;
+    border-radius: 0;
+    object-fit: contain;
 }
 
-.promo-actions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+.promo-offer {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    padding: 2.25rem 2rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.09);
+    background: linear-gradient(180deg, rgba(219, 39, 119, 0.1), rgba(162, 28, 175, 0.03));
+    text-align: center;
 }
 
-.promo-btn-primary {
-    background: linear-gradient(135deg, #a21caf 0%, #db2777 100%) !important;
-    color: #fff !important;
-    border: none !important;
-    padding: 10px 24px !important;
-    border-radius: 14px !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
-    font-size: 0.9rem !important;
-    box-shadow: 0 4px 15px rgba(219, 39, 119, 0.4) !important;
-    transition: all 0.25s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-}
-
-.promo-btn-primary:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(219, 39, 119, 0.6) !important;
-    filter: brightness(1.1) !important;
-    color: #fff !important;
-}
-
-.promo-art {
-    width: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-}
-
-.promo-art i {
-    font-size: 6rem;
-    color: #db2777;
-    filter: drop-shadow(0 0 15px rgba(219, 39, 119, 0.5));
+.promo-offer .promo-offer__gem {
+    width: 5.75rem;
+    height: 5.75rem;
+    border-radius: 0;
+    filter: drop-shadow(0 16px 22px rgba(245, 158, 11, 0.3));
     animation: gemFloat 4s infinite ease-in-out;
 }
 
@@ -2035,37 +1952,344 @@ body.home-v5-body {
     50% { transform: translateY(-8px) rotate(5deg); }
 }
 
-@media (max-width: 768px) {
-    .home-premium-promo-card {
-        flex-direction: column-reverse;
-        padding: 1.75rem;
-        gap: 1.5rem;
-    }
-    .promo-art i {
-        font-size: 4.5rem;
-    }
-    .promo-benefits {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
+.promo-offer__name {
+    margin: 1rem 0 0;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
-/* Vantaggi Premium che parlano di Godos: l'immagine della valuta. */
-.benefit-item .benefit-currency {
-    width: 1.1rem;
-    height: 1.1rem;
+.promo-offer__price {
+    margin: 0.3rem 0 0;
+    color: #fff;
+    font-size: 2.9rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
+.promo-offer__terms {
+    margin: 0.5rem 0 0;
+    color: var(--home-premium-ink);
+    font-size: 0.84rem;
+    line-height: 1.4;
+}
+
+.promo-offer__cta {
+    width: 100%;
+    margin-top: 1.35rem;
+}
+
+/* Fila dei Supporter */
+.home-supporters-section {
+    min-width: 0;
+    margin-top: 1rem;
+    padding: 1.9rem 0 1.6rem;
+    overflow: hidden;
+}
+
+.home-supporters-title {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 2.25rem;
+}
+
+.home-supporters-title h2 {
+    margin: 0;
+    color: var(--home-text);
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+}
+
+.home-supporters-title p {
+    margin: 0.45rem 0 0;
+    color: var(--home-muted);
+    font-size: 0.92rem;
+}
+
+.home-supporters-title .supporters-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
     flex: none;
-    object-fit: contain;
+    margin: 0;
+    padding-bottom: 0.1rem;
+    font-size: 0.88rem;
+    white-space: nowrap;
 }
 
-/* Gemma Premium (img/premium.svg) nella sezione Premium della home. */
-.benefit-item .cr-premium-gem { font-size: 1.05rem; }
-.supporter-badge .cr-premium-gem { font-size: 11px; }
-.promo-art .cr-premium-gem {
-    font-size: 6rem;
-    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.45));
-    animation: gemFloat 4s infinite ease-in-out;
+.supporters-count strong {
+    color: var(--home-text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
 }
-@media (max-width: 768px) {
-    .promo-art .cr-premium-gem { font-size: 4.5rem; }
+
+.supporters-count .cr-premium-gem {
+    border-radius: 0;
+}
+
+.supporters-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    margin-top: 1.5rem;
+}
+
+/* Il posto di chi guarda sta fermo a sinistra, fuori dalla fila che scorre. */
+.supporters-you {
+    padding: 0.75rem 1.4rem 0.5rem 2.25rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.supporters-scroll-wrapper {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 4%, #000 90%, transparent);
+}
+
+/* Spazio tra le schede e margine laterale restano 20px e 10px: sono i numeri
+   con cui home-supporters.js calcola dove ricomincia il giro. Sopra serve
+   aria per l'anello e per l'avatar che si alza al passaggio del mouse. */
+.supporters-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding: 0.75rem 10px 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    user-select: none;
+}
+
+.supporters-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.supporter-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    flex: none;
+    width: 6.5rem;
+    border-radius: 18px;
+    color: var(--home-text);
+    text-decoration: none;
+}
+
+.supporter-avatar-container {
+    position: relative;
+    display: block;
+    width: 4rem;
+    height: 4rem;
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.supporter-pfp {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Anello nel colore accento, staccato dalla foto. Il filo chiaro esterno lo
+   tiene visibile anche quando l'accento scelto e' quasi nero. */
+.supporter-avatar-container::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border: 2px solid var(--supporter-color, #db2777);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+}
+
+/* Il nome prende una tinta chiara dell'accento invece dell'accento puro: con
+   un accento scuro il nome spariva sul fondo. */
+.supporter-name {
+    max-width: 100%;
+    overflow: hidden;
+    color: color-mix(in oklab, var(--supporter-color, #fff) 36%, #fff);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color var(--home-transition);
+}
+
+.supporter-card:hover .supporter-avatar-container {
+    transform: translateY(-4px);
+}
+
+.supporter-card:hover .supporter-name {
+    color: #fff;
+}
+
+.supporter-card:focus-visible {
+    outline: 2px solid #9bb7ff;
+    outline-offset: 3px;
+}
+
+/* Posto vuoto: invita a diventare Premium. */
+.supporter-card--slot .supporter-avatar-container {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: rgba(255, 234, 247, 0.8);
+    background: rgba(219, 39, 119, 0.1);
+    font-size: 1.15rem;
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), background var(--home-transition), color var(--home-transition);
+}
+
+.supporter-card--slot .supporter-avatar-container::after {
+    border: 1.5px dashed rgba(244, 114, 182, 0.7);
+    box-shadow: none;
+}
+
+.supporter-card--slot .supporter-name {
+    color: var(--home-premium-ink);
+}
+
+.supporter-card--slot:hover .supporter-avatar-container {
+    color: #fff;
+    background: rgba(219, 39, 119, 0.22);
+}
+
+.supporter-card--me .supporter-name {
+    color: #fff;
+    font-weight: 600;
+}
+
+@media (max-width: 980px) {
+    /* A questa larghezza due colonne di vantaggi sarebbero troppo strette. */
+    .home-premium-promo-card {
+        grid-template-columns: minmax(0, 1fr) 18rem;
+    }
+
+    .promo-perks {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 720px) {
+    .home-premium-promo-card {
+        grid-template-columns: minmax(0, 1fr);
+        margin-top: 2rem;
+        border-radius: 24px;
+    }
+
+    .promo-main {
+        padding: 1.5rem 1.25rem 1.4rem;
+    }
+
+    .promo-main h2 {
+        font-size: 1.7rem;
+    }
+
+    .promo-lead {
+        font-size: 0.94rem;
+    }
+
+    .promo-perks {
+        gap: 0.85rem;
+        margin-top: 1.35rem;
+        padding-top: 1.25rem;
+    }
+
+    .promo-perks ul {
+        gap: 0.85rem;
+    }
+
+    .promo-perks li {
+        font-size: 0.92rem;
+    }
+
+    /* Sul telefono l'offerta diventa una riga: nome e prezzo, poi il pulsante. */
+    .promo-offer {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        justify-items: start;
+        align-items: center;
+        column-gap: 0.6rem;
+        padding: 1.15rem 1.25rem 1.3rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.09);
+        border-left: 0;
+        text-align: left;
+    }
+
+    .promo-offer .promo-offer__gem {
+        width: 1.6rem;
+        height: 1.6rem;
+        filter: none;
+        animation: none;
+    }
+
+    .promo-offer__name {
+        margin: 0;
+        font-size: 0.98rem;
+        white-space: nowrap;
+    }
+
+    .promo-offer__price {
+        grid-column: 3;
+        grid-row: 1;
+        margin: 0;
+        font-size: 1.75rem;
+    }
+
+    .promo-offer__terms {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin: 0.45rem 0 0;
+        font-size: 0.82rem;
+    }
+
+    .promo-offer__cta {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        margin-top: 1rem;
+    }
+
+    .home-supporters-section {
+        padding: 1.4rem 0 1.2rem;
+        border-radius: 22px;
+    }
+
+    .home-supporters-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 0 1.25rem;
+    }
+
+    .home-supporters-title p {
+        font-size: 0.88rem;
+    }
+
+    .supporters-row {
+        margin-top: 1.1rem;
+    }
+
+    .supporters-you {
+        padding: 0.75rem 0.7rem 0.5rem 1.05rem;
+    }
+
+    .supporter-card {
+        width: 5.6rem;
+    }
+
+    .supporter-avatar-container {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
 }

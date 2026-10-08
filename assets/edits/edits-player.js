@@ -3,6 +3,8 @@
  *
  *   const player = CripsumPlayer.mount(el, {
  *       src, poster, title, autoplay: true,
+ *       fullscreen: { toggle, isOn },  // facoltativo: lo schermo intero lo
+ *                                  // gestisce chi ospita il player
  *       preload: 'metadata',       // facoltativo (predefinito 'auto'): con
  *                                  // 'metadata' o 'none' il video si scarica
  *                                  // solo quando parte, e il gemello del loop
@@ -12,6 +14,7 @@
  *       strings: { play: 'Riproduci', ... },
  *   });
  *   player.handleKey(event)  // spazio/K, M, F, J/L, < >: true se l'ha usato
+ *   player.syncFullscreen()  // con options.fullscreen: ridisegna il tasto
  *   player.destroy()
  *
  * Loop senza stacchi: il tag <video loop> torna all'inizio con un salto
@@ -815,9 +818,19 @@
 
         /* ── Schermo intero ── */
 
-        const isFullscreen = () => document.fullscreenElement === root || document.webkitFullscreenElement === root;
+        // Di norma va a schermo intero il player. Chi lo ospita puo' pensarci
+        // lui (options.fullscreen): il post aperto ci manda tutto lo stage,
+        // con le sue frecce, e avvisa con syncFullscreen() quando cambia.
+        const hostFs = options.fullscreen || null;
+        const isFullscreen = () => (hostFs
+            ? Boolean(hostFs.isOn())
+            : document.fullscreenElement === root || document.webkitFullscreenElement === root);
 
         const toggleFullscreen = () => {
+            if (hostFs) {
+                hostFs.toggle();
+                return;
+            }
             if (isFullscreen()) {
                 (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
                 return;
@@ -937,6 +950,7 @@
         applyAudio();
         paintVolume();
         setRate(prefs.rate);
+        onFullscreen();
         if (options.poster) active.poster = options.poster;
         if (options.title) active.setAttribute('aria-label', options.title);
         active.src = options.src || '';
@@ -961,6 +975,7 @@
             get video() {
                 return active;
             },
+            syncFullscreen: onFullscreen,
             // Spazio/K pausa, M muto, F schermo intero, J/L 5 secondi, < > velocita'.
             handleKey(event) {
                 if (destroyed || event.ctrlKey || event.metaKey || event.altKey) return false;
@@ -997,7 +1012,8 @@
                 document.removeEventListener('pointerdown', outside);
                 document.removeEventListener('fullscreenchange', onFullscreen);
                 document.removeEventListener('webkitfullscreenchange', onFullscreen);
-                if (isFullscreen()) (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+                // Lo schermo intero di chi lo ospita resta com'e'.
+                if (!hostFs && isFullscreen()) (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
                 [active, spare].forEach((el) => {
                     if (!el) return;
                     try {
