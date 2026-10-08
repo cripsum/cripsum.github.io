@@ -1,0 +1,1066 @@
+/* ============================================================
+   Homepage, tema nuovo
+   ============================================================
+
+   Va insieme a includes/home_next.php e viene caricato al posto di
+   assets/home-v5/home.css, mai insieme: per questo i pulsanti e la fila dei
+   supporter tengono i nomi di classe di sempre (.home-btn, .supporter-card):
+   sono quelli che cercano home-v5/home.js e js/home-supporters.js, che qui
+   vengono riusati tali e quali.
+
+   I colori e il carattere arrivano da assets/theme-next/theme.css.
+
+   Due soli movimenti in tutta la pagina: il testo sale di poco mentre compare,
+   le immagini si mettono a fuoco. In piu' il titolo, che entra una parola
+   alla volta.
+   ============================================================ */
+
+.home-next {
+    /* Larghezza del contenuto e stacco tra le sezioni: le due misure a cui
+       si allinea tutto il resto. */
+    --hx-max: 1080px;
+    --hx-gutter: max(20px, calc((100% - var(--hx-max)) / 2));
+    --hx-sec: clamp(6rem, 12vw, 10rem);
+
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+    font-size: 1.0625rem;
+    line-height: 1.47;
+}
+
+.home-next *,
+.home-next *::before,
+.home-next *::after {
+    box-sizing: border-box;
+}
+
+.home-wrap {
+    width: min(var(--hx-max), 100% - 40px);
+    margin-inline: auto;
+}
+
+.home-next :focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 4px;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────────
+   Una pillola piena per l'azione principale, link con la freccia per il
+   resto. L'etichetta viene rifilata all'altezza delle maiuscole: cosi' il
+   testo sta al centro esatto della pillola con qualunque carattere. */
+
+.home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1.4rem;
+    border: 1px solid transparent;
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text);
+    font: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 240ms var(--nx-ease), border-color 240ms var(--nx-ease), color 240ms var(--nx-ease), transform 240ms var(--nx-ease);
+}
+
+.home-btn > span {
+    display: block;
+    text-box: trim-both cap alphabetic;
+}
+
+.home-btn:active {
+    transform: scale(0.97);
+}
+
+.home-btn--primary {
+    background: var(--nx-text);
+    color: #000;
+}
+
+.home-btn--primary:hover {
+    background: #fff;
+    color: #000;
+}
+
+.home-btn--dark {
+    background: var(--nx-paper-ink);
+    color: #fff;
+}
+
+.home-btn--dark:hover {
+    background: #000;
+    color: #fff;
+}
+
+/* Il riscatto giornaliero: pillola a filo, con la moneta. home-v5/home.js
+   scambia questa classe con .is-claimed quando il riscatto e' fatto. */
+.home-btn--premium {
+    border-color: #48484c;
+}
+
+.home-btn--premium:hover {
+    border-color: var(--nx-text-2);
+    color: var(--nx-text);
+}
+
+/* L'icona a sinistra pesa meno del testo a destra: un filo di margine in meno
+   la rimette in asse. */
+.home-btn__coin {
+    display: block;
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-left: -0.15rem;
+    object-fit: contain;
+}
+
+.home-btn i {
+    flex: none;
+    margin-left: -0.1rem;
+    font-size: 0.9em;
+}
+
+.home-btn.is-claimed,
+.home-btn.is-claimed:hover,
+.home-btn.is-claimed:active {
+    transform: none;
+    border-color: var(--nx-line);
+    color: var(--nx-text-2);
+    cursor: default;
+    font-variant-numeric: tabular-nums;
+}
+
+.home-btn.is-claimed i {
+    color: var(--nx-ok);
+}
+
+.home-btn.is-claimed strong {
+    color: var(--nx-text);
+    font-weight: inherit;
+}
+
+.home-btn.is-busy {
+    opacity: 0.7;
+    cursor: progress;
+}
+
+.home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    min-height: 2.75rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--nx-text);
+    font: inherit;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.home-link:hover {
+    color: var(--nx-text);
+}
+
+/* La sottolineatura si disegna da sinistra: e' una linea piena, non una sfumatura. */
+.home-link__label {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 360ms var(--nx-ease);
+}
+
+.home-link__chev {
+    flex: none;
+    width: 0.44em;
+    height: 0.76em;
+    transition: transform 360ms var(--nx-ease);
+}
+
+.home-link:hover .home-link__label,
+.home-card__link:hover .home-link__label {
+    background-size: 100% 1px;
+}
+
+.home-link:hover .home-link__chev,
+.home-card__link:hover .home-link__chev {
+    transform: translateX(4px);
+}
+
+.home-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--nx-text-2);
+    font-size: 0.875rem;
+}
+
+.home-online::before {
+    content: "";
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--nx-ok);
+}
+
+.home-online[hidden] {
+    display: none;
+}
+
+.home-online strong {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+/* ── Avviso (errore passato dalla sessione) ───────────────── */
+
+.home-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: min(680px, 100% - 40px);
+    margin: 7rem auto -5rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid color-mix(in srgb, var(--nx-danger) 45%, transparent);
+    border-radius: 16px;
+    background: var(--nx-surface);
+    color: var(--nx-text);
+}
+
+.home-alert i {
+    color: var(--nx-danger);
+}
+
+/* ── Riquadro immagine ────────────────────────────────────── */
+
+.home-tile {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+}
+
+.home-tile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ── Hero ─────────────────────────────────────────────────── */
+
+.home-hero {
+    padding-top: 10.5rem;
+    text-align: center;
+}
+
+.home-hero__title {
+    max-width: 62rem;
+    margin: 0 auto;
+    color: var(--nx-text);
+    font-size: clamp(2.6rem, 7.3vw, 5.25rem);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+}
+
+/* Ogni parola sale da dietro la propria riga. Il margine negativo compensa lo
+   spazio aggiunto sotto per non tagliare le lettere che scendono (g, p). */
+.home-word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    margin-bottom: -0.14em;
+    padding-bottom: 0.14em;
+}
+
+.home-word > span {
+    display: inline-block;
+    animation: homeWord 1100ms var(--nx-ease) both;
+    animation-delay: calc(var(--i) * 55ms + 100ms);
+}
+
+.home-hero__lead {
+    max-width: 39rem;
+    margin: 1.6rem auto 0;
+    color: var(--nx-text-2);
+    font-size: clamp(1.125rem, 2vw, 1.3125rem);
+    line-height: 1.38;
+    letter-spacing: -0.015em;
+    animation: homeRise 900ms var(--nx-ease) 480ms both;
+}
+
+.home-hero__question {
+    margin: 0.9rem auto 0;
+    color: var(--nx-text);
+    font-style: italic;
+    font-weight: 500;
+    animation: homeRise 900ms var(--nx-ease) 560ms both;
+}
+
+.home-hero__online {
+    margin: 1rem 0 0;
+    animation: homeRise 900ms var(--nx-ease) 620ms both;
+}
+
+.home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem 1.75rem;
+    margin-top: 2rem;
+}
+
+.home-hero .home-actions {
+    animation: homeRise 900ms var(--nx-ease) 660ms both;
+}
+
+.home-hero__media {
+    width: min(45rem, 100%);
+    margin: 4.75rem auto 0;
+    border-radius: 28px;
+    animation: homeFocus 1300ms var(--nx-ease) 740ms both;
+}
+
+/* La foto originale ha una riga piu' chiara sul bordo alto: un filo di
+   ingrandimento la taglia via. */
+.home-hero__media img {
+    scale: 1.015;
+    animation: homeSettle 1500ms var(--nx-ease) 740ms both;
+}
+
+@keyframes homeWord {
+    from { transform: translateY(108%); }
+}
+
+@keyframes homeRise {
+    from { opacity: 0; transform: translateY(22px); }
+}
+
+@keyframes homeFocus {
+    from { opacity: 0; filter: blur(14px); transform: translateY(18px) scale(0.975); }
+}
+
+@keyframes homeSettle {
+    from { scale: 1.06; }
+}
+
+/* ── Comparsa allo scorrimento ────────────────────────────────
+   home-v5/home.js aggiunge .is-visible quando l'elemento entra nello schermo.
+   La sfocatura dei riquadri sta sul riquadro intero e non sulla foto: sfocando
+   solo la foto i bordi sbiadivano verso l'interno. */
+
+.home-reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 900ms var(--nx-ease), transform 1100ms var(--nx-ease);
+    transition-delay: calc(var(--d, 0) * 1ms);
+}
+
+.home-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+.home-tile.home-reveal {
+    filter: blur(14px);
+    transform: translateY(18px) scale(0.975);
+    transition: opacity 900ms var(--nx-ease), filter 1100ms var(--nx-ease), transform 1300ms var(--nx-ease);
+    transition-delay: calc(var(--d, 0) * 1ms);
+}
+
+.home-tile.home-reveal.is-visible {
+    filter: blur(0);
+    transform: none;
+}
+
+/* ── Mood ─────────────────────────────────────────────────── */
+
+.home-mood {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-top: 7rem;
+}
+
+.home-mood figure {
+    margin: 0;
+}
+
+.home-mood .home-tile {
+    aspect-ratio: 4 / 3;
+}
+
+.home-mood figcaption {
+    margin-top: 0.9rem;
+    color: var(--nx-text);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+/* ── Titoli di sezione ────────────────────────────────────── */
+
+.home-block {
+    margin-top: var(--hx-sec);
+}
+
+.home-head h2 {
+    margin: 0;
+    color: var(--nx-text);
+    font-size: clamp(2rem, 4.4vw, 3rem);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+}
+
+.home-head p {
+    margin: 0.8rem 0 0;
+    color: var(--nx-text-2);
+    font-size: clamp(1.125rem, 2vw, 1.3125rem);
+    line-height: 1.38;
+    letter-spacing: -0.015em;
+}
+
+.home-head--center {
+    text-align: center;
+}
+
+/* ── Cosa puoi fare: galleria ─────────────────────────────────
+   Si sfoglia in orizzontale. Parte allineata al contenuto e prosegue oltre il
+   bordo destro, cosi' si capisce che continua. */
+
+.home-gallery {
+    margin-top: 3.25rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--hx-gutter);
+    scrollbar-width: none;
+}
+
+.home-gallery::-webkit-scrollbar {
+    display: none;
+}
+
+.home-gallery__track {
+    display: flex;
+    gap: 1.25rem;
+    width: max-content;
+    margin: 0;
+    padding: 0 var(--hx-gutter);
+    list-style: none;
+}
+
+.home-card {
+    flex: none;
+    width: clamp(16.5rem, 27vw, 21.25rem);
+    scroll-snap-align: start;
+}
+
+.home-card__link {
+    display: block;
+    color: var(--nx-text);
+    text-decoration: none;
+}
+
+.home-card .home-tile {
+    aspect-ratio: 1;
+}
+
+.home-card .home-tile img {
+    scale: 1.08;
+    transition: scale 1100ms var(--nx-ease);
+}
+
+.home-card__link:hover .home-tile img {
+    scale: 1.14;
+}
+
+@supports (animation-timeline: view()) {
+    /* Mentre si sfoglia, la foto scorre un poco dentro il proprio riquadro. */
+    .home-card .home-tile img {
+        animation: homeDrift linear both;
+        animation-timeline: view(inline);
+    }
+}
+
+@keyframes homeDrift {
+    from { translate: 3.5% 0; }
+    to { translate: -3.5% 0; }
+}
+
+.home-card h3 {
+    margin: 1.15rem 0 0;
+    color: var(--nx-text);
+    font-size: clamp(1.3125rem, 2.2vw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.028em;
+}
+
+.home-card p {
+    min-height: 2.8em;
+    margin: 0.45rem 0 0;
+    color: var(--nx-text-2);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    letter-spacing: -0.006em;
+}
+
+.home-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    margin-top: 0.7rem;
+    font-size: 0.9375rem;
+    line-height: 1.2;
+}
+
+.home-gallery__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 2.25rem;
+}
+
+.home-progress {
+    position: relative;
+    width: 11rem;
+    height: 2px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--nx-line);
+}
+
+.home-progress span {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--nx-text);
+    transform: scaleX(var(--p, 0.3));
+    transform-origin: left;
+    transition: transform 200ms linear;
+}
+
+.home-paddles {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.home-paddle {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+    cursor: pointer;
+    transition: background-color 240ms var(--nx-ease), opacity 240ms var(--nx-ease), transform 240ms var(--nx-ease);
+}
+
+.home-paddle:hover {
+    background: #2e2e31;
+}
+
+.home-paddle:active {
+    transform: scale(0.94);
+}
+
+.home-paddle:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.home-paddle svg {
+    width: 0.5rem;
+    height: 0.9rem;
+}
+
+.home-paddle--prev svg {
+    transform: scaleX(-1);
+}
+
+/* ── Premium: l'unica superficie chiara della pagina ──────── */
+
+.home-prem {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: 4.5rem;
+    align-items: center;
+    margin-top: var(--hx-sec);
+    padding: 4.5rem;
+    border-radius: var(--nx-radius-lg);
+    background: var(--nx-paper);
+    color: var(--nx-paper-ink);
+}
+
+.home-prem__gem {
+    display: block;
+    width: 3.25rem;
+    height: 3.25rem;
+    filter: drop-shadow(0 8px 10px rgba(180, 83, 9, 0.28));
+}
+
+.home-prem h2 {
+    margin: 1.5rem 0 0;
+    color: var(--nx-paper-ink);
+    font-size: clamp(1.9rem, 4vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.07;
+    letter-spacing: -0.036em;
+    text-wrap: balance;
+}
+
+.home-prem__lead {
+    margin: 1rem 0 0;
+    color: var(--nx-paper-2);
+    font-size: clamp(1.0625rem, 1.8vw, 1.1875rem);
+    line-height: 1.42;
+    letter-spacing: -0.014em;
+}
+
+.home-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.7rem;
+    margin: 2.1rem 0 0;
+}
+
+.home-price strong {
+    font-size: clamp(2.1rem, 3.6vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+}
+
+.home-price span {
+    color: var(--nx-paper-2);
+}
+
+.home-prem .home-btn {
+    margin-top: 1.4rem;
+}
+
+.home-perks {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.home-perks li {
+    display: grid;
+    grid-template-columns: 1.4rem minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: center;
+    padding: 0.92rem 0;
+    border-top: 1px solid var(--nx-paper-line);
+    color: #424245;
+    line-height: 1.35;
+}
+
+.home-perks li:last-child {
+    border-bottom: 1px solid var(--nx-paper-line);
+}
+
+.home-perks li span {
+    text-wrap: pretty;
+}
+
+/* La parte in evidenza non si spezza mai su due righe. */
+.home-perks strong {
+    color: var(--nx-paper-ink);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.home-perks img {
+    display: block;
+    width: 1.4rem;
+    height: 1.4rem;
+    object-fit: contain;
+}
+
+/* ── Supporter ────────────────────────────────────────────── */
+
+.home-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 1.1rem 0 0;
+    color: var(--nx-text-2);
+    font-size: 0.9375rem;
+}
+
+.home-count img {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.home-count strong {
+    color: var(--nx-text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.supporters-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    margin-top: 3.25rem;
+}
+
+/* Il posto di chi guarda sta fermo a sinistra, fuori dalla fila che scorre. */
+.supporters-you {
+    padding: 0.75rem 1.75rem 0.5rem 0.25rem;
+    border-right: 1px solid var(--nx-line);
+}
+
+.supporters-scroll-wrapper {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 88%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 5%, #000 88%, transparent);
+}
+
+/* Spazio tra le schede e margine laterale restano 20px e 10px: sono i numeri
+   con cui js/home-supporters.js calcola dove ricomincia il giro. Sopra serve
+   aria per l'anello e per l'avatar che si alza al passaggio del mouse. */
+.supporters-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding: 0.75rem 10px 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    user-select: none;
+}
+
+.supporters-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.supporter-card {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    width: 6.5rem;
+    color: var(--nx-text-2);
+    text-decoration: none;
+}
+
+.supporter-avatar-container {
+    position: relative;
+    display: block;
+    width: 4rem;
+    height: 4rem;
+    transition: transform 500ms var(--nx-ease);
+}
+
+.supporter-pfp {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--nx-surface);
+    object-fit: cover;
+}
+
+/* Anello nel colore accento dell'utente. Il filo chiaro esterno lo tiene
+   visibile anche quando l'accento scelto e' quasi nero. */
+.supporter-avatar-container::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border: 1.5px solid var(--supporter-color, var(--nx-text-3));
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+}
+
+.supporter-name {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 300ms var(--nx-ease);
+}
+
+.supporter-card:hover .supporter-avatar-container {
+    transform: translateY(-5px);
+}
+
+.supporter-card:hover .supporter-name {
+    color: var(--nx-text);
+}
+
+.supporter-card--slot .supporter-avatar-container {
+    display: grid;
+    place-items: center;
+    color: var(--nx-text-2);
+    font-size: 1.05rem;
+    transition: transform 500ms var(--nx-ease), color 300ms var(--nx-ease);
+}
+
+.supporter-card--slot .supporter-avatar-container::after {
+    border: 1.5px dashed #5a5a5f;
+    box-shadow: none;
+    transition: border-color 300ms var(--nx-ease);
+}
+
+.supporter-card--slot:hover .supporter-avatar-container {
+    color: var(--nx-text);
+}
+
+.supporter-card--slot:hover .supporter-avatar-container::after {
+    border-color: var(--nx-text);
+}
+
+.supporter-card--me .supporter-name {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+/* ── Chiusura ─────────────────────────────────────────────── */
+
+.home-close {
+    margin-top: var(--hx-sec);
+    padding-top: var(--hx-sec);
+    border-top: 1px solid var(--nx-line);
+    text-align: center;
+}
+
+.home-close .home-actions {
+    margin-top: 2.25rem;
+}
+
+.home-close .home-online {
+    margin-left: 0.3rem;
+}
+
+/* ── Lo scherzo ───────────────────────────────────────────────
+   Ultima cosa della pagina, per tutti: una riga che scorre da bordo a bordo. */
+
+.home-joke {
+    display: block;
+    margin-top: var(--hx-sec);
+    padding: 1.6rem 0;
+    overflow: hidden;
+    border-top: 1px solid var(--nx-line);
+    border-bottom: 1px solid var(--nx-line);
+    color: var(--nx-text-3);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 500ms var(--nx-ease);
+}
+
+.home-joke:hover {
+    color: var(--nx-text);
+}
+
+.home-joke__track {
+    display: inline-flex;
+    align-items: center;
+    gap: 2.5rem;
+    padding-right: 2.5rem;
+    font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    animation: homeMarquee 38s linear infinite;
+}
+
+.home-joke:hover .home-joke__track {
+    animation-play-state: paused;
+}
+
+.home-joke__track i {
+    font-size: 0.5em;
+    opacity: 0.7;
+}
+
+@keyframes homeMarquee {
+    to { transform: translateX(-50%); }
+}
+
+/* ── Schermi stretti ──────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .home-prem {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2.5rem;
+        padding: 3rem 2.5rem;
+    }
+}
+
+@media (max-width: 720px) {
+    .home-hero {
+        padding-top: 7.5rem;
+    }
+
+    .home-hero__title {
+        line-height: 1.06;
+        letter-spacing: -0.04em;
+    }
+
+    .home-hero__lead {
+        margin-top: 1.1rem;
+    }
+
+    .home-actions {
+        gap: 0.6rem 1.4rem;
+        margin-top: 1.6rem;
+    }
+
+    .home-hero__media {
+        margin-top: 3rem;
+        border-radius: 22px;
+    }
+
+    .home-tile {
+        border-radius: 20px;
+    }
+
+    /* I tre mood restano una fila, da sfogliare, invece di tre schermate impilate. */
+    .home-mood {
+        grid-auto-columns: 72%;
+        grid-auto-flow: column;
+        grid-template-columns: none;
+        gap: 0.8rem;
+        width: 100%;
+        margin-top: 4rem;
+        padding: 0 20px;
+        overflow-x: auto;
+        scroll-padding: 0 20px;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+    }
+
+    .home-mood::-webkit-scrollbar {
+        display: none;
+    }
+
+    .home-mood figure {
+        scroll-snap-align: start;
+    }
+
+    .home-gallery {
+        margin-top: 2rem;
+    }
+
+    .home-gallery__track {
+        gap: 0.8rem;
+    }
+
+    .home-gallery__foot {
+        margin-top: 1.5rem;
+    }
+
+    .home-paddles {
+        display: none;
+    }
+
+    .home-progress {
+        width: 100%;
+    }
+
+    .home-prem {
+        gap: 2.25rem;
+        padding: 2.25rem 1.5rem;
+        border-radius: 28px;
+    }
+
+    .home-prem h2 {
+        margin-top: 1.1rem;
+    }
+
+    .home-price {
+        margin-top: 1.5rem;
+    }
+
+    .home-perks li {
+        font-size: 1rem;
+    }
+
+    .supporters-row {
+        margin-top: 2.25rem;
+    }
+
+    .supporters-you {
+        padding: 0.75rem 0.9rem 0.5rem 0.1rem;
+    }
+
+    .supporter-card {
+        width: 5.6rem;
+    }
+
+    .supporter-avatar-container {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+
+    .home-close .home-actions {
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .home-joke {
+        padding: 1.1rem 0;
+    }
+
+    .home-joke__track {
+        gap: 1.6rem;
+        padding-right: 1.6rem;
+    }
+}
+
+/* ── Meno movimento ───────────────────────────────────────────
+   Chi lo chiede al sistema trova tutto fermo e gia' al suo posto. */
+
+@media (prefers-reduced-motion: reduce) {
+    .home-word > span,
+    .home-hero__lead,
+    .home-hero__question,
+    .home-hero__online,
+    .home-hero .home-actions,
+    .home-hero__media,
+    .home-hero__media img,
+    .home-card .home-tile img,
+    .home-joke__track {
+        animation: none;
+    }
+
+    .home-reveal,
+    .home-tile.home-reveal {
+        opacity: 1;
+        filter: none;
+        transform: none;
+        transition: none;
+    }
+
+    .home-gallery {
+        scroll-behavior: auto;
+    }
+}

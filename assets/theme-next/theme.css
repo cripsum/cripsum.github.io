@@ -1,0 +1,127 @@
+/* ============================================================
+   Tema nuovo (sperimentale)
+   ============================================================
+
+   Si accende dalle impostazioni (includes/theme.php) e arriva una pagina alla
+   volta. Tutto quello che c'e' qui dentro e' scritto sotto
+   html[data-theme="next"]: una pagina che non stampa quell'attributo non viene
+   toccata, anche se questo file dovesse essere caricato.
+
+   Qui stanno solo le cose comuni a tutte le pagine: i colori, il carattere, e
+   la navbar e il footer rivestiti. Ogni pagina portata ha poi il suo foglio.
+
+   Il tema e' fatto di poche regole:
+   - quasi tutto in bianco e nero, su un fondo scuro neutro (niente tinta blu);
+   - niente sfumature, niente aloni, niente vetro sfocato;
+   - il colore arriva dai contenuti: foto, avatar, gemma, moneta.
+   ============================================================ */
+
+html[data-theme="next"] {
+    --nx-bg: #0a0a0b;
+    --nx-surface: #161617;
+    --nx-surface-2: #1f1f21;
+    --nx-line: #2a2a2d;
+    --nx-text: #f5f5f7;
+    --nx-text-2: #a1a1a6;
+    --nx-text-3: #6e6e73;
+
+    /* La superficie chiara: usata con parsimonia, per l'unica cosa che in una
+       pagina deve staccare da tutto il resto. */
+    --nx-paper: #f5f5f7;
+    --nx-paper-ink: #1d1d1f;
+    --nx-paper-2: #6e6e73;
+    --nx-paper-line: #d2d2d7;
+
+    --nx-ok: #30d158;
+    --nx-danger: #ff453a;
+
+    --nx-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --nx-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --nx-radius: 24px;
+    --nx-radius-lg: 36px;
+    --nx-pill: 980px;
+
+    /* La navbar ha gia' i suoi colori in variabili (css/navbar.css): basta
+       spostarle sui neutri del tema. */
+    --cn-bg: rgba(22, 22, 23, 0.97);
+    --cn-bg-solid: var(--nx-surface);
+    --cn-border: var(--nx-line);
+    --cn-text: var(--nx-text);
+    --cn-accent: var(--nx-text);
+
+    /* Idem la ricerca (css/navbar-search.css). */
+    --ns-accent: #f5f5f7;
+    --ns-accent-rgb: 245, 245, 247;
+    --ns-purple: #a1a1a6;
+
+    color-scheme: dark;
+}
+
+html[data-theme="next"] body {
+    background: var(--nx-bg);
+    color: var(--nx-text);
+    font-family: var(--nx-font);
+    font-optical-sizing: auto;
+    font-feature-settings: "ss03";
+    letter-spacing: -0.011em;
+}
+
+html[data-theme="next"] ::selection {
+    background: var(--nx-text);
+    color: var(--nx-bg);
+}
+
+/* style.css colora di blu ogni link e style-dark.css arrotonda ogni immagine.
+   :where() tiene queste due correzioni al peso di un selettore di elemento:
+   vincono sulle regole globali perche' arrivano dopo, ma non su una classe. */
+:where(html[data-theme="next"]) a {
+    color: inherit;
+}
+
+:where(html[data-theme="next"]) img {
+    border-radius: 0;
+}
+
+/* ── Navbar ──────────────────────────────────────────────── */
+
+html[data-theme="next"] .navbarutenti {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .navbarutenti:hover {
+    border-color: var(--nx-line);
+    box-shadow: none;
+}
+
+/* "Registrati" e' l'azione principale: pillola piena, come nel resto del tema. */
+html[data-theme="next"] .navbarutenti .nav-auth-group .cnav-cta {
+    padding-inline: 16px;
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-text);
+    color: #000;
+}
+
+html[data-theme="next"] .navbarutenti .nav-auth-group .cnav-cta:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+
+html[data-theme="next"] .modern-footer {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* La griglia di linee sullo sfondo. */
+html[data-theme="next"] .modern-footer::before {
+    display: none;
+}

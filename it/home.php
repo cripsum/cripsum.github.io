@@ -112,6 +112,15 @@ $profileUrl = ($isLoggedIn && $currentUsername)
 $ogDescription = 'Homepage di Cripsum™. Edit, meme, gambling, profili custom, tanti giochi e tanto gooning.';
 $ogTitle = 'Cripsum™ — meme, edit, lootbox e profili della community';
 $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/home'), '#');
+
+// Tema nuovo (sperimentale): stessi dati, altra pagina. Si accende dalle
+// impostazioni; chi non l'ha acceso prosegue qui sotto con la home di sempre.
+require_once __DIR__ . '/../includes/theme.php';
+if (cripsum_theme_is_next()) {
+    $homeLang = 'it';
+    require __DIR__ . '/../includes/home_next.php';
+    return;
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -129,7 +138,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;1,600&amp;display=swap">
     <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.3">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
-    <script src="/assets/home-v5/home.js?v=6.3" defer></script>
+    <script src="/assets/home-v5/home.js?v=6.4" defer></script>
     <script src="/assets/news/news-popup.js?v=1.1" defer></script>
 
 </head>
@@ -187,7 +196,7 @@ $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it
                                     <i class="fa-solid fa-check"></i>
                                     <span><strong>Riscattati</strong> · tra <span data-claim-countdown>--:--:--</span></span>
                                 <?php else: ?>
-                                    <img class="home-btn__coin" src="/img/godos.png" alt="" width="20" height="20">
+                                    <img class="home-btn__coin" src="/img/godos-icon.png" alt="" width="20" height="20">
                                     <span>Riscatta 500 Godos</span>
                                 <?php endif; ?>
                             </button>

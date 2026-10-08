@@ -608,7 +608,7 @@
             button.disabled = false;
             button.classList.remove('is-claimed', 'is-busy');
             button.classList.add('home-btn--premium');
-            button.innerHTML = `<img class="home-btn__coin" src="/img/godos.png" alt="" width="20" height="20"><span>${escapeHtml(t.claim)}</span>`;
+            button.innerHTML = `<img class="home-btn__coin" src="/img/godos-icon.png" alt="" width="20" height="20"><span>${escapeHtml(t.claim)}</span>`;
         };
 
         const showClaimed = (seconds) => {
