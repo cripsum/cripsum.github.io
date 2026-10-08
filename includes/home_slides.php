@@ -83,7 +83,7 @@ function home_slides_fallback(string $lang = 'it'): array
     $english = $lang === 'en';
 
     $slides = [
-        ['/img/profili.png', '/profile', 'Profili custom!', 'Custom profiles!', 'Personalizza il tuo profilo creando una bio o un portfolio clean.', 'Customise your profile by creating a clean bio or portfolio.', 'Modifica il tuo profilo', 'Edit your profile'],
+        ['/img/profili2.png', '/profile', 'Profili custom!', 'Custom profiles!', 'Personalizza il tuo profilo creando una bio o un portfolio clean.', 'Customise your profile by creating a clean bio or portfolio.', 'Modifica il tuo profilo', 'Edit your profile'],
         ['/img/jay-quadrato.png', 'download', 'Ciao! Sono Jay!', 'Hi! I\'m Jay!', 'Vuoi imparare l’arte dello Spinjitzu?', 'Want to learn the art of Spinjitzu?', 'Scarica il videocorso', 'Download the video course'],
         ['/img/chinese-essay-2.jpg', 'download/yoshukai', 'Hey! Mi chiamo 優希!', 'Hey! My name is 優希!', 'Vuoi imparare l’arte dello Yoshukai?', 'Want to learn the art of Yoshukai?', 'Scarica la guida', 'Download the guide'],
         ['/img/segone4.png', 'achievements', 'Achievements', 'Achievements', 'Sblocca gli achievement del sito e guarda i tuoi progressi.', 'Unlock site achievements and track your progress.', 'Vedi achievement', 'View achievements'],

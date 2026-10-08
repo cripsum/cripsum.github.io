@@ -198,42 +198,6 @@ body.home-v5-body {
     margin-top: 1.25rem;
 }
 
-/* Quante persone stanno usando il sito adesso. Una riga, non una fascia di
-   statistiche: serve a far sentire che c'e' gente, non a dare un numero da
-   consultare. */
-.home-online {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin: 0.85rem 0 0 !important;
-    color: var(--home-muted) !important;
-    font-size: 0.88rem;
-    font-weight: 600;
-}
-
-.home-online strong {
-    color: var(--home-text);
-    font-weight: 900;
-}
-
-.home-online__dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 999px;
-    background: #34d399;
-    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
-    animation: homeOnlinePulse 2.4s ease-out infinite;
-}
-
-@keyframes homeOnlinePulse {
-    0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
-    100% { box-shadow: 0 0 0 0.7rem rgba(52, 211, 153, 0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .home-online__dot { animation: none; }
-}
-
 /* Il Discord recuperato dal box social, nel riquadro finale dove serve a
    qualcosa invece che a mandare via la gente. */
 .home-btn--discord i { color: #8ea1ff; }
@@ -1804,42 +1768,6 @@ body.home-v5-body {
     border-color: transparent;
     background: linear-gradient(135deg, var(--home-premium-a), var(--home-premium-b));
     filter: brightness(1.12);
-}
-
-.home-btn__coin {
-    flex: none;
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 0;
-    object-fit: contain;
-}
-
-/* Riscatto giornaliero gia' fatto: il pulsante resta al suo posto ma smette
-   di chiamare, e dice quanto manca al prossimo. */
-.home-btn.is-claimed,
-.home-btn.is-claimed:hover {
-    transform: none;
-    border-color: var(--home-border);
-    color: var(--home-muted);
-    background: rgba(255, 255, 255, 0.04);
-    box-shadow: none;
-    filter: none;
-    cursor: default;
-    font-variant-numeric: tabular-nums;
-}
-
-.home-btn.is-claimed i {
-    color: #34d399;
-}
-
-.home-btn.is-claimed strong {
-    color: var(--home-text);
-    font-weight: inherit;
-}
-
-.home-btn.is-busy {
-    opacity: 0.75;
-    cursor: progress;
 }
 
 /* Scheda Premium */

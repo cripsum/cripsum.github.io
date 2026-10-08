@@ -11,10 +11,11 @@
  * Tutto quello che va calcolato sta in questo primo blocco; sotto c'e' solo
  * markup che stampa variabili gia' pronte.
  *
- * I pulsanti e la fila dei supporter usano le classi di sempre (.home-btn,
- * .supporter-card) perche' sono quelle che cercano assets/home-v5/home.js e
- * js/home-supporters.js, riusati qui senza modifiche. Lo stile invece e' tutto
- * in assets/home-next/home.css.
+ * La fila dei supporter usa le classi di sempre (.supporter-card,
+ * .supporters-grid) perche' sono quelle che cerca js/home-supporters.js,
+ * riusato qui senza modifiche; da assets/home-v5/home.js arrivano ancora la
+ * comparsa allo scorrimento e il contatore di Discord. Lo stile invece e'
+ * tutto in assets/home-next/home.css.
  */
 
 $hxIsEn = ($homeLang ?? 'it') === 'en';
@@ -26,22 +27,19 @@ $hx = $hxIsEn
         'title'        => 'Welcome to the best site in the Congo.',
         'lead'         => 'Editing, memes, lootboxes, profiles, achievements, community posts and many secrets. What are you waiting for? Join us!',
         'question'     => 'Are you over 25 and own a PC?',
-        'online_one'   => 'person around right now',
-        'online_many'  => 'people around right now',
         'profile'      => 'Go to profile',
         'signup'       => 'Sign up',
         'login'        => 'Login',
         'login_close'  => 'Log in',
         'news'         => 'News',
-        'claim'        => 'Claim 500 Godos',
-        'claimed'      => 'Claimed',
-        'claim_again'  => 'again in',
         'mood_label'   => 'Site moods',
         'moods'        => ['Happiness', 'Sadness', 'Amazement'],
         'feat_title'   => 'What you can do on Cripsum™',
-        'feat_label'   => 'Sections of the site, scroll sideways',
+        'feat_label'   => 'Sections of the site',
         'feat_prev'    => 'Previous',
         'feat_next'    => 'Next',
+        'feat_pause'   => 'Pause',
+        'feat_play'    => 'Resume',
         'feat_open'    => 'Open',
         'prem_title'   => 'Unlock the Ultimate Cripsum™ Experience',
         'prem_lead'    => 'Get premium perks, double your rewards, and show off your support to the community.',
@@ -74,22 +72,19 @@ $hx = $hxIsEn
         'title'        => 'Benvenuto/a nel sito migliore del Congo.',
         'lead'         => 'Editing, meme, lootbox, profili, achievements, post della community e tanti segreti, cosa aspetti a unirti?',
         'question'     => 'Hai più di 25 anni e possiedi un PC?',
-        'online_one'   => 'persona in giro adesso',
-        'online_many'  => 'persone in giro adesso',
         'profile'      => 'Vai al profilo',
         'signup'       => 'Registrati',
         'login'        => 'Accedi',
         'login_close'  => 'Accedi',
         'news'         => 'Novità',
-        'claim'        => 'Riscatta 500 Godos',
-        'claimed'      => 'Riscattati',
-        'claim_again'  => 'tra',
         'mood_label'   => 'Mood del sito',
         'moods'        => ['Felicità', 'Tristezza', 'Stupore'],
         'feat_title'   => 'Cosa puoi fare su Cripsum™',
-        'feat_label'   => 'Sezioni del sito, scorri in orizzontale',
-        'feat_prev'    => 'Precedenti',
-        'feat_next'    => 'Successivi',
+        'feat_label'   => 'Sezioni del sito',
+        'feat_prev'    => 'Precedente',
+        'feat_next'    => 'Successiva',
+        'feat_pause'   => 'Metti in pausa',
+        'feat_play'    => 'Riprendi',
         'feat_open'    => 'Apri',
         'prem_title'   => 'Sblocca l\'esperienza Cripsum™ definitiva',
         'prem_lead'    => 'Ottieni vantaggi esclusivi, raddoppia i tuoi Godos e supporta la community.',
@@ -124,14 +119,8 @@ $hxWords = preg_split('/\s+/u', trim($hx['title'])) ?: [$hx['title']];
 $hxError = (string)($_SESSION['error_message'] ?? '');
 unset($_SESSION['error_message']);
 
-$hxOnline = (int)($onlineCount ?? 0);
-$hxOnlineText = $hxIsEn ? number_format($hxOnline) : number_format($hxOnline, 0, ',', '.');
-$hxOnlineLabel = $hxOnline === 1 ? $hx['online_one'] : $hx['online_many'];
-
 $hxIsLogged = !empty($isLoggedIn) && !empty($currentUsername);
 $hxIsPremium = !empty($isPremium);
-$hxClaimed = !empty($premiumClaimedToday);
-$hxClaimLeft = (int)($premiumClaimLeft ?? 0);
 $hxProfileUrl = (string)($profileUrl ?? 'accedi');
 
 // Le slide del pannello admin; se mancano, quelle di riserva.
@@ -145,6 +134,8 @@ foreach ((!empty($homeSlides) ? $homeSlides : home_slides_fallback($hxLang)) as 
         'cta' => (string)($hxSlide['buttonText'] ?? '') !== '' ? (string)$hxSlide['buttonText'] : $hx['feat_open'],
     ];
 }
+$hxFirst = $hxSlides[0] ?? null;
+$hxSlideTotal = sprintf('%02d', count($hxSlides));
 
 // Chi guarda da Premium ha il suo posto fisso accanto alla fila: li' dentro
 // non lo si ripete.
@@ -181,6 +172,7 @@ $hxPerkIcon = [
     'gem' => '<img src="/img/premium.svg" alt="" width="22" height="22">',
 ];
 $hxChevron = '<svg class="home-link__chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+$hxArrow = '<svg class="home-btn__chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 $hxPaddleIcon = '<svg viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 // La riga dello scherzo e' la stessa frase ripetuta: otto volte bastano a
@@ -232,29 +224,9 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
             <p class="home-hero__lead"><?= home_h($hx['lead']) ?></p>
             <p class="home-hero__question"><?= home_h($hx['question']) ?></p>
 
-            <?php if ($hxOnline > 0): ?>
-                <p class="home-hero__online">
-                    <span class="home-online"><strong><?= home_h($hxOnlineText) ?></strong> <?= home_h($hxOnlineLabel) ?></span>
-                </p>
-            <?php endif; ?>
-
             <div class="home-actions">
                 <?php if ($hxIsLogged): ?>
                     <a class="home-btn home-btn--primary" href="<?= home_h($hxProfileUrl) ?>"><span><?= home_h($hx['profile']) ?></span></a>
-                    <?php if ($hxIsPremium): ?>
-                        <?php /* Etichette e conto alla rovescia li gestisce home-v5/home.js. */ ?>
-                        <?php if ($hxClaimed): ?>
-                            <button class="home-btn is-claimed" type="button" data-premium-claim data-seconds-left="<?= $hxClaimLeft ?>" disabled>
-                                <i class="fa-solid fa-check"></i>
-                                <span><strong><?= home_h($hx['claimed']) ?></strong> · <?= home_h($hx['claim_again']) ?> <span data-claim-countdown>--:--:--</span></span>
-                            </button>
-                        <?php else: ?>
-                            <button class="home-btn home-btn--premium" type="button" data-premium-claim data-seconds-left="<?= $hxClaimLeft ?>">
-                                <img class="home-btn__coin" src="/img/godos-icon.png" alt="" width="20" height="20">
-                                <span><?= home_h($hx['claim']) ?></span>
-                            </button>
-                        <?php endif; ?>
-                    <?php endif; ?>
                 <?php else: ?>
                     <a class="home-btn home-btn--primary" href="registrati"><span><?= home_h($hx['signup']) ?></span></a>
                     <a class="home-link" href="accedi"><span class="home-link__label"><?= home_h($hx['login']) ?></span><?= $hxChevron ?></a>
@@ -282,36 +254,51 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
             </figure>
         </section>
 
-        <section class="home-block" aria-labelledby="homeFeatTitle">
-            <div class="home-head home-wrap home-reveal">
-                <h2 id="homeFeatTitle"><?= home_h($hx['feat_title']) ?></h2>
-            </div>
-
-            <?php /* Le schede stanno gia' nell'HTML: la galleria si sfoglia anche
-                     senza script, home-next/home.js aggiunge solo frecce e barra. */ ?>
-            <div class="home-gallery" id="homeGallery" tabindex="0" role="region" aria-label="<?= home_h($hx['feat_label']) ?>">
-                <ul class="home-gallery__track">
-                    <?php foreach ($hxSlides as $hxSlide): ?>
-                        <li class="home-card home-reveal">
-                            <a class="home-card__link" href="<?= home_h($hxSlide['link']) ?>">
-                                <div class="home-tile"><img src="<?= home_h($hxSlide['media']) ?>" alt="" loading="lazy" decoding="async"></div>
-                                <h3><?= home_h($hxSlide['title']) ?></h3>
-                                <p><?= home_h($hxSlide['description']) ?></p>
-                                <span class="home-card__cta"><span class="home-link__label"><?= home_h($hxSlide['cta']) ?></span><?= $hxChevron ?></span>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-
-            <div class="home-gallery__foot home-wrap home-reveal">
-                <div class="home-progress" aria-hidden="true"><span id="homeGalleryBar"></span></div>
-                <div class="home-paddles">
-                    <button type="button" class="home-paddle home-paddle--prev" id="homeGalleryPrev" aria-label="<?= home_h($hx['feat_prev']) ?>"><?= $hxPaddleIcon ?></button>
-                    <button type="button" class="home-paddle" id="homeGalleryNext" aria-label="<?= home_h($hx['feat_next']) ?>"><?= $hxPaddleIcon ?></button>
+        <?php if ($hxFirst !== null): ?>
+            <section class="home-block home-wrap" aria-labelledby="homeFeatTitle">
+                <div class="home-head home-showcase__head home-reveal">
+                    <h2 id="homeFeatTitle"><?= home_h($hx['feat_title']) ?></h2>
+                    <?php /* Nascosti finche' lo script non li rende utili. */ ?>
+                    <div class="home-showcase__controls" id="homeShowcaseControls" hidden>
+                        <button type="button" class="home-paddle home-paddle--step home-paddle--prev" id="homeShowcasePrev" aria-label="<?= home_h($hx['feat_prev']) ?>"><?= $hxPaddleIcon ?></button>
+                        <button type="button" class="home-paddle" id="homeShowcasePause" aria-label="<?= home_h($hx['feat_pause']) ?>" data-label-pause="<?= home_h($hx['feat_pause']) ?>" data-label-play="<?= home_h($hx['feat_play']) ?>"><i class="fa-solid fa-pause" aria-hidden="true"></i></button>
+                        <button type="button" class="home-paddle home-paddle--step" id="homeShowcaseNext" aria-label="<?= home_h($hx['feat_next']) ?>"><?= $hxPaddleIcon ?></button>
+                    </div>
                 </div>
-            </div>
-        </section>
+
+                <?php /* Una voce alla volta in grande, e sotto tutte le altre in
+                         miniatura. La prima sta gia' nell'HTML e ogni miniatura e'
+                         un link vero alla sua pagina: senza script la sezione
+                         resta usabile. Il resto lo fa home-next/home.js, che
+                         legge testi e immagini dagli attributi delle miniature. */ ?>
+                <div class="home-showcase home-reveal" id="homeShowcase" style="--d: 120">
+                    <div class="home-stage" id="homeStage">
+                        <div class="home-stage__copy" id="homeStageCopy">
+                            <p class="home-stage__count" aria-hidden="true"><span id="homeStageIndex">01</span> / <?= home_h($hxSlideTotal) ?></p>
+                            <h3 class="home-stage__title" id="homeStageTitle"><?= home_h($hxFirst['title']) ?></h3>
+                            <p class="home-stage__text" id="homeStageText"><?= home_h($hxFirst['description']) ?></p>
+                            <a class="home-btn home-btn--primary" id="homeStageLink" href="<?= home_h($hxFirst['link']) ?>"><span id="homeStageCta"><?= home_h($hxFirst['cta']) ?></span><?= $hxArrow ?></a>
+                        </div>
+                        <?php /* Anche la foto porta alla pagina, ma chi usa la tastiera
+                                 o un lettore di schermo ha gia' il pulsante accanto. */ ?>
+                        <a class="home-stage__media" id="homeStageMedia" href="<?= home_h($hxFirst['link']) ?>" tabindex="-1" aria-hidden="true">
+                            <img src="<?= home_h($hxFirst['media']) ?>" alt="" decoding="async">
+                        </a>
+                    </div>
+
+                    <nav class="home-rail" id="homeRail" aria-label="<?= home_h($hx['feat_label']) ?>">
+                        <?php foreach ($hxSlides as $hxIndex => $hxSlide): ?>
+                            <a class="home-thumb<?= $hxIndex === 0 ? ' is-active' : '' ?>" href="<?= home_h($hxSlide['link']) ?>" title="<?= home_h($hxSlide['title']) ?>"<?= $hxIndex === 0 ? ' aria-current="true"' : '' ?>
+                                data-title="<?= home_h($hxSlide['title']) ?>" data-text="<?= home_h($hxSlide['description']) ?>" data-cta="<?= home_h($hxSlide['cta']) ?>" data-media="<?= home_h($hxSlide['media']) ?>">
+                                <span class="home-thumb__bar" aria-hidden="true"><span></span></span>
+                                <span class="home-thumb__image"><img src="<?= home_h($hxSlide['media']) ?>" alt="" loading="lazy" decoding="async"></span>
+                                <span class="home-thumb__label"><?= home_h($hxSlide['title']) ?></span>
+                            </a>
+                        <?php endforeach; ?>
+                    </nav>
+                </div>
+            </section>
+        <?php endif; ?>
 
         <?php if (!$hxIsPremium): ?>
             <?php /* Prezzo e condizioni sono quelli di checkout-premium: se

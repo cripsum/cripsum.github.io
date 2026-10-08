@@ -3,10 +3,10 @@
    ============================================================
 
    Va insieme a includes/home_next.php e viene caricato al posto di
-   assets/home-v5/home.css, mai insieme: per questo i pulsanti e la fila dei
-   supporter tengono i nomi di classe di sempre (.home-btn, .supporter-card):
-   sono quelli che cercano home-v5/home.js e js/home-supporters.js, che qui
-   vengono riusati tali e quali.
+   assets/home-v5/home.css, mai insieme. La fila dei supporter tiene i nomi di
+   classe di sempre (.supporters-grid, .supporter-card) perche' sono quelli
+   che cerca js/home-supporters.js, riusato qui tale e quale; .home-reveal e'
+   la classe che assets/home-v5/home.js fa comparire allo scorrimento.
 
    I colori e il carattere arrivano da assets/theme-next/theme.css.
 
@@ -17,16 +17,16 @@
 
 .home-next {
     /* Larghezza del contenuto e stacco tra le sezioni: le due misure a cui
-       si allinea tutto il resto. */
-    --hx-max: 1080px;
-    --hx-gutter: max(20px, calc((100% - var(--hx-max)) / 2));
+       si allinea tutto il resto. Sugli schermi molto larghi il contenuto si
+       allarga un poco, cosi' non resta una colonnina in mezzo al vuoto. */
+    --hx-max: clamp(1080px, 58vw, 1280px);
     --hx-sec: clamp(6rem, 12vw, 10rem);
 
     width: 100%;
     min-width: 0;
     overflow-x: clip;
-    font-size: 1.0625rem;
-    line-height: 1.47;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .home-next *,
@@ -54,7 +54,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.55rem;
     min-height: 2.75rem;
     padding: 0 1.4rem;
     border: 1px solid transparent;
@@ -99,56 +99,18 @@
     color: #fff;
 }
 
-/* Il riscatto giornaliero: pillola a filo, con la moneta. home-v5/home.js
-   scambia questa classe con .is-claimed quando il riscatto e' fatto. */
-.home-btn--premium {
-    border-color: #48484c;
-}
-
-.home-btn--premium:hover {
-    border-color: var(--nx-text-2);
-    color: var(--nx-text);
-}
-
-/* L'icona a sinistra pesa meno del testo a destra: un filo di margine in meno
-   la rimette in asse. */
-.home-btn__coin {
-    display: block;
+/* La freccia dentro una pillola: pesa meno del testo, quindi sta un filo
+   piu' vicina al bordo. */
+.home-btn__chev {
     flex: none;
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-left: -0.15rem;
-    object-fit: contain;
+    width: 0.42em;
+    height: 0.74em;
+    margin-right: -0.15rem;
+    transition: transform 360ms var(--nx-ease);
 }
 
-.home-btn i {
-    flex: none;
-    margin-left: -0.1rem;
-    font-size: 0.9em;
-}
-
-.home-btn.is-claimed,
-.home-btn.is-claimed:hover,
-.home-btn.is-claimed:active {
-    transform: none;
-    border-color: var(--nx-line);
-    color: var(--nx-text-2);
-    cursor: default;
-    font-variant-numeric: tabular-nums;
-}
-
-.home-btn.is-claimed i {
-    color: var(--nx-ok);
-}
-
-.home-btn.is-claimed strong {
-    color: var(--nx-text);
-    font-weight: inherit;
-}
-
-.home-btn.is-busy {
-    opacity: 0.7;
-    cursor: progress;
+.home-btn:hover .home-btn__chev {
+    transform: translateX(3px);
 }
 
 .home-link {
@@ -185,16 +147,15 @@
     transition: transform 360ms var(--nx-ease);
 }
 
-.home-link:hover .home-link__label,
-.home-card__link:hover .home-link__label {
+.home-link:hover .home-link__label {
     background-size: 100% 1px;
 }
 
-.home-link:hover .home-link__chev,
-.home-card__link:hover .home-link__chev {
+.home-link:hover .home-link__chev {
     transform: translateX(4px);
 }
 
+/* Quanti sono online su Discord, accanto al link nella chiusura. */
 .home-online {
     display: inline-flex;
     align-items: center;
@@ -266,10 +227,10 @@
     max-width: 62rem;
     margin: 0 auto;
     color: var(--nx-text);
-    font-size: clamp(2.6rem, 7.3vw, 5.25rem);
+    font-size: clamp(2.35rem, 6.4vw, 4.5rem);
     font-weight: 600;
-    line-height: 1.04;
-    letter-spacing: -0.045em;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
     text-wrap: balance;
 }
 
@@ -279,8 +240,8 @@
     display: inline-block;
     overflow: hidden;
     vertical-align: top;
-    margin-bottom: -0.14em;
-    padding-bottom: 0.14em;
+    margin-bottom: -0.16em;
+    padding-bottom: 0.16em;
 }
 
 .home-word > span {
@@ -290,12 +251,13 @@
 }
 
 .home-hero__lead {
-    max-width: 39rem;
+    max-width: 40rem;
     margin: 1.6rem auto 0;
     color: var(--nx-text-2);
-    font-size: clamp(1.125rem, 2vw, 1.3125rem);
-    line-height: 1.38;
-    letter-spacing: -0.015em;
+    font-size: clamp(1.0625rem, 1.9vw, 1.25rem);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
     animation: homeRise 900ms var(--nx-ease) 480ms both;
 }
 
@@ -305,11 +267,6 @@
     font-style: italic;
     font-weight: 500;
     animation: homeRise 900ms var(--nx-ease) 560ms both;
-}
-
-.home-hero__online {
-    margin: 1rem 0 0;
-    animation: homeRise 900ms var(--nx-ease) 620ms both;
 }
 
 .home-actions {
@@ -322,7 +279,7 @@
 }
 
 .home-hero .home-actions {
-    animation: homeRise 900ms var(--nx-ease) 660ms both;
+    animation: homeRise 900ms var(--nx-ease) 640ms both;
 }
 
 .home-hero__media {
@@ -401,11 +358,17 @@
     aspect-ratio: 4 / 3;
 }
 
+/* Le tre foto sono quadrate e la faccia sta un poco sopra il centro: il
+   ritaglio la segue. */
+.home-mood .home-tile img {
+    object-position: center 40%;
+}
+
 .home-mood figcaption {
     margin-top: 0.9rem;
     color: var(--nx-text);
     font-weight: 600;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
 }
 
 /* ── Titoli di sezione ────────────────────────────────────── */
@@ -417,146 +380,51 @@
 .home-head h2 {
     margin: 0;
     color: var(--nx-text);
-    font-size: clamp(2rem, 4.4vw, 3rem);
+    font-size: clamp(1.85rem, 4vw, 2.75rem);
     font-weight: 600;
-    line-height: 1.08;
-    letter-spacing: -0.035em;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
     text-wrap: balance;
 }
 
 .home-head p {
     margin: 0.8rem 0 0;
     color: var(--nx-text-2);
-    font-size: clamp(1.125rem, 2vw, 1.3125rem);
-    line-height: 1.38;
-    letter-spacing: -0.015em;
+    font-size: clamp(1.0625rem, 1.9vw, 1.25rem);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
 }
 
 .home-head--center {
     text-align: center;
 }
 
-/* ── Cosa puoi fare: galleria ─────────────────────────────────
-   Si sfoglia in orizzontale. Parte allineata al contenuto e prosegue oltre il
-   bordo destro, cosi' si capisce che continua. */
+/* ── Cosa puoi fare: vetrina ──────────────────────────────────
+   Una voce alla volta in grande e, sotto, tutte le voci in miniatura. Sta
+   tutta dentro la larghezza del contenuto: niente che esce dai bordi.
 
-.home-gallery {
-    margin-top: 3.25rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--hx-gutter);
-    scrollbar-width: none;
-}
+   Le miniature sono link veri alla loro pagina; home-next/home.js le fa
+   diventare anche il selettore della voce in grande, e quando la vetrina
+   scorre da sola aggiunge .is-live (la linea sopra la miniatura attiva si
+   riempie e fa da orologio), .is-held mentre e' ferma per un momento e
+   .is-paused quando l'ha fermata chi guarda. */
 
-.home-gallery::-webkit-scrollbar {
-    display: none;
-}
-
-.home-gallery__track {
+.home-showcase__head {
     display: flex;
-    gap: 1.25rem;
-    width: max-content;
-    margin: 0;
-    padding: 0 var(--hx-gutter);
-    list-style: none;
-}
-
-.home-card {
-    flex: none;
-    width: clamp(16.5rem, 27vw, 21.25rem);
-    scroll-snap-align: start;
-}
-
-.home-card__link {
-    display: block;
-    color: var(--nx-text);
-    text-decoration: none;
-}
-
-.home-card .home-tile {
-    aspect-ratio: 1;
-}
-
-.home-card .home-tile img {
-    scale: 1.08;
-    transition: scale 1100ms var(--nx-ease);
-}
-
-.home-card__link:hover .home-tile img {
-    scale: 1.14;
-}
-
-@supports (animation-timeline: view()) {
-    /* Mentre si sfoglia, la foto scorre un poco dentro il proprio riquadro. */
-    .home-card .home-tile img {
-        animation: homeDrift linear both;
-        animation-timeline: view(inline);
-    }
-}
-
-@keyframes homeDrift {
-    from { translate: 3.5% 0; }
-    to { translate: -3.5% 0; }
-}
-
-.home-card h3 {
-    margin: 1.15rem 0 0;
-    color: var(--nx-text);
-    font-size: clamp(1.3125rem, 2.2vw, 1.5rem);
-    font-weight: 600;
-    line-height: 1.15;
-    letter-spacing: -0.028em;
-}
-
-.home-card p {
-    min-height: 2.8em;
-    margin: 0.45rem 0 0;
-    color: var(--nx-text-2);
-    font-size: 0.9375rem;
-    line-height: 1.4;
-    letter-spacing: -0.006em;
-}
-
-.home-card__cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.32rem;
-    margin-top: 0.7rem;
-    font-size: 0.9375rem;
-    line-height: 1.2;
-}
-
-.home-gallery__foot {
-    display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    gap: 2rem;
-    margin-top: 2.25rem;
+    gap: 1.25rem 2rem;
 }
 
-.home-progress {
-    position: relative;
-    width: 11rem;
-    height: 2px;
-    overflow: hidden;
-    border-radius: 2px;
-    background: var(--nx-line);
-}
-
-.home-progress span {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--nx-text);
-    transform: scaleX(var(--p, 0.3));
-    transform-origin: left;
-    transition: transform 200ms linear;
-}
-
-.home-paddles {
+.home-showcase__controls {
     display: flex;
-    gap: 0.6rem;
+    flex: none;
+    gap: 0.5rem;
+}
+
+.home-showcase__controls[hidden],
+.home-paddle[hidden] {
+    display: none;
 }
 
 .home-paddle {
@@ -570,7 +438,7 @@
     background: var(--nx-surface-2);
     color: var(--nx-text);
     cursor: pointer;
-    transition: background-color 240ms var(--nx-ease), opacity 240ms var(--nx-ease), transform 240ms var(--nx-ease);
+    transition: background-color 240ms var(--nx-ease), transform 240ms var(--nx-ease);
 }
 
 .home-paddle:hover {
@@ -581,11 +449,6 @@
     transform: scale(0.94);
 }
 
-.home-paddle:disabled {
-    opacity: 0.3;
-    cursor: default;
-}
-
 .home-paddle svg {
     width: 0.5rem;
     height: 0.9rem;
@@ -593,6 +456,235 @@
 
 .home-paddle--prev svg {
     transform: scaleX(-1);
+}
+
+.home-paddle i {
+    font-size: 0.8rem;
+}
+
+.home-showcase {
+    margin-top: 2.75rem;
+}
+
+.home-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(20rem, 40%, 30rem);
+    overflow: hidden;
+    border-radius: var(--nx-radius-lg);
+    background: var(--nx-surface);
+    /* Lo scorrimento verticale della pagina resta al browser; quello
+       orizzontale lo legge lo script per passare alla voce accanto. */
+    touch-action: pan-y;
+}
+
+.home-stage__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    padding: clamp(2rem, 4vw, 3.5rem);
+}
+
+/* "03 / 09": sta in alto, e spinge in fondo titolo, testo e pulsante. */
+.home-stage__count {
+    margin: 0 0 auto;
+    color: var(--nx-text-3);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+}
+
+.home-stage__count span {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+.home-stage__title {
+    margin: 2rem 0 0;
+    color: var(--nx-text);
+    font-size: clamp(1.85rem, 3.5vw, 2.625rem);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+}
+
+.home-stage__text {
+    max-width: 30rem;
+    margin: 0.85rem 0 0;
+    color: var(--nx-text-2);
+    font-size: clamp(1rem, 1.6vw, 1.125rem);
+    line-height: 1.5;
+    text-wrap: pretty;
+}
+
+.home-stage__text:empty {
+    display: none;
+}
+
+.home-stage .home-btn {
+    margin-top: 1.85rem;
+}
+
+/* Al cambio di voce il testo nuovo sale mentre compare, una riga dopo l'altra. */
+.home-stage__copy.is-swapping > :not(.home-stage__count) {
+    animation: homeSwap 620ms var(--nx-ease) backwards;
+}
+
+.home-stage__copy.is-swapping > .home-stage__text {
+    animation-delay: 50ms;
+}
+
+.home-stage__copy.is-swapping > .home-btn {
+    animation-delay: 100ms;
+}
+
+@keyframes homeSwap {
+    from { opacity: 0; transform: translateY(14px); }
+}
+
+.home-stage__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--nx-surface-2);
+}
+
+.home-stage__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* La foto nuova si mette a fuoco sopra quella di prima. */
+.home-stage__media img.is-entering {
+    animation: homeStageIn 760ms var(--nx-ease) backwards;
+}
+
+@keyframes homeStageIn {
+    from { opacity: 0; filter: blur(12px); scale: 1.05; }
+}
+
+/* Le miniature si dividono la larghezza in parti uguali; se sono poche non
+   si gonfiano oltre una misura sensata, se sono troppe la fila scorre. Il
+   margine negativo fa posto all'anello del focus senza spostare la fila. */
+.home-rail {
+    position: relative;
+    display: grid;
+    grid-auto-columns: minmax(5rem, 9.5rem);
+    grid-auto-flow: column;
+    gap: 0.75rem;
+    margin: 0.75rem -8px 0;
+    padding: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+}
+
+.home-rail::-webkit-scrollbar {
+    display: none;
+}
+
+.home-thumb {
+    display: block;
+    min-width: 0;
+    color: var(--nx-text-3);
+    text-decoration: none;
+    transition: color 300ms var(--nx-ease);
+}
+
+.home-thumb:hover,
+.home-thumb.is-active {
+    color: var(--nx-text);
+}
+
+.home-next .home-thumb:focus-visible {
+    outline-offset: 5px;
+    border-radius: 6px;
+}
+
+.home-thumb__bar {
+    display: block;
+    height: 2px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--nx-line);
+}
+
+.home-thumb__bar > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--nx-text);
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+/* La voce attiva si riconosce anche quando la sua linea e' ancora vuota. */
+.home-thumb.is-active .home-thumb__bar {
+    background: #48484c;
+}
+
+/* Linea piena = voce scelta; linea che si riempie = tempo che manca alla
+   prossima. Senza scorrimento automatico, o messo in pausa, resta piena. */
+.home-thumb.is-active .home-thumb__bar > span {
+    transform: none;
+}
+
+.home-showcase.is-live:not(.is-paused) .home-thumb.is-active .home-thumb__bar > span {
+    animation: homeFill 6500ms linear both;
+}
+
+/* Stesso peso della regola qui sopra, e dopo: altrimenti la scorciatoia
+   `animation` la rimetterebbe in moto. */
+.home-showcase.is-live.is-held .home-thumb.is-active .home-thumb__bar > span {
+    animation-play-state: paused;
+}
+
+@keyframes homeFill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+.home-thumb__image {
+    display: block;
+    aspect-ratio: 4 / 3;
+    margin-top: 0.65rem;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--nx-surface);
+}
+
+.home-thumb__image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+    transition: opacity 300ms var(--nx-ease), scale 700ms var(--nx-ease);
+}
+
+.home-thumb:hover .home-thumb__image img,
+.home-thumb.is-active .home-thumb__image img {
+    opacity: 1;
+}
+
+.home-thumb:hover .home-thumb__image img {
+    scale: 1.06;
+}
+
+.home-thumb__label {
+    display: block;
+    margin-top: 0.55rem;
+    overflow: hidden;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ── Premium: l'unica superficie chiara della pagina ──────── */
@@ -619,19 +711,19 @@
 .home-prem h2 {
     margin: 1.5rem 0 0;
     color: var(--nx-paper-ink);
-    font-size: clamp(1.9rem, 4vw, 2.75rem);
+    font-size: clamp(1.75rem, 3.6vw, 2.5rem);
     font-weight: 600;
-    line-height: 1.07;
-    letter-spacing: -0.036em;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
     text-wrap: balance;
 }
 
 .home-prem__lead {
     margin: 1rem 0 0;
     color: var(--nx-paper-2);
-    font-size: clamp(1.0625rem, 1.8vw, 1.1875rem);
-    line-height: 1.42;
-    letter-spacing: -0.014em;
+    font-size: clamp(1rem, 1.7vw, 1.125rem);
+    line-height: 1.5;
+    letter-spacing: -0.005em;
 }
 
 .home-price {
@@ -643,10 +735,10 @@
 }
 
 .home-price strong {
-    font-size: clamp(2.1rem, 3.6vw, 2.5rem);
+    font-size: clamp(2rem, 3.4vw, 2.375rem);
     font-weight: 600;
     line-height: 1;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
 }
 
@@ -672,7 +764,7 @@
     padding: 0.92rem 0;
     border-top: 1px solid var(--nx-paper-line);
     color: #424245;
-    line-height: 1.35;
+    line-height: 1.4;
 }
 
 .home-perks li:last-child {
@@ -885,10 +977,10 @@
     align-items: center;
     gap: 2.5rem;
     padding-right: 2.5rem;
-    font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+    font-size: clamp(1.4rem, 3.2vw, 2.25rem);
     font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.035em;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
     animation: homeMarquee 38s linear infinite;
 }
 
@@ -920,11 +1012,6 @@
         padding-top: 7.5rem;
     }
 
-    .home-hero__title {
-        line-height: 1.06;
-        letter-spacing: -0.04em;
-    }
-
     .home-hero__lead {
         margin-top: 1.1rem;
     }
@@ -943,47 +1030,72 @@
         border-radius: 20px;
     }
 
-    /* I tre mood restano una fila, da sfogliare, invece di tre schermate impilate. */
+    /* I tre mood uno sotto l'altro, ognuno con la sua scritta. */
     .home-mood {
-        grid-auto-columns: 72%;
-        grid-auto-flow: column;
-        grid-template-columns: none;
-        gap: 0.8rem;
-        width: 100%;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.75rem;
         margin-top: 4rem;
-        padding: 0 20px;
-        overflow-x: auto;
-        scroll-padding: 0 20px;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
     }
 
-    .home-mood::-webkit-scrollbar {
+    .home-mood figcaption {
+        margin-top: 0.7rem;
+    }
+
+    /* Le frecce lasciano il posto al dito: qui si passa da una voce
+       all'altra scorrendo la foto o toccando le miniature. */
+    .home-showcase__head {
+        align-items: center;
+    }
+
+    .home-paddle--step {
         display: none;
     }
 
-    .home-mood figure {
-        scroll-snap-align: start;
+    .home-showcase {
+        margin-top: 1.75rem;
     }
 
-    .home-gallery {
-        margin-top: 2rem;
+    .home-stage {
+        grid-template-columns: minmax(0, 1fr);
+        border-radius: 28px;
     }
 
-    .home-gallery__track {
-        gap: 0.8rem;
+    .home-stage__media {
+        order: -1;
+        aspect-ratio: 5 / 4;
     }
 
-    .home-gallery__foot {
-        margin-top: 1.5rem;
+    .home-stage__media img {
+        object-position: center 30%;
     }
 
-    .home-paddles {
-        display: none;
+    .home-stage__copy {
+        padding: 1.5rem 1.5rem 1.75rem;
     }
 
-    .home-progress {
-        width: 100%;
+    .home-stage__title {
+        margin-top: 0.9rem;
+        font-size: 1.625rem;
+    }
+
+    /* Tre righe riservate al testo: la scheda resta alta uguale da una voce
+       all'altra e quello che c'e' sotto non salta. */
+    .home-stage__text {
+        min-height: 4.5em;
+        margin-top: 0.6rem;
+    }
+
+    .home-stage .home-btn {
+        margin-top: 1.25rem;
+    }
+
+    /* La fila delle miniature scorre fino ai bordi dello schermo. */
+    .home-rail {
+        grid-auto-columns: 6.5rem;
+        gap: 0.6rem;
+        margin-inline: -20px;
+        padding-inline: 20px;
+        scroll-padding-inline: 20px;
     }
 
     .home-prem {
@@ -998,10 +1110,6 @@
 
     .home-price {
         margin-top: 1.5rem;
-    }
-
-    .home-perks li {
-        font-size: 1rem;
     }
 
     .supporters-row {
@@ -1037,17 +1145,18 @@
 }
 
 /* ── Meno movimento ───────────────────────────────────────────
-   Chi lo chiede al sistema trova tutto fermo e gia' al suo posto. */
+   Chi lo chiede al sistema trova tutto fermo e gia' al suo posto. La vetrina
+   in questo caso non scorre da sola: lo script non le da' .is-live. */
 
 @media (prefers-reduced-motion: reduce) {
     .home-word > span,
     .home-hero__lead,
     .home-hero__question,
-    .home-hero__online,
     .home-hero .home-actions,
     .home-hero__media,
     .home-hero__media img,
-    .home-card .home-tile img,
+    .home-stage__copy.is-swapping > :not(.home-stage__count),
+    .home-stage__media img.is-entering,
     .home-joke__track {
         animation: none;
     }
@@ -1060,7 +1169,7 @@
         transition: none;
     }
 
-    .home-gallery {
-        scroll-behavior: auto;
+    .home-thumb__image img {
+        transition: none;
     }
 }

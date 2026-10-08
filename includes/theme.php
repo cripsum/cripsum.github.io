@@ -121,10 +121,12 @@ function cripsum_theme_head(): void
         return;
     }
 
+    // head-import.php carica gia' Poppins 400: qui arrivano i pesi che al tema
+    // servono in piu', cosi' i grassetti sono veri e non simulati dal browser.
     $css = function_exists('cripsum_asset') ? cripsum_asset('/assets/theme-next/theme.css') : '/assets/theme-next/theme.css';
     ?>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..600;1,14..32,500&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;1,500&amp;display=swap">
     <link rel="stylesheet" href="<?= htmlspecialchars($css, ENT_QUOTES, 'UTF-8') ?>">
     <?php
 }

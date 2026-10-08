@@ -10,10 +10,6 @@
             by: 'di',
             pause: 'Metti in pausa',
             play: 'Riprendi',
-            claim: 'Riscatta 500 Godos',
-            claimed: 'Riscattati',
-            claim_again: 'tra',
-            claim_error: 'Non riuscito, riprova',
         },
         en: {
             open_slide: (title) => `Open ${title}`,
@@ -21,17 +17,13 @@
             by: 'by',
             pause: 'Pause',
             play: 'Resume',
-            claim: 'Claim 500 Godos',
-            claimed: 'Claimed',
-            claim_again: 'again in',
-            claim_error: 'Didn’t work, try again',
         },
     }[lang];
 
     const slideData = {
         it: [
             {
-                media: '../img/profili.png',
+                media: '../img/profili2.png',
                 title: 'Profili custom!',
                 description: 'Personalizza il tuo profilo creando una bio o un portfolio clean.',
                 buttonText: 'Modifica il tuo profilo',
@@ -96,7 +88,7 @@
         ],
         en: [
             {
-                media: '../img/profili.png',
+                media: '../img/profili2.png',
                 title: 'Custom profiles!',
                 description: 'Customise your profile by creating a clean bio or portfolio.',
                 buttonText: 'Edit your profile',
@@ -578,97 +570,6 @@
         })();
     };
 
-    /**
-     * Riscatto giornaliero Premium, dal pulsante dell'hero.
-     *
-     * Usa la stessa API della Lootbox. Il pulsante arriva dal server gia' nello
-     * stato giusto (da riscattare oppure riscattato): qui si gestiscono il
-     * clic e il conto alla rovescia fino a mezzanotte, quando torna premibile
-     * senza dover ricaricare la pagina.
-     */
-    const initPremiumClaim = () => {
-        const button = $('[data-premium-claim]');
-        if (!button) return;
-
-        const csrf = $('meta[name="csrf-token"]')?.content || '';
-        const loadedAt = Date.now();
-        const secondsAtLoad = Number(button.dataset.secondsLeft) || 0;
-        let ticker = null;
-
-        const clock = (seconds) => [Math.floor(seconds / 3600), Math.floor((seconds % 3600) / 60), seconds % 60]
-            .map((part) => String(part).padStart(2, '0'))
-            .join(':');
-
-        // Quanto manca a mezzanotte adesso, partendo dal numero che il server
-        // ha stampato quando ha costruito la pagina.
-        const secondsToMidnight = () => Math.max(0, secondsAtLoad - Math.floor((Date.now() - loadedAt) / 1000));
-
-        const showReady = () => {
-            clearInterval(ticker);
-            button.disabled = false;
-            button.classList.remove('is-claimed', 'is-busy');
-            button.classList.add('home-btn--premium');
-            button.innerHTML = `<img class="home-btn__coin" src="/img/godos-icon.png" alt="" width="20" height="20"><span>${escapeHtml(t.claim)}</span>`;
-        };
-
-        const showClaimed = (seconds) => {
-            // Si conta verso un orario fisso e non sottraendo un secondo alla
-            // volta: a scheda in secondo piano i timer rallentano, e al
-            // ritorno il conto sarebbe rimasto indietro.
-            const endsAt = Date.now() + seconds * 1000;
-            const left = () => Math.max(0, Math.round((endsAt - Date.now()) / 1000));
-
-            clearInterval(ticker);
-            button.disabled = true;
-            button.classList.remove('home-btn--premium', 'is-busy');
-            button.classList.add('is-claimed');
-            button.innerHTML = `<i class="fa-solid fa-check"></i><span><strong>${escapeHtml(t.claimed)}</strong> · ${escapeHtml(t.claim_again)} <span data-claim-countdown>${clock(left())}</span></span>`;
-
-            const countdown = $('[data-claim-countdown]', button);
-            ticker = setInterval(() => {
-                if (left() <= 0) {
-                    showReady();
-                    return;
-                }
-                countdown.textContent = clock(left());
-            }, 1000);
-        };
-
-        const showError = () => {
-            button.classList.remove('is-busy');
-            button.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>${escapeHtml(t.claim_error)}</span>`;
-            setTimeout(showReady, 2600);
-        };
-
-        if (button.classList.contains('is-claimed')) showClaimed(secondsToMidnight());
-
-        button.addEventListener('click', async () => {
-            if (button.disabled || button.classList.contains('is-busy')) return;
-
-            button.disabled = true;
-            button.classList.add('is-busy');
-
-            try {
-                const response = await fetch('/api/premium_daily_claim.php', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-Token': csrf }
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    showClaimed(Number(data.seconds_left) || secondsToMidnight());
-                } else if (data.code === 'ALREADY_CLAIMED') {
-                    // Riscattato da un'altra scheda o dalla Lootbox: non e' un errore.
-                    showClaimed(secondsToMidnight());
-                } else {
-                    showError();
-                }
-            } catch {
-                showError();
-            }
-        });
-    };
-
     const initReveal = () => {
         const items = $$('.home-reveal');
 
@@ -739,7 +640,6 @@
         initBootstrapAfterLoad();
         initReveal();
         initSlider();
-        initPremiumClaim();
         initDiscordCount();
         document.body.classList.add('home-is-ready');
     });

@@ -17,22 +17,16 @@ $currentUsername = $_SESSION['username'] ?? null;
 $isPremium = false;
 $supporters = [];
 $supportersTotal = 0;
-$onlineCount = 0;
 
-/** Riga di chi sta guardando: serve al suo posto fisso tra i supporter e al riscatto giornaliero. */
+/** Riga di chi sta guardando: serve al suo posto fisso tra i supporter. */
 $viewerRow = [];
-$premiumClaimedToday = false;
-$premiumClaimLeft = 0;
-
-/** Oltre questo silenzio non si e' piu' "online adesso". */
-const HOME_ONLINE_WINDOW_MINUTES = 5;
 
 /** Tante facce bastano: la fila e' decorativa, non un elenco da consultare. */
 const HOME_SUPPORTERS_LIMIT = 40;
 
 if (isset($mysqli) && $mysqli instanceof mysqli) {
     if ($isLoggedIn && isset($_SESSION['user_id'])) {
-        $stmtPrem = $mysqli->prepare("SELECT is_premium, last_premium_claim, accent_color, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
+        $stmtPrem = $mysqli->prepare("SELECT is_premium, accent_color, profile_updated_at FROM utenti WHERE id = ? LIMIT 1");
         if ($stmtPrem) {
             $stmtPrem->bind_param('i', $_SESSION['user_id']);
             $stmtPrem->execute();
@@ -40,14 +34,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             $isPremium = ((int)($viewerRow['is_premium'] ?? 0) === 1);
             $stmtPrem->close();
         }
-    }
-
-    if ($isPremium) {
-        // Stesso "oggi" di api/premium_daily_claim.php: il pulsante della home
-        // e l'API devono essere d'accordo su quando il riscatto e' gia' fatto.
-        require_once __DIR__ . '/../includes/mission_generator.php';
-        $premiumClaimedToday = (($viewerRow['last_premium_claim'] ?? null) === getMissionDailyPeriod());
-        $premiumClaimLeft = max(0, strtotime('tomorrow') - time());
     }
 
     require_once __DIR__ . '/../includes/account_data_helpers.php';
@@ -71,29 +57,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         $stmtSuppCount->execute();
         $supportersTotal = max($supportersTotal, (int)($stmtSuppCount->get_result()->fetch_assoc()['totale'] ?? 0));
         $stmtSuppCount->close();
-    }
-
-    /**
-     * Quante persone stanno usando il sito adesso.
-     *
-     * `ultimo_accesso` lo aggiorna activity-beat.js, che conta solo il tempo a
-     * scheda davvero visibile: e' un numero onesto, non "quanti hanno aperto
-     * una pagina oggi". Se la colonna non c'e' resta zero e la riga non viene
-     * nemmeno stampata.
-     */
-    if (function_exists('auth_column_exists') && auth_column_exists($mysqli, 'utenti', 'ultimo_accesso')) {
-        $stmtOnline = $mysqli->prepare(
-            'SELECT COUNT(*) AS totale FROM utenti
-             WHERE ultimo_accesso >= DATE_SUB(NOW(), INTERVAL ? MINUTE)' . $suppActiveClause
-        );
-
-        if ($stmtOnline) {
-            $window = HOME_ONLINE_WINDOW_MINUTES;
-            $stmtOnline->bind_param('i', $window);
-            $stmtOnline->execute();
-            $onlineCount = (int)($stmtOnline->get_result()->fetch_assoc()['totale'] ?? 0);
-            $stmtOnline->close();
-        }
     }
 }
 
@@ -136,9 +99,9 @@ if (cripsum_theme_is_next()) {
     <?php /* head-import carica solo Poppins 400: senza questi pesi ogni
              grassetto della home era simulato dal browser. */ ?>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;1,600&amp;display=swap">
-    <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.3">
+    <link rel="stylesheet" href="/assets/home-v5/home.css?v=7.4">
     <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
-    <script src="/assets/home-v5/home.js?v=6.4" defer></script>
+    <script src="/assets/home-v5/home.js?v=6.5" defer></script>
     <script src="/assets/news/news-popup.js?v=1.1" defer></script>
 
 </head>
@@ -168,39 +131,12 @@ if (cripsum_theme_is_next()) {
                 <p>Editing, memes, lootboxes, profiles, achievements, community posts and many secrets. What are you waiting for? Join us!</p>
                 <p class="home-question">Are you over 25 and own a PC?</p>
 
-                <?php if ($onlineCount > 0): ?>
-                    <p class="home-online">
-                        <span class="home-online__dot" aria-hidden="true"></span>
-                        <strong><?php echo home_h(number_format($onlineCount)); ?></strong>
-                        <?php echo $onlineCount === 1 ? 'person around right now' : 'people around right now'; ?>
-                    </p>
-                <?php endif; ?>
-
                 <div class="home-actions">
                     <?php if ($isLoggedIn && $currentUsername): ?>
                         <a class="home-btn home-btn--primary" href="<?php echo home_h($profileUrl); ?>">
                             <i class="fa-solid fa-user"></i>
                             <span>Go to profile</span>
                         </a>
-                        <?php if ($isPremium): ?>
-                            <?php /* Il riscatto giornaliero sta qui e non piu' solo in
-                                     Lootbox: e' il motivo per cui un Premium torna ogni
-                                     giorno. Etichette e conto alla rovescia li gestisce
-                                     home.js. */ ?>
-                            <button class="home-btn <?php echo $premiumClaimedToday ? 'is-claimed' : 'home-btn--premium'; ?>"
-                                type="button"
-                                data-premium-claim
-                                data-seconds-left="<?php echo (int)$premiumClaimLeft; ?>"
-                                <?php echo $premiumClaimedToday ? 'disabled' : ''; ?>>
-                                <?php if ($premiumClaimedToday): ?>
-                                    <i class="fa-solid fa-check"></i>
-                                    <span><strong>Claimed</strong> · again in <span data-claim-countdown>--:--:--</span></span>
-                                <?php else: ?>
-                                    <img class="home-btn__coin" src="/img/godos-icon.png" alt="" width="20" height="20">
-                                    <span>Claim 500 Godos</span>
-                                <?php endif; ?>
-                            </button>
-                        <?php endif; ?>
                     <?php else: ?>
                         <a class="home-btn home-btn--primary" href="registrati">
                             <i class="fa-solid fa-user-plus"></i>
