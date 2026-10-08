@@ -1,0 +1,682 @@
+/* ============================================================
+   Tema nuovo — Amici, Posta, chat privata e chat globale
+   ============================================================
+
+   Correzioni a assets/chat/kit.css (il kit condiviso dalle quattro pagine)
+   e ai fogli di pagina: assets/social/social.css, css/inbox.css,
+   assets/chat/chat.css, assets/chat/global.css. Gli originali non si toccano.
+
+   Il kit tiene i suoi colori in variabili: quasi tutto il lavoro e'
+   spostarle sui neutri del tema. Sotto ci sono i pezzi che avevano un
+   colore scritto a mano, e la disposizione dei riquadri.
+
+   Come cambiano i riquadri: nelle tre pagine a due colonne (Posta, chat
+   privata, chat globale) l'elenco di lato non e' piu' un riquadro e sta sul
+   fondo; resta una superficie sola, quella dove si legge e si scrive.
+
+   Restano come sono: tutte le funzioni e le animazioni, il verde di chi e'
+   online, il rosso dei pericoli, l'oro del ruolo Owner e dei premi,
+   l'ambra degli avvisi (silenziato, modalita' lenta), il puntino «in
+   diretta» che pulsa, i colori di Discord.
+   ============================================================ */
+
+html[data-theme="next"] {
+    --ck-accent: #f5f5f7;
+    --ck-accent-rgb: 245, 245, 247;
+    --ck-accent-strong: #f5f5f7;
+    --ck-accent-soft: var(--nx-surface-3);
+    --ck-accent-line: var(--nx-text-3);
+    --ck-on-accent: #000;
+
+    --ck-bg: var(--nx-bg);
+    --ck-bg-2: var(--nx-bg);
+    --ck-panel: var(--nx-surface);
+    --ck-panel-solid: var(--nx-surface);
+    --ck-surface: var(--nx-surface-2);
+    --ck-surface-2: var(--nx-surface-3);
+    --ck-surface-3: #343437;
+    --ck-border: var(--nx-line);
+    --ck-border-soft: var(--nx-line);
+
+    --ck-text: var(--nx-text);
+    --ck-muted: var(--nx-text-2);
+    --ck-muted-2: var(--nx-text-3);
+
+    --ck-green: var(--nx-ok);
+    --ck-red: var(--nx-danger);
+
+    --ck-radius-xl: var(--nx-radius);
+    --ck-radius-lg: 20px;
+    --ck-radius-sm: 12px;
+    --ck-shadow: var(--nx-float);
+}
+
+/* Via le due macchie blu sullo sfondo. */
+html[data-theme="next"] body.ck-page {
+    background: var(--nx-bg);
+}
+
+/* ── Pesi del carattere: 500 e 600 al posto di 700 ───────── */
+
+html[data-theme="next"] :is(.ck-dialog__head h3, .ck-ucard__name strong, .ck-count, .ck-toast__btn, .ck-list__pill, .ck-icon-btn--text, .sp-hero h1, .sp-stat__text strong, .ib-side__head h1, .ib-row.is-unread .ib-row__top strong, .ib-reader__body > h2, .ib-md h3, .ib-md h4, .ib-md h5, .pc-side__head h1, .pc-row.is-unread .pc-row__top strong, .gc-head h1, .gc-side__head h2, .gc-gate__card h1) {
+    font-weight: 600;
+}
+
+html[data-theme="next"] :is(.ck-btn, .ck-role, .sp-tab, .ib-section, .ib-filter, .ib-chip, .pc-chip) {
+    font-weight: 500;
+}
+
+/* Etichette di servizio: minuscole. */
+html[data-theme="next"] :is(.ck-role, .ck-menu__header, .ck-unread, .ck-ucard__section h4, .sp-section h2, .ib-list__day, .ib-rewards h3, .pc-list__label, .pc-pinned strong, .pc-section > h3, .gc-pinned__body strong) {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] :is(.ck-menu__header, .sp-section h2, .ib-list__day, .pc-list__label, .pc-section > h3, .ck-ucard__section h4) {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+
+html[data-theme="next"] .ck-btn--primary,
+html[data-theme="next"] .ck-btn--primary:hover:not(:disabled) {
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html[data-theme="next"] .ck-btn--primary:hover:not(:disabled) {
+    background: #fff;
+}
+
+html[data-theme="next"] .ck-btn--ghost,
+html[data-theme="next"] .ck-btn--ghost:hover:not(:disabled) {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html[data-theme="next"] .ck-btn--ghost:hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .ck-btn--danger,
+html[data-theme="next"] .ck-btn--danger:hover:not(:disabled) {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .ck-btn--danger:hover:not(:disabled) {
+    border-color: var(--nx-danger);
+}
+
+html[data-theme="next"] .ck-icon-btn.is-active,
+html[data-theme="next"] .ck-emoji-tab.is-active {
+    color: var(--nx-text);
+}
+
+/* ── Campi ───────────────────────────────────────────────── */
+
+html[data-theme="next"] .ck-input.ck-input,
+html[data-theme="next"] .ck-input.ck-input:focus {
+    border-color: transparent;
+    background-color: var(--nx-surface-2);
+}
+
+/* Il fuoco e' una riga, non un alone. */
+html[data-theme="next"] .ck-input.ck-input:focus {
+    border-color: var(--nx-text);
+}
+
+/* I campi di ricerca stanno sul fondo: una superficie piu' scura e il
+   fuoco appena accennato, come nelle altre pagine. */
+html[data-theme="next"] :is(.sp-search, .ib-search, .pc-search) .ck-input.ck-input {
+    background-color: var(--nx-surface);
+}
+
+html[data-theme="next"] :is(.sp-search, .ib-search, .pc-search) .ck-input.ck-input:focus {
+    border-color: var(--nx-text-3);
+}
+
+/* Interruttore: bianco quando e' acceso, col pallino nero. */
+html[data-theme="next"] .ck-switch i {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .ck-switch i::after {
+    background: var(--nx-text-2);
+}
+
+html[data-theme="next"] .ck-switch input:checked + i {
+    background: var(--nx-text);
+}
+
+html[data-theme="next"] .ck-switch input:checked + i::after {
+    background: #000;
+}
+
+/* ── Etichette, contatori, vuoti ─────────────────────────── */
+
+html[data-theme="next"] .ck-role {
+    font-size: 0.68rem;
+}
+
+html[data-theme="next"] .ck-role--admin {
+    color: var(--nx-text);
+}
+
+/* I non letti: rossi, come gli altri contatori del sito. */
+html[data-theme="next"] .ck-count {
+    background: var(--nx-danger);
+    color: #fff;
+}
+
+html[data-theme="next"] .ck-empty__icon,
+html[data-theme="next"] .gc-gate__icon {
+    background: var(--nx-surface-2);
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .ck-skeleton {
+    background-color: var(--nx-surface-2);
+}
+
+/* ── Avvisi, finestre, menu ──────────────────────────────── */
+
+html[data-theme="next"] .ck-toast,
+html[data-theme="next"] .ck-menu,
+html[data-theme="next"] .ck-composer__suggest,
+html[data-theme="next"] .gc-search {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html[data-theme="next"] .ck-toast[data-kind="error"] {
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .ck-dialog {
+    background: rgba(0, 0, 0, 0.78);
+}
+
+html[data-theme="next"] .ck-menu-backdrop,
+html[data-theme="next"] .pc-details-backdrop,
+html[data-theme="next"] .gc-side-backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="next"] .ck-lightbox {
+    background: rgba(0, 0, 0, 0.94);
+}
+
+html[data-theme="next"] .ck-dialog__head h3 i {
+    color: var(--nx-text-3);
+}
+
+/* ── Messaggi ────────────────────────────────────────────────
+   La mia bolla e' bianca con il testo nero, quella degli altri grigia. */
+
+html[data-theme="next"] .ck-bubble {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .ck-msg.is-mine .ck-bubble {
+    background: var(--nx-text);
+    color: #000;
+}
+
+html[data-theme="next"] .ck-msg.is-mine .ck-msg__foot {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* Le spunte: grigie finche' non e' letto, nere quando e' letto. */
+html[data-theme="next"] .ck-msg__ticks.is-read {
+    color: #000;
+}
+
+html[data-theme="next"] .ck-bubble.is-jumbo .ck-msg__foot,
+html[data-theme="next"] .ck-msg.is-mine .ck-bubble.is-jumbo .ck-msg__ticks.is-read {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .ck-msg__name:hover {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+html[data-theme="next"] .ck-link,
+html[data-theme="next"] .ck-link:hover {
+    color: var(--nx-text);
+    text-decoration-color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .ck-msg.is-mine .ck-link {
+    color: #000;
+    text-decoration-color: rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="next"] .ck-mention {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .ck-msg.is-mine .ck-mention:not(.is-me) {
+    background: rgba(0, 0, 0, 0.1);
+    color: #000;
+}
+
+/* La risposta citata: un riquadro piu' scuro, senza la striscia sul fianco. */
+html[data-theme="next"] .ck-reply {
+    border-left: 0;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="next"] .ck-msg.is-mine .ck-reply {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="next"] .ck-reply strong,
+html[data-theme="next"] .ck-msg.is-mine .ck-reply strong {
+    color: inherit;
+}
+
+html[data-theme="next"] .ck-msg__tools {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .ck-msg__failed {
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .ck-reaction {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .ck-reaction.is-mine {
+    border-color: var(--nx-text-3);
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .ck-media__item.is-blank {
+    background: var(--nx-surface-2);
+}
+
+/* Data del giorno e messaggi di servizio. */
+html[data-theme="next"] .ck-day span,
+html[data-theme="next"] .ck-system span {
+    border: 0;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .ck-unread {
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .ck-unread::before,
+html[data-theme="next"] .ck-unread::after {
+    background: var(--nx-line);
+}
+
+html[data-theme="next"] .ck-list__pill:not(.has-count) {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+/* ── Campo per scrivere ──────────────────────────────────── */
+
+html[data-theme="next"] .ck-composer {
+    background: none;
+}
+
+html[data-theme="next"] .ck-composer__input {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .ck-composer__input:focus-within {
+    border-color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .ck-composer__send.is-ready {
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html[data-theme="next"] .ck-composer__context > i {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .ck-composer__context-body {
+    padding-left: 0;
+    border-left: 0;
+}
+
+html[data-theme="next"] .ck-composer__context-body strong {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .ck-drop {
+    border-color: var(--nx-text-3);
+    background: rgba(10, 10, 11, 0.92);
+    color: var(--nx-text);
+}
+
+/* ── Scheda di un utente ─────────────────────────────────── */
+
+html[data-theme="next"] .ck-ucard {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .ck-ucard__banner {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .ck-ucard__tool.ck-icon-btn {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="next"] .ck-ucard__state {
+    color: var(--nx-ok);
+}
+
+/* ============================================================
+   Amici
+   ============================================================ */
+
+html[data-theme="next"] .sp-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .sp-stat,
+html[data-theme="next"] .sp-stat.is-hot {
+    border-color: transparent;
+    border-radius: 16px;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .sp-stat:hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .sp-stat__icon {
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+/* Richieste in arrivo: l'icona diventa bianca. */
+html[data-theme="next"] .sp-stat.is-hot .sp-stat__icon {
+    background: var(--nx-text);
+    color: #000;
+}
+
+/* Ricerca, linguette ed elenco non stanno piu' dentro un riquadro. */
+html[data-theme="next"] .sp-panel {
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+}
+
+html[data-theme="next"] .sp-search {
+    margin: 0;
+}
+
+html[data-theme="next"] .sp-tabs {
+    gap: 6px;
+    padding: 14px 0 0;
+    border-bottom: 0;
+}
+
+html[data-theme="next"] .sp-content {
+    padding: 18px 0 20px;
+}
+
+/* Linguette a pillola, come nel resto del sito. */
+html[data-theme="next"] .sp-tab {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: var(--nx-pill);
+}
+
+html[data-theme="next"] .sp-tab::after {
+    display: none;
+}
+
+html[data-theme="next"] .sp-tab:hover {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .sp-tab.is-active {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .sp-section h2 {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .sp-section h2 span {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .sp-card,
+html[data-theme="next"] .sp-card:hover {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .sp-card:hover {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .sp-card:hover .ck-dot {
+    border-color: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .sp-tag {
+    color: var(--nx-ok);
+}
+
+/* ============================================================
+   Le tre pagine a due colonne: Posta, chat privata, chat globale
+   ============================================================ */
+
+html[data-theme="next"] :is(.ib-panel, .pc-panel, .gc-panel) {
+    border: 0;
+    box-shadow: none;
+}
+
+/* L'elenco di lato sta sul fondo. */
+html[data-theme="next"] :is(.ib-side, .pc-side, .gc-side) {
+    --ck-panel-solid: var(--nx-bg);
+    border-radius: 0;
+    background: none;
+}
+
+/* Sul fondo le superfici scendono di un gradino. */
+html[data-theme="next"] :is(.ib-side, .pc-side, .gc-side) :is(.ib-row, .pc-row, .gc-person):hover {
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] :is(.ib-row, .pc-row).is-active,
+html[data-theme="next"] :is(.ib-row, .pc-row).is-active:hover {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] :is(.ib-filter, .ib-chip, .pc-chip) {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html[data-theme="next"] :is(.ib-filter, .ib-chip, .pc-chip):hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] :is(.ib-chip, .pc-chip).is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] :is(.ib-row, .pc-row).is-unread :is(.ib-row__top, .pc-row__top) time {
+    color: var(--nx-text);
+}
+
+/* ── Posta ───────────────────────────────────────────────── */
+
+/* Messaggi e Ticket: due linguette in un contenitore, come «Recenti / In
+   tendenza» in Shitpost. */
+html[data-theme="next"] .ib-sections {
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .ib-section {
+    border-radius: var(--nx-pill);
+}
+
+html[data-theme="next"] .ib-filter.is-set {
+    border-color: var(--nx-text);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .ib-chip--action {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .ib-bulk {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+}
+
+/* I colori delle categorie: Sistema e Ticket erano del blu del sito e
+   passano al grigio; Premi resta oro, Social verde, Speciali azzurro. */
+html[data-theme="next"] :is(.ib-cat--system, .ib-cat--ticket) {
+    --ib-tone: 161, 161, 166;
+}
+
+html[data-theme="next"] .ib-cat--social {
+    --ib-tone: 48, 209, 88;
+}
+
+html[data-theme="next"] .ib-md {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .ib-md a,
+html[data-theme="next"] .ib-md a:hover,
+html[data-theme="next"] .pc-linkrow,
+html[data-theme="next"] .pc-linkrow:hover {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+html[data-theme="next"] .ib-md li::marker {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .ib-md blockquote {
+    border-left: 2px solid var(--nx-line);
+}
+
+/* I premi: via la sfumatura dorata, l'oro resta ai Godos. */
+html[data-theme="next"] .ib-rewards {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .ib-rewards h3 {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .ib-reward {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .ib-rewards__done,
+html[data-theme="next"] .ib-state.is-open {
+    color: var(--nx-ok);
+}
+
+/* ── Chat privata ────────────────────────────────────────── */
+
+html[data-theme="next"] .pc-avatar__icon {
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .pc-row__preview.is-typing,
+html[data-theme="next"] .pc-head__text small.is-typing,
+html[data-theme="next"] .pc-result strong,
+html[data-theme="next"] .pc-pinned strong,
+html[data-theme="next"] .gc-pinned__body strong {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .pc-invite {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .pc-strip,
+html[data-theme="next"] .gc-pinned {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .pc-pinned > i,
+html[data-theme="next"] .gc-pinned__body > i {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .pc-searchbar {
+    background: none;
+}
+
+html[data-theme="next"] .pc-tabs {
+    background: var(--nx-surface-2);
+}
+
+/* ── Chat globale ────────────────────────────────────────── */
+
+html[data-theme="next"] .gc-typing__dots i {
+    background: var(--nx-text-2);
+}
+
+html[data-theme="next"] .gc-radio__row:has(input:checked) {
+    border-color: var(--nx-text);
+    background: none;
+}
+
+/* «Prima di entrare»: una superficie sola, senza bordo. */
+html[data-theme="next"] .gc-gate__card {
+    border: 0;
+    box-shadow: none;
+}
+
+/* ── Telefono ────────────────────────────────────────────── */
+
+@media (max-width: 700px) {
+    html[data-theme="next"] .sp-hero h1 {
+        font-size: clamp(2.2rem, 11vw, 2.8rem);
+    }
+}

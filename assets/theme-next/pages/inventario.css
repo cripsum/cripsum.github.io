@@ -1,0 +1,419 @@
+/* ============================================================
+   Tema nuovo — Inventario
+   ============================================================
+
+   Correzioni a assets/inventario/inventario.css
+   (includes/gacha/pages/inventario.php). Il foglio originale non si tocca.
+
+   Qui si cambia solo il contorno: sfondo, testata, schede, barra dei
+   filtri, pulsanti, riquadri neutri.
+
+   NON si tocca niente di quello che riguarda le rarita': il colore di
+   ogni rarita' su bordo, fondo e alone delle carte, il riflesso che
+   attraversa la carta, la riga arcobaleno degli Speciali, il nastro e il
+   riquadro dei Limitati, i pallini luminosi, l'impulso quando si potenzia,
+   il «LEVEL UP», il cristallo dei frammenti che galleggia, la foto sfocata
+   dietro il personaggio aperto. Restano tutte le animazioni d'ingresso.
+
+   Dove serve, le regole di base stanno dentro :where(): cosi' pesano meno
+   degli stati dell'originale (attivo, passaggio del mouse, completato) e i
+   colori delle rarita' continuano a vincere.
+   ============================================================ */
+
+html[data-theme="next"] {
+    --inv-bg: var(--nx-bg);
+    --inv-bg-2: var(--nx-bg);
+    --inv-surface: var(--nx-surface-2);
+    --inv-surface-2: var(--nx-surface-3);
+    --inv-border: var(--nx-line);
+    --inv-border-strong: #3a3a3d;
+    --inv-text: var(--nx-text);
+    --inv-muted: var(--nx-text-2);
+    --inv-muted-2: var(--nx-text-3);
+    --inv-accent: #f5f5f7;
+    --inv-accent-rgb: 245, 245, 247;
+    --inv-radius-lg: var(--nx-radius);
+}
+
+/* Via le due macchie blu e viola sullo sfondo. */
+html[data-theme="next"] body.inv-page {
+    background: var(--nx-bg);
+}
+
+html[data-theme="next"] .inv :focus-visible,
+html[data-theme="next"] .inv-drawer :focus-visible,
+html[data-theme="next"] .inv-confirm :focus-visible {
+    outline-color: var(--nx-text);
+}
+
+/* ── Pesi del carattere ──────────────────────────────────────
+   Poppins 500 e 600 al posto di 700, 800 e 900. */
+
+html[data-theme="next"] :is(.inv-head__title h1, .inv-head__progress strong, .inv-head__stats dd, .inv-group__head strong, .inv-card__name, .inv-frag-intro h2, .inv-frag-balance strong, .inv-frag-head h2, .inv-hero__info h2, .inv-bcard__body strong, .inv-level b, .inv-coll__done, .inv-max, .inv-card__rarity, .inv-hero__rarity, .inv-card__new, .inv-card__ribbon, .inv-card__qty, .inv-card__lv b, .inv-frag-item__badge, .inv-frag-item__body small, .inv-ability__tag, .inv-card__q, .inv-hero__q, .inv-frag-float) {
+    font-weight: 600;
+}
+
+html[data-theme="next"] :is(.inv-btn, .inv-link, .inv-tab, .inv-chip, .inv-chip small, .inv-head__stats dt, .inv-filters__label, .inv-dd__label, .inv-dd__btn, .inv-dd__opt, .inv-group__count, .inv-card__cat, .inv-frag-balance span, .inv-frag-pick__name, .inv-frag-values summary, .inv-pill, .inv-dtab, .inv-subhead, .inv-traits h4, .inv-facts dd, .inv-bcard__body small, .inv-stat span, .inv-role, .inv-toast, .inv-filters-btn b) {
+    font-weight: 500;
+}
+
+/* Etichette di servizio: minuscole. I nomi delle rarita' restano come sono. */
+html[data-theme="next"] :is(.inv-filters__label, .inv-dd__label, .inv-subhead, .inv-traits h4, .inv-bcard__body small) {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] :is(.inv-filters__label, .inv-dd__label, .inv-subhead) {
+    font-size: 0.8125rem;
+}
+
+html[data-theme="next"] .inv-traits h4 {
+    color: var(--nx-text-2);
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+
+/* Preferito (oro) e desiderato (rosa) tengono il loro colore. */
+html[data-theme="next"] .inv-btn:not(.inv-btn--primary):not(.inv-btn--active) {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html[data-theme="next"] .inv-btn:not(.inv-btn--primary):not(.inv-btn--active):hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+    background: transparent;
+}
+
+/* «Apri la lootbox»: il pulsante pieno della pagina. Il riflesso che lo
+   attraversa resta, scuro perche' il fondo adesso e' bianco. */
+html[data-theme="next"] .inv-btn--primary,
+html[data-theme="next"] .inv-btn--primary:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html[data-theme="next"] .inv-btn--primary:hover:not(:disabled) {
+    background: #fff;
+}
+
+html[data-theme="next"] .inv-btn--primary::after {
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.14), transparent);
+}
+
+/* I pulsanti piccoli dentro le card (compra nel negozio, riscuoti una
+   collezione) passano a filo: di pieno ce n'e' uno per schermata. */
+html[data-theme="next"] .inv-btn--primary.inv-btn--small,
+html[data-theme="next"] .inv-btn--primary.inv-btn--small:hover:not(:disabled) {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .inv-btn--primary.inv-btn--small:hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .inv-btn--primary.inv-btn--small::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+}
+
+html[data-theme="next"] .inv-link {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .inv-link:hover {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .inv-icon-btn {
+    border: 0;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .inv-icon-btn:hover:not(:disabled) {
+    background: var(--nx-surface-3);
+}
+
+/* ── Testata ─────────────────────────────────────────────────
+   Non e' piu' un riquadro: titolo, anello e numeri stanno sul fondo. */
+
+html[data-theme="next"] .inv-head {
+    padding: 0.5rem 0 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+}
+
+/* Il titolo ha la stessa misura delle altre pagine della community. */
+html[data-theme="next"] .inv-head__title h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .inv-ring__fill {
+    stroke: var(--nx-text);
+}
+
+html[data-theme="next"] .inv-head__stats div {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+/* ── Schede ──────────────────────────────────────────────── */
+
+html[data-theme="next"] .inv-tabs__ink {
+    border: 0;
+    background: var(--nx-surface-3);
+}
+
+/* ── Barra dei filtri ────────────────────────────────────────
+   Come in Shitpost e in Edits: pezzi in fila sul fondo. Resta attaccata
+   in alto mentre si scorre, quindi il fondo e' pieno. */
+
+html[data-theme="next"] .inv-toolbar {
+    padding: 0.6rem 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--nx-bg);
+}
+
+html[data-theme="next"] .inv-search,
+html[data-theme="next"] .inv-search:focus-within {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .inv-search:focus-within {
+    border-color: var(--nx-text-3);
+}
+
+/* Filtro spento: a filo. Acceso prende il colore della sua rarita'. */
+html[data-theme="next"] :where(.inv-chip) {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html[data-theme="next"] .inv-filters-btn b {
+    color: #000;
+}
+
+html[data-theme="next"] .inv-filters__inner {
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .inv-filters.is-open .inv-filters__inner {
+    border-color: transparent;
+}
+
+html[data-theme="next"] .inv-dd__btn,
+html[data-theme="next"] .inv-dd__btn:hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .inv-dd__btn:hover,
+html[data-theme="next"] .inv-dd.is-open .inv-dd__btn {
+    border-color: var(--nx-text-3);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .inv-dd__icon {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .inv-dd__menu {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html[data-theme="next"] .inv-dd__opt:hover,
+html[data-theme="next"] .inv-dd__opt:focus {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .inv-density button.is-active {
+    background: var(--nx-surface-3);
+}
+
+/* ── Gruppi per rarita' ──────────────────────────────────────
+   Il riquadro attorno a ogni gruppo va via: bastano il pallino colorato,
+   il nome e la barra. I gruppi dei Limitati tengono il loro riquadro rosa. */
+
+html[data-theme="next"] .inv-group:not(.is-limited) {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+}
+
+html[data-theme="next"] .inv-groups {
+    gap: 1.6rem;
+}
+
+/* ── Carta ───────────────────────────────────────────────────
+   Tutto com'era. Cambia solo il blu notte sotto la tinta della rarita',
+   che diventa il grigio del tema. */
+
+html[data-theme="next"] .inv-card {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--rc) 10%, var(--nx-surface)), var(--nx-surface));
+}
+
+html[data-theme="next"] .inv-card__art {
+    background: var(--nx-surface-2);
+}
+
+/* I doppioni: etichetta bianca al posto di quella blu. */
+html[data-theme="next"] .inv-card__qty.is-dupe {
+    background: var(--nx-text);
+    color: #000;
+}
+
+/* ── Collezioni ──────────────────────────────────────────── */
+
+html[data-theme="next"] :where(.inv-coll) {
+    border-color: transparent;
+}
+
+html[data-theme="next"] .inv-coll {
+    background: var(--nx-surface);
+}
+
+/* ── Frammenti ───────────────────────────────────────────── */
+
+/* Il viola dietro il cristallo resta: e' il colore dei frammenti. */
+html[data-theme="next"] .inv-frag-intro {
+    border: 0;
+    background:
+        radial-gradient(circle at 8% 50%, rgba(168, 85, 247, 0.22), transparent 45%),
+        var(--nx-surface);
+}
+
+html[data-theme="next"] .inv-frag-balance,
+html[data-theme="next"] .inv-frag-convert {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] :where(.inv-frag-pick__opt) {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html[data-theme="next"] .inv-frag-preview span {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .inv-frag-item {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--rc) 12%, var(--nx-surface)), var(--nx-surface));
+}
+
+html[data-theme="next"] .inv-frag-item.r-segreto {
+    background: linear-gradient(90deg, color-mix(in srgb, #a855f7 22%, var(--nx-surface)), var(--nx-surface));
+}
+
+/* ── Personaggio aperto ──────────────────────────────────── */
+
+html[data-theme="next"] .inv-drawer__backdrop,
+html[data-theme="next"] .inv-confirm__backdrop {
+    background: rgba(0, 0, 0, 0.78);
+}
+
+html[data-theme="next"] .inv-drawer__panel {
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .inv-hero__art {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .inv-hero__info h2 {
+    letter-spacing: -0.01em;
+}
+
+html[data-theme="next"] .inv-dtabs__ink {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .inv-dpanel p,
+html[data-theme="next"] .inv-traits ul,
+html[data-theme="next"] .inv-confirm__panel p {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .inv-facts dt {
+    font-weight: 400;
+}
+
+/* La barra del livello: verde pieno, senza la sfumatura dal blu. */
+html[data-theme="next"] .inv-level__bar i {
+    background: var(--inv-green);
+}
+
+html[data-theme="next"] .inv-stat,
+html[data-theme="next"] .inv-ability {
+    border: 0;
+}
+
+/* ── Conferma e avvisi ───────────────────────────────────── */
+
+html[data-theme="next"] .inv-confirm__panel {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+}
+
+html[data-theme="next"] .inv-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .inv-toast.is-error {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    color: var(--nx-danger);
+}
+
+@media (max-width: 820px) {
+    html[data-theme="next"] .inv-head {
+        padding: 0.25rem 0 0;
+    }
+
+    html[data-theme="next"] .inv-group:not(.is-limited) {
+        padding: 0;
+    }
+
+    html[data-theme="next"] .inv-drawer__panel {
+        border-top: 0;
+    }
+
+    /* Le tre schede stanno nella larghezza del telefono, senza scorrere di lato. */
+    html[data-theme="next"] .inv-tabs {
+        overflow: visible;
+    }
+
+    html[data-theme="next"] .inv-tab {
+        flex: 1 1 0;
+        justify-content: center;
+        min-width: 0;
+        padding-inline: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    html[data-theme="next"] .inv-head__actions .inv-btn {
+        padding-inline: 0.75rem;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 620px) {
+    html[data-theme="next"] .inv-head__title h1 {
+        font-size: clamp(2.2rem, 11vw, 2.8rem);
+    }
+}

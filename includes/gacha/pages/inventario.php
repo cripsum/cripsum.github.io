@@ -14,6 +14,7 @@
 require_once __DIR__ . '/../../../config/session_init.php';
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../functions.php';
+require_once __DIR__ . '/../../theme.php';
 require_once __DIR__ . '/../collection.php';
 
 $gLang = ($gachaLang ?? 'it') === 'en' ? 'en' : 'it';
@@ -48,13 +49,14 @@ $ogTitle = $gEn ? 'Character Inventory - Cripsum™' : 'Inventario Personaggi - 
 $ogImage = '/img/waguri.jpeg';
 ?>
 <!DOCTYPE html>
-<html lang="<?= $gLang ?>">
+<html lang="<?= $gLang ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include __DIR__ . '/../../head-import.php'; ?>
     <title><?= $gEn ? 'Cripsum™ - Inventory' : 'Cripsum™ - Inventario' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/assets/inventario/inventario.css')) ?>">
+    <?php cripsum_theme_head('inventario'); ?>
     <script src="<?= $h(cripsum_asset('/assets/inventario/inventario.js')) ?>" defer></script>
 </head>
 

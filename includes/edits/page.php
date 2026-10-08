@@ -13,6 +13,7 @@
 
 require_once __DIR__ . '/edits.php';
 require_once __DIR__ . '/strings.php';
+require_once __DIR__ . '/../theme.php';
 
 $S = edits_strings($eLang);
 $eReady = edits_ready($mysqli);
@@ -135,7 +136,7 @@ $eCover = static function (array $edit, string $class): string {
 $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') ? 'fa-brands fa-tiktok' : 'fa-solid fa-arrow-up-right-from-square';
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo shop_h($eLang); ?>">
+<html lang="<?php echo shop_h($eLang); ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include __DIR__ . '/../head-import.php'; ?>
@@ -143,6 +144,7 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits.css')); ?>">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
+    <?php cripsum_theme_head('edits', 'edits-player'); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits.js')); ?>" defer></script>
 </head>

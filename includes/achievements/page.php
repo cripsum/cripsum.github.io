@@ -13,6 +13,7 @@
 require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../functions.php';
+require_once __DIR__ . '/../theme.php';
 require_once __DIR__ . '/../achievements.php';
 
 $achLang = ($achLang ?? 'it') === 'en' ? 'en' : 'it';
@@ -130,7 +131,7 @@ $achCssVer = @filemtime(__DIR__ . '/../../assets/achievements/achievements.css')
 $achJsVer = @filemtime(__DIR__ . '/../../assets/achievements/achievements.js') ?: 3;
 ?>
 <!DOCTYPE html>
-<html lang="<?= $achLang ?>">
+<html lang="<?= $achLang ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include __DIR__ . '/../head-import.php'; ?>
@@ -138,6 +139,7 @@ $achJsVer = @filemtime(__DIR__ . '/../../assets/achievements/achievements.js') ?
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
     <link rel="stylesheet" href="/assets/achievements/achievements.css?v=<?= $achCssVer ?>">
+    <?php cripsum_theme_head('achievements'); ?>
     <script src="/assets/achievements/achievements.js?v=<?= $achJsVer ?>" defer></script>
 </head>
 

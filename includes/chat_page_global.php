@@ -14,6 +14,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/chat_config.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/theme.php';
 require_once __DIR__ . '/chat_v2_helpers.php';
 require_once __DIR__ . '/chat_global.php';
 
@@ -132,7 +133,7 @@ $cardVer = @filemtime(__DIR__ . '/../assets/social/user-card.js') ?: 1;
 $jsVer = @filemtime(__DIR__ . '/../assets/chat/global.js') ?: 1;
 ?>
 <!DOCTYPE html>
-<html lang="<?= $lang ?>">
+<html lang="<?= $lang ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php $ogDescription = $T['gate_text']; ?>
@@ -141,6 +142,7 @@ $jsVer = @filemtime(__DIR__ . '/../assets/chat/global.js') ?: 1;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
     <link rel="stylesheet" href="/assets/chat/kit.css?v=<?= $kitCssVer ?>">
     <link rel="stylesheet" href="/assets/chat/global.css?v=<?= $cssVer ?>">
+    <?php cripsum_theme_head('chat'); ?>
 </head>
 
 <body class="ck-page gc-page" data-user-id="<?= $userId ?>" data-logged-in="1" data-csrf="<?= $gcE($csrf) ?>">

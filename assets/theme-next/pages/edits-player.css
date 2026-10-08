@@ -1,0 +1,56 @@
+/* ============================================================
+   Tema nuovo — Lettore video
+   ============================================================
+
+   Correzioni a assets/edits/edits-player.css. Lo caricano Edits, Shitpost e
+   Top Rimasti. Il lettore resta com'e', con tutte le sue funzioni: cambiano
+   solo i due colori d'accento e spariscono vetro e aloni.
+   ============================================================ */
+
+html[data-theme="next"] .ep {
+    --ep-a1: #f5f5f7;
+    --ep-a2: #f5f5f7;
+}
+
+html[data-theme="next"] .ep__center,
+html[data-theme="next"] .ep__spinner,
+html[data-theme="next"] .ep__end {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .ep__center {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="next"] .ep__center:hover {
+    background: var(--nx-text);
+    color: #000;
+}
+
+/* La riga del tempo: bianca piena, senza alone. */
+html[data-theme="next"] .ep__played,
+html[data-theme="next"] .ep__mini i {
+    background: var(--nx-text);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .ep__thumb {
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.22);
+}
+
+html[data-theme="next"] .ep__speed-menu {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .ep__speed-option svg {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] :is(.ep__seek, .ep__tip, .ep__speed-btn) {
+    font-weight: 600;
+}

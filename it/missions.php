@@ -8,6 +8,7 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/theme.php';
 
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
@@ -46,7 +47,7 @@ function msn_h(mixed $v): string
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo $lang; ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include '../includes/head-import.php'; ?>
@@ -60,6 +61,7 @@ function msn_h(mixed $v): string
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="<?php echo cripsum_asset('/assets/missions/missions.css'); ?>">
+    <?php cripsum_theme_head('missions'); ?>
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
     </script>

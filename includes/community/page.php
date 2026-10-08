@@ -23,6 +23,7 @@ require_once __DIR__ . '/community.php';
 require_once __DIR__ . '/strings.php';
 require_once __DIR__ . '/../edits/strings.php';
 require_once __DIR__ . '/../cripsum_og.php';
+require_once __DIR__ . '/../theme.php';
 
 @$mysqli->set_charset('utf8mb4');
 if (function_exists('checkBan') && function_exists('isLoggedIn') && isLoggedIn()) {
@@ -116,7 +117,7 @@ $cmTabs = $cmRimasto
     : [['recent', 'all', 'sort_recent'], ['trending', 'all', 'sort_trending'], ['top', 'all', 'sort_top'], ['comments', 'all', 'sort_comments']];
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo cv2_h($cmLang); ?>">
+<html lang="<?php echo cv2_h($cmLang); ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include __DIR__ . '/../head-import.php'; ?>
@@ -124,6 +125,7 @@ $cmTabs = $cmRimasto
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo cv2_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
     <link rel="stylesheet" href="<?php echo cv2_h(cripsum_asset('/assets/community/community.css')); ?>">
+    <?php cripsum_theme_head('community', 'edits-player'); ?>
     <script src="<?php echo cv2_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo cv2_h(cripsum_asset('/assets/community/community.js')); ?>" defer></script>
 </head>

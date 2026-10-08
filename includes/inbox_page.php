@@ -16,6 +16,7 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/theme.php';
 require_once __DIR__ . '/inbox_strings.php';
 
 if (isset($mysqli) && $mysqli instanceof mysqli) {
@@ -57,7 +58,7 @@ $kitChatVer = @filemtime(__DIR__ . '/../assets/chat/kit-chat.js') ?: 1;
 $jsVer      = @filemtime(__DIR__ . '/../assets/inbox/inbox.js') ?: 1;
 ?>
 <!DOCTYPE html>
-<html lang="<?= $lang ?>">
+<html lang="<?= $lang ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php $ogDescription = $T['og_description']; ?>
@@ -67,6 +68,7 @@ $jsVer      = @filemtime(__DIR__ . '/../assets/inbox/inbox.js') ?: 1;
     <meta property="og:url" content="https://cripsum.com/<?= $lang ?>/inbox">
     <link rel="stylesheet" href="/assets/chat/kit.css?v=<?= $kitCssVer ?>">
     <link rel="stylesheet" href="/css/inbox.css?v=<?= $cssVer ?>">
+    <?php cripsum_theme_head('chat'); ?>
 </head>
 
 <body class="ck-page ib-page" data-user-id="<?= $userId ?>" data-logged-in="1" data-csrf="<?= $ibE(csrf_token()) ?>">

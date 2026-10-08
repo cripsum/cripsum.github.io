@@ -1,0 +1,309 @@
+/* ============================================================
+   Tema nuovo — Edits (griglia ed edit aperto)
+   ============================================================
+
+   Correzioni a assets/edits/edits.css (includes/edits/page.php). Il foglio
+   originale non si tocca. Il lettore dei video ha il suo foglio,
+   edits-player.css, perche' lo usano anche Shitpost e Top Rimasti.
+
+   Restano come sono: le proporzioni vere dei video, la sfumatura scura
+   sotto i titoli sopra le copertine (serve a leggerli), l'etichetta «Nuovo».
+   ============================================================ */
+
+html[data-theme="next"] {
+    --edits-bg: var(--nx-bg);
+    --edits-bg-2: var(--nx-bg);
+    --edits-card: var(--nx-surface);
+    --edits-card-strong: var(--nx-surface);
+    --edits-border: var(--nx-line);
+    --edits-border-strong: #3a3a3d;
+    --edits-text: var(--nx-text);
+    --edits-muted: var(--nx-text-2);
+    --edits-muted-2: var(--nx-text-3);
+    --edits-blue: #f5f5f7;
+    --edits-purple: #f5f5f7;
+}
+
+html[data-theme="next"] body.edits-page {
+    background: var(--nx-bg);
+}
+
+/* Le due macchie sfocate sullo sfondo. */
+html[data-theme="next"] .edits-orb {
+    display: none;
+}
+
+html[data-theme="next"] .edits-page :focus-visible,
+html[data-theme="next"] .edits-toggle:has(input:focus-visible) {
+    outline: 2px solid var(--nx-text);
+}
+
+/* ── Testata ─────────────────────────────────────────────── */
+
+html[data-theme="next"] .edits-title {
+    color: var(--nx-text);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+/* L'ultima parola del titolo aveva il colore a sfumatura. */
+html[data-theme="next"] .edits-title em {
+    background: none;
+    color: inherit;
+}
+
+html[data-theme="next"] .edits-btn {
+    min-height: 2.75rem;
+    padding: 0 1.4rem;
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .edits-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html[data-theme="next"] .edits-btn:active {
+    transform: scale(0.97);
+}
+
+html[data-theme="next"] .edits-btn--primary,
+html[data-theme="next"] .edits-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html[data-theme="next"] .edits-btn--primary:hover {
+    background: #fff;
+}
+
+/* ── Copertine ───────────────────────────────────────────── */
+
+html[data-theme="next"] .edits-featured {
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+/* Dove la copertina non riempie il riquadro c'era la stessa immagine
+   sfocata: ora c'e' un fondo piatto. */
+html[data-theme="next"] .edits-featured__blur,
+html[data-theme="next"] .edit-cover__blur {
+    display: none;
+}
+
+html[data-theme="next"] .edit-cover {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .edits-featured__empty,
+html[data-theme="next"] .edit-cover__empty {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .edits-featured__play,
+html[data-theme="next"] .edit-cover__play {
+    background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .edit-label {
+    background: var(--nx-text);
+    color: #000;
+    font-weight: 600;
+}
+
+/* «Nuovo» resta del suo colore. */
+html[data-theme="next"] .edit-label--new {
+    background: var(--edits-pink);
+    color: #fff;
+}
+
+html[data-theme="next"] :is(.edit-cat, .edit-seen) {
+    font-weight: 500;
+}
+
+html[data-theme="next"] .edits-featured__info strong {
+    font-weight: 600;
+}
+
+/* ── Barra: ricerca, ordine, filtri ──────────────────────────
+   Come in Shitpost: non un riquadro di vetro ma pezzi in fila sul fondo.
+   Resta attaccata in alto, quindi il fondo e' pieno. */
+
+html[data-theme="next"] .edits-toolbar {
+    padding: 0.6rem 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--nx-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .edits-search,
+html[data-theme="next"] .edits-toggle,
+html[data-theme="next"] .edits-sort {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .edits-search:focus-within,
+html[data-theme="next"] .edits-toggle:focus-within {
+    border-color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .edits-sort__button {
+    border-radius: var(--nx-pill);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .edits-sort__menu {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .edits-sort__option {
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .edits-sort__option > i:first-child {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .edits-sort__option.is-active {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* Interruttore «Nascondi già visti»: bianco quando e' acceso. */
+html[data-theme="next"] .edits-toggle__switch {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .edits-toggle__switch::after {
+    background: var(--nx-text-2);
+}
+
+html[data-theme="next"] .edits-toggle input:checked + .edits-toggle__switch {
+    background: var(--nx-text);
+}
+
+html[data-theme="next"] .edits-toggle input:checked + .edits-toggle__switch::after {
+    background: #000;
+}
+
+html[data-theme="next"] .edits-chip {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .edits-chip:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .edits-chip.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+
+html[data-theme="next"] .edit-card {
+    border: 0;
+    border-radius: 20px;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .edit-card:hover {
+    box-shadow: none;
+    transform: translateY(-3px);
+}
+
+html[data-theme="next"] .edit-info .character-name {
+    font-weight: 600;
+}
+
+html[data-theme="next"] .edit-info .edit-serie {
+    color: var(--nx-text-2);
+    font-weight: 400;
+}
+
+html[data-theme="next"] .edit-info p i,
+html[data-theme="next"] .edit-theater__meta i {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .edit-collab {
+    color: var(--nx-text-2) !important;
+}
+
+/* ── Edit aperto ─────────────────────────────────────────── */
+
+html[data-theme="next"] .edit-theater::backdrop {
+    background: rgba(0, 0, 0, 0.86);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .edit-player {
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-theme="next"] .edit-theater__side {
+    border: 0;
+}
+
+html[data-theme="next"] .edit-theater__title {
+    font-weight: 600;
+}
+
+html[data-theme="next"] .edit-theater__serie {
+    font-weight: 400;
+}
+
+html[data-theme="next"] .edit-theater__desc {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .edit-theater__desc a,
+html[data-theme="next"] .edit-theater__meta a {
+    color: var(--nx-text);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+html[data-theme="next"] .edit-theater__close,
+html[data-theme="next"] .edit-theater__arrow {
+    border: 0;
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .edit-theater__close:hover,
+html[data-theme="next"] .edit-theater__arrow:hover {
+    background: var(--nx-surface-3);
+}

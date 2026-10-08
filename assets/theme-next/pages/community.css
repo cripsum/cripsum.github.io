@@ -1,0 +1,504 @@
+/* ============================================================
+   Tema nuovo — Shitpost e Top Rimasti
+   ============================================================
+
+   Correzioni a assets/community/community.css (includes/community/page.php).
+   Il lettore dei video ha il suo foglio: edits-player.css.
+   Il foglio originale tiene i suoi colori in variabili sul <body>: quasi
+   tutto il lavoro e' spostarle sui neutri del tema. Sotto ci sono le regole
+   che aggiungevano vetro, aloni e sfumature, e i pezzi (pulsanti, linguette,
+   campi) portati ai valori dei pezzi comuni.
+
+   Restano come sono: le proporzioni vere dei media, le reazioni, il
+   visualizzatore a tutto schermo, la sfocatura degli spoiler (serve), lo
+   scheletro di caricamento, oro argento e bronzo sulle tre medaglie.
+   ============================================================ */
+
+html[data-theme="next"] .cm-page {
+    --cm-bg: var(--nx-bg);
+    --cm-bg-2: var(--nx-bg);
+    --cm-text: var(--nx-text);
+    --cm-muted: var(--nx-text-2);
+    --cm-muted-2: var(--nx-text-3);
+    --cm-line: var(--nx-line);
+    --cm-line-2: #3a3a3d;
+    --cm-card: var(--nx-surface);
+    --cm-card-2: var(--nx-surface-2);
+    --cm-panel: var(--nx-surface);
+    --cm-solid: var(--nx-surface);
+    --cm-blue: #f5f5f7;
+    --cm-purple: #f5f5f7;
+    --cm-danger: var(--nx-danger);
+    --cm-ok: var(--nx-ok);
+    --cm-accent: var(--nx-text);
+    --cm-accent-rgb: 245, 245, 247;
+    --cm-grad: var(--nx-text);
+    --cm-on-accent: #000;
+}
+
+html[data-theme="next"] body.cm-page {
+    background: var(--nx-bg);
+}
+
+/* Le due macchie sfocate sullo sfondo. */
+html[data-theme="next"] .cm-orb {
+    display: none;
+}
+
+html[data-theme="next"] :is(.cm-shell, .cm-viewer, .cm-sheet, .cm-menu, .cm-picker) :focus-visible {
+    outline: 2px solid var(--nx-text);
+}
+
+/* ── Testata ─────────────────────────────────────────────── */
+
+html[data-theme="next"] .cm-hero h1 {
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .cm-sect h2 {
+    font-weight: 600;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+
+html[data-theme="next"] .cm-btn {
+    min-height: 2.75rem;
+    padding: 0 1.4rem;
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .cm-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html[data-theme="next"] .cm-btn:active {
+    transform: scale(0.97);
+}
+
+html[data-theme="next"] .cm-btn--primary,
+html[data-theme="next"] .cm-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html[data-theme="next"] .cm-btn--primary:hover {
+    background: #fff;
+}
+
+html[data-theme="next"] .cm-btn--danger,
+html[data-theme="next"] .cm-btn--danger:hover {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .cm-btn--danger:hover {
+    border-color: var(--nx-danger);
+}
+
+html[data-theme="next"] .cm-btn--off {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .cm-icon {
+    border: 0;
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .cm-icon:hover {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .cm-icon--primary,
+html[data-theme="next"] .cm-icon--primary:hover {
+    border-radius: 50%;
+    background: var(--nx-text);
+    color: #000;
+}
+
+/* I pulsanti sopra una foto: fondo scuro pieno al posto del vetro. */
+html[data-theme="next"] :is(.cm-icon--dark, .cm-badge, .cm-play i, .cm-stage__arrow, .cm-stage__count, .cm-stage__dots) {
+    background: rgba(0, 0, 0, 0.66);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Barra: ordinamento, ricerca, filtri ─────────────────────
+   Non e' piu' un riquadro di vetro: tre pezzi in fila sul fondo. Resta
+   attaccata in alto mentre si scorre, quindi il fondo e' pieno. */
+
+html[data-theme="next"] .cm-bar {
+    padding: 0.6rem 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--nx-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .cm-seg {
+    gap: 2px;
+    padding: 3px;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .cm-seg__tab {
+    border-radius: var(--nx-pill);
+    font-weight: 500 !important;
+}
+
+html[data-theme="next"] .cm-seg__tab:hover {
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .cm-seg__tab.is-active {
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .cm-search {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .cm-search:focus-within {
+    border-color: var(--nx-text-3);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .cm-search kbd {
+    border-color: var(--nx-line);
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .cm-pill {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500 !important;
+}
+
+html[data-theme="next"] .cm-pill:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .cm-pill[aria-pressed="true"] {
+    border-color: var(--nx-text);
+    background: transparent;
+    color: var(--nx-text) !important;
+}
+
+/* Post in attesa di approvazione: contatore rosso, come gli altri del sito. */
+html[data-theme="next"] .cm-pill__dot {
+    background: var(--nx-danger);
+    color: #fff;
+    font-weight: 600;
+}
+
+html[data-theme="next"] .cm-tag {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html[data-theme="next"] .cm-tag:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .cm-tag.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .cm-newpill {
+    box-shadow: var(--nx-float);
+}
+
+/* ── Card dei post ───────────────────────────────────────── */
+
+html[data-theme="next"] .cm-post,
+html[data-theme="next"] .cm-pod,
+html[data-theme="next"] .cm-row,
+html[data-theme="next"] .cm-fame {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .cm-post:hover,
+html[data-theme="next"] .cm-pod--1 {
+    box-shadow: none;
+}
+
+html[data-theme="next"] .cm-role {
+    padding: 0;
+    background: none;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+/* La reazione che ho messo io resta arancione, senza il fondo colorato. */
+html[data-theme="next"] .cm-act.is-on,
+html[data-theme="next"] .cm-react.is-on {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .cm-react {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .cm-react:hover {
+    border-color: var(--nx-text-3);
+    transform: none;
+}
+
+html[data-theme="next"] .cm-react.is-on {
+    border-color: rgba(255, 122, 26, 0.55);
+}
+
+html[data-theme="next"] .cm-empty > i {
+    color: var(--nx-text-3);
+}
+
+/* ── Top Rimasti: podio, classifica, albo d'oro ──────────── */
+
+/* La foto sfuma nel colore della card. */
+html[data-theme="next"] .cm-pod__media::after {
+    background: linear-gradient(to bottom, transparent, var(--nx-surface));
+}
+
+/* Oro, argento e bronzo pieni, senza riflesso. */
+html[data-theme="next"] .cm-medal {
+    box-shadow: none;
+}
+
+html[data-theme="next"] .cm-pod--1 .cm-medal {
+    background: var(--cm-gold);
+}
+
+html[data-theme="next"] .cm-pod--2 .cm-medal {
+    background: var(--cm-silver);
+}
+
+html[data-theme="next"] .cm-pod--3 .cm-medal {
+    background: var(--cm-bronze);
+}
+
+/* La motivazione: via la striscia colorata sul fianco. */
+html[data-theme="next"] .cm-quote {
+    padding-left: 0;
+    border-left: 0;
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .cm-votebtn {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500 !important;
+}
+
+html[data-theme="next"] .cm-votebtn:hover {
+    border-color: var(--nx-text-3);
+    transform: none;
+}
+
+/* Votato: pieno. E' l'unica azione della riga. */
+html[data-theme="next"] .cm-votebtn.is-on {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .cm-page--rimasto .cm-act.is-on {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .cm-fame:hover {
+    transform: none;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .cm-fame small {
+    color: var(--nx-text-3);
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+/* ── Post aperto e finestre ──────────────────────────────── */
+
+html[data-theme="next"] dialog.cm-viewer::backdrop,
+html[data-theme="next"] dialog.cm-sheet::backdrop {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .cm-viewer__panel,
+html[data-theme="next"] .cm-sheet__panel {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+}
+
+html[data-theme="next"] .cm-stage {
+    background: #000;
+}
+
+/* L'alone sfocato della foto dietro la foto. */
+html[data-theme="next"] .cm-stage__glow {
+    display: none;
+}
+
+html[data-theme="next"] .cm-navbtn {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500 !important;
+}
+
+html[data-theme="next"] .cm-navbtn:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text) !important;
+    transform: none;
+}
+
+html[data-theme="next"] .cm-comments__head {
+    color: var(--nx-text-3);
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] .cm-composer__field,
+html[data-theme="next"] .cm-tagbox,
+html[data-theme="next"] .cm-page .cm-input,
+html[data-theme="next"] .cm-page .cm-input:focus {
+    border-color: transparent;
+    border-radius: 12px;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .cm-composer__field {
+    border-radius: var(--nx-pill);
+}
+
+/* Il fuoco e' una riga, non un alone. */
+html[data-theme="next"] .cm-composer__field:focus-within,
+html[data-theme="next"] .cm-tagbox:focus-within,
+html[data-theme="next"] .cm-page .cm-input:focus {
+    border-color: var(--nx-text);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .cm-composer__reply {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .cm-drop__zone {
+    border-color: #3a3a3d;
+    background: none;
+}
+
+html[data-theme="next"] .cm-drop__zone:hover,
+html[data-theme="next"] .cm-drop.is-over .cm-drop__zone {
+    border-color: var(--nx-text-3);
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .cm-drop__zone i {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .cm-tile--add:hover {
+    border-color: var(--nx-text-3);
+}
+
+/* Interruttore: bianco quando e' acceso, col pallino nero. */
+html[data-theme="next"] .cm-switch i {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .cm-switch i::after {
+    background: var(--nx-text-2);
+}
+
+html[data-theme="next"] .cm-switch input:checked + i {
+    background: var(--nx-text);
+}
+
+html[data-theme="next"] .cm-switch input:checked + i::after {
+    background: #000;
+}
+
+html[data-theme="next"] .cm-choice {
+    border-color: var(--nx-line);
+}
+
+html[data-theme="next"] .cm-choice:has(input:checked) {
+    border-color: var(--nx-text);
+    background: none;
+}
+
+html[data-theme="next"] .cm-menu,
+html[data-theme="next"] .cm-picker,
+html[data-theme="next"] .cm-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+/* ── Colori scritti a mano nell'originale ───────────────── */
+
+html[data-theme="next"] :is(.cm-post__media, .cm-pod__media, .cm-row__thumb, .cm-tile, .cm-fame .cm-noimg) {
+    background-color: var(--nx-surface-2);
+}
+
+/* Salvato: segnalibro pieno e bianco. */
+html[data-theme="next"] .cm-icon.is-on,
+html[data-theme="next"] .cm-act.is-saved,
+html[data-theme="next"] .cm-page--rimasto .cm-act.is-on,
+html[data-theme="next"] .cm-votebtn.is-on {
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .cm-cm__text {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .cm-cm__text a,
+html[data-theme="next"] .cm-composer--login {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+/* ── Pesi del carattere: 600 al posto di 700 e 800 ───────── */
+
+html[data-theme="next"] :is(.cm-pod__title, .cm-meter__n, .cm-side__title, .cm-sheet__head strong, .cm-medal, .cm-vote__n, .cm-row__pos, .cm-stage .ep__speed-btn) {
+    font-weight: 600;
+}
+
+@media (max-width: 760px) {
+    /* Il tondo fisso per pubblicare: tondo davvero, ombra neutra. */
+    html[data-theme="next"] .cm-hero .cm-btn--primary[data-cm-new] {
+        border-radius: 50%;
+        box-shadow: var(--nx-float);
+    }
+}

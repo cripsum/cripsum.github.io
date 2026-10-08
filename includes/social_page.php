@@ -13,6 +13,7 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/theme.php';
 
 $lang = (isset($lang) && $lang === 'en') ? 'en' : 'it';
 
@@ -60,7 +61,7 @@ $cardVer = @filemtime(__DIR__ . '/../assets/social/user-card.js') ?: 1;
 $jsVer = @filemtime(__DIR__ . '/../assets/social/social-ui.js') ?: 1;
 ?>
 <!DOCTYPE html>
-<html lang="<?= $lang ?>">
+<html lang="<?= $lang ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php $ogDescription = $T['description']; ?>
@@ -69,6 +70,7 @@ $jsVer = @filemtime(__DIR__ . '/../assets/social/social-ui.js') ?: 1;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/chat/kit.css?v=<?= $kitCssVer ?>">
     <link rel="stylesheet" href="/assets/social/social.css?v=<?= $cssVer ?>">
+    <?php cripsum_theme_head('chat'); ?>
 </head>
 
 <body class="ck-page sp-page" data-user-id="<?= $userId ?>" data-logged-in="1" data-csrf="<?= $spE(csrf_token()) ?>">
