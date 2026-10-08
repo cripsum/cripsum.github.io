@@ -1,5 +1,6 @@
 <?php
 require_once '../config/session_init.php';
+require_once '../includes/theme.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
@@ -48,9 +49,10 @@ if ($_POST && isset($_POST['resend_email'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 <head>
     <?php include '../includes/head-import.php'; ?>
+    <?php cripsum_theme_head('forms'); ?>
     <title>Cripsum™ - Verifica Email</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">

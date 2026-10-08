@@ -1,14 +1,16 @@
 <?php
 require_once '../config/session_init.php';
+require_once '../includes/theme.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
 $user_id = $_SESSION['user_id'] ?? null;
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 <head>
     <?php include '../includes/head-import.php'; ?>
+    <?php cripsum_theme_head('forms'); ?>
     <meta charset="UTF-8">
     <title>Cripsum™ - Password dimenticata</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

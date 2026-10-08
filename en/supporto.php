@@ -1,5 +1,6 @@
 <?php
 require_once '../config/session_init.php';
+require_once '../includes/theme.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/bot_client.php';
@@ -184,9 +185,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<?= cripsum_theme_html_attr() ?>>
 <head>
     <?php include '../includes/head-import.php'; ?>
+    <?php cripsum_theme_head('static'); ?>
     <title>Cripsum™ - Support</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

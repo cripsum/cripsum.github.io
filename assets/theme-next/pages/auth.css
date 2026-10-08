@@ -1,0 +1,686 @@
+/* ============================================================
+   Tema nuovo — Accedi, Registrati, Impostazioni
+   ============================================================
+
+   Correzioni a assets/auth/auth.css per le pagine che lo usano: accedi,
+   registrati, conferma-registrazione, imposta_password, impostazioni (con i
+   pannelli in includes/settings_*.php). Il foglio originale non si tocca.
+
+   Pulsanti, campi, riquadri e avvisi riprendono i valori dei pezzi comuni
+   (classi nx- in theme.css): qui il markup resta quello di sempre, quindi
+   gli stessi valori vanno sulle classi che la pagina ha gia'.
+   ============================================================ */
+
+html[data-theme="next"] {
+    --auth-accent: #f5f5f7;
+    --auth-accent-rgb: 245, 245, 247;
+    --auth-bg: var(--nx-bg);
+    --auth-bg-2: var(--nx-bg);
+    --auth-card: var(--nx-surface);
+    --auth-card-strong: var(--nx-surface);
+    --auth-border: var(--nx-line);
+    --auth-text: var(--nx-text);
+    --auth-muted: var(--nx-text-2);
+    --auth-muted-2: var(--nx-text-3);
+    --auth-danger: var(--nx-danger);
+    --auth-success: var(--nx-ok);
+    --auth-radius-xl: var(--nx-radius);
+    --auth-radius-lg: 20px;
+    --auth-radius-md: 12px;
+    --auth-shadow: none;
+}
+
+html[data-theme="next"] body.auth-page {
+    background: var(--nx-bg);
+}
+
+html[data-theme="next"] .auth-page :focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 3px;
+}
+
+/* ── Riquadri ────────────────────────────────────────────── */
+
+html[data-theme="next"] .auth-card,
+html[data-theme="next"] .settings-panel,
+html[data-theme="next"] .settings-sidebar {
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* La meta' sinistra di accedi/registrati: via la sfumatura e la macchia
+   sfocata nell'angolo, resta il titolo. */
+html[data-theme="next"] .auth-card__side {
+    background: none;
+}
+
+html[data-theme="next"] .auth-card__side::after {
+    display: none;
+}
+
+html[data-theme="next"] .auth-card__side h1,
+html[data-theme="next"] .auth-card__form h1,
+html[data-theme="next"] .settings-hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+/* ── Campi ───────────────────────────────────────────────── */
+
+html[data-theme="next"] .auth-field span {
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    font-weight: 400;
+}
+
+html[data-theme="next"] .auth-field small {
+    font-size: 0.8125rem;
+}
+
+html[data-theme="next"] .auth-field input,
+html[data-theme="next"] .auth-password input {
+    min-height: 2.75rem;
+    padding-block: 0;
+    padding-left: 0.95rem;
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    font-size: 0.9375rem;
+    transition: border-color 240ms var(--nx-ease);
+}
+
+/* Il fuoco e' una riga, non un alone. */
+html[data-theme="next"] .auth-field input:focus,
+html[data-theme="next"] .auth-password input:focus {
+    border-color: var(--nx-text);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    outline: none;
+}
+
+/* Dentro un riquadro che e' gia' grigio il campo sale di un gradino. */
+html[data-theme="next"] .security-details .auth-field input,
+html[data-theme="next"] .account-data-box .auth-field input {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .auth-password button {
+    border-radius: 50%;
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .auth-password button:hover {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .auth-code-input {
+    font-weight: 600;
+}
+
+/* ── Spunte e scelte ─────────────────────────────────────── */
+
+html[data-theme="next"] .auth-check {
+    min-height: 0;
+    padding: 0.35rem 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    cursor: pointer;
+}
+
+html[data-theme="next"] .auth-check span {
+    color: var(--nx-text);
+    font-size: 0.9375rem;
+    font-weight: 400;
+}
+
+html[data-theme="next"] .auth-check input[type="checkbox"] {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    border: 1px solid var(--nx-text-3);
+    border-radius: 6px;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+    transition: background-color 200ms var(--nx-ease), border-color 200ms var(--nx-ease);
+}
+
+html[data-theme="next"] .auth-check--legal input[type="checkbox"] {
+    margin-top: 0.1rem;
+}
+
+html[data-theme="next"] .auth-check input[type="checkbox"]:checked {
+    border-color: var(--nx-text);
+    background: var(--nx-text) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M1.5 5.2 4.6 8l6-6.4' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 0.7rem no-repeat;
+}
+
+html[data-theme="next"] .auth-check a {
+    color: var(--nx-text);
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+html[data-theme="next"] .auth-check a:hover {
+    text-decoration-color: var(--nx-text);
+}
+
+/* Formato dell'archivio dei dati: due riquadri a scelta. */
+html[data-theme="next"] .account-format {
+    padding: 0;
+    border: 0;
+}
+
+html[data-theme="next"] .account-format legend {
+    margin-bottom: 0.5rem;
+    padding: 0;
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    letter-spacing: 0;
+    text-transform: none;
+    opacity: 1;
+}
+
+html[data-theme="next"] .account-format__option {
+    border-color: var(--nx-line);
+    border-radius: 12px;
+    transition: border-color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .account-format__option:hover {
+    border-color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .account-format__option:has(input:checked) {
+    border-color: var(--nx-text);
+    background: none;
+}
+
+html[data-theme="next"] .account-format__option input[type="radio"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0.15rem 0 0;
+    border: 1px solid var(--nx-text-3);
+    border-radius: 50%;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+}
+
+html[data-theme="next"] .account-format__option input[type="radio"]:checked {
+    border: 5px solid var(--nx-text);
+}
+
+html[data-theme="next"] .account-format__option small {
+    color: var(--nx-text-2);
+    opacity: 1;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+
+html[data-theme="next"] .auth-btn {
+    min-height: 2.75rem;
+    padding: 0 1.4rem;
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+    font-family: inherit;
+    font-weight: 500;
+    transition: background-color 240ms var(--nx-ease), border-color 240ms var(--nx-ease), color 240ms var(--nx-ease), transform 240ms var(--nx-ease), opacity 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .auth-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    color: var(--nx-text);
+    transform: none;
+}
+
+html[data-theme="next"] .auth-btn:active {
+    transform: scale(0.97);
+}
+
+/* Pieno: uno per schermata. */
+html[data-theme="next"] .auth-btn--primary,
+html[data-theme="next"] .auth-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    color: #000;
+}
+
+html[data-theme="next"] .auth-btn--primary:hover {
+    background: #fff;
+}
+
+html[data-theme="next"] .auth-btn--soft,
+html[data-theme="next"] .auth-btn--soft:hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .auth-btn--soft:hover {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .auth-btn--danger,
+html[data-theme="next"] .auth-btn--danger:hover {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .auth-btn--danger:hover {
+    border-color: var(--nx-danger);
+}
+
+/* «Accedi con Google» ha fondo bianco scritto in linea nel markup: accanto al
+   pulsante principale sarebbero due pieni. Diventa a filo, col logo a colori. */
+html[data-theme="next"] .auth-form a.auth-btn[href$="google_login"] {
+    background: transparent !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .auth-links a {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+/* ── Avvisi ──────────────────────────────────────────────── */
+
+html[data-theme="next"] .auth-alert,
+html[data-theme="next"] .auth-alert--error,
+html[data-theme="next"] .auth-alert--success,
+html[data-theme="next"] .auth-alert--info {
+    align-items: center;
+    border: 0;
+    border-radius: 14px;
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+}
+
+/* Il colore resta solo sull'icona. */
+html[data-theme="next"] .auth-alert > i {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .auth-alert--error > i {
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .auth-alert--success > i {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .auth-alert a {
+    font-weight: 500;
+    text-underline-offset: 3px;
+}
+
+/* L'avviso «imposta una password» ha colori e bordo gialli scritti in linea. */
+html[data-theme="next"] .auth-alert[style] {
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: var(--nx-surface-2) !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .auth-alert[style] > i {
+    color: #ffb340;
+}
+
+html[data-theme="next"] .auth-alert[style] .auth-btn {
+    min-height: 2.125rem;
+    border-color: transparent;
+    background: var(--nx-text) !important;
+    color: #000 !important;
+    font-size: 0.875rem;
+}
+
+/* ── Impostazioni: testata e menu ────────────────────────── */
+
+/* La testata non e' piu' un riquadro: foto, titolo e una riga, sul fondo. */
+html[data-theme="next"] .settings-hero {
+    margin-bottom: 1.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .settings-hero img {
+    width: 4.5rem;
+    height: 4.5rem;
+    border: 0;
+    border-radius: 50%;
+}
+
+html[data-theme="next"] .settings-hero h1 {
+    margin: 0 0 0.3rem;
+}
+
+html[data-theme="next"] .settings-sidebar {
+    gap: 0.15rem;
+    padding: 0.75rem;
+}
+
+html[data-theme="next"] .settings-tab-btn {
+    padding: 0.7rem 0.9rem;
+    border-radius: 12px;
+    color: var(--nx-text-2);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: background-color 240ms var(--nx-ease), color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .settings-tab-btn i {
+    width: 1.25rem;
+    color: var(--nx-text-3);
+    font-size: 1rem;
+    text-align: center;
+    opacity: 1;
+    transition: color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .settings-tab-btn:hover,
+html[data-theme="next"] .settings-tab-btn.active {
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .settings-tab-btn:hover i,
+html[data-theme="next"] .settings-tab-btn.active i {
+    color: var(--nx-text);
+}
+
+/* «Elimina account» resta segnato in rosso. */
+html[data-theme="next"] .settings-tab-btn--danger i,
+html[data-theme="next"] .settings-tab-btn--danger:hover i,
+html[data-theme="next"] .settings-tab-btn--danger.active i {
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .settings-panel__head h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .account-danger-panel {
+    border: 0;
+}
+
+/* ── Impostazioni: riquadri interni ──────────────────────── */
+
+html[data-theme="next"] .twofa-status,
+html[data-theme="next"] .twofa-status.is-enabled,
+html[data-theme="next"] .twofa-setup,
+html[data-theme="next"] .backup-codes,
+html[data-theme="next"] .security-details,
+html[data-theme="next"] .security-details--danger,
+html[data-theme="next"] .account-data-box,
+html[data-theme="next"] .account-data-box--danger,
+html[data-theme="next"] .account-data-ready,
+html[data-theme="next"] .account-pending,
+html[data-theme="next"] .device-card,
+html[data-theme="next"] .device-card.is-current,
+html[data-theme="next"] .device-security-note,
+html[data-theme="next"] .device-empty-state,
+html[data-theme="next"] .device-empty-state--warning {
+    border: 0;
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .account-data-box,
+html[data-theme="next"] .account-data-ready,
+html[data-theme="next"] .account-pending {
+    border-radius: 16px;
+}
+
+/* 2FA */
+html[data-theme="next"] .twofa-status i {
+    border-radius: 50%;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .twofa-status.is-enabled i {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .twofa-status strong,
+html[data-theme="next"] .backup-codes strong,
+html[data-theme="next"] .twofa-setup strong {
+    font-weight: 600;
+}
+
+html[data-theme="next"] .twofa-setup code,
+html[data-theme="next"] .backup-codes code {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .security-details summary {
+    font-weight: 500;
+}
+
+html[data-theme="next"] .security-details--danger summary {
+    color: var(--nx-danger);
+}
+
+/* Dispositivi */
+html[data-theme="next"] .device-card {
+    border-radius: 20px;
+}
+
+html[data-theme="next"] .device-card__icon,
+html[data-theme="next"] .device-card.is-current .device-card__icon {
+    border-radius: 14px;
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .device-card.is-current .device-card__icon {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .device-card__title h3 {
+    font-weight: 600;
+}
+
+/* «Questo dispositivo»: etichetta a filo, il verde resta sul segno. */
+html[data-theme="next"] .device-current-badge {
+    padding: 0.25rem 0.6rem;
+    border-color: var(--nx-surface-3);
+    background: none;
+    color: var(--nx-text);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .device-current-badge i {
+    color: var(--nx-ok);
+}
+
+/* I dettagli non sono piu' sei caselle scure: una griglia di voci sotto una riga. */
+html[data-theme="next"] .device-card__details {
+    gap: 0.9rem 0.75rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--nx-surface-3);
+}
+
+html[data-theme="next"] .device-card__details > div {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+}
+
+html[data-theme="next"] .device-card__details dt {
+    color: var(--nx-text-3);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] .device-card__details dd {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .device-security-note,
+html[data-theme="next"] .device-empty-state {
+    border-radius: 14px;
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .device-security-note i,
+html[data-theme="next"] .device-empty-state > i {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .device-empty-state--warning > i {
+    color: #ffb340;
+}
+
+/* I tuoi dati / Elimina account */
+html[data-theme="next"] .account-data-box h3 i {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .account-data-box--danger h3 i,
+html[data-theme="next"] .account-pending strong i {
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .account-data-ready strong i {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .account-data-list,
+html[data-theme="next"] .account-data-note,
+html[data-theme="next"] .account-data-ready__info small,
+html[data-theme="next"] .account-pending p {
+    color: var(--nx-text-2);
+    opacity: 1;
+}
+
+/* Connessioni: il riquadro di Discord ha lo stile scritto in linea nel markup. */
+html[data-theme="next"] .connection-card {
+    border: 0 !important;
+    border-radius: 20px !important;
+    background: var(--nx-surface-2) !important;
+}
+
+html[data-theme="next"] .connection-card__body {
+    padding: 1rem 0 0 !important;
+    border: 0 !important;
+    border-top: 1px solid var(--nx-surface-3) !important;
+    border-radius: 0 !important;
+    background: none !important;
+}
+
+html[data-theme="next"] .connection-card .auth-badge {
+    border-color: var(--nx-surface-3) !important;
+    background: none !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .connection-card .auth-badge--success i {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .connection-card .auth-badge--muted i {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .connection-card a.auth-btn--primary[style] {
+    background: var(--nx-text) !important;
+}
+
+/* Sopra un riquadro grigio il pulsante morbido sale di un gradino, o sparirebbe. */
+html[data-theme="next"] .connection-card .auth-btn--soft,
+html[data-theme="next"] .account-data-box .auth-btn--soft,
+html[data-theme="next"] .security-details .auth-btn--soft {
+    background: var(--nx-surface-3);
+}
+
+/* Un solo pulsante pieno per pannello. Dove il markup ne mette due, resta
+   pieno quello che conta: il salvataggio del form, oppure lo scaricamento
+   dell'archivio quando e' pronto. L'altro passa a filo. */
+html[data-theme="next"] .settings-panel > a.auth-btn--primary,
+html[data-theme="next"] .account-data-ready ~ .account-data-form .auth-btn--primary {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .settings-panel > a.auth-btn--primary:hover,
+html[data-theme="next"] .account-data-ready ~ .account-data-form .auth-btn--primary:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+}
+
+/* ── Telefono e tablet ───────────────────────────────────── */
+
+@media (max-width: 900px) {
+    /* Il menu diventa una fila di pillole che scorre. */
+    html[data-theme="next"] .settings-sidebar {
+        gap: 0.35rem;
+        padding: 0.45rem;
+        border-radius: var(--nx-pill);
+    }
+
+    html[data-theme="next"] .settings-tab-btn {
+        padding: 0.55rem 0.9rem;
+        border-radius: var(--nx-pill);
+        font-size: 0.875rem;
+    }
+
+    html[data-theme="next"] .auth-card__side {
+        border-bottom-color: var(--nx-line);
+    }
+}
+
+@media (max-width: 620px) {
+    html[data-theme="next"] .auth-card,
+    html[data-theme="next"] .settings-panel {
+        border-radius: 20px;
+    }
+
+    html[data-theme="next"] .auth-card__side,
+    html[data-theme="next"] .auth-card__form,
+    html[data-theme="next"] .settings-panel {
+        padding: 1.15rem;
+    }
+
+    html[data-theme="next"] .auth-card__side h1,
+    html[data-theme="next"] .auth-card__form h1,
+    html[data-theme="next"] .settings-hero h1 {
+        font-size: 2rem;
+    }
+
+    html[data-theme="next"] .settings-hero {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    html[data-theme="next"] .settings-hero img {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+    }
+}

@@ -374,10 +374,11 @@ $deletionCancelledNotice = !empty($_SESSION['account_deletion_cancelled']);
 unset($_SESSION['account_deletion_cancelled']);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../includes/head-import.php'; ?>
+    <?php cripsum_theme_head('auth'); ?>
     <title>Cripsum™ - Account settings</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/auth/auth.css?v=1.7">

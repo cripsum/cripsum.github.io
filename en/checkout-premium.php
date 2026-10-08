@@ -1,5 +1,6 @@
 <?php
 require_once '../config/session_init.php';
+require_once '../includes/theme.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../config/paypal_config.php';
@@ -31,10 +32,11 @@ if ($error === 'user_not_found') {
 $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../includes/head-import.php'; ?>
+    <?php cripsum_theme_head('forms'); ?>
     <meta charset="UTF-8">
     <title>Cripsum™ Premium</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -259,6 +261,12 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
         <span class="form-grid-bg"></span>
     </div>
 
+    <?php if (cripsum_theme_is_next()): ?>
+        <?php /* Nel tema nuovo il checkout ha un'impaginazione sua. Gli id e le
+                 classi di stato sono gli stessi del <main> qui sotto: lo script
+                 in fondo alla pagina serve tutti e due. */ ?>
+        <?php $checkoutLang = 'en'; include '../includes/checkout_next.php'; ?>
+    <?php else: ?>
     <main class="form-shell form-shell--checkout">
         <section class="form-card form-reveal">
             <div class="form-card__header">
@@ -395,6 +403,7 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
             </div>
         </section>
     </main>
+    <?php endif; ?>
 
     <?php include '../includes/footer.php'; ?>
 

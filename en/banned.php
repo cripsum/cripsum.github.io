@@ -1,5 +1,6 @@
 <?php
 require_once '../config/session_init.php';
+require_once '../includes/theme.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
@@ -79,10 +80,11 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../includes/head-import.php'; ?>
+    <?php cripsum_theme_head('static'); ?>
     <title>Cripsum™ - Account banned</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

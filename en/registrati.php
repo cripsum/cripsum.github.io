@@ -1,5 +1,6 @@
 <?php
 require_once '../config/session_init.php';
+require_once '../includes/theme.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
@@ -92,10 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../includes/head-import.php'; ?>
+    <?php cripsum_theme_head('auth'); ?>
     <title>Cripsum™ - Sign up</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -169,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
 
                     <div class="auth-recaptcha">
-                        <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars(RECAPTCHA_SITE_KEY, ENT_QUOTES, 'UTF-8'); ?>"></div>
+                        <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars(RECAPTCHA_SITE_KEY, ENT_QUOTES, 'UTF-8'); ?>"<?= cripsum_theme_is_next() ? ' data-theme="dark"' : '' ?>></div>
                     </div>
 
                     <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Registrati">

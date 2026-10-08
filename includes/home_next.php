@@ -42,19 +42,7 @@ $hx = $hxIsEn
         'feat_play'    => 'Resume',
         'feat_open'    => 'Open',
         'prem_title'   => 'Unlock the Ultimate Cripsum™ Experience',
-        'prem_lead'    => 'Get premium perks, double your rewards, and show off your support to the community.',
-        'prem_price'   => '€2.99',
-        'prem_terms'   => 'One-time, no subscription',
         'prem_cta'     => 'Get Premium',
-        'perks'        => [
-            ['coin', '<strong>25.000 Godos</strong> instantly upon purchase'],
-            ['coin', 'Daily claim of <strong>500 Godos</strong> in Lootbox'],
-            ['coin', '<strong>Double Godos (2x)</strong> on Daily &amp; Weekly missions'],
-            ['gem', 'Unlock <strong>premium profile customization</strong>'],
-            ['gem', '<strong>Cripsum Rewind any day</strong>, not just one week a year'],
-            ['gem', 'Exclusive <strong>premium gem tag</strong> next to your name'],
-            ['gem', '<strong>Featured</strong> in the homepage Supporters list'],
-        ],
         'supp_title'   => 'Our Premium Supporters',
         'supp_lead'    => 'A big thanks to the users who support Cripsum™!',
         'supp_one'     => 'supporter',
@@ -87,19 +75,7 @@ $hx = $hxIsEn
         'feat_play'    => 'Riprendi',
         'feat_open'    => 'Apri',
         'prem_title'   => 'Sblocca l\'esperienza Cripsum™ definitiva',
-        'prem_lead'    => 'Ottieni vantaggi esclusivi, raddoppia i tuoi Godos e supporta la community.',
-        'prem_price'   => '€2,99',
-        'prem_terms'   => 'Una tantum, nessun abbonamento',
         'prem_cta'     => 'Diventa Premium',
-        'perks'        => [
-            ['coin', '<strong>25.000 Godos</strong> subito all\'acquisto'],
-            ['coin', 'Riscatto giornaliero di <strong>500 Godos Lootbox</strong>'],
-            ['coin', '<strong>Doppio boost (2x)</strong> sui Godos delle missioni'],
-            ['gem', 'Sblocco della <strong>personalizzazione premium</strong> nei profili'],
-            ['gem', '<strong>Cripsum Rewind quando vuoi</strong>, non solo una settimana l\'anno'],
-            ['gem', '<strong>Tag premium</strong> con diamante vicino al tuo nome'],
-            ['gem', '<strong>Nome in evidenza</strong> nella lista sostenitori'],
-        ],
         'supp_title'   => 'I nostri Supporter Premium',
         'supp_lead'    => 'Un grazie speciale agli utenti che supportano Cripsum™!',
         'supp_one'     => 'supporter',
@@ -112,6 +88,15 @@ $hx = $hxIsEn
         'joke'         => 'Clicca qui per V-bucks gratis!!!!',
         'hero_alt'     => 'Il logo di Cripsum: quattro personaggi colorati su una collina',
     ];
+
+// Prezzo, condizioni e vantaggi del Premium sono gli stessi che mostra il
+// checkout: stanno in un file solo, cosi' non possono dire due cose diverse.
+require_once __DIR__ . '/premium_copy.php';
+$hxPremium = cripsum_premium_copy($hxLang);
+$hx['prem_lead'] = $hxPremium['lead'];
+$hx['prem_price'] = $hxPremium['price'];
+$hx['prem_terms'] = $hxPremium['terms'];
+$hx['perks'] = $hxPremium['perks'];
 
 // Il titolo entra una parola alla volta: ogni parola ha la sua maschera.
 $hxWords = preg_split('/\s+/u', trim($hx['title'])) ?: [$hx['title']];
@@ -301,8 +286,8 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
         <?php endif; ?>
 
         <?php if (!$hxIsPremium): ?>
-            <?php /* Prezzo e condizioni sono quelli di checkout-premium: se
-                     cambiano li' vanno cambiati anche qui. */ ?>
+            <?php /* Prezzo, condizioni e vantaggi arrivano da
+                     includes/premium_copy.php, come nel checkout. */ ?>
             <section class="home-prem home-wrap home-reveal" aria-labelledby="homePremiumTitle">
                 <div>
                     <img class="home-prem__gem" src="/img/premium.svg" alt="" width="52" height="52">

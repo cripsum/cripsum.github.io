@@ -1000,6 +1000,20 @@ html[data-theme="next"] .achievement-popup__bar > span {
     }
 }
 
+/* ── Indicatore di robustezza della password ─────────────────
+   Lo carica head-import.php su ogni pagina (assets/auth/password-strength.css).
+   Rosso, giallo e verde restano: dicono quanto e' sicura. */
+
+html[data-theme="next"] .password-strength__meter {
+    height: 4px;
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .password-strength__text {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
 /* ── Avvisi in tempo reale ───────────────────────────────── */
 
 html[data-theme="next"] .crt-toast {

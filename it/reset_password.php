@@ -1,15 +1,17 @@
 <?php
 require_once '../config/session_init.php';
+require_once '../includes/theme.php';
 header('Cache-Control: no-store, private');
 header('Referrer-Policy: no-referrer');
 $token = (string)($_GET['token'] ?? '');
 if (!preg_match('/^[a-f0-9]{64}$/', $token)) $token = '';
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 <head>
     <meta charset="UTF-8">
     <?php include '../includes/head-import.php'; ?>
+    <?php cripsum_theme_head('forms'); ?>
     <title>Cripsum™ - Reset password</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
