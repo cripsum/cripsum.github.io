@@ -1184,9 +1184,12 @@ body.edits-page {
     }
 
     /* Sul telefono i filtri non restano fissi: occuperebbero mezzo schermo.
-       Relative, non static: il menu "Ordina" deve restare sopra le card. */
+       Relative, non static: il menu "Ordina" deve restare sopra le card.
+       Con relative il "top" della barra fissa diventa uno spostamento: va
+       azzerato, altrimenti i filtri scendono sopra le prime due card. */
     .edits-toolbar {
         position: relative;
+        top: auto;
         margin-top: 2rem;
         padding: 10px;
         border-radius: 18px;
