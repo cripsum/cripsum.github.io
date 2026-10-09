@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
 
                     <div class="auth-recaptcha">
-                        <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars(RECAPTCHA_SITE_KEY, ENT_QUOTES, 'UTF-8'); ?>"<?= cripsum_theme_is_next() ? ' data-theme="dark"' : '' ?>></div>
+                        <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars(RECAPTCHA_SITE_KEY, ENT_QUOTES, 'UTF-8'); ?>" data-theme="dark"></div>
                     </div>
 
                     <button class="auth-btn auth-btn--primary" type="submit" data-submit-text="Registrati">

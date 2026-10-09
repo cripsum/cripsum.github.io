@@ -1,16 +1,15 @@
 <?php
 
 /**
- * Checkout Premium nel tema nuovo.
+ * Checkout Premium: il <main> della pagina.
  *
- * Incluso da it/checkout-premium.php e en/checkout-premium.php al posto del
- * loro <main> quando chi guarda ha acceso il tema nuovo (includes/theme.php).
- * La pagina imposta $checkoutLang ('it' o 'en'); $username, $errorMsg e
- * $giftTo li ha gia' preparati lei, uguali per i due temi.
+ * Incluso da it/checkout-premium.php e en/checkout-premium.php, che impostano
+ * $checkoutLang ('it' o 'en') e hanno gia' preparato $username, $errorMsg e
+ * $giftTo.
  *
- * Qui cambia solo l'impaginazione: a sinistra cosa si compra, a destra un
- * solo riquadro con l'ordine. Il pagamento resta quello di sempre, perche'
- * lo fa lo script in fondo alle due pagine, che qui non viene toccato. Quello
+ * Qui c'e' solo l'impaginazione: a sinistra cosa si compra, a destra un solo
+ * riquadro con l'ordine. Il pagamento lo fa lo script in fondo alle due
+ * pagine, che e' nato prima di questa impaginazione e non e' cambiato. Quello
  * script trova gli elementi per id e accende e spegne delle classi: gli id
  * (optionSelfCard, giftUsernameInput, payMethodStripe, waiverCheck,
  * stripe-submit-btn, paypal-button-container, summaryRecipient...) e le

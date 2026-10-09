@@ -1,12 +1,11 @@
 <?php
 
 /**
- * Homepage nel tema nuovo.
+ * Homepage.
  *
- * Inclusa da it/home.php e en/home.php al posto della loro pagina di sempre
- * quando chi guarda ha acceso il tema nuovo (includes/theme.php). I dati li
- * preparano loro, uguali per i due temi: qui cambia solo come vengono mostrati.
- * La pagina che include imposta $homeLang ('it' o 'en').
+ * Inclusa da it/home.php e en/home.php, che preparano i dati: qui si decide
+ * solo come vengono mostrati, una volta per le due lingue. La pagina che
+ * include imposta $homeLang ('it' o 'en').
  *
  * Tutto quello che va calcolato sta in questo primo blocco; sotto c'e' solo
  * markup che stampa variabili gia' pronte.

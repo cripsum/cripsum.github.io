@@ -8,7 +8,8 @@ if (!defined('CRIPSUM_OG_LOADED')) {
  *
  * Discord, WhatsApp e gli altri tengono in memoria l'anteprima per indirizzo:
  * ogni volta che si cambia il file va alzato il numero in coda, altrimenti
- * continuano a mostrare quella vecchia.
+ * continuano a mostrare quella vecchia. Lo stesso indirizzo e' scritto a mano
+ * in index.html, che e' una pagina ferma: va alzato anche li'.
  */
 const CRIPSUM_OG_DEFAULT_IMAGE = '/img/og-default.jpg?v=2';
 

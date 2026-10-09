@@ -5,8 +5,8 @@ declare(strict_types=1);
  * Prezzo, condizioni e vantaggi di Cripsum™ Premium, scritti in un posto solo.
  *
  * Li mostrano la homepage (includes/home_next.php) e il checkout
- * (includes/checkout_next.php) del tema nuovo: se cambia il prezzo o un
- * vantaggio, si cambia qui e le due pagine restano allineate. Il prezzo che
+ * (includes/checkout_next.php): se cambia il prezzo o un vantaggio, si
+ * cambia qui e le due pagine restano allineate. Il prezzo che
  * si paga davvero non dipende da questo file: lo decide il server quando apre
  * il pagamento (api/create_checkout_session.php, api/create_paypal_order.php).
  *

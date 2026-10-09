@@ -4,121 +4,26 @@ declare(strict_types=1);
 /**
  * Tema del sito.
  *
- * Il tema del sito e' quello nuovo ("next"). Quello di prima ("classic") resta
- * disponibile ancora per un po': chi lo preferisce lo sceglie dalle
- * impostazioni. La scelta sta in un cookie e non nel database: e' una
- * preferenza di come si vuole vedere il sito su questo dispositivo, e cosi'
- * non serve nessuna migrazione per tenerla o per toglierla.
+ * Il sito ha un tema solo. Per qualche giorno ce ne sono stati due, quello di
+ * prima ("classico") e quello di adesso, e si sceglieva dalle impostazioni:
+ * la scelta e' stata tolta. Il cookie cripsum_theme rimasto in qualche browser
+ * non viene piu' letto, e scade da solo.
  *
- * Fino al passo 1 della chiusura era il contrario: classico per tutti, nuovo
- * solo per chi lo accendeva. Chi ha ancora nel browser il cookie "next" di
- * allora continua a vedere il tema nuovo, come tutti.
+ * Una pagina dichiara il tema in due punti: stampa cripsum_theme_html_attr()
+ * dentro il tag <html>, e chiama cripsum_theme_head() nell'<head>, dopo
+ * l'include di head-import.php e dopo i fogli suoi.
  *
- * Il tema nuovo arriva una pagina alla volta. Una pagina che e' gia' stata
- * portata lo dichiara in due punti: stampa cripsum_theme_html_attr() dentro il
- * tag <html>, e chiama cripsum_theme_head() nell'<head> subito dopo
- * l'include di head-import.php.
- *
- * Le pagine che non lo dichiarano (profili, editor del profilo, apertura
- * della Lootbox) restano com'erano per tutti: tutte le regole del tema sono
- * scritte sotto html[data-theme="next"], quindi senza quell'attributo non
- * toccano nulla.
+ * L'attributo data-theme="next" serve ancora: i fogli in assets/theme-next/
+ * sono correzioni ai fogli di prima, scritte tutte sotto
+ * html[data-theme="next"]. Le pagine che non lo dichiarano (profili, editor
+ * del profilo, apertura della Lootbox) restano com'erano: senza
+ * quell'attributo le correzioni non toccano nulla.
  */
 
-const CRIPSUM_THEME_COOKIE = 'cripsum_theme';
-const CRIPSUM_THEME_CLASSIC = 'classic';
-const CRIPSUM_THEME_NEXT = 'next';
-
-/** Un anno: e' una preferenza, non una sessione. */
-const CRIPSUM_THEME_COOKIE_LIFETIME = 31536000;
-
-function cripsum_theme(): string
-{
-    // Classico solo per chi lo ha scelto: senza cookie, o con quello vecchio
-    // "next", il tema e' quello nuovo. Vale anche per chi non e' loggato.
-    return ($_COOKIE[CRIPSUM_THEME_COOKIE] ?? '') === CRIPSUM_THEME_CLASSIC
-        ? CRIPSUM_THEME_CLASSIC
-        : CRIPSUM_THEME_NEXT;
-}
-
-function cripsum_theme_is_next(): bool
-{
-    return cripsum_theme() === CRIPSUM_THEME_NEXT;
-}
-
-/**
- * Salva la scelta. Va chiamata prima di stampare qualsiasi cosa, come ogni
- * setcookie(). Aggiorna anche $_COOKIE, cosi' la pagina che ha appena salvato
- * mostra gia' lo stato nuovo senza aspettare la richiesta successiva.
- */
-function cripsum_theme_set(string $theme): bool
-{
-    $theme = $theme === CRIPSUM_THEME_CLASSIC ? CRIPSUM_THEME_CLASSIC : CRIPSUM_THEME_NEXT;
-
-    if (headers_sent()) {
-        return false;
-    }
-
-    // $isHttps lo calcola config/session_init.php, con le stesse regole del
-    // cookie di sessione.
-    $secure = !empty($GLOBALS['isHttps']);
-
-    // Il tema nuovo e' quello di partenza: per tornarci basta togliere il
-    // cookie. Si salva solo la scelta del classico.
-    $saved = setcookie(CRIPSUM_THEME_COOKIE, $theme, [
-        'expires' => $theme === CRIPSUM_THEME_CLASSIC ? time() + CRIPSUM_THEME_COOKIE_LIFETIME : time() - 3600,
-        'path' => '/',
-        'secure' => $secure,
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
-
-    if ($saved) {
-        if ($theme === CRIPSUM_THEME_CLASSIC) {
-            $_COOKIE[CRIPSUM_THEME_COOKIE] = $theme;
-        } else {
-            unset($_COOKIE[CRIPSUM_THEME_COOKIE]);
-        }
-    }
-
-    return $saved;
-}
-
-/**
- * Azione del pannello "Aspetto" delle impostazioni. Stessa forma di
- * rewind_settings_handle_post(): null se l'azione non e' sua, altrimenti
- * l'esito con il messaggio da mostrare.
- *
- * @return array{ok:bool, message:string}|null
- */
-function cripsum_theme_settings_handle_post(string $action, bool $isEn = false): ?array
-{
-    if ($action !== 'update_appearance') {
-        return null;
-    }
-
-    $wantsClassic = !empty($_POST['theme_classic']);
-    $ok = cripsum_theme_set($wantsClassic ? CRIPSUM_THEME_CLASSIC : CRIPSUM_THEME_NEXT);
-
-    if (!$ok) {
-        return [
-            'ok' => false,
-            'message' => $isEn ? 'Could not save. Try again.' : 'Non è stato possibile salvare. Riprova.',
-        ];
-    }
-
-    return [
-        'ok' => true,
-        'message' => $wantsClassic
-            ? ($isEn ? 'Classic theme turned on for this browser.' : 'Tema classico attivato su questo browser.')
-            : ($isEn ? 'Back to the site theme.' : 'Sei tornato al tema del sito.'),
-    ];
-}
-
-/** Attributo da stampare dentro il tag <html> delle pagine gia' portate. */
+/** Attributo da stampare dentro il tag <html>. */
 function cripsum_theme_html_attr(): string
 {
-    return cripsum_theme_is_next() ? ' data-theme="next"' : '';
+    return ' data-theme="next"';
 }
 
 /**
@@ -139,7 +44,7 @@ function cripsum_theme_asset(string $path): string
 }
 
 /**
- * Fogli di stile del tema nuovo, da stampare nell'<head> dopo head-import.php
+ * Fogli di stile del tema, da stampare nell'<head> dopo head-import.php
  * (devono arrivare dopo style.css e style-dark.css, che sovrascrivono).
  *
  * Oltre a theme.css, comune a tutte le pagine, stampa i fogli delle pagine
@@ -149,10 +54,6 @@ function cripsum_theme_asset(string $path): string
  */
 function cripsum_theme_head(string ...$pages): void
 {
-    if (!cripsum_theme_is_next()) {
-        return;
-    }
-
     // head-import.php carica gia' Poppins 400: qui arrivano i pesi che al tema
     // servono in piu', cosi' i grassetti sono veri e non simulati dal browser.
     $sheets = [cripsum_theme_asset('/assets/theme-next/theme.css')];

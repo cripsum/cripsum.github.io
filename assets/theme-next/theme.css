@@ -1,11 +1,12 @@
 /* ============================================================
-   Tema nuovo (sperimentale)
+   Tema del sito
    ============================================================
 
-   Si accende dalle impostazioni (includes/theme.php) e arriva una pagina alla
-   volta. Tutto quello che c'e' qui dentro e' scritto sotto
-   html[data-theme="next"]: una pagina che non stampa quell'attributo non viene
-   toccata, anche se questo file dovesse essere caricato.
+   Lo caricano le pagine che dichiarano il tema (includes/theme.php). Tutto
+   quello che c'e' qui dentro e' scritto sotto html[data-theme="next"]: una
+   pagina che non stampa quell'attributo (profili, editor del profilo,
+   apertura della Lootbox) non viene toccata, anche se questo file dovesse
+   essere caricato.
 
    Qui stanno solo le cose comuni a tutte le pagine:
    - i colori e il carattere;

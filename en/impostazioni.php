@@ -47,16 +47,15 @@ if (!empty($_SESSION['profile_flash_error'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string)($_POST['action'] ?? '');
 
-    // Le azioni dei pannelli Rewind e Aspetto sono gestite dai loro moduli.
-    $moduleOutcome = null;
+    // Le due azioni del pannello Rewind sono gestite dal loro modulo.
+    $rewindOutcome = null;
     if (csrf_validate($_POST['csrf_token'] ?? null)) {
-        $moduleOutcome = rewind_settings_handle_post($mysqli, $userId, $action, true)
-            ?? cripsum_theme_settings_handle_post($action, true);
+        $rewindOutcome = rewind_settings_handle_post($mysqli, $userId, $action, true);
     }
 
-    if ($moduleOutcome !== null) {
-        if ($moduleOutcome['ok']) { $success = $moduleOutcome['message']; }
-        else { $error = $moduleOutcome['message']; }
+    if ($rewindOutcome !== null) {
+        if ($rewindOutcome['ok']) { $success = $rewindOutcome['message']; }
+        else { $error = $rewindOutcome['message']; }
     } elseif (!csrf_validate($_POST['csrf_token'] ?? null)) {
         $error = 'Session expired. Please try again.';
     } elseif ($action === 'revoke_device') {
@@ -464,10 +463,6 @@ unset($_SESSION['account_deletion_cancelled']);
                     <i class="fa-brands fa-discord"></i>
                     <span>Connections</span>
                 </button>
-                <button class="settings-tab-btn" data-tab="appearance">
-                    <i class="fa-solid fa-palette"></i>
-                    <span>Appearance</span>
-                </button>
                 <button class="settings-tab-btn" data-tab="rewind">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>Rewind</span>
@@ -826,8 +821,6 @@ unset($_SESSION['account_deletion_cancelled']);
                         </div>
                     </article>
                 </div>
-
-                <?php include '../includes/settings_appearance.php'; ?>
 
                 <?php include '../includes/settings_rewind.php'; ?>
 
