@@ -144,7 +144,7 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits.css')); ?>">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
-    <?php cripsum_theme_head('edits', 'edits-player'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits.js')); ?>" defer></script>
 </head>

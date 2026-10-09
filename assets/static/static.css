@@ -789,3 +789,630 @@ body.static-page .dropdown-menu button:hover {
 .static-analytics-toggle[aria-pressed="false"] {
     opacity: .75;
 }
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. Questo foglio lo carica
+   anche una pagina senza tema, che deve restare com'era: per questo ogni
+   regola comincia con html[data-theme="next"], l'attributo che le pagine col
+   tema mettono sul tag <html> (includes/theme.php). I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Privacy, Termini, Cookie, Supporto, Regolamento
+   chat, Donazioni, Bannato
+   ============================================================
+
+   Correzioni a assets/static/static.css per le pagine che lo usano. Il foglio
+   originale non si tocca.
+
+   Pulsanti, campi, riquadri ed etichette riprendono i valori dei pezzi
+   comuni (classi nx- in theme.css) sulle classi che queste pagine hanno gia'.
+   ============================================================ */
+html[data-theme="next"] {
+    --static-accent: #f5f5f7;
+    --static-accent-rgb: 245, 245, 247;
+    --static-purple: #a1a1a6;
+    --static-red: var(--nx-danger);
+    --static-green: var(--nx-ok);
+    --static-bg: var(--nx-bg);
+    --static-bg-2: var(--nx-bg);
+    --static-card: var(--nx-surface);
+    --static-card-strong: var(--nx-surface-2);
+    --static-border: var(--nx-line);
+    --static-text: var(--nx-text);
+    --static-muted: var(--nx-text-2);
+    --static-muted-2: var(--nx-text-3);
+    --static-radius-xl: var(--nx-radius);
+    --static-radius-lg: var(--nx-radius);
+    --static-radius-md: 16px;
+    --static-shadow: none;
+}
+
+/* ── Fondo ───────────────────────────────────────────────── */
+html[data-theme="next"] body.static-page,
+html[data-theme="next"] .static-bg {
+    background: var(--nx-bg);
+}
+
+/* Le due macchie sfocate che galleggiano e la griglia di linee. */
+html[data-theme="next"] .static-orb,
+html[data-theme="next"] .static-grid-bg,
+html[data-theme="next"] body.static-page::before {
+    display: none;
+}
+
+html[data-theme="next"] .static-shell :focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 3px;
+}
+
+/* ── Riquadri ────────────────────────────────────────────── */
+html[data-theme="next"] .static-card,
+html[data-theme="next"] .static-toc,
+html[data-theme="next"] .static-faq,
+html[data-theme="next"] .static-legal-section,
+html[data-theme="next"] .static-contact-card,
+html[data-theme="next"] .static-ban-card {
+    border: 0;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* La testata non e' piu' un riquadro: titolo e due righe, sul fondo. */
+html[data-theme="next"] .static-hero {
+    padding: 1rem 0 0.5rem;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .static-hero--split {
+    gap: 2rem;
+    align-items: center;
+}
+
+/* L'etichetta dentro il riquadro di fianco non si allarga a tutta la riga. */
+html[data-theme="next"] .static-hero__side .static-chip {
+    justify-self: start;
+}
+
+html[data-theme="next"] .static-hero__side {
+    padding: 1.25rem;
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .static-hero h1,
+html[data-theme="next"] .static-ban-card h1 {
+    margin-top: 0;
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .static-hero > p,
+html[data-theme="next"] .static-hero > div > p {
+    max-width: 44rem;
+    font-size: 1.0625rem;
+}
+
+html[data-theme="next"] .static-legal-section h2,
+html[data-theme="next"] .static-card h2,
+html[data-theme="next"] .static-faq h2,
+html[data-theme="next"] .static-contact-card h2 {
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+html[data-theme="next"] .static-legal-section h3,
+html[data-theme="next"] .static-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+html[data-theme="next"] .static-legal-section strong {
+    font-weight: 600;
+}
+
+html[data-theme="next"] .static-tos-logo,
+html[data-theme="next"] .static-tos-logo:hover {
+    border-radius: var(--nx-radius);
+    box-shadow: none;
+}
+
+/* ── Etichette e pulsanti ────────────────────────────────── */
+html[data-theme="next"] .static-pill,
+html[data-theme="next"] .static-chip {
+    border-color: var(--nx-surface-3);
+    background: none;
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] .static-chip i {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .static-btn {
+    min-height: 2.75rem;
+    padding: 0 1.4rem;
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+    font-family: inherit;
+    font-weight: 500;
+    transition: background-color 240ms var(--nx-ease), border-color 240ms var(--nx-ease), color 240ms var(--nx-ease), transform 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .static-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    color: var(--nx-text);
+    transform: none;
+}
+
+html[data-theme="next"] .static-btn:active {
+    transform: scale(0.97);
+}
+
+html[data-theme="next"] .static-btn--primary,
+html[data-theme="next"] .static-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html[data-theme="next"] .static-btn--primary:hover {
+    background: #fff;
+}
+
+html[data-theme="next"] .static-btn--danger,
+html[data-theme="next"] .static-btn--danger:hover {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .static-btn--danger:hover {
+    border-color: var(--nx-danger);
+}
+
+/* Interruttore di Google Analytics nella pagina Cookie: da spento passa a filo. */
+html[data-theme="next"] .static-analytics-toggle[aria-pressed="false"] {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+    opacity: 1;
+}
+
+/* ── Pagine legali ───────────────────────────────────────── */
+html[data-theme="next"] .static-toc {
+    padding: 0.75rem;
+}
+
+html[data-theme="next"] .static-toc h2 {
+    margin: 0.4rem 0.65rem 0.5rem;
+    color: var(--nx-text-3);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+html[data-theme="next"] .static-toc a {
+    border-radius: 12px;
+    color: var(--nx-text-2);
+    font-size: 0.875rem;
+    font-weight: 400;
+    transition: background-color 240ms var(--nx-ease), color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .static-toc a:hover,
+html[data-theme="next"] .static-toc a.is-active {
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .static-legal-section a,
+html[data-theme="next"] .static-card p a,
+html[data-theme="next"] .static-hero p a,
+html[data-theme="next"] .static-alert a {
+    color: var(--nx-text);
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+html[data-theme="next"] .static-legal-section a:hover,
+html[data-theme="next"] .static-card p a:hover,
+html[data-theme="next"] .static-hero p a:hover,
+html[data-theme="next"] .static-alert a:hover {
+    text-decoration-color: var(--nx-text);
+}
+
+/* «In breve», in cima alle pagine legali, e' l'unica cosa che deve staccare:
+   prende la superficie chiara, come il riquadro del Premium in homepage. */
+html[data-theme="next"] .static-legal-section--summary {
+    background: var(--nx-paper);
+    color: var(--nx-paper-ink);
+}
+
+html[data-theme="next"] .static-legal-section--summary h2,
+html[data-theme="next"] .static-legal-section--summary strong {
+    color: var(--nx-paper-ink);
+}
+
+html[data-theme="next"] .static-legal-section--summary :is(p, ul, li) {
+    color: #424245;
+}
+
+html[data-theme="next"] .static-legal-section--summary a {
+    color: var(--nx-paper-ink);
+    text-decoration-color: var(--nx-paper-2);
+}
+
+html[data-theme="next"] .static-legal-section--summary a:hover {
+    text-decoration-color: var(--nx-paper-ink);
+}
+
+html[data-theme="next"] .static-table-wrap {
+    border-color: var(--nx-line);
+}
+
+html[data-theme="next"] .static-table th,
+html[data-theme="next"] .static-table td {
+    border-bottom-color: var(--nx-line);
+}
+
+html[data-theme="next"] .static-table th {
+    background: none;
+    color: var(--nx-text-3);
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .static-table code {
+    color: var(--nx-text);
+}
+
+/* ── Avvisi ──────────────────────────────────────────────── */
+html[data-theme="next"] .static-alert {
+    align-items: center;
+    border: 0;
+    border-radius: 14px;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .static-hero .static-alert {
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .static-alert i {
+    margin-top: 0;
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .static-alert--danger i {
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .static-alert--success i {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .static-alert p {
+    color: var(--nx-text);
+}
+
+/* ── Supporto: contatti e domande ────────────────────────── */
+html[data-theme="next"] .static-contact-card,
+html[data-theme="next"] .static-faq {
+    padding: 1.5rem;
+}
+
+html[data-theme="next"] .static-contact-link {
+    border: 0;
+    border-radius: 14px;
+    background: var(--nx-surface-2);
+    transition: background-color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .static-contact-link:hover {
+    background: var(--nx-surface-3);
+    transform: none;
+}
+
+html[data-theme="next"] .static-contact-link i {
+    width: 1.25rem;
+    color: var(--nx-text-2);
+    text-align: center;
+}
+
+html[data-theme="next"] .static-faq-search input {
+    min-height: 2.75rem;
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    transition: border-color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .static-faq-search input:focus {
+    border-color: var(--nx-text);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .static-faq-item {
+    border: 0;
+    border-radius: 14px;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .static-faq-item summary {
+    font-weight: 500;
+}
+
+html[data-theme="next"] .static-faq-item summary::after {
+    color: var(--nx-text-2);
+    font-weight: 400;
+}
+
+/* ── Supporto: il form del ticket ────────────────────────────
+   Campi, etichette e pulsante hanno lo stile scritto in linea nel markup di
+   it/supporto.php e en/supporto.php: per cambiarlo serve !important. */
+html[data-theme="next"] .static-card form label[style] {
+    color: var(--nx-text-2) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+}
+
+html[data-theme="next"] .static-card form :is(input[type="text"], textarea)[style] {
+    min-height: 2.75rem;
+    padding: 0.7rem 0.95rem !important;
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    background: var(--nx-surface-2) !important;
+    color: var(--nx-text) !important;
+    font-size: 0.9375rem !important;
+    transition: border-color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .static-card form :is(input[type="text"], textarea)[style]:focus {
+    border-color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .static-card form :is(input, textarea)::placeholder {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .custom-select-trigger {
+    padding: 0.7rem 0.95rem;
+    border-color: transparent;
+    border-radius: 12px;
+    background: var(--nx-surface-2);
+    font-size: 0.9375rem;
+    transition: border-color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .custom-select-trigger:hover {
+    border-color: var(--nx-text-3);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .custom-select-trigger.open {
+    border-color: var(--nx-text);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .custom-select-trigger i {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .custom-options {
+    padding: 6px;
+    border-color: var(--nx-line);
+    border-radius: 14px;
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .custom-option {
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    color: var(--nx-text-2);
+    font-size: 0.9375rem;
+}
+
+html[data-theme="next"] .custom-option:hover {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .file-upload-label {
+    border-color: var(--nx-surface-3);
+    border-radius: 12px;
+    background: none;
+    color: var(--nx-text-2);
+    font-size: 0.9375rem;
+    transition: border-color 240ms var(--nx-ease), color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .file-upload-label:hover {
+    border-color: var(--nx-text-3);
+    background: none;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .file-upload-label i {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .file-upload-preview {
+    border-color: var(--nx-line);
+    border-radius: 12px;
+}
+
+html[data-theme="next"] .remove-preview-btn,
+html[data-theme="next"] .remove-preview-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* «Invia ticket»: il pulsante pieno della pagina. Il viola e il sollevamento
+   al passaggio del mouse sono scritti in linea, anche da uno script. */
+html[data-theme="next"] .static-card form > button[type="submit"] {
+    min-height: 2.75rem;
+    padding: 0 1.4rem !important;
+    border-radius: var(--nx-pill) !important;
+    background: var(--nx-text) !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    transform: none !important;
+}
+
+html[data-theme="next"] .static-card form > button[type="submit"]:hover {
+    background: #fff !important;
+}
+
+/* Esito dell'invio: due riquadri verde e rosso scritti in linea. */
+html[data-theme="next"] .static-card > div[style*="35, 165, 90"],
+html[data-theme="next"] .static-card div[style*="239, 68, 68"] {
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: var(--nx-surface-2) !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="next"] .static-card > div[style*="35, 165, 90"] i {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .static-card div[style*="239, 68, 68"] i {
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .static-card > div[style*="35, 165, 90"] p,
+html[data-theme="next"] .static-card div[style*="239, 68, 68"] p {
+    color: var(--nx-text-2);
+    opacity: 1 !important;
+}
+
+html[data-theme="next"] .static-card ul[style],
+html[data-theme="next"] .static-card > p[style] {
+    color: var(--nx-text-2) !important;
+}
+
+/* ── Donazioni ───────────────────────────────────────────── */
+html[data-theme="next"] .static-donation-button img {
+    border-radius: 12px;
+    box-shadow: none;
+}
+
+/* ── Bannato ─────────────────────────────────────────────── */
+html[data-theme="next"] .static-ban-icon {
+    border: 0;
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .static-ban-card .static-alert {
+    border: 0 !important;
+}
+
+html[data-theme="next"] .static-ban-card .static-alert p[style] {
+    color: var(--nx-text-2) !important;
+}
+
+html[data-theme="next"] .static-ban-card .static-alert a[style] {
+    color: var(--nx-text) !important;
+}
+
+/* I due pulsanti sono tutti e due pieni, e quello di Discord ha il suo colore
+   scritto in linea: l'email resta l'azione principale, Discord passa a filo. */
+html[data-theme="next"] .static-ban-card .static-btn[style] {
+    border-color: var(--nx-line) !important;
+    background: transparent !important;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .static-ban-card .static-btn[style]:hover {
+    border-color: var(--nx-text-3) !important;
+}
+
+/* ── Pulsante «torna su» e avviso «link copiato» ─────────── */
+html[data-theme="next"] .static-top-btn {
+    border: 0;
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html[data-theme="next"] .static-top-btn:hover {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .static-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    font-weight: 500;
+}
+
+@media (max-width: 960px) {
+    /* ── Telefono ────────────────────────────────────────────── */
+    html[data-theme="next"] .static-hero--split {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 720px) {
+    html[data-theme="next"] .static-card,
+    html[data-theme="next"] .static-toc,
+    html[data-theme="next"] .static-faq,
+    html[data-theme="next"] .static-legal-section,
+    html[data-theme="next"] .static-contact-card,
+    html[data-theme="next"] .static-ban-card,
+    html[data-theme="next"] .static-hero__side {
+        border-radius: 20px;
+    }
+
+    html[data-theme="next"] .static-hero {
+        border-radius: 0;
+    }
+
+    html[data-theme="next"] .static-hero h1,
+    html[data-theme="next"] .static-ban-card h1 {
+        font-size: 2.25rem;
+    }
+
+    html[data-theme="next"] .static-contact-card,
+    html[data-theme="next"] .static-faq {
+        padding: 1.15rem;
+    }
+}

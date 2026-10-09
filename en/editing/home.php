@@ -23,8 +23,8 @@ if (!isOwner()) {
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="../../css/editing.css">
-    <?php cripsum_theme_head('editing'); ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/editing.css') ?>">
+    <?php cripsum_theme_head(); ?>
     <title>Cripsum™ - Editing Home</title>
 </head>
 

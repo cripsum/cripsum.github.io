@@ -10,21 +10,7 @@
  */
 
 .ach-page {
-    --ach-accent: 91, 140, 255;
-    --ach-purple: 167, 139, 250;
     --ach-gold: 251, 191, 36;
-    --ach-green: 52, 211, 153;
-    --ach-bg: #05070d;
-    --ach-bg-2: #0a0e1a;
-    --ach-panel: rgba(10, 14, 27, 0.78);
-    --ach-card: rgba(11, 15, 29, 0.9);
-    --ach-border: rgba(255, 255, 255, 0.1);
-    --ach-text: #f7f8ff;
-    --ach-muted: #a6b0c6;
-    --ach-muted-2: #77819a;
-    --ach-radius-xl: 30px;
-    --ach-radius-lg: 22px;
-    --ach-radius-md: 16px;
     --ach-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
     --tier: 217, 138, 82;
 }
@@ -39,7 +25,6 @@ body.ach-page {
     min-height: 100vh;
     margin: 0;
     color: var(--ach-text);
-    background: linear-gradient(135deg, var(--ach-bg), var(--ach-bg-2));
     overflow-x: hidden;
 }
 
@@ -118,16 +103,6 @@ body.ach-page {
     padding: 7rem 0 3.5rem;
 }
 
-.ach-hero,
-.ach-controls {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)), var(--ach-panel);
-    border: 1px solid var(--ach-border);
-    border-radius: var(--ach-radius-xl);
-    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
-    -webkit-backdrop-filter: blur(18px);
-    backdrop-filter: blur(18px);
-}
-
 /* ── Testata ─────────────────────────────────────────────────────────────── */
 
 .ach-hero {
@@ -137,8 +112,6 @@ body.ach-page {
     grid-template-areas: "main ring" "stats stats";
     gap: 1.4rem 2rem;
     align-items: center;
-    padding: clamp(1.2rem, 3vw, 2.1rem);
-    overflow: hidden;
     animation: achRise 520ms var(--ach-ease) both;
 }
 
@@ -165,9 +138,6 @@ body.ach-page {
     margin: 0;
     color: #fff;
     font-size: clamp(2.1rem, 5.4vw, 3.6rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1.02;
 }
 
 .ach-hero__sub {
@@ -193,10 +163,7 @@ body.ach-page {
     width: 50px;
     height: 50px;
     border-radius: 16px;
-    color: #fff;
     font-size: 1.15rem;
-    background: linear-gradient(135deg, rgb(var(--ach-accent)), rgb(var(--ach-purple)));
-    box-shadow: 0 10px 26px rgba(var(--ach-accent), 0.32);
 }
 
 .ach-rank__body {
@@ -236,7 +203,6 @@ body.ach-page {
     display: block;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, rgb(var(--ach-accent)), rgb(var(--ach-purple)));
     transform-origin: left center;
     transform: scaleX(var(--p, 0));
     transition: transform 900ms var(--ach-ease);
@@ -285,13 +251,11 @@ body.ach-page {
 }
 
 .ach-ring__fill {
-    stroke: url(#achRingGradient);
     stroke-linecap: round;
     stroke-dasharray: 100;
     stroke-dashoffset: calc(100 - var(--p, 0));
     transition: stroke-dashoffset 900ms var(--ach-ease);
     animation: achRingIn 1300ms var(--ach-ease) 200ms both;
-    filter: drop-shadow(0 0 10px rgba(var(--ach-accent), 0.45));
 }
 
 .ach-ring__text {
@@ -333,9 +297,7 @@ body.ach-page {
     display: grid;
     gap: 0.3rem;
     padding: 0.85rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--ach-radius-md);
-    background: rgba(255, 255, 255, 0.035);
     transition: border-color 220ms ease, background-color 220ms ease;
 }
 
@@ -369,11 +331,6 @@ body.ach-page {
     font-weight: 500;
 }
 
-.ach-stat--claim.has-claim {
-    border-color: rgba(var(--ach-gold), 0.36);
-    background: linear-gradient(135deg, rgba(var(--ach-gold), 0.12), rgba(var(--ach-gold), 0.03));
-}
-
 .ach-stat--claim.has-claim dd > span {
     color: #fcd34d;
 }
@@ -395,13 +352,10 @@ body.ach-page {
     padding: 0.4rem 0.95rem;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
-    color: var(--ach-text);
     font: inherit;
     font-size: 0.86rem;
-    font-weight: 600;
     line-height: 1.1;
     text-decoration: none;
-    background: rgba(255, 255, 255, 0.06);
     cursor: pointer;
     transition: transform 160ms var(--ach-ease), background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
@@ -414,22 +368,11 @@ body.ach-page {
     text-decoration: none;
 }
 
-.ach-btn--gold,
-.ach-claim {
-    border-color: rgba(var(--ach-gold), 0.55);
-    color: #241a02;
-    background: linear-gradient(135deg, #fde68a, #f5b81f);
-    box-shadow: 0 8px 22px rgba(var(--ach-gold), 0.26);
-}
-
 .ach-btn--gold:hover,
 .ach-btn--gold:focus-visible,
 .ach-claim:hover,
 .ach-claim:focus-visible {
     color: #241a02;
-    border-color: #fde68a;
-    background: linear-gradient(135deg, #fef3c7, #fbbf24);
-    box-shadow: 0 10px 28px rgba(var(--ach-gold), 0.4);
     transform: translateY(-1px);
 }
 
@@ -502,9 +445,6 @@ body.ach-page {
     gap: 0.5rem;
     align-items: center;
     margin: 0.35rem 0 0.6rem 0.3rem;
-    color: var(--ach-muted);
-    font-size: 0.76rem;
-    font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
 }
@@ -525,12 +465,10 @@ body.ach-page {
     gap: 0.75rem;
     align-items: center;
     padding: 0.7rem 0.9rem;
-    border: 1px solid rgba(var(--tier), 0.26);
     border-radius: var(--ach-radius-md);
     color: var(--ach-text);
     font: inherit;
     text-align: left;
-    background: linear-gradient(135deg, rgba(var(--tier), 0.1), transparent 60%), var(--ach-card);
     cursor: pointer;
     transition: transform 180ms var(--ach-ease), border-color 180ms ease;
 }
@@ -576,8 +514,6 @@ body.ach-page {
     z-index: 3;
     display: grid;
     gap: 0.75rem;
-    padding: 0.8rem;
-    border-radius: var(--ach-radius-lg);
     animation: achRise 520ms var(--ach-ease) 90ms both;
 }
 
@@ -606,7 +542,6 @@ body.ach-page {
     color: var(--ach-muted);
     font: inherit;
     font-size: 0.88rem;
-    font-weight: 600;
     background: transparent;
     cursor: pointer;
     transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
@@ -631,12 +566,6 @@ body.ach-page {
 
 .ach-tab:focus-visible {
     border-color: rgba(var(--ach-accent), 0.8);
-}
-
-.ach-tab.is-active {
-    color: #fff;
-    border-color: rgba(var(--ach-accent), 0.55);
-    background: linear-gradient(135deg, rgba(var(--ach-accent), 0.3), rgba(var(--ach-purple), 0.22));
 }
 
 .ach-tab.is-active small {
@@ -678,7 +607,6 @@ body.ach-page {
     color: var(--ach-text);
     font: inherit;
     font-size: 0.9rem;
-    background: rgba(255, 255, 255, 0.05);
     box-shadow: none;
     transform: none;
     transition: border-color 160ms ease, background-color 160ms ease;
@@ -689,7 +617,6 @@ body.ach-page {
 }
 
 .ach-page .ach-search .ach-search__input.ach-search__input:focus {
-    border-color: rgba(var(--ach-accent), 0.75);
     background: rgba(255, 255, 255, 0.08);
     outline: none;
 }
@@ -708,8 +635,6 @@ body.ach-page {
     color: var(--ach-muted);
     font: inherit;
     font-size: 0.84rem;
-    font-weight: 600;
-    background: rgba(255, 255, 255, 0.04);
     cursor: pointer;
     transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
 }
@@ -719,12 +644,6 @@ body.ach-page {
     color: #fff;
     border-color: rgba(255, 255, 255, 0.28);
     outline: none;
-}
-
-.ach-chip.is-active {
-    color: #fff;
-    border-color: rgba(var(--ach-accent), 0.6);
-    background: rgba(var(--ach-accent), 0.22);
 }
 
 .ach-chip--gold.is-active {
@@ -760,9 +679,7 @@ body.ach-page {
     color: var(--ach-text);
     font: inherit;
     font-size: 0.86rem;
-    font-weight: 600;
     text-align: left;
-    background: rgba(255, 255, 255, 0.05);
     cursor: pointer;
     transition: border-color 160ms ease, background-color 160ms ease;
 }
@@ -788,12 +705,10 @@ body.ach-page {
 
 .ach-sort__button:hover,
 .ach-sort.is-open .ach-sort__button {
-    border-color: rgba(var(--ach-accent), 0.6);
     background: rgba(255, 255, 255, 0.08);
 }
 
 .ach-sort__button:focus-visible {
-    border-color: rgba(var(--ach-accent), 0.9);
     outline: 2px solid rgba(var(--ach-accent), 0.5);
     outline-offset: 2px;
 }
@@ -817,8 +732,6 @@ body.ach-page {
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 18px;
     list-style: none;
-    background: #0c1122;
-    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.55);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -875,16 +788,11 @@ body.ach-page {
     background: rgba(255, 255, 255, 0.08);
 }
 
-.ach-sort__option.is-active > i:first-child {
-    color: rgb(var(--ach-accent));
-}
-
 .ach-sort__option[aria-selected="true"] {
     color: #fff;
 }
 
 .ach-sort__check {
-    color: rgb(var(--ach-accent));
     font-size: 0.74rem;
     opacity: 0;
     transform: scale(0.5);
@@ -901,7 +809,6 @@ body.ach-page {
     padding: 3px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.04);
 }
 
 .ach-view__btn {
@@ -926,7 +833,6 @@ body.ach-page {
 
 .ach-view__btn.is-active {
     color: #fff;
-    background: rgba(var(--ach-accent), 0.4);
 }
 
 /* Nella cronologia filtri e ordine non si applicano: restano solo le viste. */
@@ -946,10 +852,6 @@ body.ach-page {
     color: #fff;
     font-size: 0.98rem;
     font-weight: 700;
-}
-
-.ach-toolbar__title i {
-    color: rgb(var(--ach-accent));
 }
 
 .ach-controls.is-timeline .ach-toolbar__title {
@@ -977,20 +879,10 @@ body.ach-page {
     gap: 0.95rem;
     align-items: start;
     padding: 1rem;
-    border: 1px solid var(--ach-border);
     border-radius: var(--ach-radius-lg);
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)), var(--ach-card);
     cursor: pointer;
     overflow: hidden;
     transition: transform 220ms var(--ach-ease), border-color 220ms ease, box-shadow 220ms ease;
-}
-
-.ach-card.is-unlocked {
-    border-color: rgba(var(--tier), 0.36);
-    background:
-        radial-gradient(90% 120% at 0% 0%, rgba(var(--tier), 0.16), transparent 62%),
-        linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
-        var(--ach-card);
 }
 
 /* Riflesso che attraversa la card al passaggio del puntatore. */
@@ -1007,13 +899,11 @@ body.ach-page {
 
 .ach-card:focus-within {
     border-color: rgba(var(--tier), 0.8);
-    box-shadow: 0 0 0 3px rgba(var(--tier), 0.22);
 }
 
 @media (hover: hover) {
     .ach-card:hover {
         border-color: rgba(var(--tier), 0.62);
-        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36), 0 0 30px rgba(var(--tier), 0.1);
         transform: translateY(-3px);
     }
 
@@ -1038,7 +928,6 @@ body.ach-page {
     display: block;
     width: 76px;
     height: 76px;
-    filter: drop-shadow(0 8px 16px rgba(var(--tier), 0.28));
     transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 220ms ease;
 }
 
@@ -1071,7 +960,6 @@ body.ach-page {
     align-items: center;
     color: rgb(var(--tier));
     font-size: 0.68rem;
-    font-weight: 700;
     letter-spacing: 0.09em;
     text-transform: uppercase;
 }
@@ -1081,7 +969,6 @@ body.ach-page {
     height: 7px;
     border-radius: 50%;
     background: rgb(var(--tier));
-    box-shadow: 0 0 8px rgba(var(--tier), 0.8);
 }
 
 .ach-card.is-locked .ach-tier {
@@ -1104,11 +991,6 @@ body.ach-page {
     color: #06231a;
     background: rgb(var(--ach-green));
     animation: achPulse 1600ms ease-in-out 3;
-}
-
-.ach-flag--secret {
-    color: #d9c6ff;
-    background: rgba(var(--ach-purple), 0.2);
 }
 
 .ach-flag--done {
@@ -1184,7 +1066,6 @@ body.ach-page {
 
 .ach-steps li.is-done {
     background: rgb(var(--tier));
-    box-shadow: 0 0 8px rgba(var(--tier), 0.5);
 }
 
 .ach-steps li.is-current:not(.is-done) {
@@ -1216,7 +1097,6 @@ body.ach-page {
     display: block;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, rgba(var(--tier), 0.55), rgb(var(--tier)));
     transform-origin: left center;
     transform: scaleX(var(--p, 0));
 }
@@ -1407,7 +1287,6 @@ body.ach-page {
     left: 0.4rem;
     width: 2px;
     border-radius: 2px;
-    background: linear-gradient(to bottom, rgba(var(--ach-accent), 0.6), rgba(var(--ach-purple), 0.15));
 }
 
 .ach-row {
@@ -1417,9 +1296,7 @@ body.ach-page {
     gap: 0.8rem;
     align-items: center;
     padding: 0.65rem 0.9rem;
-    border: 1px solid rgba(var(--tier), 0.22);
     border-radius: var(--ach-radius-md);
-    background: linear-gradient(135deg, rgba(var(--tier), 0.08), transparent 55%), var(--ach-card);
     transition: border-color 180ms ease, transform 180ms var(--ach-ease);
 }
 
@@ -1479,7 +1356,6 @@ body.ach-page {
 
 .ach-row:focus-within {
     border-color: rgba(var(--tier), 0.8);
-    box-shadow: 0 0 0 3px rgba(var(--tier), 0.22);
 }
 
 .ach-row__text span {
@@ -1515,16 +1391,8 @@ body.ach-page {
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 28px;
     color: var(--ach-text);
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)), #0a0e1b;
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
     overflow: hidden auto;
     overscroll-behavior: contain;
-}
-
-.ach-dialog::backdrop {
-    background: rgba(2, 4, 10, 0.72);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
 }
 
 .ach-dialog[open] {
@@ -1554,10 +1422,7 @@ body.ach-page {
     height: 2.3rem;
     margin: 0.7rem 0.7rem -3rem 0;
     padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 50%;
-    color: var(--ach-muted);
-    background: rgba(10, 14, 27, 0.8);
     cursor: pointer;
     transition: color 160ms ease, background-color 160ms ease;
 }
@@ -1565,7 +1430,6 @@ body.ach-page {
 .ach-dialog__close:hover,
 .ach-dialog__close:focus-visible {
     color: #fff;
-    background: rgba(255, 255, 255, 0.14);
     outline: none;
 }
 
@@ -1575,7 +1439,6 @@ body.ach-page {
     justify-items: center;
     padding: 2rem clamp(1.1rem, 4vw, 2rem) 1.6rem;
     text-align: center;
-    background: radial-gradient(70% 46% at 50% 0%, rgba(var(--tier), 0.2), transparent 70%);
 }
 
 .ach-detail__medal {
@@ -1598,7 +1461,6 @@ body.ach-page {
     position: relative;
     width: 132px;
     height: 132px;
-    filter: drop-shadow(0 14px 30px rgba(var(--tier), 0.4));
     animation: achMedalIn 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 60ms both;
 }
 
@@ -1652,9 +1514,7 @@ body.ach-page {
 
 .ach-facts > div {
     padding: 0.6rem 0.8rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.035);
 }
 
 .ach-facts dt {
@@ -1801,8 +1661,6 @@ body.ach-page {
     color: #fff;
     font-size: 0.9rem;
     font-weight: 600;
-    background: rgba(10, 14, 27, 0.96);
-    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.5);
     opacity: 0;
     pointer-events: none;
     transform: translate(-50%, 14px);
@@ -1866,8 +1724,6 @@ body.ach-page {
     padding: 9px 11px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 18px;
-    background: rgba(10, 14, 27, 0.94);
-    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55);
     opacity: 0;
     pointer-events: none;
     transform: translate(-50%, 18px) scale(0.94);
@@ -1894,9 +1750,6 @@ body.ach-page {
 }
 
 .ach-konami__key.is-on {
-    border-color: rgba(var(--ach-accent), 0.85);
-    background: linear-gradient(135deg, rgba(var(--ach-accent), 0.7), rgba(var(--ach-purple), 0.6));
-    box-shadow: 0 0 16px rgba(var(--ach-accent), 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.3);
     animation: achKeyPop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -1912,14 +1765,11 @@ body.ach-page {
 
 .ach-konami.is-done {
     border-color: rgba(var(--ach-gold), 0.6);
-    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55), 0 0 40px rgba(var(--ach-gold), 0.3);
 }
 
 .ach-konami.is-done .ach-konami__key.is-on {
     border-color: #fde68a;
     color: #241a02;
-    background: linear-gradient(135deg, #fde68a, #f5b81f);
-    box-shadow: 0 0 18px rgba(var(--ach-gold), 0.6), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
     animation: achKeyWin 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
@@ -2115,10 +1965,6 @@ body.ach-page {
         padding-top: 5.6rem;
     }
 
-    .ach-hero {
-        border-radius: 24px;
-    }
-
     .ach-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -2266,4 +2112,364 @@ body.ach-page {
     ::view-transition-new(*) {
         animation: none !important;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Achievements
+   ============================================================
+
+   Correzioni a assets/achievements/achievements.css
+   (includes/achievements/page.php). Il foglio originale non si tocca.
+
+   Restano come sono: il colore del livello (bronzo, argento, oro, platino,
+   diamante) su medaglia, pallino e barra di avanzamento; le animazioni di
+   sblocco, del premio incassato e del codice Konami; l'oro dei Godos.
+   Vanno via gli aloni colorati attorno a medaglie e card.
+   ============================================================ */
+html:root .ach-page {
+    --ach-accent: 245, 245, 247;
+    --ach-purple: 245, 245, 247;
+    --ach-green: 48, 209, 88;
+    --ach-bg: var(--nx-bg);
+    --ach-bg-2: var(--nx-bg);
+    --ach-panel: var(--nx-surface);
+    --ach-card: var(--nx-surface);
+    --ach-border: var(--nx-line);
+    --ach-text: var(--nx-text);
+    --ach-muted: var(--nx-text-2);
+    --ach-muted-2: var(--nx-text-3);
+    --ach-radius-xl: var(--nx-radius);
+    --ach-radius-lg: 20px;
+    --ach-radius-md: 16px;
+}
+
+html:root body.ach-page {
+    background: var(--nx-bg);
+}
+
+/* Macchie sfocate e griglia di linee sullo sfondo. */
+html:root .ach-orb,
+html:root .ach-grid-bg {
+    display: none;
+}
+
+html:root .ach-page :focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
+}
+
+/* ── Testata ─────────────────────────────────────────────────
+   Non e' piu' un riquadro: titolo, grado e anello stanno sul fondo, con i
+   tre numeri sotto. */
+html:root .ach-hero,
+html:root .ach-controls {
+    border: 0;
+    background: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .ach-hero {
+    padding: 0.5rem 0 0;
+    border-radius: 0;
+    overflow: visible;
+}
+
+html:root .ach-hero::before {
+    display: none;
+}
+
+html:root .ach-hero h1 {
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root .ach-rank__icon {
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+html:root :is(.ach-rank__label, .ach-stat dt, .ach-near h2, .ach-tier, .ach-flag, .ach-facts dt, .ach-ladder h3) {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .ach-rank__bar > span {
+    background: var(--nx-text);
+}
+
+/* L'anello della percentuale: bianco pieno, senza alone. */
+html:root .ach-ring__fill {
+    stroke: var(--nx-text);
+    filter: none;
+}
+
+html:root .ach-stat,
+html:root .ach-stat--claim.has-claim {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+/* ── Pulsanti ────────────────────────────────────────────────
+   «Riscuoti tutto» e' il pulsante pieno della pagina. Quelli sulle singole
+   card passano a filo: la moneta dice gia' che si tratta di Godos. */
+html:root .ach-btn,
+html:root .ach-claim {
+    border-color: var(--nx-line);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .ach-btn:hover,
+html:root .ach-claim:hover,
+html:root .ach-claim:focus-visible {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+html:root .ach-btn--gold,
+html:root .ach-btn--gold:hover,
+html:root .ach-btn--gold:focus-visible {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html:root .ach-btn--gold:hover {
+    background: #fff;
+}
+
+/* ── Quasi fatti ─────────────────────────────────────────── */
+html:root .ach-near h2 {
+    color: var(--nx-text-2);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+html:root .ach-near__item {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+/* ── Categorie, ricerca, filtri ──────────────────────────── */
+html:root .ach-controls {
+    padding: 0;
+    border-radius: 0;
+}
+
+html:root .ach-tab {
+    font-weight: 500;
+}
+
+html:root .ach-tab:hover {
+    color: var(--nx-text);
+}
+
+html:root .ach-tab.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html:root .ach-page .ach-search .ach-search__input.ach-search__input {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html:root .ach-page .ach-search .ach-search__input.ach-search__input:focus {
+    border-color: var(--nx-text-3);
+}
+
+html:root .ach-chip {
+    border-color: var(--nx-line);
+    background: transparent;
+    font-weight: 500;
+}
+
+html:root .ach-chip:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text);
+}
+
+html:root .ach-chip.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html:root .ach-sort__button {
+    border-color: var(--nx-line);
+    background: transparent;
+    font-weight: 500;
+}
+
+html:root .ach-sort__button:hover,
+html:root .ach-sort.is-open .ach-sort__button,
+html:root .ach-sort__button:focus-visible {
+    border-color: var(--nx-text-3);
+}
+
+html:root .ach-sort__menu {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html:root .ach-sort__option.is-active > i:first-child,
+html:root .ach-sort__check {
+    color: var(--nx-text);
+}
+
+html:root .ach-view {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html:root .ach-view__btn.is-active {
+    background: var(--nx-surface-3);
+}
+
+html:root .ach-toolbar__title i {
+    color: var(--nx-text-3);
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+html:root .ach-card,
+html:root .ach-card.is-unlocked,
+html:root .ach-row {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+html:root .ach-card:focus-within,
+html:root .ach-row:focus-within {
+    box-shadow: 0 0 0 2px var(--nx-text-3);
+}
+
+@media (hover: hover) {
+    html:root .ach-card:hover {
+        box-shadow: none;
+    }
+}
+
+/* La medaglia ha gia' il suo colore: niente alone dello stesso colore sotto. */
+html:root .ach-card__medal img,
+html:root .ach-detail__medal img {
+    filter: none;
+}
+
+html:root .ach-tier {
+    font-weight: 500;
+}
+
+html:root .ach-flag--secret {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html:root .ach-tier i,
+html:root .ach-steps li.is-done {
+    box-shadow: none;
+}
+
+html:root .ach-progress__bar > span {
+    background: rgb(var(--tier));
+}
+
+html:root .ach-month__list::before {
+    background: var(--nx-line);
+}
+
+/* ── Scheda di un achievement ────────────────────────────── */
+html:root .ach-dialog {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+}
+
+html:root .ach-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .ach-detail {
+    background: none;
+}
+
+html:root .ach-detail__medal::before {
+    display: none;
+}
+
+html:root .ach-dialog__close {
+    border: 0;
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+}
+
+html:root .ach-dialog__close:hover,
+html:root .ach-dialog__close:focus-visible {
+    background: var(--nx-surface-3);
+}
+
+html:root .ach-facts > div {
+    border: 0;
+    background: var(--nx-surface-2);
+}
+
+html:root .ach-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+/* ── Codice Konami ───────────────────────────────────────── */
+html:root .ach-konami {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html:root .ach-konami__key.is-on {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html:root .ach-konami.is-done {
+    box-shadow: var(--nx-float);
+}
+
+html:root .ach-konami.is-done .ach-konami__key.is-on {
+    background: rgb(var(--ach-gold));
+    box-shadow: none;
+}
+
+/* ── Pesi del carattere: 500 e 600 al posto di 700 e 800 ─── */
+html:root :is(.ach-rank__name, .ach-stat dd, .ach-near__pct, .ach-toolbar__title, .ach-card__title, .ach-month__head h3, .ach-ring__text strong, .ach-detail h2, .ach-float, .ach-konami__key) {
+    font-weight: 600;
+}
+
+html:root :is(.ach-rank__label, .ach-stat dt, .ach-flag, .ach-facts dt, .ach-ladder h3) {
+    font-weight: 500;
 }

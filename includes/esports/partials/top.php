@@ -42,7 +42,7 @@ foreach (($bodyData ?? []) as $esAttr => $esValue) {
     <?php // Il player degli edit, per le clip: serve anche sulla pagina del team, da cui si arriva ai player senza ricaricare. ?>
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/esports/esports.css')); ?>">
-    <?php cripsum_theme_head('esports', 'edits-player'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo shop_h(cripsum_asset('/assets/esports/esports.js')); ?>" defer></script>
 </head>

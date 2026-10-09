@@ -49,11 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="it"<?= cripsum_theme_html_attr() ?>>
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <?php cripsum_theme_head('forms'); ?>
+    <?php cripsum_theme_head(); ?>
     <meta charset="UTF-8">
     <title>Cripsum™ - Link inviato</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/assets/forms/forms.css') ?>">
     <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
 </head>
 

@@ -93,7 +93,6 @@
 .resource-icon {
     width: 80px;
     height: 80px;
-    background: var(--gray-300);
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -104,7 +103,6 @@
 
 .resource-icon i {
     font-size: 2rem;
-    color: var(--gray-700);
     transition: var(--transition);
 }
 
@@ -190,8 +188,6 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--gray-700);
-    font-weight: 600;
     text-decoration: none;
     transition: var(--transition);
     font-size: 0.95rem;
@@ -247,13 +243,10 @@
 }
 
 .cta-section {
-    background: var(--gray-100);
-    border-radius: 24px;
     padding: 4rem;
     text-align: center;
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--gray-300);
 }
 
 .cta-section::before {
@@ -275,7 +268,6 @@
 }
 
 .cta-title {
-    font-size: 2.5rem;
     font-weight: 800;
     color: var(--gray-900);
     margin-bottom: 1.5rem;
@@ -291,23 +283,11 @@
 }
 
 .cta-button {
-    background: var(--gray-900);
-    color: var(--gray-100);
     border: 2px solid var(--gray-900);
     padding: 1rem 3rem;
     font-size: 1.125rem;
-    font-weight: 700;
-    border-radius: 12px;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-}
-
-.cta-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    background: transparent;
-    color: var(--gray-900);
 }
 
 .cta-button:active {
@@ -351,10 +331,6 @@
         padding: 3rem 2rem;
     }
 
-    .cta-title {
-        font-size: 2rem;
-    }
-
     .cta-description {
         font-size: 1rem;
     }
@@ -389,21 +365,16 @@
 }
 
 .free-banner {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     border-radius: 12px;
     padding: 20px 30px;
     margin: 30px 0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     animation: pulse 2s ease-in-out infinite;
 }
 
 .free-text {
-    color: #fff;
     font-size: 1.2rem;
-    font-weight: 600;
     margin: 0;
     text-align: center;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .free-text i {
@@ -446,4 +417,149 @@
     .free-text i {
         font-size: 1.1rem;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Sezione editing
+   ============================================================
+
+   Correzioni a css/editing.css (la pagina d'ingresso) e
+   css/editing-pages.css (Tutorial, Download, Clip, Overlay, Audio,
+   Progetti). I fogli originali non si toccano.
+
+   La sezione era gia' in grigi neutri: qui si allineano fondo, superfici,
+   titoli e pulsanti a quelli del tema. Restano la ricerca, i filtri, la
+   comparsa delle card, le etichette di difficolta' coi loro tre colori
+   (verde, giallo, rosso).
+   ============================================================ */
+html:root {
+    --gray-50: var(--nx-bg);
+    --gray-100: var(--nx-surface);
+    --gray-200: var(--nx-surface-2);
+    --gray-300: var(--nx-surface-3);
+    --gray-400: var(--nx-text-3);
+    --gray-500: var(--nx-text-3);
+    --gray-600: var(--nx-text-2);
+    --gray-700: var(--nx-text-2);
+    --gray-800: var(--nx-text);
+    --gray-900: var(--nx-text);
+    --primary: var(--nx-text);
+    --primary-dark: #ffffff;
+}
+
+html:root :is(.editing-section, .page-section) {
+    background: var(--nx-bg);
+}
+
+/* ── Titoli ──────────────────────────────────────────────── */
+html:root :is(.editing-title, .page-title) {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root :is(.editing-subtitle, .page-description, .resource-description, .card-description, .cta-description) {
+    color: var(--nx-text-2);
+}
+
+html:root :is(.resource-title, .card-title, .cta-title) {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+html:root .cta-title {
+    font-size: 1.75rem;
+}
+
+/* «È la cosa migliore? È tutto gratis»: una riga di testo, non una fascia. */
+html:root .free-banner {
+    background: none;
+    box-shadow: none;
+}
+
+html:root .free-text {
+    color: var(--nx-text-2);
+    font-weight: 500;
+    text-shadow: none;
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+html:root :is(.resource-card, .content-card) {
+    border-color: transparent;
+    border-radius: 20px;
+    background: var(--nx-surface);
+    box-shadow: none;
+}
+
+html:root :is(.resource-card, .content-card):hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+/* La riga colorata in cima alla card. */
+html:root :is(.resource-card, .content-card)::before {
+    display: none;
+}
+
+/* Le icone delle sei sezioni: stesse per tutte, non un colore a testa. */
+html:root .resource-icon,
+html:root .resource-icon:is(.success, .warning, .info, .danger, .secondary) {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    box-shadow: none;
+}
+
+html:root .resource-icon i,
+html:root .resource-icon:is(.success, .warning, .info, .danger, .secondary) i {
+    color: var(--nx-text);
+}
+
+html:root .resource-link,
+html:root .resource-link:is(.success, .warning, .info, .danger, .secondary) {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+/* ── «Un progetto fatto con passione» ────────────────────── */
+html:root .cta-section {
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+}
+
+html:root .cta-section::before {
+    display: none;
+}
+
+html:root .cta-button,
+html:root .cta-button:hover {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+    font-weight: 500;
+}
+
+html:root .cta-button:hover {
+    background: #fff;
+    transform: none;
+}
+
+html:root :is(.filter-btn, .btn-secondary, .btn-primary, .load-more-btn, .cta-button, .resource-card):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
 }

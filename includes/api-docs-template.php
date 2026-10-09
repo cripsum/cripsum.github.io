@@ -72,8 +72,8 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
     ?>
     <?php include __DIR__ . '/head-import.php'; ?>
     <title><?php echo api_docs_h($docs['title']); ?></title>
-    <link rel="stylesheet" href="/assets/api-docs/api-docs.css?v=1.3">
-    <?php cripsum_theme_head('api-docs'); ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/assets/api-docs/api-docs.css') ?>">
+    <?php cripsum_theme_head(); ?>
     <script src="/assets/api-docs/api-docs.js?v=1.3" defer></script>
 </head>
 

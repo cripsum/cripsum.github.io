@@ -125,7 +125,7 @@ $cmTabs = $cmRimasto
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo cv2_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
     <link rel="stylesheet" href="<?php echo cv2_h(cripsum_asset('/assets/community/community.css')); ?>">
-    <?php cripsum_theme_head('community', 'edits-player'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="<?php echo cv2_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo cv2_h(cripsum_asset('/assets/community/community.js')); ?>" defer></script>
 </head>

@@ -26,9 +26,6 @@ body.admin-v2-body {
     min-height: 100vh;
     margin: 0;
     color: var(--admin-text);
-    background:
-        radial-gradient(circle at top left, rgba(var(--admin-accent-rgb), .25), transparent 32rem),
-        linear-gradient(135deg, var(--admin-bg), var(--admin-bg-2));
     overflow-x: hidden;
 }
 
@@ -72,8 +69,8 @@ body.admin-v2-body {
     overflow: auto;
 }
 .admin-sidebar::-webkit-scrollbar { width: 0; }
-.admin-brand-card { display: flex; gap: .8rem; align-items: center; padding: .85rem; border: 1px solid var(--admin-border); border-radius: 22px; background: rgba(255,255,255,.055); margin-bottom: .8rem; }
-.admin-brand-mark { width: 2.7rem; height: 2.7rem; display: grid; place-items: center; border-radius: 16px; color: #fff; background: linear-gradient(135deg, rgba(var(--admin-accent-rgb), .96), rgba(139,92,246,.96)); box-shadow: 0 12px 34px rgba(var(--admin-accent-rgb), .25); }
+.admin-brand-card { display: flex; gap: .8rem; align-items: center; padding: .85rem; border: 1px solid var(--admin-border); border-radius: 22px;  margin-bottom: .8rem; }
+.admin-brand-mark { width: 2.7rem; height: 2.7rem; display: grid; place-items: center; border-radius: 16px;    }
 .admin-brand-card strong, .admin-brand-card small { display: block; }
 .admin-brand-card small { color: var(--admin-muted); margin-top: .15rem; font-size: .78rem; }
 
@@ -88,14 +85,13 @@ body.admin-v2-body {
 .admin-main { min-width: 0; display: grid; gap: 1rem; align-content: start; }
 .admin-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.1rem; }
 .admin-eyebrow { margin: 0 0 .2rem; color: var(--admin-accent); font-size: .75rem; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
-.admin-header h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -.06em; line-height: 1; }
+.admin-header h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 3rem);  line-height: 1; }
 .admin-header-actions { display: flex; align-items: center; gap: .6rem; min-width: min(100%, 520px); }
 .admin-global-search { flex: 1; min-width: 220px; display: flex; align-items: center; gap: .55rem; padding: .65rem .85rem; border: 1px solid var(--admin-border); border-radius: 999px; background: rgba(255,255,255,.06); }
-.admin-global-search i { color: var(--admin-accent); }
 .admin-global-search input, .admin-input, .admin-field input, .admin-field select, .admin-field textarea {
     width: 100%; border: 1px solid var(--admin-border); border-radius: 14px; color: var(--admin-text); background: rgba(255,255,255,.065); outline: none; transition: border-color var(--admin-transition), background var(--admin-transition), box-shadow var(--admin-transition);
 }
-.admin-global-search input { border: 0; background: transparent; padding: 0; }
+.admin-global-search input { border: 0;  padding: 0; }
 .admin-global-search input::placeholder, .admin-field input::placeholder, .admin-field textarea::placeholder { color: var(--admin-muted-2); }
 .admin-input { min-height: 2.65rem; padding: .6rem .8rem; }
 .admin-input option, .admin-field option { color: #111827; background: #fff; }
@@ -108,8 +104,6 @@ body.admin-v2-body {
 .admin-btn { padding: .65rem .95rem; }
 .admin-btn:hover, .admin-icon-btn:hover { transform: translateY(-2px); border-color: rgba(var(--admin-accent-rgb), .42); background: rgba(var(--admin-accent-rgb), .14); }
 .admin-btn:disabled, .admin-icon-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
-.admin-btn--primary { color: #fff; border-color: transparent; background: linear-gradient(135deg, rgba(var(--admin-accent-rgb), .96), rgba(139,92,246,.96)); }
-.admin-btn--danger { color: #fff; border-color: transparent; background: linear-gradient(135deg, #f43f5e, #fb7185); }
 .admin-btn--ghost { background: transparent; }
 .admin-btn--small { min-height: 2.15rem; padding: .45rem .65rem; font-size: .82rem; }
 
@@ -119,10 +113,10 @@ body.admin-v2-body {
 
 .admin-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; }
 .admin-stat-card { min-height: 8rem; padding: 1rem; overflow: hidden; }
-.admin-stat-card i { color: var(--admin-accent); font-size: 1.2rem; margin-bottom: 1rem; }
-.admin-stat-card strong { display: block; font-size: clamp(1.6rem, 3vw, 2.4rem); line-height: 1; letter-spacing: -.05em; }
+.admin-stat-card i {  font-size: 1.2rem; margin-bottom: 1rem; }
+.admin-stat-card strong { display: block; font-size: clamp(1.6rem, 3vw, 2.4rem); line-height: 1;  }
 .admin-stat-card span { display: block; margin-top: .45rem; color: var(--admin-muted); font-size: .85rem; font-weight: 800; }
-.admin-stat-card.is-loading { background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.1), rgba(255,255,255,.04)); background-size: 200% 100%; animation: adminSkeleton 1.2s linear infinite; }
+.admin-stat-card.is-loading {   animation: adminSkeleton 1.2s linear infinite; }
 @keyframes adminSkeleton { to { background-position: -200% 0; } }
 
 .admin-grid-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
@@ -135,7 +129,7 @@ body.admin-v2-body {
 .admin-toolbar-actions { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
 .admin-stack { display: grid; gap: .55rem; }
 
-.admin-row-card { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .8rem; border: 1px solid var(--admin-border); border-radius: 18px; background: rgba(255,255,255,.045); }
+.admin-row-card { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .8rem; border: 1px solid var(--admin-border); border-radius: 18px;  }
 .admin-row-main { min-width: 0; display: flex; align-items: center; gap: .75rem; }
 .admin-avatar { width: 2.35rem; height: 2.35rem; border-radius: 14px; object-fit: cover; background: rgba(255,255,255,.08); flex: none; }
 .admin-row-title, .admin-row-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -160,17 +154,13 @@ body.admin-v2-body {
 .admin-badge--success { color: #b7ffd4; border-color: rgba(34,197,94,.34); background: rgba(34,197,94,.1); }
 .admin-badge--danger { color: #ffd0d9; border-color: rgba(244,63,94,.38); background: rgba(244,63,94,.11); }
 .admin-badge--warning { color: #ffe0a6; border-color: rgba(245,158,11,.38); background: rgba(245,158,11,.11); }
-.admin-badge--info { color: #c9d9ff; border-color: rgba(var(--admin-accent-rgb), .42); background: rgba(var(--admin-accent-rgb), .12); }
-
 .admin-pagination { display: flex; justify-content: center; align-items: center; gap: .45rem; flex-wrap: wrap; margin-top: .9rem; }
 .admin-pagination button { min-width: 2.3rem; min-height: 2.3rem; border-radius: 999px; border: 1px solid var(--admin-border); color: var(--admin-text); background: rgba(255,255,255,.06); font-weight: 900; }
-.admin-pagination button.is-active { background: var(--admin-accent); border-color: transparent; }
-
 .admin-empty { display: grid; place-items: center; gap: .45rem; min-height: 12rem; padding: 2rem 1rem; border: 1px dashed var(--admin-border); border-radius: 20px; text-align: center; color: var(--admin-muted); }
-.admin-empty i { color: var(--admin-accent); font-size: 1.6rem; }
+.admin-empty i {  font-size: 1.6rem; }
 .admin-empty strong { color: var(--admin-text); }
 
-.admin-modal .modal-content { color: var(--admin-text); background: var(--admin-card-strong); border: 1px solid var(--admin-border-strong); border-radius: 28px; box-shadow: var(--admin-shadow); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.admin-modal .modal-content { color: var(--admin-text);  border: 1px solid var(--admin-border-strong); border-radius: 28px;    }
 .admin-modal .modal-header, .admin-modal .modal-footer { border-color: var(--admin-border); }
 .admin-modal .modal-title { font-weight: 950; letter-spacing: -.03em; }
 .admin-modal .modal-header small { color: var(--admin-muted); }
@@ -246,10 +236,9 @@ body.admin-v2-body {
 .admin-mini-card strong, .admin-mini-card span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .admin-mini-card span { color: var(--admin-muted); font-size: .78rem; margin-top: .15rem; }
 
-.admin-toast { position: fixed; left: 50%; bottom: 1.2rem; z-index: 99999; transform: translate(-50%, 150%); max-width: min(92vw, 460px); padding: .85rem 1rem; border: 1px solid rgba(var(--admin-accent-rgb), .46); border-radius: 999px; color: var(--admin-text); background: var(--admin-card-strong); box-shadow: var(--admin-shadow); opacity: 0; pointer-events: none; transition: transform var(--admin-transition), opacity var(--admin-transition); font-weight: 900; }
+.admin-toast { position: fixed; left: 50%; bottom: 1.2rem; z-index: 99999; transform: translate(-50%, 150%); max-width: min(92vw, 460px); padding: .85rem 1rem; border: 1px solid rgba(var(--admin-accent-rgb), .46); border-radius: 999px; color: var(--admin-text);   opacity: 0; pointer-events: none; transition: transform var(--admin-transition), opacity var(--admin-transition); font-weight: 900; }
 .admin-toast.is-visible { transform: translate(-50%, 0); opacity: 1; }
-.admin-toast.is-error { border-color: rgba(244,63,94,.5); }
-.admin-loading-overlay { position: fixed; inset: 0; z-index: 9998; background: rgba(2,4,10,.28); display: none; place-items: center; backdrop-filter: blur(2px); }
+.admin-loading-overlay { position: fixed; inset: 0; z-index: 9998; background: rgba(2,4,10,.28); display: none; place-items: center;  }
 .admin-loading-overlay.is-visible { display: grid; }
 
 .navbarutenti, .navbar { z-index: 1040; }
@@ -313,7 +302,6 @@ body.admin-v2-body {
     grid-column: 1 / -1;
     min-height: 8rem;
     border-color: rgba(244, 63, 94, .45);
-    background: linear-gradient(145deg, rgba(244, 63, 94, .14), rgba(255,255,255,.045));
 }
 
 .admin-stat-card--error i {
@@ -333,9 +321,6 @@ body.admin-v2-body {
     display: block !important;
     overflow: auto;
     padding: 1rem;
-    background: rgba(2, 4, 10, .72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
 }
 
 .admin-modal.is-open .modal-dialog {
@@ -382,7 +367,6 @@ body.modal-open {
     overflow: hidden;
     border: 1px solid rgba(var(--admin-accent-rgb), .28);
     background: rgba(255, 255, 255, .06);
-    color: var(--admin-accent);
 }
 
 .admin-thumb img {
@@ -547,8 +531,6 @@ body.modal-open {
     padding: .16rem .48rem;
     border: 1px solid rgba(var(--admin-accent-rgb), .28);
     border-radius: 999px;
-    color: var(--admin-accent);
-    background: rgba(var(--admin-accent-rgb), .08);
     font-size: .72rem;
     font-style: normal;
     font-weight: 800;
@@ -644,9 +626,9 @@ body.modal-open {
 }
 
 /* Utenti online: bottone filtro, pallino sull'avatar e stato nella tabella. */
-.admin-online-dot { display: inline-block; width: .55rem; height: .55rem; border-radius: 999px; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.18); flex: none; }
+.admin-online-dot { display: inline-block; width: .55rem; height: .55rem; border-radius: 999px; background: #22c55e;  flex: none; }
 .admin-btn--online b { min-width: 1.4rem; padding: .05rem .4rem; border-radius: 999px; background: rgba(255,255,255,.1); font-size: .78rem; text-align: center; }
-.admin-btn--online.is-active { color: #b7ffd4; border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.14); }
+.admin-btn--online.is-active { color: #b7ffd4;   }
 .admin-btn--online.is-active b { background: rgba(34,197,94,.28); }
 .admin-btn--online.is-active .admin-online-dot { animation: adminOnlinePulse 1.8s ease-in-out infinite; }
 @keyframes adminOnlinePulse { 50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); } }
@@ -663,7 +645,7 @@ body.modal-open {
    Negozio, Merch, Shop Gacha e Download: schede, interruttori nelle righe,
    anteprime nei form e le FAQ modificabili sul posto. */
 
-.admin-nav-label { margin: .7rem .85rem .1rem; color: var(--admin-muted-2); font-size: .68rem; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
+.admin-nav-label { margin: .7rem .85rem .1rem;  font-size: .68rem; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
 @media (max-width: 1180px) { .admin-nav-label { display: none; } }
 
 .shop-admin a:not(.admin-btn) { color: var(--admin-accent); }
@@ -672,10 +654,7 @@ body.modal-open {
 
 .shop-admin-tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; padding-bottom: .8rem; border-bottom: 1px solid var(--admin-border); }
 .shop-admin-tab { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.5rem; padding: .5rem .9rem; border: 1px solid var(--admin-border); border-radius: 999px; color: var(--admin-muted); background: rgba(255,255,255,.04); font-weight: 850; cursor: pointer; transition: var(--admin-transition); }
-.shop-admin-tab i { color: var(--admin-accent); }
-.shop-admin-tab:hover { color: var(--admin-text); border-color: rgba(var(--admin-accent-rgb), .4); }
-.shop-admin-tab.is-active { color: var(--admin-text); border-color: rgba(var(--admin-accent-rgb), .6); background: rgba(var(--admin-accent-rgb), .16); }
-
+.shop-admin-tab:hover { color: var(--admin-text);  }
 .shop-admin-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .6rem; }
 .shop-admin-bar > p { flex: 1 1 320px; margin: 0; }
 .shop-admin-hint { display: flex; align-items: center; gap: .5rem; margin: 0 0 .4rem; color: var(--admin-muted); font-size: .84rem; }
@@ -1631,4 +1610,337 @@ body.modal-open {
 
 @media (prefers-reduced-motion: reduce) {
     .is-on .admin-maint__dot::after { animation: none; }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Pannello admin
+   ============================================================
+
+   Correzioni a assets/admin-v2/admin.css (it|en/admin.php). Il foglio
+   originale non si tocca.
+
+   Il pannello lo vedi solo tu: qui prende semplicemente i colori e le
+   superfici del tema. Tutte le sezioni, le tabelle, le finestre e i
+   pulsanti restano dove sono. Restano i colori che dicono qualcosa:
+   rosso per bannare ed eliminare, verde per online e attivo, giallo per
+   gli avvisi, l'oro del Premium, i colori dei ruoli.
+   ============================================================ */
+html:root body.admin-v2-body {
+    --admin-accent: #f5f5f7;
+    --admin-accent-rgb: 245, 245, 247;
+    --admin-bg: var(--nx-bg);
+    --admin-bg-2: var(--nx-bg);
+    --admin-card: var(--nx-surface);
+    --admin-card-strong: var(--nx-surface-2);
+    --admin-border: var(--nx-line);
+    --admin-border-strong: var(--nx-text-3);
+    --admin-text: var(--nx-text);
+    --admin-muted: var(--nx-text-2);
+    --admin-muted-2: var(--nx-text-3);
+    --admin-danger: var(--nx-danger);
+    --admin-success: var(--nx-ok);
+    --admin-radius-lg: var(--nx-radius);
+    --admin-shadow: none;
+    background: var(--nx-bg);
+}
+
+/* Macchie sfocate e griglia di linee sullo sfondo. */
+html:root .admin-bg {
+    display: none;
+}
+
+/* ── Riquadri ────────────────────────────────────────────── */
+html:root :is(.admin-sidebar, .admin-panel, .admin-table-card, .admin-stat-card, .admin-toolbar, .admin-header) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* La colonna di lato, la testata e le barre degli strumenti stanno sul fondo. */
+html:root :is(.admin-sidebar, .admin-header, .admin-toolbar) {
+    background: none;
+}
+
+html:root :is(.admin-header, .admin-toolbar) {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+}
+
+html:root .admin-header h1 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+html:root :is(.admin-eyebrow, .admin-table th, .admin-field label, .admin-nav-label) {
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .admin-nav-label {
+    color: var(--nx-text-3);
+}
+
+/* ── Colonna di lato ─────────────────────────────────────── */
+html:root .admin-brand-card {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html:root .admin-brand-mark {
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+html:root :is(.admin-nav button, .admin-side-link) {
+    font-weight: 500;
+}
+
+html:root :is(.admin-nav button, .admin-side-link) i {
+    color: var(--nx-text-3);
+}
+
+html:root :is(.admin-nav button:hover, .admin-side-link:hover) {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html:root .admin-nav button.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+}
+
+html:root .admin-nav button.is-active i {
+    color: var(--nx-text);
+}
+
+/* ── Numeri della dashboard ──────────────────────────────── */
+html:root .admin-stat-card i {
+    color: var(--nx-text-3);
+}
+
+html:root .admin-stat-card strong {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+html:root .admin-stat-card--error {
+    background: var(--nx-surface);
+}
+
+html:root .admin-row-card {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .admin-row-card--link:hover {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+}
+
+/* ── Campi ───────────────────────────────────────────────── */
+html:root :is(.admin-global-search, .admin-input, .admin-field input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]), .admin-field select, .admin-field textarea) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .admin-global-search input {
+    background: none;
+}
+
+html:root :is(.admin-global-search:focus-within, .admin-input:focus, .admin-field input:focus, .admin-field select:focus, .admin-field textarea:focus) {
+    border-color: var(--nx-text);
+    box-shadow: none;
+}
+
+html:root .admin-global-search i {
+    color: var(--nx-text-3);
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+html:root :is(.admin-btn, .admin-icon-btn) {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500;
+}
+
+html:root .admin-icon-btn {
+    border-radius: 12px;
+}
+
+html:root :is(.admin-btn, .admin-icon-btn):hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html:root .admin-btn--primary,
+html:root .admin-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    color: #000;
+}
+
+html:root .admin-btn--primary:hover {
+    background: #fff;
+}
+
+/* Rosso pieno, senza sfumatura: dice che l'azione non si annulla. */
+html:root .admin-btn--danger,
+html:root .admin-btn--danger:hover {
+    border-color: transparent;
+    background: var(--nx-danger);
+    color: #fff;
+}
+
+html:root .admin-pagination button.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Tabelle, etichette ──────────────────────────────────── */
+html:root .admin-table :is(th, td) {
+    border-color: var(--nx-line);
+}
+
+html:root .admin-table tbody tr:hover {
+    background: var(--nx-surface-2);
+}
+
+html:root .admin-badge--info {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+html:root .admin-thumb {
+    border-color: transparent;
+    color: var(--nx-text-3);
+}
+
+html:root :is(.admin-thumb--fallback, .admin-thumb.is-broken) {
+    background: var(--nx-surface-3);
+}
+
+html:root .admin-content-flags em {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+html:root :is(.admin-cell-text a, .shop-admin a:not(.admin-btn), .admin-toolbar small a) {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+html:root .admin-empty i {
+    color: var(--nx-text-3);
+}
+
+html:root .admin-online-dot {
+    box-shadow: none;
+}
+
+html:root .shop-admin-tab i {
+    color: var(--nx-text-3);
+}
+
+html:root .shop-admin-tab:hover {
+    border-color: var(--nx-text-3);
+}
+
+html:root .shop-admin-tab.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Finestre e avvisi ───────────────────────────────────── */
+html:root .admin-modal.is-open {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .admin-modal .modal-content {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .admin-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html:root .admin-loading-overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root :is(.admin-btn, .admin-icon-btn, .admin-nav button, .admin-row-card--link):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
+}
+
+/* Dentro le tabelle il pulsante di ogni riga e' a filo: il pieno resta a
+   quello della sezione («Nuovo», «Salva»). */
+html:root :is(.admin-table, .admin-row-card) .admin-btn--primary,
+html:root :is(.admin-table, .admin-row-card) .admin-btn--primary:hover {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html:root :is(.admin-table, .admin-row-card) .admin-btn--primary:hover {
+    border-color: var(--nx-text-3);
+}
+
+/* ── Stati che devono restare visibili ───────────────────── */
+/* Mentre i numeri della dashboard arrivano, il riquadro scorre come prima. */
+html:root .admin-stat-card.is-loading {
+    background: linear-gradient(90deg, var(--nx-surface), var(--nx-surface-2), var(--nx-surface));
+    background-size: 200% 100%;
+}
+
+/* Un pulsante «armato» (il primo clic prima di eliminare) diventa rosso pieno. */
+html:root :is(.admin-btn, .admin-icon-btn).is-armed,
+html:root :is(.admin-btn, .admin-icon-btn).is-armed:hover {
+    border-color: transparent;
+    background: var(--nx-danger);
+    color: #fff;
+}
+
+/* Il filtro «Online ora» acceso resta verde. */
+html:root .admin-btn--online.is-active {
+    border-color: transparent;
+    background: rgba(48, 209, 88, 0.16);
+}
+
+html:root .admin-toast.is-error {
+    border-color: var(--nx-danger);
 }

@@ -171,9 +171,9 @@ $keybinds = [
     <!-- Loader Unity e modulo di compatibilita' vengono ancora da jsDelivr; le build dal nostro server. -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
-    <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
+    <link class="subway-css" rel="stylesheet" href="<?= cripsum_theme_asset('/assets/css/game.css') ?>">
     <link rel="stylesheet" href="/assets/css/subway.css?v=<?= $assetVersion['css'] ?>">
-    <?php cripsum_theme_head('games'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="/assets/js/subway/subway-profile.js?v=<?= $assetVersion['profile'] ?>" defer></script>
     <script src="/assets/js/subway/subway.js?v=<?= $assetVersion['js'] ?>" defer></script>
 </head>

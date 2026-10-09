@@ -7,13 +7,6 @@
    =================================================================== */
 
 dialog.lm {
-    --lm-bg: #0c0e1b;
-    --lm-line: rgba(255, 255, 255, 0.1);
-    --lm-line-strong: rgba(255, 255, 255, 0.18);
-    --lm-muted: #b3b8cf;
-    --lm-faint: #7a809b;
-    --lm-c: #a855f7;
-    --lm-c2: #60a5fa;
     --lm-ease: cubic-bezier(0.16, 1, 0.3, 1);
     --lm-spring: cubic-bezier(0.34, 1.35, 0.64, 1);
     position: fixed;
@@ -26,7 +19,6 @@ dialog.lm {
     padding: 0;
     border: 0;
     background: transparent;
-    color: #f5f6fb;
     font-family: Poppins, system-ui, sans-serif;
     overflow: hidden;
 }
@@ -40,8 +32,6 @@ dialog.lm:not([open]) {
 .lm__scrim {
     position: absolute;
     inset: 0;
-    background: rgba(4, 5, 10, 0.62);
-    backdrop-filter: blur(10px) saturate(1.1);
     opacity: 0;
     transition: opacity 0.35s ease;
 }
@@ -63,9 +53,7 @@ dialog.lm.is-closing .lm__scrim {
     max-height: min(760px, calc(100dvh - 48px));
     overflow: hidden;
     border: 1px solid var(--lm-line-strong);
-    border-radius: 26px;
     background: var(--lm-bg);
-    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 0, 0, 0.3);
     outline: none;
     opacity: 0;
     translate: -50% -46%;
@@ -111,9 +99,6 @@ dialog.lm.is-closing .lm__panel {
     display: grid;
     place-items: center;
     border-radius: 15px;
-    border: 1px solid color-mix(in srgb, var(--lm-c) 45%, transparent);
-    background: color-mix(in srgb, var(--lm-c) 25%, rgba(255, 255, 255, 0.04));
-    color: #fff;
     font-size: 18px;
 }
 dialog.lm.is-open .lm__icon {
@@ -175,8 +160,6 @@ dialog.lm.is-open .lm__icon {
     margin: 0 20px;
     padding: 4px;
     border: 1px solid var(--lm-line);
-    border-radius: 15px;
-    background: rgba(255, 255, 255, 0.045);
 }
 .lm__ink {
     position: absolute;
@@ -184,9 +167,6 @@ dialog.lm.is-open .lm__icon {
     bottom: 4px;
     left: 4px;
     width: 0;
-    border-radius: 11px;
-    background: rgba(255, 255, 255, 0.11);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
     transition: transform 0.45s var(--lm-spring), width 0.45s var(--lm-spring);
 }
 .lm__tabs button {
@@ -201,7 +181,6 @@ dialog.lm.is-open .lm__icon {
     height: 38px;
     padding: 0 8px;
     border: 0;
-    border-radius: 11px;
     background: none;
     color: var(--lm-muted);
     font: inherit;
@@ -257,7 +236,6 @@ dialog.lm.is-open .lm__icon {
     gap: 10px;
     padding: 14px 20px;
     border-top: 1px solid var(--lm-line);
-    background: rgba(255, 255, 255, 0.02);
 }
 .lm__foot[hidden] {
     display: none;
@@ -289,7 +267,6 @@ dialog.lm.is-open .lm__icon {
 .lm-card {
     border: 1px solid var(--lm-line);
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.035);
     overflow: hidden;
 }
 .lm-card--pad {
@@ -377,8 +354,6 @@ label.lm-row:hover {
     border: 1px solid var(--lm-line-strong);
     border-bottom-width: 3px;
     border-radius: 9px;
-    background: linear-gradient(180deg, #23263a, #171a2a);
-    color: #e5e7f3;
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -397,8 +372,6 @@ label.lm-row:hover {
     height: 44px;
     padding: 0 18px;
     border: 1px solid var(--lm-line-strong);
-    border-radius: 13px;
-    background: rgba(255, 255, 255, 0.06);
     color: #fff;
     font: inherit;
     font-size: 14px;
@@ -409,9 +382,7 @@ label.lm-row:hover {
     transition: transform 0.3s var(--lm-spring), background 0.2s, box-shadow 0.3s, filter 0.2s;
 }
 .lm-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
     color: #fff;
-    transform: translateY(-1px);
 }
 .lm-btn:active {
     transform: scale(0.97);
@@ -424,13 +395,6 @@ label.lm-row:hover {
     position: relative;
     overflow: hidden;
     border: 0;
-    background: linear-gradient(135deg, var(--lm-c2), var(--lm-c));
-    box-shadow: 0 10px 26px color-mix(in srgb, var(--lm-c) 42%, transparent);
-}
-.lm-btn--main:hover {
-    background: linear-gradient(135deg, var(--lm-c2), var(--lm-c));
-    filter: brightness(1.08);
-    box-shadow: 0 14px 32px color-mix(in srgb, var(--lm-c) 55%, transparent);
 }
 .lm-btn--main::after {
     content: '';
@@ -439,7 +403,6 @@ label.lm-row:hover {
     bottom: 0;
     left: 0;
     width: 40%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     transform: translateX(-150%) skewX(-20deg);
     animation: lmShine 3.4s ease infinite;
     pointer-events: none;
@@ -454,7 +417,6 @@ label.lm-row:hover {
     flex: 0 0 auto;
     margin: 0;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.16);
     cursor: pointer;
     transition: background 0.3s;
 }
@@ -466,15 +428,10 @@ label.lm-row:hover {
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
     transition: transform 0.4s var(--lm-spring), width 0.2s;
 }
 .lm-switch:active::after {
     width: 28px;
-}
-.lm-switch:checked {
-    background: var(--lm-c);
 }
 .lm-switch:checked::after {
     transform: translateX(18px);
@@ -494,7 +451,6 @@ label.lm-row:hover {
     height: 6px;
     margin: 0;
     border-radius: 999px;
-    background: linear-gradient(90deg, var(--lm-c) var(--v), rgba(255, 255, 255, 0.15) var(--v));
     cursor: pointer;
 }
 .lm-range::-webkit-slider-thumb {
@@ -563,7 +519,6 @@ label.lm-row:hover {
     width: 110px;
     height: 8px;
     border-radius: 999px;
-    background: linear-gradient(90deg, rgba(96, 165, 250, 0.55) var(--s), rgba(251, 191, 36, 0.55) var(--s));
 }
 .lm-pitymini i {
     position: absolute;
@@ -590,8 +545,6 @@ label.lm-row:hover {
     place-items: center;
     margin-bottom: 6px;
     border-radius: 22px;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--lm-c) 55%, transparent), color-mix(in srgb, var(--lm-c2) 45%, transparent));
-    box-shadow: 0 16px 40px color-mix(in srgb, var(--lm-c) 40%, transparent);
     font-size: 28px;
     animation: lmFloat 3.2s ease-in-out infinite;
 }
@@ -619,7 +572,6 @@ label.lm-row:hover {
     padding: 0 14px;
     border: 1px solid var(--lm-line-strong);
     border-radius: 13px;
-    background: rgba(0, 0, 0, 0.3);
     color: #fff;
     font: inherit;
     font-size: 15px;
@@ -634,13 +586,8 @@ label.lm-row:hover {
     letter-spacing: 0.02em;
     text-transform: none;
 }
-.lm-field input:focus {
-    border-color: var(--lm-c);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--lm-c) 25%, transparent);
-}
 .lm-field.is-error input {
     animation: lmShake 0.4s ease;
-    border-color: #f87171;
 }
 .lm-field .lm-btn {
     height: 48px;
@@ -665,7 +612,6 @@ label.lm-row:hover {
     padding: 0 12px;
     border: 1px solid var(--lm-line);
     border-radius: 13px;
-    background: rgba(255, 255, 255, 0.04);
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -710,26 +656,18 @@ label.lm-row:hover {
     padding: 16px 8px 14px;
     border: 1px solid var(--lm-line);
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.04);
     text-align: center;
     animation: lmRise 0.7s var(--lm-spring) both;
 }
 .lm-pod--1 {
     padding-top: 22px;
-    border-color: rgba(251, 191, 36, 0.5);
-    background: linear-gradient(180deg, rgba(251, 191, 36, 0.2), rgba(255, 255, 255, 0.03));
     animation-delay: 0.05s;
 }
 .lm-pod--2 {
-    background: linear-gradient(180deg, rgba(203, 213, 225, 0.13), rgba(255, 255, 255, 0.03));
     animation-delay: 0.16s;
 }
 .lm-pod--3 {
-    background: linear-gradient(180deg, rgba(217, 119, 6, 0.15), rgba(255, 255, 255, 0.03));
     animation-delay: 0.26s;
-}
-.lm-pod.is-me {
-    box-shadow: 0 0 0 2px var(--lm-c);
 }
 .lm-pod b {
     max-width: 100%;
@@ -754,7 +692,6 @@ label.lm-row:hover {
     top: -13px;
     color: #fbbf24;
     font-size: 18px;
-    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.7));
     animation: lmCrown 2.6s ease-in-out infinite;
 }
 .lm-ava {
@@ -766,8 +703,6 @@ label.lm-row:hover {
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--a1, #6366f1), var(--a2, #ec4899));
-    color: #fff;
     font-size: calc(var(--size) * 0.34);
     font-weight: 800;
 }
@@ -786,7 +721,6 @@ label.lm-row:hover {
 }
 .lm-pod--1 .lm-ava {
     --size: 64px;
-    box-shadow: 0 0 0 3px #fbbf24, 0 0 26px rgba(251, 191, 36, 0.5);
 }
 .lm-pod--2 .lm-ava {
     box-shadow: 0 0 0 3px #cbd5e1;
@@ -858,10 +792,6 @@ label.lm-row:hover {
     font-size: 12px;
     font-weight: 600;
 }
-.lm-lrow.is-me {
-    background: color-mix(in srgb, var(--lm-c) 16%, transparent);
-    box-shadow: inset 3px 0 0 var(--lm-c);
-}
 .lm-gap {
     padding: 2px 0;
     color: var(--lm-faint);
@@ -887,7 +817,6 @@ label.lm-row:hover {
     padding: 12px;
     border: 1px solid var(--lm-line);
     border-radius: 15px;
-    background: rgba(255, 255, 255, 0.04);
 }
 .lm-stat strong {
     display: block;
@@ -921,22 +850,15 @@ label.lm-row:hover {
     padding: 0 13px;
     border: 1px solid var(--lm-line);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.04);
     color: var(--lm-muted);
     font: inherit;
     font-size: 12.5px;
-    font-weight: 600;
     cursor: pointer;
     transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.3s var(--lm-spring);
 }
 .lm-filters button:hover {
     color: #fff;
     transform: translateY(-1px);
-}
-.lm-filters button.is-on {
-    border-color: #fff;
-    background: #fff;
-    color: #0c0e1b;
 }
 .lm-day {
     margin: 4px 2px -8px;
@@ -1113,8 +1035,6 @@ a.lm-hrow:hover {
     display: grid;
     place-items: center;
     border-radius: 11px;
-    background: color-mix(in srgb, var(--lm-c) 16%, rgba(255, 255, 255, 0.04));
-    color: color-mix(in srgb, var(--lm-c) 60%, #fff);
     font-size: 13px;
 }
 .lm-rule b {
@@ -1307,7 +1227,6 @@ a.lm-hrow:hover {
         width: 100%;
         max-height: 90dvh;
         border-bottom: 0;
-        border-radius: 26px 26px 0 0;
         padding-bottom: env(safe-area-inset-bottom, 0px);
         opacity: 1;
         translate: 0 100%;
@@ -1423,4 +1342,234 @@ a.lm-hrow:hover {
         animation-delay: 0s !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Finestre: impostazioni, classifica, cronologia, dettagli, valute
+   ============================================================
+
+   Il colore d'accento delle finestre passa al bianco. Nei «Dettagli» lo
+   script lo imposta sul colore del banner: li' resta quello.
+   Dentro restano i colori delle rarita' e oro, argento e bronzo del podio. */
+html:root dialog.lm {
+    --lm-bg: var(--nx-surface);
+    --lm-line: var(--nx-line);
+    --lm-line-strong: #3a3a3d;
+    --lm-muted: var(--nx-text-2);
+    --lm-faint: var(--nx-text-3);
+    --lm-c: #f5f5f7;
+    --lm-c2: #f5f5f7;
+    color: var(--nx-text);
+}
+
+html:root .lm__scrim {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .lm__panel {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-radius);
+    box-shadow: var(--nx-float);
+}
+
+/* L'alone colorato nell'angolo della finestra. */
+html:root .lm__panel::before {
+    display: none;
+}
+
+html:root :is(.lm__titles h2, .lm-rate strong, .lm-code h3, .lm-pod strong, .lm-ava, .lm-lrow strong, .lm-stat strong, .lm-badge, .lm-char__img .lm-q, .lm-funds h3, .lm-swap__side strong, .lm-row__val, .lm-lrow .lm-n) {
+    font-weight: 600;
+}
+
+html:root :is(.lm__tabs button, .lm-sec h3, .lm-dot, .lm-kbd, .lm-btn, .lm-toggle span, .lm-day, .lm-char span, .lm-swap__side small) {
+    font-weight: 500;
+}
+
+html:root :is(.lm-sec h3, .lm-swap__side small) {
+    font-size: 0.8125rem;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .lm__icon {
+    border: 0;
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+}
+
+html:root .lm__tabs {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface-2);
+}
+
+html:root .lm__tabs button,
+html:root .lm__ink {
+    border-radius: var(--nx-pill);
+}
+
+html:root .lm__ink {
+    background: var(--nx-surface-3);
+    box-shadow: none;
+}
+
+html:root .lm__foot {
+    background: none;
+}
+
+html:root .lm-card,
+html:root .lm-pod,
+html:root .lm-pod--1,
+html:root .lm-pod--2,
+html:root .lm-pod--3 {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .lm-kbd {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* Pulsanti: a filo; quello principale pieno, col riflesso che resta. */
+html:root .lm-btn {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+}
+
+html:root .lm-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html:root .lm-btn--main,
+html:root .lm-btn--main:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+    filter: none;
+}
+
+html:root .lm-btn--main:hover {
+    background: #fff;
+}
+
+html:root .lm-btn--main::after {
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.12), transparent);
+}
+
+/* Interruttore: bianco quando e' acceso, col pallino nero. */
+html:root .lm-switch {
+    background: var(--nx-surface-3);
+}
+
+html:root .lm-switch::after {
+    background: var(--nx-text-2);
+    box-shadow: none;
+}
+
+html:root .lm-switch:checked {
+    background: var(--nx-text);
+}
+
+html:root .lm-switch:checked::after {
+    background: #000;
+}
+
+html:root .lm-range {
+    background: linear-gradient(90deg, var(--nx-text) var(--v), var(--nx-surface-3) var(--v));
+}
+
+html:root .lm-toggle span {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html:root .lm-filters button {
+    border-color: var(--nx-line);
+    background: transparent;
+    font-weight: 500;
+}
+
+html:root .lm-filters button.is-on {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html:root .lm-stat {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+/* Il segno del soft pity: grigio prima, oro dopo. */
+html:root .lm-pitymini {
+    background: linear-gradient(90deg, var(--nx-text-3) var(--s), rgba(251, 191, 36, 0.7) var(--s));
+}
+
+/* Riscatta un codice. */
+html:root .lm-code__art {
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .lm-field input {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .lm-field input:focus {
+    border-color: var(--nx-text);
+    box-shadow: none;
+}
+
+/* Il codice sbagliato: il campo trema come prima e resta bordato di rosso. */
+html:root .lm-field.is-error input {
+    border-color: var(--nx-danger);
+}
+
+/* Classifica: i tre colori del podio restano sull'anello dell'avatar. */
+html:root .lm-pod--1 .lm-ava {
+    box-shadow: 0 0 0 3px #fbbf24;
+}
+
+html:root .lm-crown {
+    filter: none;
+}
+
+html:root .lm-ava {
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+/* La mia riga: fondo piu' chiaro, senza la striscia sul fianco. */
+html:root .lm-lrow.is-me {
+    background: var(--nx-surface-3);
+    box-shadow: none;
+}
+
+html:root .lm-pod.is-me {
+    box-shadow: 0 0 0 2px var(--nx-text);
+}
+
+html:root .lm-rule i {
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
 }

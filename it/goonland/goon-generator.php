@@ -270,8 +270,8 @@ if ($stmt) {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.2-api-proxy-fix2">
-    <?php cripsum_theme_head('goonland'); ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/goonland.css') ?>">
+    <?php cripsum_theme_head(); ?>
     <script src="/js/goonland.js?v=2.2-api-proxy-fix2" defer></script>
 </head>
 

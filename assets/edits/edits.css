@@ -23,7 +23,6 @@
 body.edits-page {
     min-height: 100vh;
     color: var(--edits-text);
-    background: linear-gradient(135deg, var(--edits-bg), var(--edits-bg-2));
     overflow-x: hidden;
 }
 
@@ -60,14 +59,9 @@ body.edits-page {
     align-items: center;
     justify-content: center;
     gap: 9px;
-    padding: 11px 18px;
     border: 1px solid var(--edits-border);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
     font: inherit;
     font-size: 0.95rem;
-    font-weight: 600;
     text-decoration: none;
     cursor: pointer;
     transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
@@ -75,21 +69,6 @@ body.edits-page {
 
 .edits-btn:hover {
     color: #fff;
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.09);
-    transform: translateY(-2px);
-}
-
-.edits-btn--primary {
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--edits-blue), var(--edits-purple));
-    box-shadow: 0 12px 34px rgba(47, 107, 255, 0.25);
-}
-
-.edits-btn--primary:hover {
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--edits-blue), var(--edits-purple));
-    box-shadow: 0 16px 40px rgba(47, 107, 255, 0.35);
 }
 
 .edits-btn--small {
@@ -119,19 +98,12 @@ body.edits-page {
 
 .edits-title {
     margin: 0 0 1rem;
-    color: #fff;
     font-size: clamp(2.4rem, 5.2vw, 3.8rem);
-    font-weight: 800;
-    line-height: 1.02;
-    letter-spacing: -0.035em;
 }
 
 .edits-title em {
     font-style: normal;
-    background: linear-gradient(135deg, #7ea2ff, #b69cff);
     -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
 }
 
 .edits-lead {
@@ -157,13 +129,9 @@ body.edits-page {
     aspect-ratio: 4 / 5;
     padding: 0;
     overflow: hidden;
-    border: 1px solid var(--edits-border-strong);
-    border-radius: 28px;
-    background: #0c0f1a;
     color: #fff;
     text-align: left;
     cursor: pointer;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
     transition: transform 220ms ease, border-color 220ms ease;
 }
 
@@ -202,7 +170,6 @@ body.edits-page {
     inset: 0;
     display: grid;
     place-items: center;
-    background: linear-gradient(135deg, rgba(47, 107, 255, 0.25), rgba(139, 92, 246, 0.25));
     color: rgba(255, 255, 255, 0.7);
     font-size: 2.4rem;
 }
@@ -230,9 +197,6 @@ body.edits-page {
     height: 72px;
     border: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.16);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     font-size: 1.4rem;
     transform: translate(-50%, -50%);
 }
@@ -249,7 +213,6 @@ body.edits-page {
 
 .edits-featured__info strong {
     font-size: 1.35rem;
-    font-weight: 800;
     line-height: 1.2;
 }
 
@@ -279,12 +242,6 @@ body.edits-page {
     flex-direction: column;
     gap: 12px;
     margin-top: 2.6rem;
-    padding: 14px;
-    border: 1px solid var(--edits-border);
-    border-radius: 24px;
-    background: rgba(8, 11, 22, 0.9);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
 }
 
 .edits-toolbar__row {
@@ -302,16 +259,9 @@ body.edits-page {
     height: 46px;
     padding: 0 14px;
     border: 1px solid var(--edits-border);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04);
     color: var(--edits-muted);
     font-size: 0.9rem;
     transition: border-color 160ms ease;
-}
-
-.edits-search:focus-within,
-.edits-toggle:focus-within {
-    border-color: rgba(47, 107, 255, 0.6);
 }
 
 .edits-search {
@@ -357,8 +307,6 @@ body.edits-page {
     height: 46px;
     padding: 0 5px 0 14px;
     border: 1px solid var(--edits-border);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04);
     color: var(--edits-muted);
     font-size: 0.9rem;
     transition: border-color 160ms ease, background 160ms ease;
@@ -377,11 +325,9 @@ body.edits-page {
     height: 36px;
     padding: 0 10px;
     border: 0;
-    border-radius: 10px;
     background: transparent;
     color: #fff;
     font: inherit;
-    font-weight: 600;
     cursor: pointer;
     transition: background 160ms ease;
 }
@@ -416,10 +362,6 @@ body.edits-page {
     list-style: none;
     border: 1px solid var(--edits-border-strong);
     border-radius: 16px;
-    background: rgba(12, 15, 28, 0.97);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
     outline: none;
     opacity: 0;
     visibility: hidden;
@@ -447,9 +389,7 @@ body.edits-page {
     gap: 11px;
     padding: 10px 12px;
     border-radius: 11px;
-    color: #cfd6ea;
     font-size: 0.9rem;
-    font-weight: 600;
     cursor: pointer;
     user-select: none;
     opacity: 0;
@@ -468,7 +408,6 @@ body.edits-page {
 
 .edits-sort__option > i:first-child {
     width: 18px;
-    color: #8fa7ff;
     text-align: center;
     transition: transform 180ms ease;
 }
@@ -477,17 +416,8 @@ body.edits-page {
     flex: 1;
 }
 
-.edits-sort__option.is-active {
-    background: rgba(47, 107, 255, 0.18);
-    color: #fff;
-}
-
 .edits-sort__option.is-active > i:first-child {
     transform: scale(1.15);
-}
-
-.edits-sort__option[aria-selected="true"] {
-    color: #fff;
 }
 
 .edits-sort__check {
@@ -521,7 +451,6 @@ body.edits-page {
     width: 34px;
     height: 20px;
     border-radius: 99px;
-    background: rgba(255, 255, 255, 0.16);
     transition: background 160ms ease;
 }
 
@@ -533,12 +462,7 @@ body.edits-page {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #fff;
     transition: transform 160ms ease;
-}
-
-.edits-toggle input:checked + .edits-toggle__switch {
-    background: var(--edits-blue);
 }
 
 .edits-toggle input:checked + .edits-toggle__switch::after {
@@ -546,7 +470,6 @@ body.edits-page {
 }
 
 .edits-toggle:has(input:focus-visible) {
-    outline: 2px solid #9db4ff;
     outline-offset: 3px;
 }
 
@@ -568,25 +491,10 @@ body.edits-page {
     gap: 7px;
     padding: 8px 14px;
     border: 1px solid var(--edits-border);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
-    color: #dfe4f3;
     font: inherit;
     font-size: 0.85rem;
-    font-weight: 600;
     cursor: pointer;
     transition: background 160ms ease, border-color 160ms ease;
-}
-
-.edits-chip:hover {
-    border-color: var(--edits-border-strong);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.edits-chip.is-active {
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--edits-blue), var(--edits-purple));
-    color: #fff;
 }
 
 /* ── Griglia ─────────────────────────────────────────────────────────── */
@@ -603,9 +511,6 @@ body.edits-page {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid var(--edits-border);
-    border-radius: 22px;
-    background: var(--edits-card);
     transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
@@ -614,16 +519,13 @@ body.edits-page {
 }
 
 .edit-card:hover {
-    transform: translateY(-5px);
     border-color: rgba(47, 107, 255, 0.55);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
 }
 
 .edit-cover {
     position: relative;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    background: #0c0f1a;
 }
 
 .edit-cover__img {
@@ -669,15 +571,6 @@ body.edits-page {
     background: rgba(5, 7, 13, 0.78);
 }
 
-.edit-label {
-    background: var(--edits-purple);
-    color: #fff;
-}
-
-.edit-label--new {
-    background: var(--edits-pink);
-}
-
 .edit-seen {
     position: absolute;
     right: 10px;
@@ -719,7 +612,6 @@ body.edits-page {
     margin: 0;
     color: #fff;
     font-size: 0.95rem;
-    font-weight: 700;
     line-height: 1.3;
 }
 
@@ -741,15 +633,12 @@ body.edits-page {
 
 .edit-info p i {
     flex: none;
-    color: #8fa7ff;
 }
 
 /* La serie sotto il titolo ("Wuthering Waves" sotto "Iuno"). */
 .edit-info .edit-serie {
     margin-top: -4px;
-    color: #9aa6c4;
     font-size: 0.78rem;
-    font-weight: 600;
 }
 
 /* Testo solo per lettori di schermo e PreMiD. */
@@ -768,7 +657,6 @@ body.edits-page {
 .edit-collab {
     position: relative;
     z-index: 2;
-    color: #c8b6ff !important;
 }
 
 .edit-collab a {
@@ -842,12 +730,6 @@ body.edits-page {
     overflow: hidden;
 }
 
-.edit-theater::backdrop {
-    background: rgba(3, 4, 8, 0.88);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
 .edit-theater__stage {
     position: relative;
     display: flex;
@@ -873,10 +755,8 @@ body.edits-page {
     width: min(calc(min(80vh, 760px) * var(--r, 0.8)), calc(100vw - 192px - 364px));
     aspect-ratio: var(--r, 0.8);
     overflow: hidden;
-    border: 1px solid var(--edits-border-strong);
     border-radius: 24px;
     background: #000;
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
 }
 
 .edit-player > video,
@@ -935,7 +815,6 @@ body.edits-page {
     gap: 14px;
     width: 340px;
     padding: 22px;
-    border: 1px solid var(--edits-border);
     border-radius: 24px;
     background: var(--edits-card-strong);
 }
@@ -960,7 +839,6 @@ body.edits-page {
     margin: 0;
     color: var(--edits-muted);
     font-size: 1.05rem;
-    font-weight: 600;
 }
 
 .edit-theater__serie[hidden],
@@ -972,14 +850,9 @@ body.edits-page {
     max-height: 30vh;
     overflow-y: auto;
     padding-right: 4px;
-    color: #d3d9ea;
     font-size: 0.9rem;
     line-height: 1.6;
     overflow-wrap: anywhere;
-}
-
-.edit-theater__desc a {
-    color: #9db4ff;
 }
 
 .edit-theater__desc strong {
@@ -990,7 +863,6 @@ body.edits-page {
     outline: none;
     margin: 0;
     font-size: 1.5rem;
-    font-weight: 800;
     line-height: 1.2;
     letter-spacing: -0.02em;
 }
@@ -1010,14 +882,7 @@ body.edits-page {
 
 .edit-theater__meta i {
     width: 18px;
-    color: #8fa7ff;
     text-align: center;
-}
-
-.edit-theater__meta a {
-    color: #c8b6ff;
-    font-weight: 600;
-    text-decoration: none;
 }
 
 .edit-theater__actions {
@@ -1044,16 +909,9 @@ body.edits-page {
     z-index: 2;
     display: grid;
     place-items: center;
-    border: 1px solid var(--edits-border-strong);
-    background: rgba(255, 255, 255, 0.08);
     color: #fff;
     cursor: pointer;
     transition: background 160ms ease;
-}
-
-.edit-theater__close:hover,
-.edit-theater__arrow:hover {
-    background: rgba(255, 255, 255, 0.16);
 }
 
 .edit-theater__close {
@@ -1061,7 +919,6 @@ body.edits-page {
     right: 20px;
     width: 44px;
     height: 44px;
-    border-radius: 14px;
     font-size: 1.1rem;
 }
 
@@ -1069,7 +926,6 @@ body.edits-page {
     top: 50%;
     width: 48px;
     height: 48px;
-    border-radius: 50%;
     transform: translateY(-50%);
 }
 
@@ -1150,15 +1006,12 @@ body.edits-page {
     .edit-player {
         width: min(100vw, calc(72vh * var(--r, 0.8)));
         margin: 0 auto;
-        border: 0;
         border-radius: 0;
-        box-shadow: none;
     }
 
     .edit-theater__side {
         flex: 1;
         width: 100%;
-        border-width: 1px 0 0;
         border-radius: 0;
     }
 
@@ -1173,7 +1026,6 @@ body.edits-page {
     .edit-theater__close {
         top: 12px;
         right: 12px;
-        background: rgba(0, 0, 0, 0.55);
     }
 }
 
@@ -1191,8 +1043,6 @@ body.edits-page {
         position: relative;
         top: auto;
         margin-top: 2rem;
-        padding: 10px;
-        border-radius: 18px;
     }
 
     .edits-search {
@@ -1219,10 +1069,6 @@ body.edits-page {
     .edits-grid {
         grid-template-columns: 1fr 1fr;
         gap: 10px;
-    }
-
-    .edit-card {
-        border-radius: 18px;
     }
 
     .edit-info {
@@ -1263,4 +1109,324 @@ body.edits-page {
     .edits-toast {
         transition: none;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Edits (griglia ed edit aperto)
+   ============================================================
+
+   Correzioni a assets/edits/edits.css (includes/edits/page.php). Il foglio
+   originale non si tocca. Il lettore dei video ha il suo foglio,
+   edits-player.css, perche' lo usano anche Shitpost e Top Rimasti.
+
+   Restano come sono: le proporzioni vere dei video, la sfumatura scura
+   sotto i titoli sopra le copertine (serve a leggerli), l'etichetta «Nuovo».
+   ============================================================ */
+html:root {
+    --edits-bg: var(--nx-bg);
+    --edits-bg-2: var(--nx-bg);
+    --edits-card: var(--nx-surface);
+    --edits-card-strong: var(--nx-surface);
+    --edits-border: var(--nx-line);
+    --edits-border-strong: #3a3a3d;
+    --edits-text: var(--nx-text);
+    --edits-muted: var(--nx-text-2);
+    --edits-muted-2: var(--nx-text-3);
+    --edits-blue: #f5f5f7;
+    --edits-purple: #f5f5f7;
+}
+
+html:root body.edits-page {
+    background: var(--nx-bg);
+}
+
+/* Le due macchie sfocate sullo sfondo. */
+html:root .edits-orb {
+    display: none;
+}
+
+html:root .edits-page :focus-visible,
+html:root .edits-toggle:has(input:focus-visible) {
+    outline: 2px solid var(--nx-text);
+}
+
+/* ── Testata ─────────────────────────────────────────────── */
+html:root .edits-title {
+    color: var(--nx-text);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+/* L'ultima parola del titolo aveva il colore a sfumatura. */
+html:root .edits-title em {
+    background: none;
+    color: inherit;
+}
+
+html:root .edits-btn {
+    min-height: 2.75rem;
+    padding: 0 1.4rem;
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .edits-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html:root .edits-btn:active {
+    transform: scale(0.97);
+}
+
+html:root .edits-btn--primary,
+html:root .edits-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html:root .edits-btn--primary:hover {
+    background: #fff;
+}
+
+/* ── Copertine ───────────────────────────────────────────── */
+html:root .edits-featured {
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+/* Dove la copertina non riempie il riquadro c'era la stessa immagine
+   sfocata: ora c'e' un fondo piatto. */
+html:root .edits-featured__blur,
+html:root .edit-cover__blur {
+    display: none;
+}
+
+html:root .edit-cover {
+    background: var(--nx-surface-2);
+}
+
+html:root .edits-featured__empty,
+html:root .edit-cover__empty {
+    background: var(--nx-surface-2);
+}
+
+html:root .edits-featured__play,
+html:root .edit-cover__play {
+    background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .edit-label {
+    background: var(--nx-text);
+    color: #000;
+    font-weight: 600;
+}
+
+/* «Nuovo» resta del suo colore. */
+html:root .edit-label--new {
+    background: var(--edits-pink);
+    color: #fff;
+}
+
+html:root :is(.edit-cat, .edit-seen) {
+    font-weight: 500;
+}
+
+html:root .edits-featured__info strong {
+    font-weight: 600;
+}
+
+/* ── Barra: ricerca, ordine, filtri ──────────────────────────
+   Come in Shitpost: non un riquadro di vetro ma pezzi in fila sul fondo.
+   Resta attaccata in alto, quindi il fondo e' pieno. */
+html:root .edits-toolbar {
+    padding: 0.6rem 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--nx-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .edits-search,
+html:root .edits-toggle,
+html:root .edits-sort {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+}
+
+html:root .edits-search:focus-within,
+html:root .edits-toggle:focus-within,
+html:root .edits-sort.is-open {
+    border-color: var(--nx-text-3);
+}
+
+html:root .edits-sort__button {
+    border-radius: var(--nx-pill);
+    font-weight: 500;
+}
+
+html:root .edits-sort__menu {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .edits-sort__option {
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .edits-sort__option > i:first-child {
+    color: var(--nx-text-3);
+}
+
+html:root .edits-sort__option.is-active,
+html:root .edits-sort__option[aria-selected="true"] {
+    color: var(--nx-text);
+}
+
+html:root .edits-sort__option.is-active {
+    background: var(--nx-surface-3);
+}
+
+/* Interruttore «Nascondi già visti»: bianco quando e' acceso. */
+html:root .edits-toggle__switch {
+    background: var(--nx-surface-3);
+}
+
+html:root .edits-toggle__switch::after {
+    background: var(--nx-text-2);
+}
+
+html:root .edits-toggle input:checked + .edits-toggle__switch {
+    background: var(--nx-text);
+}
+
+html:root .edits-toggle input:checked + .edits-toggle__switch::after {
+    background: #000;
+}
+
+html:root .edits-chip {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .edits-chip:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html:root .edits-chip.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+html:root .edit-card {
+    border: 0;
+    border-radius: 20px;
+    background: var(--nx-surface);
+}
+
+html:root .edit-card:hover {
+    box-shadow: none;
+    transform: translateY(-3px);
+}
+
+html:root .edit-info .character-name {
+    font-weight: 600;
+}
+
+html:root .edit-info .edit-serie {
+    color: var(--nx-text-2);
+    font-weight: 400;
+}
+
+html:root .edit-info p i,
+html:root .edit-theater__meta i {
+    color: var(--nx-text-3);
+}
+
+html:root .edit-collab {
+    color: var(--nx-text-2) !important;
+}
+
+/* ── Edit aperto ─────────────────────────────────────────── */
+html:root .edit-theater::backdrop {
+    background: rgba(0, 0, 0, 0.86);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .edit-player {
+    border: 0;
+    box-shadow: none;
+}
+
+html:root .edit-theater__side {
+    border: 0;
+}
+
+html:root .edit-theater__title {
+    font-weight: 600;
+}
+
+html:root .edit-theater__serie {
+    font-weight: 400;
+}
+
+html:root .edit-theater__desc {
+    color: var(--nx-text-2);
+}
+
+html:root .edit-theater__desc a,
+html:root .edit-theater__meta a {
+    color: var(--nx-text);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+html:root .edit-theater__close,
+html:root .edit-theater__arrow {
+    border: 0;
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+}
+
+html:root .edit-theater__close:hover,
+html:root .edit-theater__arrow:hover {
+    background: var(--nx-surface-3);
 }

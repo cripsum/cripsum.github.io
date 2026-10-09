@@ -58,8 +58,8 @@ function tp_h($value): string
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - TikTokpedia</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/tiktokpedia.css?v=2.0">
-    <?php cripsum_theme_head('tiktokpedia'); ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/tiktokpedia.css') ?>">
+    <?php cripsum_theme_head(); ?>
     <script src="/js/tiktokpedia.js?v=2.0" defer></script>
 </head>
 

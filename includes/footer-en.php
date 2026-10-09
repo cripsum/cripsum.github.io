@@ -3,7 +3,7 @@ $footerLang = isset($lang) && is_string($lang) && $lang !== '' ? $lang : 'it';
 $footerYear = date('Y');
 ?>
 
-<link rel="stylesheet" href="/assets/global/footer.css?v=2.4">
+<link rel="stylesheet" href="/assets/global/footer.css?v=<?= @filemtime(__DIR__ . '/../assets/global/footer.css') ?: 1 ?>">
 
 <footer class="modern-footer fadeup" id="siteFooter">
     <div class="footer-content">

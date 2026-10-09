@@ -6,25 +6,24 @@
    servono z-index alti e non vengono tagliati dai contenitori. Esc e il
    click fuori li chiude il browser.
 
-   Il tema arriva da data-cnav-theme sull'elemento <html>, scritto dallo
-   script inline della navbar leggendo lo stesso cookie di controlloTema.js.
-   Serve un attributo e non l'ordine dei <link> perche' i fogli di stile del
-   tema vengono aggiunti a runtime, quindi l'ordine non e' garantito.
+   I colori stanno nelle variabili qui sotto e la navbar non ne usa altre:
+   funziona uguale su tutte le pagine, anche su quelle che non caricano il
+   foglio del tema.
    ============================================================ */
 
 :root {
-    --cn-bg: rgba(24, 24, 28, 0.94);
-    --cn-bg-solid: #1a1a1e;
-    --cn-raise: rgba(255, 255, 255, 0.05);
-    --cn-border: rgba(255, 255, 255, 0.12);
-    --cn-border-soft: rgba(255, 255, 255, 0.07);
-    --cn-text: rgba(255, 255, 255, 0.93);
-    --cn-muted: rgba(255, 255, 255, 0.52);
-    --cn-faint: rgba(255, 255, 255, 0.34);
-    --cn-hover: rgba(255, 255, 255, 0.09);
-    --cn-press: rgba(255, 255, 255, 0.14);
-    --cn-shadow: 0 18px 52px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    --cn-danger: #ff5a4e;
+    --cn-bg: #161617;
+    --cn-bg-solid: #161617;
+    --cn-raise: #1f1f21;
+    --cn-border: #2a2a2d;
+    --cn-border-soft: #2a2a2d;
+    --cn-text: #f5f5f7;
+    --cn-muted: #a1a1a6;
+    --cn-faint: #6e6e73;
+    --cn-hover: #2a2a2d;
+    --cn-press: #2a2a2d;
+    --cn-shadow: 0 24px 56px rgba(0, 0, 0, 0.55);
+    --cn-danger: #ff453a;
     --cn-danger-bg: rgba(255, 69, 58, 0.12);
     --cn-danger-border: rgba(255, 69, 58, 0.34);
     --cn-staff: #ffb340;
@@ -33,40 +32,20 @@
     --cn-nsfw: #c88cff;
     --cn-nsfw-bg: rgba(200, 140, 255, 0.11);
     --cn-nsfw-border: rgba(200, 140, 255, 0.34);
-    --cn-accent: #64c8ff;
+    --cn-accent: #f5f5f7;
+    /* L'anello attorno a numeri e pallini ha il colore della barra. */
+    --cn-navbar-ring: #161617;
 
-    --cn-radius: 16px;
-    --cn-radius-sm: 10px;
+    --cn-radius: 20px;
+    --cn-radius-sm: 12px;
+    --cn-radius-lg: 24px;
+    --cn-pill: 980px;
     --cn-pad: 8px;
 
     --cn-in: 170ms;
     --cn-out: 110ms;
     --cn-ease: cubic-bezier(0.16, 1, 0.3, 1);
     --cn-hover-dur: 120ms;
-}
-
-html[data-cnav-theme="light"] {
-    --cn-bg: rgba(250, 249, 247, 0.96);
-    --cn-bg-solid: #faf9f7;
-    --cn-raise: rgba(20, 20, 20, 0.045);
-    --cn-border: rgba(20, 20, 20, 0.14);
-    --cn-border-soft: rgba(20, 20, 20, 0.08);
-    --cn-text: rgb(28, 28, 30);
-    --cn-muted: rgba(28, 28, 30, 0.6);
-    --cn-faint: rgba(28, 28, 30, 0.4);
-    --cn-hover: rgba(20, 20, 20, 0.06);
-    --cn-press: rgba(20, 20, 20, 0.11);
-    --cn-shadow: 0 18px 44px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(20, 20, 20, 0.06);
-    --cn-danger: #d92c1f;
-    --cn-danger-bg: rgba(217, 44, 31, 0.09);
-    --cn-danger-border: rgba(217, 44, 31, 0.3);
-    --cn-staff: #9a6100;
-    --cn-staff-bg: rgba(154, 97, 0, 0.09);
-    --cn-staff-border: rgba(154, 97, 0, 0.3);
-    --cn-nsfw: #7031b8;
-    --cn-nsfw-bg: rgba(112, 49, 184, 0.09);
-    --cn-nsfw-border: rgba(112, 49, 184, 0.3);
-    --cn-accent: #0d6ea8;
 }
 
 /* ── Trigger nella barra ─────────────────────────────────── */
@@ -110,7 +89,6 @@ html[data-cnav-theme="light"] {
     justify-content: center;
     width: 20px;
     flex-shrink: 0;
-    opacity: 0.85;
     transition: color var(--cn-hover-dur) ease, opacity var(--cn-hover-dur) ease;
 }
 
@@ -130,7 +108,6 @@ html[data-cnav-theme="light"] {
 
 .cnav-trigger.is-current .cnav-ico,
 .cnav-navlink.is-current .cnav-ico {
-    color: var(--cn-text);
     opacity: 1;
 }
 
@@ -246,8 +223,6 @@ html[data-cnav-theme="light"] {
     border: 1px solid var(--cn-border);
     border-radius: var(--cn-radius);
     background: var(--cn-bg);
-    -webkit-backdrop-filter: blur(22px) saturate(1.4);
-    backdrop-filter: blur(22px) saturate(1.4);
     box-shadow: var(--cn-shadow);
     color: var(--cn-text);
     font-size: 0.9rem;
@@ -383,14 +358,7 @@ html[data-cnav-theme="light"] {
 
 .cnav-row__badge {
     flex-shrink: 0;
-    padding: 1px 7px;
     border-radius: 999px;
-    background: var(--cn-danger-bg);
-    border: 1px solid var(--cn-danger-border);
-    color: var(--cn-danger);
-    font-size: 0.72rem;
-    font-weight: 600;
-    line-height: 1.5;
 }
 
 /* Segno in coda alla riga, al posto del contatore: lo usa la voce Rewind
@@ -411,15 +379,6 @@ html[data-cnav-theme="light"] {
     margin-top: 5px;
     padding-top: 5px;
     border-top: 1px solid var(--cn-border-soft);
-}
-
-.cnav-sect__label {
-    margin: 2px 0 5px 10px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--cn-faint);
 }
 
 /* ── Riquadri (Achievements / Missioni / Inventario) ─────── */
@@ -452,7 +411,6 @@ html[data-cnav-theme="light"] {
 .cnav-tile:focus-visible {
     background: var(--cn-hover);
     color: var(--cn-text);
-    transform: translateY(-1px);
 }
 
 .cnav-tile__ico {
@@ -487,7 +445,6 @@ html[data-cnav-theme="light"] {
     border-radius: var(--cn-radius-sm);
     background: var(--cn-key-bg, var(--cn-raise));
     color: var(--cn-key-fg, var(--cn-text));
-    font-weight: 600;
     text-decoration: none;
     transition:
         background-color var(--cn-hover-dur) ease,
@@ -511,8 +468,6 @@ html[data-cnav-theme="light"] {
 .cnav-key:hover,
 .cnav-key:focus-visible {
     color: var(--cn-key-fg, var(--cn-text));
-    border-color: var(--cn-key-fg, var(--cn-border));
-    transform: translateY(-1px);
 }
 
 .cnav-key__ico {
@@ -527,7 +482,6 @@ html[data-cnav-theme="light"] {
 
 .cnav-key__go {
     font-size: 0.72rem;
-    opacity: 0.55;
     transition: transform var(--cn-hover-dur) ease, opacity var(--cn-hover-dur) ease;
 }
 
@@ -671,11 +625,8 @@ html[data-cnav-theme="light"] {
     min-width: 0;
     padding: 10px 12px;
     border: 1px solid var(--cn-border-soft);
-    border-radius: var(--cn-radius-sm);
-    background: var(--cn-raise);
     color: var(--cn-text);
     font-size: 0.83rem;
-    font-weight: 600;
     text-decoration: none;
     transition:
         background-color var(--cn-hover-dur) ease,
@@ -685,8 +636,6 @@ html[data-cnav-theme="light"] {
 
 .cnav-foot-btn:hover,
 .cnav-foot-btn:focus-visible {
-    background: var(--cn-hover);
-    border-color: var(--cn-border);
     color: var(--cn-text);
 }
 
@@ -700,15 +649,6 @@ html[data-cnav-theme="light"] {
 
 .cnav-foot-btn--danger {
     background: transparent;
-    border-color: var(--cn-danger-border);
-    color: var(--cn-danger);
-}
-
-.cnav-foot-btn--danger:hover,
-.cnav-foot-btn--danger:focus-visible {
-    background: var(--cn-danger-bg);
-    border-color: var(--cn-danger);
-    color: var(--cn-danger);
 }
 
 /* ── Sotto i 1200px: bottom sheet ────────────────────────────
@@ -725,7 +665,6 @@ html[data-cnav-theme="light"] {
         max-width: 100%;
         max-height: 86dvh;
         border-width: 1px 0 0 0;
-        border-radius: 20px 20px 0 0;
         padding-bottom: env(safe-area-inset-bottom, 0px);
         transform-origin: bottom center;
         transform: translateY(16px);
@@ -752,16 +691,6 @@ html[data-cnav-theme="light"] {
     html.cnav-locked body {
         overflow: hidden;
         touch-action: none;
-    }
-
-    .cnav-pop::backdrop {
-        background: rgba(0, 0, 0, 0.5);
-        -webkit-backdrop-filter: blur(2px);
-        backdrop-filter: blur(2px);
-    }
-
-    .cnav-pop:not(:popover-open)::backdrop {
-        background: transparent;
     }
 
     /* Lo sheet e' gia' un pannello a se': lo stagger delle voci qui
@@ -1068,7 +997,6 @@ html[data-cnav-theme="light"] {
 .search-result-handle {
     margin-top: 1px;
     font-size: 0.75rem;
-    color: var(--cn-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1086,17 +1014,10 @@ html[data-cnav-theme="light"] {
     padding: 3px;
     border: 1px solid var(--cn-border);
     border-radius: 999px;
-    background: var(--cn-raise);
     text-decoration: none;
     line-height: 1;
     white-space: nowrap;
     transition: border-color var(--cn-hover-dur) ease, background-color var(--cn-hover-dur) ease;
-}
-
-.cnav-lang:hover,
-.cnav-lang:focus-visible {
-    border-color: var(--cn-border-hover, var(--cn-text));
-    background: var(--cn-hover);
 }
 
 .cnav-lang:focus-visible {
@@ -1108,15 +1029,9 @@ html[data-cnav-theme="light"] {
     padding: 4px 9px;
     border-radius: 999px;
     font-size: 0.72rem;
-    font-weight: 700;
     letter-spacing: 0.04em;
     color: var(--cn-faint);
     transition: background-color var(--cn-hover-dur) ease, color var(--cn-hover-dur) ease;
-}
-
-.cnav-lang__seg--on {
-    background: var(--cn-press);
-    color: var(--cn-text);
 }
 
 .cnav-lang:hover .cnav-lang__seg:not(.cnav-lang__seg--on) {
@@ -1149,7 +1064,6 @@ html[data-cnav-theme="light"] {
 .cnav-icon-btn:hover,
 .cnav-icon-btn:focus-visible {
     background: var(--cn-hover);
-    border-color: var(--cn-border);
     color: var(--cn-text);
 }
 
@@ -1165,7 +1079,6 @@ html[data-cnav-theme="light"] {
 /* Con posta da leggere l'icona si accende: il badge da solo e' piccolo. */
 .cnav-inbox.has-unread {
     color: var(--cn-text);
-    border-color: var(--cn-danger-border);
 }
 
 .cnav-icon-btn__badge {
@@ -1185,10 +1098,6 @@ html[data-cnav-theme="light"] {
     box-shadow: 0 0 0 2px var(--cn-badge-ring, rgba(12, 12, 16, 0.9));
 }
 
-html[data-cnav-theme="light"] .cnav-icon-btn__badge {
-    --cn-badge-ring: rgba(250, 249, 247, 0.95);
-}
-
 /* ── Suggerimento della tastiera nella ricerca ───────────── */
 
 .cnav-search-kbd {
@@ -1198,11 +1107,8 @@ html[data-cnav-theme="light"] .cnav-icon-btn__badge {
     padding: 1px 6px;
     border: 1px solid var(--cn-border);
     border-radius: 5px;
-    background: var(--cn-raise);
-    color: var(--cn-faint);
     font-family: inherit;
     font-size: 0.7rem;
-    font-weight: 600;
     line-height: 1.5;
 }
 
@@ -1230,13 +1136,11 @@ html[data-cnav-theme="light"] .cnav-icon-btn__badge {
     padding: 6px 10px;
     border: 1px solid var(--cn-border);
     border-radius: 8px;
-    background: var(--cn-bg-solid);
     color: var(--cn-text);
     font-size: 0.76rem;
     font-weight: 500;
     line-height: 1.35;
     text-align: center;
-    box-shadow: var(--cn-shadow);
     pointer-events: none;
     overflow: visible;
 
@@ -1269,13 +1173,6 @@ html[data-cnav-theme="light"] .cnav-icon-btn__badge {
 
 .navbarutenti .nav-auth-group .cnav-cta {
     border: 1px solid var(--cn-accent);
-    border-radius: var(--cn-radius-sm);
-    color: var(--cn-accent);
-}
-
-.navbarutenti .nav-auth-group .cnav-cta:hover {
-    background: var(--cn-hover);
-    color: var(--cn-accent);
 }
 
 /* ── Icona della riga stat ───────────────────────────────────
@@ -1548,7 +1445,6 @@ html[data-cnav-theme="light"] .cnav-icon-btn__badge {
     right: 4px;
     color: #fff;
     font-size: 0.62rem;
-    font-weight: 700;
     line-height: 17px;
     text-align: center;
 }
@@ -1588,11 +1484,6 @@ html[data-cnav-theme="light"] .cnav-icon-btn__badge {
     --cn-dot-ring: var(--cn-navbar-ring, #16161a);
 }
 
-html[data-cnav-theme="light"] .cnav-trigger__pfp-wrap .cnav-dot,
-html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
-    --cn-dot-ring: #e9e7e3;
-}
-
 /* ── Menu delle notifiche (campanella) ───────────────────────
    Stesso contenitore del pannello account (.cnav-pop), stesse righe e
    stesso piede: qui c'e' solo quello che al pannello account non serve,
@@ -1603,7 +1494,6 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
 
 .cnav-inbox[aria-expanded="true"] {
     background: var(--cn-press);
-    border-color: var(--cn-border);
     color: var(--cn-text);
 }
 
@@ -1619,7 +1509,6 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
     grid-template-columns: 1fr 1fr;
     padding: 3px;
     margin-bottom: 6px;
-    border-radius: var(--cn-radius-sm);
     background: var(--cn-raise);
 }
 
@@ -1629,9 +1518,6 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
     bottom: 3px;
     left: 3px;
     width: calc(50% - 3px);
-    border-radius: 8px;
-    background: var(--cn-press);
-    box-shadow: 0 0 0 1px var(--cn-border-soft);
     transition: transform var(--cn-bell-move) var(--cn-ease);
 }
 
@@ -1649,12 +1535,10 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
     min-width: 0;
     padding: 7px 8px;
     border: 0;
-    border-radius: 8px;
     background: transparent;
     color: var(--cn-muted);
     font: inherit;
     font-size: 0.83rem;
-    font-weight: 600;
     cursor: pointer;
     transition: color var(--cn-hover-dur) ease;
 }
@@ -1787,16 +1671,11 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
     object-fit: cover;
 }
 
-.cnav-bell__media.is-icon {
-    border-radius: var(--cn-radius-sm);
-}
-
 .cnav-row:hover .cnav-bell__media.is-icon {
     color: var(--cn-text);
 }
 
 .cnav-bell__media--rewards {
-    background: var(--cn-staff-bg);
     color: var(--cn-staff);
 }
 
@@ -1818,10 +1697,6 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.cnav-bell__item.is-unread .cnav-bell__title {
-    font-weight: 600;
 }
 
 .cnav-bell__sub {
@@ -1871,37 +1746,15 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
 }
 
 .cnav-bell__btn {
-    padding: 5px 12px;
     border: 1px solid var(--cn-border-soft);
-    border-radius: var(--cn-radius-sm);
-    background: var(--cn-raise);
     color: var(--cn-text);
     font: inherit;
     font-size: 0.76rem;
-    font-weight: 600;
     cursor: pointer;
     transition:
         background-color var(--cn-hover-dur) ease,
         border-color var(--cn-hover-dur) ease,
         color var(--cn-hover-dur) ease;
-}
-
-.cnav-bell__btn:hover {
-    background: var(--cn-hover);
-    border-color: var(--cn-border);
-}
-
-/* Lo stesso segno del pulsante «Registrati» della barra. */
-.cnav-bell__btn--go {
-    background: transparent;
-    border-color: var(--cn-accent);
-    color: var(--cn-accent);
-}
-
-.cnav-bell__btn--go:hover {
-    background: var(--cn-hover);
-    border-color: var(--cn-accent);
-    color: var(--cn-accent);
 }
 
 .cnav-bell__note {
@@ -1981,7 +1834,6 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
     }
 
     .cnav-bell__btn {
-        padding: 9px 16px;
         font-size: 0.84rem;
     }
 
@@ -2000,5 +1852,449 @@ html[data-cnav-theme="light"] .cnav-avatar-btn .cnav-dot {
     .cnav-bell__skel span {
         transition: none !important;
         animation: none;
+    }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano nel foglio del tema e correggevano
+   da fuori quelle qui sopra; ora stanno con la navbar. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva (per esempio su css/style-dark.css, che ridisegna le
+   voci della barra). Valgono anche per la ricerca, il cui foglio
+   (css/navbar-search.css) viene caricato prima di questo.
+   ============================================================ */
+
+/* ── Navbar: la barra ────────────────────────────────────── */
+
+html:root .navbarutenti {
+    border-color: var(--cn-border);
+    background: var(--cn-bg-solid);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .navbarutenti:hover {
+    border-color: var(--cn-border);
+    box-shadow: none;
+}
+
+html:root .navbarutenti .navbar-brand span {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+/* Il logo non si illumina e non si ingrandisce: e' un link come gli altri. */
+html:root .navbar-brand:hover,
+html:root .navbar-brand:hover img {
+    transform: none;
+    box-shadow: none;
+}
+
+/* style-dark.css solleva di un pixel ogni voce al passaggio del mouse. */
+html:root .navbarutenti .nav-link:hover,
+html:root .navbarutenti .nav-link:focus,
+html:root .navbarutenti .nav-link:active {
+    transform: none;
+}
+
+html:root .cnav-ico {
+    color: var(--cn-muted);
+    opacity: 1;
+}
+
+html:root .cnav-trigger:hover .cnav-ico,
+html:root .cnav-navlink:hover .cnav-ico,
+html:root .cnav-trigger[aria-expanded="true"] .cnav-ico,
+html:root .cnav-trigger.is-current .cnav-ico,
+html:root .cnav-navlink.is-current .cnav-ico {
+    color: var(--cn-text);
+}
+
+/* "Registrati" e' l'azione principale: pillola piena, come nel resto del tema. */
+html:root .navbarutenti .nav-auth-group .cnav-cta {
+    padding-inline: 16px;
+    border-color: transparent;
+    border-radius: var(--cn-pill);
+    background: var(--cn-text);
+    color: #000;
+}
+
+html:root .navbarutenti .nav-auth-group .cnav-cta:hover {
+    background: #fff;
+    color: #000;
+}
+
+@media (min-width: 1200px) {
+    /* Nella barra ogni voce e' una pillola, come i pulsanti del tema. */
+    html:root .cnav-trigger,
+    html:root .navbarutenti .cnav-list .cnav-navlink {
+        border-radius: var(--cn-pill);
+    }
+
+    html:root .navbarutenti .nav-auth-group {
+        gap: 6px;
+    }
+
+    html:root .navbarutenti .nav-auth-group .nav-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding-block: 0;
+        border-radius: var(--cn-pill);
+    }
+}
+
+/* Cambio lingua */
+html:root .cnav-lang,
+html:root .cnav-lang:hover,
+html:root .cnav-lang:focus-visible {
+    border-color: transparent;
+    background: var(--cn-raise);
+}
+
+html:root .cnav-lang__seg {
+    font-weight: 600;
+}
+
+html:root .cnav-lang__seg--on {
+    background: var(--cn-hover);
+    color: var(--cn-text);
+}
+
+/* Campanella: il numero rosso basta, il bordo rosso attorno no. */
+html:root .cnav-inbox.has-unread,
+html:root .cnav-icon-btn:hover,
+html:root .cnav-icon-btn:focus-visible,
+html:root .cnav-inbox[aria-expanded="true"] {
+    border-color: transparent;
+}
+
+/* L'anello attorno a numeri e pallini ha il colore della barra. I selettori
+   passano da .navbarutenti per pesare piu' di quelli del vecchio tema chiaro. */
+html:root .navbarutenti .cnav-icon-btn__badge {
+    --cn-badge-ring: var(--cn-bg-solid);
+    font-weight: 600;
+}
+
+html:root .navbarutenti .cnav-trigger__pfp-wrap .cnav-dot,
+html:root .navbarutenti .cnav-avatar-btn .cnav-dot {
+    --cn-dot-ring: var(--cn-bg-solid);
+}
+
+/* ── Navbar: ricerca ─────────────────────────────────────── */
+
+html:root .navbar-search-group {
+    border-color: transparent;
+    border-radius: var(--cn-pill);
+    background: var(--cn-raise);
+}
+
+/* Il fuoco e' una riga, non un alone. */
+html:root .navbar-search-group:focus-within {
+    border-color: var(--cn-faint);
+    background: var(--cn-raise);
+    box-shadow: none;
+}
+
+html:root .navbar-search-icon,
+html:root .navbar-search-group:focus-within .navbar-search-icon {
+    color: var(--cn-muted);
+}
+
+html:root .navbar-search-input {
+    font-weight: 400;
+    caret-color: var(--cn-text);
+}
+
+html:root .cnav-search-kbd {
+    border-color: var(--cn-border);
+    background: transparent;
+    color: var(--cn-faint);
+    font-weight: 500;
+}
+
+html:root .navbar-search-dropdown {
+    padding: 6px;
+    border: 1px solid var(--cn-border);
+    background: var(--cn-bg-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* La riga di luce in cima all'elenco. */
+html:root .navbar-search-dropdown::before {
+    display: none;
+}
+
+html:root .search-result-item {
+    padding: 8px 10px;
+    border-radius: 12px;
+}
+
+html:root .search-result-item + .search-result-item::before {
+    display: none;
+}
+
+html:root .search-result-item:hover,
+html:root .search-result-item.focused {
+    background: var(--cn-raise);
+}
+
+html:root .search-result-avatar,
+html:root .search-result-item:hover .search-result-avatar,
+html:root .search-result-item.focused .search-result-avatar {
+    border-color: transparent;
+    border-radius: 50%;
+    box-shadow: none;
+}
+
+/* Le lettere cercate: piene e bianche, il resto del nome arretra. */
+html:root .search-result-username,
+html:root .search-result-handle {
+    color: var(--cn-muted);
+}
+
+html:root .search-result-username {
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+html:root .search-result-username mark,
+html:root .search-result-handle mark {
+    padding: 0;
+    background: none;
+    color: var(--cn-text);
+    font-weight: 600;
+}
+
+html:root .search-result-role {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--cn-faint);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .search-result-role.admin {
+    color: var(--cn-text);
+}
+
+/* L'oro del proprietario dice qualcosa: resta. */
+html:root .search-result-role.owner {
+    color: #fbbf24;
+}
+
+html:root .search-result-arrow {
+    color: var(--cn-muted);
+}
+
+html:root .search-status-msg {
+    font-style: normal;
+}
+
+/* ── Navbar: menu, pannello account, campanella ──────────── */
+
+html:root .cnav-pop {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .cnav-tip {
+    border-color: var(--cn-border);
+    background: var(--cn-raise);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+html:root .cnav-sect__label {
+    margin: 6px 0 6px 10px;
+    color: var(--cn-faint);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+/* Contatori: rosso pieno, numero bianco. */
+html:root .cnav-row__badge {
+    min-width: 20px;
+    padding: 0 6px;
+    border: 0;
+    background: var(--cn-danger);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+}
+
+html:root .cnav-dot--count {
+    font-weight: 600;
+}
+
+html:root .cnav-tile:hover,
+html:root .cnav-tile:focus-visible,
+html:root .cnav-key:hover,
+html:root .cnav-key:focus-visible {
+    transform: none;
+}
+
+/* Admin e GoonLand: righe come le altre, il colore resta solo sull'icona.
+   Ambra per lo staff, il rosa di GoonLand per GoonLand. */
+html:root .cnav-key {
+    --cn-key-fg: var(--cn-text);
+    --cn-key-bg: var(--cn-raise);
+    --cn-key-border: transparent;
+    font-weight: 500;
+}
+
+html:root .cnav-key:hover,
+html:root .cnav-key:focus-visible {
+    border-color: transparent;
+    background: var(--cn-hover);
+}
+
+html:root .cnav-key--staff .cnav-key__ico {
+    color: #ffb340;
+}
+
+html:root .cnav-key--nsfw .cnav-key__ico {
+    color: #ff2d8d;
+}
+
+html:root .cnav-key__go {
+    color: var(--cn-faint);
+    opacity: 1;
+}
+
+html:root .cnav-key:hover .cnav-key__go {
+    color: var(--cn-text);
+}
+
+/* Piede dei pannelli: due pulsanti a filo. */
+html:root .cnav-foot-btn {
+    border-color: var(--cn-border);
+    border-radius: var(--cn-pill);
+    background: transparent;
+    font-weight: 500;
+}
+
+html:root .cnav-foot-btn:hover,
+html:root .cnav-foot-btn:focus-visible {
+    border-color: var(--cn-faint);
+    background: transparent;
+}
+
+html:root .cnav-foot-btn--danger {
+    border-color: var(--cn-border);
+    color: var(--cn-danger);
+}
+
+html:root .cnav-foot-btn--danger:hover,
+html:root .cnav-foot-btn--danger:focus-visible {
+    border-color: var(--cn-danger);
+    background: transparent;
+    color: var(--cn-danger);
+}
+
+/* Campanella: linguette */
+html:root .cnav-bell__tabs,
+html:root .cnav-bell__tab {
+    border-radius: var(--cn-pill);
+}
+
+html:root .cnav-bell__thumb {
+    border-radius: var(--cn-pill);
+    background: var(--cn-hover);
+    box-shadow: none;
+}
+
+html:root .cnav-bell__tab,
+html:root .cnav-bell__title {
+    font-weight: 500;
+}
+
+html:root .cnav-bell__item.is-unread .cnav-bell__title {
+    font-weight: 600;
+}
+
+html:root .cnav-bell__media.is-icon {
+    border-radius: 50%;
+}
+
+/* Il regalo resta dorato, ma senza il fondo colorato. */
+html:root .cnav-bell__media--rewards {
+    background: var(--cn-raise);
+}
+
+/* «Accetta» e' l'unico pulsante pieno del menu. */
+html:root .cnav-bell__btn {
+    padding: 6px 14px;
+    border-color: var(--cn-border);
+    border-radius: var(--cn-pill);
+    background: transparent;
+    font-weight: 500;
+}
+
+html:root .cnav-bell__btn:hover {
+    border-color: var(--cn-faint);
+    background: transparent;
+}
+
+html:root .cnav-bell__btn--go,
+html:root .cnav-bell__btn--go:hover {
+    border-color: transparent;
+    background: var(--cn-text);
+    color: #000;
+}
+
+html:root .cnav-bell__btn--go:hover {
+    background: #fff;
+}
+
+/* ── Navbar: telefono e tablet ───────────────────────────── */
+
+@media (max-width: 1199.98px) {
+    html:root .cnav-pop,
+    html:root .cnav-pop--account {
+        border-radius: var(--cn-radius-lg) var(--cn-radius-lg) 0 0;
+    }
+
+    html:root .cnav-pop::backdrop {
+        background: rgba(0, 0, 0, 0.6);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    html:root .cnav-pop:not(:popover-open)::backdrop {
+        background: transparent;
+    }
+
+    html:root .navbarutenti .navbar-toggler.cnav-toggler,
+    html:root .navbarutenti .navbar-toggler.cnav-toggler:hover,
+    html:root .navbarutenti .navbar-toggler.cnav-toggler[aria-expanded="true"] {
+        border-color: transparent;
+        box-shadow: none;
+        transform: none;
+    }
+
+    /* Accedi a filo, Registrati pieno: la stessa coppia del resto del tema. */
+    html:root .nav-auth-group .nav-link,
+    html:root .nav-auth-group .nav-link:hover {
+        border-color: var(--cn-border);
+        border-radius: var(--cn-pill);
+        background: transparent;
+    }
+
+    html:root .navbarutenti .nav-auth-group .cnav-cta,
+    html:root .navbarutenti .nav-auth-group .cnav-cta:hover {
+        border-color: transparent;
+        background: var(--cn-text);
     }
 }

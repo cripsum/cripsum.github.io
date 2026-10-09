@@ -462,7 +462,6 @@ body.ps-is-reveal .ps-glow { opacity: .34; }
     color: var(--ps-accent-ink);
     font-size: 1.8rem;
     cursor: pointer;
-    box-shadow: 0 0 0 10px var(--ps-accent-soft), 0 0 55px var(--ps-accent-glow);
     transition: transform .2s cubic-bezier(.16, 1, .3, 1), box-shadow .25s ease, background .3s ease;
 }
 
@@ -471,7 +470,6 @@ body.ps-is-reveal .ps-glow { opacity: .34; }
 
 .ps-play:hover:not(:disabled) {
     transform: scale(1.05);
-    box-shadow: 0 0 0 13px var(--ps-accent-soft), 0 0 75px var(--ps-accent-glow);
 }
 
 .ps-play:active:not(:disabled) { transform: scale(.97); }
@@ -565,9 +563,7 @@ body.ps-page .ps-input::placeholder {
 }
 
 body.ps-page .ps-input:focus {
-    border-color: var(--ps-accent-line);
     background: var(--ps-panel-hi);
-    box-shadow: 0 0 0 3px var(--ps-accent-soft);
     transform: none;
 }
 
@@ -746,13 +742,11 @@ body.ps-page .ps-input:disabled { opacity: .5; }
     background: var(--ps-panel);
     overflow: hidden;
     cursor: pointer;
-    box-shadow: 0 0 0 6px var(--ps-accent-soft), 0 22px 60px rgba(0, 0, 0, .6);
     transition: transform .2s cubic-bezier(.16, 1, .3, 1), box-shadow .25s ease;
 }
 
 .ps-card__art:hover {
     transform: translateY(-3px);
-    box-shadow: 0 0 0 8px var(--ps-accent-soft), 0 26px 70px rgba(0, 0, 0, .7);
 }
 
 .ps-card__art img {
@@ -1152,4 +1146,149 @@ body.ps-page .ps-input:disabled { opacity: .5; }
     .ps-seg__unlocked {
         transition: none;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Pullspot e Animespot
+   ============================================================
+
+   Correzioni a assets/pullspot/pullspot.css e assets/animespot/animespot.css
+   (it|en/pullspot.php, it|en/animespot.php). I due fogli sono gemelli:
+   stesse classi, prefisso ps- e as-. Gli originali non si toccano.
+
+   Questi due giochi avevano gia' una scena loro, nera e piatta: il fascio
+   di luce dall'alto, il marchio slavato, un solo colore acceso che decide
+   il gioco (il personaggio in Pullspot, la difficolta' in Animespot).
+   Tutto questo resta, con i suoni e le animazioni della rivelazione.
+
+   Qui si allinea solo quello che il resto del sito ha gia': il nero e i
+   grigi del tema, le etichette in Poppins minuscolo al posto del
+   monospazio maiuscolo, le finestre piatte, via gli aloni fermi e le
+   strisce sul fianco delle righe. I numeri restano in monospazio.
+   ============================================================ */
+html:root {
+    --ps-bg: var(--nx-bg);
+    --as-bg: var(--nx-bg);
+    --ps-panel: rgba(255, 255, 255, 0.05);
+    --as-panel: rgba(255, 255, 255, 0.05);
+    --ps-panel-hi: rgba(255, 255, 255, 0.09);
+    --as-panel-hi: rgba(255, 255, 255, 0.09);
+    --ps-line: var(--nx-line);
+    --as-line: var(--nx-line);
+    --ps-line-hi: #3a3a3d;
+    --as-line-hi: #3a3a3d;
+    --ps-text: var(--nx-text);
+    --as-text: var(--nx-text);
+    --ps-muted: var(--nx-text-2);
+    --as-muted: var(--nx-text-2);
+    --ps-dim: var(--nx-text-3);
+    --as-dim: var(--nx-text-3);
+    --ps-red: var(--nx-danger);
+    --as-red: var(--nx-danger);
+}
+
+/* ── Etichette ───────────────────────────────────────────── */
+html:root :is(.ps-group__title, .as-group__title, .ps-meta, .as-meta, .ps-clock__label, .as-clock__label, .ps-figure__label, .as-figure__label, .as-points small, .ps-modal__head h2, .as-modal__head h2, .ps-pill, .as-pill) {
+    font-family: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root :is(.ps-group__title, .as-group__title, .ps-meta, .as-meta, .ps-clock__label, .as-clock__label, .ps-figure__label, .as-figure__label) {
+    font-size: 0.8125rem;
+    font-weight: 400;
+}
+
+html:root :is(.ps-modal__head h2, .as-modal__head h2) {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+html:root :is(.ps-card__name, .as-card__name, .ps-pill, .as-pill, .as-points, .as-rank--top .as-rank__place, .as-rank__num--big) {
+    font-weight: 600;
+}
+
+/* ── Tentativi ───────────────────────────────────────────────
+   Lo stato della riga (questa, sbagliata, giusta) lo dice il fondo: via
+   la striscia colorata sul fianco. */
+html:root :is(.ps-row, .as-row) {
+    border-left-color: transparent;
+}
+
+/* ── Lettore ─────────────────────────────────────────────────
+   Il pulsante tiene l'anello del colore del gioco; via l'alone attorno e
+   quello sotto la barra dei secondi ascoltati. */
+html:root :is(.ps-seg__played, .as-seg__played) {
+    box-shadow: none;
+}
+
+html:root .ps-play {
+    box-shadow: 0 0 0 10px var(--ps-accent-soft);
+}
+
+html:root .ps-play:hover:not(:disabled) {
+    box-shadow: 0 0 0 13px var(--ps-accent-soft);
+}
+
+html:root :is(.ps-play, .as-play):disabled {
+    box-shadow: none;
+}
+
+/* ── Ricerca ─────────────────────────────────────────────── */
+html:root body.ps-page .ps-input {
+    border-color: transparent;
+    background-color: var(--nx-surface);
+}
+
+/* Il fuoco e' una riga del colore del gioco, non un alone. */
+html:root body.ps-page .ps-input:focus {
+    border-color: var(--ps-accent-line);
+    box-shadow: none;
+}
+
+html:root :is(.ps-list, .as-list) {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+/* ── Rivelazione ─────────────────────────────────────────── */
+html:root :is(.ps-pill, .as-pill) {
+    box-shadow: none;
+}
+
+html:root .ps-card__art,
+html:root .ps-card__art:hover {
+    box-shadow: 0 0 0 6px var(--ps-accent-soft);
+}
+
+/* ── Finestre: regole, statistiche, classifica ───────────── */
+html:root :is(.ps-modal, .as-modal) {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root :is(.ps-modal__box, .as-modal__box) {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+}
+
+html:root :is(.ps-toast, .as-toast) {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
 }

@@ -180,7 +180,7 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
 
     <link rel="preload" as="image" href="/img/amongus.jpg">
     <link rel="stylesheet" href="<?= home_h($hxHomeCss) ?>">
-    <link rel="stylesheet" href="/assets/news/news-popup.css?v=1.0">
+    <link rel="stylesheet" href="<?= home_h(cripsum_asset('/assets/news/news-popup.css')) ?>">
     <?php /* Senza script niente farebbe comparire le sezioni: le si mostra subito. */ ?>
     <noscript><style>.home-reveal { opacity: 1 !important; filter: none !important; transform: none !important; }</style></noscript>
     <script src="<?= home_h($hxSharedJs) ?>" defer></script>

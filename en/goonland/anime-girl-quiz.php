@@ -442,9 +442,9 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     <?php include '../../includes/head-import.php'; ?>
     <title><?php echo gl_safe_html($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.4-share-og-fix1">
-    <link rel="stylesheet" href="/css/goonland-quiz-additions.css?v=2.4-share-og-fix1">
-    <?php cripsum_theme_head('goonland'); ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/goonland.css') ?>">
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/goonland-quiz-additions.css') ?>">
+    <?php cripsum_theme_head(); ?>
 
     <script src="/js/goonland.js?v=2.5" defer></script>
     <script src="/js/goonland-quiz-additions.js?v=2.0.2" defer></script>

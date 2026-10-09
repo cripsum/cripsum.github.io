@@ -166,7 +166,7 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="/css/style.css?v=28" />
         <link rel="stylesheet" href="/css/style-dark.css?v=24" />
-        <link rel="stylesheet" href="/css/navbar-search.css?v=4.2" />
+        <link rel="stylesheet" href="/css/navbar-search.css?v=<?= @filemtime(__DIR__ . '/../css/navbar-search.css') ?: 1 ?>" />
         <link rel="stylesheet" href="/css/animations.css" />
         <link rel="stylesheet" href="/css/achievement-style.css?v=3.0" />
         <link rel="stylesheet" href="/assets/auth/password-strength.css?v=1.1" />

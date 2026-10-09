@@ -68,7 +68,7 @@ function rw_h(mixed $value): string
     <meta name="robots" content="noindex">
 
     <link rel="stylesheet" href="<?php echo rewind_asset('/assets/rewind/rewind.css'); ?>">
-    <?php cripsum_theme_head('rewind'); ?>
+    <?php cripsum_theme_head(); ?>
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
         window.CRIPSUM_CSRF = '<?php echo rw_h(function_exists('csrf_token') ? csrf_token() : ''); ?>';

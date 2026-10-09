@@ -20,13 +20,6 @@ body.about-page {
     min-height: 100vh;
     color: var(--chisiamo-text);
     overflow-x: hidden;
-    background:
-        radial-gradient(circle at 8% 6%, rgba(47, 107, 255, 0.24), transparent 30rem),
-        radial-gradient(circle at 92% 18%, rgba(139, 92, 246, 0.16), transparent 28rem),
-        linear-gradient(135deg, var(--chisiamo-bg), var(--chisiamo-bg-2)) !important;
-    background-attachment: fixed !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
 }
 
 .about-shell {
@@ -46,24 +39,15 @@ body.about-page {
 .about-title {
     margin: 0 0 1rem;
     color: #fff;
-    font-size: clamp(2.3rem, 5vw, 3.6rem);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
 }
 
 .about-title em {
     font-style: normal;
-    background: linear-gradient(135deg, #7ea2ff, #b69cff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
 }
 
 .about-lead {
     max-width: 560px;
     margin: 0;
-    color: var(--chisiamo-muted);
     font-size: 1.05rem;
     line-height: 1.65;
 }
@@ -80,33 +64,13 @@ body.about-page {
     align-items: center;
     gap: 9px;
     padding: 11px 18px;
-    border: 1px solid var(--chisiamo-border);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
     font-size: 0.95rem;
-    font-weight: 600;
     text-decoration: none;
     transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
 .about-btn:hover {
     color: #fff;
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.09);
-    transform: translateY(-2px);
-}
-
-.about-btn--primary {
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--chisiamo-accent), var(--chisiamo-purple));
-    box-shadow: 0 12px 34px rgba(47, 107, 255, 0.25);
-}
-
-.about-btn--primary:hover {
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--chisiamo-accent), var(--chisiamo-purple));
-    box-shadow: 0 16px 40px rgba(47, 107, 255, 0.35);
 }
 
 .about-btn:focus-visible,
@@ -152,9 +116,7 @@ body.about-page {
     padding: 8px 14px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 999px;
-    background: rgba(10, 14, 27, 0.9);
     font-size: 0.85rem;
-    font-weight: 700;
 }
 
 .about-state {
@@ -164,7 +126,6 @@ body.about-page {
     gap: 8px;
     margin: 3rem 0;
     padding: 3rem 1.5rem;
-    border: 1px dashed rgba(255, 255, 255, 0.18);
     border-radius: 24px;
     text-align: center;
     color: var(--chisiamo-muted);
@@ -194,32 +155,11 @@ body.about-page {
     color: var(--chisiamo-muted) !important;
 }
 
-.member-description a {
-    color: #b8c8ff !important;
-}
-
-.join-team-section {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025)), var(--chisiamo-card) !important;
-    border: 1px solid var(--chisiamo-border) !important;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32) !important;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-}
-
-.join-email {
-    background: linear-gradient(135deg, var(--chisiamo-accent), var(--chisiamo-purple)) !important;
-    color: #fff !important;
-    border-color: transparent !important;
-    box-shadow: 0 12px 34px rgba(47, 107, 255, 0.22) !important;
-}
-
 .team-section {
     scroll-margin-top: 6rem;
 }
 
 .team-member {
-    background: radial-gradient(circle at 20% 0%, rgba(47, 107, 255, 0.09), transparent 14rem), rgba(255, 255, 255, 0.045) !important;
-    border-color: var(--chisiamo-border) !important;
     /* style-dark.css ha anche un'animazione d'ingresso per queste card:
        ne resta una sola, quella di chisiamo.js, altrimenti litigano. */
     animation: none !important;
@@ -232,10 +172,6 @@ body.about-page {
         border-color 180ms ease,
         background 180ms ease,
         box-shadow 180ms ease;
-}
-
-.team-member:hover {
-    border-color: rgba(47, 107, 255, 0.42) !important;
 }
 
 .team-member.is-visible {
@@ -258,7 +194,6 @@ body.about-page {
     height: 120px;
     border: 3px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(47, 107, 255, 0.5), rgba(139, 92, 246, 0.5));
     color: #fff;
     font-size: 2.6rem;
     font-weight: 800;
@@ -275,7 +210,6 @@ body.about-page {
 
 .member-premium {
     font-size: 1.15rem;
-    filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.5));
 }
 
 .member-tag {
@@ -284,10 +218,7 @@ body.about-page {
     padding: 3px 10px;
     border: 1px solid rgba(47, 107, 255, 0.35);
     border-radius: 8px;
-    background: rgba(47, 107, 255, 0.16);
-    color: #dfe6ff;
     font-size: 0.78rem;
-    font-weight: 600;
     line-height: 1.5;
 }
 
@@ -306,18 +237,9 @@ body.about-page {
     height: 32px;
     border: 1px solid var(--chisiamo-border);
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.06);
-    color: #dfe4f3;
     font-size: 0.85rem;
     text-decoration: none;
     transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 160ms ease;
-}
-
-.member-social:hover {
-    color: #fff;
-    border-color: rgba(47, 107, 255, 0.5);
-    background: rgba(47, 107, 255, 0.18);
-    transform: translateY(-2px);
 }
 
 .member-profile {
@@ -328,17 +250,13 @@ body.about-page {
     padding: 6px 11px;
     border: 1px solid rgba(47, 107, 255, 0.28);
     border-radius: 10px;
-    background: rgba(47, 107, 255, 0.1);
-    color: #b8c8ff;
     font-size: 0.82rem;
-    font-weight: 600;
     text-decoration: none;
     transition: color 160ms ease, background 160ms ease;
 }
 
 .member-profile:hover {
     color: #fff;
-    background: rgba(47, 107, 255, 0.22);
 }
 
 .member-profile:only-child {
@@ -387,10 +305,6 @@ body.about-page {
 }
 
 @media (max-width: 620px) {
-    body.about-page {
-        background-attachment: scroll !important;
-    }
-
     body.about-page::before {
         content: "";
         position: fixed;
@@ -431,4 +345,206 @@ body.about-page {
     .about-mosaic__photo {
         transition: none;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Chi siamo
+   ============================================================
+
+   Correzioni a assets/chisiamo/chisiamo.css (includes/chisiamo/page.php).
+   Il foglio originale non si tocca.
+
+   Restano: il collage delle foto che si muove al passaggio, la comparsa
+   delle card allo scorrimento, la gemma dorata del Premium, i social.
+   ============================================================ */
+html:root body.about-page {
+    --chisiamo-accent: var(--nx-text);
+    --chisiamo-accent-rgb: 245, 245, 247;
+    --chisiamo-purple: var(--nx-text);
+    --chisiamo-bg: var(--nx-bg);
+    --chisiamo-bg-2: var(--nx-bg);
+    --chisiamo-card: var(--nx-surface);
+    --chisiamo-border: var(--nx-line);
+    --chisiamo-text: var(--nx-text);
+    --chisiamo-muted: var(--nx-text-2);
+    background: var(--nx-bg) !important;
+}
+
+html:root body.about-page::before {
+    display: none;
+}
+
+/* ── Testata ─────────────────────────────────────────────── */
+html:root .about-title {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+/* L'ultima parola del titolo: grigia, non a sfumatura. */
+html:root .about-title em {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    -webkit-text-fill-color: currentColor;
+    color: var(--nx-text-2);
+}
+
+html:root .about-lead {
+    color: var(--nx-text-2);
+}
+
+html:root .about-btn {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .about-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html:root .about-btn--primary,
+html:root .about-btn--primary:hover,
+html:root .join-email,
+html:root .join-email:hover {
+    border-color: transparent !important;
+    background: var(--nx-text) !important;
+    box-shadow: none !important;
+    color: #000 !important;
+}
+
+html:root .about-btn--primary:hover,
+html:root .join-email:hover {
+    background: #fff !important;
+}
+
+html:root .about-mosaic__more {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+/* ── Card del team ───────────────────────────────────────── */
+html:root .team-member,
+html:root .team-member:hover,
+html:root .team-member.is-visible:hover {
+    border-color: transparent !important;
+    border-radius: 20px !important;
+    background: var(--nx-surface) !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+html:root .team-member.is-visible:hover {
+    background: var(--nx-surface-2) !important;
+}
+
+html:root .member-initials {
+    background: var(--nx-surface-3);
+}
+
+html:root .member-name {
+    font-weight: 600;
+}
+
+html:root .member-premium {
+    filter: none;
+}
+
+html:root .member-tag {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .member-description {
+    color: var(--nx-text-2);
+}
+
+html:root .member-description a {
+    color: var(--nx-text) !important;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+html:root .member-social {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+html:root .member-social:hover {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+    transform: none;
+}
+
+html:root .member-profile {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .member-profile:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+}
+
+/* ── «Unisciti al team» ──────────────────────────────────── */
+html:root .join-team-section {
+    border: 0 !important;
+    border-radius: var(--nx-radius) !important;
+    background: var(--nx-surface) !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .join-title {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+html:root .join-description {
+    color: var(--nx-text-2);
+}
+
+html:root .about-state {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+html:root :is(.about-btn, .member-social, .member-profile, .join-email):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
+}
+
+/* Attorno ai 1024 px una foto del collage, ruotata, usciva di due punti
+   dallo schermo e la pagina scorreva di lato (anche nel classico). */
+html:root .about-shell {
+    overflow-x: clip;
 }

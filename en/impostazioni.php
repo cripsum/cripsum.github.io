@@ -377,10 +377,10 @@ unset($_SESSION['account_deletion_cancelled']);
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <?php cripsum_theme_head('auth'); ?>
+    <?php cripsum_theme_head(); ?>
     <title>Cripsum™ - Account settings</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.7">
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/assets/auth/auth.css') ?>">
     <?php if ($otpauthUri !== ''): ?>
         <!-- QR della 2FA disegnato nel browser: il segreto non esce dal sito. -->
         <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous" defer></script>

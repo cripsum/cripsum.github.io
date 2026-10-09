@@ -13,7 +13,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/css/style.css" />
         <link rel="stylesheet" href="/css/style-dark.css" />
-        <link rel="stylesheet" href="/assets/static/static.css?v=1.0-static" />
+        <link rel="stylesheet" href="/assets/static/static.css?v=2.0-fuso" />
         <script src="/assets/static/static.js?v=1.0-static" defer></script>
         <title>Cripsum™ — 404</title>
 
@@ -143,6 +143,86 @@
                 flex-wrap: wrap;
                 gap: 0.65rem;
                 justify-content: center;
+            }
+
+            /* ── Col tema del sito ───────────────────────────────────────
+               Queste regole valgono solo quando la pagina arriva da 404.php,
+               che mette data-theme="next" sul tag <html> e carica il foglio
+               del tema (i colori --nx-…). Quando la stampa profile.php, per un
+               profilo che non esiste, l'attributo non c'e' e non fanno niente. */
+
+            html[data-theme="next"] .err-card {
+                border: 0;
+                border-radius: var(--nx-radius);
+                background: var(--nx-surface);
+                box-shadow: none;
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+            }
+
+            html[data-theme="next"] .err-card::before {
+                display: none;
+            }
+
+            html[data-theme="next"] .err-number {
+                background: none;
+                -webkit-background-clip: border-box;
+                background-clip: border-box;
+                -webkit-text-fill-color: currentColor;
+                color: var(--nx-text);
+                font-weight: 600;
+                letter-spacing: -0.04em;
+                animation: none;
+                filter: none;
+            }
+
+            html[data-theme="next"] .err-headline {
+                font-weight: 600;
+                letter-spacing: -0.02em;
+            }
+
+            html[data-theme="next"] .err-sub {
+                color: var(--nx-text-2);
+            }
+
+            html[data-theme="next"] .err-meme {
+                border-color: transparent;
+                box-shadow: none;
+            }
+
+            /* L'avviso resta rosso: lo dice il testo, non il riquadro. */
+            html[data-theme="next"] .err-alert {
+                border-color: transparent;
+                background: var(--nx-surface-2);
+                color: var(--nx-text-2);
+                font-weight: 500;
+            }
+
+            html[data-theme="next"] .err-alert i {
+                color: var(--nx-danger);
+            }
+
+            /* La barra in cima di questa pagina e' una versione ridotta della navbar:
+               solo il logo. Prende la superficie del tema. */
+            html[data-theme="next"] body.static-page > .navbarutenti {
+                border-color: transparent;
+                background: var(--nx-surface);
+                box-shadow: none;
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+            }
+
+            /* Le regole della navbar che servono anche a questa versione ridotta. La navbar
+               vera le ha nel suo foglio (css/navbar.css), che questa pagina non carica. */
+            html[data-theme="next"] .navbarutenti .navbar-brand span {
+                font-weight: 600;
+                letter-spacing: -0.01em;
+            }
+
+            html[data-theme="next"] .navbar-brand:hover,
+            html[data-theme="next"] .navbar-brand:hover img {
+                transform: none;
+                box-shadow: none;
             }
         </style>
     </head>

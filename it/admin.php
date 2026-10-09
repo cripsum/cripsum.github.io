@@ -23,7 +23,7 @@ $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
     <title>Cripsum™ - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin.css')); ?>">
-    <?php cripsum_theme_head('admin'); ?>
+    <?php cripsum_theme_head(); ?>
 </head>
 
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">

@@ -61,7 +61,7 @@ function msn_h(mixed $v): string
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="stylesheet" href="<?php echo cripsum_asset('/assets/missions/missions.css'); ?>">
-    <?php cripsum_theme_head('missions'); ?>
+    <?php cripsum_theme_head(); ?>
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
     </script>

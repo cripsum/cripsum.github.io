@@ -378,7 +378,7 @@ $gClaimLeft = strtotime('tomorrow') - time();
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/gacha-v2.css')) ?>">
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/lootbox-v3.css')) ?>">
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/lootbox-modal.css')) ?>">
-    <?php cripsum_theme_head('lootbox'); ?>
+    <?php cripsum_theme_head(); ?>
     <meta name="theme-color" content="#06070d">
     <title>Cripsum™ — Lootbox</title>
 </head>

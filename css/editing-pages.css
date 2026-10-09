@@ -13,7 +13,6 @@
 .page-icon-wrapper {
     width: 100px;
     height: 100px;
-    background: var(--gray-200);
     border-radius: 24px;
     display: inline-flex;
     align-items: center;
@@ -24,7 +23,6 @@
 
 .page-icon {
     font-size: 2.5rem;
-    color: var(--gray-700);
     transition: var(--transition);
 }
 
@@ -85,7 +83,6 @@
     justify-content: center;
     align-items: center;
     padding: 2rem;
-    background: var(--gray-200);
     border-radius: 16px;
     border: 1px solid var(--gray-300);
     animation: fadeIn 0.8s ease-out 0.2s both;
@@ -110,9 +107,7 @@
 .search-box input {
     width: 100%;
     padding: 1rem 1rem 1rem 3rem;
-    background: var(--gray-100);
     border: 1px solid var(--gray-300);
-    border-radius: 12px;
     color: var(--gray-900);
     font-size: 1rem;
     transition: var(--transition);
@@ -120,8 +115,6 @@
 
 .search-box input:focus {
     outline: none;
-    border-color: var(--gray-500);
-    background: var(--gray-50);
 }
 
 .search-box input::placeholder {
@@ -136,26 +129,14 @@
 
 .filter-btn {
     padding: 0.75rem 1.5rem;
-    background: transparent;
     border: 1px solid var(--gray-400);
-    border-radius: 10px;
-    color: var(--gray-700);
-    font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
     transition: var(--transition);
 }
 
 .filter-btn:hover {
-    background: var(--gray-300);
-    border-color: var(--gray-500);
     transform: translateY(-2px);
-}
-
-.filter-btn.active {
-    background: var(--gray-900);
-    border-color: var(--gray-900);
-    color: var(--gray-100);
 }
 
 .content-grid {
@@ -233,9 +214,6 @@
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .difficulty-badge.beginner {
@@ -507,4 +485,105 @@
     .card-title {
         font-size: 1.25rem;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* Le icone delle sei sezioni: stesse per tutte, non un colore a testa. */
+html:root .page-icon-wrapper {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    box-shadow: none;
+}
+
+html:root .page-icon {
+    color: var(--nx-text);
+}
+
+html:root .card-thumbnail {
+    background: var(--nx-surface-2);
+}
+
+html:root .difficulty-badge {
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root :is(.tag, .software-badge) {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .divider {
+    background: var(--nx-line);
+}
+
+/* ── Barra: ricerca e filtri ─────────────────────────────── */
+html:root .filter-bar {
+    padding-left: 0;
+    padding-right: 0;
+    border-color: transparent;
+    background: none;
+}
+
+html:root .search-box input,
+html:root .search-box input:focus {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+    box-shadow: none;
+}
+
+html:root .search-box input:focus {
+    border-color: var(--nx-text-3);
+}
+
+html:root .filter-btn {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .filter-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html:root .filter-btn.active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+html:root :is(.btn-secondary, .load-more-btn, .btn-primary) {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root :is(.btn-secondary, .load-more-btn, .btn-primary):hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+    transform: none;
 }

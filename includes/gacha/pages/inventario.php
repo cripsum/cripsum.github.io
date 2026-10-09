@@ -56,7 +56,7 @@ $ogImage = '/img/waguri.jpeg';
     <title><?= $gEn ? 'Cripsum™ - Inventory' : 'Cripsum™ - Inventario' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/assets/inventario/inventario.css')) ?>">
-    <?php cripsum_theme_head('inventario'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="<?= $h(cripsum_asset('/assets/inventario/inventario.js')) ?>" defer></script>
 </head>
 

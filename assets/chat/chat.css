@@ -75,8 +75,6 @@ body.pc-page {
 .pc-avatar__icon {
     display: grid;
     place-items: center;
-    background: linear-gradient(135deg, rgba(var(--ck-accent-rgb), 0.34), rgba(56, 189, 248, 0.18));
-    color: #cfe0ff;
     font-size: 0.95em;
 }
 
@@ -316,7 +314,6 @@ body.pc-page {
 }
 
 .pc-row__preview.is-typing {
-    color: #8fb0ff;
     font-style: italic;
 }
 
@@ -366,7 +363,6 @@ body.pc-page {
     padding: 12px;
     border: 1px solid var(--ck-accent-line);
     border-radius: 18px;
-    background: rgba(var(--ck-accent-rgb), 0.08);
 }
 
 .pc-invite__body {
@@ -486,7 +482,6 @@ body.pc-page {
 }
 
 .pc-head__text small.is-typing {
-    color: #8fb0ff;
     font-style: italic;
 }
 
@@ -505,7 +500,6 @@ body.pc-page {
     gap: 12px;
     padding: 10px 16px;
     border-bottom: 1px solid var(--ck-border-soft);
-    background: rgba(var(--ck-accent-rgb), 0.08);
     font-size: 0.84rem;
     line-height: 1.45;
     color: var(--ck-muted);
@@ -556,10 +550,6 @@ body.pc-page {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.pc-pinned > i {
-    color: var(--ck-accent);
-}
-
 .pc-pinned span {
     min-width: 0;
     display: flex;
@@ -569,7 +559,6 @@ body.pc-page {
 .pc-pinned strong {
     font-size: 0.68rem;
     font-weight: 600;
-    color: #9db9ff;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -588,7 +577,6 @@ body.pc-page {
     flex-direction: column;
     max-height: 46%;
     border-bottom: 1px solid var(--ck-border-soft);
-    background: rgba(0, 0, 0, 0.18);
     animation: ckSlideUp 200ms var(--ck-ease) both;
 }
 
@@ -647,7 +635,6 @@ body.pc-page {
     gap: 10px;
     font-size: 0.76rem;
     font-weight: 600;
-    color: #9db9ff;
 }
 
 .pc-result time {
@@ -880,7 +867,6 @@ body.pc-page {
     padding: 4px;
     margin: 4px 0 8px;
     border-radius: 12px;
-    background: rgba(0, 0, 0, 0.22);
 }
 
 .pc-tabs button {
@@ -965,14 +951,11 @@ body.pc-page {
     gap: 12px;
     padding: 9px 12px;
     border-radius: 12px;
-    color: #9db9ff;
     font-size: 0.82rem;
-    text-decoration: none;
 }
 
 .pc-linkrow:hover {
     background: var(--ck-surface);
-    color: #c4d6ff;
 }
 
 .pc-linkrow i {
@@ -1112,7 +1095,6 @@ body.pc-page {
         position: fixed;
         inset: 0;
         z-index: 1039;
-        background: rgba(2, 4, 10, 0.6);
         animation: ckFade 180ms ease both;
     }
 }
@@ -1216,4 +1198,61 @@ body.pc-page {
         transition: none;
         animation: none;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+html:root .pc-details-backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+html:root .pc-linkrow,
+html:root .pc-linkrow:hover {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+/* ── Chat privata ────────────────────────────────────────── */
+html:root .pc-avatar__icon {
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+html:root .pc-row__preview.is-typing,
+html:root .pc-head__text small.is-typing,
+html:root .pc-result strong,
+html:root .pc-pinned strong {
+    color: var(--nx-text);
+}
+
+html:root .pc-invite {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+}
+
+html:root .pc-strip {
+    background: var(--nx-surface-2);
+}
+
+html:root .pc-pinned > i {
+    color: var(--nx-text-3);
+}
+
+html:root .pc-searchbar {
+    background: none;
+}
+
+html:root .pc-tabs {
+    background: var(--nx-surface-2);
 }

@@ -138,10 +138,6 @@ if ($canRenderNav) {
            decidono loro. */
         body.st-body {
             margin: 0;
-            background:
-                radial-gradient(1200px 600px at 50% -10%, rgba(139, 92, 246, 0.13), transparent 60%),
-                linear-gradient(180deg, var(--st-bg), var(--st-bg-2));
-            background-attachment: fixed;
             color: var(--st-text);
             font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
             min-height: 100vh;
@@ -177,14 +173,10 @@ if ($canRenderNav) {
         .st-title {
             text-align: center;
             margin: 0 0 .4rem;
-            font-size: clamp(1.7rem, 4vw, 2.4rem);
-            font-weight: 800;
-            letter-spacing: -0.02em;
         }
 
         .st-subtitle {
             text-align: center;
-            color: var(--st-muted-2);
             margin: 0 0 2rem;
             font-size: .95rem;
         }
@@ -196,9 +188,6 @@ if ($canRenderNav) {
             gap: 1rem;
             padding: 1.35rem 1.5rem;
             border-radius: var(--st-radius);
-            border: 1px solid var(--st-border);
-            background: var(--st-card);
-            box-shadow: var(--st-shadow);
             margin-bottom: 1.6rem;
         }
 
@@ -217,8 +206,6 @@ if ($canRenderNav) {
             padding: 1rem 1.2rem;
             margin-bottom: 1rem;
             border-radius: 16px;
-            border: 1px solid rgba(251, 191, 36, .4);
-            background: linear-gradient(180deg, rgba(251, 191, 36, .12), rgba(251, 191, 36, .04));
             color: var(--st-text);
             font-size: .88rem;
             line-height: 1.55;
@@ -258,7 +245,7 @@ if ($canRenderNav) {
             100% { transform: scale(1.5); opacity: 0; }
         }
 
-        .st-banner h2 { margin: 0 0 .15rem; font-size: 1.15rem; font-weight: 700; }
+        .st-banner h2 { margin: 0 0 .15rem; font-size: 1.15rem;  }
         .st-banner p  { margin: 0; color: var(--st-muted); font-size: .9rem; }
 
         .st-banner-meta {
@@ -274,8 +261,6 @@ if ($canRenderNav) {
 
         /* ── Schede dei servizi ──────────────────────────────────── */
         .st-card {
-            border: 1px solid var(--st-border);
-            background: var(--st-card);
             border-radius: var(--st-radius);
             padding: 1.2rem 1.35rem 1rem;
             margin-bottom: .9rem;
@@ -295,12 +280,10 @@ if ($canRenderNav) {
             display: grid;
             place-items: center;
             border-radius: 11px;
-            background: rgba(47, 107, 255, .14);
-            color: var(--st-accent);
             flex: 0 0 auto;
         }
 
-        .st-card-name { font-weight: 650; font-size: 1rem; line-height: 1.2; }
+        .st-card-name {  font-size: 1rem; line-height: 1.2; }
         .st-card-hint { color: var(--st-muted-2); font-size: .78rem; }
 
         .st-badge {
@@ -311,7 +294,6 @@ if ($canRenderNav) {
             padding: .32rem .7rem;
             border-radius: 999px;
             font-size: .78rem;
-            font-weight: 600;
             border: 1px solid transparent;
             white-space: nowrap;
         }
@@ -365,22 +347,16 @@ if ($canRenderNav) {
         .st-section-title {
             margin: 2.2rem 0 .9rem;
             font-size: 1.05rem;
-            font-weight: 700;
             display: flex;
             align-items: center;
             gap: .5rem;
         }
 
         .st-incident {
-            border: 1px solid var(--st-border);
-            border-left: 3px solid var(--st-red);
-            background: var(--st-card);
             border-radius: 14px;
             padding: .85rem 1.1rem;
             margin-bottom: .6rem;
         }
-
-        .st-incident.resolved { border-left-color: var(--st-green); }
 
         .st-incident-head {
             display: flex;
@@ -390,15 +366,10 @@ if ($canRenderNav) {
             margin-bottom: .2rem;
         }
 
-        .st-incident-service { font-weight: 650; }
-
         .st-incident-tag {
             font-size: .7rem;
-            font-weight: 700;
             padding: .1rem .5rem;
             border-radius: 999px;
-            text-transform: uppercase;
-            letter-spacing: .03em;
         }
 
         .st-incident-tag.open     { color: var(--st-red);   background: rgba(248,113,113,.14); }
@@ -411,7 +382,6 @@ if ($canRenderNav) {
         }
 
         .st-empty {
-            border: 1px dashed var(--st-border);
             border-radius: 14px;
             padding: 1.4rem;
             text-align: center;
@@ -427,7 +397,6 @@ if ($canRenderNav) {
             line-height: 1.7;
         }
 
-        .st-note a { color: var(--st-accent); text-decoration: none; }
         .st-note a:hover { text-decoration: underline; }
 
         .st-fallback-head {
@@ -462,8 +431,119 @@ if ($canRenderNav) {
         @media (min-width: 721px) {
             .st-legend-mobile { display: none; }
         }
+
+        /* ── L'aspetto di adesso ─────────────────────────────────────
+           Fino a ottobre 2026 queste regole stavano in un foglio a parte,
+           quello del tema. «html:root» e' sempre vero: serve solo a dare a
+           ogni regola il peso che aveva. I colori (--nx-…) sono quelli di
+           assets/global/theme.css. */
+
+        html:root body.st-body {
+            --st-accent: var(--nx-text);
+            --st-green: var(--nx-ok);
+            --st-red: var(--nx-danger);
+            --st-grey: var(--nx-surface-3);
+            --st-bg: var(--nx-bg);
+            --st-bg-2: var(--nx-bg);
+            --st-card: var(--nx-surface);
+            --st-text: var(--nx-text);
+            --st-muted: var(--nx-text-2);
+            --st-muted-2: var(--nx-text-3);
+            --st-border: var(--nx-line);
+            --st-shadow: none;
+            background: var(--nx-bg);
+        }
+
+        /* ── Testata ─────────────────────────────────────────────── */
+
+        html:root .st-title {
+            font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+            font-weight: 600;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+
+        html:root .st-subtitle {
+            color: var(--nx-text-2);
+        }
+
+        /* Lo stato generale: una superficie, col colore solo sul pallino. */
+        html:root .st-banner,
+        html:root .st-banner:is(.operational, .degraded, .outage, .unknown) {
+            border: 0;
+            background: var(--nx-surface);
+            box-shadow: none;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        html:root .st-banner h2 {
+            font-weight: 600;
+        }
+
+        html:root .st-alarm {
+            border: 0;
+            background: var(--nx-surface-2);
+        }
+
+        /* ── Servizi ─────────────────────────────────────────────── */
+
+        html:root .st-card {
+            border: 0;
+            background: var(--nx-surface);
+            box-shadow: none;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        html:root .st-card-icon {
+            border-color: transparent;
+            background: var(--nx-surface-3);
+            color: var(--nx-text-2);
+        }
+
+        html:root .st-card-name,
+        html:root .st-incident-service {
+            font-weight: 600;
+        }
+
+        html:root .st-badge {
+            border-color: transparent;
+            font-weight: 500;
+        }
+
+        html:root .st-section-title {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        /* ── Cronologia ──────────────────────────────────────────── */
+
+        /* Il disservizio: niente striscia sul fianco, lo dice l'etichetta. */
+        html:root .st-incident,
+        html:root .st-incident.resolved {
+            border: 0;
+            background: var(--nx-surface);
+        }
+
+        html:root .st-incident-tag {
+            font-weight: 500;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
+        html:root .st-empty {
+            border: 0;
+            background: var(--nx-surface);
+        }
+
+        html:root .st-note a {
+            color: var(--nx-text);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
     </style>
-    <?php cripsum_theme_head('status'); ?>
+    <?php cripsum_theme_head(); ?>
 </head>
 <body class="st-body<?php echo $canRenderNav ? ' st-has-nav' : ''; ?>">
 

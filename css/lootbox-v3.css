@@ -13,12 +13,6 @@
    pagina a ogni frame e faceva scattare il cambio banner. */
 
 .lb-page {
-    --bg: #06070d;
-    --line: rgba(255, 255, 255, 0.1);
-    --line-strong: rgba(255, 255, 255, 0.18);
-    --text: #f5f6fb;
-    --muted: #b3b8cf;
-    --faint: #7a809b;
     --ok: #4ade80;
     --gold: #fbbf24;
     --nav-h: 84px;
@@ -114,11 +108,6 @@ html.lm-lock body.lb-page {
     content: '';
     position: absolute;
     inset: 0;
-    background:
-        radial-gradient(90% 70% at 70% 50%, transparent 30%, rgba(6, 7, 13, 0.55) 100%),
-        linear-gradient(90deg, rgba(6, 7, 13, 0.96) 0%, rgba(6, 7, 13, 0.84) 24%, rgba(6, 7, 13, 0.38) 46%, rgba(6, 7, 13, 0.08) 68%, rgba(6, 7, 13, 0.4) 100%),
-        linear-gradient(0deg, rgba(6, 7, 13, 0.85) 0%, transparent 30%),
-        linear-gradient(180deg, rgba(6, 7, 13, 0.6) 0%, transparent 22%);
 }
 /* Un velo del colore del banner sul lato del testo: uno per banner, sopra
    la sfumatura scura, e al cambio si incrociano in dissolvenza. */
@@ -238,9 +227,7 @@ html.lm-lock body.lb-page {
     height: 24px;
     padding: 0 10px;
     border-radius: 999px;
-    background: rgba(236, 72, 153, 0.18);
     border: 1px solid rgba(236, 72, 153, 0.45);
-    color: #fbcfe8;
     font-size: 11.5px;
 }
 
@@ -250,7 +237,6 @@ html.lm-lock body.lb-page {
     font-size: clamp(34px, 3.3vw, 56px);
     font-weight: 800;
     line-height: 1.02;
-    letter-spacing: -0.025em;
     text-shadow: 0 6px 34px rgba(0, 0, 0, 0.5);
     text-wrap: balance;
     overflow-wrap: anywhere;
@@ -307,7 +293,6 @@ html.lm-lock body.lb-page {
     place-items: center;
     border-radius: 14px;
     background: color-mix(in srgb, var(--accent) 22%, rgba(0, 0, 0, 0.3));
-    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
     font-size: 19px;
 }
 .lb-feature__text {
@@ -464,8 +449,6 @@ html.lm-lock body.lb-page {
     padding: 0 12px;
     border-radius: 999px;
     border: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.08);
-    color: #e5e7f3;
     font-size: 12.5px;
     font-weight: 600;
     white-space: nowrap;
@@ -475,14 +458,10 @@ html.lm-lock body.lb-page {
     display: none;
 }
 .lb-tag.is-free {
-    background: rgba(74, 222, 128, 0.14);
     border-color: rgba(74, 222, 128, 0.45);
-    color: #bbf7d0;
 }
 .lb-tag.is-guaranteed {
-    background: rgba(251, 191, 36, 0.14);
     border-color: rgba(251, 191, 36, 0.45);
-    color: #fde68a;
 }
 .lb-tag--btn {
     cursor: pointer;
@@ -518,8 +497,6 @@ html.lm-lock body.lb-page {
     padding: 8px;
     border-radius: 18px;
     border: 1px solid var(--line-strong);
-    background: rgba(12, 14, 27, 0.97);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
     opacity: 0;
     visibility: hidden;
     transform: translateY(8px) scale(0.96);
@@ -565,7 +542,6 @@ html.lm-lock body.lb-page {
     transition: background 0.15s, color 0.15s;
 }
 .lb-destiny__opt:hover {
-    background: rgba(255, 255, 255, 0.06);
     color: #fff;
 }
 .lb-destiny__opt img,
@@ -627,7 +603,6 @@ html.lm-lock body.lb-page {
     padding: 10px 12px;
     border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 20px;
-    background: rgba(12, 14, 26, 0.62);
     color: #fff;
     font: inherit;
     cursor: pointer;
@@ -635,9 +610,6 @@ html.lm-lock body.lb-page {
 }
 .lb-pull:hover {
     transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--accent-hi) 70%, #fff);
-    background: rgba(20, 22, 38, 0.7);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
 }
 .lb-pull:active {
     transform: translateY(0) scale(0.97);
@@ -682,25 +654,7 @@ html.lm-lock body.lb-page {
     color: var(--accent-ink);
     /* Un solo colore in tre toni (chiaro, pieno, scuro) e un velo lucido
        in alto: qualunque colore scelto nel pannello resta pulito. */
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 45%, rgba(255, 255, 255, 0) 55%),
-        linear-gradient(135deg, var(--accent-hi) 0%, var(--accent) 50%, var(--accent-lo) 100%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.4),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.14),
-        0 14px 32px -8px color-mix(in srgb, var(--accent) 70%, transparent);
-    text-shadow: 0 1px 2px color-mix(in srgb, var(--accent-lo) 45%, transparent);
     transition: transform 0.35s var(--spring), box-shadow 0.35s, filter 0.3s;
-}
-.lb-pull--main:hover {
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 45%, rgba(255, 255, 255, 0) 55%),
-        linear-gradient(135deg, var(--accent-hi) 0%, var(--accent) 50%, var(--accent-lo) 100%);
-    filter: brightness(1.07) saturate(1.05);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.45),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.14),
-        0 20px 40px -8px color-mix(in srgb, var(--accent) 80%, transparent);
 }
 .lb-pull--main .lb-pull__cost {
     color: color-mix(in srgb, var(--accent-ink) 82%, transparent);
@@ -728,7 +682,6 @@ html.lm-lock body.lb-page {
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.05em;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), 0 0 14px rgba(74, 222, 128, 0.5);
     animation: lbPop 0.5s var(--spring) 0.5s both, lbFloatY 2.6s ease-in-out 1s infinite;
 }
 .lb-pull__free[hidden] {
@@ -749,7 +702,6 @@ html.lm-lock body.lb-page {
     padding: 0 12px 0 8px;
     border-radius: 999px;
     border: 1px solid var(--line);
-    background: rgba(0, 0, 0, 0.42);
     font-size: 13px;
 }
 .lb-coin img {
@@ -767,7 +719,6 @@ html.lm-lock body.lb-page {
     place-items: center;
     border-radius: 50%;
     border: 1px solid var(--line-strong);
-    background: rgba(124, 58, 237, 0.42);
     color: #fff;
     font-size: 12px;
     text-decoration: none;
@@ -775,7 +726,6 @@ html.lm-lock body.lb-page {
 }
 .lb-coin-add:hover {
     transform: rotate(90deg) scale(1.08);
-    background: rgba(124, 58, 237, 0.7);
     color: #fff;
 }
 .lb-wallet__sp {
@@ -824,7 +774,6 @@ html.lm-lock body.lb-page {
     padding: 14px 16px;
     border-radius: 18px;
     border: 1px solid rgba(96, 165, 250, 0.35);
-    background: rgba(30, 64, 175, 0.28);
 }
 .lb-soon__icon {
     width: 44px;
@@ -833,8 +782,6 @@ html.lm-lock body.lb-page {
     display: grid;
     place-items: center;
     border-radius: 14px;
-    background: rgba(96, 165, 250, 0.22);
-    color: #bfdbfe;
     font-size: 18px;
 }
 .lb-soon b {
@@ -972,7 +919,6 @@ html.lm-lock body.lb-page {
     padding: 5px 13px 5px 5px;
     border-radius: 999px;
     border: 1px solid var(--line-strong);
-    background: rgba(10, 12, 24, 0.84);
     color: #fff;
     font: inherit;
     font-size: 12px;
@@ -989,11 +935,6 @@ html.lm-lock body.lb-page {
     border-radius: 50%;
     object-fit: cover;
 }
-.lb-art__pick.is-on {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
-}
-
 /* ── Colonna dei banner ──────────────────────────────────────────────── */
 .lb-rail {
     position: sticky;
@@ -1005,7 +946,6 @@ html.lm-lock body.lb-page {
     flex-direction: column;
     gap: 12px;
     padding: calc(var(--nav-h) + 20px) 16px 16px;
-    background: linear-gradient(180deg, rgba(8, 9, 18, 0.9), rgba(6, 7, 14, 0.97));
     border-left: 1px solid var(--line);
 }
 .lb-rail__sheet-head {
@@ -1055,7 +995,6 @@ html.lm-lock body.lb-page {
     border: 1px solid var(--line);
     border-radius: 18px;
     overflow: hidden;
-    background: #0d0f1c;
     color: #fff;
     font: inherit;
     text-align: left;
@@ -1068,7 +1007,6 @@ html.lm-lock body.lb-page {
     inset: 0;
     z-index: 1;
     border-radius: inherit;
-    box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
     opacity: 0;
     transition: opacity 0.35s var(--ease);
     pointer-events: none;
@@ -1093,9 +1031,6 @@ html.lm-lock body.lb-page {
     transition: opacity 0.35s var(--ease);
     pointer-events: none;
 }
-.lb-rail__item::before {
-    box-shadow: 0 12px 32px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent);
-}
 .lb-rail__item::after {
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
 }
@@ -1116,7 +1051,6 @@ html.lm-lock body.lb-page {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(90deg, rgba(6, 7, 13, 0.93) 0%, rgba(6, 7, 13, 0.62) 55%, rgba(6, 7, 13, 0.18) 100%);
     transition: opacity 0.3s;
 }
 .lb-card::after {
@@ -1199,11 +1133,6 @@ html.lm-lock body.lb-page {
     background: rgba(22, 101, 52, 0.85);
     color: #bbf7d0;
 }
-.lb-card__st.is-soon {
-    background: rgba(30, 64, 175, 0.78);
-    color: #dbeafe;
-}
-
 .lb-rail__bottom {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -1220,7 +1149,6 @@ html.lm-lock body.lb-page {
     padding: 6px 6px 6px 8px;
     border-radius: 16px;
     border: 1px solid rgba(236, 72, 153, 0.35);
-    background: linear-gradient(90deg, rgba(219, 39, 119, 0.22), rgba(168, 85, 247, 0.16));
 }
 .lb-premium__icon {
     width: 36px;
@@ -1464,9 +1392,6 @@ html.lm-lock body.lb-page {
     .lb-bgs {
         position: fixed;
     }
-    .lb-bgs::after {
-        background: linear-gradient(180deg, rgba(6, 7, 13, 0.45) 0%, rgba(6, 7, 13, 0.72) 30%, rgba(6, 7, 13, 0.96) 58%);
-    }
     .lb-bg.is-blurred .lb-bg__img {
         filter: blur(30px) saturate(1.3) brightness(0.6);
     }
@@ -1479,8 +1404,6 @@ html.lm-lock body.lb-page {
         align-items: center;
         gap: 8px;
         padding: 8px 16px;
-        background: rgba(6, 7, 13, 0.7);
-        backdrop-filter: blur(16px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
     .lb-strip__track {
@@ -1628,8 +1551,6 @@ html.lm-lock body.lb-page {
         padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid var(--line-strong);
         border-radius: 22px 22px 0 0;
-        background: rgba(8, 9, 18, 0.92);
-        backdrop-filter: blur(20px);
         box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.5);
         animation: lbBarIn 0.6s var(--ease-out) both !important;
     }
@@ -1696,7 +1617,6 @@ html.lm-lock body.lb-page {
         border: 0;
         border-top: 1px solid var(--line-strong);
         border-radius: 26px 26px 0 0;
-        background: #0b0d1a;
         box-shadow: 0 -30px 80px rgba(0, 0, 0, 0.6);
         transform: translateY(105%);
         visibility: hidden;
@@ -1758,8 +1678,6 @@ html.lm-lock body.lb-page {
         z-index: 89;
         inset: 0;
         display: block;
-        background: rgba(3, 4, 9, 0.62);
-        backdrop-filter: blur(4px);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.4s ease;
@@ -1898,3 +1816,301 @@ html.lm-lock body.lb-page {
 
 /* Gemma Premium (img/premium.svg): stessa animazione della vecchia icona. */
 .lb-premium__icon .cr-premium-gem { font-size: 20px; animation: lbGem 3s ease-in-out infinite; }
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Lootbox: pagina dei banner e finestre
+   ============================================================
+
+   Correzioni a css/lootbox-v3.css (la pagina dei banner) e a
+   css/lootbox-modal.css (impostazioni, classifica, cronologia, dettagli,
+   valute). Gli originali non si toccano.
+
+   NON si tocca niente di quello che succede dopo aver premuto «Apri»:
+   css/gacha.css, js/gacha-effects.js, l'animazione del personaggio, il
+   riepilogo. Qui non c'e' una sola regola per quelle classi.
+
+   Nella pagina dei banner resta tutto quello che viene dal banner: la sua
+   arte, lo sfondo, l'alone del suo colore, la carta che si inclina, la
+   barra del pity nei suoi toni, le rarita' dei personaggi in rate-up, le
+   animazioni d'ingresso e il riflesso sul pulsante. Cambia il contorno:
+   pulsanti, portafoglio, elenco dei banner, strumenti, riquadro del
+   Premium, etichette, finestre.
+   ============================================================ */
+html:root .lb-page {
+    --bg: var(--nx-bg);
+    --line: var(--nx-line);
+    --line-strong: #3a3a3d;
+    --text: var(--nx-text);
+    --muted: var(--nx-text-2);
+    --faint: var(--nx-text-3);
+}
+
+html:root body.lb-page {
+    background: var(--nx-bg);
+}
+
+/* La sfumatura che scurisce lo sfondo attorno al banner: stessa forma,
+   nero del tema al posto del blu notte. */
+html:root .lb-bgs::after {
+    background:
+        radial-gradient(90% 70% at 70% 50%, transparent 30%, rgba(10, 10, 11, 0.55) 100%),
+        linear-gradient(90deg, rgba(10, 10, 11, 0.96) 0%, rgba(10, 10, 11, 0.84) 24%, rgba(10, 10, 11, 0.38) 46%, rgba(10, 10, 11, 0.08) 68%, rgba(10, 10, 11, 0.4) 100%),
+        linear-gradient(0deg, rgba(10, 10, 11, 0.85) 0%, transparent 30%),
+        linear-gradient(180deg, rgba(10, 10, 11, 0.6) 0%, transparent 22%);
+}
+
+/* ── Il banner senza un colore suo ───────────────────────────
+   Un banner a cui nel pannello non e' stato dato un colore, e che non ha
+   personaggi in rate-up (di solito lo Standard), prendeva il blu del sito:
+   nel tema nuovo prende il bianco. Appena gli si sceglie un colore torna a
+   usare quello. Il blu di ripiego lo scrive il PHP nello stile in linea:
+   per questo serve !important. */
+html:root :is([style*="--accent:#2f9df4"], [style*="--accent: #2f9df4"]) {
+    --accent: #f5f5f7 !important;
+    --accent-hi: #ffffff !important;
+    --accent-lo: #d2d2d7 !important;
+    --accent-ink: #000000 !important;
+}
+
+/* ── Pesi del carattere ed etichette ─────────────────────── */
+html:root :is(.lb-title, .lb-feature__text b, .lb-pull__label, .lb-pull__free, .lb-card__body b, .lb-premium__btn, .lb-rail__sheet-head h2, .lb-chip-r, .lb-card__st, .lb-pity__note.is-active) {
+    font-weight: 600;
+}
+
+html:root :is(.lb-kicker, .lb-feature__text small, .lb-destiny__head, .lb-destiny__opt, .lb-art__pick, .lb-rail__label, .lb-strip__all, .lb-more, .lb-tag, .lb-link, .lb-pull__cost) {
+    font-weight: 500;
+}
+
+html:root :is(.lb-kicker__kind, .lb-feature__text small, .lb-destiny__head, .lb-rail__label) {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root :is(.lb-feature__text small, .lb-rail__label) {
+    font-size: 0.8125rem;
+}
+
+html:root .lb-title {
+    letter-spacing: -0.02em;
+}
+
+/* ── Scheda del banner ───────────────────────────────────── */
+html:root .lb-feature__icon {
+    border: 0;
+}
+
+html:root .lb-kicker__premium {
+    border-color: transparent;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--nx-text);
+}
+
+html:root .lb-tag {
+    border-color: transparent;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--nx-text);
+}
+
+/* Pull gratis (verde) e garanzia (oro) tengono il loro colore, senza bordo. */
+html:root .lb-tag.is-free {
+    background: rgba(48, 209, 88, 0.16);
+    color: #b9f5c9;
+}
+
+html:root .lb-tag.is-guaranteed {
+    background: rgba(251, 191, 36, 0.16);
+    color: #fde68a;
+}
+
+html:root .lb-destiny.is-open .lb-tag--btn {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+html:root .lb-destiny__menu {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html:root .lb-destiny__opt:hover {
+    background: var(--nx-surface-3);
+}
+
+/* «In arrivo»: il riquadro azzurro diventa una superficie neutra. */
+html:root .lb-soon {
+    border-color: transparent;
+    background: rgba(22, 22, 23, 0.86);
+}
+
+html:root .lb-soon__icon {
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+/* ── Pulsanti di pull ────────────────────────────────────────
+   «Apri 10×» resta del colore del banner, pieno: via il velo lucido,
+   l'alone e l'ombra sul testo. Il riflesso che lo attraversa resta.
+   «Apri 1×» e' a filo. */
+html:root .lb-pull {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(10, 10, 11, 0.6);
+}
+
+html:root .lb-pull:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(10, 10, 11, 0.72);
+    box-shadow: none;
+}
+
+html:root .lb-pull--main,
+html:root .lb-pull--main:hover {
+    border-color: transparent;
+    background: var(--accent);
+    box-shadow: none;
+    text-shadow: none;
+    filter: none;
+}
+
+html:root .lb-pull--main:hover {
+    background: var(--accent-hi);
+}
+
+html:root .lb-pull__free {
+    box-shadow: none;
+}
+
+/* ── Portafoglio ─────────────────────────────────────────── */
+html:root .lb-coin {
+    border-color: transparent;
+    background: rgba(22, 22, 23, 0.86);
+}
+
+html:root .lb-coin-add,
+html:root .lb-coin-add:hover {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+}
+
+html:root .lb-coin-add:hover {
+    background: #3a3a3d;
+}
+
+/* Scelta dell'arte, sotto la carta. */
+html:root .lb-art__pick {
+    border-color: transparent;
+    background: rgba(22, 22, 23, 0.9);
+}
+
+html:root .lb-art__pick.is-on {
+    border-color: var(--accent);
+    box-shadow: none;
+}
+
+/* ── Elenco dei banner ───────────────────────────────────── */
+html:root .lb-rail {
+    background: var(--nx-bg);
+    border-left-color: var(--nx-line);
+}
+
+html:root .lb-card {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+/* La foto si scurisce verso sinistra per far leggere il nome. */
+html:root .lb-card::before {
+    background: linear-gradient(90deg, rgba(10, 10, 11, 0.93) 0%, rgba(10, 10, 11, 0.62) 55%, rgba(10, 10, 11, 0.18) 100%);
+}
+
+/* Il banner scelto: resta il bordo del suo colore. Via la striscia sul
+   fianco e gli aloni dentro e sotto la carta. */
+html:root .lb-card::after {
+    display: none;
+}
+
+html:root .lb-card__ring {
+    box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+html:root .lb-rail__item::before {
+    box-shadow: none;
+}
+
+html:root .lb-card__st.is-soon {
+    background: rgba(0, 0, 0, 0.66);
+    color: var(--nx-text);
+}
+
+/* Strumenti in fondo: impostazioni, classifica, inventario, cronologia. */
+html:root .lb-tools :is(button, a) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    font-weight: 500;
+}
+
+html:root .lb-tools :is(button, a):hover {
+    background: var(--nx-surface-2);
+}
+
+/* Riscatto del Premium: superficie neutra, la gemma resta d'oro. */
+html:root .lb-premium {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html:root .lb-premium__btn:not(:disabled) {
+    border-radius: var(--nx-pill);
+    background: var(--nx-text);
+    color: #000;
+}
+
+html:root .lb-premium__btn:not(:disabled):hover {
+    background: #fff;
+    filter: none;
+    transform: none;
+}
+
+html:root .lb-premium__btn:disabled {
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface-2);
+}
+
+@media (max-width: 899px) {
+    /* ── Telefono ────────────────────────────────────────────── */
+    html:root .lb-bgs::after {
+        background: linear-gradient(180deg, rgba(10, 10, 11, 0.45) 0%, rgba(10, 10, 11, 0.72) 30%, rgba(10, 10, 11, 0.96) 58%);
+    }
+
+    /* Le due barre fisse (banner in alto, pulsanti in basso) non hanno piu' il
+       vetro: il fondo e' pieno, cosi' il testo sotto non traspare. */
+    html:root .lb-strip,
+    html:root .lb-actions {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    html:root .lb-strip {
+        background: rgba(10, 10, 11, 0.94);
+    }
+
+    html:root .lb-actions {
+        background: var(--nx-bg);
+    }
+
+    html:root .lb-rail-scrim {
+        background: rgba(0, 0, 0, 0.78);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}

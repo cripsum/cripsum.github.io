@@ -83,7 +83,7 @@ function rewind_render_locked_page(string $lang = 'it'): void
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="<?php echo $h(rewind_asset('/assets/rewind/rewind.css')); ?>">
-    <?php cripsum_theme_head('rewind'); ?>
+    <?php cripsum_theme_head(); ?>
 </head>
 
 <body class="rw-page">

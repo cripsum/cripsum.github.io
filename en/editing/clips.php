@@ -23,9 +23,9 @@ if (!isOwner()) {
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
-    <link rel="stylesheet" href="../../css/editing.css">
-    <link rel="stylesheet" href="../../css/editing-pages.css">
-    <?php cripsum_theme_head('editing'); ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/editing.css') ?>">
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/editing-pages.css') ?>">
+    <?php cripsum_theme_head(); ?>
     <title>Cripsum™ - Clip & Flowframe</title>
 </head>
 

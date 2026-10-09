@@ -5,18 +5,18 @@
 
 /* ── Variabili locali (in sync con home.css / chat-v2.css) ── */
 :root {
-    --ns-accent: #2f6bff;
-    --ns-accent-rgb: 47, 107, 255;
-    --ns-purple: #8b5cf6;
-    --ns-bg: rgba(8, 11, 22, 0.97);
+    --ns-accent: #f5f5f7;
+    --ns-accent-rgb: 245, 245, 247;
+    --ns-purple: #a1a1a6;
+    --ns-bg: #161617;
     --ns-card: rgba(9, 13, 25, 0.82);
-    --ns-border: rgba(255, 255, 255, 0.11);
+    --ns-border: #2a2a2d;
     --ns-border-hl: rgba(var(--ns-accent-rgb), 0.46);
-    --ns-text: #f7f8ff;
-    --ns-muted: #aab3c8;
-    --ns-muted-2: #778199;
-    --ns-radius: 18px;
-    --ns-shadow: 0 24px 64px rgba(0, 0, 0, 0.52), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    --ns-text: #f5f5f7;
+    --ns-muted: #a1a1a6;
+    --ns-muted-2: #6e6e73;
+    --ns-radius: 16px;
+    --ns-shadow: 0 24px 56px rgba(0, 0, 0, 0.55);
 }
 
 /* ── Wrapper ─────────────────────────────────────────────── */
@@ -32,9 +32,7 @@
     display: flex;
     align-items: center;
     gap: 0;
-    background: rgba(255, 255, 255, 0.07);
     border: 1px solid var(--ns-border);
-    border-radius: 12px;
     padding: 0 10px;
     width: 210px;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
@@ -42,22 +40,14 @@
 
 .navbar-search-group:focus-within {
     width: 255px;
-    background: rgba(var(--ns-accent-rgb), 0.07);
-    border-color: rgba(var(--ns-accent-rgb), 0.4);
-    box-shadow: 0 0 0 3px rgba(var(--ns-accent-rgb), 0.12);
 }
 
 /* Icona ricerca */
 .navbar-search-icon {
-    color: var(--ns-muted-2);
     font-size: 0.78rem;
     flex-shrink: 0;
     pointer-events: none;
     transition: color 0.25s ease;
-}
-
-.navbar-search-group:focus-within .navbar-search-icon {
-    color: rgba(var(--ns-accent-rgb), 0.9);
 }
 
 /* Input */
@@ -69,11 +59,9 @@
     color: var(--ns-text) !important;
     font-size: 0.855rem;
     font-family: "Poppins", sans-serif;
-    font-weight: 500;
     padding: 7px 8px !important;
     line-height: 1.2 !important;
     width: 100%;
-    caret-color: rgba(var(--ns-accent-rgb), 0.9);
 }
 
 .navbar-search-input::placeholder {
@@ -109,18 +97,13 @@
     min-width: 270px;
 
     /* Glassmorphism in tema col sito */
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.022)), var(--ns-bg);
 
-    border: 1px solid var(--ns-border);
     border-radius: var(--ns-radius);
     box-shadow: var(--ns-shadow);
     z-index: 9999;
     overflow: hidden;
 
     /* Bordo superiore accent */
-    border-top: 1px solid rgba(var(--ns-accent-rgb), 0.32);
 
     /* Animazione apertura */
     opacity: 0;
@@ -152,7 +135,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 9px 12px;
     text-decoration: none;
     color: var(--ns-text);
     transition: background 0.18s ease;
@@ -170,26 +152,14 @@
     background: var(--ns-border);
 }
 
-.search-result-item:hover,
-.search-result-item.focused {
-    background: rgba(var(--ns-accent-rgb), 0.09);
-}
-
 /* Avatar con ring accent su hover */
 .search-result-avatar {
     width: 34px;
     height: 34px;
-    border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
     border: 1px solid var(--ns-border);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.search-result-item:hover .search-result-avatar,
-.search-result-item.focused .search-result-avatar {
-    border-color: rgba(var(--ns-accent-rgb), 0.55);
-    box-shadow: 0 0 0 3px rgba(var(--ns-accent-rgb), 0.14);
 }
 
 /* Info utente */
@@ -203,20 +173,14 @@
 
 .search-result-username {
     font-size: 0.865rem;
-    font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--ns-text);
-    letter-spacing: -0.01em;
 }
 
 /* Highlight della query nell'username */
 .search-result-username mark {
-    background: rgba(var(--ns-accent-rgb), 0.28);
-    color: #a5c4ff;
     border-radius: 3px;
-    padding: 0 2px;
 }
 
 /* Badge ruolo — stile pill in tema */
@@ -224,25 +188,15 @@
     display: inline-flex;
     align-items: center;
     width: fit-content;
-    padding: 0.1rem 0.45rem;
-    border: 1px solid var(--ns-border);
     border-radius: 999px;
-    font-size: 0.62rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--ns-muted-2);
-    background: rgba(255, 255, 255, 0.045);
 }
 
 .search-result-role.owner {
-    color: #fbbf24;
     border-color: rgba(251, 191, 36, 0.3);
     background: rgba(251, 191, 36, 0.08);
 }
 
 .search-result-role.admin {
-    color: #7dd3fc;
     border-color: rgba(125, 211, 252, 0.3);
     background: rgba(125, 211, 252, 0.08);
 }
@@ -259,7 +213,6 @@
     flex-shrink: 0;
     font-size: 0.68rem;
     opacity: 0;
-    color: rgba(var(--ns-accent-rgb), 0.75);
     transform: translate(0, 2px);
     transition: opacity 0.15s ease, transform 0.15s ease;
 }
@@ -276,7 +229,6 @@
     font-size: 0.84rem;
     color: var(--ns-muted);
     text-align: center;
-    font-style: italic;
 }
 
 /* Spinner loading */
@@ -406,17 +358,10 @@
         display: inline-flex;
         align-items: center;
         border: 1px solid rgba(128, 128, 128, 0.2);
-        border-radius: 12px;
         padding: 10px 16px !important;
-        background: rgba(128, 128, 128, 0.08);
         transition: all 0.2s;
     }
-    .nav-auth-group .nav-link:hover {
-        background: rgba(128, 128, 128, 0.15);
-        border-color: rgba(128, 128, 128, 0.3);
-    }
 }
-
 
 
 @media (min-width: 1200px) {
@@ -701,8 +646,5 @@
         font-size: 0.85rem !important;
     }
 }
-
-
-
 
 

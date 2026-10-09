@@ -24,8 +24,8 @@ $username = $_SESSION['username'] ?? 'Utente';
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - Gambling</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/gambling/gambling.css?v=2.0-arcade">
-    <?php cripsum_theme_head('gambling'); ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/assets/gambling/gambling.css') ?>">
+    <?php cripsum_theme_head(); ?>
     <script src="/assets/gambling/gambling.js?v=2.1" defer></script>
 </head>
 

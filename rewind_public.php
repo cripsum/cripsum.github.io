@@ -98,7 +98,7 @@ $ogDescription = $payload
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700,800,900" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
     <link rel="stylesheet" href="<?php echo rewind_asset('/assets/rewind/rewind.css'); ?>">
-    <?php cripsum_theme_head('rewind'); ?>
+    <?php cripsum_theme_head(); ?>
 
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';

@@ -32,7 +32,7 @@ if (!empty($pageImage)) {
     <title><?php echo shop_h('Cripsum™ - ' . $pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/shop/catalog.css')); ?>">
-    <?php cripsum_theme_head('catalog'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/shop/catalog.js')); ?>" defer></script>
 </head>
 

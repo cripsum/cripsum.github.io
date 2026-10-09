@@ -162,10 +162,7 @@
     border-radius: 18px;
     font-size: clamp(1rem, 4vw, 1.65rem);
     font-weight: 1000;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     background: rgba(8, 2, 12, 0.5);
-    backdrop-filter: blur(12px);
     pointer-events: none;
     transform: rotate(var(--sp-rotate, 0deg)) scale(0.92);
     transition: opacity 0.12s ease, transform 0.12s ease;
@@ -176,7 +173,6 @@
     color: #fff;
     opacity: var(--sp-smash-alpha);
     --sp-rotate: 8deg;
-    box-shadow: 0 0 32px rgba(255, 45, 141, 0.34);
 }
 
 .gl-sp-decision-pass {
@@ -308,12 +304,6 @@
     flex: 1 1 0;
 }
 
-.gl-btn-pass {
-    color: #fff;
-    background: linear-gradient(135deg, rgba(92, 100, 116, 0.98), rgba(44, 49, 62, 0.98));
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
-}
-
 .gl-btn-pass:hover {
     color: #fff;
     transform: translateY(-2px);
@@ -342,7 +332,6 @@
     padding: 0.9rem;
     border: 1px solid var(--gl-border);
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.055);
 }
 
 .gl-sp-stat span {
@@ -361,7 +350,6 @@
 
 .gl-sp-stat.is-smash {
     border-color: rgba(255, 45, 141, 0.25);
-    background: rgba(255, 45, 141, 0.08);
 }
 
 .gl-sp-stat.is-pass {
@@ -635,7 +623,6 @@
 
 .gl-sp-decision-smash {
     --sp-current-alpha: var(--sp-smash-alpha);
-    text-shadow: 0 0 18px rgba(255, 45, 141, 0.42);
 }
 
 .gl-sp-decision-pass {
@@ -734,7 +721,6 @@
     .gl-sp-choices {
         bottom: max(0.55rem, env(safe-area-inset-bottom));
         z-index: 10020;
-        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.44), 0 0 30px rgba(255, 45, 141, 0.08);
     }
 
     .gl-sp-choices .gl-btn {
@@ -774,4 +760,63 @@
     .gl-sp-swipe-hint {
         transition: none !important;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+html:root .gl-btn-pass,
+html:root .gl-btn-pass:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+/* ── Smash or Pass ───────────────────────────────────────── */
+/* Il velo ai due lati mentre trascini la carta resta: grigio per Pass,
+   rosa per Smash. Vanno via l'alone e la sfocatura delle etichette. */
+html:root .gl-sp-decision {
+    letter-spacing: 0;
+    text-transform: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .gl-sp-decision-smash {
+    box-shadow: none;
+    text-shadow: none;
+}
+
+html:root :is(.gl-sp-swipe-hint, .gl-sp-choices) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .gl-sp-stat {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+@media (max-width: 680px) {
+    html:root .gl-sp-choices {
+        background: var(--nx-bg);
+        box-shadow: none;
+    }
+}
+
+/* Il contatore degli Smash resta rosa, come il suo pulsante. */
+html:root .gl-sp-stat.is-smash {
+    background: rgba(255, 45, 141, 0.1);
 }

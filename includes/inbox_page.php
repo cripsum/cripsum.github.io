@@ -68,7 +68,7 @@ $jsVer      = @filemtime(__DIR__ . '/../assets/inbox/inbox.js') ?: 1;
     <meta property="og:url" content="https://cripsum.com/<?= $lang ?>/inbox">
     <link rel="stylesheet" href="/assets/chat/kit.css?v=<?= $kitCssVer ?>">
     <link rel="stylesheet" href="/css/inbox.css?v=<?= $cssVer ?>">
-    <?php cripsum_theme_head('chat'); ?>
+    <?php cripsum_theme_head(); ?>
 </head>
 
 <body class="ck-page ib-page" data-user-id="<?= $userId ?>" data-logged-in="1" data-csrf="<?= $ibE(csrf_token()) ?>">

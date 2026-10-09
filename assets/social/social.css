@@ -26,10 +26,7 @@
 
 .sp-hero h1 {
     margin: 0;
-    font-size: clamp(1.9rem, 4vw, 2.6rem);
     font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
     color: var(--ck-text);
 }
 
@@ -63,8 +60,6 @@
     gap: 14px;
     padding: 14px 16px;
     border: 1px solid var(--ck-border);
-    border-radius: var(--ck-radius-lg);
-    background: var(--ck-panel);
     color: var(--ck-text);
     font-family: var(--ck-font);
     text-align: left;
@@ -73,7 +68,6 @@
 }
 
 .sp-stat:hover {
-    border-color: var(--ck-accent-line);
     transform: translateY(-2px);
 }
 
@@ -88,8 +82,6 @@
     display: grid;
     place-items: center;
     border-radius: 14px;
-    background: var(--ck-accent-soft);
-    color: #8fb0ff;
     font-size: 1rem;
 }
 
@@ -97,16 +89,6 @@
     background: rgba(52, 211, 153, 0.13);
     color: var(--ck-green);
     font-size: 0.7rem;
-}
-
-.sp-stat.is-hot {
-    border-color: var(--ck-accent-line);
-    background: linear-gradient(135deg, rgba(var(--ck-accent-rgb), 0.16), var(--ck-panel) 70%);
-}
-
-.sp-stat.is-hot .sp-stat__icon {
-    background: var(--ck-accent);
-    color: #fff;
 }
 
 .sp-stat__text {
@@ -136,17 +118,12 @@
 .sp-panel {
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--ck-border);
-    border-radius: var(--ck-radius-xl);
-    background: var(--ck-panel);
-    box-shadow: var(--ck-shadow);
     min-height: 420px;
     animation: spRise 420ms var(--ck-ease) 120ms both;
 }
 
 .sp-search {
     position: relative;
-    margin: 16px 16px 0;
 }
 
 .sp-search > i {
@@ -186,9 +163,6 @@
 
 .sp-tabs {
     display: flex;
-    gap: 4px;
-    padding: 14px 16px 0;
-    border-bottom: 1px solid var(--ck-border-soft);
     overflow-x: auto;
     scrollbar-width: none;
 }
@@ -203,10 +177,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    height: 42px;
-    padding: 0 14px;
     border: 0;
-    border-radius: 12px 12px 0 0;
     background: transparent;
     color: var(--ck-muted);
     font: 600 0.9rem/1 var(--ck-font);
@@ -228,7 +199,6 @@
 }
 
 .sp-tab:hover {
-    color: var(--ck-text);
     background: var(--ck-surface);
 }
 
@@ -259,7 +229,6 @@
     display: flex;
     flex-direction: column;
     gap: 22px;
-    padding: 18px 16px 20px;
 }
 
 .sp-section {
@@ -278,13 +247,11 @@
     font-weight: 600;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: var(--ck-muted-2);
 }
 
 .sp-section h2 span {
     padding: 2px 7px;
     border-radius: 999px;
-    background: var(--ck-surface-2);
     color: var(--ck-muted);
     letter-spacing: 0;
 }
@@ -323,15 +290,9 @@
     padding: 10px 10px 10px 12px;
     border: 1px solid var(--ck-border-soft);
     border-radius: 18px;
-    background: var(--ck-surface);
     transition: border-color var(--ck-fast) ease, background var(--ck-fast) ease, opacity var(--ck-fast) ease;
     animation: spCardIn 320ms var(--ck-ease) both;
     animation-delay: calc(var(--sp-i, 0) * 28ms);
-}
-
-.sp-card:hover {
-    border-color: var(--ck-border);
-    background: var(--ck-surface-2);
 }
 
 .sp-card.is-busy {
@@ -420,7 +381,6 @@
     padding: 2px 7px;
     border-radius: 999px;
     background: rgba(52, 211, 153, 0.12);
-    color: #7ee7c0;
     font-size: 0.64rem;
     font-weight: 600;
 }
@@ -496,22 +456,6 @@
         font-size: 1.3rem;
     }
 
-    .sp-panel {
-        border-radius: var(--ck-radius-lg);
-    }
-
-    .sp-search {
-        margin: 12px 12px 0;
-    }
-
-    .sp-tabs {
-        padding: 10px 8px 0;
-    }
-
-    .sp-content {
-        padding: 14px 10px 16px;
-    }
-
     .sp-grid {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -547,5 +491,114 @@
 
     .sp-stat:hover {
         transform: none;
+    }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Amici
+   ============================================================ */
+html:root .sp-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root .sp-stat,
+html:root .sp-stat.is-hot {
+    border-color: transparent;
+    border-radius: 16px;
+    background: var(--nx-surface);
+}
+
+html:root .sp-stat:hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .sp-stat__icon {
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+/* Richieste in arrivo: l'icona diventa bianca. */
+html:root .sp-stat.is-hot .sp-stat__icon {
+    background: var(--nx-text);
+    color: #000;
+}
+
+/* Ricerca, linguette ed elenco non stanno piu' dentro un riquadro. */
+html:root .sp-panel {
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+}
+
+html:root .sp-search {
+    margin: 0;
+}
+
+html:root .sp-tabs {
+    gap: 6px;
+    padding: 14px 0 0;
+    border-bottom: 0;
+}
+
+html:root .sp-content {
+    padding: 18px 0 20px;
+}
+
+/* Linguette a pillola, come nel resto del sito. */
+html:root .sp-tab {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: var(--nx-pill);
+}
+
+html:root .sp-tab::after {
+    display: none;
+}
+
+html:root .sp-tab:hover {
+    color: var(--nx-text);
+}
+
+html:root .sp-section h2 {
+    color: var(--nx-text-2);
+}
+
+html:root .sp-section h2 span {
+    background: var(--nx-surface-2);
+}
+
+html:root .sp-card,
+html:root .sp-card:hover {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html:root .sp-card:hover {
+    background: var(--nx-surface-2);
+}
+
+html:root .sp-tag {
+    color: var(--nx-ok);
+}
+
+@media (max-width: 700px) {
+    /* ── Telefono ────────────────────────────────────────────── */
+    html:root .sp-hero h1 {
+        font-size: clamp(2.2rem, 11vw, 2.8rem);
     }
 }

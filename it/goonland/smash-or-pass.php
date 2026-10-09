@@ -307,9 +307,9 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Smash or Pass</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/css/goonland.css?v=2.7-smash-polish">
-    <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.7-smash-polish">
-    <?php cripsum_theme_head('goonland'); ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/goonland.css') ?>">
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/css/goonland-smash-pass.css') ?>">
+    <?php cripsum_theme_head(); ?>
     <script src="/js/goonland.js?v=2.7-smash-polish" defer></script>
     <script src="/js/goonland-smash-pass.js?v=2.7-smash-polish" defer></script>
 </head>

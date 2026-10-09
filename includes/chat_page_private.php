@@ -105,7 +105,7 @@ $jsVer = @filemtime(__DIR__ . '/../assets/chat/private.js') ?: 1;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
     <link rel="stylesheet" href="/assets/chat/kit.css?v=<?= $kitCssVer ?>">
     <link rel="stylesheet" href="/assets/chat/chat.css?v=<?= $cssVer ?>">
-    <?php cripsum_theme_head('chat'); ?>
+    <?php cripsum_theme_head(); ?>
 </head>
 
 <body class="ck-page pc-page" data-user-id="<?= $userId ?>" data-logged-in="1" data-csrf="<?= $pcE(csrf_token()) ?>">

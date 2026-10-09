@@ -16,7 +16,7 @@
  * classi di stato (.checkout-option-card, .gift-container,
  * .payment-method-btn, .checkout-waiver) devono restare quelli.
  *
- * Lo stile sta in assets/theme-next/pages/forms.css.
+ * Lo stile sta in assets/forms/forms.css.
  */
 
 require_once __DIR__ . '/premium_copy.php';

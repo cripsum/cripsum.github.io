@@ -20,11 +20,6 @@ body.tiktokpedia-page {
     min-height: 100vh;
     margin: 0;
     color: var(--tp-text);
-    background:
-        radial-gradient(circle at 12% 8%, rgba(255, 45, 141, .26), transparent 30rem),
-        radial-gradient(circle at 88% 16%, rgba(155, 92, 255, .18), transparent 28rem),
-        linear-gradient(135deg, var(--tp-bg), var(--tp-bg-2));
-    background-attachment: fixed;
     overflow-x: hidden;
 }
 
@@ -91,7 +86,6 @@ body.tiktokpedia-page {
     gap: 1rem;
     align-items: stretch;
     padding: clamp(1rem, 3vw, 2rem);
-    border-radius: 36px;
 }
 
 .tp-hero-text {
@@ -109,27 +103,19 @@ body.tiktokpedia-page {
     padding: .36rem .72rem;
     border: 1px solid rgba(255, 45, 141, .38);
     border-radius: 999px;
-    color: #ffd2ea;
     background: rgba(255, 45, 141, .12);
     font-size: .72rem;
-    font-weight: 950;
-    letter-spacing: .08em;
-    text-transform: uppercase;
 }
 
 .tp-hero h1 {
     max-width: 820px;
     margin: .8rem 0 .55rem;
     color: var(--tp-text);
-    font-size: clamp(2.7rem, 8vw, 5.9rem);
-    line-height: .9;
-    letter-spacing: -.075em;
 }
 
 .tp-hero p {
     max-width: 650px;
     margin: 0;
-    color: var(--tp-muted);
     font-size: clamp(.98rem, 2vw, 1.1rem);
     line-height: 1.6;
 }
@@ -142,24 +128,16 @@ body.tiktokpedia-page {
     padding: 1rem;
     border: 1px solid var(--tp-border);
     border-radius: 28px;
-    background:
-        radial-gradient(circle at 15% 0%, rgba(255, 45, 141, .22), transparent 38%),
-        rgba(255, 255, 255, .05);
 }
 
 .tp-hero-card span {
-    color: var(--tp-muted-2);
     font-size: .72rem;
-    font-weight: 950;
-    letter-spacing: .08em;
-    text-transform: uppercase;
 }
 
 .tp-hero-card strong {
     color: #fff;
     font-size: 3.4rem;
     line-height: .9;
-    letter-spacing: -.06em;
 }
 
 .tp-hero-card p {
@@ -175,7 +153,6 @@ body.tiktokpedia-page {
     gap: .75rem;
     margin: 1rem 0;
     padding: .85rem;
-    border-radius: 28px;
 }
 
 .tp-search { position: relative; }
@@ -184,7 +161,6 @@ body.tiktokpedia-page {
     left: .95rem;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--tp-muted-2);
 }
 
 .tp-search input {
@@ -192,19 +168,12 @@ body.tiktokpedia-page {
     min-height: 3rem;
     padding: .75rem 1rem .75rem 2.65rem;
     border: 1px solid var(--tp-border);
-    border-radius: 999px;
     color: var(--tp-text);
-    background: rgba(255, 255, 255, .055);
     outline: none;
     font: inherit;
 }
 
 .tp-search input::placeholder { color: rgba(255, 255, 255, .42); }
-.tp-search input:focus {
-    border-color: rgba(255, 45, 141, .45);
-    box-shadow: 0 0 0 4px rgba(255, 45, 141, .1);
-}
-
 .tp-filters {
     display: flex;
     gap: .5rem;
@@ -227,22 +196,7 @@ body.tiktokpedia-page {
     padding: .62rem .88rem;
     border: 1px solid var(--tp-border);
     border-radius: 999px;
-    color: rgba(255, 247, 251, .78);
-    background: rgba(255, 255, 255, .055);
-    font-weight: 900;
     transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
-}
-
-.tp-filter:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 45, 141, .38);
-    color: #fff;
-}
-
-.tp-filter.is-active {
-    color: #fff;
-    border-color: rgba(255, 45, 141, .52);
-    background: linear-gradient(135deg, rgba(255, 45, 141, .22), rgba(155, 92, 255, .14));
 }
 
 .tp-toolbar-bottom {
@@ -260,13 +214,9 @@ body.tiktokpedia-page {
     padding: .55rem .85rem;
     border: 1px solid var(--tp-border);
     border-radius: 999px;
-    color: var(--tp-text);
-    background: rgba(255, 255, 255, .055);
-    font-weight: 900;
 }
 
 .tp-reset:hover {
-    border-color: rgba(255, 45, 141, .38);
     background: rgba(255, 45, 141, .12);
 }
 
@@ -278,7 +228,6 @@ body.tiktokpedia-page {
 
 .tp-card {
     overflow: hidden;
-    border-radius: var(--tp-radius);
     opacity: 0;
     transform: translateY(18px);
     transition: opacity .25s ease, transform .18s ease, border-color .18s ease, box-shadow .18s ease;
@@ -291,8 +240,6 @@ body.tiktokpedia-page {
 
 .tp-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(255, 45, 141, .38);
-    box-shadow: 0 28px 78px rgba(0, 0, 0, .42), 0 0 38px rgba(255, 45, 141, .12);
 }
 
 .tp-card-image {
@@ -301,9 +248,6 @@ body.tiktokpedia-page {
     place-items: center;
     height: 230px;
     overflow: hidden;
-    background:
-        radial-gradient(circle at 50% 16%, rgba(255, 45, 141, .26), transparent 52%),
-        rgba(255, 255, 255, .05);
 }
 
 .tp-card-image img {
@@ -337,13 +281,11 @@ body.tiktokpedia-page {
     margin: 0;
     color: #fff;
     font-size: 1.35rem;
-    font-weight: 950;
     letter-spacing: -.04em;
 }
 
 .tp-card-body p {
     margin: 0;
-    color: var(--tp-muted);
     line-height: 1.55;
 }
 
@@ -357,10 +299,7 @@ body.tiktokpedia-page {
     display: inline-flex;
     padding: .28rem .52rem;
     border-radius: 999px;
-    color: #ffd2ea;
-    background: rgba(255, 45, 141, .12);
     font-size: .72rem;
-    font-weight: 900;
 }
 
 .tp-card-actions {
@@ -376,10 +315,7 @@ body.tiktokpedia-page {
     gap: .5rem;
     min-height: 2.75rem;
     padding: .65rem .9rem;
-    border-radius: 999px;
     text-decoration: none;
-    font-weight: 950;
-    border: 0;
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
 }
 
@@ -396,15 +332,12 @@ body.tiktokpedia-page {
 }
 
 .tp-btn-ghost {
-    color: var(--tp-text);
     border: 1px solid var(--tp-border);
     background: rgba(255, 255, 255, .055);
 }
 
 .tp-btn-ghost:hover {
-    color: #fff;
     transform: translateY(-2px);
-    border-color: rgba(255, 45, 141, .38);
     background: rgba(255, 45, 141, .12);
 }
 
@@ -417,7 +350,6 @@ body.tiktokpedia-page {
 }
 
 .tp-empty i {
-    color: #ffd2ea;
     font-size: 2rem;
 }
 
@@ -440,8 +372,6 @@ body.tiktokpedia-page {
     gap: .6rem;
 }
 
-.tp-note i { color: #ffd2ea; }
-
 .tp-top {
     position: fixed;
     right: 1rem;
@@ -453,9 +383,6 @@ body.tiktokpedia-page {
     height: 3rem;
     border: 1px solid var(--tp-border);
     border-radius: 999px;
-    color: #fff;
-    background: var(--tp-strong);
-    box-shadow: 0 20px 50px rgba(0,0,0,.4);
     opacity: 0;
     pointer-events: none;
     transform: translateY(8px);
@@ -478,10 +405,6 @@ body.tiktokpedia-page {
     gap: .55rem;
     padding: .8rem 1rem;
     border-radius: 999px;
-    color: #220515;
-    background: linear-gradient(135deg, #fff, var(--tp-hot));
-    box-shadow: 0 20px 60px rgba(0,0,0,.4);
-    font-weight: 950;
     transform: translate(-50%, 14px);
     opacity: 0;
     pointer-events: none;
@@ -506,10 +429,6 @@ body.tiktokpedia-page .navbar .dropdown-menu {
     padding: .45rem !important;
     border: 1px solid rgba(255,255,255,.15) !important;
     border-radius: 18px !important;
-    background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.025)), rgba(12, 4, 18, .98) !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,.5) !important;
-    backdrop-filter: blur(18px) !important;
-    -webkit-backdrop-filter: blur(18px) !important;
     overflow: hidden;
     z-index: 99999 !important;
 }
@@ -538,7 +457,6 @@ body.tiktokpedia-page .dropdown-menu button:focus {
 }
 
 @media (max-width: 680px) {
-    body.tiktokpedia-page { background-attachment: scroll; }
     .tp-shell {
         width: 90%;
         padding-top: 5.7rem;
@@ -549,7 +467,6 @@ body.tiktokpedia-page .dropdown-menu button:focus {
     .tp-card,
     .tp-empty,
     .tp-note { border-radius: 22px; }
-    .tp-hero h1 { font-size: clamp(2.45rem, 13vw, 3.9rem); }
     .tp-hero-card { min-height: auto; }
     .tp-card-image { height: 210px; }
     .tp-card-actions,
@@ -575,4 +492,228 @@ body.tiktokpedia-page .dropdown-menu button:focus {
         opacity: 1;
         transform: none;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — TikTokpedia
+   ============================================================
+
+   Correzioni a css/tiktokpedia.css (it|en/tiktokpedia.php). Il foglio
+   originale non si tocca.
+
+   La pagina aveva un tema rosa tutto suo: nel tema nuovo le pagine non
+   hanno piu' un colore proprio. Restano la ricerca, i filtri per tag, la
+   comparsa delle card, «Copia link» con il suo avviso, il tasto per
+   tornare su.
+   ============================================================ */
+html:root body.tiktokpedia-page {
+    --tp-bg: var(--nx-bg);
+    --tp-bg-2: var(--nx-bg);
+    --tp-card: var(--nx-surface);
+    --tp-strong: var(--nx-surface-2);
+    --tp-border: var(--nx-line);
+    --tp-text: var(--nx-text);
+    --tp-muted: var(--nx-text-2);
+    --tp-muted-2: var(--nx-text-3);
+    --tp-pink: var(--nx-text);
+    --tp-hot: var(--nx-text);
+    --tp-purple: var(--nx-text);
+    --tp-radius: var(--nx-radius);
+    background: var(--nx-bg);
+}
+
+html:root .tp-bg {
+    display: none;
+}
+
+html:root :is(.tp-hero, .tp-toolbar, .tp-card, .tp-empty, .tp-note) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Testata e barra: sul fondo, senza riquadro ──────────── */
+html:root .tp-hero,
+html:root .tp-toolbar {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    background: none;
+}
+
+/* La barra resta ferma in alto mentre le card scorrono sotto: ha il fondo
+   della pagina, cosi' non si vede finche' non serve. */
+html:root .tp-toolbar {
+    background: var(--nx-bg);
+}
+
+html:root .tp-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root .tp-hero p {
+    color: var(--nx-text-2);
+}
+
+html:root .tp-kicker,
+html:root .tp-hero-card span {
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .tp-hero-card {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html:root .tp-hero-card strong {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+html:root .tp-search input,
+html:root .tp-search input:focus {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+    box-shadow: none;
+}
+
+html:root .tp-search input:focus {
+    border-color: var(--nx-text-3);
+}
+
+html:root .tp-search i {
+    color: var(--nx-text-3);
+}
+
+html:root .tp-filter,
+html:root .tp-reset {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .tp-filter:hover,
+html:root .tp-reset:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text);
+    transform: none;
+}
+
+html:root .tp-filter.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+html:root .tp-card {
+    border-radius: 20px;
+}
+
+html:root .tp-card:hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .tp-card-image {
+    background: var(--nx-surface-2);
+}
+
+html:root .tp-card-body h2 {
+    font-weight: 600;
+}
+
+html:root .tp-card-body p {
+    color: var(--nx-text-2);
+}
+
+html:root .tp-tags span {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .tp-btn {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .tp-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+html:root .tp-btn-ghost {
+    border-color: transparent;
+    color: var(--nx-text-2);
+}
+
+html:root .tp-btn-ghost:hover {
+    border-color: transparent;
+    color: var(--nx-text);
+}
+
+/* ── Avvisi che compaiono ────────────────────────────────── */
+html:root .tp-top {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    color: var(--nx-text);
+}
+
+html:root .tp-toast {
+    border: 1px solid var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .tp-note i,
+html:root .tp-empty i {
+    color: var(--nx-text-3);
+}
+
+/* Il foglio della pagina ricolorava di rosa i menu della navbar. */
+html:root body.tiktokpedia-page .dropdown-menu,
+html:root body.tiktokpedia-page .dropdown-menu.show,
+html:root body.tiktokpedia-page .navbar .dropdown-menu {
+    background: var(--nx-surface-2) !important;
+    box-shadow: var(--nx-float) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+html:root :is(.tp-btn, .tp-filter, .tp-reset, .tp-top):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
 }

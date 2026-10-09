@@ -290,7 +290,7 @@ $ogTitle = 'Cripsum™ - ' . $G['title'];
     <title><?php echo shop_h($G['title']); ?> - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/css/shop.css')); ?>">
-    <?php cripsum_theme_head('shop'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=<?php echo $en ? 'en_US' : 'it_IT'; ?>"></script>
 </head>
 

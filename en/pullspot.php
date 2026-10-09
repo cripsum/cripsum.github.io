@@ -104,7 +104,7 @@ $copy = [
     <meta property="og:description" content="<?php echo ps_h($copy['description']); ?>">
 
     <link rel="stylesheet" href="<?php echo pullspot_asset('/assets/pullspot/pullspot.css'); ?>">
-    <?php cripsum_theme_head('spot'); ?>
+    <?php cripsum_theme_head(); ?>
     <script>
         window.PULLSPOT_LANG = '<?php echo $lang; ?>';
         window.PULLSPOT_CSRF = '<?php echo ps_h(function_exists('csrf_token') ? csrf_token() : ''); ?>';

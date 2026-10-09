@@ -16,29 +16,10 @@
  */
 
 .cm-page {
-    --cm-bg: #05070d;
-    --cm-bg-2: #0a0e1a;
-    --cm-text: #f7f8ff;
-    --cm-muted: #a8b0c7;
-    --cm-muted-2: #737d96;
-    --cm-line: rgba(255, 255, 255, 0.09);
-    --cm-line-2: rgba(255, 255, 255, 0.17);
-    --cm-card: rgba(255, 255, 255, 0.04);
-    --cm-card-2: rgba(255, 255, 255, 0.07);
-    --cm-panel: rgba(10, 14, 27, 0.86);
-    --cm-solid: #0a0d19;
-    --cm-blue: #2f6bff;
-    --cm-purple: #8b5cf6;
     --cm-gold: #f4c343;
     --cm-silver: #b8c2d3;
     --cm-bronze: #d98a52;
-    --cm-danger: #f43f5e;
-    --cm-ok: #22c55e;
     --cm-warn: #f59e0b;
-    --cm-accent: var(--cm-blue);
-    --cm-accent-rgb: 47, 107, 255;
-    --cm-grad: linear-gradient(135deg, var(--cm-blue), var(--cm-purple));
-    --cm-on-accent: #fff;
     --cm-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
     --cm-sticky: 5.4rem;
 }
@@ -46,7 +27,6 @@
 body.cm-page {
     min-height: 100vh;
     color: var(--cm-text);
-    background: linear-gradient(135deg, var(--cm-bg), var(--cm-bg-2));
     overflow-x: hidden;
 }
 
@@ -135,9 +115,6 @@ html.cm-lock body {
     margin: 0;
     color: var(--cm-text);
     font-size: clamp(2.4rem, 5.2vw, 3.5rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.035em;
 }
 
 .cm-hero p {
@@ -153,14 +130,9 @@ html.cm-lock body {
     align-items: center;
     justify-content: center;
     gap: 9px;
-    min-height: 46px;
-    padding: 0 20px;
     border: 1px solid var(--cm-line-2);
-    border-radius: 14px;
-    background: var(--cm-card-2);
     color: var(--cm-text);
     font-size: 0.94rem;
-    font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
     transition: transform 180ms var(--cm-ease), border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
@@ -168,30 +140,11 @@ html.cm-lock body {
 
 .cm-btn:hover {
     color: var(--cm-text);
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
 }
 
-.cm-btn:active { transform: translateY(0) scale(0.98); }
 .cm-btn:disabled { opacity: 0.55; pointer-events: none; }
 
-.cm-btn--primary,
-.cm-btn--primary:hover {
-    border-color: transparent;
-    background: var(--cm-grad);
-    color: var(--cm-on-accent);
-    box-shadow: 0 12px 34px rgba(var(--cm-accent-rgb), 0.28);
-}
-
 .cm-btn--ghost { background: transparent; }
-
-.cm-btn--danger,
-.cm-btn--danger:hover {
-    border-color: rgba(244, 63, 94, 0.45);
-    background: rgba(244, 63, 94, 0.14);
-    color: #ff8ea1;
-}
 
 .cm-btn--off,
 .cm-btn--off:hover {
@@ -214,21 +167,17 @@ html.cm-lock body {
     width: 38px;
     height: 38px;
     padding: 0;
-    border: 1px solid var(--cm-line);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
     color: var(--cm-muted);
     font-size: 0.9rem;
     transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms var(--cm-ease);
 }
 
-.cm-icon:hover { color: var(--cm-text); background: rgba(255, 255, 255, 0.09); border-color: var(--cm-line-2); }
+.cm-icon:hover {   border-color: var(--cm-line-2); }
 .cm-icon:active { transform: scale(0.94); }
-.cm-icon.is-on { color: #8fb0ff; }
 .cm-icon--dark { border-color: var(--cm-line-2); background: rgba(0, 0, 0, 0.55); color: #fff; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 .cm-icon--dark:hover { background: rgba(0, 0, 0, 0.75); }
 .cm-icon--primary,
-.cm-icon--primary:hover { width: 44px; height: 44px; border: 0; border-radius: 13px; background: var(--cm-grad); color: var(--cm-on-accent); }
+.cm-icon--primary:hover { width: 44px; height: 44px; border: 0;    }
 
 .cm-shell :focus-visible,
 .cm-viewer :focus-visible,
@@ -248,40 +197,20 @@ html.cm-lock body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px;
-    border: 1px solid var(--cm-line);
-    border-radius: 20px;
-    background: var(--cm-panel);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
 }
 
 .cm-seg {
     display: flex;
-    gap: 4px;
-    padding: 4px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.05);
 }
 
 .cm-seg__tab {
     padding: 9px 15px;
     border: 0;
-    border-radius: 11px;
     background: transparent;
     color: var(--cm-muted) !important;
     font-size: 0.88rem !important;
-    font-weight: 600 !important;
     white-space: nowrap;
     transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
-}
-
-.cm-seg__tab:hover { color: var(--cm-text) !important; }
-
-.cm-seg__tab.is-active {
-    color: var(--cm-on-accent) !important;
-    background: var(--cm-grad);
-    box-shadow: 0 6px 18px rgba(var(--cm-accent-rgb), 0.3);
 }
 
 .cm-search {
@@ -294,16 +223,8 @@ html.cm-lock body {
     margin: 0;
     padding: 0 14px 0 16px;
     border: 1px solid var(--cm-line);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--cm-muted-2);
     cursor: text;
     transition: border-color 160ms ease, box-shadow 160ms ease;
-}
-
-.cm-search:focus-within {
-    border-color: rgba(var(--cm-accent-rgb), 0.6);
-    box-shadow: 0 0 0 4px rgba(var(--cm-accent-rgb), 0.12);
 }
 
 .cm-search input {
@@ -327,7 +248,6 @@ html.cm-lock body {
     border: 1px solid var(--cm-line-2);
     border-radius: 7px;
     background: transparent;
-    color: var(--cm-muted-2);
     font: inherit;
     font-size: 0.74rem;
 }
@@ -357,21 +277,10 @@ html.cm-lock body {
     height: 46px;
     padding: 0 15px;
     border: 1px solid var(--cm-line);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04);
     color: var(--cm-muted) !important;
     font-size: 0.88rem !important;
-    font-weight: 600 !important;
     white-space: nowrap;
     transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
-}
-
-.cm-pill:hover { color: var(--cm-text) !important; border-color: var(--cm-line-2); }
-
-.cm-pill[aria-pressed="true"] {
-    border-color: rgba(var(--cm-accent-rgb), 0.6);
-    background: rgba(var(--cm-accent-rgb), 0.16);
-    color: var(--cm-text) !important;
 }
 
 .cm-pill__dot {
@@ -384,10 +293,7 @@ html.cm-lock body {
     height: 20px;
     padding: 0 5px;
     border-radius: 10px;
-    background: var(--cm-warn);
-    color: #201400;
     font-size: 0.68rem;
-    font-weight: 700;
 }
 
 /* ── Tag ─────────────────────────────────────────────────────────────────── */
@@ -406,20 +312,11 @@ html.cm-lock body {
     padding: 7px 13px;
     border: 1px solid var(--cm-line);
     border-radius: 999px;
-    background: var(--cm-card);
     color: var(--cm-muted) !important;
     font-size: 0.82rem !important;
     font-weight: 500 !important;
     text-decoration: none;
     transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
-}
-
-.cm-tag:hover { color: var(--cm-text) !important; border-color: var(--cm-line-2); }
-
-.cm-tag.is-active {
-    border-color: rgba(var(--cm-accent-rgb), 0.6);
-    background: rgba(var(--cm-accent-rgb), 0.16);
-    color: var(--cm-text) !important;
 }
 
 .cm-tag--small { padding: 3px 10px; font-size: 0.76rem !important; }
@@ -448,7 +345,6 @@ html.cm-lock body {
     color: var(--cm-on-accent) !important;
     font-size: 0.84rem !important;
     font-weight: 600 !important;
-    box-shadow: 0 14px 34px rgba(var(--cm-accent-rgb), 0.4);
     animation: cm-drop 320ms var(--cm-ease) both;
 }
 
@@ -468,9 +364,7 @@ html.cm-lock body {
 
 .cm-post {
     position: relative;
-    border: 1px solid var(--cm-line);
     border-radius: 22px;
-    background: var(--cm-card);
     overflow: hidden;
     animation: cm-rise 420ms var(--cm-ease) both;
     animation-delay: calc(var(--cm-i, 0) * 45ms);
@@ -479,7 +373,6 @@ html.cm-lock body {
 
 .cm-post:hover {
     border-color: var(--cm-line-2);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
 }
 
 .cm-post.is-pending { border-color: rgba(245, 158, 11, 0.45); }
@@ -654,12 +547,8 @@ html.cm-lock body {
 
 .cm-role {
     flex: none;
-    padding: 2px 8px;
     border-radius: 999px;
-    background: rgba(47, 107, 255, 0.16);
-    color: #8fb0ff;
     font-size: 0.68rem;
-    font-weight: 600;
 }
 
 .cm-acts {
@@ -692,10 +581,7 @@ html.cm-lock body {
 
 .cm-act:hover { background: rgba(255, 255, 255, 0.07); color: var(--cm-text) !important; }
 .cm-act:active { transform: scale(0.94); }
-.cm-act.is-on { background: rgba(255, 122, 26, 0.14); color: #ffb37a !important; }
-.cm-act.is-saved { color: #8fb0ff !important; }
-/* Il voto non è una reazione: prende l'accento della pagina. */
-.cm-page--rimasto .cm-act.is-on { background: rgba(var(--cm-accent-rgb), 0.16); color: #8fb0ff !important; }
+.cm-act.is-on {  color: #ffb37a !important; }
 .cm-act--danger { color: #ff8ea1 !important; }
 .cm-act .cm-emo { font-size: 1rem; }
 .cm-act .cm-emo + .cm-emo { margin-left: -6px; }
@@ -735,7 +621,7 @@ html.cm-lock body {
     text-align: center;
 }
 
-.cm-empty > i { color: var(--cm-accent); font-size: 2rem; }
+.cm-empty > i {  font-size: 2rem; }
 .cm-empty strong { font-size: 1.1rem; font-weight: 600; }
 .cm-empty span { color: var(--cm-muted); font-size: 0.92rem; }
 .cm-empty .cm-btn { margin-top: 10px; }
@@ -755,9 +641,7 @@ html.cm-lock body {
 .cm-pod {
     position: relative;
     min-width: 0;
-    border: 1px solid var(--cm-line);
     border-radius: 26px;
-    background: var(--cm-card);
     overflow: hidden;
     animation: cm-rise 480ms var(--cm-ease) both;
 }
@@ -768,7 +652,6 @@ html.cm-lock body {
 
 .cm-pod--1 {
     border-color: rgba(var(--cm-accent-rgb), 0.6);
-    box-shadow: 0 0 0 1px rgba(var(--cm-accent-rgb), 0.2), 0 24px 60px rgba(0, 0, 0, 0.35);
 }
 
 .cm-podium[data-count="1"] { grid-template-columns: minmax(0, 520px); justify-content: center; }
@@ -797,7 +680,6 @@ html.cm-lock body {
     content: "";
     position: absolute;
     inset: 45% 0 0;
-    background: linear-gradient(to bottom, transparent, rgba(6, 8, 16, 0.92));
     pointer-events: none;
 }
 
@@ -814,14 +696,10 @@ html.cm-lock body {
     color: #14100a;
     font-size: 1.2rem;
     font-weight: 800;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
     pointer-events: none;
 }
 
-.cm-pod--1 .cm-medal { width: 56px; height: 56px; border-radius: 18px; background: linear-gradient(135deg, #ffe58a, #f0a92b); font-size: 1.4rem; }
-.cm-pod--2 .cm-medal { background: linear-gradient(135deg, #eef2f8, #9eabc0); }
-.cm-pod--3 .cm-medal { background: linear-gradient(135deg, #f0b185, #b96a35); }
-
+.cm-pod--1 .cm-medal { width: 56px; height: 56px; border-radius: 18px;  font-size: 1.4rem; }
 .cm-pod__info { padding: 16px 20px 20px; }
 
 .cm-pod__title {
@@ -845,9 +723,6 @@ html.cm-lock body {
 .cm-quote {
     display: -webkit-box;
     margin: 12px 0 0;
-    padding-left: 12px;
-    border-left: 3px solid rgba(var(--cm-accent-rgb), 0.6);
-    color: var(--cm-muted);
     font-size: 0.88rem;
     font-style: italic;
     overflow: hidden;
@@ -882,18 +757,13 @@ html.cm-lock body {
     min-height: 38px;
     padding: 0 14px;
     border: 1px solid var(--cm-line-2);
-    border-radius: 12px;
-    background: var(--cm-card-2);
     color: var(--cm-text) !important;
     font-size: 0.86rem !important;
-    font-weight: 600 !important;
     white-space: nowrap;
     transition: transform 180ms var(--cm-ease), border-color 180ms ease, background 180ms ease, color 180ms ease;
 }
 
-.cm-votebtn:hover { border-color: rgba(var(--cm-accent-rgb), 0.7); transform: translateY(-2px); }
 .cm-votebtn:active { transform: scale(0.95); }
-.cm-votebtn.is-on { border-color: rgba(var(--cm-accent-rgb), 0.6); background: rgba(var(--cm-accent-rgb), 0.16); color: #8fb0ff !important; }
 .cm-votebtn.is-pop i { animation: cm-pop 420ms var(--cm-ease); }
 
 /* ── Top Rimasti: righe ──────────────────────────────────────────────────── */
@@ -906,9 +776,7 @@ html.cm-lock body {
     align-items: center;
     gap: 18px;
     padding: 12px 18px 12px 8px;
-    border: 1px solid var(--cm-line);
     border-radius: 20px;
-    background: var(--cm-card);
     animation: cm-rise 420ms var(--cm-ease) both;
     animation-delay: calc(var(--cm-i, 0) * 40ms);
     transition: border-color 200ms ease;
@@ -982,7 +850,7 @@ html.cm-lock body {
     margin: 44px 0 16px;
 }
 
-.cm-sect h2 { margin: 0; color: var(--cm-text); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+.cm-sect h2 { margin: 0; color: var(--cm-text); font-size: 1.5rem;  letter-spacing: -0.02em; }
 .cm-sect span { color: var(--cm-muted-2); font-size: 0.86rem; }
 
 .cm-hall__grid {
@@ -997,20 +865,18 @@ html.cm-lock body {
     gap: 14px;
     min-width: 0;
     padding: 12px;
-    border: 1px solid var(--cm-line);
     border-radius: 20px;
-    background: var(--cm-card);
     color: var(--cm-text) !important;
     text-align: left;
     transition: border-color 200ms ease, transform 200ms var(--cm-ease);
 }
 
-.cm-fame:hover { border-color: rgba(var(--cm-accent-rgb), 0.6); transform: translateY(-2px); }
+.cm-fame:hover { border-color: rgba(var(--cm-accent-rgb), 0.6);  }
 .cm-fame img,
 .cm-fame .cm-noimg { flex: none; width: 68px; height: 68px; border-radius: 14px !important; object-fit: cover; background: #0b0f1c; }
 .cm-fame .cm-noimg { display: grid; place-items: center; color: var(--cm-muted-2); }
 .cm-fame div { min-width: 0; }
-.cm-fame small { display: block; color: #8fb0ff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.cm-fame small { display: block;  font-size: 0.72rem; font-weight: 600;   }
 .cm-fame b { display: block; margin: 2px 0; font-size: 0.92rem; font-weight: 600; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-fame span { color: var(--cm-muted-2); font-size: 0.78rem; }
 
@@ -1039,9 +905,6 @@ dialog.cm-sheet[open] {
 
 dialog.cm-viewer::backdrop,
 dialog.cm-sheet::backdrop {
-    background: rgba(3, 5, 10, 0.82);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     animation: cm-fade 200ms ease both;
 }
 
@@ -1062,9 +925,7 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
     height: min(820px, 100%);
     border: 1px solid var(--cm-line-2);
     border-radius: 26px;
-    background: #080b16;
     overflow: hidden;
-    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7);
 }
 
 /* «clip» e non solo «hidden»: l'alone esce dai bordi, e con «hidden» lo stage
@@ -1073,7 +934,6 @@ dialog.is-closing::backdrop { animation: cm-fade-out 160ms ease both; }
     position: relative;
     min-width: 0;
     min-height: 0;
-    background: #02030a;
     overflow: hidden;
     overflow: clip;
     user-select: none;
@@ -1313,17 +1173,14 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     height: 36px;
     padding: 0 13px;
     border: 1px solid var(--cm-line);
-    border-radius: 11px;
-    background: rgba(255, 255, 255, 0.04);
     color: var(--cm-muted) !important;
     font-size: 0.82rem !important;
-    font-weight: 600 !important;
     white-space: nowrap;
     transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms var(--cm-ease), opacity 160ms ease;
 }
 
 .cm-navbtn i { font-size: 0.72rem; }
-.cm-navbtn:hover { color: var(--cm-text) !important; background: rgba(255, 255, 255, 0.09); border-color: var(--cm-line-2); }
+.cm-navbtn:hover {  background: rgba(255, 255, 255, 0.09);  }
 .cm-navbtn:active { transform: scale(0.96); }
 .cm-navbtn:disabled { opacity: 0.35; pointer-events: none; }
 
@@ -1382,16 +1239,14 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     padding: 0 11px;
     border: 1px solid var(--cm-line);
     border-radius: 12px;
-    background: var(--cm-card);
     color: var(--cm-muted) !important;
     font-size: 0.84rem !important;
     font-weight: 600 !important;
     transition: transform 180ms var(--cm-ease), border-color 180ms ease, background 180ms ease;
 }
 
-.cm-react:hover { border-color: var(--cm-line-2); transform: translateY(-2px); }
 .cm-react:active { transform: scale(0.94); }
-.cm-react.is-on { border-color: rgba(255, 122, 26, 0.55); background: rgba(255, 122, 26, 0.14); color: #ffb37a !important; }
+.cm-react.is-on {   color: #ffb37a !important; }
 .cm-react .cm-emo { font-size: 1.05rem; }
 .cm-react.is-pop .cm-emo { animation: cm-pop 420ms var(--cm-ease); }
 .cm-side__top .cm-vote { margin-top: 14px; }
@@ -1400,11 +1255,8 @@ dialog.cm-viewer.is-immersive { padding: 0; }
 
 .cm-comments__head {
     margin: 0 0 12px;
-    color: var(--cm-muted-2);
     font-size: 0.76rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 
 .cm-comments__none { margin: 6px 0 14px; color: var(--cm-muted-2); font-size: 0.88rem; }
@@ -1417,8 +1269,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
 .cm-cm__head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.86rem; }
 .cm-cm__head a { color: var(--cm-text); font-weight: 600; text-decoration: none; }
 .cm-cm__head small { color: var(--cm-muted-2); font-size: 0.74rem; }
-.cm-cm__text { margin: 2px 0 4px; color: #d9def0; font-size: 0.88rem; white-space: pre-line; overflow-wrap: anywhere; }
-.cm-cm__text a { color: #8fb0ff; text-decoration: none; }
+.cm-cm__text { margin: 2px 0 4px;  font-size: 0.88rem; white-space: pre-line; overflow-wrap: anywhere; }
 .cm-cm__acts { display: flex; gap: 14px; }
 .cm-cm__acts button { padding: 0; border: 0; background: transparent; color: var(--cm-muted-2) !important; font-size: 0.76rem !important; font-weight: 600 !important; }
 .cm-cm__acts button:hover { color: var(--cm-text) !important; }
@@ -1446,12 +1297,8 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     margin: 0;
     padding: 0 14px;
     border: 1px solid var(--cm-line);
-    border-radius: 13px;
-    background: rgba(255, 255, 255, 0.04);
     transition: border-color 160ms ease, box-shadow 160ms ease;
 }
-
-.cm-composer__field:focus-within { border-color: rgba(var(--cm-accent-rgb), 0.6); box-shadow: 0 0 0 4px rgba(var(--cm-accent-rgb), 0.12); }
 
 .cm-page .cm-composer__field input,
 .cm-page .cm-composer__field input:focus {
@@ -1483,13 +1330,12 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     margin-bottom: 8px;
     padding: 6px 10px;
     border-radius: 10px;
-    background: rgba(var(--cm-accent-rgb), 0.12);
     color: var(--cm-text);
     font-size: 0.8rem;
 }
 
 .cm-composer__reply button { padding: 2px 6px; border: 0; background: transparent; color: var(--cm-muted) !important; }
-.cm-composer--login { display: flex; align-items: center; justify-content: center; gap: 9px; color: #8fb0ff; font-weight: 600; text-decoration: none; }
+.cm-composer--login { display: flex; align-items: center; justify-content: center; gap: 9px;  font-weight: 600;  }
 .cm-composer--note { color: var(--cm-muted-2); font-size: 0.86rem; text-align: center; }
 
 /* ── Nuovo post, segnala, conferme ───────────────────────────────────────── */
@@ -1502,9 +1348,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     margin: 0;
     border: 1px solid var(--cm-line-2);
     border-radius: 26px;
-    background: var(--cm-solid);
     overflow: hidden;
-    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7);
 }
 
 .cm-sheet--small .cm-sheet__panel { width: min(480px, 100%); }
@@ -1564,16 +1408,13 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     padding: 20px;
     border: 1.5px dashed rgba(var(--cm-accent-rgb), 0.5);
     border-radius: 20px;
-    background: rgba(var(--cm-accent-rgb), 0.06);
     color: var(--cm-muted) !important;
     text-align: center;
     transition: border-color 160ms ease, background 160ms ease, transform 160ms var(--cm-ease);
 }
 
-.cm-drop__zone:hover,
-.cm-drop.is-over .cm-drop__zone { border-color: rgba(var(--cm-accent-rgb), 0.9); background: rgba(var(--cm-accent-rgb), 0.12); }
 .cm-drop.is-over .cm-drop__zone { transform: scale(0.99); }
-.cm-drop__zone i { color: var(--cm-accent); font-size: 2rem; }
+.cm-drop__zone i {  font-size: 2rem; }
 .cm-drop__zone strong { color: var(--cm-text); font-size: 0.98rem; font-weight: 600; }
 .cm-drop__zone span { font-size: 0.84rem; }
 .cm-drop.has-files .cm-drop__zone { display: none; }
@@ -1626,7 +1467,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     animation: none;
 }
 
-.cm-tile--add:hover { border-color: rgba(var(--cm-accent-rgb), 0.8); color: var(--cm-text) !important; }
+.cm-tile--add:hover {  color: var(--cm-text) !important; }
 .cm-tile--add i { font-size: 1.1rem; }
 
 .cm-fields { display: grid; gap: 16px; align-content: start; min-width: 0; }
@@ -1652,9 +1493,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     min-height: 46px;
     padding: 11px 14px;
     border: 1px solid var(--cm-line);
-    border-radius: 13px;
     outline: 0 !important;
-    background: rgba(255, 255, 255, 0.04);
     box-shadow: none;
     color: var(--cm-text);
     font: inherit;
@@ -1666,9 +1505,6 @@ dialog.cm-viewer.is-immersive { padding: 0; }
 
 .cm-page textarea.cm-input { min-height: 84px; resize: vertical; line-height: 1.5; }
 .cm-page .cm-input::placeholder { color: var(--cm-muted-2); }
-.cm-page .cm-input:focus { border-color: rgba(var(--cm-accent-rgb), 0.7); box-shadow: 0 0 0 4px rgba(var(--cm-accent-rgb), 0.14); }
-.cm-page .cm-input.is-invalid { border-color: rgba(244, 63, 94, 0.7); }
-
 .cm-tagbox {
     display: flex;
     align-items: center;
@@ -1677,13 +1513,9 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     min-height: 46px;
     padding: 7px 10px;
     border: 1px solid var(--cm-line);
-    border-radius: 13px;
-    background: rgba(255, 255, 255, 0.04);
     cursor: text;
     transition: border-color 160ms ease, box-shadow 160ms ease;
 }
-
-.cm-tagbox:focus-within { border-color: rgba(var(--cm-accent-rgb), 0.7); box-shadow: 0 0 0 4px rgba(var(--cm-accent-rgb), 0.14); }
 
 .cm-page .cm-tagbox input,
 .cm-page .cm-tagbox input:focus {
@@ -1725,9 +1557,8 @@ dialog.cm-viewer.is-immersive { padding: 0; }
 .cm-switch strong { display: block; font-size: 0.9rem; font-weight: 600; }
 .cm-switch small { color: var(--cm-muted-2); font-size: 0.78rem; }
 .cm-switch input { position: absolute; opacity: 0; pointer-events: none; }
-.cm-switch i { position: relative; flex: none; width: 44px; height: 26px; border-radius: 13px; background: rgba(255, 255, 255, 0.14); transition: background 180ms ease; }
-.cm-switch i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform 200ms var(--cm-ease); }
-.cm-switch input:checked + i { background: var(--cm-accent); }
+.cm-switch i { position: relative; flex: none; width: 44px; height: 26px; border-radius: 13px;  transition: background 180ms ease; }
+.cm-switch i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;  transition: transform 200ms var(--cm-ease); }
 .cm-switch input:checked + i::after { transform: translateX(18px); }
 .cm-switch input:focus-visible + i { outline: 2px solid rgba(var(--cm-accent-rgb), 0.9); outline-offset: 2px; }
 
@@ -1751,7 +1582,6 @@ dialog.cm-viewer.is-immersive { padding: 0; }
 .cm-choice input { position: absolute; opacity: 0; pointer-events: none; }
 .cm-choice i { position: relative; flex: none; width: 18px; height: 18px; border: 2px solid var(--cm-line-2); border-radius: 50%; transition: border-color 160ms ease; }
 .cm-choice i::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--cm-accent); transform: scale(0); transition: transform 180ms var(--cm-ease); }
-.cm-choice:has(input:checked) { border-color: rgba(var(--cm-accent-rgb), 0.6); background: rgba(var(--cm-accent-rgb), 0.1); }
 .cm-choice input:checked + i { border-color: var(--cm-accent); }
 .cm-choice input:checked + i::after { transform: scale(1); }
 .cm-choice input:focus-visible + i { outline: 2px solid rgba(var(--cm-accent-rgb), 0.9); outline-offset: 2px; }
@@ -1775,8 +1605,6 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     width: 200px;
     padding: 6px;
     border-radius: 16px;
-    background: rgba(9, 12, 24, 0.98);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
     font-family: "Poppins", sans-serif;
     font-size: 0.86rem;
 }
@@ -1809,8 +1637,6 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     gap: 2px;
     padding: 6px;
     border-radius: 999px;
-    background: rgba(9, 12, 24, 0.98);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
 }
 
 .cm-picker:popover-open { display: flex; }
@@ -1837,10 +1663,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     bottom: 26px;
     max-width: min(92vw, 440px);
     padding: 12px 18px;
-    border-color: rgba(var(--cm-accent-rgb), 0.45);
     border-radius: 14px;
-    background: rgba(9, 12, 24, 0.98);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
     font-family: "Poppins", sans-serif;
     font-size: 0.9rem;
     font-weight: 500;
@@ -1849,8 +1672,6 @@ dialog.cm-viewer.is-immersive { padding: 0; }
 }
 
 .cm-toast:popover-open { animation: cm-toast 280ms var(--cm-ease) both; }
-.cm-toast.is-error { border-color: rgba(244, 63, 94, 0.6); }
-
 /* Un'emoji che sale quando si reagisce. */
 .cm-burst {
     position: fixed;
@@ -1931,9 +1752,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
         /* La scritta c'è ancora, a misura zero: senza questo lo spazio tra icona e scritta
            spingeva il «+» fuori dal centro. */
         gap: 0;
-        border-radius: 20px;
         font-size: 0;
-        box-shadow: 0 16px 40px rgba(var(--cm-accent-rgb), 0.5);
     }
 
     /* Misura intera: a 1.3rem (20.8px) il segno finiva quasi un pixel sopra il centro. */
@@ -1942,7 +1761,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
     .cm-page .scroll-indicator { right: auto; left: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); }
 
     /* Su telefono la barra occupa due righe: fissa in alto toglierebbe troppo schermo. */
-    .cm-bar { position: static; gap: 8px; padding: 7px; border-radius: 16px; }
+    .cm-bar { position: static; gap: 8px;   }
     .cm-newpill { top: calc(var(--cm-sticky) + 8px); }
     .cm-seg__tab { padding: 8px 10px; font-size: 0.8rem !important; }
     .cm-search { height: 42px; }
@@ -2060,3 +1879,520 @@ dialog.cm-viewer.is-immersive { padding: 0; }
 /* Mentre la classifica si riordina le card non rifanno l'animazione d'ingresso. */
 .cm-noanim .cm-pod,
 .cm-noanim .cm-row { animation: none; }
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Shitpost e Top Rimasti
+   ============================================================
+
+   Correzioni a assets/community/community.css (includes/community/page.php).
+   Il lettore dei video ha il suo foglio: edits-player.css.
+   Il foglio originale tiene i suoi colori in variabili sul <body>: quasi
+   tutto il lavoro e' spostarle sui neutri del tema. Sotto ci sono le regole
+   che aggiungevano vetro, aloni e sfumature, e i pezzi (pulsanti, linguette,
+   campi) portati ai valori dei pezzi comuni.
+
+   Restano come sono: le proporzioni vere dei media, le reazioni, il
+   visualizzatore a tutto schermo, la sfocatura degli spoiler (serve), lo
+   scheletro di caricamento, oro argento e bronzo sulle tre medaglie.
+   ============================================================ */
+html:root .cm-page {
+    --cm-bg: var(--nx-bg);
+    --cm-bg-2: var(--nx-bg);
+    --cm-text: var(--nx-text);
+    --cm-muted: var(--nx-text-2);
+    --cm-muted-2: var(--nx-text-3);
+    --cm-line: var(--nx-line);
+    --cm-line-2: #3a3a3d;
+    --cm-card: var(--nx-surface);
+    --cm-card-2: var(--nx-surface-2);
+    --cm-panel: var(--nx-surface);
+    --cm-solid: var(--nx-surface);
+    --cm-blue: #f5f5f7;
+    --cm-purple: #f5f5f7;
+    --cm-danger: var(--nx-danger);
+    --cm-ok: var(--nx-ok);
+    --cm-accent: var(--nx-text);
+    --cm-accent-rgb: 245, 245, 247;
+    --cm-grad: var(--nx-text);
+    --cm-on-accent: #000;
+}
+
+html:root body.cm-page {
+    background: var(--nx-bg);
+}
+
+/* Le due macchie sfocate sullo sfondo. */
+html:root .cm-orb {
+    display: none;
+}
+
+html:root :is(.cm-shell, .cm-viewer, .cm-sheet, .cm-menu, .cm-picker) :focus-visible {
+    outline: 2px solid var(--nx-text);
+}
+
+/* ── Testata ─────────────────────────────────────────────── */
+html:root .cm-hero h1 {
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root .cm-sect h2 {
+    font-weight: 600;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+html:root .cm-btn {
+    min-height: 2.75rem;
+    padding: 0 1.4rem;
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500;
+}
+
+html:root .cm-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html:root .cm-btn:active {
+    transform: scale(0.97);
+}
+
+html:root .cm-btn--primary,
+html:root .cm-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html:root .cm-btn--primary:hover {
+    background: #fff;
+}
+
+html:root .cm-btn--danger,
+html:root .cm-btn--danger:hover {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-danger);
+}
+
+html:root .cm-btn--danger:hover {
+    border-color: var(--nx-danger);
+}
+
+html:root .cm-btn--off {
+    color: var(--nx-text-3);
+}
+
+html:root .cm-icon {
+    border: 0;
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+}
+
+html:root .cm-icon:hover {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html:root .cm-icon--primary,
+html:root .cm-icon--primary:hover {
+    border-radius: 50%;
+    background: var(--nx-text);
+    color: #000;
+}
+
+/* I pulsanti sopra una foto: fondo scuro pieno al posto del vetro. */
+html:root :is(.cm-icon--dark, .cm-badge, .cm-play i, .cm-stage__arrow, .cm-stage__count, .cm-stage__dots) {
+    background: rgba(0, 0, 0, 0.66);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Barra: ordinamento, ricerca, filtri ─────────────────────
+   Non e' piu' un riquadro di vetro: tre pezzi in fila sul fondo. Resta
+   attaccata in alto mentre si scorre, quindi il fondo e' pieno. */
+html:root .cm-bar {
+    padding: 0.6rem 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--nx-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .cm-seg {
+    gap: 2px;
+    padding: 3px;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+}
+
+html:root .cm-seg__tab {
+    border-radius: var(--nx-pill);
+    font-weight: 500 !important;
+}
+
+html:root .cm-seg__tab:hover {
+    color: var(--nx-text) !important;
+}
+
+html:root .cm-seg__tab.is-active {
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    color: var(--nx-text) !important;
+}
+
+html:root .cm-search {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+    color: var(--nx-text-2);
+}
+
+html:root .cm-search:focus-within {
+    border-color: var(--nx-text-3);
+    box-shadow: none;
+}
+
+html:root .cm-search kbd {
+    border-color: var(--nx-line);
+    color: var(--nx-text-3);
+}
+
+html:root .cm-pill {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500 !important;
+}
+
+html:root .cm-pill:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text) !important;
+}
+
+html:root .cm-pill[aria-pressed="true"] {
+    border-color: var(--nx-text);
+    background: transparent;
+    color: var(--nx-text) !important;
+}
+
+/* Post in attesa di approvazione: contatore rosso, come gli altri del sito. */
+html:root .cm-pill__dot {
+    background: var(--nx-danger);
+    color: #fff;
+    font-weight: 600;
+}
+
+html:root .cm-tag {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html:root .cm-tag:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text) !important;
+}
+
+html:root .cm-tag.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text) !important;
+}
+
+html:root .cm-newpill {
+    box-shadow: var(--nx-float);
+}
+
+/* ── Card dei post ───────────────────────────────────────── */
+html:root .cm-post,
+html:root .cm-pod,
+html:root .cm-row,
+html:root .cm-fame {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+html:root .cm-post:hover,
+html:root .cm-pod--1 {
+    box-shadow: none;
+}
+
+html:root .cm-role {
+    padding: 0;
+    background: none;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+/* La reazione che ho messo io resta arancione, senza il fondo colorato. */
+html:root .cm-act.is-on,
+html:root .cm-react.is-on {
+    background: var(--nx-surface-2);
+}
+
+html:root .cm-react {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .cm-react:hover {
+    border-color: var(--nx-text-3);
+    transform: none;
+}
+
+html:root .cm-react.is-on {
+    border-color: rgba(255, 122, 26, 0.55);
+}
+
+html:root .cm-empty > i {
+    color: var(--nx-text-3);
+}
+
+/* ── Top Rimasti: podio, classifica, albo d'oro ──────────── */
+/* La foto sfuma nel colore della card. */
+html:root .cm-pod__media::after {
+    background: linear-gradient(to bottom, transparent, var(--nx-surface));
+}
+
+/* Oro, argento e bronzo pieni, senza riflesso. */
+html:root .cm-medal {
+    box-shadow: none;
+}
+
+html:root .cm-pod--1 .cm-medal {
+    background: var(--cm-gold);
+}
+
+html:root .cm-pod--2 .cm-medal {
+    background: var(--cm-silver);
+}
+
+html:root .cm-pod--3 .cm-medal {
+    background: var(--cm-bronze);
+}
+
+/* La motivazione: via la striscia colorata sul fianco. */
+html:root .cm-quote {
+    padding-left: 0;
+    border-left: 0;
+    color: var(--nx-text-2);
+}
+
+html:root .cm-votebtn {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500 !important;
+}
+
+html:root .cm-votebtn:hover {
+    border-color: var(--nx-text-3);
+    transform: none;
+}
+
+/* Votato: pieno. E' l'unica azione della riga. */
+html:root .cm-votebtn.is-on {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+}
+
+html:root .cm-page--rimasto .cm-act.is-on {
+    background: var(--nx-surface-3);
+}
+
+html:root .cm-fame:hover {
+    transform: none;
+    background: var(--nx-surface-2);
+}
+
+html:root .cm-fame small {
+    color: var(--nx-text-3);
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+/* ── Post aperto e finestre ──────────────────────────────── */
+html:root dialog.cm-viewer::backdrop,
+html:root dialog.cm-sheet::backdrop {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .cm-viewer__panel,
+html:root .cm-sheet__panel {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+}
+
+html:root .cm-stage {
+    background: #000;
+}
+
+/* L'alone sfocato della foto dietro la foto. */
+html:root .cm-stage__glow {
+    display: none;
+}
+
+html:root .cm-navbtn {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500 !important;
+}
+
+html:root .cm-navbtn:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text) !important;
+    transform: none;
+}
+
+html:root .cm-comments__head {
+    color: var(--nx-text-3);
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .cm-composer__field,
+html:root .cm-tagbox,
+html:root .cm-page .cm-input,
+html:root .cm-page .cm-input:focus {
+    border-color: transparent;
+    border-radius: 12px;
+    background: var(--nx-surface-2);
+}
+
+html:root .cm-composer__field {
+    border-radius: var(--nx-pill);
+}
+
+/* Il fuoco e' una riga, non un alone. */
+html:root .cm-composer__field:focus-within,
+html:root .cm-tagbox:focus-within,
+html:root .cm-page .cm-input:focus {
+    border-color: var(--nx-text);
+    box-shadow: none;
+}
+
+/* Il campo sbagliato resta segnato in rosso, anche col fuoco. */
+html:root .cm-page .cm-input.is-invalid {
+    border-color: var(--nx-danger);
+}
+
+html:root .cm-composer__reply {
+    background: var(--nx-surface-2);
+}
+
+html:root .cm-drop__zone {
+    border-color: #3a3a3d;
+    background: none;
+}
+
+html:root .cm-drop__zone:hover,
+html:root .cm-drop.is-over .cm-drop__zone {
+    border-color: var(--nx-text-3);
+    background: var(--nx-surface-2);
+}
+
+html:root .cm-drop__zone i {
+    color: var(--nx-text-2);
+}
+
+html:root .cm-tile--add:hover {
+    border-color: var(--nx-text-3);
+}
+
+/* Interruttore: bianco quando e' acceso, col pallino nero. */
+html:root .cm-switch i {
+    background: var(--nx-surface-3);
+}
+
+html:root .cm-switch i::after {
+    background: var(--nx-text-2);
+}
+
+html:root .cm-switch input:checked + i {
+    background: var(--nx-text);
+}
+
+html:root .cm-switch input:checked + i::after {
+    background: #000;
+}
+
+html:root .cm-choice {
+    border-color: var(--nx-line);
+}
+
+html:root .cm-choice:has(input:checked) {
+    border-color: var(--nx-text);
+    background: none;
+}
+
+html:root .cm-menu,
+html:root .cm-picker,
+html:root .cm-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+/* L'avviso di errore tiene il bordo rosso. */
+html:root .cm-toast.is-error {
+    border-color: var(--nx-danger);
+}
+
+/* ── Colori scritti a mano nell'originale ───────────────── */
+html:root :is(.cm-post__media, .cm-pod__media, .cm-row__thumb, .cm-tile, .cm-fame .cm-noimg) {
+    background-color: var(--nx-surface-2);
+}
+
+/* Salvato: segnalibro pieno e bianco. */
+html:root .cm-icon.is-on,
+html:root .cm-act.is-saved,
+html:root .cm-page--rimasto .cm-act.is-on,
+html:root .cm-votebtn.is-on {
+    color: var(--nx-text) !important;
+}
+
+html:root .cm-cm__text {
+    color: var(--nx-text);
+}
+
+html:root .cm-cm__text a,
+html:root .cm-composer--login {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+/* ── Pesi del carattere: 600 al posto di 700 e 800 ───────── */
+html:root :is(.cm-pod__title, .cm-meter__n, .cm-side__title, .cm-sheet__head strong, .cm-medal, .cm-vote__n, .cm-row__pos, .cm-stage .ep__speed-btn) {
+    font-weight: 600;
+}
+
+@media (max-width: 760px) {
+    /* Il tondo fisso per pubblicare: tondo davvero, ombra neutra. */
+    html:root .cm-hero .cm-btn--primary[data-cm-new] {
+        border-radius: 50%;
+        box-shadow: var(--nx-float);
+    }
+}

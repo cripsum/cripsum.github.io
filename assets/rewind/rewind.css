@@ -41,7 +41,6 @@ html, body { height: 100%; }
 
 body.rw-page {
     margin: 0;
-    background: var(--rw-bg);
     color: var(--rw-text);
     font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
     overflow: hidden;
@@ -70,10 +69,6 @@ body.rw-page {
     position: absolute;
     inset: 0;
     z-index: 0;
-    background:
-        radial-gradient(140% 100% at 50% -20%, var(--rw-slide-1, #2f6bff) 0%, transparent 58%),
-        radial-gradient(110% 90% at 15% 115%, var(--rw-slide-2, #0b2a6b) 0%, transparent 55%),
-        var(--rw-bg);
     /* Il colore cambia a ogni schermata: la transizione lo rende un
        dissolvimento invece di un salto. */
     transition: background 700ms var(--rw-emphasized);
@@ -168,7 +163,6 @@ body.rw-page {
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.86);
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 }
 
 .rw-topbar__actions {
@@ -440,10 +434,6 @@ body.rw-page {
     line-height: 0.9;
     letter-spacing: -0.045em;
     margin: 8px 0 12px;
-    background: linear-gradient(180deg, #fff 28%, rgba(255, 255, 255, 0.6));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
     font-variant-numeric: tabular-nums;
 }
 
@@ -556,11 +546,6 @@ body.rw-page {
     transition-delay: calc(var(--rw-i, 0) * 22ms + 200ms);
 }
 
-.rw-clock__bar.is-peak {
-    background: linear-gradient(180deg, #ffe27a, #ffb020);
-    box-shadow: 0 0 20px rgba(255, 190, 60, 0.6);
-}
-
 .rw-clock__axis {
     display: flex;
     justify-content: space-between;
@@ -599,7 +584,7 @@ body.rw-page {
 .rw-heat__cell[data-level="1"] { background: rgba(255, 255, 255, 0.3); }
 .rw-heat__cell[data-level="2"] { background: rgba(255, 255, 255, 0.5); }
 .rw-heat__cell[data-level="3"] { background: rgba(255, 255, 255, 0.74); }
-.rw-heat__cell[data-level="4"] { background: #fff; box-shadow: 0 0 9px rgba(255, 255, 255, 0.65); }
+.rw-heat__cell[data-level="4"] { background: #fff;  }
 
 /* Carta personaggio */
 .rw-hero { display: grid; justify-items: center; gap: 15px; margin: 20px 0 6px; }
@@ -790,7 +775,6 @@ body.rw-page {
     color: #06080f;
     font-family: inherit;
     font-size: clamp(0.88rem, 1.6vw, 1rem);
-    font-weight: 700;
     cursor: pointer;
     overflow: hidden;
     text-decoration: none;
@@ -809,7 +793,6 @@ body.rw-page {
 
 .rw-btn:hover::before { opacity: 0.08; }
 .rw-btn:active::before { opacity: 0.14; }
-.rw-btn:hover { transform: translateY(-2px); box-shadow: var(--rw-e3); }
 .rw-btn:active { transform: translateY(0); }
 .rw-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .rw-btn > * { position: relative; }
@@ -923,7 +906,6 @@ body.rw-page {
     z-index: 70;
     padding: 13px 22px;
     border-radius: 999px;
-    background: rgba(12, 16, 28, 0.95);
     border: 1px solid var(--rw-border);
     font-size: 0.88rem;
     font-weight: 600;
@@ -931,7 +913,6 @@ body.rw-page {
     pointer-events: none;
     transition: opacity 240ms var(--rw-standard), transform 300ms var(--rw-emphasized);
     backdrop-filter: blur(14px);
-    box-shadow: var(--rw-e3);
 }
 
 .rw-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
@@ -989,7 +970,6 @@ body.rw-page {
         transition-duration: 0.001ms !important;
     }
 
-    .rw-orb { display: none; }
     .rw-hero__img,
     .rw-persona__icon { animation: none; }
 }
@@ -1429,7 +1409,6 @@ body.rw-page {
     object-fit: cover;
     border-radius: 30px;
     border: 3px solid rgba(251, 191, 36, 0.75);
-    box-shadow: var(--rw-e4), 0 0 46px rgba(251, 191, 36, 0.35);
     animation: rw-relic-in 1000ms var(--rw-emphasized) both;
 }
 
@@ -1638,4 +1617,120 @@ body.rw-page {
 .rw-locked__cd {
     grid-template-columns: repeat(4, 1fr);
     margin-top: 0;
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Rewind
+   ============================================================
+
+   Correzioni a assets/rewind/rewind.css (it|en/rewind.php, la schermata
+   di blocco e la pagina pubblica di un Rewind condiviso). Il foglio
+   originale non si tocca.
+
+   Il Rewind tiene la sua identita': la storia a tutto schermo, il colore
+   che cambia a ogni schermata, i numeri enormi, le etichette in
+   maiuscolo, la grana, le animazioni d'ingresso, la musica, la card da
+   scaricare coi suoi colori, l'oro dell'ora di punta.
+
+   Va via solo quello che il tema nuovo non usa da nessuna parte: le due
+   macchie sfocate che galleggiano sullo sfondo, il secondo colore che
+   faceva la sfumatura blu-viola, il vetro sfocato dietro riquadri e
+   pulsanti, i numeri a sfumatura, gli aloni luminosi.
+   ============================================================ */
+html:root body.rw-page {
+    --rw-bg: var(--nx-bg);
+    --rw-muted: var(--nx-text-2);
+    --rw-e1: none;
+    --rw-e2: none;
+    background: var(--nx-bg);
+}
+
+/* Lo sfondo: il colore della schermata che scende dall'alto, uno solo.
+   Dove un colore non c'e' (la schermata di blocco) resta il fondo del tema. */
+html:root .rw-bg-layer {
+    background:
+        radial-gradient(140% 100% at 50% -20%, var(--rw-slide-1, transparent) 0%, transparent 58%),
+        var(--nx-bg);
+}
+
+html:root .rw-orb {
+    display: none;
+}
+
+/* ── Vetro: via la sfocatura, resta il riquadro ──────────── */
+html:root :is(.rw-iconbtn, .rw-audio, .rw-card, .rw-stat, .rw-duo__side, .rw-record, .rw-summary__item, .rw-btn--ghost, .rw-toast, .rw-person, .rw-act, .rw-medal) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .rw-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+/* ── Numeri e barre: pieni, non a sfumatura ──────────────── */
+html:root .rw-big {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    -webkit-text-fill-color: currentColor;
+    color: #fff;
+}
+
+html:root :is(.rw-bar__fill, .rw-meter__fill, .rw-clock__bar) {
+    background: #fff;
+}
+
+/* L'ora di punta resta dorata, senza alone. */
+html:root .rw-clock__bar.is-peak {
+    background: #ffb020;
+    box-shadow: none;
+}
+
+html:root .rw-heat__cell[data-level="4"] {
+    box-shadow: none;
+}
+
+html:root .rw-act__beam {
+    display: none;
+}
+
+/* ── Aloni attorno a immagini e medaglie ─────────────────── */
+html:root :is(.rw-relic__halo, .rw-medal__glow) {
+    display: none;
+}
+
+html:root .rw-relic__img {
+    box-shadow: var(--rw-e4);
+}
+
+html:root .rw-topbar__brand {
+    text-shadow: none;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+html:root .rw-btn {
+    font-weight: 500;
+}
+
+html:root .rw-btn:hover {
+    box-shadow: none;
+    transform: none;
+}
+
+html:root :is(.rw-btn, .rw-iconbtn, .rw-swatch):focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
 }

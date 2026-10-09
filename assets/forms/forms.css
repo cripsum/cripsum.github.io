@@ -32,13 +32,6 @@ body.form-page {
     margin: 0;
     color: var(--forms-text);
     font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background:
-        radial-gradient(circle at 8% 6%, rgba(var(--forms-accent-rgb), .24), transparent 30rem),
-        radial-gradient(circle at 92% 18%, rgba(139, 92, 246, .16), transparent 28rem),
-        linear-gradient(135deg, var(--forms-bg), var(--forms-bg-2));
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    background-size: cover;
     overflow-x: hidden;
 }
 
@@ -47,7 +40,6 @@ body.form-page {
     inset: 0;
     z-index: -5;
     overflow: hidden;
-    background: #02040a;
 }
 
 .form-orb,
@@ -115,19 +107,6 @@ body.form-page {
     align-items: start;
 }
 
-.form-card,
-.form-panel,
-.form-success-card {
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .025)),
-        var(--forms-card);
-    border: 1px solid var(--forms-border);
-    border-radius: var(--forms-radius-xl);
-    box-shadow: var(--forms-shadow);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-}
-
 .form-card {
     overflow: hidden;
     padding: clamp(1rem, 3vw, 2rem);
@@ -145,30 +124,18 @@ body.form-page {
     padding: .36rem .72rem;
     border: 1px solid rgba(var(--forms-accent-rgb), .34);
     border-radius: 999px;
-    color: #9bb7ff;
-    background: rgba(var(--forms-accent-rgb), .1);
-    font-size: .72rem;
-    font-weight: 900;
-    letter-spacing: .08em;
-    text-transform: uppercase;
 }
 
 .form-card h1,
 .form-success-card h1 {
     margin: .75rem 0 .45rem;
     color: var(--forms-text);
-    font-size: clamp(2rem, 6vw, 4.2rem);
-    line-height: .93;
-    letter-spacing: -.065em;
 }
 
 .form-card h2,
 .form-panel h2 {
     margin: 0 0 1rem;
     color: var(--forms-text);
-    font-size: clamp(1.3rem, 3vw, 2rem);
-    line-height: 1;
-    letter-spacing: -.045em;
 }
 
 .form-card p,
@@ -211,17 +178,9 @@ body.form-page {
     text-align: left;
 }
 
-.form-field span,
-.form-label {
-    color: rgba(247, 248, 255, .9);
-    font-size: .88rem;
-    font-weight: 850;
-}
-
 .form-field small,
 .form-hint {
     color: var(--forms-muted-2);
-    font-size: .78rem;
     line-height: 1.4;
 }
 
@@ -291,7 +250,6 @@ body.form-page {
     align-items: flex-start;
     gap: .65rem;
     margin: .55rem 0;
-    color: var(--forms-muted);
     text-align: left;
 }
 
@@ -321,48 +279,15 @@ body.form-page {
     height: 2.2rem;
     border: 0;
     border-radius: 999px;
-    color: var(--forms-muted);
-    background: rgba(255, 255, 255, .06);
     display: grid;
     place-items: center;
     cursor: pointer;
 }
 
-.password-toggle:hover {
-    color: #fff;
-    background: rgba(var(--forms-accent-rgb), .16);
-}
-
 .form-alert {
     display: flex;
-    gap: .65rem;
-    align-items: flex-start;
     margin: 0 0 1rem;
-    padding: .85rem .95rem;
-    border: 1px solid var(--forms-border);
-    border-radius: 18px;
-    color: var(--forms-text);
-    background: rgba(255, 255, 255, .055);
     text-align: left;
-}
-
-.form-alert--success {
-    border-color: rgba(52, 211, 153, .28);
-    background: rgba(52, 211, 153, .1);
-}
-
-.form-alert--error {
-    border-color: rgba(251, 113, 133, .28);
-    background: rgba(251, 113, 133, .1);
-}
-
-.form-alert--info {
-    border-color: rgba(var(--forms-accent-rgb), .28);
-    background: rgba(var(--forms-accent-rgb), .1);
-}
-
-.form-alert i {
-    margin-top: .15rem;
 }
 
 .form-actions {
@@ -382,30 +307,10 @@ body.form-page {
     align-items: center;
     justify-content: center;
     gap: .5rem;
-    min-height: 3rem;
-    padding: .78rem 1.05rem;
     border: 1px solid var(--forms-border);
     border-radius: 999px;
-    color: var(--forms-text);
-    background: rgba(255, 255, 255, .055);
-    font-weight: 900;
     text-decoration: none;
     cursor: pointer;
-    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
-}
-
-.form-btn:hover {
-    transform: translateY(-2px);
-    color: #fff;
-    border-color: rgba(var(--forms-accent-rgb), .44);
-    background: rgba(var(--forms-accent-rgb), .14);
-}
-
-.form-btn--primary {
-    border-color: transparent;
-    color: #fff;
-    background: linear-gradient(135deg, rgba(var(--forms-accent-rgb), .96), rgba(139, 92, 246, .94));
-    box-shadow: 0 12px 34px rgba(var(--forms-accent-rgb), .22);
 }
 
 .form-btn--wide {
@@ -414,7 +319,6 @@ body.form-page {
 
 .form-btn[disabled],
 .form-btn.is-loading {
-    opacity: .7;
     pointer-events: none;
     transform: none;
 }
@@ -477,10 +381,6 @@ body.form-page {
     width: 4.5rem;
     height: 4.5rem;
     margin: 0 auto 1rem;
-    border-radius: 24px;
-    color: #fff;
-    background: linear-gradient(135deg, var(--forms-accent), var(--forms-purple));
-    box-shadow: 0 0 34px rgba(var(--forms-accent-rgb), .25);
     font-size: 1.8rem;
 }
 
@@ -494,7 +394,6 @@ body.form-page {
     width: .65rem;
     height: .65rem;
     border-radius: 999px;
-    background: #9bb7ff;
     animation: formBounce 900ms ease-in-out infinite alternate;
 }
 
@@ -566,10 +465,6 @@ body.form-page .dropdown-menu button:hover {
 }
 
 @media (max-width: 680px) {
-    body.form-page {
-        background-attachment: scroll;
-    }
-
     body.form-page::before {
         content: "";
         position: fixed;
@@ -593,12 +488,6 @@ body.form-page .dropdown-menu button:hover {
         padding-bottom: 2.4rem;
     }
 
-    .form-card,
-    .form-panel,
-    .form-success-card {
-        border-radius: 22px;
-    }
-
     .form-grid--2,
     .form-grid--3 {
         grid-template-columns: 1fr;
@@ -614,10 +503,6 @@ body.form-page .dropdown-menu button:hover {
         width: 100%;
     }
 
-    .form-card h1,
-    .form-success-card h1 {
-        font-size: clamp(2rem, 11vw, 3.1rem);
-    }
 }
 
 @media (max-width: 380px) {
@@ -642,5 +527,707 @@ body.form-page .dropdown-menu button:hover {
     .form-reveal {
         opacity: 1;
         transform: none;
+    }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Checkout Premium, verifiche, recupero password
+   ============================================================
+
+   Correzioni a assets/forms/forms.css per le pagine che lo usano:
+   checkout-premium, verifica-2fa, verifica-email, confirm-google-password,
+   password-dimenticata, invia_link, reset_password, salva_nuova_password.
+   Il foglio originale non si tocca.
+
+   Pulsanti, campi e avvisi riprendono i valori dei pezzi comuni (classi nx-
+   in theme.css) sulle classi che queste pagine hanno gia'.
+   ============================================================ */
+html:root {
+    --forms-accent: #f5f5f7;
+    --forms-accent-rgb: 245, 245, 247;
+    --forms-purple: #a1a1a6;
+    --forms-bg: var(--nx-bg);
+    --forms-bg-2: var(--nx-bg);
+    --forms-card: var(--nx-surface);
+    --forms-card-strong: var(--nx-surface);
+    --forms-border: var(--nx-line);
+    --forms-text: var(--nx-text);
+    --forms-muted: var(--nx-text-2);
+    --forms-muted-2: var(--nx-text-3);
+    --forms-danger: var(--nx-danger);
+    --forms-success: var(--nx-ok);
+    --forms-radius-xl: var(--nx-radius);
+    --forms-radius-lg: 20px;
+    --forms-radius-md: 12px;
+    --forms-shadow: none;
+}
+
+/* ── Fondo ───────────────────────────────────────────────── */
+html:root body.form-page,
+html:root .form-bg {
+    background: var(--nx-bg);
+}
+
+/* Le due macchie sfocate che galleggiano e la griglia di linee. */
+html:root .form-orb,
+html:root .form-grid-bg,
+html:root body.form-page::before {
+    display: none;
+}
+
+html:root .form-shell :focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 3px;
+}
+
+/* ── Riquadri e titoli ───────────────────────────────────── */
+html:root .form-card,
+html:root .form-panel,
+html:root .form-success-card {
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .form-card h1,
+html:root .form-success-card h1 {
+    margin-top: 0;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root .form-card h2,
+html:root .form-panel h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+html:root .form-pill {
+    border-color: var(--nx-surface-3);
+    background: none;
+    color: var(--nx-text-2);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .form-section {
+    border-top-color: var(--nx-line);
+}
+
+/* ── Campi ───────────────────────────────────────────────── */
+html:root .form-field span,
+html:root .form-label {
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    font-weight: 400;
+}
+
+html:root .form-field small,
+html:root .form-hint {
+    font-size: 0.8125rem;
+}
+
+html:root :is(.form-control, .form-select, .form-textarea),
+html:root .form-shell :is(input[type="text"], input[type="email"], input[type="password"], input[type="url"], input[type="number"], input[type="tel"], input[type="file"], textarea, select) {
+    min-height: 2.75rem;
+    border-color: transparent;
+    border-radius: 12px;
+    background: var(--nx-surface-2);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    transition: border-color 240ms var(--nx-ease);
+}
+
+html:root :is(.form-control, .form-select, .form-textarea):focus,
+html:root .form-shell :is(input, textarea, select):focus {
+    border-color: var(--nx-text);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+/* forms.css da' a ogni campo di testo della pagina l'altezza dei campi del
+   form, compresa la ricerca nella navbar, che cosi' diventa piu' alta che
+   nelle altre pagine. */
+html:root .form-page .navbar-search-input {
+    min-height: 0;
+}
+
+html:root .form-shell input[type="file"]::file-selector-button {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .form-check,
+html:root .form-radio {
+    color: var(--nx-text);
+}
+
+html:root .form-shell :is(.form-check, .form-radio, .checkout-waiver, .checkout-option-card) input {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    min-height: 0;
+    margin: 0.1rem 0 0;
+    border: 1px solid var(--nx-text-3);
+    border-radius: 6px;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+    transition: background-color 200ms var(--nx-ease), border-color 200ms var(--nx-ease);
+}
+
+html:root .form-shell :is(.form-check, .form-radio, .checkout-waiver) input[type="checkbox"]:checked {
+    border-color: var(--nx-text);
+    background: var(--nx-text) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M1.5 5.2 4.6 8l6-6.4' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 0.7rem no-repeat;
+}
+
+html:root .form-shell :is(.form-radio, .checkout-option-card) input[type="radio"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 50%;
+}
+
+html:root .form-shell :is(.form-radio, .checkout-option-card) input[type="radio"]:checked {
+    border: 5px solid var(--nx-text);
+}
+
+html:root .password-toggle {
+    background: none;
+    color: var(--nx-text-2);
+}
+
+html:root .password-toggle:hover {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Pulsanti e link ─────────────────────────────────────── */
+html:root .form-btn {
+    min-height: 2.75rem;
+    padding: 0 1.4rem;
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+    font-family: inherit;
+    font-weight: 500;
+    transition: background-color 240ms var(--nx-ease), border-color 240ms var(--nx-ease), color 240ms var(--nx-ease), transform 240ms var(--nx-ease);
+}
+
+html:root .form-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    color: var(--nx-text);
+    transform: none;
+}
+
+html:root .form-btn:active {
+    transform: scale(0.97);
+}
+
+html:root .form-btn--primary,
+html:root .form-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html:root .form-btn--primary:hover {
+    background: #fff;
+}
+
+html:root .form-btn[disabled],
+html:root .form-btn.is-loading,
+html:root #stripe-submit-btn[disabled] {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    color: var(--nx-text-3);
+    opacity: 1;
+}
+
+/* forms.css colora di azzurro e mette in grassetto ogni link della pagina,
+   con un selettore pesante: prende anche navbar, menu e footer. Qui i link
+   del contenuto diventano bianchi, e quelli del guscio tornano al colore e
+   al peso che hanno nelle altre pagine. */
+html:root .form-page .form-shell a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):not(.form-btn) {
+    color: var(--nx-text);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+html:root .form-page .form-shell a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):not(.form-btn):hover {
+    text-decoration-color: var(--nx-text);
+}
+
+/* I link che stanno da soli sotto il form («Torna al login») si sottolineano
+   solo al passaggio del mouse, come in Accedi. */
+html:root .form-page .form-shell .form-links a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):not(.form-btn) {
+    text-decoration: none;
+}
+
+html:root .form-page .form-shell .form-links a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):not(.form-btn):hover {
+    text-decoration: underline;
+}
+
+html:root .form-page :is(.navbarutenti, .cnav-pop, .modern-footer, .achievement-popup) a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):not(.form-btn) {
+    color: var(--nx-guscio-link, var(--nx-text));
+    font-weight: var(--nx-guscio-peso, 400);
+}
+
+html:root .form-page :is(.cnav-key, .cnav-foot-btn) {
+    --nx-guscio-peso: 500;
+}
+
+html:root .form-page :is(.footer-link, .cnav-icon-btn) {
+    --nx-guscio-link: var(--nx-text-2);
+}
+
+html:root .form-page :is(.footer-link, .cnav-icon-btn):hover,
+html:root .form-page .cnav-inbox:is(.has-unread, [aria-expanded="true"]) {
+    --nx-guscio-link: var(--nx-text);
+}
+
+html:root .form-page .cnav-foot-btn--danger {
+    --nx-guscio-link: var(--nx-danger);
+}
+
+/* ── Avvisi ──────────────────────────────────────────────── */
+html:root .form-alert,
+html:root .form-alert--success,
+html:root .form-alert--error,
+html:root .form-alert--info,
+html:root .form-message {
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.8rem 1rem;
+    border: 0;
+    border-radius: 14px;
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+}
+
+html:root .form-alert i,
+html:root .form-message i {
+    margin-top: 0;
+    color: var(--nx-text-2);
+}
+
+html:root .form-alert--error i,
+html:root .form-message--error i {
+    color: var(--nx-danger);
+}
+
+html:root .form-alert--success i {
+    color: var(--nx-ok);
+}
+
+html:root .confirm-icon {
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+html:root .form-loader span {
+    background: var(--nx-text-2);
+}
+
+/* ── Checkout Premium ────────────────────────────────────────
+   Nel tema nuovo il checkout ha un'impaginazione sua
+   (includes/checkout_next.php): a sinistra cosa si compra, a destra un solo
+   riquadro con l'ordine. Le scelte, il campo del regalo e la spunta tengono
+   le classi di sempre (.checkout-option-card, .payment-method-btn,
+   .gift-container, .checkout-waiver), perche' sono quelle che lo script in
+   fondo a it/ ed en/checkout-premium.php accende e spegne; il loro stile di
+   partenza sta dentro quelle due pagine, qui lo si corregge. */
+html:root .form-shell.ckx {
+    width: min(1120px, calc(100% - 40px));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "head  panel"
+        "perks panel";
+    column-gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+}
+
+/* Cosa si compra: gemma, nome, prezzo. */
+html:root .ckx-head {
+    grid-area: head;
+    padding-top: 1.25rem;
+}
+
+html:root .ckx-gem {
+    display: block;
+    width: 3rem;
+    height: 3rem;
+}
+
+html:root .ckx-head h1 {
+    margin: 1.25rem 0 0;
+    font-size: clamp(2rem, 3.6vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root .ckx-lead {
+    margin: 0.9rem 0 0;
+    color: var(--nx-text-2);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+}
+
+html:root .ckx-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.7rem;
+    margin: 1.6rem 0 0;
+    color: var(--nx-text-2);
+}
+
+html:root .ckx-price strong {
+    color: var(--nx-text);
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Cosa c'e' dentro: lo stesso elenco del riquadro Premium in homepage. */
+html:root .ckx-perks {
+    grid-area: perks;
+    padding-top: 2rem;
+}
+
+html:root .ckx-perks ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+html:root .ckx-perks li {
+    display: grid;
+    grid-template-columns: 1.4rem minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: center;
+    padding: 0.85rem 0;
+    border-top: 1px solid var(--nx-line);
+    color: var(--nx-text-2);
+    line-height: 1.4;
+}
+
+html:root .ckx-perks li:last-child {
+    border-bottom: 1px solid var(--nx-line);
+}
+
+html:root .ckx-perks li img {
+    display: block;
+    width: 1.4rem;
+    height: 1.4rem;
+    object-fit: contain;
+}
+
+html:root .ckx-perks strong {
+    color: var(--nx-text);
+    font-weight: 600;
+}
+
+html:root .ckx-note {
+    margin: 1.1rem 0 0;
+    color: var(--nx-text-3);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* L'ordine: un solo riquadro, dall'alto in basso. */
+html:root .ckx-panel {
+    grid-area: panel;
+    padding: 1.75rem;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+}
+
+html:root .ckx-panel h2 {
+    margin: 0 0 0.75rem;
+    color: var(--nx-text);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0;
+}
+
+html:root .ckx-group + .ckx-group {
+    margin-top: 1.6rem;
+}
+
+html:root .ckx-panel .form-message {
+    display: flex;
+    margin: 0 0 1.25rem;
+}
+
+html:root .checkout-option-card,
+html:root .payment-method-btn,
+html:root .checkout-waiver {
+    border-color: transparent;
+    border-radius: 16px;
+    background: var(--nx-surface-2);
+    transition: border-color 240ms var(--nx-ease), background-color 240ms var(--nx-ease), color 240ms var(--nx-ease);
+}
+
+html:root .checkout-option-card {
+    align-items: center;
+    margin-bottom: 0;
+    padding: 0.95rem 1.1rem;
+}
+
+html:root .checkout-option-card + .checkout-option-card {
+    margin-top: 0.6rem;
+}
+
+html:root .checkout-option-card:hover,
+html:root .payment-method-btn:hover {
+    border-color: var(--nx-text-3);
+    background: var(--nx-surface-2);
+}
+
+/* La scelta fatta: un bordo bianco, niente alone viola. */
+html:root .checkout-option-card.is-active,
+html:root .payment-method-btn.is-active {
+    border-color: var(--nx-text);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .option-title {
+    margin-bottom: 0.15rem;
+    color: var(--nx-text);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+html:root .option-title i {
+    width: 1.1rem;
+    color: var(--nx-text-2);
+    text-align: center;
+}
+
+html:root .option-desc,
+html:root .checkout-waiver,
+html:root .checkout-waiver-note {
+    color: var(--nx-text-2);
+}
+
+html:root .option-desc strong {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .gift-container {
+    margin-top: 0.85rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+}
+
+html:root .gift-container .form-field {
+    margin-bottom: 0;
+}
+
+html:root .status-loading {
+    color: var(--nx-text-2);
+}
+
+html:root .status-success,
+html:root .validation-status .fa-circle-check {
+    color: var(--nx-ok);
+}
+
+html:root .status-error,
+html:root .validation-status :is(.fa-circle-xmark, .fa-triangle-exclamation) {
+    color: var(--nx-danger);
+}
+
+html:root .payment-method-selector {
+    gap: 0.6rem;
+    margin: 0;
+}
+
+html:root .payment-method-btn {
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.85rem 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .payment-method-btn:hover,
+html:root .payment-method-btn.is-active {
+    color: var(--nx-text);
+}
+
+html:root .payment-method-btn i {
+    font-size: 1.15rem;
+}
+
+/* Riepilogo: tre righe e il totale. */
+html:root .ckx-summary {
+    margin: 0;
+}
+
+html:root .ckx-summary > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--nx-line);
+}
+
+html:root .ckx-summary > div:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+html:root .ckx-summary dt {
+    color: var(--nx-text-2);
+    font-weight: 400;
+}
+
+html:root .ckx-summary dd {
+    min-width: 0;
+    margin: 0;
+    color: var(--nx-text);
+    font-weight: 500;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+html:root .ckx-summary dd i {
+    margin-right: 0.3rem;
+    color: var(--nx-text-2);
+}
+
+html:root .ckx-summary .ckx-total {
+    padding-top: 0.9rem;
+}
+
+html:root .ckx-summary .ckx-total dt {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .ckx-summary .ckx-total dd {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+html:root .ckx-summary .ckx-total small {
+    margin-left: 0.4rem;
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+html:root .checkout-waiver {
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+}
+
+html:root .checkout-waiver.is-missing {
+    border-color: var(--nx-danger);
+}
+
+html:root .ckx-panel .form-actions {
+    margin-top: 1rem;
+}
+
+html:root #paypal-button-container {
+    width: 100%;
+    margin-top: 0;
+}
+
+html:root .ckx-panel .checkout-waiver-note {
+    margin: 0.9rem 0 0;
+    color: var(--nx-text-3);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    /* Su telefono e tablet: nome e prezzo, poi l'ordine, poi l'elenco. */
+    html:root .form-shell.ckx {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto;
+        grid-template-areas:
+            "head"
+            "panel"
+            "perks";
+    }
+
+    html:root .ckx-head {
+        padding: 0 0 1.5rem;
+    }
+}
+
+@media (max-width: 680px) {
+    /* ── Telefono ────────────────────────────────────────────── */
+    html:root .form-card,
+    html:root .form-success-card {
+        border-radius: 20px;
+    }
+
+    html:root .form-card {
+        padding: 1.15rem;
+    }
+
+    html:root .form-card h1,
+    html:root .form-success-card h1 {
+        font-size: 2rem;
+    }
+
+    html:root .form-shell.ckx {
+        width: 90%;
+    }
+
+    html:root .ckx-head h1 {
+        font-size: 2rem;
+    }
+
+    html:root .ckx-panel {
+        padding: 1.15rem;
+        border-radius: 20px;
     }
 }

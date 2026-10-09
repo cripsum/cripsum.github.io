@@ -23,9 +23,6 @@ body.goonland-page {
     min-height: 100vh;
     margin: 0;
     color: var(--gl-text);
-    background: radial-gradient(circle at 12% 8%, rgba(255, 45, 141, 0.28), transparent 30rem), radial-gradient(circle at 88% 18%, rgba(155, 92, 255, 0.18), transparent 28rem),
-        linear-gradient(135deg, var(--gl-bg), var(--gl-bg2));
-    background-attachment: fixed;
     overflow-x: hidden;
 }
 .gl-bg {
@@ -87,7 +84,6 @@ body.goonland-page {
     gap: 1rem;
     align-items: stretch;
     padding: clamp(1rem, 3vw, 2rem);
-    border-radius: 36px;
     overflow: hidden;
 }
 .gl-hero-small {
@@ -105,15 +101,7 @@ body.goonland-page {
     gap: 0.45rem;
     width: fit-content;
     min-height: 2rem;
-    padding: 0.36rem 0.72rem;
-    border: 1px solid rgba(255, 45, 141, 0.38);
     border-radius: 999px;
-    color: var(--gl-soft);
-    background: rgba(255, 45, 141, 0.12);
-    font-size: 0.72rem;
-    font-weight: 950;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 .gl-hero h1,
 .gl-section-head h2,
@@ -127,7 +115,6 @@ body.goonland-page {
 .gl-hero h1 {
     max-width: 820px;
     margin: 0.8rem 0 0.55rem;
-    font-size: clamp(2.6rem, 8vw, 5.8rem);
 }
 .gl-hero p,
 .gl-section-head p,
@@ -163,9 +150,7 @@ body.goonland-page {
     gap: 0.55rem;
     min-height: 3rem;
     padding: 0.78rem 1.08rem;
-    border-radius: 999px;
     text-decoration: none;
-    font-weight: 950;
     transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, opacity 0.18s ease;
 }
 .gl-btn-main {
@@ -220,8 +205,6 @@ body.goonland-page {
     padding: 0.9rem;
     border: 1px solid var(--gl-border);
     border-radius: 22px;
-    background: rgba(10, 2, 12, 0.58);
-    backdrop-filter: blur(14px);
 }
 .gl-floating-card span {
     color: var(--gl-muted2);
@@ -418,10 +401,6 @@ body.goonland-page {
     outline: none;
     color-scheme: dark;
 }
-.gl-select-field select:focus {
-    border-color: rgba(255, 45, 141, 0.45);
-    box-shadow: 0 0 0 4px rgba(255, 45, 141, 0.12);
-}
 .gl-generator-buttons {
     display: flex;
     gap: 0.65rem;
@@ -585,9 +564,6 @@ body.goonland-page .navbar .dropdown-menu {
     padding: 0.45rem !important;
     border: 1px solid rgba(255, 255, 255, 0.14) !important;
     border-radius: 18px !important;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)), rgba(18, 8, 24, 0.96) !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
-    backdrop-filter: blur(18px) !important;
     overflow: hidden;
     z-index: 99999 !important;
 }
@@ -624,9 +600,6 @@ body.goonland-page .dropdown-menu button:focus {
     }
 }
 @media (max-width: 680px) {
-    body.goonland-page {
-        background-attachment: scroll;
-    }
     .gl-shell {
         width: 90%;
         padding-top: 5.8rem;
@@ -638,9 +611,6 @@ body.goonland-page .dropdown-menu button:focus {
     .gl-generator,
     .gl-leaderboard {
         border-radius: 22px;
-    }
-    .gl-hero h1 {
-        font-size: clamp(2.35rem, 13vw, 3.9rem);
     }
     .gl-actions,
     .gl-btn,
@@ -818,13 +788,6 @@ body.goonland-page .dropdown-menu button:focus {
     transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.gl-select-trigger:hover,
-.gl-custom-select.is-open .gl-select-trigger {
-    border-color: rgba(255, 45, 141, 0.46);
-    background: linear-gradient(145deg, rgba(255, 45, 141, 0.15), rgba(255, 255, 255, 0.04)), rgba(18, 8, 24, 0.92);
-    box-shadow: 0 0 0 4px rgba(255, 45, 141, 0.1);
-}
-
 .gl-select-trigger i {
     color: var(--gl-soft);
     transition: transform 0.18s ease;
@@ -845,10 +808,6 @@ body.goonland-page .dropdown-menu button:focus {
     padding: 0.45rem;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
-    background: radial-gradient(circle at 12% 0%, rgba(255, 45, 141, 0.22), transparent 38%), linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035)), rgba(12, 4, 18, 0.98);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48), 0 0 36px rgba(255, 45, 141, 0.16);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
     opacity: 0;
     transform: translateY(-6px) scale(0.98);
     pointer-events: none;
@@ -920,10 +879,6 @@ body.goonland-page .dropdown-menu[data-bs-popper] {
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     border-radius: 18px !important;
     color: var(--gl-text) !important;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)), rgba(12, 4, 18, 0.98) !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
-    backdrop-filter: blur(18px) !important;
-    -webkit-backdrop-filter: blur(18px) !important;
     overflow: hidden;
     z-index: 99999 !important;
 }
@@ -1123,4 +1078,242 @@ body.goonland-page .site-footer strong,
 body.goonland-page .site-footer h2,
 body.goonland-page .site-footer h3 {
     color: #fff !important;
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — GoonLand
+   ============================================================
+
+   Correzioni a css/goonland.css, goonland-quiz-additions.css e
+   goonland-smash-pass.css (it|en/goonland/). I fogli originali non si
+   toccano.
+
+   GoonLand tiene il rosa. L'interfaccia e' quella del tema nuovo —
+   fondo quasi nero, superfici piatte, niente vetro ne' aloni — ma dove
+   nel resto del sito il colore d'azione e' il bianco, qui e' il rosa di
+   GoonLand: il pulsante pieno, le icone, la barra del quiz, la scelta
+   attiva, il fuoco dei campi.
+
+   Restano: il generatore, il quiz con il risultato da condividere, Smash
+   or Pass con lo scorrimento della carta e il velo che dice da che parte
+   la stai portando, la classifica dei goonatori.
+   ============================================================ */
+html:root body.goonland-page {
+    --gl-bg: var(--nx-bg);
+    --gl-bg2: var(--nx-bg);
+    --gl-card: var(--nx-surface);
+    --gl-strong: var(--nx-surface-2);
+    --gl-border: var(--nx-line);
+    --gl-text: var(--nx-text);
+    --gl-muted: var(--nx-text-2);
+    --gl-muted2: var(--nx-text-3);
+    --gl-purple: var(--gl-pink);
+    --gl-soft: var(--nx-text);
+    --gl-radius: var(--nx-radius);
+    background: var(--nx-bg);
+}
+
+/* Macchie sfocate sullo sfondo. */
+html:root .gl-bg {
+    display: none;
+}
+
+/* ── Riquadri ────────────────────────────────────────────── */
+html:root :is(.gl-hero, .gl-card, .gl-copy, .gl-copy-accent, .gl-generator, .gl-leaderboard, .gl-empty, .gl-lore-card, .gl-lore-card--accent, .gl-quiz-card, .gl-quiz-side, .gl-result, .gl-shared-result, .gl-share-box) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root :is(.gl-card, .gl-copy):hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    transform: none;
+}
+
+html:root .gl-lore-card::after {
+    display: none;
+}
+
+/* La testata sta sul fondo, senza riquadro. */
+html:root .gl-hero {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    background: none;
+}
+
+html:root .gl-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root .gl-hero p {
+    color: var(--nx-text-2);
+}
+
+/* L'etichetta sopra i titoli: rosa, minuscola. */
+html:root .gl-kicker {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--gl-pink);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root :is(.gl-floating-card span, .gl-select-field span, .gl-meta-row strong, .gl-share-box > span, .gl-sp-rating, .gl-sp-stat span) {
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root :is(.gl-card h2, .gl-card h3, .gl-copy h2, .gl-lore-card h2, .gl-generator h2, .gl-leaderboard h2, .gl-quiz-card h2, .gl-result h2) {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+html:root :is(.gl-hero-media, .gl-image-stage, .gl-result-media, .gl-sp-image-wrap) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .gl-floating-card {
+    border-color: transparent;
+    background: rgba(0, 0, 0, 0.66);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Pulsanti: quello pieno e' rosa ──────────────────────── */
+html:root .gl-btn {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .gl-btn:hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+html:root :is(.gl-btn-main, .gl-btn-smash),
+html:root :is(.gl-btn-main, .gl-btn-smash):hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--gl-pink);
+    box-shadow: none;
+    color: #14000a;
+}
+
+html:root :is(.gl-btn-main, .gl-btn-smash):hover:not(:disabled) {
+    background: var(--gl-hot);
+}
+
+/* Le icone delle card: rosa pieno, senza sfumatura ne' alone. */
+html:root :is(.gl-card i, .gl-answer-icon) {
+    background: rgba(255, 45, 141, 0.16);
+    box-shadow: none;
+    color: var(--gl-pink);
+}
+
+/* ── Campi e menu ────────────────────────────────────────── */
+html:root :is(.gl-select-field select, .gl-select-trigger) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .gl-select-field select:focus,
+html:root .gl-select-trigger:hover,
+html:root .gl-custom-select.is-open .gl-select-trigger {
+    border-color: var(--gl-pink);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .gl-select-menu {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Avvisi che compaiono ────────────────────────────────── */
+html:root :is(.gl-top, .gl-toast) {
+    border: 1px solid var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    color: var(--nx-text);
+}
+
+/* ── Navbar e footer: quelli del sito, senza il rosa sopra ── */
+html:root body.goonland-page .dropdown-menu,
+html:root body.goonland-page .dropdown-menu.show,
+html:root body.goonland-page .navbar .dropdown-menu,
+html:root body.goonland-page .dropdown-menu[data-bs-popper] {
+    background: var(--nx-surface-2) !important;
+    box-shadow: var(--nx-float) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+html:root body.goonland-page :is(footer, .footer, .site-footer, #footer) {
+    background: var(--nx-surface) !important;
+    box-shadow: none !important;
+}
+
+html:root body.goonland-page footer :is(.social a, .social-link):hover,
+html:root body.goonland-page :is(.footer-social a, .site-footer .social a):hover {
+    box-shadow: none;
+}
+
+html:root :is(.gl-btn, .gl-answer-card, .gl-select-trigger, .gl-card):focus-visible {
+    outline: 2px solid var(--gl-pink);
+    outline-offset: 2px;
+}
+
+/* Nella testata di GoonLand i pulsanti pieni erano tre: ne resta uno, il primo. */
+html:root .gl-hero .gl-btn-main ~ .gl-btn-main,
+html:root .gl-hero .gl-btn-main ~ .gl-btn-main:hover:not(:disabled) {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html:root .gl-hero .gl-btn-main ~ .gl-btn-main:hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+}
+
+@media (max-width: 680px) {
+    /* Sul telefono la testata non arriva a filo dello schermo. */
+    html:root .gl-hero {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
 }

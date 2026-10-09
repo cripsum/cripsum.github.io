@@ -10,11 +10,11 @@ checkBan($mysqli);
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <?php cripsum_theme_head('static'); ?>
+    <?php cripsum_theme_head(); ?>
     <title>Cripsum™ - Chat Policy</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/static/static.css?v=1.3-static">
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/assets/static/static.css') ?>">
     <script src="/assets/static/static.js?v=1.0-static" defer></script>
 
 </head>

@@ -142,7 +142,7 @@ $jsVer = @filemtime(__DIR__ . '/../assets/chat/global.js') ?: 1;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
     <link rel="stylesheet" href="/assets/chat/kit.css?v=<?= $kitCssVer ?>">
     <link rel="stylesheet" href="/assets/chat/global.css?v=<?= $cssVer ?>">
-    <?php cripsum_theme_head('chat'); ?>
+    <?php cripsum_theme_head(); ?>
 </head>
 
 <body class="ck-page gc-page" data-user-id="<?= $userId ?>" data-logged-in="1" data-csrf="<?= $gcE($csrf) ?>">

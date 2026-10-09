@@ -61,10 +61,6 @@ body.ib-page {
     --ib-tone: 56, 189, 248;
 }
 
-.ib-cat--social {
-    --ib-tone: 52, 211, 153;
-}
-
 .ib-cat--ticket {
     --ib-tone: 47, 107, 255;
 }
@@ -103,8 +99,6 @@ body.ib-page {
     gap: 4px;
     margin: 0 14px;
     padding: 4px;
-    border-radius: 14px;
-    background: rgba(0, 0, 0, 0.24);
 }
 
 .ib-section {
@@ -115,7 +109,6 @@ body.ib-page {
     gap: 8px;
     height: 38px;
     border: 0;
-    border-radius: 11px;
     background: transparent;
     color: var(--ck-muted);
     font: 600 0.86rem/1 var(--ck-font);
@@ -186,12 +179,6 @@ body.ib-page {
     color: var(--ck-text);
 }
 
-.ib-filter.is-set {
-    border-color: var(--ck-accent-line);
-    background: var(--ck-accent-soft);
-    color: #cfdcff;
-}
-
 .ib-chips {
     flex: 0 0 auto;
     display: flex;
@@ -249,7 +236,6 @@ body.ib-page {
 .ib-chip--action {
     margin-left: auto;
     border-style: dashed;
-    color: #9db9ff;
 }
 
 .ib-bulk {
@@ -262,7 +248,6 @@ body.ib-page {
     padding: 4px 6px 4px 14px;
     border: 1px solid var(--ck-accent-line);
     border-radius: 14px;
-    background: var(--ck-accent-soft);
     animation: ckSlideUp 180ms var(--ck-ease) both;
 }
 
@@ -577,7 +562,6 @@ body.ib-page {
     max-width: 760px;
     font-size: 0.97rem;
     line-height: 1.68;
-    color: #dfe5f4;
     overflow-wrap: anywhere;
 }
 
@@ -611,28 +595,16 @@ body.ib-page {
     margin-bottom: 5px;
 }
 
-.ib-md li::marker {
-    color: var(--ck-accent);
-}
-
 .ib-md blockquote {
     margin: 0 0 14px;
     padding: 10px 16px;
-    border-left: 3px solid var(--ck-accent);
     border-radius: 0 12px 12px 0;
     background: var(--ck-surface);
     color: var(--ck-muted);
 }
 
 .ib-md a {
-    color: #8fb0ff;
     font-weight: 500;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-}
-
-.ib-md a:hover {
-    color: #b9cdff;
 }
 
 .ib-md strong {
@@ -656,7 +628,6 @@ body.ib-page {
     padding: 16px;
     border: 1px solid rgba(251, 191, 36, 0.32);
     border-radius: var(--ck-radius-lg);
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.02));
 }
 
 .ib-rewards.is-claimed {
@@ -669,8 +640,6 @@ body.ib-page {
     display: flex;
     align-items: center;
     gap: 9px;
-    font-size: 0.78rem;
-    font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--ck-yellow);
@@ -693,7 +662,6 @@ body.ib-page {
     gap: 12px;
     padding: 9px 12px;
     border-radius: 14px;
-    background: rgba(0, 0, 0, 0.22);
 }
 
 .ib-reward__icon {
@@ -741,7 +709,6 @@ body.ib-page {
     min-height: 40px;
     border-radius: 999px;
     background: rgba(52, 211, 153, 0.12);
-    color: #7ee7c0;
     font-size: 0.88rem;
     font-weight: 600;
 }
@@ -918,4 +885,91 @@ body.ib-page {
         transition: none;
         animation: none;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ── Posta ───────────────────────────────────────────────── */
+/* Messaggi e Ticket: due linguette in un contenitore, come «Recenti / In
+   tendenza» in Shitpost. */
+html:root .ib-sections {
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+}
+
+html:root .ib-section {
+    border-radius: var(--nx-pill);
+}
+
+html:root .ib-filter.is-set {
+    border-color: var(--nx-text);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html:root .ib-chip--action {
+    color: var(--nx-text);
+}
+
+html:root .ib-bulk {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+}
+
+/* I colori delle categorie: Sistema e Ticket erano del blu del sito e
+   passano al grigio; Premi resta oro, Social verde, Speciali azzurro. */
+html:root :is(.ib-cat--system, .ib-cat--ticket) {
+    --ib-tone: 161, 161, 166;
+}
+
+html:root .ib-cat--social {
+    --ib-tone: 48, 209, 88;
+}
+
+html:root .ib-md {
+    color: var(--nx-text);
+}
+
+html:root .ib-md a,
+html:root .ib-md a:hover {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+html:root .ib-md li::marker {
+    color: var(--nx-text-3);
+}
+
+html:root .ib-md blockquote {
+    border-left: 2px solid var(--nx-line);
+}
+
+/* I premi: via la sfumatura dorata, l'oro resta ai Godos. */
+html:root .ib-rewards {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .ib-rewards h3 {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+html:root .ib-reward {
+    background: var(--nx-surface-3);
+}
+
+html:root .ib-rewards__done {
+    color: var(--nx-ok);
 }

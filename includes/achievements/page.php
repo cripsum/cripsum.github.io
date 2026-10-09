@@ -139,7 +139,7 @@ $achJsVer = @filemtime(__DIR__ . '/../../assets/achievements/achievements.js') ?
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
     <link rel="stylesheet" href="/assets/achievements/achievements.css?v=<?= $achCssVer ?>">
-    <?php cripsum_theme_head('achievements'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="/assets/achievements/achievements.js?v=<?= $achJsVer ?>" defer></script>
 </head>
 

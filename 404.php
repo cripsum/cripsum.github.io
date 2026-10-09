@@ -7,7 +7,9 @@ declare(strict_types=1);
  * Il contenuto resta in 404.html, che e' una pagina ferma: la include anche
  * profile.php quando un profilo non esiste, e li' deve uscire com'e'. Per
  * questo .htaccess manda qui i 404: alla pagina ferma si aggiungono
- * l'attributo sul tag <html> e i fogli del tema, come fanno tutte le altre.
+ * l'attributo sul tag <html> e il foglio del tema, come fanno tutte le altre.
+ * Le regole che la vestono col tema stanno gia' dentro 404.html e in
+ * assets/static/static.css, e valgono solo con quell'attributo.
  */
 
 require_once __DIR__ . '/includes/theme.php';
@@ -18,7 +20,7 @@ header('Content-Type: text/html; charset=utf-8');
 $page = (string)file_get_contents(__DIR__ . '/404.html');
 
 ob_start();
-cripsum_theme_head('static', 'error');
+cripsum_theme_head();
 $sheets = (string)ob_get_clean();
 
 $page = preg_replace('/<html lang="en">/', '<html lang="en"' . cripsum_theme_html_attr() . '>', $page, 1);

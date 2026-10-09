@@ -36,11 +36,11 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <?php cripsum_theme_head('forms'); ?>
+    <?php cripsum_theme_head(); ?>
     <meta charset="UTF-8">
     <title>Cripsum™ Premium</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="/assets/forms/forms.css?v=1.0-unified">
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/assets/forms/forms.css') ?>">
     <script src="/assets/forms/forms.js?v=1.0-unified" defer></script>
     <style>
         .checkout-option-card {

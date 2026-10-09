@@ -18,11 +18,6 @@ body.gambling-page {
     min-height: 100vh;
     margin: 0;
     color: var(--gambling-text);
-    background:
-        radial-gradient(circle at 8% 6%, rgba(47, 107, 255, .25), transparent 30rem),
-        radial-gradient(circle at 92% 18%, rgba(139, 92, 246, .18), transparent 28rem),
-        linear-gradient(135deg, var(--gambling-bg), var(--gambling-bg-2));
-    background-attachment: fixed;
     overflow-x: hidden;
 }
 
@@ -31,7 +26,6 @@ body.gambling-page {
     inset: 0;
     z-index: -5;
     overflow: hidden;
-    background: #02040a;
 }
 
 .gambling-orb,
@@ -103,9 +97,6 @@ body.gambling-page {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 330px;
     gap: 1rem;
-    align-items: stretch;
-    padding: clamp(1rem, 3vw, 2rem);
-    margin-bottom: 1rem;
 }
 
 .gambling-pill {
@@ -128,9 +119,6 @@ body.gambling-page {
     max-width: 760px;
     margin: .75rem 0 .45rem;
     color: var(--gambling-text);
-    font-size: clamp(2.6rem, 7vw, 5.7rem);
-    line-height: .9;
-    letter-spacing: -.075em;
 }
 
 .gambling-hero p,
@@ -187,9 +175,6 @@ body.gambling-page {
     align-content: center;
     gap: .55rem;
     padding: 1rem;
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 24px;
-    background: rgba(255,255,255,.045);
 }
 
 .wallet-label,
@@ -202,10 +187,8 @@ body.gambling-page {
 }
 
 .gambling-wallet strong {
-    color: var(--gambling-green);
     font-size: clamp(2rem, 4vw, 3.2rem);
     line-height: 1;
-    letter-spacing: -.055em;
 }
 
 .wallet-caption {
@@ -224,16 +207,9 @@ body.gambling-page {
     width: 100%;
     min-height: 2.75rem;
     border: 1px solid var(--gambling-border);
-    border-radius: 16px;
     color: var(--gambling-text);
-    background: rgba(255,255,255,.055);
     padding: .7rem .85rem;
     outline: none;
-}
-
-.wallet-recharge input:focus {
-    border-color: rgba(52, 211, 153, .46);
-    box-shadow: 0 0 0 4px rgba(52, 211, 153, .1);
 }
 
 .wallet-recharge button {
@@ -298,13 +274,8 @@ body.gambling-page {
     border: 1px solid var(--gambling-border);
     border-radius: 999px;
     color: var(--gambling-muted);
-    background: rgba(255,255,255,.045);
     font-size: .82rem;
     font-weight: 850;
-}
-
-.slot-switch input {
-    accent-color: var(--gambling-gold);
 }
 
 .bet-row {
@@ -317,23 +288,9 @@ body.gambling-page {
 .bet-chip {
     min-height: 2.7rem;
     border: 1px solid var(--gambling-border);
-    border-radius: 16px;
     color: var(--gambling-text);
-    background: rgba(255,255,255,.055);
     font-weight: 950;
     transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
-}
-
-.bet-chip:hover {
-    transform: translateY(-2px);
-    border-color: rgba(251, 191, 36, .42);
-    background: rgba(251, 191, 36, .1);
-}
-
-.bet-chip.is-active {
-    border-color: rgba(251, 191, 36, .56);
-    background: linear-gradient(135deg, rgba(251, 191, 36, .2), rgba(47, 107, 255, .12));
-    box-shadow: 0 0 24px rgba(251, 191, 36, .12);
 }
 
 .slot-machine {
@@ -344,9 +301,6 @@ body.gambling-page {
     padding: clamp(.8rem, 2vw, 1.25rem);
     border: 1px solid rgba(255,255,255,.1);
     border-radius: 28px;
-    background:
-        radial-gradient(circle at 50% 0%, rgba(251, 191, 36, .12), transparent 36%),
-        rgba(0,0,0,.34);
     overflow: hidden;
 }
 
@@ -374,10 +328,6 @@ body.gambling-page {
     place-items: center;
     border: 1px solid rgba(255,255,255,.12);
     border-radius: 24px;
-    background:
-        linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.02)),
-        rgba(0,0,0,.32);
-    box-shadow: inset 0 0 26px rgba(0,0,0,.28);
     overflow: hidden;
 }
 
@@ -387,7 +337,6 @@ body.gambling-page {
     object-fit: cover;
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,.14);
-    box-shadow: 0 12px 30px rgba(0,0,0,.28);
     transition: transform 180ms ease, filter 180ms ease;
 }
 
@@ -438,17 +387,9 @@ body.gambling-page {
 .spin-btn {
     min-height: 3.3rem;
     border-radius: 999px;
-    color: #111827;
-    background: linear-gradient(135deg, var(--gambling-gold), #f97316);
     font-weight: 1000;
     font-size: 1.05rem;
-    box-shadow: 0 14px 36px rgba(251, 191, 36, .22);
     transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
-}
-
-.spin-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 44px rgba(251, 191, 36, .3);
 }
 
 .spin-btn:active:not(:disabled) {
@@ -478,7 +419,6 @@ body.gambling-page {
     padding: .9rem;
     border: 1px solid var(--gambling-border);
     border-radius: 22px;
-    background: rgba(255,255,255,.045);
 }
 
 .result-kicker {
@@ -537,7 +477,6 @@ body.gambling-page {
     padding: .75rem;
     border: 1px solid rgba(255,255,255,.09);
     border-radius: 18px;
-    background: rgba(255,255,255,.045);
 }
 
 .stats-grid span {
@@ -601,7 +540,6 @@ body.gambling-page {
     padding: .65rem;
     border: 1px solid rgba(255,255,255,.08);
     border-radius: 16px;
-    background: rgba(255,255,255,.04);
 }
 
 .history-item strong {
@@ -639,9 +577,6 @@ body.gambling-page {
     display: grid;
     place-items: center;
     padding: 1rem;
-    background: rgba(0,0,0,.62);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
 }
 
 .gambling-modal[hidden] {
@@ -719,10 +654,6 @@ body.gambling-page {
 }
 
 @media (max-width: 680px) {
-    body.gambling-page {
-        background-attachment: scroll;
-    }
-
     .gambling-shell {
         width: 90%;
         padding-top: 5.7rem;
@@ -735,10 +666,6 @@ body.gambling-page {
     .payout-card,
     .history-card {
         border-radius: 22px;
-    }
-
-    .gambling-hero h1 {
-        font-size: clamp(2.25rem, 12vw, 3.7rem);
     }
 
     .wallet-recharge,
@@ -805,5 +732,253 @@ body.gambling-page {
     .gambling-reveal {
         opacity: 1;
         transform: none;
+    }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — Gambling
+   ============================================================
+
+   Correzioni a assets/gambling/gambling.css (it|en/gambling.php). Il
+   foglio originale non si tocca.
+
+   Il gioco resta com'e': i rulli che girano, la sfocatura mentre girano,
+   Turbo, Auto x10, i suoni, l'esito colorato (verde vincita, oro jackpot,
+   rosso persa), l'oro dei moltiplicatori.
+
+   Cambia il contorno: la testata non e' piu' un riquadro (titolo a
+   sinistra, saldo a destra su una superficie), «Spin» e' il pulsante pieno
+   della pagina, i riquadri sono piatti.
+   ============================================================ */
+html:root {
+    --gambling-bg: var(--nx-bg);
+    --gambling-bg-2: var(--nx-bg);
+    --gambling-card: var(--nx-surface);
+    --gambling-card-strong: var(--nx-surface-2);
+    --gambling-border: var(--nx-line);
+    --gambling-text: var(--nx-text);
+    --gambling-muted: var(--nx-text-2);
+    --gambling-muted-2: var(--nx-text-3);
+    --gambling-green: var(--nx-ok);
+    --gambling-red: var(--nx-danger);
+}
+
+html:root body.gambling-page,
+html:root .gambling-bg {
+    background: var(--nx-bg);
+}
+
+/* Macchie sfocate e griglia di linee sullo sfondo. */
+html:root .gambling-orb,
+html:root .gambling-grid-bg {
+    display: none;
+}
+
+html:root :is(.slot-switch, .history-head button, .gambling-btn, .auto-spin-btn, .wallet-recharge button, .bet-chip) {
+    font-weight: 500;
+}
+
+html:root :is(.history-item em, .spin-btn) {
+    font-weight: 600;
+}
+
+html:root :is(.gambling-pill, .wallet-label, .slot-label, .result-kicker, .stats-grid span) {
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+/* ── Riquadri: via vetro e ombra ─────────────────────────── */
+html:root :is(.gambling-hero, .slot-card, .stat-card, .payout-card, .history-card, .gambling-modal__panel) {
+    border: 0;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Testata ─────────────────────────────────────────────── */
+html:root .gambling-hero {
+    align-items: end;
+    padding: 0.5rem 0 0;
+    margin-bottom: 1.75rem;
+    border-radius: 0;
+    background: none;
+}
+
+html:root .gambling-hero h1 {
+    margin-top: 0;
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+/* Il saldo: una superficie, col numero bianco. */
+html:root .gambling-wallet {
+    border: 0;
+    border-radius: 20px;
+    background: var(--nx-surface);
+}
+
+html:root .gambling-wallet strong {
+    color: var(--nx-text);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+html:root .wallet-recharge input,
+html:root .wallet-recharge input:focus {
+    border-color: transparent;
+    border-radius: 12px;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .wallet-recharge input:focus {
+    border-color: var(--nx-text);
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+html:root :is(.gambling-btn, .auto-spin-btn, .wallet-recharge button, .history-head button) {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html:root :is(.gambling-btn, .auto-spin-btn, .wallet-recharge button, .history-head button):hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+/* «Spin»: il pulsante pieno della pagina. */
+html:root .spin-btn,
+html:root .spin-btn:hover:not(:disabled) {
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html:root .spin-btn:hover:not(:disabled) {
+    background: #fff;
+    transform: none;
+}
+
+/* ── La slot ─────────────────────────────────────────────── */
+html:root .slot-switch {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html:root .slot-switch input {
+    accent-color: var(--nx-text);
+}
+
+html:root .bet-chip {
+    border-color: var(--nx-line);
+    border-radius: 12px;
+    background: transparent;
+}
+
+html:root .bet-chip:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html:root .bet-chip.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    box-shadow: none;
+}
+
+/* I rulli: fondo piatto, senza alone dorato e senza riflessi. */
+html:root .slot-machine {
+    border-color: transparent;
+    background: var(--nx-bg);
+}
+
+html:root .slot-machine::before {
+    display: none;
+}
+
+html:root .slot-reel {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .slot-reel img {
+    box-shadow: none;
+}
+
+/* L'esito tiene il suo colore sul testo, non sul riquadro. */
+html:root .result-box,
+html:root .result-box:is(.is-win, .is-jackpot, .is-loss) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .result-box.is-win strong {
+    color: var(--nx-ok);
+}
+
+html:root .result-box.is-jackpot strong {
+    color: var(--gambling-gold);
+}
+
+html:root .result-box.is-loss strong {
+    color: var(--nx-danger);
+}
+
+/* ── Sessione, payout, ultime giocate ────────────────────── */
+html:root .stats-grid div {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .history-item {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .gambling-modal {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root .gambling-modal__panel {
+    border: 1px solid var(--nx-line);
+    box-shadow: var(--nx-float);
+}
+
+@media (max-width: 900px) {
+    /* ── Schermi stretti ─────────────────────────────────────── */
+    /* Sul telefono il saldo stava sopra il titolo: ora che la testata non e'
+    piu' un riquadro, prima il titolo e poi il saldo. */
+    html:root .gambling-wallet {
+        order: 0;
+    }
+}
+
+@media (max-width: 820px) {
+    html:root .gambling-hero {
+        margin-bottom: 1.25rem;
     }
 }

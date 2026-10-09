@@ -147,7 +147,7 @@ $cOldValue = static fn(string $key, string $fallback = ''): string => shop_h($cO
     <title><?php echo shop_h('Cripsum™ - ' . $S['apply_title'] . ' ' . $S['page_title']); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/forms/forms.css')); ?>">
-    <?php cripsum_theme_head('forms'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/forms/forms.js')); ?>" defer></script>
 </head>
 

@@ -47,7 +47,7 @@ $cApplyUrl = '/' . $cLang . '/candidatura-chisiamo';
     <title><?php echo shop_h('Cripsum™ - ' . $S['page_title']); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/chisiamo/chisiamo.css')); ?>">
-    <?php cripsum_theme_head('chisiamo'); ?>
+    <?php cripsum_theme_head(); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/chisiamo/chisiamo.js')); ?>" defer></script>
 </head>
 

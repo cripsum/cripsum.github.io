@@ -92,11 +92,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <?php include '../includes/head-import.php'; ?>
-    <?php cripsum_theme_head('auth'); ?>
+    <?php cripsum_theme_head(); ?>
     <title>Cripsum™ - Conferma registrazione</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="/assets/auth/auth.css?v=1.7">
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/assets/auth/auth.css') ?>">
     <script src="/assets/auth/auth.js?v=1.2" defer></script>
 </head>
 

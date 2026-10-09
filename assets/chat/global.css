@@ -129,7 +129,6 @@ body.gc-page {
     gap: 6px;
     padding: 6px 10px 6px 6px;
     border-bottom: 1px solid var(--ck-border-soft);
-    background: rgba(var(--ck-accent-rgb), 0.09);
 }
 
 .gc-pinned[hidden],
@@ -159,10 +158,6 @@ body.gc-page {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.gc-pinned__body > i {
-    color: var(--ck-accent);
-}
-
 .gc-pinned__body span {
     min-width: 0;
     display: flex;
@@ -172,7 +167,6 @@ body.gc-page {
 .gc-pinned__body strong {
     font-size: 0.7rem;
     font-weight: 600;
-    color: #9db9ff;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -195,8 +189,6 @@ body.gc-page {
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid var(--ck-border);
-    background: rgba(11, 16, 32, 0.99);
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5);
     animation: ckSlideUp 180ms var(--ck-ease) both;
 }
 
@@ -329,7 +321,6 @@ body.gc-page {
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: var(--ck-accent);
     animation: ckBounce 900ms ease-in-out infinite;
 }
 
@@ -472,11 +463,6 @@ body.gc-page {
     cursor: pointer;
 }
 
-.gc-radio__row:has(input:checked) {
-    border-color: var(--ck-accent-line);
-    background: var(--ck-accent-soft);
-}
-
 .gc-radio__row input {
     accent-color: var(--ck-accent);
     width: 16px;
@@ -584,10 +570,8 @@ body.gc-page {
     flex-direction: column;
     gap: 14px;
     padding: 30px 28px;
-    border: 1px solid var(--ck-border);
     border-radius: var(--ck-radius-xl);
     background: var(--ck-panel);
-    box-shadow: var(--ck-shadow);
     text-align: center;
     animation: ckPop 260ms var(--ck-ease) both;
 }
@@ -599,8 +583,6 @@ body.gc-page {
     display: grid;
     place-items: center;
     border-radius: 22px;
-    background: var(--ck-accent-soft);
-    color: #8fb0ff;
     font-size: 1.5rem;
 }
 
@@ -664,8 +646,6 @@ body.gc-page {
         bottom: 0;
         z-index: 1040;
         width: min(320px, 86vw);
-        border-radius: var(--ck-radius-xl) 0 0 var(--ck-radius-xl);
-        background: var(--ck-panel-solid);
         transform: translate3d(105%, 0, 0);
         transition: transform var(--ck-slow) var(--ck-ease);
     }
@@ -683,7 +663,6 @@ body.gc-page {
         position: fixed;
         inset: 0;
         z-index: 1039;
-        background: rgba(2, 4, 10, 0.6);
     }
 
     .gc-side-backdrop[hidden] {
@@ -716,4 +695,74 @@ body.gc-page {
     .gc-search {
         top: 59px;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+html:root .gc-gate__icon {
+    background: var(--nx-surface-2);
+    color: var(--nx-text-2);
+}
+
+/* ── Avvisi, finestre, menu ──────────────────────────────── */
+html:root .gc-search {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html:root .gc-side-backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 1080px) {
+    /* Sotto i 1080 px «In chat adesso» non e' piu' una colonna: e' un pannello
+    che entra da destra sopra la chat. Li' il fondo deve essere pieno,
+    altrimenti i messaggi si leggono attraverso. */
+    html:root .gc-side {
+        --ck-panel-solid: var(--nx-surface);
+        border-radius: var(--nx-radius) 0 0 var(--nx-radius);
+        background: var(--nx-surface);
+    }
+
+    html:root .gc-side .gc-person:hover {
+        background: var(--nx-surface-2);
+    }
+}
+
+html:root .gc-pinned__body strong {
+    color: var(--nx-text);
+}
+
+html:root .gc-pinned {
+    background: var(--nx-surface-2);
+}
+
+html:root .gc-pinned__body > i {
+    color: var(--nx-text-3);
+}
+
+/* ── Chat globale ────────────────────────────────────────── */
+html:root .gc-typing__dots i {
+    background: var(--nx-text-2);
+}
+
+html:root .gc-radio__row:has(input:checked) {
+    border-color: var(--nx-text);
+    background: none;
+}
+
+/* «Prima di entrare»: una superficie sola, senza bordo. */
+html:root .gc-gate__card {
+    border: 0;
+    box-shadow: none;
 }

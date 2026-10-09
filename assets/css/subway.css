@@ -74,13 +74,6 @@
     border-color: rgba(255, 255, 255, 0.25);
 }
 
-.subway-tab-btn.active {
-    background: rgba(6, 182, 212, 0.16);
-    border-color: var(--game-accent, #06b6d4);
-    color: #fff;
-    box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
-}
-
 .subway-tab-pane {
     display: none;
     animation: subwayTabFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -225,7 +218,6 @@
 
 .subway-opacity-setting input[type="range"] {
     width: 100%;
-    accent-color: var(--game-accent2);
 }
 
 .subway-theme-reset {
@@ -343,10 +335,6 @@
     background-color: white;
     transition: .3s;
     border-radius: 50%;
-}
-
-input:checked + .subway-slider {
-    background-color: var(--game-accent2);
 }
 
 input:focus + .subway-slider {
@@ -1211,10 +1199,8 @@ body.subway-fullscreen-active .main-footer {
     justify-content: center;
     align-items: flex-start;
     padding: 1.1rem 1.4rem;
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.15));
     border: 1px solid rgba(6, 182, 212, 0.35);
     border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     min-width: 240px;
 }
 
@@ -1236,7 +1222,6 @@ body.subway-fullscreen-active .main-footer {
     font-weight: 800;
     color: #fff;
     letter-spacing: -0.5px;
-    text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
     line-height: 1.2;
 }
 
@@ -1291,10 +1276,8 @@ body.subway-fullscreen-active .main-footer {
 .subway-lb-table th {
     padding: 0.85rem 1.1rem;
     font-size: 0.75rem;
-    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: var(--game-muted, #94a3b8);
     background: rgba(255, 255, 255, 0.03);
     border-bottom: 1px solid var(--game-border, rgba(255, 255, 255, 0.08));
 }
@@ -1340,7 +1323,6 @@ body.subway-fullscreen-active .main-footer {
 }
 
 .subway-lb-badge.rank-gold {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.22));
     border: 1px solid rgba(245, 158, 11, 0.65);
     color: #fbbf24;
     box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
@@ -1353,7 +1335,6 @@ body.subway-fullscreen-active .main-footer {
 }
 
 .subway-lb-badge.rank-silver {
-    background: linear-gradient(135deg, rgba(148, 163, 184, 0.25), rgba(100, 116, 139, 0.22));
     border: 1px solid rgba(148, 163, 184, 0.55);
     color: #f1f5f9;
     box-shadow: 0 0 16px rgba(148, 163, 184, 0.25);
@@ -1366,7 +1347,6 @@ body.subway-fullscreen-active .main-footer {
 }
 
 .subway-lb-badge.rank-bronze {
-    background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.18));
     border: 1px solid rgba(217, 119, 6, 0.5);
     color: #fdba74;
     box-shadow: 0 0 16px rgba(217, 119, 6, 0.2);
@@ -1407,7 +1387,6 @@ body.subway-fullscreen-active .main-footer {
 .subway-lb-user-link:hover .subway-lb-avatar {
     transform: scale(1.08);
     border-color: #38bdf8;
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
 .subway-lb-avatar {
@@ -1442,7 +1421,6 @@ body.subway-fullscreen-active .main-footer {
 .subway-lb-premium {
     color: #f59e0b;
     font-size: 0.85rem;
-    text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
 }
 
 .subway-lb-time code {
@@ -1747,7 +1725,6 @@ body.subway-perf-mode .game-bg span {
     padding: 4px;
     border: 1px solid var(--game-border);
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.25);
 }
 
 .sw-mode button {
@@ -1767,17 +1744,6 @@ body.subway-perf-mode .game-bg span {
 
 .sw-mode button:hover {
     color: var(--game-text);
-}
-
-.sw-mode button.is-active {
-    color: #fff;
-    background: linear-gradient(135deg, var(--game-accent), var(--game-accent2));
-    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
-}
-
-.sw-mode button[data-mode="training"].is-active {
-    background: linear-gradient(135deg, #16a34a, #0d9488);
-    box-shadow: 0 6px 18px rgba(22, 163, 74, 0.3);
 }
 
 .sw-training-bar {
@@ -1831,16 +1797,8 @@ body.subway-perf-mode .game-bg span {
     min-height: 2.6rem;
     padding: 0 0.9rem 0 2.5rem;
     border: 1px solid var(--game-border);
-    border-radius: 999px;
     color: var(--game-text);
-    background: rgba(0, 0, 0, 0.25);
     font: inherit;
-    outline: none;
-}
-
-.sw-search input:focus-visible {
-    border-color: var(--game-accent2);
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
 }
 
 .sw-chips {
@@ -1867,12 +1825,6 @@ body.subway-perf-mode .game-bg span {
     border-color: rgba(255, 255, 255, 0.25);
 }
 
-.sw-chip.is-active {
-    color: #fff;
-    border-color: var(--game-accent2);
-    background: rgba(6, 182, 212, 0.16);
-}
-
 .sw-training-bar .sw-chip.is-active {
     border-color: #22c55e;
     background: rgba(34, 197, 94, 0.18);
@@ -1897,9 +1849,6 @@ body.subway-perf-mode .game-bg span {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 18px;
     color: var(--game-text);
-    background:
-        radial-gradient(120% 90% at 0% 100%, hsla(var(--sw-hue), 85%, 55%, 0.16), transparent 65%),
-        rgba(255, 255, 255, 0.035);
     text-align: left;
     font: inherit;
     cursor: pointer;
@@ -1914,13 +1863,7 @@ body.subway-perf-mode .game-bg span {
 .sw-card:hover,
 .sw-card:focus-visible {
     transform: translateY(-3px);
-    border-color: hsla(var(--sw-hue), 85%, 60%, 0.65);
-    box-shadow: 0 14px 30px hsla(var(--sw-hue), 85%, 35%, 0.28);
     outline: none;
-}
-
-.sw-card:focus-visible {
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.45);
 }
 
 /* Immagine: intera al centro, la stessa sfocata dietro */
@@ -2070,12 +2013,6 @@ body.subway-perf-mode .game-bg span {
     text-align: center;
 }
 
-/* Classifica: la propria riga */
-.subway-lb-table tbody tr.is-me {
-    background: rgba(124, 58, 237, 0.16);
-    box-shadow: inset 3px 0 0 var(--game-accent);
-}
-
 .subway-lb-header-info h2 i {
     color: #f59e0b;
     margin-right: 0.4rem;
@@ -2112,12 +2049,10 @@ body.sw-modal-open {
     width: min(880px, 100%);
     height: min(640px, calc(100vh - 32px));
     height: min(640px, calc(100dvh - 32px));
-    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 22px;
     background: rgba(10, 14, 26, 0.94);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
     overflow: hidden;
     transform: translateY(8px) scale(0.99);
     transition: transform 0.2s ease;
@@ -2229,12 +2164,6 @@ body.sw-modal-open {
 .sw-modal-nav button:hover {
     color: var(--game-text);
     background: rgba(255, 255, 255, 0.05);
-}
-
-.sw-modal-nav button.is-active {
-    color: #fff;
-    background: rgba(6, 182, 212, 0.14);
-    box-shadow: inset 3px 0 0 var(--game-accent2);
 }
 
 .sw-modal-panes {
@@ -2609,10 +2538,6 @@ body.sw-modal-open {
         flex: none;
     }
 
-    .sw-modal-nav button.is-active {
-        box-shadow: inset 0 -3px 0 var(--game-accent2);
-    }
-
     .sw-pane .subway-keybind-list {
         grid-template-columns: 1fr;
     }
@@ -2636,4 +2561,125 @@ body.sw-modal-open {
         transition: none;
         animation: none;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ── Subway: la pagina prima di giocare ──────────────────── */
+html:root .sw-mode,
+html:root .sw-chips {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html:root :is(.sw-mode button, .sw-chip, .sw-modal-nav button, .subway-tab-btn) {
+    font-weight: 500;
+}
+
+html:root .sw-search input,
+html:root .sw-search input:focus-visible {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    outline: 0;
+}
+
+html:root .sw-search input:focus-visible {
+    border-color: var(--nx-text-3);
+}
+
+/* Le mappe: la foto resta, va via l'alone al passaggio. */
+html:root .sw-card {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .sw-card:hover,
+html:root .sw-card:focus-visible {
+    border-color: var(--nx-text-3);
+    box-shadow: none;
+}
+
+html:root .sw-badge {
+    border-color: transparent;
+    background: rgba(0, 0, 0, 0.66);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html:root :is(.sw-preview, .sw-run-card, .sw-notice) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .sw-modal-box {
+    border: 1px solid var(--nx-line);
+    box-shadow: var(--nx-float);
+}
+
+/* Interruttori delle impostazioni: bianchi quando sono accesi. */
+html:root input:checked + .subway-slider {
+    background-color: var(--nx-text);
+}
+
+html:root input:checked + .subway-slider::before {
+    background-color: #000;
+}
+
+html:root .subway-opacity-setting input[type="range"] {
+    accent-color: var(--nx-text);
+}
+
+/* ── Subway: record e classifica ─────────────────────────── */
+html:root .subway-personal-best-card {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .subway-pb-time {
+    text-shadow: none;
+}
+
+html:root .subway-lb-table th {
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+/* Oro, argento e bronzo restano, senza alone. */
+html:root .subway-lb-badge:is(.rank-gold, .rank-silver, .rank-bronze) {
+    box-shadow: none;
+}
+
+html:root .subway-lb-badge.rank-gold { background: rgba(251, 191, 36, 0.2); }
+
+html:root .subway-lb-badge.rank-silver { background: rgba(203, 213, 225, 0.18); }
+
+html:root .subway-lb-badge.rank-bronze { background: rgba(208, 138, 78, 0.2); }
+
+html:root .subway-lb-badge i,
+html:root .subway-lb-premium {
+    filter: none;
+    text-shadow: none;
+}
+
+html:root .subway-lb-user-link:hover .subway-lb-avatar {
+    box-shadow: none;
+}
+
+html:root .subway-lb-table tbody tr.is-me {
+    background: var(--nx-surface-3);
+    box-shadow: none;
 }

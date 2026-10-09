@@ -32,10 +32,6 @@ body.api-docs-body {
     min-height: 100vh;
     margin: 0;
     color: var(--docs-text);
-    background:
-        radial-gradient(circle at 8% 8%, rgba(47, 107, 255, 0.24), transparent 30rem),
-        radial-gradient(circle at 92% 15%, rgba(139, 92, 246, 0.19), transparent 28rem),
-        linear-gradient(135deg, var(--docs-bg), var(--docs-bg-soft));
     overflow-x: hidden;
     max-width: 100%;
 }
@@ -119,7 +115,6 @@ body.api-docs-body {
     grid-template-columns: minmax(0, 1.06fr) minmax(280px, 0.72fr);
     gap: 1.2rem;
     overflow: hidden;
-    border-radius: var(--docs-radius-xl);
     padding: clamp(1.25rem, 3.4vw, 2.4rem);
     max-width: 100%;
 }
@@ -145,26 +140,17 @@ body.api-docs-body {
     padding: 0.36rem 0.72rem;
     border: 1px solid rgba(47, 107, 255, 0.36);
     border-radius: 999px;
-    color: #9bb7ff;
-    background: rgba(47, 107, 255, 0.1);
     font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 
 .docs-hero h1 {
     max-width: 760px;
     margin: 0.95rem 0 0.7rem;
-    font-size: clamp(2.4rem, 6vw, 5rem);
-    line-height: 0.94;
-    letter-spacing: -0.07em;
 }
 
 .docs-hero p {
     max-width: 44rem;
     margin: 0;
-    color: var(--docs-muted);
     line-height: 1.62;
     font-size: clamp(0.98rem, 1.6vw, 1.12rem);
 }
@@ -183,26 +169,12 @@ body.api-docs-body {
     gap: 0.55rem;
     min-height: 2.85rem;
     padding: 0.78rem 1.05rem;
-    border-radius: 999px;
-    color: #fff;
     text-decoration: none;
-    font-weight: 850;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.06);
     transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
 .docs-btn:hover {
-    transform: translateY(-2px);
     color: #fff;
-    border-color: rgba(255, 255, 255, 0.28);
-    background: rgba(255, 255, 255, 0.09);
-}
-
-.docs-btn--primary {
-    background: linear-gradient(135deg, var(--docs-blue), var(--docs-purple));
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow: 0 14px 34px rgba(47, 107, 255, 0.24);
 }
 
 .docs-terminal {
@@ -212,7 +184,6 @@ body.api-docs-body {
     border-radius: 24px;
     overflow: hidden;
     border: 1px solid var(--docs-border-strong);
-    background: rgba(2, 4, 10, 0.88);
 }
 
 .docs-terminal__bar {
@@ -221,7 +192,6 @@ body.api-docs-body {
     gap: 0.45rem;
     padding: 0.8rem 0.9rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.04);
 }
 
 .docs-dot {
@@ -263,7 +233,6 @@ body.api-docs-body {
 .docs-sidebar strong {
     display: block;
     margin-bottom: 0.7rem;
-    color: #fff;
 }
 
 .docs-sidebar a {
@@ -272,15 +241,8 @@ body.api-docs-body {
     gap: 0.5rem;
     padding: 0.62rem 0.7rem;
     border-radius: 14px;
-    color: var(--docs-muted);
     text-decoration: none;
-    font-weight: 750;
     transition: background 180ms ease, color 180ms ease;
-}
-
-.docs-sidebar a:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.07);
 }
 
 .docs-content {
@@ -333,7 +295,6 @@ body.api-docs-body {
     padding: 1rem;
     border-radius: var(--docs-radius-md);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.045);
 }
 
 .docs-mini-card i {
@@ -343,8 +304,6 @@ body.api-docs-body {
     height: 2.4rem;
     margin-bottom: 0.75rem;
     border-radius: 14px;
-    color: #fff;
-    background: linear-gradient(135deg, var(--docs-blue), var(--docs-purple));
 }
 
 .docs-mini-card h3 {
@@ -382,7 +341,6 @@ body.api-docs-body {
     max-width: 100%;
     padding: 0.42rem 0.7rem;
     border-radius: 12px;
-    color: #dbeafe;
     background: rgba(2, 6, 23, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.1);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -402,11 +360,8 @@ body.api-docs-body {
     gap: 0.4rem;
     padding: 0.38rem 0.58rem;
     border-radius: 999px;
-    color: #bfdbfe;
-    background: rgba(47, 107, 255, 0.1);
     border: 1px solid rgba(47, 107, 255, 0.24);
     font-size: 0.82rem;
-    font-weight: 800;
 }
 
 .docs-table-wrap {
@@ -430,11 +385,7 @@ body.api-docs-body {
 }
 
 .docs-table th {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.05);
     font-size: 0.82rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
 }
 
 .docs-table td {
@@ -465,7 +416,6 @@ body.api-docs-body {
     border-radius: 18px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(2, 6, 23, 0.84);
 }
 
 .docs-code__head {
@@ -476,25 +426,15 @@ body.api-docs-body {
     padding: 0.7rem 0.8rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--docs-muted);
-    background: rgba(255, 255, 255, 0.04);
     font-size: 0.84rem;
     font-weight: 850;
 }
 
 .docs-copy {
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 999px;
     padding: 0.32rem 0.62rem;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.06);
-    font-weight: 850;
     cursor: pointer;
     transition: background 180ms ease, border-color 180ms ease;
-}
-
-.docs-copy:hover {
-    border-color: rgba(255, 255, 255, 0.24);
-    background: rgba(255, 255, 255, 0.1);
 }
 
 .docs-alert {
@@ -503,7 +443,6 @@ body.api-docs-body {
     padding: 0.95rem 1rem;
     border-radius: 18px;
     border: 1px solid rgba(47, 107, 255, 0.25);
-    background: rgba(47, 107, 255, 0.09);
     color: #dbeafe;
 }
 
@@ -547,7 +486,6 @@ body.api-docs-body {
         padding: 0.45rem 0.9rem;
         border-radius: 999px;
         font-size: 0.85rem;
-        background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
@@ -562,12 +500,253 @@ body.api-docs-body {
         padding-top: 6.4rem;
     }
 
-    .docs-hero h1 {
-        font-size: clamp(2.2rem, 15vw, 3.5rem);
-    }
-
     .docs-terminal pre,
     .docs-code pre {
         font-size: 0.78rem;
     }
+}
+
+/* ============================================================
+   L'aspetto di adesso
+   ============================================================
+
+   Fino a ottobre 2026 queste regole stavano in un foglio a parte, quello del
+   tema, e correggevano da fuori le regole qui sopra. «html:root» e' sempre
+   vero: serve solo a dare a ogni regola il peso che aveva, cosi' continua a
+   vincere dove vinceva. I colori (--nx-…) sono quelli di
+   assets/global/theme.css.
+   ============================================================ */
+
+/* ============================================================
+   Tema nuovo — API Docs
+   ============================================================
+
+   Correzioni a assets/api-docs/api-docs.css
+   (includes/api-docs-template.php). Il foglio originale non si tocca.
+
+   Restano: il finto terminale con i tre pallini, i colori dei metodi
+   HTTP, il pulsante «Copia», l'indice che resta fermo di lato.
+   Il codice resta in monospazio.
+   ============================================================ */
+html:root body.api-docs-body {
+    --docs-blue: var(--nx-text);
+    --docs-purple: var(--nx-text);
+    --docs-bg: var(--nx-bg);
+    --docs-bg-2: var(--nx-bg);
+    --docs-card: var(--nx-surface);
+    --docs-border: var(--nx-line);
+    --docs-text: var(--nx-text);
+    --docs-muted: var(--nx-text-2);
+    --docs-shadow: none;
+    background: var(--nx-bg);
+}
+
+/* Macchie sfocate e griglia di linee sullo sfondo. */
+html:root .docs-bg,
+html:root .docs-grid,
+html:root .docs-hero::after {
+    display: none;
+}
+
+/* ── Riquadri ────────────────────────────────────────────── */
+html:root :is(.docs-hero, .docs-card, .docs-endpoint, .docs-sidebar) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* La testata e l'indice non sono riquadri: stanno sul fondo. */
+html:root .docs-hero {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    background: none;
+}
+
+html:root .docs-sidebar {
+    padding-left: 0;
+    background: none;
+}
+
+/* Le sezioni («Panoramica», «Endpoint», «Errori») stanno sul fondo anche loro:
+   il riquadro resta agli endpoint e alle schede. */
+html:root .docs-card:not(.docs-footer-cta) {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    background: none;
+}
+
+html:root .docs-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html:root .docs-hero p,
+html:root .docs-table-note {
+    color: var(--nx-text-2);
+}
+
+html:root .docs-pill {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .docs-section-title,
+html:root .docs-endpoint h3,
+html:root .docs-mini-card h3 {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+html:root .docs-btn {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .docs-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html:root .docs-btn--primary,
+html:root .docs-btn--primary:hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html:root .docs-btn--primary:hover {
+    background: #fff;
+}
+
+html:root .docs-copy {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html:root .docs-copy:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+}
+
+/* ── Terminale e codice ──────────────────────────────────── */
+html:root .docs-terminal,
+html:root .docs-code {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html:root .docs-terminal {
+    background: var(--nx-surface);
+}
+
+html:root .docs-terminal__bar,
+html:root .docs-code__head {
+    border-color: var(--nx-line);
+    background: none;
+}
+
+html:root .docs-inline-code {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Indice, schede, tabelle ─────────────────────────────── */
+html:root .docs-sidebar strong {
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .docs-sidebar a {
+    border-color: transparent;
+    background: none;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .docs-sidebar a:hover {
+    border-color: transparent;
+    background: var(--nx-surface);
+    color: var(--nx-text);
+    transform: none;
+}
+
+html:root .docs-sidebar a i {
+    color: var(--nx-text-3);
+}
+
+html:root .docs-mini-card {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html:root .docs-mini-card i {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html:root .docs-path {
+    color: var(--nx-text);
+}
+
+html:root .docs-badge {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html:root .docs-table-wrap {
+    border-color: var(--nx-line);
+    background: none;
+}
+
+html:root .docs-table th {
+    background: none;
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html:root .docs-table :is(th, td) {
+    border-color: var(--nx-line);
+}
+
+html:root .docs-alert {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html:root .docs-footer-cta {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+}
+
+html:root :is(.docs-btn, .docs-copy, .docs-sidebar a):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
 }
