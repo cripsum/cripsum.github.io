@@ -1928,12 +1928,16 @@ dialog.cm-viewer.is-immersive { padding: 0; }
         height: 58px;
         min-height: 0;
         padding: 0;
+        /* La scritta c'è ancora, a misura zero: senza questo lo spazio tra icona e scritta
+           spingeva il «+» fuori dal centro. */
+        gap: 0;
         border-radius: 20px;
         font-size: 0;
         box-shadow: 0 16px 40px rgba(var(--cm-accent-rgb), 0.5);
     }
 
-    .cm-hero .cm-btn--primary[data-cm-new] i { font-size: 1.3rem; }
+    /* Misura intera: a 1.3rem (20.8px) il segno finiva quasi un pixel sopra il centro. */
+    .cm-hero .cm-btn--primary[data-cm-new] i { font-size: 21px; }
     .cm-hero .cm-btn:not([data-cm-new]) { width: 100%; margin-top: 14px; }
     .cm-page .scroll-indicator { right: auto; left: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); }
 

@@ -163,7 +163,7 @@ $keybinds = [
 <html lang="<?= $swE($subwayLang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
-    <?php $ogTitle = 'Cripsum™ Subway Surfers'; $ogImage = '/img/og-default.jpg'; ?>
+    <?php $ogTitle = 'Cripsum™ Subway Surfers'; ?>
     <?php include __DIR__ . '/../head-import.php'; ?>
     <title>Cripsum™ Subway Surfers</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

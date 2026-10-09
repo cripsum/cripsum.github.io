@@ -3,6 +3,15 @@ if (!defined('CRIPSUM_OG_LOADED')) {
     define('CRIPSUM_OG_LOADED', true);
 }
 
+/**
+ * L'immagine che esce quando una pagina non ne ha una sua.
+ *
+ * Discord, WhatsApp e gli altri tengono in memoria l'anteprima per indirizzo:
+ * ogni volta che si cambia il file va alzato il numero in coda, altrimenti
+ * continuano a mostrare quella vecchia.
+ */
+const CRIPSUM_OG_DEFAULT_IMAGE = '/img/og-default.jpg?v=2';
+
 function cripsum_og_h($value): string
 {
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -17,7 +26,7 @@ function cripsum_og_abs(?string $url): string
 {
     $url = trim((string)$url);
     if ($url === '') {
-        return cripsum_og_site_url() . '/img/og-default.jpg';
+        return cripsum_og_site_url() . CRIPSUM_OG_DEFAULT_IMAGE;
     }
 
     if (preg_match('/^https?:\/\//i', $url)) {
@@ -74,7 +83,7 @@ function cripsum_og_default(string $kind = 'site'): array
     return [
         'title' => $titles[$kind] ?? $titles['site'],
         'description' => $descriptions[$kind] ?? $descriptions['site'],
-        'image' => cripsum_og_abs('/img/og-default.jpg'),
+        'image' => cripsum_og_abs(CRIPSUM_OG_DEFAULT_IMAGE),
         'url' => cripsum_og_current_url(),
         'type' => 'website',
         'image_type' => 'image/jpeg',
@@ -214,7 +223,7 @@ function cripsum_og_content(mysqli $mysqli, string $type): array
     // Di un video si mostra la copertina, se chi l'ha caricato ne ha mandata una.
     $image = cripsum_og_abs('/api/content/media.php?type=' . $type . '&id=' . $postId);
     if ($isVideo) {
-        $image = cripsum_og_abs('/img/og-default.jpg');
+        $image = cripsum_og_abs(CRIPSUM_OG_DEFAULT_IMAGE);
         $table = $type === 'rimasto' ? 'toprimasti' : 'shitposts';
         if (cripsum_og_column_exists($mysqli, $table, 'anteprima')) {
             $check = $mysqli->query("SELECT 1 FROM `$table` WHERE id = " . (int)$postId . ' AND anteprima IS NOT NULL');
@@ -268,7 +277,7 @@ function cripsum_og_profile(mysqli $mysqli, ?array $profile = null, ?string $ide
         return [
             'title' => 'Profilo privato - Cripsum™',
             'description' => 'Questo profilo non è pubblico.',
-            'image' => cripsum_og_abs('/img/og-default.jpg'),
+            'image' => cripsum_og_abs(CRIPSUM_OG_DEFAULT_IMAGE),
             'url' => cripsum_og_current_url(),
             'type' => 'profile',
             'image_type' => 'image/jpeg',
@@ -297,7 +306,7 @@ function cripsum_og_profile(mysqli $mysqli, ?array $profile = null, ?string $ide
     return [
         'title' => $displayName . ' - Cripsum™',
         'description' => cripsum_og_trim($bio, 180),
-        'image' => $id > 0 ? cripsum_og_abs('/includes/get_pfp.php?id=' . $id) : cripsum_og_abs('/img/og-default.jpg'),
+        'image' => $id > 0 ? cripsum_og_abs('/includes/get_pfp.php?id=' . $id) : cripsum_og_abs(CRIPSUM_OG_DEFAULT_IMAGE),
         'url' => $url,
         'type' => 'profile',
         'image_type' => 'image/jpeg',

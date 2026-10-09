@@ -16,11 +16,14 @@
    ============================================================ */
 
 .home-next {
-    /* Larghezza del contenuto e stacco tra le sezioni: le due misure a cui
-       si allinea tutto il resto. Sugli schermi molto larghi il contenuto si
-       allarga un poco, cosi' non resta una colonnina in mezzo al vuoto. */
+    /* Larghezza del contenuto: sugli schermi molto larghi si allarga un poco,
+       cosi' non resta una colonnina in mezzo al vuoto. */
     --hx-max: clamp(1080px, 58vw, 1280px);
-    --hx-sec: clamp(6rem, 12vw, 10rem);
+    /* Il ritmo verticale della pagina sta in due misure sole. Tra una sezione
+       e la successiva: 72px su telefono, 120px da 1150px in su. Tra il titolo
+       di una sezione e quello che c'e' sotto: da 28 a 40px. */
+    --hx-sec: clamp(4.5rem, 3rem + 6.25vw, 7.5rem);
+    --hx-head: clamp(1.75rem, 1.3rem + 1.9vw, 2.5rem);
 
     width: 100%;
     min-width: 0;
@@ -216,20 +219,33 @@
     object-fit: cover;
 }
 
-/* ── Hero ─────────────────────────────────────────────────── */
+/* ── Hero ─────────────────────────────────────────────────────
+   Testi a sinistra, foto a destra, sullo stesso livello: la foto e' centrata
+   in altezza sui testi, e i due bordi sono quelli delle sezioni sotto.
+
+   Le righe 1 e 6 della griglia sono due molle: tengono i testi insieme e al
+   centro quando la foto e' piu' alta, e spariscono quando e' piu' bassa.
+   Sugli schermi bassi (portatili) la testata parte un poco piu' in alto. */
 
 .home-hero {
-    padding-top: 10.5rem;
-    text-align: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) min(30rem, 44%);
+    grid-template-rows: 1fr auto auto auto auto 1fr;
+    column-gap: clamp(2rem, 5vw, 4.5rem);
+    padding-top: 10rem;
+    padding-top: clamp(8rem, 18svh, 10rem);
 }
 
+/* Il margine negativo toglie il vuoto che il carattere lascia sopra le
+   maiuscole: cosi' il centro dei testi e' quello che si vede, e la foto ci si
+   allinea davvero. */
 .home-hero__title {
-    max-width: 62rem;
-    margin: 0 auto;
+    grid-area: 2 / 1;
+    margin: -0.19em 0 0;
     color: var(--nx-text);
-    font-size: clamp(2.35rem, 6.4vw, 4.5rem);
+    font-size: clamp(2.5rem, 4.4vw, 3.75rem);
     font-weight: 600;
-    line-height: 1.1;
+    line-height: 1.08;
     letter-spacing: -0.035em;
     text-wrap: balance;
 }
@@ -251,18 +267,20 @@
 }
 
 .home-hero__lead {
-    max-width: 40rem;
-    margin: 1.6rem auto 0;
+    grid-area: 3 / 1;
+    max-width: 31rem;
+    margin: 1.4rem 0 0;
     color: var(--nx-text-2);
-    font-size: clamp(1.0625rem, 1.9vw, 1.25rem);
+    font-size: clamp(1.0625rem, 1.5vw, 1.1875rem);
     line-height: 1.45;
     letter-spacing: -0.01em;
-    text-wrap: pretty;
+    text-wrap: balance;
     animation: homeRise 900ms var(--nx-ease) 480ms both;
 }
 
 .home-hero__question {
-    margin: 0.9rem auto 0;
+    grid-area: 4 / 1;
+    margin: 0.75rem 0 0;
     color: var(--nx-text);
     font-style: italic;
     font-weight: 500;
@@ -279,13 +297,16 @@
 }
 
 .home-hero .home-actions {
+    grid-area: 5 / 1;
+    justify-content: flex-start;
+    margin-top: 1.9rem;
     animation: homeRise 900ms var(--nx-ease) 640ms both;
 }
 
 .home-hero__media {
-    width: min(45rem, 100%);
-    margin: 4.75rem auto 0;
-    border-radius: 28px;
+    grid-area: 1 / 2 / -1 / 3;
+    align-self: center;
+    margin: 0;
     animation: homeFocus 1300ms var(--nx-ease) 740ms both;
 }
 
@@ -347,7 +368,7 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem;
-    margin-top: 7rem;
+    margin-top: var(--hx-sec);
 }
 
 .home-mood figure {
@@ -463,7 +484,7 @@
 }
 
 .home-showcase {
-    margin-top: 2.75rem;
+    margin-top: var(--hx-head);
 }
 
 .home-stage {
@@ -815,7 +836,7 @@
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: start;
-    margin-top: 3.25rem;
+    margin-top: var(--hx-head);
 }
 
 /* Il posto di chi guarda sta fermo a sinistra, fuori dalla fila che scorre. */
@@ -939,13 +960,11 @@
 
 .home-close {
     margin-top: var(--hx-sec);
-    padding-top: var(--hx-sec);
-    border-top: 1px solid var(--nx-line);
     text-align: center;
 }
 
 .home-close .home-actions {
-    margin-top: 2.25rem;
+    margin-top: 1.75rem;
 }
 
 .home-close .home-online {
@@ -1008,12 +1027,27 @@
 }
 
 @media (max-width: 720px) {
+    /* I testi tornano sopra e la foto sotto, tutto allineato a sinistra. */
     .home-hero {
-        padding-top: 7.5rem;
+        display: block;
+        padding-top: 7rem;
+    }
+
+    .home-hero__title {
+        margin-top: 0;
+        font-size: clamp(2.35rem, 6.4vw, 2.875rem);
+        line-height: 1.1;
     }
 
     .home-hero__lead {
-        margin-top: 1.1rem;
+        max-width: 40rem;
+        margin-top: 1rem;
+        font-size: 1.0625rem;
+        text-wrap: pretty;
+    }
+
+    .home-hero__question {
+        margin-top: 0.9rem;
     }
 
     .home-actions {
@@ -1021,24 +1055,34 @@
         margin-top: 1.6rem;
     }
 
+    .home-hero .home-actions {
+        margin-top: 1.5rem;
+    }
+
     .home-hero__media {
-        margin-top: 3rem;
-        border-radius: 22px;
+        margin-top: 2.5rem;
     }
 
     .home-tile {
         border-radius: 20px;
     }
 
-    /* I tre mood uno sotto l'altro, ognuno con la sua scritta. */
+    /* I tre mood restano in fila, piccoli e fermi: si vedono tutti e tre
+       insieme, ognuno con la sua scritta, senza scorrere di lato. */
     .home-mood {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 1.75rem;
-        margin-top: 4rem;
+        gap: 0.625rem;
+    }
+
+    .home-mood .home-tile {
+        aspect-ratio: 1;
+        border-radius: 14px;
     }
 
     .home-mood figcaption {
-        margin-top: 0.7rem;
+        margin-top: 0.5rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-align: center;
     }
 
     /* Le frecce lasciano il posto al dito: qui si passa da una voce
@@ -1049,10 +1093,6 @@
 
     .home-paddle--step {
         display: none;
-    }
-
-    .home-showcase {
-        margin-top: 1.75rem;
     }
 
     .home-stage {
@@ -1112,10 +1152,6 @@
         margin-top: 1.5rem;
     }
 
-    .supporters-row {
-        margin-top: 2.25rem;
-    }
-
     .supporters-you {
         padding: 0.75rem 0.9rem 0.5rem 0.1rem;
     }
@@ -1132,6 +1168,7 @@
     .home-close .home-actions {
         flex-direction: column;
         gap: 0.2rem;
+        margin-top: 1.25rem;
     }
 
     .home-joke {
@@ -1141,6 +1178,19 @@
     .home-joke__track {
         gap: 1.6rem;
         padding-right: 1.6rem;
+    }
+}
+
+/* I tre pulsanti della testata su una riga sola anche sui telefoni piu'
+   piccoli (320px), dove «Novità» andava a capo da sola. */
+@media (max-width: 345px) {
+    .home-hero .home-actions {
+        gap: 0.5rem 0.85rem;
+        font-size: 0.9375rem;
+    }
+
+    .home-hero .home-btn {
+        padding-inline: 1.15rem;
     }
 }
 

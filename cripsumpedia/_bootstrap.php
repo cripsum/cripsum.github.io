@@ -1137,7 +1137,8 @@ function cp_markdown_to_html(string $markdown, mysqli $mysqli, string $lang, ?in
 
 function cp_render_head(string $title, string $description, string $lang, string $bodyClass = 'cp-body', ?string $ogImage = null): void
 {
-    $ogImage = $ogImage ? cp_asset_url($ogImage) : '/img/sfondo-og.jpg';
+    // Una voce senza banner prende l'anteprima del sito, quella di head-import.
+    $ogImage = $ogImage ? cp_asset_url($ogImage) : null;
 
     // I tag dell'anteprima li stampa head-import: qui si passano solo i valori,
     // altrimenti uscirebbero due volte e i social prenderebbero i primi.
