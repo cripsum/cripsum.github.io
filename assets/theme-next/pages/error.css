@@ -1,0 +1,73 @@
+/* ============================================================
+   Tema nuovo — Pagina 404
+   ============================================================
+
+   Correzioni agli stili scritti dentro 404.html (classi err-). Il resto
+   della pagina usa assets/static/static.css, che ha gia' il suo foglio
+   (static.css di questa cartella). La pagina non si tocca.
+
+   Restano il meme che dondola e i due pulsanti. Vanno via il vetro, il
+   cerchio luminoso dietro il numero, il numero a sfumatura blu-viola che
+   pulsa di luce.
+   ============================================================ */
+
+html[data-theme="next"] .err-card {
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .err-card::before {
+    display: none;
+}
+
+html[data-theme="next"] .err-number {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    -webkit-text-fill-color: currentColor;
+    color: var(--nx-text);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    animation: none;
+    filter: none;
+}
+
+html[data-theme="next"] .err-headline {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .err-sub {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .err-meme {
+    border-color: transparent;
+    box-shadow: none;
+}
+
+/* L'avviso resta rosso: lo dice il testo, non il riquadro. */
+html[data-theme="next"] .err-alert {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .err-alert i {
+    color: var(--nx-danger);
+}
+
+/* La barra in cima di questa pagina e' una versione ridotta della navbar:
+   solo il logo. Prende la superficie del tema. */
+html[data-theme="next"] body.static-page > .navbarutenti {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}

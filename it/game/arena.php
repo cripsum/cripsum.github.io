@@ -2,6 +2,7 @@
 require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
+require_once '../../includes/theme.php';
 
 checkBan($mysqli);
 
@@ -15,12 +16,13 @@ if (!isLoggedIn()) {
 $matchId = isset($_GET['match_id']) ? (int)$_GET['match_id'] : 0;
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>Cripsum™ Duel - Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/assets/css/game.css?v=6.0">
+    <?php cripsum_theme_head('games'); ?>
     <script src="/assets/js/game.js?v=6.2" defer></script>
 </head>
 <body class="game-page" data-page="duel-arena" data-match-id="<?php echo htmlspecialchars((string)$matchId, ENT_QUOTES, 'UTF-8'); ?>">

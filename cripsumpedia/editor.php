@@ -81,7 +81,7 @@ $form = array_merge($defaults, $entry ?: []);
 $pageTitle = ($entry ? cp_i18n($entry, 'title', $lang) : cp_t('new_entry', $lang)) . ' - Cripsumpedia';
 ?>
 <!DOCTYPE html>
-<html lang="<?= cp_h($lang) ?>">
+<html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php cp_render_head($pageTitle, cp_t('subtitle', $lang), $lang); ?>

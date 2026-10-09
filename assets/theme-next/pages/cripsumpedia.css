@@ -1,0 +1,460 @@
+/* ============================================================
+   Tema nuovo — Cripsumpedia
+   ============================================================
+
+   Correzioni a cripsumpedia/cripsumpedia.css (indice, categorie, voci,
+   ricerca, editor e pannello dell'enciclopedia). Il foglio originale non
+   si tocca.
+
+   Ogni voce e ogni categoria ha un colore suo (--entry-accent): resta,
+   ma solo dove indica qualcosa — l'icona della categoria, il pallino
+   sulla linea del tempo, il segno accanto a una voce collegata. Non
+   colora piu' fondi e bordi. Restano i colori di canone e rarita'.
+
+   Restano: la barra di lettura in cima, la ricerca con i suggerimenti,
+   la scheda che compare passando su un collegamento, la modalita'
+   lettura, gli spoiler, «Random».
+   ============================================================ */
+
+html[data-theme="next"] body.cp-body {
+    --cp-bg: var(--nx-bg);
+    --cp-bg-2: var(--nx-bg);
+    --cp-surface: var(--nx-surface);
+    --cp-surface-strong: var(--nx-surface-2);
+    --cp-border: var(--nx-line);
+    --cp-border-strong: var(--nx-text-3);
+    --cp-text: var(--nx-text);
+    --cp-muted: var(--nx-text-2);
+    --cp-muted-2: var(--nx-text-3);
+    --cp-accent: #f5f5f7;
+    --cp-accent-rgb: 245, 245, 247;
+    --cp-purple: #f5f5f7;
+    --cp-purple-rgb: 245, 245, 247;
+    --cp-blue: #f5f5f7;
+    --cp-radius: 20px;
+    --cp-shadow: none;
+    background: var(--nx-bg);
+}
+
+/* Sfondo: macchie, griglia e righe da monitor. */
+html[data-theme="next"] body.cp-body .cp-bg {
+    display: none;
+}
+
+/* La barra di lettura: una riga bianca, senza alone. */
+html[data-theme="next"] body.cp-body .cp-progress {
+    background: var(--nx-text);
+    box-shadow: none;
+}
+
+/* ── Sezioni: sul fondo, senza riquadro ──────────────────────
+   Il riquadro resta a quello che e' davvero un oggetto: le card delle
+   voci, la scheda di lato, i gruppi dell'editor. */
+
+html[data-theme="next"] body.cp-body :is(.cp-hero, .cp-category-hero, .cp-search-hero, .cp-toolbar, .cp-section, .cp-entry-hero, .cp-entry-content, .cp-entry-sidebar, .cp-admin-header, .cp-editor-head),
+html[data-theme="next"] body.cp-body.cp-page-home .cp-hero {
+    border-color: transparent;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-hero, .cp-category-hero, .cp-search-hero, .cp-toolbar, .cp-section, .cp-entry-content, .cp-admin-header, .cp-editor-head) {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-feature-card, .cp-side-stack, .cp-sidebar-card, .cp-admin-side, .cp-admin-stats article, .cp-admin-panel, .cp-editor-panel, .cp-editor-preview, .cp-install, .cp-infobox, .cp-entry-navigation, .cp-signal-card, .cp-spotlight-entry) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* Il velo del colore della voce sopra le card. */
+html[data-theme="next"] body.cp-body :is(.cp-category-card, .cp-entry-card, .cp-feature-card, .cp-relation-card, .cp-infobox)::before {
+    display: none;
+}
+
+/* ── Titoli ed etichette ─────────────────────────────────── */
+
+html[data-theme="next"] body.cp-body :is(.cp-hero h1, .cp-category-hero h1, .cp-search-hero h1, .cp-admin-header h1, .cp-editor-head h1, .cp-entry-hero h1),
+html[data-theme="next"] body.cp-body.cp-page-home .cp-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+/* L'etichetta sopra i titoli: testo grigio, non una pillola blu. */
+html[data-theme="next"] body.cp-body .cp-kicker {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-filter-bar span, .cp-field span, .cp-connections-group h3, .cp-entry-navigation small, .cp-admin-table th, .cp-badge, .cp-spotlight-entry__label) {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+
+html[data-theme="next"] body.cp-body :is(.cp-btn, .cp-icon-btn, .cp-lang, .cp-filter-bar button, .cp-editor-tabs button, .cp-btn--guide, .cp-btn--section) {
+    border-color: var(--nx-line);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-btn, .cp-icon-btn, .cp-lang, .cp-filter-bar button, .cp-editor-tabs button):hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-btn--guide, .cp-btn--section) i {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-btn--primary, .cp-search button),
+html[data-theme="next"] body.cp-body :is(.cp-btn--primary, .cp-search button):hover {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-btn--primary, .cp-search button):hover {
+    background: #fff;
+}
+
+html[data-theme="next"] body.cp-body .cp-view-toggle .cp-icon-btn.is-active,
+html[data-theme="next"] body.cp-body .cp-editor-tabs button.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] body.cp-body .cp-text-link,
+html[data-theme="next"] body.cp-body .cp-category-card .cp-category-card__cta {
+    color: var(--nx-text);
+}
+
+/* ── Ricerca ─────────────────────────────────────────────── */
+
+html[data-theme="next"] body.cp-body .cp-search {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] body.cp-body .cp-search:focus-within {
+    border-color: var(--nx-text-3);
+    box-shadow: none;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-search-results, .cp-select__menu, .cp-hover-card, .cp-toast) {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] body.cp-body .cp-live-item:hover,
+html[data-theme="next"] body.cp-body :is(.cp-select__option:hover, .cp-select__option.is-active) {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] body.cp-body .cp-select__button {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] body.cp-body .cp-select__button[aria-expanded="true"] {
+    border-color: var(--nx-text-3);
+    box-shadow: none;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-search-tabs a, .cp-category-tabs a) {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-search-tabs a, .cp-category-tabs a):hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-search-tabs a, .cp-category-tabs a).is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] body.cp-body mark.cp-highlight {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--nx-text);
+}
+
+/* ── Card delle voci e delle categorie ───────────────────── */
+
+html[data-theme="next"] body.cp-body :is(.cp-category-card, .cp-entry-card, .cp-relation-card, .cp-search-result, .cp-mini-row) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-category-card, .cp-entry-card, .cp-relation-card, .cp-search-result, .cp-mini-row):hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    transform: none;
+}
+
+/* Dentro una scheda le righe scendono di un gradino. */
+html[data-theme="next"] body.cp-body :is(.cp-side-stack, .cp-sidebar-card, .cp-infobox) :is(.cp-mini-row, .cp-relation-card) {
+    background: transparent;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-side-stack, .cp-sidebar-card, .cp-infobox) :is(.cp-mini-row, .cp-relation-card):hover {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] body.cp-body .cp-category-card__preview img {
+    box-shadow: none;
+}
+
+html[data-theme="next"] body.cp-body .cp-entry-card__media em,
+html[data-theme="next"] body.cp-body .cp-badge,
+html[data-theme="next"] body.cp-body .cp-spotlight-entry__label {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] body.cp-body .cp-entry-card__media em,
+html[data-theme="next"] body.cp-body .cp-spotlight-entry__label {
+    border-color: transparent;
+    background: rgba(0, 0, 0, 0.66);
+}
+
+html[data-theme="next"] body.cp-body .cp-category-hero aside {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-status-pill--published, .cp-badge--status) {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-entry-card__meta span, .cp-hero-badges span, .cp-chip-list span) {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+/* ── Linea del tempo ─────────────────────────────────────── */
+
+html[data-theme="next"] body.cp-body .cp-timeline::before {
+    background: var(--nx-line);
+}
+
+html[data-theme="next"] body.cp-body .cp-timeline li::before {
+    box-shadow: none;
+}
+
+/* ── Pagina di una voce ──────────────────────────────────── */
+
+/* Il percorso resta fermo in alto mentre la pagina scorre: gli serve un fondo pieno. */
+html[data-theme="next"] body.cp-body .cp-breadcrumbs {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] body.cp-body .cp-entry-lead {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-markdown a, .cp-lore-link) {
+    border-bottom-color: rgba(255, 255, 255, 0.35);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-markdown blockquote, .cp-quote-grid blockquote, .cp-feature-card blockquote) {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] body.cp-body .cp-feature-card blockquote {
+    background: none;
+}
+
+html[data-theme="next"] body.cp-body .cp-spoiler {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] body.cp-body .cp-check input {
+    accent-color: var(--nx-text);
+}
+
+/* ── Editor e pannello dell'enciclopedia ─────────────────── */
+
+html[data-theme="next"] body.cp-body :is(.cp-field input, .cp-field textarea, .cp-field select) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-field input, .cp-field textarea, .cp-field select):focus {
+    border-color: var(--nx-text);
+    box-shadow: none;
+}
+
+html[data-theme="next"] body.cp-body .cp-admin-side nav a:hover,
+html[data-theme="next"] body.cp-body .cp-admin-side nav a.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] body.cp-body .cp-upload-zone {
+    border-color: var(--nx-line);
+    background: transparent;
+}
+
+html[data-theme="next"] body.cp-body .cp-upload-zone.is-drag {
+    border-color: var(--nx-text);
+    background: var(--nx-surface-2);
+}
+
+/* ── Piede dell'enciclopedia ─────────────────────────────── */
+
+html[data-theme="next"] body.cp-body .cp-footer {
+    border-color: var(--nx-line);
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* Il foglio dell'enciclopedia ricolorava la navbar del sito: qui torna
+   quella del tema, col suo fondo pieno (sta ferma sopra la pagina). */
+html[data-theme="next"] body.cp-body .navbarutenti {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] body.cp-body :is(.cp-btn, .cp-icon-btn, .cp-category-card, .cp-entry-card, .cp-relation-card, .cp-mini-row, .cp-search-tabs a, .cp-category-tabs a):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
+}
+
+/* ── Pesi del carattere: nel tema nuovo non si va oltre 600 ── */
+
+html[data-theme="next"] body.cp-body .cp-brand strong,
+html[data-theme="next"] body.cp-body .cp-feature-card blockquote,
+html[data-theme="next"] body.cp-body .cp-hero h1,
+html[data-theme="next"] body.cp-body .cp-category-hero h1,
+html[data-theme="next"] body.cp-body .cp-search-hero h1,
+html[data-theme="next"] body.cp-body .cp-admin-header h1,
+html[data-theme="next"] body.cp-body .cp-editor-head h1,
+html[data-theme="next"] body.cp-body .cp-entry-hero h1,
+html[data-theme="next"] body.cp-body .cp-section-head h2,
+html[data-theme="next"] body.cp-body .cp-feature-card h2,
+html[data-theme="next"] body.cp-body .cp-entry-card h2,
+html[data-theme="next"] body.cp-body .cp-search-result h2,
+html[data-theme="next"] body.cp-body .cp-markdown h2,
+html[data-theme="next"] body.cp-body .cp-markdown h3,
+html[data-theme="next"] body.cp-body .cp-markdown h4,
+html[data-theme="next"] body.cp-body .cp-content-block h2,
+html[data-theme="next"] body.cp-body .cp-live-item strong,
+html[data-theme="next"] body.cp-body .cp-mini-row strong,
+html[data-theme="next"] body.cp-body .cp-admin-entry-cell strong,
+html[data-theme="next"] body.cp-body .cp-shell strong,
+html[data-theme="next"] body.cp-body .cp-admin-shell strong,
+html[data-theme="next"] body.cp-body .cp-editor-shell strong,
+html[data-theme="next"] body.cp-body .cp-category-card strong,
+html[data-theme="next"] body.cp-body .cp-signal-card strong,
+html[data-theme="next"] body.cp-body .cp-side-stack h3,
+html[data-theme="next"] body.cp-body .cp-infobox__header h2,
+html[data-theme="next"] body.cp-body .cp-connections-group h3,
+html[data-theme="next"] body.cp-body .cp-relation-card__info strong,
+html[data-theme="next"] body.cp-body .cp-entry-navigation strong,
+html[data-theme="next"] body.cp-body .cp-search-group__title,
+html[data-theme="next"] body.cp-body .cp-page-home .cp-hero h1,
+html[data-theme="next"] body.cp-body .cp-spotlight-entry__label,
+html[data-theme="next"] body.cp-body .cp-category-card .cp-category-card__label {
+    font-weight: 600;
+}
+
+html[data-theme="next"] body.cp-body .cp-brand small,
+html[data-theme="next"] body.cp-body .cp-nav a,
+html[data-theme="next"] body.cp-body .cp-lang,
+html[data-theme="next"] body.cp-body .cp-btn,
+html[data-theme="next"] body.cp-body .cp-icon-btn,
+html[data-theme="next"] body.cp-body .cp-filter-bar button,
+html[data-theme="next"] body.cp-body .cp-editor-tabs button,
+html[data-theme="next"] body.cp-body .cp-kicker,
+html[data-theme="next"] body.cp-body .cp-signal-card span,
+html[data-theme="next"] body.cp-body .cp-search button,
+html[data-theme="next"] body.cp-body .cp-text-link,
+html[data-theme="next"] body.cp-body .cp-category-card span,
+html[data-theme="next"] body.cp-body .cp-entry-card__media em,
+html[data-theme="next"] body.cp-body .cp-entry-card__meta span,
+html[data-theme="next"] body.cp-body .cp-hero-badges span,
+html[data-theme="next"] body.cp-body .cp-status-pill,
+html[data-theme="next"] body.cp-body .cp-tag-row a,
+html[data-theme="next"] body.cp-body .cp-chip-list span,
+html[data-theme="next"] body.cp-body .cp-category-hero aside span,
+html[data-theme="next"] body.cp-body .cp-filter-bar span,
+html[data-theme="next"] body.cp-body .cp-field span,
+html[data-theme="next"] body.cp-body .cp-timeline time,
+html[data-theme="next"] body.cp-body .cp-timeline em,
+html[data-theme="next"] body.cp-body .cp-entry-lead,
+html[data-theme="next"] body.cp-body .cp-spoiler summary,
+html[data-theme="next"] body.cp-body .cp-content-timeline time,
+html[data-theme="next"] body.cp-body .cp-relation-card span,
+html[data-theme="next"] body.cp-body .cp-sidebar-card dt,
+html[data-theme="next"] body.cp-body .cp-search-tabs a,
+html[data-theme="next"] body.cp-body .cp-admin-side nav a,
+html[data-theme="next"] body.cp-body .cp-admin-stats span,
+html[data-theme="next"] body.cp-body .cp-footer__links a,
+html[data-theme="next"] body.cp-body .cp-admin-table th,
+html[data-theme="next"] body.cp-body .cp-admin-table td[data-label]::before,
+html[data-theme="next"] body.cp-body .cp-badge,
+html[data-theme="next"] body.cp-body .cp-entry-navigation small,
+html[data-theme="next"] body.cp-body .cp-btn--guide small,
+html[data-theme="next"] body.cp-body .cp-category-card .cp-category-card__cta {
+    font-weight: 500;
+}
+
+/* Le icone di servizio (lente, catena dei collegamenti) erano blu. */
+html[data-theme="next"] body.cp-body :is(.cp-search i, .cp-signal-card i, .cp-section-head i) {
+    color: var(--nx-text-3);
+}
+
+/* Sul telefono il testo di una voce non arriva a filo dello schermo. */
+@media (max-width: 780px) {
+    html[data-theme="next"] body.cp-body :is(.cp-entry-content, .cp-hero, .cp-category-hero, .cp-search-hero, .cp-section, .cp-toolbar) {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* L'avviso di errore tiene il bordo rosso. */
+html[data-theme="next"] body.cp-body .cp-toast.is-error {
+    border-color: var(--nx-danger);
+}

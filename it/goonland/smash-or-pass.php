@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
+require_once '../../includes/theme.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
@@ -300,7 +301,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
@@ -308,6 +309,7 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/goonland.css?v=2.7-smash-polish">
     <link rel="stylesheet" href="/css/goonland-smash-pass.css?v=2.7-smash-polish">
+    <?php cripsum_theme_head('goonland'); ?>
     <script src="/js/goonland.js?v=2.7-smash-polish" defer></script>
     <script src="/js/goonland-smash-pass.js?v=2.7-smash-polish" defer></script>
 </head>

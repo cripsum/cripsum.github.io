@@ -144,4 +144,4 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^([a-zA-Z0-9_-]{3,30})/?$ profile.php?custom_alias=$1 [L,QSA]
 
-ErrorDocument 404 /404.html
+ErrorDocument 404 /404.php

@@ -21,6 +21,7 @@
  */
 
 require_once __DIR__ . '/rewind_helpers.php';
+require_once __DIR__ . '/theme.php';
 
 /**
  * Stampa la pagina di blocco e non torna indietro: chiama exit().
@@ -70,7 +71,7 @@ function rewind_render_locked_page(string $lang = 'it'): void
     header('Cache-Control: no-store, private');
     ?>
 <!DOCTYPE html>
-<html lang="<?php echo $h($lang); ?>">
+<html lang="<?php echo $h($lang); ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <meta charset="UTF-8">
@@ -82,6 +83,7 @@ function rewind_render_locked_page(string $lang = 'it'): void
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="<?php echo $h(rewind_asset('/assets/rewind/rewind.css')); ?>">
+    <?php cripsum_theme_head('rewind'); ?>
 </head>
 
 <body class="rw-page">

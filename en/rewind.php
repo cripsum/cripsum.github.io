@@ -12,6 +12,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/rewind_helpers.php';
+require_once '../includes/theme.php';
 
 $lang = str_contains((string)($_SERVER['REQUEST_URI'] ?? ''), '/en/') ? 'en' : 'it';
 $isEn = $lang === 'en';
@@ -52,7 +53,7 @@ function rw_h(mixed $value): string
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo $lang; ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include '../includes/head-import.php'; ?>
@@ -67,6 +68,7 @@ function rw_h(mixed $value): string
     <meta name="robots" content="noindex">
 
     <link rel="stylesheet" href="<?php echo rewind_asset('/assets/rewind/rewind.css'); ?>">
+    <?php cripsum_theme_head('rewind'); ?>
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';
         window.CRIPSUM_CSRF = '<?php echo rw_h(function_exists('csrf_token') ? csrf_token() : ''); ?>';

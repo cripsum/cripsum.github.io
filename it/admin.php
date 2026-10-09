@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/admin/admin_helpers.php';
+require_once __DIR__ . '/../includes/theme.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 if (isset($mysqli) && $mysqli instanceof mysqli) {
@@ -13,13 +14,14 @@ $currentAdmin = admin_require_access($mysqli, false);
 $csrfToken = admin_csrf_token();
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <title>Cripsum™ - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin.css')); ?>">
+    <?php cripsum_theme_head('admin'); ?>
 </head>
 
 <body class="admin-v2-body" data-csrf="<?php echo admin_h($csrfToken); ?>" data-admin-id="<?php echo (int)$currentAdmin['id']; ?>" data-admin-role="<?php echo admin_h($currentAdmin['ruolo']); ?>">

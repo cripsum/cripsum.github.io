@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/theme.php';
 
 if (isset($mysqli) && $mysqli instanceof mysqli && function_exists('checkBan')) {
     checkBan($mysqli);
@@ -60,7 +61,7 @@ $docs = [
 $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', 'missions', 'views', 'duels'];
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo api_docs_h($lang); ?>">
+<html lang="<?php echo api_docs_h($lang); ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php
@@ -72,6 +73,7 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
     <?php include __DIR__ . '/head-import.php'; ?>
     <title><?php echo api_docs_h($docs['title']); ?></title>
     <link rel="stylesheet" href="/assets/api-docs/api-docs.css?v=1.3">
+    <?php cripsum_theme_head('api-docs'); ?>
     <script src="/assets/api-docs/api-docs.js?v=1.3" defer></script>
 </head>
 

@@ -2,6 +2,7 @@
 require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/theme.php';
 
 checkBan($mysqli);
 
@@ -51,13 +52,14 @@ function tp_h($value): string
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ - TikTokpedia</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/tiktokpedia.css?v=2.0">
+    <?php cripsum_theme_head('tiktokpedia'); ?>
     <script src="/js/tiktokpedia.js?v=2.0" defer></script>
 </head>
 

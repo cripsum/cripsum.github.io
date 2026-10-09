@@ -523,6 +523,21 @@ html[data-theme="next"] :is(.ib-side, .pc-side, .gc-side) :is(.ib-row, .pc-row, 
     background: var(--nx-surface);
 }
 
+/* Sotto i 1080 px «In chat adesso» non e' piu' una colonna: e' un pannello
+   che entra da destra sopra la chat. Li' il fondo deve essere pieno,
+   altrimenti i messaggi si leggono attraverso. */
+@media (max-width: 1080px) {
+    html[data-theme="next"] .gc-side {
+        --ck-panel-solid: var(--nx-surface);
+        border-radius: var(--nx-radius) 0 0 var(--nx-radius);
+        background: var(--nx-surface);
+    }
+
+    html[data-theme="next"] .gc-side .gc-person:hover {
+        background: var(--nx-surface-2);
+    }
+}
+
 html[data-theme="next"] :is(.ib-row, .pc-row).is-active,
 html[data-theme="next"] :is(.ib-row, .pc-row).is-active:hover {
     background: var(--nx-surface-2);

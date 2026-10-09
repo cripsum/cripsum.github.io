@@ -15,6 +15,7 @@
 
 require_once __DIR__ . '/chisiamo.php';
 require_once __DIR__ . '/strings.php';
+require_once __DIR__ . '/../theme.php';
 
 $S = chisiamo_strings($cLang);
 $cSelf = '/' . $cLang . '/candidatura-chisiamo';
@@ -139,13 +140,14 @@ $cAlertIcon = ['success' => 'fa-circle-check', 'error' => 'fa-triangle-exclamati
 $cOldValue = static fn(string $key, string $fallback = ''): string => shop_h($cOld[$key] ?? $fallback);
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo shop_h($cLang); ?>">
+<html lang="<?php echo shop_h($cLang); ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include __DIR__ . '/../head-import.php'; ?>
     <title><?php echo shop_h('Cripsum™ - ' . $S['apply_title'] . ' ' . $S['page_title']); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/forms/forms.css')); ?>">
+    <?php cripsum_theme_head('forms'); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/forms/forms.js')); ?>" defer></script>
 </head>
 

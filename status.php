@@ -12,6 +12,7 @@
  */
 
 require_once __DIR__ . '/includes/status_helpers.php';
+require_once __DIR__ . '/includes/theme.php';
 
 $link = status_connect();
 $checks = status_latest_checks($link);
@@ -82,7 +83,7 @@ if ($canRenderNav) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -458,6 +459,7 @@ if ($canRenderNav) {
             .st-legend-mobile { display: none; }
         }
     </style>
+    <?php cripsum_theme_head('status'); ?>
 </head>
 <body class="st-body<?php echo $canRenderNav ? ' st-has-nav' : ''; ?>">
 

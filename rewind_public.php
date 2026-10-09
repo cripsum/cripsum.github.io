@@ -19,6 +19,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/rewind_helpers.php';
 require_once __DIR__ . '/includes/cripsum_og.php';
+require_once __DIR__ . '/includes/theme.php';
 
 $token = (string)($_GET['token'] ?? '');
 // Un link condiviso porta gia' il prefisso di lingua di chi lo ha creato
@@ -62,7 +63,7 @@ $ogDescription = $payload
     : ($isEn ? 'This Rewind is not available.' : 'Questo Rewind non è disponibile.');
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo $lang; ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <meta charset="UTF-8">
@@ -97,6 +98,7 @@ $ogDescription = $payload
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700,800,900" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
     <link rel="stylesheet" href="<?php echo rewind_asset('/assets/rewind/rewind.css'); ?>">
+    <?php cripsum_theme_head('rewind'); ?>
 
     <script>
         window.CRIPSUM_LANG = '<?php echo $lang; ?>';

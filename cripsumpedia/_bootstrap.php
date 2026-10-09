@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/theme.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 
@@ -1154,6 +1155,7 @@ function cp_render_head(string $title, string $description, string $lang, string
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
     <link rel="stylesheet" href="/cripsumpedia/cripsumpedia.css?v=2.3">
+    <?php cripsum_theme_head('cripsumpedia'); ?>
     <script>
         document.documentElement.classList.add('cp-js');
         window.Cripsumpedia = {

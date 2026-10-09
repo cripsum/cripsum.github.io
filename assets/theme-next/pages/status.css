@@ -1,0 +1,116 @@
+/* ============================================================
+   Tema nuovo — Stato dei servizi
+   ============================================================
+
+   Correzioni agli stili scritti dentro status.php (classi st-).
+   La pagina non si tocca.
+
+   I colori qui dicono tutti qualcosa e restano: verde operativo, giallo
+   rallentato, rosso disservizio, grigio senza dati. Restano il pallino
+   che pulsa e le novanta barre dei giorni.
+   ============================================================ */
+
+html[data-theme="next"] body.st-body {
+    --st-accent: var(--nx-text);
+    --st-green: var(--nx-ok);
+    --st-red: var(--nx-danger);
+    --st-grey: var(--nx-surface-3);
+    --st-bg: var(--nx-bg);
+    --st-bg-2: var(--nx-bg);
+    --st-card: var(--nx-surface);
+    --st-text: var(--nx-text);
+    --st-muted: var(--nx-text-2);
+    --st-muted-2: var(--nx-text-3);
+    --st-border: var(--nx-line);
+    --st-shadow: none;
+    background: var(--nx-bg);
+}
+
+/* ── Testata ─────────────────────────────────────────────── */
+
+html[data-theme="next"] .st-title {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .st-subtitle {
+    color: var(--nx-text-2);
+}
+
+/* Lo stato generale: una superficie, col colore solo sul pallino. */
+html[data-theme="next"] .st-banner,
+html[data-theme="next"] .st-banner:is(.operational, .degraded, .outage, .unknown) {
+    border: 0;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .st-banner h2 {
+    font-weight: 600;
+}
+
+html[data-theme="next"] .st-alarm {
+    border: 0;
+    background: var(--nx-surface-2);
+}
+
+/* ── Servizi ─────────────────────────────────────────────── */
+
+html[data-theme="next"] .st-card {
+    border: 0;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .st-card-icon {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .st-card-name,
+html[data-theme="next"] .st-incident-service {
+    font-weight: 600;
+}
+
+html[data-theme="next"] .st-badge {
+    border-color: transparent;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .st-section-title {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+/* ── Cronologia ──────────────────────────────────────────── */
+
+/* Il disservizio: niente striscia sul fianco, lo dice l'etichetta. */
+html[data-theme="next"] .st-incident,
+html[data-theme="next"] .st-incident.resolved {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .st-incident-tag {
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] .st-empty {
+    border: 0;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .st-note a {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}

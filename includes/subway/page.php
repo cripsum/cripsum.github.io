@@ -8,6 +8,7 @@
  */
 
 require_once __DIR__ . '/catalog.php';
+require_once __DIR__ . '/../theme.php';
 
 $subwayLang = ($subwayLang ?? 'it') === 'en' ? 'en' : 'it';
 $swT = static fn(string $it, string $en): string => $subwayLang === 'it' ? $it : $en;
@@ -159,7 +160,7 @@ $keybinds = [
 ];
 ?>
 <!DOCTYPE html>
-<html lang="<?= $swE($subwayLang) ?>">
+<html lang="<?= $swE($subwayLang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php $ogTitle = 'Cripsum™ Subway Surfers'; $ogImage = '/img/og-default.jpg'; ?>
@@ -172,6 +173,7 @@ $keybinds = [
 
     <link class="subway-css" rel="stylesheet" href="/assets/css/game.css?v=6.0">
     <link rel="stylesheet" href="/assets/css/subway.css?v=<?= $assetVersion['css'] ?>">
+    <?php cripsum_theme_head('games'); ?>
     <script src="/assets/js/subway/subway-profile.js?v=<?= $assetVersion['profile'] ?>" defer></script>
     <script src="/assets/js/subway/subway.js?v=<?= $assetVersion['js'] ?>" defer></script>
 </head>

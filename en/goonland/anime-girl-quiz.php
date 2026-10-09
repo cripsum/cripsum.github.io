@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
+require_once '../../includes/theme.php';
 checkBan($mysqli);
 
 
@@ -435,7 +436,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
@@ -443,6 +444,7 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/goonland.css?v=2.4-share-og-fix1">
     <link rel="stylesheet" href="/css/goonland-quiz-additions.css?v=2.4-share-og-fix1">
+    <?php cripsum_theme_head('goonland'); ?>
 
     <script src="/js/goonland.js?v=2.5" defer></script>
     <script src="/js/goonland-quiz-additions.js?v=2.0.2" defer></script>

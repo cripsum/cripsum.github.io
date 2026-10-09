@@ -14,6 +14,8 @@
  * leggono $mysqli e scrivono $lang e $t nello stesso scope.
  */
 
+require_once __DIR__ . '/../../theme.php';
+
 $ogTitle = 'Cripsum™ - ' . $pageTitle;
 if (!empty($pageDescription)) {
     $ogDescription = $pageDescription;
@@ -28,7 +30,7 @@ foreach (($bodyData ?? []) as $esAttr => $esValue) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo shop_h($esLang); ?>">
+<html lang="<?php echo shop_h($esLang); ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include __DIR__ . '/../../head-import.php'; ?>
@@ -40,6 +42,7 @@ foreach (($bodyData ?? []) as $esAttr => $esValue) {
     <?php // Il player degli edit, per le clip: serve anche sulla pagina del team, da cui si arriva ai player senza ricaricare. ?>
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.css')); ?>">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/esports/esports.css')); ?>">
+    <?php cripsum_theme_head('esports', 'edits-player'); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/edits/edits-player.js')); ?>" defer></script>
     <script src="<?php echo shop_h(cripsum_asset('/assets/esports/esports.js')); ?>" defer></script>
 </head>

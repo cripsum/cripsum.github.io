@@ -25,7 +25,7 @@ $archived = cp_count_entries($mysqli, ['status' => 'archived']);
 $title = cp_t('admin', $lang) . ' - Cripsumpedia';
 ?>
 <!DOCTYPE html>
-<html lang="<?= cp_h($lang) ?>">
+<html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php cp_render_head($title, cp_t('subtitle', $lang), $lang); ?>

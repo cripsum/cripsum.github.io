@@ -56,7 +56,7 @@ $relatedEntries = $entry ? cp_fetch_related_entries($mysqli, (int)$entry['id'], 
 $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (string)$entry['entry_type']) : ['prev' => null, 'next' => null];
 ?>
 <!DOCTYPE html>
-<html lang="<?= cp_h($lang) ?>">
+<html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php cp_render_head($titleText . ' - Cripsumpedia', $description, $lang, 'cp-body', $entry['banner_url'] ?? null); ?>

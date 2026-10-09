@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
+require_once '../../includes/theme.php';
 checkBan($mysqli);
 
 $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
@@ -36,7 +37,7 @@ if ((int)($_SESSION['nsfw'] ?? 0) !== 1) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php $ogTitle = 'Cripsum™ GoonLand - Home'; $ogDescription = 'Welcome to GoonLand: the place on Cripsum where you can goon as much as you want.'; $ogImage = '/img/raspberry-chan16gb.png'; ?>
@@ -44,6 +45,7 @@ if ((int)($_SESSION['nsfw'] ?? 0) !== 1) {
     <title>GoonLand™ - Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/goonland.css?v=2.2-dropdown-footer">
+    <?php cripsum_theme_head('goonland'); ?>
     <script src="/js/goonland.js?v=2.3" defer></script>
 </head>
 

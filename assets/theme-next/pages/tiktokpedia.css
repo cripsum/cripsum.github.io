@@ -1,0 +1,216 @@
+/* ============================================================
+   Tema nuovo — TikTokpedia
+   ============================================================
+
+   Correzioni a css/tiktokpedia.css (it|en/tiktokpedia.php). Il foglio
+   originale non si tocca.
+
+   La pagina aveva un tema rosa tutto suo: nel tema nuovo le pagine non
+   hanno piu' un colore proprio. Restano la ricerca, i filtri per tag, la
+   comparsa delle card, «Copia link» con il suo avviso, il tasto per
+   tornare su.
+   ============================================================ */
+
+html[data-theme="next"] body.tiktokpedia-page {
+    --tp-bg: var(--nx-bg);
+    --tp-bg-2: var(--nx-bg);
+    --tp-card: var(--nx-surface);
+    --tp-strong: var(--nx-surface-2);
+    --tp-border: var(--nx-line);
+    --tp-text: var(--nx-text);
+    --tp-muted: var(--nx-text-2);
+    --tp-muted-2: var(--nx-text-3);
+    --tp-pink: var(--nx-text);
+    --tp-hot: var(--nx-text);
+    --tp-purple: var(--nx-text);
+    --tp-radius: var(--nx-radius);
+    background: var(--nx-bg);
+}
+
+html[data-theme="next"] .tp-bg {
+    display: none;
+}
+
+html[data-theme="next"] :is(.tp-hero, .tp-toolbar, .tp-card, .tp-empty, .tp-note) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Testata e barra: sul fondo, senza riquadro ──────────── */
+
+html[data-theme="next"] .tp-hero,
+html[data-theme="next"] .tp-toolbar {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    background: none;
+}
+
+/* La barra resta ferma in alto mentre le card scorrono sotto: ha il fondo
+   della pagina, cosi' non si vede finche' non serve. */
+html[data-theme="next"] .tp-toolbar {
+    background: var(--nx-bg);
+}
+
+html[data-theme="next"] .tp-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .tp-hero p {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .tp-kicker,
+html[data-theme="next"] .tp-hero-card span {
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] .tp-hero-card {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .tp-hero-card strong {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .tp-search input,
+html[data-theme="next"] .tp-search input:focus {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .tp-search input:focus {
+    border-color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .tp-search i {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .tp-filter,
+html[data-theme="next"] .tp-reset {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .tp-filter:hover,
+html[data-theme="next"] .tp-reset:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text);
+    transform: none;
+}
+
+html[data-theme="next"] .tp-filter.is-active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+
+html[data-theme="next"] .tp-card {
+    border-radius: 20px;
+}
+
+html[data-theme="next"] .tp-card:hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .tp-card-image {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .tp-card-body h2 {
+    font-weight: 600;
+}
+
+html[data-theme="next"] .tp-card-body p {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .tp-tags span {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .tp-btn {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .tp-btn:hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+html[data-theme="next"] .tp-btn-ghost {
+    border-color: transparent;
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .tp-btn-ghost:hover {
+    border-color: transparent;
+    color: var(--nx-text);
+}
+
+/* ── Avvisi che compaiono ────────────────────────────────── */
+
+html[data-theme="next"] .tp-top {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .tp-toast {
+    border: 1px solid var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .tp-note i,
+html[data-theme="next"] .tp-empty i {
+    color: var(--nx-text-3);
+}
+
+/* Il foglio della pagina ricolorava di rosa i menu della navbar. */
+html[data-theme="next"] body.tiktokpedia-page .dropdown-menu,
+html[data-theme="next"] body.tiktokpedia-page .dropdown-menu.show,
+html[data-theme="next"] body.tiktokpedia-page .navbar .dropdown-menu {
+    background: var(--nx-surface-2) !important;
+    box-shadow: var(--nx-float) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+html[data-theme="next"] :is(.tp-btn, .tp-filter, .tp-reset, .tp-top):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
+}

@@ -9,6 +9,7 @@
 
 require_once __DIR__ . '/chisiamo.php';
 require_once __DIR__ . '/strings.php';
+require_once __DIR__ . '/../theme.php';
 
 $S = chisiamo_strings($cLang);
 $cReady = chisiamo_ready($mysqli);
@@ -39,13 +40,14 @@ $ogDescription = $cTexts['subtitle'] !== '' ? $cTexts['subtitle'] : $S['meta_des
 $cApplyUrl = '/' . $cLang . '/candidatura-chisiamo';
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo shop_h($cLang); ?>">
+<html lang="<?php echo shop_h($cLang); ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include __DIR__ . '/../head-import.php'; ?>
     <title><?php echo shop_h('Cripsum™ - ' . $S['page_title']); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/chisiamo/chisiamo.css')); ?>">
+    <?php cripsum_theme_head('chisiamo'); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/chisiamo/chisiamo.js')); ?>" defer></script>
 </head>
 

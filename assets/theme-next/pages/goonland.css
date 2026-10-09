@@ -1,0 +1,311 @@
+/* ============================================================
+   Tema nuovo — GoonLand
+   ============================================================
+
+   Correzioni a css/goonland.css, goonland-quiz-additions.css e
+   goonland-smash-pass.css (it|en/goonland/). I fogli originali non si
+   toccano.
+
+   GoonLand tiene il rosa. L'interfaccia e' quella del tema nuovo —
+   fondo quasi nero, superfici piatte, niente vetro ne' aloni — ma dove
+   nel resto del sito il colore d'azione e' il bianco, qui e' il rosa di
+   GoonLand: il pulsante pieno, le icone, la barra del quiz, la scelta
+   attiva, il fuoco dei campi.
+
+   Restano: il generatore, il quiz con il risultato da condividere, Smash
+   or Pass con lo scorrimento della carta e il velo che dice da che parte
+   la stai portando, la classifica dei goonatori.
+   ============================================================ */
+
+html[data-theme="next"] body.goonland-page {
+    --gl-bg: var(--nx-bg);
+    --gl-bg2: var(--nx-bg);
+    --gl-card: var(--nx-surface);
+    --gl-strong: var(--nx-surface-2);
+    --gl-border: var(--nx-line);
+    --gl-text: var(--nx-text);
+    --gl-muted: var(--nx-text-2);
+    --gl-muted2: var(--nx-text-3);
+    --gl-purple: var(--gl-pink);
+    --gl-soft: var(--nx-text);
+    --gl-radius: var(--nx-radius);
+    background: var(--nx-bg);
+}
+
+/* Macchie sfocate sullo sfondo. */
+html[data-theme="next"] .gl-bg {
+    display: none;
+}
+
+/* ── Riquadri ────────────────────────────────────────────── */
+
+html[data-theme="next"] :is(.gl-hero, .gl-card, .gl-copy, .gl-copy-accent, .gl-generator, .gl-leaderboard, .gl-empty, .gl-lore-card, .gl-lore-card--accent, .gl-quiz-card, .gl-quiz-side, .gl-result, .gl-shared-result, .gl-share-box) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] :is(.gl-card, .gl-copy):hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    transform: none;
+}
+
+html[data-theme="next"] .gl-lore-card::after {
+    display: none;
+}
+
+/* La testata sta sul fondo, senza riquadro. */
+html[data-theme="next"] .gl-hero {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    background: none;
+}
+
+html[data-theme="next"] .gl-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+html[data-theme="next"] .gl-hero p {
+    color: var(--nx-text-2);
+}
+
+/* L'etichetta sopra i titoli: rosa, minuscola. */
+html[data-theme="next"] .gl-kicker {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--gl-pink);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] :is(.gl-floating-card span, .gl-select-field span, .gl-meta-row strong, .gl-share-box > span, .gl-sp-rating, .gl-sp-stat span) {
+    color: var(--nx-text-2);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] :is(.gl-card h2, .gl-card h3, .gl-copy h2, .gl-lore-card h2, .gl-generator h2, .gl-leaderboard h2, .gl-quiz-card h2, .gl-result h2) {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+html[data-theme="next"] :is(.gl-hero-media, .gl-image-stage, .gl-result-media, .gl-sp-image-wrap) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .gl-floating-card {
+    border-color: transparent;
+    background: rgba(0, 0, 0, 0.66);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Pulsanti: quello pieno e' rosa ──────────────────────── */
+
+html[data-theme="next"] .gl-btn {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .gl-btn:hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+html[data-theme="next"] :is(.gl-btn-main, .gl-btn-smash),
+html[data-theme="next"] :is(.gl-btn-main, .gl-btn-smash):hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--gl-pink);
+    box-shadow: none;
+    color: #14000a;
+}
+
+html[data-theme="next"] :is(.gl-btn-main, .gl-btn-smash):hover:not(:disabled) {
+    background: var(--gl-hot);
+}
+
+html[data-theme="next"] .gl-btn-pass,
+html[data-theme="next"] .gl-btn-pass:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+/* Le icone delle card: rosa pieno, senza sfumatura ne' alone. */
+html[data-theme="next"] :is(.gl-card i, .gl-answer-icon) {
+    background: rgba(255, 45, 141, 0.16);
+    box-shadow: none;
+    color: var(--gl-pink);
+}
+
+/* ── Campi e menu ────────────────────────────────────────── */
+
+html[data-theme="next"] :is(.gl-select-field select, .gl-select-trigger) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .gl-select-field select:focus,
+html[data-theme="next"] .gl-select-trigger:hover,
+html[data-theme="next"] .gl-custom-select.is-open .gl-select-trigger {
+    border-color: var(--gl-pink);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .gl-select-menu {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* ── Quiz ────────────────────────────────────────────────── */
+
+html[data-theme="next"] .gl-quiz-progress {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .gl-quiz-progress span {
+    background: var(--gl-pink);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .gl-answer-card {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+html[data-theme="next"] .gl-answer-card:hover {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    transform: none;
+}
+
+html[data-theme="next"] .gl-answer-card.is-selected {
+    border-color: var(--gl-pink);
+    background: var(--nx-surface-2);
+    box-shadow: none;
+}
+
+/* ── Smash or Pass ───────────────────────────────────────── */
+
+/* Il velo ai due lati mentre trascini la carta resta: grigio per Pass,
+   rosa per Smash. Vanno via l'alone e la sfocatura delle etichette. */
+html[data-theme="next"] .gl-sp-decision {
+    letter-spacing: 0;
+    text-transform: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .gl-sp-decision-smash {
+    box-shadow: none;
+    text-shadow: none;
+}
+
+html[data-theme="next"] :is(.gl-sp-swipe-hint, .gl-sp-choices) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .gl-sp-stat {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+/* ── Avvisi che compaiono ────────────────────────────────── */
+
+html[data-theme="next"] :is(.gl-top, .gl-toast) {
+    border: 1px solid var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    color: var(--nx-text);
+}
+
+/* ── Navbar e footer: quelli del sito, senza il rosa sopra ── */
+
+html[data-theme="next"] body.goonland-page .dropdown-menu,
+html[data-theme="next"] body.goonland-page .dropdown-menu.show,
+html[data-theme="next"] body.goonland-page .navbar .dropdown-menu,
+html[data-theme="next"] body.goonland-page .dropdown-menu[data-bs-popper] {
+    background: var(--nx-surface-2) !important;
+    box-shadow: var(--nx-float) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+html[data-theme="next"] body.goonland-page :is(footer, .footer, .site-footer, #footer) {
+    background: var(--nx-surface) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="next"] body.goonland-page footer :is(.social a, .social-link):hover,
+html[data-theme="next"] body.goonland-page :is(.footer-social a, .site-footer .social a):hover {
+    box-shadow: none;
+}
+
+html[data-theme="next"] :is(.gl-btn, .gl-answer-card, .gl-select-trigger, .gl-card):focus-visible {
+    outline: 2px solid var(--gl-pink);
+    outline-offset: 2px;
+}
+
+@media (max-width: 680px) {
+    html[data-theme="next"] .gl-sp-choices {
+        background: var(--nx-bg);
+        box-shadow: none;
+    }
+}
+
+/* Nella testata di GoonLand i pulsanti pieni erano tre: ne resta uno, il primo. */
+html[data-theme="next"] .gl-hero .gl-btn-main ~ .gl-btn-main,
+html[data-theme="next"] .gl-hero .gl-btn-main ~ .gl-btn-main:hover:not(:disabled) {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .gl-hero .gl-btn-main ~ .gl-btn-main:hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+}
+
+/* Sul telefono la testata non arriva a filo dello schermo. */
+@media (max-width: 680px) {
+    html[data-theme="next"] .gl-hero {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* Il contatore degli Smash resta rosa, come il suo pulsante. */
+html[data-theme="next"] .gl-sp-stat.is-smash {
+    background: rgba(255, 45, 141, 0.1);
+}

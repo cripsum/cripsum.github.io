@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
+require_once '../../includes/theme.php';
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
@@ -263,13 +264,14 @@ if ($stmt) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <title>GoonLand™ - Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="/css/goonland.css?v=2.2-api-proxy-fix2">
+    <?php cripsum_theme_head('goonland'); ?>
     <script src="/js/goonland.js?v=2.2-api-proxy-fix2" defer></script>
 </head>
 

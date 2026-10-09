@@ -2,6 +2,7 @@
 require_once 'config/session_init.php';
 require_once 'config/database.php';
 require_once 'includes/functions.php';
+require_once 'includes/theme.php';
 checkBan($mysqli);
 
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
@@ -10,7 +11,7 @@ $user_id = $_SESSION['user_id'] ?? null;
 ?>
 
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include 'includes/head-import.php'; ?>
@@ -22,6 +23,7 @@ $user_id = $_SESSION['user_id'] ?? null;
             border-color: rgba(255, 255, 255, 0.12);
         }
     </style>
+    <?php cripsum_theme_head(); ?>
 </head>
 
 <body>

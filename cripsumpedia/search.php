@@ -53,7 +53,7 @@ function cp_render_search_item(array $entry, string $query, string $lang, mysqli
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?= cp_h($lang) ?>">
+<html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
 <head>
     <?php cp_render_head($title, $description, $lang); ?>
 </head>

@@ -1,0 +1,265 @@
+/* ============================================================
+   Tema nuovo — Team OHPY
+   ============================================================
+
+   Correzioni a assets/esports/esports.css (includes/esports/). Il foglio
+   originale non si tocca.
+
+   La pagina del team ha un'identita' sua e la tiene: il colore della
+   squadra scelto dal pannello (pulsante, ruoli, barre, numeri), il colore
+   di un singolo player sulla sua pagina, le card con gli angoli tagliati,
+   il carattere dei nickname, bandiere, rating Premier e livello FACEIT
+   coi loro colori, le medaglie del palmares, musica e clip.
+
+   Va via quello che colorava l'intera pagina: lo sfondo sfumato nel
+   colore del team, gli aloni sotto le card, le griglie di linee, le
+   sfumature nei riquadri. Le etichette passano dal maiuscolo al Poppins
+   minuscolo, come nel resto del sito.
+   ============================================================ */
+
+html[data-theme="next"] body.es-page,
+html[data-theme="next"] body.es-page :is(.es-shell, .es-page__root, main, [style*="--es-bg"]) {
+    --es-bg: var(--nx-bg) !important;
+    --es-bg-2: var(--nx-bg) !important;
+}
+
+html[data-theme="next"] body.es-page {
+    --es-text: var(--nx-text);
+    --es-muted: var(--nx-text-2);
+    --es-muted-2: var(--nx-text-3);
+    --es-line: var(--nx-line);
+    --es-line-strong: var(--nx-line);
+    --es-card: var(--nx-surface);
+    --es-surface: var(--nx-surface-2);
+    background: var(--nx-bg);
+}
+
+html[data-theme="next"] body.es-page::before {
+    display: none;
+}
+
+/* Griglie di linee, aloni sotto le card. */
+html[data-theme="next"] :is(.es-hero__grid, .es-phero__grid, .es-card__glow) {
+    display: none;
+}
+
+/* ── Pulsanti ────────────────────────────────────────────── */
+
+html[data-theme="next"] :is(.es-btn, .es-icon-btn, .es-social, .es-back) {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    font-weight: 500;
+}
+
+html[data-theme="next"] :is(.es-btn, .es-icon-btn, .es-social, .es-back):hover {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    transform: none;
+}
+
+/* Quello pieno resta del colore del team. */
+html[data-theme="next"] .es-btn--primary,
+html[data-theme="next"] .es-btn--primary:hover {
+    border-color: transparent;
+    background: var(--es-accent);
+    box-shadow: none;
+    color: var(--es-on-accent);
+}
+
+html[data-theme="next"] .es-btn--primary:hover {
+    filter: brightness(1.08);
+}
+
+/* ── Testata del team ────────────────────────────────────── */
+
+html[data-theme="next"] .es-hero {
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .es-hero:not(.has-cover) {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    background: none;
+}
+
+/* Sopra la copertina resta il velo scuro che fa leggere il testo. */
+html[data-theme="next"] .es-hero.has-cover::after {
+    background: linear-gradient(0deg, rgba(10, 10, 11, 0.96) 6%, rgba(10, 10, 11, 0.55) 52%, rgba(10, 10, 11, 0.12));
+}
+
+html[data-theme="next"] .es-hero__text {
+    color: var(--nx-text-2);
+}
+
+/* ── Titoli di sezione ed etichette: Poppins, minuscolo ──── */
+
+html[data-theme="next"] :is(.es-section__title, .es-block__title, .es-clip__title, .es-empty h1, .es-empty h2) {
+    font-family: "Poppins", system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-transform: none;
+}
+
+html[data-theme="next"] .es-section__title {
+    font-size: 1.35rem;
+}
+
+/* Il segno inclinato davanti ai titoli. */
+html[data-theme="next"] .es-section__title::before {
+    display: none;
+}
+
+html[data-theme="next"] :is(.es-card__role, .es-rank__label, .es-phero__meta, .es-music__info small, .es-stat dt, .es-crosshair__label, .es-fact dt, .es-step small, .es-step em) {
+    font-family: "Poppins", system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] :is(.es-stat dt, .es-crosshair__label, .es-step small, .es-rank__label) {
+    color: var(--nx-text-2);
+}
+
+/* ── Card dei player ─────────────────────────────────────── */
+
+/* Gli angoli tagliati restano; va via la luce del colore del team dal basso. */
+html[data-theme="next"] .es-card__frame {
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .es-card:hover .es-card__frame {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .es-step__thumb {
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .es-flag.fi {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="next"] .es-section--staff {
+    border-color: var(--nx-line);
+}
+
+/* ── Rating, palmares ────────────────────────────────────── */
+
+/* Il rating Premier tiene il colore della sua fascia, senza sfumatura. */
+html[data-theme="next"] .es-premier {
+    background: color-mix(in srgb, var(--tier) 18%, var(--nx-surface-2));
+}
+
+html[data-theme="next"] .es-faceit::before {
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] :is(.es-palmares__item, .es-panel, .es-clips, .es-block, .es-step) {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .es-palmares__medal {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .is-gold .es-palmares__medal {
+    background: #fbbf24;
+}
+
+html[data-theme="next"] .is-silver .es-palmares__medal {
+    background: #d1d5db;
+}
+
+html[data-theme="next"] .is-bronze .es-palmares__medal {
+    background: #d08a4e;
+}
+
+/* ── Pagina di un player ─────────────────────────────────── */
+
+html[data-theme="next"] .es-phero {
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .es-phero.has-bg::after {
+    background: linear-gradient(90deg, rgba(10, 10, 11, 0.15), rgba(10, 10, 11, 0.74) 55%, rgba(10, 10, 11, 0.92));
+}
+
+/* La frase del player: senza la striscia sul fianco. */
+html[data-theme="next"] .es-phero__quote {
+    padding-left: 0;
+    border-left: 0;
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .es-music {
+    border-color: transparent;
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .es-music__disc {
+    box-shadow: none;
+}
+
+html[data-theme="next"] .es-clip__screen {
+    border-color: transparent;
+}
+
+/* Il lettore delle clip e' quello degli Edit, che nel tema nuovo ha
+   l'accento bianco: qui tiene il colore del team (o del player), pieno. */
+html[data-theme="next"] .es-clip .ep {
+    --ep-a1: var(--es-accent);
+    --ep-a2: var(--es-accent);
+}
+
+html[data-theme="next"] :is(.es-stat, .es-crosshair, .es-fact) {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .es-crosshair code {
+    background: var(--nx-bg);
+}
+
+html[data-theme="next"] :is(.es-statlist__row, .es-pairs > div) {
+    border-bottom-style: solid;
+    border-bottom-color: var(--nx-line);
+}
+
+html[data-theme="next"] .es-bar {
+    background: var(--nx-surface-3);
+}
+
+html[data-theme="next"] .es-step:hover {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    transform: none;
+}
+
+html[data-theme="next"] .es-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+html[data-theme="next"] .es-preview {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] :is(.es-btn, .es-icon-btn, .es-social, .es-step, .es-back, .es-music__toggle, .es-card):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
+}
+
+@media (max-width: 860px) {
+    html[data-theme="next"] .es-phero.has-bg::after {
+        background: linear-gradient(0deg, rgba(10, 10, 11, 0.94) 30%, rgba(10, 10, 11, 0.2));
+    }
+}

@@ -2,6 +2,7 @@
 require_once '../../config/session_init.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
+require_once '../../includes/theme.php';
 checkBan($mysqli);
 
 
@@ -20,12 +21,13 @@ if (!isOwner()) {
 
 ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include '../../includes/head-import.php'; ?>
     <link rel="stylesheet" href="../../css/editing.css">
     <link rel="stylesheet" href="../../css/editing-pages.css">
+    <?php cripsum_theme_head('editing'); ?>
     <title>Cripsum™ - Audio</title>
 </head>
 

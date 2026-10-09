@@ -1631,3 +1631,13 @@ html[data-theme="next"] .nx-modal__foot {
         transform: none;
     }
 }
+
+/* ── Pulsanti di PayPal ──────────────────────────────────────
+   Stanno in un iframe di PayPal, che non dichiara uno schema di colori.
+   Il tema dichiara "color-scheme: dark", e quando la pagina e l'iframe
+   non sono d'accordo il browser mette dietro l'iframe un fondo bianco
+   pieno: attorno ai pulsanti comparivano delle fasce bianche. Qui lo
+   schema torna quello di PayPal, cosi' l'iframe resta trasparente. */
+html[data-theme="next"] :is(#paypal-button-container, .payment-paypal-container, .paypal-buttons) {
+    color-scheme: light;
+}

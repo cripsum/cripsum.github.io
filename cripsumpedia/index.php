@@ -34,7 +34,7 @@ $title = 'Cripsumpedia - Cripsum';
 $description = cp_t('subtitle', $lang);
 ?>
 <!DOCTYPE html>
-<html lang="<?= cp_h($lang) ?>">
+<html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php cp_render_head($title, $description, $lang); ?>

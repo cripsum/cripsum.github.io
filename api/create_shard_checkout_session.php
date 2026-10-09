@@ -98,6 +98,7 @@ if ($httpStatus === 200) {
 
 // Error Fallback
 header('Content-Type: text/html; charset=utf-8');
+require_once __DIR__ . '/../includes/theme.php';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -109,6 +110,13 @@ header('Content-Type: text/html; charset=utf-8');
         .card { max-width: 500px; margin: 0 auto; background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
         h1 { color: #ef4444; }
         a { color: #0f5bff; text-decoration: none; font-weight: bold; }
+<?php if (cripsum_theme_is_next()): ?>
+        /* Tema nuovo: stessi colori e stesso carattere del resto del sito. */
+        body { font-family: "Poppins", system-ui, sans-serif; background: #0a0a0b; color: #f5f5f7; }
+        .card { background: #161617; border: 0; border-radius: 24px; }
+        h1 { color: #ff453a; font-weight: 600; letter-spacing: -0.02em; }
+        a { color: #f5f5f7; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+<?php endif; ?>
     </style>
 </head>
 <body>
