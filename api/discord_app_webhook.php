@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+// Chiamata di Discord, non di una persona: la manutenzione non la ferma.
+define('CRIPSUM_MAINTENANCE_EXEMPT', true);
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/discord_oauth.php';
 require_once __DIR__ . '/../includes/functions.php';

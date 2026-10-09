@@ -1498,3 +1498,137 @@ body.modal-open {
     .cmod-queue__list { max-height: 44vh; }
     .cmod-keys { display: none; }
 }
+
+/* ── Manutenzione (Sito > Manutenzione, admin-maintenance.js) ───────────── */
+
+/* Il pallino sulla voce del menu quando il sito e' chiuso. */
+.admin-nav button.has-alert::after {
+    content: "";
+    width: .5rem;
+    height: .5rem;
+    margin-left: auto;
+    border-radius: 50%;
+    background: var(--admin-warning);
+}
+
+.admin-maint { display: grid; gap: 1rem; max-width: 760px; }
+
+.admin-maint__status {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: 1rem;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-md);
+    background: rgba(255,255,255,.04);
+}
+.admin-maint__status > div { flex: 1 1 auto; min-width: 0; }
+.admin-maint__status strong { display: block; font-size: 1.05rem; }
+.admin-maint__status small { display: block; margin-top: .15rem; color: var(--admin-muted); font-size: .84rem; line-height: 1.45; }
+.admin-maint__status .admin-btn { flex: 0 0 auto; }
+.admin-maint__status.is-on { border-color: rgba(245,158,11,.4); }
+
+.admin-maint__dot { position: relative; flex: 0 0 auto; width: .7rem; height: .7rem; border-radius: 50%; background: var(--admin-success); }
+.is-on .admin-maint__dot { background: var(--admin-warning); }
+.is-on .admin-maint__dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--admin-warning);
+    animation: adminMaintPulse 2.2s ease-out infinite;
+}
+@keyframes adminMaintPulse {
+    from { opacity: .7; transform: scale(1); }
+    to { opacity: 0; transform: scale(3); }
+}
+
+.admin-maint__form { display: grid; gap: 1rem; }
+.admin-maint__form .admin-field label em { margin-left: .35rem; color: var(--admin-muted-2); font-style: normal; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.admin-maint__form textarea { min-height: 5.5rem; }
+.admin-maint__hint { display: flex; justify-content: space-between; gap: 1rem; color: var(--admin-muted-2); font-size: .8rem; line-height: 1.45; }
+.admin-maint__hint span:last-child:not(:first-child) { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+
+.admin-maint__chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.admin-maint__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    min-height: 2.2rem;
+    padding: .2rem .35rem .2rem .25rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 999px;
+    background: rgba(255,255,255,.06);
+    font-size: .88rem;
+    font-weight: 600;
+}
+.admin-maint__chip img { width: 1.7rem; height: 1.7rem; border-radius: 50%; object-fit: cover; }
+.admin-maint__chip span { padding-right: .35rem; }
+.admin-maint__chip small { margin-left: .25rem; color: var(--admin-muted-2); font-weight: 500; }
+.admin-maint__chip button {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    color: var(--admin-muted);
+    cursor: pointer;
+}
+.admin-maint__chip button:hover { background: rgba(244,63,94,.2); color: #fff; }
+
+.admin-maint__picker { position: relative; }
+.admin-maint__picker .admin-input { width: 100%; }
+.admin-maint__suggest {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + .35rem);
+    left: 0;
+    right: 0;
+    display: grid;
+    gap: .15rem;
+    padding: .35rem;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-sm);
+    background: var(--admin-card-strong);
+    box-shadow: 0 18px 48px rgba(0,0,0,.45);
+}
+.admin-maint__suggest[hidden] { display: none; }
+.admin-maint__suggest button {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    width: 100%;
+    padding: .45rem .55rem;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--admin-text);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+.admin-maint__suggest button:hover,
+.admin-maint__suggest button:focus-visible { background: rgba(255,255,255,.08); outline: 0; }
+.admin-maint__suggest img { width: 1.8rem; height: 1.8rem; border-radius: 50%; object-fit: cover; }
+.admin-maint__suggest small { margin-left: auto; color: var(--admin-muted-2); font-weight: 500; }
+.admin-maint__suggest p { margin: 0; padding: .55rem; color: var(--admin-muted); font-size: .88rem; }
+
+.admin-maint__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .6rem; }
+
+.admin-maint__note { display: flex; gap: .6rem; margin: 0; color: var(--admin-muted-2); font-size: .82rem; line-height: 1.5; }
+.admin-maint__note i { margin-top: .2rem; }
+.admin-maint__note.is-warn { color: #ffe0a6; }
+.admin-maint__note code { padding: .05rem .35rem; border-radius: 6px; background: rgba(255,255,255,.08); color: var(--admin-text); font-size: .9em; }
+
+@media (max-width: 640px) {
+    .admin-maint__status { flex-wrap: wrap; }
+    .admin-maint__status .admin-btn { width: 100%; }
+    .admin-maint__actions .admin-btn { flex: 1 1 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .is-on .admin-maint__dot::after { animation: none; }
+}

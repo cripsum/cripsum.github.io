@@ -13,6 +13,10 @@
  */
 require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../includes/realtime.php';
+// Manutenzione: qui il database non si apre, quindi vale quello che la
+// sessione sa dall'ultima richiesta passata da config/database.php.
+require_once __DIR__ . '/../../includes/maintenance.php';
+cripsum_maintenance_light_guard();
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');

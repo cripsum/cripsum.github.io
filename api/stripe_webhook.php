@@ -1,4 +1,6 @@
 <?php
+// Stripe avvisa di un pagamento gia' fatto: va registrato anche a sito in manutenzione.
+define('CRIPSUM_MAINTENANCE_EXEMPT', true);
 require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/stripe_config.php';

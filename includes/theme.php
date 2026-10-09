@@ -4,19 +4,25 @@ declare(strict_types=1);
 /**
  * Tema del sito.
  *
- * Oltre al tema di sempre ("classic") esiste un tema nuovo, sperimentale, che
- * si accende dalle impostazioni. La scelta sta in un cookie e non nel database:
- * e' una preferenza di come si vuole vedere il sito su questo dispositivo, e
- * cosi' non serve nessuna migrazione per provarlo o per toglierlo.
+ * Il tema del sito e' quello nuovo ("next"). Quello di prima ("classic") resta
+ * disponibile ancora per un po': chi lo preferisce lo sceglie dalle
+ * impostazioni. La scelta sta in un cookie e non nel database: e' una
+ * preferenza di come si vuole vedere il sito su questo dispositivo, e cosi'
+ * non serve nessuna migrazione per tenerla o per toglierla.
+ *
+ * Fino al passo 1 della chiusura era il contrario: classico per tutti, nuovo
+ * solo per chi lo accendeva. Chi ha ancora nel browser il cookie "next" di
+ * allora continua a vedere il tema nuovo, come tutti.
  *
  * Il tema nuovo arriva una pagina alla volta. Una pagina che e' gia' stata
  * portata lo dichiara in due punti: stampa cripsum_theme_html_attr() dentro il
  * tag <html>, e chiama cripsum_theme_head() nell'<head> subito dopo
  * l'include di head-import.php.
  *
- * Le pagine non ancora portate non fanno niente e restano com'erano, anche per
- * chi ha il tema nuovo acceso: tutte le regole del tema sono scritte sotto
- * html[data-theme="next"], quindi senza quell'attributo non toccano nulla.
+ * Le pagine che non lo dichiarano (profili, editor del profilo, apertura
+ * della Lootbox) restano com'erano per tutti: tutte le regole del tema sono
+ * scritte sotto html[data-theme="next"], quindi senza quell'attributo non
+ * toccano nulla.
  */
 
 const CRIPSUM_THEME_COOKIE = 'cripsum_theme';
@@ -28,9 +34,11 @@ const CRIPSUM_THEME_COOKIE_LIFETIME = 31536000;
 
 function cripsum_theme(): string
 {
-    return ($_COOKIE[CRIPSUM_THEME_COOKIE] ?? '') === CRIPSUM_THEME_NEXT
-        ? CRIPSUM_THEME_NEXT
-        : CRIPSUM_THEME_CLASSIC;
+    // Classico solo per chi lo ha scelto: senza cookie, o con quello vecchio
+    // "next", il tema e' quello nuovo. Vale anche per chi non e' loggato.
+    return ($_COOKIE[CRIPSUM_THEME_COOKIE] ?? '') === CRIPSUM_THEME_CLASSIC
+        ? CRIPSUM_THEME_CLASSIC
+        : CRIPSUM_THEME_NEXT;
 }
 
 function cripsum_theme_is_next(): bool
@@ -45,7 +53,7 @@ function cripsum_theme_is_next(): bool
  */
 function cripsum_theme_set(string $theme): bool
 {
-    $theme = $theme === CRIPSUM_THEME_NEXT ? CRIPSUM_THEME_NEXT : CRIPSUM_THEME_CLASSIC;
+    $theme = $theme === CRIPSUM_THEME_CLASSIC ? CRIPSUM_THEME_CLASSIC : CRIPSUM_THEME_NEXT;
 
     if (headers_sent()) {
         return false;
@@ -55,8 +63,10 @@ function cripsum_theme_set(string $theme): bool
     // cookie di sessione.
     $secure = !empty($GLOBALS['isHttps']);
 
+    // Il tema nuovo e' quello di partenza: per tornarci basta togliere il
+    // cookie. Si salva solo la scelta del classico.
     $saved = setcookie(CRIPSUM_THEME_COOKIE, $theme, [
-        'expires' => $theme === CRIPSUM_THEME_NEXT ? time() + CRIPSUM_THEME_COOKIE_LIFETIME : time() - 3600,
+        'expires' => $theme === CRIPSUM_THEME_CLASSIC ? time() + CRIPSUM_THEME_COOKIE_LIFETIME : time() - 3600,
         'path' => '/',
         'secure' => $secure,
         'httponly' => true,
@@ -64,7 +74,7 @@ function cripsum_theme_set(string $theme): bool
     ]);
 
     if ($saved) {
-        if ($theme === CRIPSUM_THEME_NEXT) {
+        if ($theme === CRIPSUM_THEME_CLASSIC) {
             $_COOKIE[CRIPSUM_THEME_COOKIE] = $theme;
         } else {
             unset($_COOKIE[CRIPSUM_THEME_COOKIE]);
@@ -87,8 +97,8 @@ function cripsum_theme_settings_handle_post(string $action, bool $isEn = false):
         return null;
     }
 
-    $wantsNext = !empty($_POST['theme_next']);
-    $ok = cripsum_theme_set($wantsNext ? CRIPSUM_THEME_NEXT : CRIPSUM_THEME_CLASSIC);
+    $wantsClassic = !empty($_POST['theme_classic']);
+    $ok = cripsum_theme_set($wantsClassic ? CRIPSUM_THEME_CLASSIC : CRIPSUM_THEME_NEXT);
 
     if (!$ok) {
         return [
@@ -99,9 +109,9 @@ function cripsum_theme_settings_handle_post(string $action, bool $isEn = false):
 
     return [
         'ok' => true,
-        'message' => $wantsNext
-            ? ($isEn ? 'New theme turned on. Open the homepage to see it.' : 'Tema nuovo attivato. Apri la homepage per vederlo.')
-            : ($isEn ? 'Back to the classic theme.' : 'Sei tornato al tema classico.'),
+        'message' => $wantsClassic
+            ? ($isEn ? 'Classic theme turned on for this browser.' : 'Tema classico attivato su questo browser.')
+            : ($isEn ? 'Back to the site theme.' : 'Sei tornato al tema del sito.'),
     ];
 }
 

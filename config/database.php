@@ -60,3 +60,13 @@ require_once __DIR__ . '/../includes/security_helpers.php';
 if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['user_id'])) {
     auth_sync_current_device_session($mysqli);
 }
+
+/*
+ * Manutenzione. Da qui passano tutte le pagine e tutte le API che usano il
+ * database, con la sessione gia' aperta: si sa chi sta chiedendo. Se il sito
+ * e' chiuso (pannello admin, Sito > Manutenzione) entra solo chi e'
+ * nell'elenco; gli altri ricevono la pagina di manutenzione, o un 503 in JSON
+ * se e' un'API. Le eccezioni stanno in includes/maintenance.php.
+ */
+require_once __DIR__ . '/../includes/maintenance.php';
+cripsum_maintenance_guard($mysqli);

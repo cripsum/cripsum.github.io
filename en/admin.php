@@ -12,6 +12,8 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
 
 $currentAdmin = admin_require_access($mysqli, false);
 $csrfToken = admin_csrf_token();
+// Il pallino sulla voce «Manutenzione» del menu, gia' giusto al primo caricamento.
+$maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
 ?>
 <!DOCTYPE html>
 <html lang="en"<?= cripsum_theme_html_attr() ?>>
@@ -70,6 +72,8 @@ $csrfToken = admin_csrf_token();
                 <button type="button" data-section="toprimasti"><i class="fa-solid fa-ranking-star"></i><span>Top Rimasti</span></button>
                 <button type="button" data-section="reports"><i class="fa-solid fa-flag"></i><span>Segnalazioni</span></button>
                 <button type="button" data-section="logs"><i class="fa-solid fa-clock-rotate-left"></i><span>Log</span></button>
+                <span class="admin-nav-label">Site</span>
+                <button type="button" data-section="maintenance"<?php echo $maintenanceOn ? ' class="has-alert"' : ''; ?>><i class="fa-solid fa-screwdriver-wrench"></i><span>Maintenance</span></button>
             </nav>
 
             <form method="post" action="/api/admin/export_users_csv.php">
@@ -339,6 +343,13 @@ $csrfToken = admin_csrf_token();
                 <div id="logsTable" class="admin-table-card"></div>
             </section>
 
+            <section class="admin-section" id="section-maintenance" data-section-panel="maintenance">
+                <div class="admin-toolbar">
+                    <div><strong>Manutenzione</strong><small>Chiude il sito a tutti tranne a chi scegli tu, con un motivo che legge chi arriva.</small></div>
+                </div>
+                <div class="admin-table-card" data-maintenance-admin></div>
+            </section>
+
             <section class="admin-section" id="section-messages" data-section-panel="messages">
                 <div class="admin-toolbar">
                     <div>
@@ -414,6 +425,7 @@ $csrfToken = admin_csrf_token();
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-pages.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-characters.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-community.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-maintenance.js')); ?>"></script>
 </body>
 
 </html>

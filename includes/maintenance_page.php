@@ -1,11 +1,131 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * La pagina di manutenzione.
+ *
+ * E' una pagina a se': niente navbar, niente database, niente fogli del sito.
+ * Deve uscire anche quando tutto il resto e' fermo, quindi porta con se' il
+ * suo stile. La stampa cripsum_maintenance_respond() (includes/maintenance.php)
+ * con il motivo scritto dal pannello; con $options['static'] esce la versione
+ * ferma che diventa maintenance.html, usata dal blocco di emergenza in
+ * .htaccess (strumenti/genera-manutenzione.php la rigenera).
+ */
+
+/** I testi della pagina nelle due lingue. */
+function cripsum_maintenance_copy(string $lang): array
+{
+    return $lang === 'en'
+        ? [
+            'page_title' => 'Cripsum™ — Maintenance',
+            'state' => 'Maintenance in progress',
+            'title' => 'Back in a bit.',
+            'lead' => 'The site is closed for maintenance. You have not lost anything: your account, collection and messages are safe and will be there when we reopen.',
+            'reason' => 'What we are doing',
+            'since' => 'Closed since',
+            'until' => 'Expected back',
+            'until_open' => 'as soon as we are done',
+            'retry' => 'Try again now',
+            'discord' => 'Join us on Discord',
+            'auto' => 'This page reopens on its own: it checks every half minute.',
+            'checked' => 'Last check',
+            'checked_now' => 'just now',
+            'checking' => 'checking…',
+            'staff' => 'Staff? Sign in',
+            'logged' => 'Signed in as %s',
+            'logout' => 'Sign out',
+            'today' => 'today at %s',
+            'yesterday' => 'yesterday at %s',
+            'tomorrow' => 'tomorrow around %s',
+            'today_around' => 'today around %s',
+            'on' => '%s at %s',
+            'on_around' => '%s around %s',
+            'in' => 'in %s',
+            'late' => 'any minute now',
+            'h' => 'h',
+            'min' => 'min',
+        ]
+        : [
+            'page_title' => 'Cripsum™ — Manutenzione',
+            'state' => 'Manutenzione in corso',
+            'title' => 'Torniamo tra poco.',
+            'lead' => 'Il sito è chiuso per manutenzione. Non hai perso niente: account, collezione e messaggi sono al sicuro e li ritrovi alla riapertura.',
+            'reason' => 'Cosa stiamo facendo',
+            'since' => 'Chiuso da',
+            'until' => 'Riapertura prevista',
+            'until_open' => 'appena finiamo',
+            'retry' => 'Riprova adesso',
+            'discord' => 'Vieni su Discord',
+            'auto' => 'Questa pagina si riapre da sola: controlla ogni mezzo minuto.',
+            'checked' => 'Ultimo controllo',
+            'checked_now' => 'adesso',
+            'checking' => 'sto controllando…',
+            'staff' => 'Sei dello staff? Accedi',
+            'logged' => 'Sei dentro come %s',
+            'logout' => 'Esci',
+            'today' => 'oggi alle %s',
+            'yesterday' => 'ieri alle %s',
+            'tomorrow' => 'domani verso le %s',
+            'today_around' => 'oggi verso le %s',
+            'on' => 'il %s alle %s',
+            'on_around' => 'il %s verso le %s',
+            'in' => 'tra %s',
+            'late' => 'a momenti',
+            'h' => 'h',
+            'min' => 'min',
+        ];
+}
+
+/** «oggi alle 14:30», «ieri alle 9:05», «il 12/10 alle 18:00». Con $around: «oggi verso le 18:30». */
+function cripsum_maintenance_when(int $time, array $t, bool $around = false): string
+{
+    $hour = date('G:i', $time);
+    $day = date('Y-m-d', $time);
+
+    if ($day === date('Y-m-d')) {
+        return sprintf($around ? $t['today_around'] : $t['today'], $hour);
+    }
+    if (!$around && $day === date('Y-m-d', time() - 86400)) {
+        return sprintf($t['yesterday'], $hour);
+    }
+    if ($around && $day === date('Y-m-d', time() + 86400)) {
+        return sprintf($t['tomorrow'], $hour);
+    }
+
+    return sprintf($around ? $t['on_around'] : $t['on'], date('j/n', $time), $hour);
+}
+
+/**
+ * @param array $state   come lo restituisce cripsum_maintenance_state()
+ * @param array $options username: chi e' loggato (per il rigo in fondo);
+ *                       static: versione ferma, senza motivo ne' orari, con le due lingue dentro;
+ *                       preview: anteprima dal pannello, non controlla se il sito ha riaperto
+ */
+function cripsum_maintenance_page(array $state, string $lang, array $options = []): string
+{
+    $lang = $lang === 'en' ? 'en' : 'it';
+    $t = cripsum_maintenance_copy($lang);
+    $static = !empty($options['static']);
+    $h = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+    $reason = $static ? '' : (string)($lang === 'en' && ($state['reason_en'] ?? '') !== '' ? $state['reason_en'] : ($state['reason_it'] ?? ''));
+    $since = $static ? null : ($state['since'] ?? null);
+    $until = $static ? null : ($state['until'] ?? null);
+    if ($until !== null && $until <= time()) {
+        $until = null;
+    }
+    $username = $static ? '' : trim((string)($options['username'] ?? ''));
+
+    ob_start();
+    ?>
 <!DOCTYPE html>
-<html lang="it">
+<html lang="<?= $lang ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#0a0a0b">
-    <title>Cripsum™ — Manutenzione</title>
+    <title><?= $h($t['page_title']) ?></title>
     <link rel="icon" href="/img/Susremaster.png" type="image/png">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&amp;display=swap">
@@ -242,33 +362,62 @@
     <main class="mn">
         <img class="mn-logo" src="/img/amongus-logo.jpg" alt="Cripsum™" width="56" height="56">
 
-        <p class="mn-state"><span class="mn-dot" aria-hidden="true"></span><span data-k="state">Manutenzione in corso</span></p>
-        <h1 data-k="title">Torniamo tra poco.</h1>
-        <p class="mn-lead" data-k="lead">Il sito è chiuso per manutenzione. Non hai perso niente: account, collezione e messaggi sono al sicuro e li ritrovi alla riapertura.</p>
+        <p class="mn-state"><span class="mn-dot" aria-hidden="true"></span><span data-k="state"><?= $h($t['state']) ?></span></p>
+        <h1 data-k="title"><?= $h($t['title']) ?></h1>
+        <p class="mn-lead" data-k="lead"><?= $h($t['lead']) ?></p>
 
-        
-        
+        <?php if ($reason !== ''): ?>
+        <section class="mn-reason">
+            <h2><?= $h($t['reason']) ?></h2>
+            <p><?= nl2br($h($reason), false) ?></p>
+        </section>
+        <?php endif; ?>
+
+        <?php if ($since !== null): ?>
+        <dl class="mn-facts">
+            <div>
+                <dt><?= $h($t['since']) ?></dt>
+                <dd><?= $h(cripsum_maintenance_when((int)$since, $t)) ?></dd>
+            </div>
+            <div>
+                <dt><?= $h($t['until']) ?></dt>
+                <?php if ($until !== null): ?>
+                <dd><?= $h(cripsum_maintenance_when((int)$until, $t, true)) ?><small data-mn-left data-until="<?= (int)$until ?>" data-now="<?= time() ?>"></small></dd>
+                <?php else: ?>
+                <dd><?= $h($t['until_open']) ?></dd>
+                <?php endif; ?>
+            </div>
+        </dl>
+        <?php endif; ?>
+
         <div class="mn-actions">
-            <button type="button" class="mn-btn mn-btn--main" data-mn-retry data-k="retry">Riprova adesso</button>
-            <a class="mn-btn" href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener" data-k="discord">Vieni su Discord</a>
+            <button type="button" class="mn-btn mn-btn--main" data-mn-retry data-k="retry"><?= $h($t['retry']) ?></button>
+            <a class="mn-btn" href="https://discord.gg/XdheJHVURw" target="_blank" rel="noopener" data-k="discord"><?= $h($t['discord']) ?></a>
         </div>
 
         <p class="mn-auto" aria-live="polite">
-            <span data-k="auto">Questa pagina si riapre da sola: controlla ogni mezzo minuto.</span>
-            <span data-k="checked">Ultimo controllo</span>: <span data-mn-checked data-k="checked_now">adesso</span>.
+            <span data-k="auto"><?= $h($t['auto']) ?></span>
+            <span data-k="checked"><?= $h($t['checked']) ?></span>: <span data-mn-checked data-k="checked_now"><?= $h($t['checked_now']) ?></span>.
         </p>
 
         <footer class="mn-foot">
-                        <span>Cripsum™</span>
+            <?php if ($username !== ''): ?>
+            <span><?= $h(sprintf($t['logged'], $username)) ?></span>
+            <a href="/logout.php"><?= $h($t['logout']) ?></a>
+            <?php elseif (!$static): ?>
+            <a href="/<?= $lang ?>/accedi"><?= $h($t['staff']) ?></a>
+            <?php endif; ?>
+            <span>Cripsum™</span>
         </footer>
     </main>
 
     <script>
         (() => {
-            let copy = {"checked_now":"adesso","checking":"sto controllando…","in":"tra %s","late":"a momenti","h":"h","min":"min"};
-                        // La pagina ferma non sa in che lingua e' il visitatore: lo decide qui,
+            let copy = <?= json_encode(array_intersect_key($t, array_flip(['checked_now', 'checking', 'in', 'late', 'h', 'min'])), JSON_UNESCAPED_UNICODE) ?>;
+            <?php if ($static): ?>
+            // La pagina ferma non sa in che lingua e' il visitatore: lo decide qui,
             // dall'indirizzo e poi dal browser, come faceva la versione di prima.
-            const english = {"page_title":"Cripsum™ — Maintenance","state":"Maintenance in progress","title":"Back in a bit.","lead":"The site is closed for maintenance. You have not lost anything: your account, collection and messages are safe and will be there when we reopen.","reason":"What we are doing","since":"Closed since","until":"Expected back","until_open":"as soon as we are done","retry":"Try again now","discord":"Join us on Discord","auto":"This page reopens on its own: it checks every half minute.","checked":"Last check","checked_now":"just now","checking":"checking…","staff":"Staff? Sign in","logged":"Signed in as %s","logout":"Sign out","today":"today at %s","yesterday":"yesterday at %s","tomorrow":"tomorrow around %s","today_around":"today around %s","on":"%s at %s","on_around":"%s around %s","in":"in %s","late":"any minute now","h":"h","min":"min"};
+            const english = <?= json_encode(cripsum_maintenance_copy('en'), JSON_UNESCAPED_UNICODE) ?>;
             const first = location.pathname.split('/').filter(Boolean)[0];
             const browser = (navigator.language || '').toLowerCase();
             if (first === 'en' || (first !== 'it' && browser.startsWith('en'))) {
@@ -277,8 +426,9 @@
                 document.title = english.page_title;
                 document.querySelectorAll('[data-k]').forEach((el) => { el.textContent = english[el.dataset.k]; });
             }
-            
-            const preview = false;
+            <?php endif; ?>
+
+            const preview = <?= json_encode(!empty($options['preview'])) ?>;
             const checked = document.querySelector('[data-mn-checked]');
             const retry = document.querySelector('[data-mn-retry]');
             let busy = false;
@@ -326,3 +476,6 @@
     </script>
 </body>
 </html>
+<?php
+    return (string)ob_get_clean();
+}

@@ -55,7 +55,10 @@ RewriteRule ^uploads/candidature(?:/|$) - [F,L,NC]
   Header always set Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests"
 </IfModule>
 
-# Maintenance mode: comment/remove this block when the update is finished.
+# Manutenzione di emergenza. La manutenzione normale si accende dal pannello admin
+# (Sito > Manutenzione): ha il motivo, l'elenco di chi puo' entrare e si spegne con un clic.
+# Questo blocco serve solo quando PHP o il pannello non rispondono: togliendo i commenti
+# tutto il sito risponde 503 con maintenance.html, una pagina ferma. Rimettili a lavoro finito.
 # ErrorDocument 503 /maintenance.html
 # RewriteCond %{REQUEST_URI} !^/maintenance\.html$ [NC]
 # RewriteCond %{REQUEST_URI} !^/favicon\.ico$ [NC]

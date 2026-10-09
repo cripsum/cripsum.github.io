@@ -80,6 +80,10 @@ $canRenderNav = $link instanceof mysqli;
 if ($canRenderNav) {
     require_once __DIR__ . '/config/session_init.php';
     require_once __DIR__ . '/includes/functions.php';
+    // Questa pagina ha una connessione sua e non passa da config/database.php:
+    // la manutenzione va controllata qui.
+    require_once __DIR__ . '/includes/maintenance.php';
+    cripsum_maintenance_guard($link);
 }
 ?>
 <!DOCTYPE html>
