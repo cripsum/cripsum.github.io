@@ -244,7 +244,7 @@
 
         <p class="mn-state"><span class="mn-dot" aria-hidden="true"></span><span data-k="state">Manutenzione in corso</span></p>
         <h1 data-k="title">Torniamo tra poco.</h1>
-        <p class="mn-lead" data-k="lead">Il sito è chiuso per manutenzione. Non hai perso niente: account, collezione e messaggi sono al sicuro e li ritrovi alla riapertura.</p>
+        <p class="mn-lead" data-k="lead">Il sito è chiuso per manutenzione. Torneremo il prima possibile.</p>
 
         
         
@@ -268,7 +268,7 @@
             let copy = {"checked_now":"adesso","checking":"sto controllando…","in":"tra %s","late":"a momenti","h":"h","min":"min"};
                         // La pagina ferma non sa in che lingua e' il visitatore: lo decide qui,
             // dall'indirizzo e poi dal browser, come faceva la versione di prima.
-            const english = {"page_title":"Cripsum™ — Maintenance","state":"Maintenance in progress","title":"Back in a bit.","lead":"The site is closed for maintenance. You have not lost anything: your account, collection and messages are safe and will be there when we reopen.","reason":"What we are doing","since":"Closed since","until":"Expected back","until_open":"as soon as we are done","retry":"Try again now","discord":"Join us on Discord","auto":"This page reopens on its own: it checks every half minute.","checked":"Last check","checked_now":"just now","checking":"checking…","staff":"Staff? Sign in","logged":"Signed in as %s","logout":"Sign out","today":"today at %s","yesterday":"yesterday at %s","tomorrow":"tomorrow around %s","today_around":"today around %s","on":"%s at %s","on_around":"%s around %s","in":"in %s","late":"any minute now","h":"h","min":"min"};
+            const english = {"page_title":"Cripsum™ — Maintenance","state":"Maintenance in progress","title":"Back in a bit.","lead":"The site is closed for maintenance. We will be back soon.","reason":"What we are doing","since":"Closed since","until":"Expected back","until_open":"as soon as we are done","retry":"Try again now","discord":"Join us on Discord","auto":"This page reopens on its own: it checks every half minute.","checked":"Last check","checked_now":"just now","checking":"checking…","staff":"Staff? Sign in","logged":"Signed in as %s","logout":"Sign out","today":"today at %s","yesterday":"yesterday at %s","tomorrow":"tomorrow around %s","today_around":"today around %s","on":"%s at %s","on_around":"%s around %s","in":"in %s","late":"any minute now","h":"h","min":"min"};
             const first = location.pathname.split('/').filter(Boolean)[0];
             const browser = (navigator.language || '').toLowerCase();
             if (first === 'en' || (first !== 'it' && browser.startsWith('en'))) {
