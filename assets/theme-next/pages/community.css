@@ -406,6 +406,11 @@ html[data-theme="next"] .cm-page .cm-input:focus {
     box-shadow: none;
 }
 
+/* Il campo sbagliato resta segnato in rosso, anche col fuoco. */
+html[data-theme="next"] .cm-page .cm-input.is-invalid {
+    border-color: var(--nx-danger);
+}
+
 html[data-theme="next"] .cm-composer__reply {
     background: var(--nx-surface-2);
 }
@@ -461,6 +466,11 @@ html[data-theme="next"] .cm-toast {
     border-color: var(--nx-line);
     background: var(--nx-surface-2);
     box-shadow: var(--nx-float);
+}
+
+/* L'avviso di errore tiene il bordo rosso. */
+html[data-theme="next"] .cm-toast.is-error {
+    border-color: var(--nx-danger);
 }
 
 /* ── Colori scritti a mano nell'originale ───────────────── */

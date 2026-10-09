@@ -1,0 +1,159 @@
+/* ============================================================
+   Tema nuovo — Pullspot e Animespot
+   ============================================================
+
+   Correzioni a assets/pullspot/pullspot.css e assets/animespot/animespot.css
+   (it|en/pullspot.php, it|en/animespot.php). I due fogli sono gemelli:
+   stesse classi, prefisso ps- e as-. Gli originali non si toccano.
+
+   Questi due giochi avevano gia' una scena loro, nera e piatta: il fascio
+   di luce dall'alto, il marchio slavato, un solo colore acceso che decide
+   il gioco (il personaggio in Pullspot, la difficolta' in Animespot).
+   Tutto questo resta, con i suoni e le animazioni della rivelazione.
+
+   Qui si allinea solo quello che il resto del sito ha gia': il nero e i
+   grigi del tema, le etichette in Poppins minuscolo al posto del
+   monospazio maiuscolo, le finestre piatte, via gli aloni fermi e le
+   strisce sul fianco delle righe. I numeri restano in monospazio.
+   ============================================================ */
+
+html[data-theme="next"] {
+    --ps-bg: var(--nx-bg);
+    --as-bg: var(--nx-bg);
+    --ps-panel: rgba(255, 255, 255, 0.05);
+    --as-panel: rgba(255, 255, 255, 0.05);
+    --ps-panel-hi: rgba(255, 255, 255, 0.09);
+    --as-panel-hi: rgba(255, 255, 255, 0.09);
+    --ps-line: var(--nx-line);
+    --as-line: var(--nx-line);
+    --ps-line-hi: #3a3a3d;
+    --as-line-hi: #3a3a3d;
+    --ps-text: var(--nx-text);
+    --as-text: var(--nx-text);
+    --ps-muted: var(--nx-text-2);
+    --as-muted: var(--nx-text-2);
+    --ps-dim: var(--nx-text-3);
+    --as-dim: var(--nx-text-3);
+    --ps-red: var(--nx-danger);
+    --as-red: var(--nx-danger);
+}
+
+/* ── Etichette ───────────────────────────────────────────── */
+
+html[data-theme="next"] :is(.ps-group__title, .as-group__title, .ps-meta, .as-meta, .ps-clock__label, .as-clock__label, .ps-figure__label, .as-figure__label, .as-points small, .ps-modal__head h2, .as-modal__head h2, .ps-pill, .as-pill) {
+    font-family: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] :is(.ps-group__title, .as-group__title, .ps-meta, .as-meta, .ps-clock__label, .as-clock__label, .ps-figure__label, .as-figure__label) {
+    font-size: 0.8125rem;
+    font-weight: 400;
+}
+
+html[data-theme="next"] :is(.ps-modal__head h2, .as-modal__head h2) {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+html[data-theme="next"] :is(.ps-card__name, .as-card__name, .ps-pill, .as-pill, .as-points, .as-rank--top .as-rank__place, .as-rank__num--big) {
+    font-weight: 600;
+}
+
+/* ── Tentativi ───────────────────────────────────────────────
+   Lo stato della riga (questa, sbagliata, giusta) lo dice il fondo: via
+   la striscia colorata sul fianco. */
+
+html[data-theme="next"] :is(.ps-row, .as-row) {
+    border-left-color: transparent;
+}
+
+/* ── Lettore ─────────────────────────────────────────────────
+   Il pulsante tiene l'anello del colore del gioco; via l'alone attorno e
+   quello sotto la barra dei secondi ascoltati. */
+
+html[data-theme="next"] :is(.ps-seg__played, .as-seg__played) {
+    box-shadow: none;
+}
+
+html[data-theme="next"] .ps-play {
+    box-shadow: 0 0 0 10px var(--ps-accent-soft);
+}
+
+html[data-theme="next"] .as-play {
+    box-shadow: 0 0 0 10px var(--as-accent-soft);
+}
+
+html[data-theme="next"] .ps-play:hover:not(:disabled) {
+    box-shadow: 0 0 0 13px var(--ps-accent-soft);
+}
+
+html[data-theme="next"] .as-play:hover:not(:disabled) {
+    box-shadow: 0 0 0 13px var(--as-accent-soft);
+}
+
+html[data-theme="next"] :is(.ps-play, .as-play):disabled {
+    box-shadow: none;
+}
+
+/* ── Ricerca ─────────────────────────────────────────────── */
+
+html[data-theme="next"] body.ps-page .ps-input,
+html[data-theme="next"] body.as-page .as-input {
+    border-color: transparent;
+    background-color: var(--nx-surface);
+}
+
+/* Il fuoco e' una riga del colore del gioco, non un alone. */
+html[data-theme="next"] body.ps-page .ps-input:focus {
+    border-color: var(--ps-accent-line);
+    box-shadow: none;
+}
+
+html[data-theme="next"] body.as-page .as-input:focus {
+    border-color: var(--as-accent-line);
+    box-shadow: none;
+}
+
+html[data-theme="next"] :is(.ps-list, .as-list) {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}
+
+/* ── Rivelazione ─────────────────────────────────────────── */
+
+html[data-theme="next"] :is(.ps-pill, .as-pill) {
+    box-shadow: none;
+}
+
+html[data-theme="next"] .ps-card__art,
+html[data-theme="next"] .ps-card__art:hover {
+    box-shadow: 0 0 0 6px var(--ps-accent-soft);
+}
+
+html[data-theme="next"] .as-card__art,
+html[data-theme="next"] .as-card__art:hover {
+    box-shadow: 0 0 0 6px var(--as-accent-soft);
+}
+
+/* ── Finestre: regole, statistiche, classifica ───────────── */
+
+html[data-theme="next"] :is(.ps-modal, .as-modal) {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] :is(.ps-modal__box, .as-modal__box) {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+}
+
+html[data-theme="next"] :is(.ps-toast, .as-toast) {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+}

@@ -269,6 +269,17 @@ html[data-theme="next"] .ck-msg.is-mine .ck-mention:not(.is-me) {
     color: #000;
 }
 
+/* La menzione di te resta dorata; nella tua bolla bianca, piu' scura per leggersi. */
+html[data-theme="next"] .ck-mention.is-me {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fde68a;
+}
+
+html[data-theme="next"] .ck-msg.is-mine .ck-mention.is-me {
+    background: rgba(251, 191, 36, 0.3);
+    color: #5c4300;
+}
+
 /* La risposta citata: un riquadro piu' scuro, senza la striscia sul fianco. */
 html[data-theme="next"] .ck-reply {
     border-left: 0;

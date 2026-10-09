@@ -16,6 +16,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/animespot_helpers.php';
+require_once '../includes/theme.php';
 
 checkBan($mysqli);
 
@@ -128,7 +129,7 @@ $copy = [
 ][$lang];
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo $lang; ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php $ogDescription = $copy['description']; ?>
@@ -142,6 +143,7 @@ $copy = [
     <meta property="og:description" content="<?php echo as_h($copy['description']); ?>">
 
     <link rel="stylesheet" href="<?php echo animespot_asset('/assets/animespot/animespot.css'); ?>">
+    <?php cripsum_theme_head('spot'); ?>
     <script>
         window.ANIMESPOT_LANG = '<?php echo $lang; ?>';
         window.ANIMESPOT_CSRF = '<?php echo as_h(function_exists('csrf_token') ? csrf_token() : ''); ?>';

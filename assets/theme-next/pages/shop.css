@@ -1,0 +1,465 @@
+/* ============================================================
+   Tema nuovo — Shop delle Godo Shards
+   ============================================================
+
+   Correzioni a css/shop.css (includes/shop/pages/gacha.php). Il foglio
+   originale non si tocca.
+
+   Qui cambia anche la disposizione, senza toccare il markup:
+   - la testata non e' piu' al centro: titolo a sinistra come nelle altre
+     pagine, con «Torna al Gacha» sopra e i due saldi a destra;
+   - le linguette stanno a sinistra, sotto il titolo;
+   - i pacchetti sono piu' bassi e ne stanno quattro per riga: gli otto
+     pacchetti si vedono quasi tutti senza scorrere.
+
+   Di pulsanti pieni ce n'e' uno solo per tipo: sui pacchetti e' pieno
+   quello della «Migliore offerta», gli altri sono a filo.
+
+   Restano come sono: l'anteprima dei badge del profilo con i loro colori
+   e le loro animazioni, l'animazione di quando sblocchi un oggetto, il
+   pagamento (Stripe e PayPal non sono toccati).
+   ============================================================ */
+
+html[data-theme="next"] body.shop-shards-body {
+    background: var(--nx-bg);
+}
+
+html[data-theme="next"] .shop-shards-body :is(.shop-title, .shop-badge, .card-amount, .card-price, .shop-action-modal__header h2, .reveal-badge-name, .shop-conversion-amount strong, .shop-balance-val) {
+    font-weight: 600;
+}
+
+html[data-theme="next"] .shop-shards-body :is(.card-amount-bonus-note, .card-btn, .payment-stripe-btn, .shop-conversion-quick button, .shop-conversion-quick input, .reveal-badge-price, .shop-action-secondary, .shop-action-primary, .shop-action-modal__kicker, .shop-toast, .shop-toast a, .shop-tab-btn, .back-to-lootbox-btn) {
+    font-weight: 500;
+}
+
+/* ── Testata ─────────────────────────────────────────────── */
+
+html[data-theme="next"] .shop-shards-body .shop-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "back back"
+        "title wallet";
+    gap: 0.35rem 1.5rem;
+    align-items: end;
+    margin-bottom: 1.75rem;
+    text-align: left;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-header > div:last-child {
+    grid-area: back;
+}
+
+/* Il titolo: bianco, senza sfumatura e senza i due cristalli ai lati. */
+html[data-theme="next"] .shop-shards-body .shop-title {
+    grid-area: title;
+    margin: 0;
+    background: none;
+    color: var(--nx-text);
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    -webkit-text-fill-color: currentColor;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-title-logo {
+    display: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-balance-bar {
+    grid-area: wallet;
+    gap: 0.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-balance-item {
+    padding: 0.55rem 0.95rem;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .shop-shards-body .shop-balance-label {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .shop-shards-body .back-to-lootbox-btn,
+html[data-theme="next"] .shop-shards-body .back-to-lootbox-btn:hover {
+    gap: 0.5rem;
+    margin-top: 0;
+    padding: 0.35rem 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--nx-text-2);
+    transform: none;
+}
+
+html[data-theme="next"] .shop-shards-body .back-to-lootbox-btn:hover {
+    color: var(--nx-text);
+}
+
+/* ── Linguette ───────────────────────────────────────────── */
+
+html[data-theme="next"] .shop-shards-body .shop-tabs {
+    justify-content: flex-start;
+    gap: 6px;
+    margin-bottom: 1.25rem;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-tab-btn,
+html[data-theme="next"] .shop-shards-body .shop-tab-btn:hover {
+    padding: 0.6rem 1.15rem;
+    border-color: transparent;
+    background: transparent;
+    color: var(--nx-text-2);
+    transform: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-tab-btn:hover {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .shop-shards-body .shop-tab-btn.active {
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+
+/* L'avviso del bonus: una riga su una superficie, non un riquadro rosso. */
+html[data-theme="next"] .shop-shards-body .shop-bonus-strip {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    max-width: none;
+    margin: 0 0 1.25rem;
+    padding: 0.85rem 1.1rem;
+    border: 0;
+    border-radius: 16px;
+    background: var(--nx-surface);
+    color: var(--nx-text-2);
+    font-weight: 400;
+    text-align: left;
+}
+
+/* ── Pacchetti e oggetti ─────────────────────────────────── */
+
+html[data-theme="next"] .shop-shards-body .shop-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-card,
+html[data-theme="next"] .shop-shards-body .shop-card:hover,
+html[data-theme="next"] .shop-shards-body .shop-card:is(.is-pity, .is-best),
+html[data-theme="next"] .shop-shards-body .shop-card:is(.is-pity, .is-best):hover {
+    max-width: none;
+    border-color: transparent;
+    border-radius: 20px;
+    background: var(--nx-surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-card {
+    padding: 2.4rem 1.25rem 1.25rem;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-card:hover {
+    transform: translateY(-4px);
+}
+
+/* Etichette: minuscole, piatte. Il verde dice «conviene», l'oro «pity». */
+html[data-theme="next"] .shop-shards-body .shop-badge {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] .shop-shards-body .badge-x2 {
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+    animation-name: nxShopBonus;
+}
+
+@keyframes nxShopBonus {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+}
+
+html[data-theme="next"] .shop-shards-body .badge-value {
+    background: rgba(48, 209, 88, 0.16);
+    color: #8fe6a6;
+}
+
+html[data-theme="next"] .shop-shards-body .badge-pity,
+html[data-theme="next"] .shop-shards-body .badge-time {
+    background: rgba(251, 191, 36, 0.16);
+    color: #fde68a;
+}
+
+html[data-theme="next"] .shop-shards-body .badge-best {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .shop-shards-body .card-shards-icon {
+    margin-top: 0.75rem;
+    filter: none;
+}
+
+html[data-theme="next"] .shop-shards-body .card-amount-original {
+    color: var(--nx-text-3);
+    font-weight: 400;
+}
+
+/* Le Shards in regalo: verdi, non rosse. */
+html[data-theme="next"] .shop-shards-body .card-amount-bonus-note {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .shop-shards-body .card-equivalence {
+    margin-bottom: 1.25rem;
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .shop-shards-body .card-price {
+    margin-bottom: 1rem;
+}
+
+html[data-theme="next"] .shop-shards-body .card-per-shard {
+    color: var(--nx-text-3);
+    font-weight: 400;
+}
+
+/* «Acquista»: a filo. Pieno solo sul pacchetto migliore. */
+html[data-theme="next"] .shop-shards-body .card-btn,
+html[data-theme="next"] .shop-shards-body .card-btn--convert,
+html[data-theme="next"] .shop-shards-body .card-btn--gold {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .shop-shards-body .card-btn:hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+    box-shadow: none;
+    transform: none;
+    filter: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-card.is-best .card-btn,
+html[data-theme="next"] .shop-shards-body .shop-card.is-best .card-btn:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--nx-text);
+    color: #000;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-card.is-best .card-btn:hover:not(:disabled) {
+    background: #fff;
+}
+
+/* «Già tuo» ed «Esaurito»: spenti. */
+html[data-theme="next"] .shop-shards-body .card-btn.is-owned,
+html[data-theme="next"] .shop-shards-body .card-btn.is-soldout {
+    border-color: transparent;
+    background: var(--nx-surface-2);
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .shop-shards-body .card-btn.is-short {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .shop-shards-body .card-btn.is-soon {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: #fde68a;
+}
+
+/* Pezzi rimasti: ambra piena. */
+html[data-theme="next"] .shop-shards-body .shop-stock span {
+    background: #f59e0b;
+}
+
+/* ── Negozio Godos ───────────────────────────────────────────
+   Le stesse card, con il nome dell'oggetto al posto del numero. */
+
+html[data-theme="next"] .shop-shards-body .card-amount-bonus-note.card-note-muted {
+    color: var(--nx-text-2);
+    font-weight: 400;
+}
+
+html[data-theme="next"] .shop-shards-body .card-amount--item {
+    font-size: 1.25rem;
+    line-height: 1.25;
+}
+
+html[data-theme="next"] .shop-shards-body .card-price--godos {
+    color: var(--nx-text);
+    font-size: 1.1rem;
+}
+
+/* ── Finestre: pagamento, conversione, conferma ──────────── */
+
+html[data-theme="next"] .shop-shards-body .shop-action-modal__backdrop {
+    background: rgba(0, 0, 0, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-action-modal__panel {
+    border-color: var(--nx-line);
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+}
+
+html[data-theme="next"] .shop-shards-body .shop-modal .modal-content {
+    border-color: var(--nx-line);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-action-modal__kicker {
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-action-modal__header h2 {
+    letter-spacing: -0.01em;
+}
+
+html[data-theme="next"] .shop-shards-body :is(.shop-action-secondary, .shop-action-primary) {
+    border-radius: var(--nx-pill);
+}
+
+html[data-theme="next"] .shop-shards-body .shop-action-secondary,
+html[data-theme="next"] .shop-shards-body .shop-action-secondary:hover {
+    border-color: var(--nx-line);
+    background: transparent;
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .shop-shards-body .shop-action-secondary:hover {
+    border-color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .shop-shards-body .shop-action-primary,
+html[data-theme="next"] .shop-shards-body .shop-action-primary:hover:not(:disabled),
+html[data-theme="next"] .shop-shards-body .payment-stripe-btn,
+html[data-theme="next"] .shop-shards-body .payment-stripe-btn:hover {
+    border-color: transparent;
+    border-radius: var(--nx-pill);
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+    transform: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-action-primary:hover:not(:disabled),
+html[data-theme="next"] .shop-shards-body .payment-stripe-btn:hover {
+    background: #fff;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-payment-separator {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-waiver input,
+html[data-theme="next"] .shop-shards-body .shop-conversion-slider input,
+html[data-theme="next"] .shop-shards-body input[type="range"].form-range {
+    accent-color: var(--nx-text);
+}
+
+html[data-theme="next"] .shop-shards-body .shop-waiver a {
+    color: var(--nx-text);
+    text-decoration: underline;
+    text-decoration-color: var(--nx-text-3);
+    text-underline-offset: 3px;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-conversion-amount img {
+    filter: none;
+}
+
+/* ── Avvisi ──────────────────────────────────────────────── */
+
+html[data-theme="next"] .shop-shards-body .shop-toast {
+    border-color: var(--nx-line);
+    background: var(--nx-surface-2);
+    box-shadow: var(--nx-float);
+    color: var(--nx-text);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html[data-theme="next"] .shop-shards-body .shop-toast > i {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .shop-shards-body .shop-toast.is-error > i {
+    color: var(--nx-danger);
+}
+
+/* ── Schermi stretti ─────────────────────────────────────── */
+
+@media (max-width: 760px) {
+    html[data-theme="next"] .shop-shards-body .shop-header {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "back"
+            "title"
+            "wallet";
+        gap: 0.5rem;
+    }
+
+    html[data-theme="next"] .shop-shards-body .shop-balance-bar {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    /* Due pacchetti per riga anche sul telefono: otto pacchetti uno sotto
+       l'altro erano una pagina lunghissima. */
+    html[data-theme="next"] .shop-shards-body .shop-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.6rem;
+    }
+
+    html[data-theme="next"] .shop-shards-body .shop-card {
+        padding: 2.6rem 0.75rem 0.85rem;
+        border-radius: 18px;
+    }
+
+    html[data-theme="next"] .shop-shards-body .card-amount {
+        font-size: 1.7rem;
+    }
+
+    html[data-theme="next"] .shop-shards-body .card-price {
+        font-size: 1.25rem;
+    }
+
+    html[data-theme="next"] .shop-shards-body .card-btn {
+        padding: 0.7rem 0.5rem;
+    }
+}

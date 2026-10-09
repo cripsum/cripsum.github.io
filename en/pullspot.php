@@ -14,6 +14,7 @@ require_once '../config/session_init.php';
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/pullspot_helpers.php';
+require_once '../includes/theme.php';
 
 checkBan($mysqli);
 
@@ -89,7 +90,7 @@ $copy = [
 ][$lang];
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $lang; ?>">
+<html lang="<?php echo $lang; ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php $ogDescription = $copy['description']; ?>
@@ -103,6 +104,7 @@ $copy = [
     <meta property="og:description" content="<?php echo ps_h($copy['description']); ?>">
 
     <link rel="stylesheet" href="<?php echo pullspot_asset('/assets/pullspot/pullspot.css'); ?>">
+    <?php cripsum_theme_head('spot'); ?>
     <script>
         window.PULLSPOT_LANG = '<?php echo $lang; ?>';
         window.PULLSPOT_CSRF = '<?php echo ps_h(function_exists('csrf_token') ? csrf_token() : ''); ?>';

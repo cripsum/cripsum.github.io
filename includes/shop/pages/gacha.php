@@ -14,6 +14,7 @@
 
 require_once __DIR__ . '/../shop_common.php';
 require_once __DIR__ . '/../gacha_catalog.php';
+require_once __DIR__ . '/../../theme.php';
 
 $en = $shopLang === 'en';
 
@@ -281,7 +282,7 @@ $pendingSession = ($paymentStatus === 'success' && preg_match('/^cs_[A-Za-z0-9_]
 $ogTitle = 'Cripsum™ - ' . $G['title'];
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $en ? 'en' : 'it'; ?>">
+<html lang="<?php echo $en ? 'en' : 'it'; ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include __DIR__ . '/../../head-import.php'; ?>
@@ -289,6 +290,7 @@ $ogTitle = 'Cripsum™ - ' . $G['title'];
     <title><?php echo shop_h($G['title']); ?> - Cripsum™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/css/shop.css')); ?>">
+    <?php cripsum_theme_head('shop'); ?>
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo urlencode(PAYPAL_CLIENT_ID); ?>&currency=EUR&locale=<?php echo $en ? 'en_US' : 'it_IT'; ?>"></script>
 </head>
 

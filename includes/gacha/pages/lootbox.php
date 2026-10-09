@@ -23,6 +23,7 @@ require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../functions.php';
 require_once __DIR__ . '/../../mission_generator.php';
 require_once __DIR__ . '/../public.php';
+require_once __DIR__ . '/../../theme.php';
 
 $gLang = ($gachaLang ?? 'it') === 'en' ? 'en' : 'it';
 $gEn = $gLang === 'en';
@@ -369,7 +370,7 @@ $gClaimedToday = $gPremium && ($gLastClaim === getMissionDailyPeriod());
 $gClaimLeft = strtotime('tomorrow') - time();
 ?>
 <!DOCTYPE html>
-<html lang="<?= $gLang ?>">
+<html lang="<?= $gLang ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
     <?php include __DIR__ . '/../../head-import.php'; ?>
@@ -377,6 +378,7 @@ $gClaimLeft = strtotime('tomorrow') - time();
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/gacha-v2.css')) ?>">
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/lootbox-v3.css')) ?>">
     <link rel="stylesheet" href="<?= $h(cripsum_asset('/css/lootbox-modal.css')) ?>">
+    <?php cripsum_theme_head('lootbox'); ?>
     <meta name="theme-color" content="#06070d">
     <title>Cripsum™ — Lootbox</title>
 </head>

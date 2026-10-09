@@ -159,7 +159,8 @@ html[data-theme="next"] .edits-sort {
 }
 
 html[data-theme="next"] .edits-search:focus-within,
-html[data-theme="next"] .edits-toggle:focus-within {
+html[data-theme="next"] .edits-toggle:focus-within,
+html[data-theme="next"] .edits-sort.is-open {
     border-color: var(--nx-text-3);
 }
 
@@ -185,9 +186,13 @@ html[data-theme="next"] .edits-sort__option > i:first-child {
     color: var(--nx-text-3);
 }
 
+html[data-theme="next"] .edits-sort__option.is-active,
+html[data-theme="next"] .edits-sort__option[aria-selected="true"] {
+    color: var(--nx-text);
+}
+
 html[data-theme="next"] .edits-sort__option.is-active {
     background: var(--nx-surface-3);
-    color: var(--nx-text);
 }
 
 /* Interruttore «Nascondi già visti»: bianco quando e' acceso. */

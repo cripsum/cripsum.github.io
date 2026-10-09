@@ -14,6 +14,8 @@
  * leggono $mysqli e scrivono $lang e $t nello stesso scope.
  */
 
+require_once __DIR__ . '/../../theme.php';
+
 $ogTitle = 'Cripsum™ - ' . $pageTitle;
 if (!empty($pageDescription)) {
     $ogDescription = $pageDescription;
@@ -23,13 +25,14 @@ if (!empty($pageImage)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo shop_h($shopLang); ?>">
+<html lang="<?php echo shop_h($shopLang); ?>"<?php echo cripsum_theme_html_attr(); ?>>
 
 <head>
     <?php include __DIR__ . '/../../head-import.php'; ?>
     <title><?php echo shop_h('Cripsum™ - ' . $pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="<?php echo shop_h(cripsum_asset('/assets/shop/catalog.css')); ?>">
+    <?php cripsum_theme_head('catalog'); ?>
     <script src="<?php echo shop_h(cripsum_asset('/assets/shop/catalog.js')); ?>" defer></script>
 </head>
 
