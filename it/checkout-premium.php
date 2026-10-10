@@ -256,9 +256,6 @@ $giftTo = isset($_GET['gift_to']) ? trim((string)$_GET['gift_to']) : '';
     <?php include '../includes/navbar.php'; ?>
 
     <div class="form-bg" aria-hidden="true">
-        <span class="form-orb form-orb--one"></span>
-        <span class="form-orb form-orb--two"></span>
-        <span class="form-grid-bg"></span>
     </div>
 
     <?php /* L'impaginazione sta in includes/checkout_next.php, la stessa per le

@@ -33,9 +33,6 @@ $username = $_SESSION['username'] ?? 'Utente';
     
 
     <div class="gambling-bg" aria-hidden="true">
-        <span class="gambling-orb gambling-orb--one"></span>
-        <span class="gambling-orb gambling-orb--two"></span>
-        <span class="gambling-grid-bg"></span>
     </div>
 
     <main

@@ -136,8 +136,6 @@ $cmTabs = $cmRimasto
     <?php include __DIR__ . '/../navbar.php'; ?>
 
     <div class="cm-bg" aria-hidden="true">
-        <span class="cm-orb cm-orb--one"></span>
-        <span class="cm-orb cm-orb--two"></span>
     </div>
 
     <main class="cm-shell" id="cmApp">

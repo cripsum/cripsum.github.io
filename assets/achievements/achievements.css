@@ -51,45 +51,6 @@ body.ach-page {
     pointer-events: none;
 }
 
-.ach-orb {
-    position: absolute;
-    width: 32rem;
-    height: 32rem;
-    border-radius: 50%;
-    filter: blur(84px);
-    opacity: 0.3;
-    animation: achFloat 12s ease-in-out infinite alternate;
-}
-
-.ach-orb--one {
-    top: 4%;
-    left: -11rem;
-    background: rgba(var(--ach-accent), 0.6);
-}
-
-.ach-orb--two {
-    right: -11rem;
-    bottom: 6%;
-    background: rgba(var(--ach-purple), 0.42);
-    animation-delay: -4s;
-}
-
-.ach-grid-bg {
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
-    background-size: 76px 76px;
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 18%, transparent 92%);
-    mask-image: linear-gradient(to bottom, transparent, black 18%, transparent 92%);
-    opacity: 0.34;
-}
-
-@keyframes achFloat {
-    from { transform: translate3d(0, 0, 0) scale(1); }
-    to { transform: translate3d(28px, -22px, 0) scale(1.06); }
-}
 
 /* ── Impaginazione ───────────────────────────────────────────────────────── */
 
@@ -2094,7 +2055,6 @@ body.ach-page {
         scroll-behavior: auto !important;
     }
 
-    .ach-orb,
     .ach-card::before,
     .ach-card.is-new .ach-card__medal::after {
         animation: none !important;
@@ -2148,12 +2108,6 @@ html:root .ach-page {
 
 html:root body.ach-page {
     background: var(--nx-bg);
-}
-
-/* Macchie sfocate e griglia di linee sullo sfondo. */
-html:root .ach-orb,
-html:root .ach-grid-bg {
-    display: none;
 }
 
 html:root .ach-page :focus-visible {

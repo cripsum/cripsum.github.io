@@ -28,48 +28,6 @@ body.gambling-page {
     overflow: hidden;
 }
 
-.gambling-orb,
-.gambling-grid-bg {
-    position: absolute;
-    pointer-events: none;
-}
-
-.gambling-orb {
-    width: 31rem;
-    height: 31rem;
-    border-radius: 999px;
-    filter: blur(78px);
-    opacity: .35;
-    animation: gamblingFloat 10s ease-in-out infinite alternate;
-}
-
-.gambling-orb--one {
-    top: 7%;
-    left: -10rem;
-    background: rgba(47, 107, 255, .62);
-}
-
-.gambling-orb--two {
-    right: -10rem;
-    bottom: 8%;
-    background: rgba(251, 191, 36, .34);
-    animation-delay: -3s;
-}
-
-.gambling-grid-bg {
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, .026) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, .026) 1px, transparent 1px);
-    background-size: 76px 76px;
-    mask-image: linear-gradient(to bottom, transparent, black 18%, transparent 92%);
-    opacity: .32;
-}
-
-@keyframes gamblingFloat {
-    from { transform: translate3d(0, 0, 0) scale(1); }
-    to { transform: translate3d(28px, -22px, 0) scale(1.06); }
-}
 
 .gambling-shell {
     width: min(1220px, calc(100% - 32px));
@@ -769,12 +727,6 @@ html:root {
 html:root body.gambling-page,
 html:root .gambling-bg {
     background: var(--nx-bg);
-}
-
-/* Macchie sfocate e griglia di linee sullo sfondo. */
-html:root .gambling-orb,
-html:root .gambling-grid-bg {
-    display: none;
 }
 
 html:root :is(.slot-switch, .history-head button, .gambling-btn, .auto-spin-btn, .wallet-recharge button, .bet-chip) {

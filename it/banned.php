@@ -95,9 +95,6 @@ if (!isset($_COOKIE['banned']) || $_COOKIE['banned'] == '0') {
 <body class="static-page">
 
     <div class="static-bg" aria-hidden="true">
-        <span class="static-orb static-orb--one"></span>
-        <span class="static-orb static-orb--two"></span>
-        <span class="static-grid-bg"></span>
     </div>
 
 

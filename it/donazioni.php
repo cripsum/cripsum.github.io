@@ -23,13 +23,8 @@ $username = $_SESSION['username'] ?? '';
 
 <body class="static-page">
     <?php include '../includes/navbar.php'; ?>
-    
-
 
     <div class="static-bg" aria-hidden="true">
-        <span class="static-orb static-orb--one"></span>
-        <span class="static-orb static-orb--two"></span>
-        <span class="static-grid-bg"></span>
     </div>
 
 

@@ -322,9 +322,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <?php include '../includes/navbar.php'; ?>
     
     <div class="static-bg" aria-hidden="true">
-        <span class="static-orb static-orb--one"></span>
-        <span class="static-orb static-orb--two"></span>
-        <span class="static-grid-bg"></span>
     </div>
 
     <main class="static-shell">

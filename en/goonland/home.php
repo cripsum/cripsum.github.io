@@ -53,7 +53,6 @@ if ((int)($_SESSION['nsfw'] ?? 0) !== 1) {
     <?php include '../../includes/navbar-goonland.php'; ?>
 
 
-    <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
     <img src="https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif" class="goonrpcimg" style="display:none" alt="">
 
 

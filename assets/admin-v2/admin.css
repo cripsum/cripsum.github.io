@@ -29,12 +29,6 @@ body.admin-v2-body {
     overflow-x: hidden;
 }
 
-.admin-bg { position: fixed; inset: 0; z-index: -5; overflow: hidden; background: #02040a; }
-.admin-orb { position: absolute; width: 28rem; height: 28rem; border-radius: 999px; filter: blur(70px); opacity: .45; animation: adminFloat 9s ease-in-out infinite alternate; }
-.admin-orb--one { top: 8%; left: -8rem; background: rgba(var(--admin-accent-rgb), .65); }
-.admin-orb--two { right: -9rem; bottom: 8%; background: rgba(139, 92, 246, .52); animation-delay: -3s; }
-.admin-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 70px 70px; mask-image: linear-gradient(to bottom, transparent, black 20%, transparent 92%); opacity: .34; }
-@keyframes adminFloat { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(34px,-22px,0) scale(1.08); } }
 
 .admin-shell {
     width: min(1480px, calc(100% - 28px));
@@ -1706,11 +1700,6 @@ html:root body.admin-v2-body {
     --admin-radius-lg: var(--nx-radius);
     --admin-shadow: none;
     background: var(--nx-bg);
-}
-
-/* Macchie sfocate e griglia di linee sullo sfondo. */
-html:root .admin-bg {
-    display: none;
 }
 
 /* ── Riquadri ────────────────────────────────────────────── */

@@ -2,11 +2,8 @@
     'use strict';
 
     /**
-     * Homepage, tema nuovo.
-     *
-     * Qui c'e' solo quello che la pagina nuova ha in piu': la vetrina "Cosa
-     * puoi fare". La comparsa allo scorrimento e il contatore di Discord li fa
-     * ancora assets/home-v5/home.js, caricato insieme a questo file.
+     * Homepage: la vetrina "Cosa puoi fare", la comparsa allo scorrimento e
+     * il contatore di Discord.
      *
      * La vetrina mostra una voce in grande e, sotto, tutte le voci in
      * miniatura. Nell'HTML c'e' gia' la prima voce e ogni miniatura e' un link
@@ -249,5 +246,118 @@
         showcase.classList.add('is-live');
     };
 
-    document.addEventListener('DOMContentLoaded', initShowcase);
+    /**
+     * Comparsa allo scorrimento: ogni .home-reveal prende .is-visible quando
+     * entra nello schermo, e home.css lo fa comparire.
+     */
+    const initReveal = () => {
+        const items = Array.from(document.querySelectorAll('.home-reveal'));
+        const show = (item) => item.classList.add('is-visible');
+
+        // Un riquadro con una foto, e la scritta che gli sta sotto, compaiono
+        // quando la foto e' pronta da disegnare: altrimenti si vede prima il
+        // riquadro vuoto e la foto arriva di colpo a meta' della comparsa. Se
+        // la foto tarda o manca, dopo poco compaiono lo stesso.
+        const photoOf = (item) => {
+            const tile = item.classList.contains('home-tile') ? item : item.parentElement?.querySelector(':scope > .home-tile');
+            return tile ? tile.querySelector('img') : null;
+        };
+
+        const reveal = (item) => {
+            const photo = photoOf(item);
+            if (!photo || typeof photo.decode !== 'function') { show(item); return; }
+
+            const timer = setTimeout(() => show(item), 1200);
+            photo.decode().catch(() => { /* foto mancante: compare il riquadro vuoto */ }).then(() => {
+                clearTimeout(timer);
+                show(item);
+            });
+        };
+
+        if (!('IntersectionObserver' in window)) {
+            items.forEach(show);
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                observer.unobserve(entry.target);
+                reveal(entry.target);
+            });
+        }, { threshold: 0.12 });
+
+        items.forEach((item) => observer.observe(item));
+    };
+
+    /**
+     * Quante persone ci sono nel Discord, sul bottone del riquadro finale.
+     *
+     * "Entra nel Discord · 45 online" convince molto piu' di un'icona muta.
+     * Si prova prima il widget ufficiale, che pero' va acceso nelle impostazioni
+     * del server; se e' spento si ripiega sull'invito pubblico, che risponde
+     * sempre. Se non risponde nessuno dei due il numero resta nascosto e il
+     * bottone funziona lo stesso.
+     */
+    const initDiscordCount = () => {
+        const badge = document.querySelector('[data-discord-count]');
+        const link = badge?.closest('a');
+        if (!badge || !link) return;
+
+        const guildId = link.dataset.discordGuild || '';
+        const invite = (link.getAttribute('href') || '').split('/').filter(Boolean).pop();
+        const CACHE_KEY = 'cripsum_discord_online';
+        const CACHE_MS = 5 * 60 * 1000;
+
+        const show = (count) => {
+            if (!Number.isFinite(count) || count <= 0) return;
+            badge.textContent = `${count} online`;
+            badge.hidden = false;
+        };
+
+        // Discord non ama essere interrogato a ogni visita, e il numero cambia
+        // lentamente: cinque minuti di cache per scheda bastano.
+        try {
+            const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
+            if (cached && Date.now() - cached.at < CACHE_MS) {
+                show(cached.count);
+                return;
+            }
+        } catch { /* sessionStorage non disponibile: si chiede e basta */ }
+
+        const remember = (count) => {
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ count, at: Date.now() })); }
+            catch { /* niente cache, pazienza */ }
+        };
+
+        const fetchJson = async (url) => {
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) throw new Error(String(response.status));
+            return response.json();
+        };
+
+        (async () => {
+            if (guildId) {
+                try {
+                    const data = await fetchJson(`https://discord.com/api/guilds/${guildId}/widget.json`);
+                    const count = Number(data?.presence_count);
+                    if (count > 0) { show(count); remember(count); return; }
+                } catch { /* widget spento: si prova l'invito */ }
+            }
+
+            if (!invite) return;
+
+            try {
+                const data = await fetchJson(`https://discord.com/api/v10/invites/${invite}?with_counts=true`);
+                const count = Number(data?.approximate_presence_count);
+                if (count > 0) { show(count); remember(count); }
+            } catch { /* si lascia il bottone senza numero */ }
+        })();
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initReveal();
+        initDiscordCount();
+        initShowcase();
+    });
 })();

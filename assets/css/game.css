@@ -25,32 +25,6 @@ body.game-page {
     overflow-x: hidden;
 }
 
-.game-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -5;
-    overflow: hidden;
-    background: #050812;
-    pointer-events: none;
-}
-
-.game-bg span {
-    position: absolute;
-    width: 34rem;
-    height: 34rem;
-    border-radius: 999px;
-    filter: blur(90px);
-    opacity: .34;
-    animation: gameFloat 11s ease-in-out infinite alternate;
-}
-
-.game-bg span:first-child { top: 5%; left: -12rem; background: rgba(124, 58, 237, .65); }
-.game-bg span:last-child { right: -12rem; bottom: 8%; background: rgba(6, 182, 212, .46); animation-delay: -3s; }
-
-@keyframes gameFloat {
-    from { transform: translate3d(0, 0, 0) scale(1); }
-    to { transform: translate3d(28px, -24px, 0) scale(1.06); }
-}
 
 .game-shell {
     width: min(1280px, calc(100% - 32px));
@@ -3403,11 +3377,6 @@ html:root body.game-page {
 html:root body.game-page:not([data-page="duel-arena"]) {
     --game-accent: #f5f5f7;
     --game-accent2: #f5f5f7;
-}
-
-/* Macchie sfocate sullo sfondo. */
-html:root .game-bg {
-    display: none;
 }
 
 /* ── Riquadri ────────────────────────────────────────────── */

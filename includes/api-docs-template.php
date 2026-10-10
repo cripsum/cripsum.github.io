@@ -80,8 +80,6 @@ $leaderboardTypes = ['godos', 'shards', 'pulls', 'collection', 'achievements', '
 <body class="api-docs-body">
     <?php include __DIR__ . '/navbar.php'; ?>
 
-    <div class="docs-bg" aria-hidden="true"></div>
-    <div class="docs-grid" aria-hidden="true"></div>
 
     <main class="docs-page">
         <section class="docs-hero">

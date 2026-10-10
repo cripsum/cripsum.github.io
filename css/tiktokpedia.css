@@ -23,42 +23,6 @@ body.tiktokpedia-page {
     overflow-x: hidden;
 }
 
-.tp-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -5;
-    overflow: hidden;
-    background: #040207;
-    pointer-events: none;
-}
-
-.tp-bg span {
-    position: absolute;
-    width: 34rem;
-    height: 34rem;
-    border-radius: 999px;
-    filter: blur(90px);
-    opacity: .34;
-    animation: tpFloat 11s ease-in-out infinite alternate;
-}
-
-.tp-bg span:first-child {
-    top: 5%;
-    left: -12rem;
-    background: rgba(255, 45, 141, .68);
-}
-
-.tp-bg span:last-child {
-    right: -12rem;
-    bottom: 8%;
-    background: rgba(155, 92, 255, .52);
-    animation-delay: -3s;
-}
-
-@keyframes tpFloat {
-    from { transform: translate3d(0, 0, 0) scale(1); }
-    to { transform: translate3d(28px, -24px, 0) scale(1.06); }
-}
 
 .tp-shell {
     width: min(1180px, calc(100% - 32px));
@@ -523,10 +487,6 @@ html:root body.tiktokpedia-page {
     --tp-purple: var(--nx-text);
     --tp-radius: var(--nx-radius);
     background: var(--nx-bg);
-}
-
-html:root .tp-bg {
-    display: none;
 }
 
 html:root :is(.tp-hero, .tp-toolbar, .tp-card, .tp-empty, .tp-note) {

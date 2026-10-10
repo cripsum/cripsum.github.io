@@ -181,7 +181,6 @@ $keybinds = [
 <body class="game-page">
     <?php include __DIR__ . '/../navbar.php'; ?>
 
-    <div class="game-bg" aria-hidden="true"><span></span><span></span></div>
 
     <script type="application/json" id="subwayCatalog"><?= $catalogJson ?></script>
 

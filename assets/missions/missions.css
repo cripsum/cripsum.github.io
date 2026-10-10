@@ -64,35 +64,6 @@ body.msn-page {
     background: #02040a;
 }
 
-.msn-orb {
-    position: absolute;
-    width: 30rem;
-    height: 30rem;
-    border-radius: 999px;
-    filter: blur(78px);
-    opacity: 0.34;
-    pointer-events: none;
-    animation: msnFloat 10s ease-in-out infinite alternate;
-}
-.msn-orb--one { top: 7%;  left: -10rem; background: rgba(var(--msn-accent-rgb), 0.62); }
-.msn-orb--two { right: -10rem; bottom: 8%; background: rgba(var(--msn-purple-rgb), 0.46); animation-delay: -3s; }
-
-.msn-grid-bg {
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255,255,255,0.026) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.026) 1px, transparent 1px);
-    background-size: 76px 76px;
-    mask-image: linear-gradient(to bottom, transparent, black 18%, transparent 92%);
-    opacity: 0.32;
-    pointer-events: none;
-}
-
-@keyframes msnFloat {
-    from { transform: translate3d(0,0,0) scale(1); }
-    to   { transform: translate3d(28px,-22px,0) scale(1.06); }
-}
 
 /* ─────────────────────────────────────────────────────────────
    SHELL
@@ -737,12 +708,6 @@ html:root {
 
 html:root body.msn-page {
     background: var(--nx-bg);
-}
-
-/* Macchie sfocate e griglia di linee sullo sfondo. */
-html:root .msn-orb,
-html:root .msn-grid-bg {
-    display: none;
 }
 
 html:root .msn-shell :focus-visible {

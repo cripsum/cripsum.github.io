@@ -5,7 +5,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = '2 ottobre 2026';
+$lastUpdated = '10 ottobre 2026';
 ?>
 <!DOCTYPE html>
 <html lang="it"<?= cripsum_theme_html_attr() ?>>
@@ -23,9 +23,6 @@ $lastUpdated = '2 ottobre 2026';
     <?php include '../includes/navbar.php'; ?>
 
     <div class="static-bg" aria-hidden="true">
-        <span class="static-orb static-orb--one"></span>
-        <span class="static-orb static-orb--two"></span>
-        <span class="static-grid-bg"></span>
     </div>
 
     <main class="static-shell">
@@ -221,7 +218,7 @@ $lastUpdated = '2 ottobre 2026';
 
                 <section class="static-legal-section static-reveal" id="cookie">
                     <h2>6. Cookie e statistiche</h2>
-                    <p>Usiamo cookie tecnici per farti restare connesso, ricordare lingua e tema e proteggere l'account: senza, il sito non funziona. Usiamo anche Google Analytics per contare le visite, con Google Signals e personalizzazione degli annunci disattivati. È attivo di default e puoi spegnerlo quando vuoi dal pulsante «Google Analytics» nel footer: spegnerlo non cambia nulla nel funzionamento del sito. Tutti i dettagli sono nella <a href="cookie">Cookie policy</a>.</p>
+                    <p>Usiamo cookie tecnici per farti restare connesso, ricordare la lingua e proteggere l'account: senza, il sito non funziona. Usiamo anche Google Analytics per contare le visite, con Google Signals e personalizzazione degli annunci disattivati. È attivo di default e puoi spegnerlo quando vuoi dal pulsante «Google Analytics» nel footer: spegnerlo non cambia nulla nel funzionamento del sito. Tutti i dettagli sono nella <a href="cookie">Cookie policy</a>.</p>
                 </section>
 
                 <section class="static-legal-section static-reveal" id="destinatari">

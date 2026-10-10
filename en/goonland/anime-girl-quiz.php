@@ -454,7 +454,6 @@ if (isset($_GET['quiz_api']) && $_GET['quiz_api'] === 'danbooru_result') {
     <?php include '../../includes/navbar-goonland.php'; ?>
 
 
-    <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
     <img src="https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif" class="goonrpcimg" style="display:none" alt="">
 
     <main class="gl-shell gl-quiz-shell">

@@ -74,32 +74,6 @@ img {
     max-width: 100%;
 }
 
-.cp-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -10;
-    overflow: hidden;
-    pointer-events: none;
-    background: radial-gradient(circle at 8% 6%, rgba(var(--cp-accent-rgb), 0.22), transparent 34rem), radial-gradient(circle at 92% 18%, rgba(var(--cp-purple-rgb), 0.16), transparent 28rem),
-        linear-gradient(135deg, var(--cp-bg), var(--cp-bg-2));
-}
-
-.cp-bg__grid {
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-    background-size: 72px 72px;
-    mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 78%, transparent);
-    opacity: 0.6;
-}
-
-.cp-bg__scan {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.018) 1px, transparent 1px, transparent 8px);
-    opacity: 0.35;
-}
-
 .cp-progress {
     position: fixed;
     top: 0;
@@ -3128,18 +3102,9 @@ mark.cp-highlight {
     --cp-shadow: 0 24px 74px rgba(0, 0, 0, 0.48);
 }
 
-body.cp-body,
-.cp-bg {
+body.cp-body {
     background: radial-gradient(circle at 10% 0%, rgba(var(--cp-accent-rgb), 0.18), transparent 30rem), radial-gradient(circle at 92% 12%, rgba(var(--cp-purple-rgb), 0.12), transparent 28rem),
         linear-gradient(135deg, var(--cp-bg), var(--cp-bg-2));
-}
-
-.cp-bg__grid {
-    opacity: 0.34;
-}
-
-.cp-bg__scan {
-    opacity: 0.18;
 }
 
 .cp-shell {
@@ -4167,11 +4132,6 @@ html:root body.cp-body {
     --cp-radius: 20px;
     --cp-shadow: none;
     background: var(--nx-bg);
-}
-
-/* Sfondo: macchie, griglia e righe da monitor. */
-html:root body.cp-body .cp-bg {
-    display: none;
 }
 
 /* La barra di lettura: una riga bianca, senza alone. */

@@ -165,17 +165,20 @@
         <link rel="apple-touch-icon" href="/img/app-192.png" />
         <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
         <link rel="stylesheet" href="/css/style.css?v=28" />
-        <link rel="stylesheet" href="/css/style-dark.css?v=24" />
         <link rel="stylesheet" href="/css/navbar-search.css?v=<?= @filemtime(__DIR__ . '/../css/navbar-search.css') ?: 1 ?>" />
         <link rel="stylesheet" href="/css/animations.css" />
         <link rel="stylesheet" href="/css/achievement-style.css?v=3.0" />
         <link rel="stylesheet" href="/assets/auth/password-strength.css?v=1.1" />
+        <?php /* style-dark.css sta dopo i quattro fogli qui sopra, e non subito dopo style.css,
+                 perche' e' li' che e' sempre stato letto: fino a ottobre 2026 uno script
+                 del vecchio selettore dei temi lo rimetteva in pagina una seconda volta,
+                 in questo punto. Spostarlo cambierebbe chi vince tra regole dello stesso peso. */ ?>
+        <link rel="stylesheet" href="/css/style-dark.css?v=24" />
         <script src="/assets/auth/password-strength.js?v=1.1" defer></script>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="/js/animations.js"></script>
         <script src="/js/controlloLingua-it.js?v=2"></script>
-        <script src="/js/controlloTema.js"></script>
         <script src="/js/impostazioni.js?v=2"></script>
         <?php /* Popup e richieste di sblocco: un file solo per le due lingue. Il resto lo conta il server (includes/achievements.php). */ ?>
         <script src="/js/achievements-popup.js?v=3.1"></script>

@@ -42,48 +42,6 @@ body.form-page {
     overflow: hidden;
 }
 
-.form-orb,
-.form-grid-bg {
-    position: absolute;
-    pointer-events: none;
-}
-
-.form-orb {
-    width: 30rem;
-    height: 30rem;
-    border-radius: 999px;
-    filter: blur(78px);
-    opacity: .34;
-    animation: formFloat 10s ease-in-out infinite alternate;
-}
-
-.form-orb--one {
-    top: 7%;
-    left: -10rem;
-    background: rgba(var(--forms-accent-rgb), .62);
-}
-
-.form-orb--two {
-    right: -10rem;
-    bottom: 8%;
-    background: rgba(139, 92, 246, .46);
-    animation-delay: -3s;
-}
-
-.form-grid-bg {
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, .026) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, .026) 1px, transparent 1px);
-    background-size: 76px 76px;
-    mask-image: linear-gradient(to bottom, transparent, black 18%, transparent 92%);
-    opacity: .32;
-}
-
-@keyframes formFloat {
-    from { transform: translate3d(0, 0, 0) scale(1); }
-    to { transform: translate3d(28px, -22px, 0) scale(1.06); }
-}
 
 .form-shell {
     width: min(1120px, calc(100% - 32px));
@@ -569,9 +527,7 @@ html:root .form-bg {
     background: var(--nx-bg);
 }
 
-/* Le due macchie sfocate che galleggiano e la griglia di linee. */
-html:root .form-orb,
-html:root .form-grid-bg,
+/* La decorazione di sfondo della pagina. */
 html:root body.form-page::before {
     display: none;
 }

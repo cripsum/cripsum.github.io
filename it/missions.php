@@ -74,9 +74,6 @@ function msn_h(mixed $v): string
 
     <!-- ── Sfondo ───────────────────────────────────────────── -->
     <div class="msn-bg" aria-hidden="true">
-        <span class="msn-orb msn-orb--one"></span>
-        <span class="msn-orb msn-orb--two"></span>
-        <span class="msn-grid-bg"></span>
     </div>
 
     <main class="msn-shell">

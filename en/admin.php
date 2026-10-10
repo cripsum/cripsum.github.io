@@ -30,11 +30,6 @@ $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/impostazioni.php'; ?>
 
-    <div class="admin-bg" aria-hidden="true">
-        <span class="admin-orb admin-orb--one"></span>
-        <span class="admin-orb admin-orb--two"></span>
-        <span class="admin-grid"></span>
-    </div>
 
     <main class="admin-shell">
         <aside class="admin-sidebar" aria-label="Navigazione admin">

@@ -84,24 +84,6 @@ body.rw-page {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
-.rw-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.45;
-    z-index: 1;
-    pointer-events: none;
-    animation: rw-float 22s ease-in-out infinite;
-    transition: background 700ms var(--rw-emphasized);
-}
-
-.rw-orb--a { width: 52vmax; height: 52vmax; top: -18vmax; left: -12vmax; background: var(--rw-slide-1, #2f6bff); }
-.rw-orb--b { width: 44vmax; height: 44vmax; bottom: -20vmax; right: -14vmax; background: var(--rw-slide-2, #7c5cff); animation-delay: -8s; }
-
-@keyframes rw-float {
-    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-    50%      { transform: translate3d(5vmin, -4vmin, 0) scale(1.14); }
-}
 
 /* ─────────────────────────────────────────────────────────────
    BARRA DI AVANZAMENTO
@@ -1653,10 +1635,6 @@ html:root .rw-bg-layer {
     background:
         radial-gradient(140% 100% at 50% -20%, var(--rw-slide-1, transparent) 0%, transparent 58%),
         var(--nx-bg);
-}
-
-html:root .rw-orb {
-    display: none;
 }
 
 /* ── Vetro: via la sfocatura, resta il riquadro ──────────── */

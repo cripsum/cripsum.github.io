@@ -90,9 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 
     <div class="form-bg" aria-hidden="true">
-        <span class="form-orb form-orb--one"></span>
-        <span class="form-orb form-orb--two"></span>
-        <span class="form-grid-bg"></span>
     </div>
 
 

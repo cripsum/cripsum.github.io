@@ -36,56 +36,6 @@ body.api-docs-body {
     max-width: 100%;
 }
 
-.docs-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -5;
-    overflow: hidden;
-    background: #02040a;
-}
-
-.docs-bg::before,
-.docs-bg::after {
-    content: "";
-    position: absolute;
-    width: 34rem;
-    height: 34rem;
-    border-radius: 999px;
-    filter: blur(82px);
-    opacity: 0.34;
-    animation: docsFloat 10s ease-in-out infinite alternate;
-}
-
-.docs-bg::before {
-    top: 6%;
-    left: -12rem;
-    background: rgba(47, 107, 255, 0.68);
-}
-
-.docs-bg::after {
-    right: -12rem;
-    bottom: 10%;
-    background: rgba(139, 92, 246, 0.5);
-    animation-delay: -3.5s;
-}
-
-.docs-grid {
-    position: fixed;
-    inset: 0;
-    z-index: -4;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
-    background-size: 76px 76px;
-    mask-image: linear-gradient(to bottom, transparent, black 18%, transparent 92%);
-    opacity: 0.34;
-    pointer-events: none;
-}
-
-@keyframes docsFloat {
-    from { transform: translate3d(0, 0, 0) scale(1); }
-    to { transform: translate3d(26px, -20px, 0) scale(1.06); }
-}
 
 .docs-page {
     width: min(1180px, calc(100% - 32px));
@@ -534,8 +484,6 @@ html:root body.api-docs-body {
 }
 
 /* Macchie sfocate e griglia di linee sullo sfondo. */
-html:root .docs-bg,
-html:root .docs-grid,
 html:root .docs-hero::after {
     display: none;
 }

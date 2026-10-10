@@ -65,12 +65,6 @@ function tp_h($value): string
 
 <body class="tiktokpedia-page">
     <?php include '../includes/navbar.php'; ?>
-    
-
-    <div class="tp-bg" aria-hidden="true">
-        <span></span>
-        <span></span>
-    </div>
 
     <main class="tp-shell">
         <section class="tp-hero tp-reveal">

@@ -24,9 +24,6 @@ $lastUpdated = '2 ottobre 2026';
     <?php include '../includes/navbar.php'; ?>
 
     <div class="static-bg" aria-hidden="true">
-        <span class="static-orb static-orb--one"></span>
-        <span class="static-orb static-orb--two"></span>
-        <span class="static-grid-bg"></span>
     </div>
 
     <main class="static-shell">

@@ -5,7 +5,7 @@
    Va insieme a includes/home_next.php. La fila dei supporter tiene i nomi di
    classe di sempre (.supporters-grid, .supporter-card) perche' sono quelli
    che cerca js/home-supporters.js, riusato qui tale e quale; .home-reveal e'
-   la classe che assets/home-v5/home.js fa comparire allo scorrimento.
+   la classe che home.js fa comparire allo scorrimento.
 
    I colori e il carattere arrivano da assets/global/theme.css.
 
@@ -345,7 +345,7 @@
 }
 
 /* ── Comparsa allo scorrimento ────────────────────────────────
-   home-v5/home.js aggiunge .is-visible quando l'elemento entra nello schermo.
+   home.js aggiunge .is-visible quando l'elemento entra nello schermo.
    La sfocatura dei riquadri sta sul riquadro intero e non sulla foto: sfocando
    solo la foto i bordi sbiadivano verso l'interno.
 
@@ -441,7 +441,7 @@ html:not(.home-wait) .home-tile.home-reveal.is-visible {
    Una voce alla volta in grande e, sotto, tutte le voci in miniatura. Sta
    tutta dentro la larghezza del contenuto: niente che esce dai bordi.
 
-   Le miniature sono link veri alla loro pagina; home-next/home.js le fa
+   Le miniature sono link veri alla loro pagina; home.js le fa
    diventare anche il selettore della voce in grande, e quando la vetrina
    scorre da sola aggiunge .is-live (la linea sopra la miniatura attiva si
    riempie e fa da orologio), .is-held mentre e' ferma per un momento e

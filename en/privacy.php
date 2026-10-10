@@ -5,7 +5,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = 'October 2, 2026';
+$lastUpdated = 'October 10, 2026';
 ?>
 <!DOCTYPE html>
 <html lang="en"<?= cripsum_theme_html_attr() ?>>
@@ -23,9 +23,6 @@ $lastUpdated = 'October 2, 2026';
     <?php include '../includes/navbar.php'; ?>
 
     <div class="static-bg" aria-hidden="true">
-        <span class="static-orb static-orb--one"></span>
-        <span class="static-orb static-orb--two"></span>
-        <span class="static-grid-bg"></span>
     </div>
 
     <main class="static-shell">
@@ -221,7 +218,7 @@ $lastUpdated = 'October 2, 2026';
 
                 <section class="static-legal-section static-reveal" id="cookies">
                     <h2>6. Cookies and analytics</h2>
-                    <p>We use technical cookies to keep you signed in, remember language and theme and protect your account: without them the site does not work. We also use Google Analytics to count visits, with Google Signals and ad personalisation turned off. It is on by default and you can turn it off at any time with the «Google Analytics» button in the footer: turning it off changes nothing in how the site works. All the details are in the <a href="cookie">Cookie Policy</a>.</p>
+                    <p>We use technical cookies to keep you signed in, remember your language and protect your account: without them the site does not work. We also use Google Analytics to count visits, with Google Signals and ad personalisation turned off. It is on by default and you can turn it off at any time with the «Google Analytics» button in the footer: turning it off changes nothing in how the site works. All the details are in the <a href="cookie">Cookie Policy</a>.</p>
                 </section>
 
                 <section class="static-legal-section static-reveal" id="recipients">

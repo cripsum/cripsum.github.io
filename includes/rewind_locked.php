@@ -76,7 +76,7 @@ function rewind_render_locked_page(string $lang = 'it'): void
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#05070d">
+    <meta name="theme-color" content="#0a0a0b">
     <meta name="robots" content="noindex">
     <title><?php echo $h($t['title']); ?></title>
     <link rel="stylesheet"
@@ -89,8 +89,6 @@ function rewind_render_locked_page(string $lang = 'it'): void
 <body class="rw-page">
     <main class="rw-stage">
         <div class="rw-bg-layer">
-            <span class="rw-orb rw-orb--a" aria-hidden="true"></span>
-            <span class="rw-orb rw-orb--b" aria-hidden="true"></span>
         </div>
         <div class="rw-grain" aria-hidden="true"></div>
 

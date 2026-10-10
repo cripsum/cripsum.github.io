@@ -1148,7 +1148,7 @@ function cp_render_head(string $title, string $description, string $lang, string
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#05070d">
+    <meta name="theme-color" content="#0a0a0b">
     <title><?= cp_h($title) ?></title>
     <link rel="icon" href="/img/Susremaster.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1174,10 +1174,6 @@ function cp_render_head(string $title, string $description, string $lang, string
 function cp_render_background(): void
 {
 ?>
-    <div class="cp-bg" aria-hidden="true">
-        <div class="cp-bg__grid"></div>
-        <div class="cp-bg__scan"></div>
-    </div>
     <div class="cp-progress" data-cp-progress aria-hidden="true"></div>
 <?php
 }

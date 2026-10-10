@@ -153,8 +153,6 @@ $eLinkIcon = static fn(string $url): string => str_contains($url, 'tiktok.com') 
     <?php include __DIR__ . '/../navbar.php'; ?>
 
     <div class="edits-bg" aria-hidden="true">
-        <span class="edits-orb edits-orb--one"></span>
-        <span class="edits-orb edits-orb--two"></span>
     </div>
 
     <main class="edits-shell">

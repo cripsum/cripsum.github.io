@@ -317,7 +317,6 @@ if (isset($_GET['sop_api']) && $_GET['sop_api'] === '1') {
 <body class="goonland-page" data-goonland-page="smash-pass">
     <?php include '../../includes/navbar-goonland.php'; ?>
 
-    <div class="gl-bg" aria-hidden="true"><span></span><span></span></div>
     <img src="https://media1.tenor.com/m/QJ7OYh157fcAAAAC/sonic.gif" class="goonrpcimg" style="display:none" alt="">
 
     <main class="gl-shell gl-sp-shell">

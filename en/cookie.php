@@ -5,7 +5,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = 'October 2, 2026';
+$lastUpdated = 'October 10, 2026';
 ?>
 <!DOCTYPE html>
 <html lang="en"<?= cripsum_theme_html_attr() ?>>
@@ -23,9 +23,6 @@ $lastUpdated = 'October 2, 2026';
     <?php include '../includes/navbar.php'; ?>
 
     <div class="static-bg" aria-hidden="true">
-        <span class="static-orb static-orb--one"></span>
-        <span class="static-orb static-orb--two"></span>
-        <span class="static-grid-bg"></span>
     </div>
 
     <main class="static-shell">
@@ -83,11 +80,6 @@ $lastUpdated = 'October 2, 2026';
                                     <td><code>cripsum_lang</code></td>
                                     <td>Remembers the language (Italian or English)</td>
                                     <td>1 year</td>
-                                </tr>
-                                <tr>
-                                    <td><code>theme</code></td>
-                                    <td>Remembers the chosen theme</td>
-                                    <td>Until you change it</td>
                                 </tr>
                                 <tr>
                                     <td>Achievement and page cookies</td>

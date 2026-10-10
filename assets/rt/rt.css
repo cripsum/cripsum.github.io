@@ -1,7 +1,6 @@
 /*
  * Avvisi in tempo reale (assets/rt/rt.js): i riquadri in basso e il pannello
- * delle preferenze. Sta su tutte le pagine con la navbar, quindi usa i suoi
- * colori e segue il tema chiaro/scuro (data-cnav-theme su <html>).
+ * delle preferenze. Sta su tutte le pagine con la navbar.
  *
  * Si animano solo opacità e trasformazioni.
  */
@@ -15,14 +14,6 @@
     --crt-muted: #aab3c8;
     --crt-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
     --crt-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-html[data-cnav-theme="light"] {
-    --crt-bg: rgba(255, 255, 255, 0.98);
-    --crt-border: rgba(20, 20, 20, 0.12);
-    --crt-text: #1c1c1e;
-    --crt-muted: #5f6577;
-    --crt-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
 }
 
 /* Il contatore di una voce della navbar resta nel DOM anche a zero. */

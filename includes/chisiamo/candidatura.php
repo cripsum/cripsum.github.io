@@ -155,9 +155,6 @@ $cOldValue = static fn(string $key, string $fallback = ''): string => shop_h($cO
     <?php include __DIR__ . '/../navbar.php'; ?>
 
     <div class="form-bg" aria-hidden="true">
-        <span class="form-orb form-orb--one"></span>
-        <span class="form-orb form-orb--two"></span>
-        <span class="form-grid-bg"></span>
     </div>
 
     <main class="form-shell form-shell--medium">

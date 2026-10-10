@@ -136,7 +136,7 @@ $copy = [
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ — Animespot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#050706">
+    <meta name="theme-color" content="#0a0a0b">
     <meta property="og:site_name" content="Cripsum™">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Animespot — Cripsum™">

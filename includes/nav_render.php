@@ -552,20 +552,6 @@ if (!function_exists('nav_bootstrap')) {
         $jsVer  = @filemtime(__DIR__ . '/../js/navbar.js') ?: 1;
         ?>
         <?php if ($emitAssets): ?>
-            <script>
-                // Il tema arriva dallo stesso cookie che legge controlloTema.js.
-                // Va scritto prima che la navbar venga disegnata, altrimenti il
-                // menu lampeggia scuro su tema chiaro.
-                (function () {
-                    try {
-                        var m = document.cookie.match(/(?:^|; )theme=([^;]*)/);
-                        var v = m ? parseInt(decodeURIComponent(m[1]), 10) : 1;
-                        document.documentElement.setAttribute('data-cnav-theme', v === 2 ? 'light' : 'dark');
-                    } catch (e) {
-                        document.documentElement.setAttribute('data-cnav-theme', 'dark');
-                    }
-                })();
-            </script>
             <link rel="stylesheet" href="/css/navbar.css?v=<?= $cssVer ?>">
         <?php endif; ?>
 

@@ -83,18 +83,6 @@ html.cm-lock body {
     pointer-events: none;
 }
 
-.cm-orb {
-    position: absolute;
-    width: 34rem;
-    height: 34rem;
-    border-radius: 50%;
-    filter: blur(110px);
-    opacity: 0.26;
-}
-
-.cm-orb--one { top: -9rem; left: -11rem; background: var(--cm-blue); }
-.cm-orb--two { top: 22%; right: -14rem; background: var(--cm-purple); opacity: 0.2; }
-
 .cm-shell {
     width: min(1240px, calc(100% - 32px));
     margin: 0 auto;
@@ -1924,11 +1912,6 @@ html:root .cm-page {
 
 html:root body.cm-page {
     background: var(--nx-bg);
-}
-
-/* Le due macchie sfocate sullo sfondo. */
-html:root .cm-orb {
-    display: none;
 }
 
 html:root :is(.cm-shell, .cm-viewer, .cm-sheet, .cm-menu, .cm-picker) :focus-visible {

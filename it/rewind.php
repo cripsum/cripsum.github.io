@@ -59,7 +59,7 @@ function rw_h(mixed $value): string
     <?php include '../includes/head-import.php'; ?>
     <title>Cripsum™ — <?php echo rw_h($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-    <meta name="theme-color" content="#05070d">
+    <meta name="theme-color" content="#0a0a0b">
     <meta property="og:site_name" content="Cripsum™">
     <meta property="og:type" content="website">
     <meta property="og:title" content="<?php echo rw_h($pageTitle); ?> — Cripsum™">
@@ -88,8 +88,6 @@ function rw_h(mixed $value): string
 
     <main class="rw-stage" data-rw-root>
         <div class="rw-bg-layer" data-rw-bg>
-            <span class="rw-orb rw-orb--a" aria-hidden="true"></span>
-            <span class="rw-orb rw-orb--b" aria-hidden="true"></span>
         </div>
         <div class="rw-grain" aria-hidden="true"></div>
 

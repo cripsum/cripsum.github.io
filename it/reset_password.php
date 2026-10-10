@@ -23,9 +23,6 @@ if (!preg_match('/^[a-f0-9]{64}$/', $token)) $token = '';
 
 
     <div class="form-bg" aria-hidden="true">
-        <span class="form-orb form-orb--one"></span>
-        <span class="form-orb form-orb--two"></span>
-        <span class="form-grid-bg"></span>
     </div>
 
 

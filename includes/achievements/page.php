@@ -148,9 +148,6 @@ $achJsVer = @filemtime(__DIR__ . '/../../assets/achievements/achievements.js') ?
     <?php include __DIR__ . '/../navbar.php'; ?>
 
     <div class="ach-bg" aria-hidden="true">
-        <span class="ach-orb ach-orb--one"></span>
-        <span class="ach-orb ach-orb--two"></span>
-        <span class="ach-grid-bg"></span>
     </div>
 
     <main class="ach-shell" id="achApp">

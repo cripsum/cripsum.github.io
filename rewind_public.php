@@ -70,7 +70,7 @@ $ogDescription = $payload
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?php echo rwp_h($ogTitle); ?></title>
     <meta name="description" content="<?php echo rwp_h($ogDescription); ?>">
-    <meta name="theme-color" content="#05070d">
+    <meta name="theme-color" content="#0a0a0b">
 
     <meta property="og:site_name" content="Cripsum™">
     <meta property="og:type" content="website">
@@ -147,8 +147,6 @@ $ogDescription = $payload
 
     <main class="rw-stage" data-rw-root>
         <div class="rw-bg-layer" data-rw-bg>
-            <span class="rw-orb rw-orb--a" aria-hidden="true"></span>
-            <span class="rw-orb rw-orb--b" aria-hidden="true"></span>
         </div>
         <div class="rw-grain" aria-hidden="true"></div>
 

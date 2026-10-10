@@ -63,11 +63,8 @@ html[data-theme="next"] {
 }
 
 /* Gli avvisi in tempo reale (assets/rt/rt.css) hanno gia' i loro colori in
-   variabili: basta spostarle sui neutri del tema. Il secondo selettore serve
-   a chi ha ancora nel browser il cookie del vecchio tema chiaro: la navbar
-   scrive data-cnav-theme="light" e gli avvisi rimetterebbero i colori chiari. */
-html[data-theme="next"],
-html[data-theme="next"][data-cnav-theme="light"] {
+   variabili: basta spostarle sui neutri del tema. */
+html[data-theme="next"] {
     --crt-accent: var(--nx-text);
     --crt-accent-rgb: 245, 245, 247;
     --crt-bg: var(--nx-surface);

@@ -12,9 +12,8 @@
  *
  * La fila dei supporter usa le classi di sempre (.supporter-card,
  * .supporters-grid) perche' sono quelle che cerca js/home-supporters.js,
- * riusato qui senza modifiche; da assets/home-v5/home.js arrivano ancora la
- * comparsa allo scorrimento e il contatore di Discord. Lo stile invece e'
- * tutto in assets/home-next/home.css.
+ * riusato qui senza modifiche. Stile e script della pagina stanno in
+ * assets/home/ (home.css, home.js).
  */
 
 $hxIsEn = ($homeLang ?? 'it') === 'en';
@@ -164,9 +163,8 @@ $hxPaddleIcon = '<svg viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 7 
 // ricomincia a meta'.
 $hxJokeRepeats = range(1, 8);
 
-$hxHomeCss = cripsum_asset('/assets/home-next/home.css');
-$hxHomeJs = cripsum_asset('/assets/home-next/home.js');
-$hxSharedJs = cripsum_asset('/assets/home-v5/home.js');
+$hxHomeCss = cripsum_asset('/assets/home/home.css');
+$hxHomeJs = cripsum_asset('/assets/home/home.js');
 $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
 ?>
 <!DOCTYPE html>
@@ -200,7 +198,6 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
     </script>
     <?php /* Senza script niente farebbe comparire le sezioni: le si mostra subito. */ ?>
     <noscript><style>.home-reveal { opacity: 1 !important; filter: none !important; transform: none !important; }</style></noscript>
-    <script src="<?= home_h($hxSharedJs) ?>" defer></script>
     <script src="<?= home_h($hxHomeJs) ?>" defer></script>
     <script src="/assets/news/news-popup.js?v=1.1" defer></script>
 </head>
@@ -270,7 +267,7 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
                 <?php /* Una voce alla volta in grande, e sotto tutte le altre in
                          miniatura. La prima sta gia' nell'HTML e ogni miniatura e'
                          un link vero alla sua pagina: senza script la sezione
-                         resta usabile. Il resto lo fa home-next/home.js, che
+                         resta usabile. Il resto lo fa home.js, che
                          legge testi e immagini dagli attributi delle miniature. */ ?>
                 <div class="home-showcase home-reveal" id="homeShowcase" style="--d: 120">
                     <div class="home-stage" id="homeStage">

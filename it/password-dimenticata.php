@@ -23,9 +23,6 @@ $user_id = $_SESSION['user_id'] ?? null;
 
 
     <div class="form-bg" aria-hidden="true">
-        <span class="form-orb form-orb--one"></span>
-        <span class="form-orb form-orb--two"></span>
-        <span class="form-grid-bg"></span>
     </div>
 
 

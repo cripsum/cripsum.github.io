@@ -72,8 +72,7 @@ function home_slides_load(?mysqli $mysqli, string $lang = 'it'): array
  * Le slide di riserva, per quando home_slides_load() torna vuota.
  *
  * La homepage stampa la sezione dal server invece di costruirla nel browser,
- * quindi la riserva sta qui. La copia scritta dentro assets/home-v5/home.js
- * serviva alla home di prima: non la legge piu' nessuno.
+ * quindi la riserva sta qui.
  *
  * @return array<int, array{media:string, title:string, description:string, buttonText:string, link:string}>
  */
