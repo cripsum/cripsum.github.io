@@ -1828,15 +1828,7 @@ html.lm-lock body.lb-page {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Lootbox: pagina dei banner e finestre
-   ============================================================
-
-   Correzioni a css/lootbox-v3.css (la pagina dei banner) e a
-   css/lootbox-modal.css (impostazioni, classifica, cronologia, dettagli,
-   valute). Gli originali non si toccano.
-
-   NON si tocca niente di quello che succede dopo aver premuto «Apri»:
+/* NON si tocca niente di quello che succede dopo aver premuto «Apri»:
    css/gacha.css, js/gacha-effects.js, l'animazione del personaggio, il
    riepilogo. Qui non c'e' una sola regola per quelle classi.
 
@@ -1845,8 +1837,7 @@ html.lm-lock body.lb-page {
    barra del pity nei suoi toni, le rarita' dei personaggi in rate-up, le
    animazioni d'ingresso e il riflesso sul pulsante. Cambia il contorno:
    pulsanti, portafoglio, elenco dei banner, strumenti, riquadro del
-   Premium, etichette, finestre.
-   ============================================================ */
+   Premium, etichette, finestre. */
 html:root .lb-page {
     --bg: var(--nx-bg);
     --line: var(--nx-line);

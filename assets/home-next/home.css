@@ -1,9 +1,8 @@
 /* ============================================================
-   Homepage, tema nuovo
+   Homepage
    ============================================================
 
-   Va insieme a includes/home_next.php e viene caricato al posto di
-   assets/home-v5/home.css, mai insieme. La fila dei supporter tiene i nomi di
+   Va insieme a includes/home_next.php. La fila dei supporter tiene i nomi di
    classe di sempre (.supporters-grid, .supporter-card) perche' sono quelli
    che cerca js/home-supporters.js, riusato qui tale e quale; .home-reveal e'
    la classe che assets/home-v5/home.js fa comparire allo scorrimento.
@@ -333,10 +332,26 @@
     from { scale: 1.06; }
 }
 
+/* Finche' il carattere non e' arrivato l'ingresso resta fermo al suo inizio: lo
+   dice .home-wait, che uno script in testa alla pagina mette e toglie. Senza,
+   il titolo cambiava righe mentre le parole stavano salendo. */
+.home-wait .home-word > span,
+.home-wait .home-hero__lead,
+.home-wait .home-hero__question,
+.home-wait .home-hero .home-actions,
+.home-wait .home-hero__media,
+.home-wait .home-hero__media img {
+    animation-play-state: paused;
+}
+
 /* ── Comparsa allo scorrimento ────────────────────────────────
    home-v5/home.js aggiunge .is-visible quando l'elemento entra nello schermo.
    La sfocatura dei riquadri sta sul riquadro intero e non sulla foto: sfocando
-   solo la foto i bordi sbiadivano verso l'interno. */
+   solo la foto i bordi sbiadivano verso l'interno.
+
+   Come la testata, anche quello che e' gia' nello schermo all'apertura aspetta
+   il carattere (.home-wait): altrimenti comparirebbe mentre la pagina sotto il
+   titolo si sta ancora spostando. */
 
 .home-reveal {
     opacity: 0;
@@ -345,7 +360,7 @@
     transition-delay: calc(var(--d, 0) * 1ms);
 }
 
-.home-reveal.is-visible {
+html:not(.home-wait) .home-reveal.is-visible {
     opacity: 1;
     transform: none;
 }
@@ -357,8 +372,10 @@
     transition-delay: calc(var(--d, 0) * 1ms);
 }
 
-.home-tile.home-reveal.is-visible {
-    filter: blur(0);
+/* A fine comparsa il filtro si toglie del tutto: blur(0) non si vede, ma resta
+   un filtro acceso su ogni riquadro, che il telefono ridisegna mentre si scorre. */
+html:not(.home-wait) .home-tile.home-reveal.is-visible {
+    filter: none;
     transform: none;
 }
 

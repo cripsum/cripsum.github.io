@@ -1852,14 +1852,7 @@ a.es-palmares__name i {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Team OHPY
-   ============================================================
-
-   Correzioni a assets/esports/esports.css (includes/esports/). Il foglio
-   originale non si tocca.
-
-   La pagina del team ha un'identita' sua e la tiene: il colore della
+/* La pagina del team ha un'identita' sua e la tiene: il colore della
    squadra scelto dal pannello (pulsante, ruoli, barre, numeri), il colore
    di un singolo player sulla sua pagina, le card con gli angoli tagliati,
    il carattere dei nickname, bandiere, rating Premier e livello FACEIT
@@ -1868,8 +1861,7 @@ a.es-palmares__name i {
    Va via quello che colorava l'intera pagina: lo sfondo sfumato nel
    colore del team, gli aloni sotto le card, le griglie di linee, le
    sfumature nei riquadri. Le etichette passano dal maiuscolo al Poppins
-   minuscolo, come nel resto del sito.
-   ============================================================ */
+   minuscolo, come nel resto del sito. */
 html:root body.es-page,
 html:root body.es-page :is(.es-shell, .es-page__root, main, [style*="--es-bg"]) {
     --es-bg: var(--nx-bg) !important;

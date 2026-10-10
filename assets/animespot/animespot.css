@@ -1764,13 +1764,8 @@ a.as-rank:hover .as-rank__name { color: var(--as-accent); }
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Pullspot e Animespot
-   ============================================================
-
-   Correzioni a assets/pullspot/pullspot.css e assets/animespot/animespot.css
-   (it|en/pullspot.php, it|en/animespot.php). I due fogli sono gemelli:
-   stesse classi, prefisso ps- e as-. Gli originali non si toccano.
+/*  I due fogli sono gemelli:
+   stesse classi, prefisso ps- e as-.
 
    Questi due giochi avevano gia' una scena loro, nera e piatta: il fascio
    di luce dall'alto, il marchio slavato, un solo colore acceso che decide
@@ -1780,8 +1775,7 @@ a.as-rank:hover .as-rank__name { color: var(--as-accent); }
    Qui si allinea solo quello che il resto del sito ha gia': il nero e i
    grigi del tema, le etichette in Poppins minuscolo al posto del
    monospazio maiuscolo, le finestre piatte, via gli aloni fermi e le
-   strisce sul fianco delle righe. I numeri restano in monospazio.
-   ============================================================ */
+   strisce sul fianco delle righe. I numeri restano in monospazio. */
 html:root {
     --ps-bg: var(--nx-bg);
     --as-bg: var(--nx-bg);

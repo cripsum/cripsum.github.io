@@ -3378,22 +3378,13 @@ body.game-page .dropdown-menu button:focus { color: #fff !important; background:
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Subway e duello (lobby e arena)
-   ============================================================
-
-   Correzioni a assets/css/game.css e assets/css/subway.css
-   (includes/subway/page.php, it|en/game/lobby.php e arena.php). I fogli
-   originali non si toccano.
-
-   Si riveste solo la cornice: fondo, riquadri, titoli, pulsanti, la
+/* Si riveste solo la cornice: fondo, riquadri, titoli, pulsanti, la
    scelta della mappa, la classifica, le finestre delle impostazioni.
 
    Non si tocca il gioco: l'interfaccia sopra Subway (timer, tasti, FPS,
    audio — i colori li sceglie chi gioca dalle impostazioni), la
    schermata di avvio, e nell'arena carte, barre della vita e
-   dell'energia, effetti delle mosse, ultimate, i colori dei ranghi.
-   ============================================================ */
+   dell'energia, effetti delle mosse, ultimate, i colori dei ranghi. */
 html:root body.game-page {
     --game-bg: var(--nx-bg);
     --game-bg2: var(--nx-bg);

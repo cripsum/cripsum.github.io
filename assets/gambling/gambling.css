@@ -746,21 +746,13 @@ body.gambling-page {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Gambling
-   ============================================================
-
-   Correzioni a assets/gambling/gambling.css (it|en/gambling.php). Il
-   foglio originale non si tocca.
-
-   Il gioco resta com'e': i rulli che girano, la sfocatura mentre girano,
+/* Il gioco resta com'e': i rulli che girano, la sfocatura mentre girano,
    Turbo, Auto x10, i suoni, l'esito colorato (verde vincita, oro jackpot,
    rosso persa), l'oro dei moltiplicatori.
 
    Cambia il contorno: la testata non e' piu' un riquadro (titolo a
    sinistra, saldo a destra su una superficie), «Spin» e' il pulsante pieno
-   della pagina, i riquadri sono piatti.
-   ============================================================ */
+   della pagina, i riquadri sono piatti. */
 html:root {
     --gambling-bg: var(--nx-bg);
     --gambling-bg-2: var(--nx-bg);

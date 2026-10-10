@@ -2435,14 +2435,7 @@ body.shop-page .dropdown-menu button:hover {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Negozio, Merch, checkout, conferma, Download
-   ============================================================
-
-   Correzioni a assets/shop/catalog.css (includes/shop/pages/ e
-   includes/shop/partials/). Il foglio originale non si tocca.
-
-   Ogni vetrina porta i suoi colori nell'attributo style del <body>, scelti
+/* Ogni vetrina porta i suoi colori nell'attributo style del <body>, scelti
    dal pannello. Nel tema nuovo:
    - lo sfondo e' sempre quello del tema: via la sfumatura colorata che
      riempiva la pagina (per questo --shop-bg ha !important: batte lo
@@ -2454,8 +2447,7 @@ body.shop-page .dropdown-menu button:hover {
 
    Restano come sono: ricerca, filtri, ordinamento, galleria, scelta della
    taglia, checkout finto, il conto alla rovescia delle collezioni in
-   arrivo, le animazioni delle card.
-   ============================================================ */
+   arrivo, le animazioni delle card. */
 html:root body.shop-page {
     --shop-bg: var(--nx-bg) !important;
     --shop-bg-2: var(--nx-bg) !important;

@@ -505,18 +505,10 @@ body.tiktokpedia-page .dropdown-menu button:focus {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — TikTokpedia
-   ============================================================
-
-   Correzioni a css/tiktokpedia.css (it|en/tiktokpedia.php). Il foglio
-   originale non si tocca.
-
-   La pagina aveva un tema rosa tutto suo: nel tema nuovo le pagine non
+/* La pagina aveva un tema rosa tutto suo: nel tema nuovo le pagine non
    hanno piu' un colore proprio. Restano la ricerca, i filtri per tag, la
    comparsa delle card, «Copia link» con il suo avviso, il tasto per
-   tornare su.
-   ============================================================ */
+   tornare su. */
 html:root body.tiktokpedia-page {
     --tp-bg: var(--nx-bg);
     --tp-bg-2: var(--nx-bg);

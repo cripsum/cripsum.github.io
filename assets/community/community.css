@@ -1891,12 +1891,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Shitpost e Top Rimasti
-   ============================================================
-
-   Correzioni a assets/community/community.css (includes/community/page.php).
-   Il lettore dei video ha il suo foglio: edits-player.css.
+/* Il lettore dei video ha il suo foglio: edits-player.css.
    Il foglio originale tiene i suoi colori in variabili sul <body>: quasi
    tutto il lavoro e' spostarle sui neutri del tema. Sotto ci sono le regole
    che aggiungevano vetro, aloni e sfumature, e i pezzi (pulsanti, linguette,
@@ -1904,8 +1899,7 @@ dialog.cm-viewer.is-immersive { padding: 0; }
 
    Restano come sono: le proporzioni vere dei media, le reazioni, il
    visualizzatore a tutto schermo, la sfocatura degli spoiler (serve), lo
-   scheletro di caricamento, oro argento e bronzo sulle tre medaglie.
-   ============================================================ */
+   scheletro di caricamento, oro argento e bronzo sulle tre medaglie. */
 html:root .cm-page {
     --cm-bg: var(--nx-bg);
     --cm-bg-2: var(--nx-bg);

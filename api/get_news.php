@@ -96,10 +96,10 @@ while ($row = $result->fetch_assoc()) {
 
     $news[] = $item;
 
-    // Il primo non-pinned (o il primo in assoluto) è il "latest" per l'auto-open
-    if ($latestId === 0) {
-        $latestId = (int)$row['id'];
-    }
+    // La più nuova è quella con l'id più alto, non la prima della lista: con
+    // una notizia in evidenza in cima, la finestra non si apriva più da sola
+    // per quelle uscite dopo.
+    $latestId = max($latestId, (int)$row['id']);
 }
 
 $result->free();

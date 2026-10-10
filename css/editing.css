@@ -430,19 +430,10 @@
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Sezione editing
-   ============================================================
-
-   Correzioni a css/editing.css (la pagina d'ingresso) e
-   css/editing-pages.css (Tutorial, Download, Clip, Overlay, Audio,
-   Progetti). I fogli originali non si toccano.
-
-   La sezione era gia' in grigi neutri: qui si allineano fondo, superfici,
+/* La sezione era gia' in grigi neutri: qui si allineano fondo, superfici,
    titoli e pulsanti a quelli del tema. Restano la ricerca, i filtri, la
    comparsa delle card, le etichette di difficolta' coi loro tre colori
-   (verde, giallo, rosso).
-   ============================================================ */
+   (verde, giallo, rosso). */
 html:root {
     --gray-50: var(--nx-bg);
     --gray-100: var(--nx-surface);

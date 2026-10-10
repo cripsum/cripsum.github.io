@@ -1630,15 +1630,7 @@ body.rw-page {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Rewind
-   ============================================================
-
-   Correzioni a assets/rewind/rewind.css (it|en/rewind.php, la schermata
-   di blocco e la pagina pubblica di un Rewind condiviso). Il foglio
-   originale non si tocca.
-
-   Il Rewind tiene la sua identita': la storia a tutto schermo, il colore
+/* Il Rewind tiene la sua identita': la storia a tutto schermo, il colore
    che cambia a ogni schermata, i numeri enormi, le etichette in
    maiuscolo, la grana, le animazioni d'ingresso, la musica, la card da
    scaricare coi suoi colori, l'oro dell'ora di punta.
@@ -1646,8 +1638,7 @@ body.rw-page {
    Va via solo quello che il tema nuovo non usa da nessuna parte: le due
    macchie sfocate che galleggiano sullo sfondo, il secondo colore che
    faceva la sfumatura blu-viola, il vetro sfocato dietro riquadri e
-   pulsanti, i numeri a sfumatura, gli aloni luminosi.
-   ============================================================ */
+   pulsanti, i numeri a sfumatura, gli aloni luminosi. */
 html:root body.rw-page {
     --rw-bg: var(--nx-bg);
     --rw-muted: var(--nx-text-2);

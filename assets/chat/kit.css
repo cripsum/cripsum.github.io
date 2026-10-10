@@ -2434,15 +2434,7 @@ select.ck-input option {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Amici, Posta, chat privata e chat globale
-   ============================================================
-
-   Correzioni a assets/chat/kit.css (il kit condiviso dalle quattro pagine)
-   e ai fogli di pagina: assets/social/social.css, css/inbox.css,
-   assets/chat/chat.css, assets/chat/global.css. Gli originali non si toccano.
-
-   Il kit tiene i suoi colori in variabili: quasi tutto il lavoro e'
+/* Il kit tiene i suoi colori in variabili: quasi tutto il lavoro e'
    spostarle sui neutri del tema. Sotto ci sono i pezzi che avevano un
    colore scritto a mano, e la disposizione dei riquadri.
 
@@ -2453,8 +2445,7 @@ select.ck-input option {
    Restano come sono: tutte le funzioni e le animazioni, il verde di chi e'
    online, il rosso dei pericoli, l'oro del ruolo Owner e dei premi,
    l'ambra degli avvisi (silenziato, modalita' lenta), il puntino «in
-   diretta» che pulsa, i colori di Discord.
-   ============================================================ */
+   diretta» che pulsa, i colori di Discord. */
 html[data-theme="next"] {
     --ck-accent: #f5f5f7;
     --ck-accent-rgb: 245, 245, 247;

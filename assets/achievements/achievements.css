@@ -2125,18 +2125,10 @@ body.ach-page {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Achievements
-   ============================================================
-
-   Correzioni a assets/achievements/achievements.css
-   (includes/achievements/page.php). Il foglio originale non si tocca.
-
-   Restano come sono: il colore del livello (bronzo, argento, oro, platino,
+/* Restano come sono: il colore del livello (bronzo, argento, oro, platino,
    diamante) su medaglia, pallino e barra di avanzamento; le animazioni di
    sblocco, del premio incassato e del codice Konami; l'oro dei Godos.
-   Vanno via gli aloni colorati attorno a medaglie e card.
-   ============================================================ */
+   Vanno via gli aloni colorati attorno a medaglie e card. */
 html:root .ach-page {
     --ach-accent: 245, 245, 247;
     --ach-purple: 245, 245, 247;

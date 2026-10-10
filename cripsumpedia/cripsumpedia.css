@@ -4141,23 +4141,14 @@ body.cp-body,
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Cripsumpedia
-   ============================================================
-
-   Correzioni a cripsumpedia/cripsumpedia.css (indice, categorie, voci,
-   ricerca, editor e pannello dell'enciclopedia). Il foglio originale non
-   si tocca.
-
-   Ogni voce e ogni categoria ha un colore suo (--entry-accent): resta,
+/* Ogni voce e ogni categoria ha un colore suo (--entry-accent): resta,
    ma solo dove indica qualcosa — l'icona della categoria, il pallino
    sulla linea del tempo, il segno accanto a una voce collegata. Non
    colora piu' fondi e bordi. Restano i colori di canone e rarita'.
 
    Restano: la barra di lettura in cima, la ricerca con i suggerimenti,
    la scheda che compare passando su un collegamento, la modalita'
-   lettura, gli spoiler, «Random».
-   ============================================================ */
+   lettura, gli spoiler, «Random». */
 html:root body.cp-body {
     --cp-bg: var(--nx-bg);
     --cp-bg-2: var(--nx-bg);

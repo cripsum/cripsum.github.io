@@ -1091,15 +1091,7 @@ body.goonland-page .site-footer h3 {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — GoonLand
-   ============================================================
-
-   Correzioni a css/goonland.css, goonland-quiz-additions.css e
-   goonland-smash-pass.css (it|en/goonland/). I fogli originali non si
-   toccano.
-
-   GoonLand tiene il rosa. L'interfaccia e' quella del tema nuovo —
+/* GoonLand tiene il rosa. L'interfaccia e' quella del tema nuovo —
    fondo quasi nero, superfici piatte, niente vetro ne' aloni — ma dove
    nel resto del sito il colore d'azione e' il bianco, qui e' il rosa di
    GoonLand: il pulsante pieno, le icone, la barra del quiz, la scelta
@@ -1107,8 +1099,7 @@ body.goonland-page .site-footer h3 {
 
    Restano: il generatore, il quiz con il risultato da condividere, Smash
    or Pass con lo scorrimento della carta e il velo che dice da che parte
-   la stai portando, la classifica dei goonatori.
-   ============================================================ */
+   la stai portando, la classifica dei goonatori. */
 html:root body.goonland-page {
     --gl-bg: var(--nx-bg);
     --gl-bg2: var(--nx-bg);

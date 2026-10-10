@@ -1165,14 +1165,7 @@ body.inv-page .dropdown-menu button:hover { color: #fff !important; background: 
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Inventario
-   ============================================================
-
-   Correzioni a assets/inventario/inventario.css
-   (includes/gacha/pages/inventario.php). Il foglio originale non si tocca.
-
-   Qui si cambia solo il contorno: sfondo, testata, schede, barra dei
+/* Qui si cambia solo il contorno: sfondo, testata, schede, barra dei
    filtri, pulsanti, riquadri neutri.
 
    NON si tocca niente di quello che riguarda le rarita': il colore di
@@ -1184,8 +1177,7 @@ body.inv-page .dropdown-menu button:hover { color: #fff !important; background: 
 
    Dove serve, le regole di base stanno dentro :where(): cosi' pesano meno
    degli stati dell'originale (attivo, passaggio del mouse, completato) e i
-   colori delle rarita' continuano a vincere.
-   ============================================================ */
+   colori delle rarita' continuano a vincere. */
 html:root {
     --inv-bg: var(--nx-bg);
     --inv-bg-2: var(--nx-bg);

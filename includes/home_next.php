@@ -178,9 +178,26 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
     <title data-i18n="meta.title"><?= home_h($hx['meta_title']) ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <link rel="preload" as="image" href="/img/amongus.jpg">
+    <link rel="preload" as="image" href="/img/amongus-logo.jpg">
     <link rel="stylesheet" href="<?= home_h($hxHomeCss) ?>">
     <link rel="stylesheet" href="<?= home_h(cripsum_asset('/assets/news/news-popup.css')) ?>">
+    <?php /* L'ingresso della testata aspetta il carattere. Se Poppins arriva mentre le
+             parole del titolo stanno salendo, il titolo cambia righe a meta' e tutto
+             quello che c'e' sotto fa un salto: sui telefoni si vedeva come uno
+             sfarfallio. Finche' c'e' .home-wait le animazioni restano ferme
+             all'inizio (home.css); dopo un secondo e mezzo partono comunque. */ ?>
+    <script>
+        (function () {
+            var root = document.documentElement;
+            if (!document.fonts || !document.fonts.load) return;
+            var go = function () { root.classList.remove('home-wait'); };
+            root.classList.add('home-wait');
+            Promise.all(['600', '500', 'italic 500', '400'].map(function (face) {
+                return document.fonts.load(face + ' 1em Poppins');
+            })).then(go, go);
+            setTimeout(go, 1500);
+        })();
+    </script>
     <?php /* Senza script niente farebbe comparire le sezioni: le si mostra subito. */ ?>
     <noscript><style>.home-reveal { opacity: 1 !important; filter: none !important; transform: none !important; }</style></noscript>
     <script src="<?= home_h($hxSharedJs) ?>" defer></script>
@@ -225,15 +242,15 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
 
         <section class="home-mood home-wrap" aria-label="<?= home_h($hx['mood_label']) ?>">
             <figure>
-                <div class="home-tile home-reveal"><img src="/img/felicita.jpg" alt="" loading="lazy"></div>
+                <div class="home-tile home-reveal"><img src="/img/felicita.jpg" alt=""></div>
                 <figcaption class="home-reveal" style="--d: 160"><?= home_h($hx['moods'][0]) ?></figcaption>
             </figure>
             <figure>
-                <div class="home-tile home-reveal" style="--d: 110"><img src="/img/tristezza.jpg" alt="" loading="lazy"></div>
+                <div class="home-tile home-reveal" style="--d: 110"><img src="/img/tristezza.jpg" alt=""></div>
                 <figcaption class="home-reveal" style="--d: 270"><?= home_h($hx['moods'][1]) ?></figcaption>
             </figure>
             <figure>
-                <div class="home-tile home-reveal" style="--d: 220"><img src="/img/stupore.jpg" alt="" loading="lazy"></div>
+                <div class="home-tile home-reveal" style="--d: 220"><img src="/img/stupore.jpg" alt=""></div>
                 <figcaption class="home-reveal" style="--d: 380"><?= home_h($hx['moods'][2]) ?></figcaption>
             </figure>
         </section>

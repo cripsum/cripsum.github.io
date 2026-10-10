@@ -1268,14 +1268,7 @@ input[type="range"].form-range {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Shop delle Godo Shards
-   ============================================================
-
-   Correzioni a css/shop.css (includes/shop/pages/gacha.php). Il foglio
-   originale non si tocca.
-
-   Qui cambia anche la disposizione, senza toccare il markup:
+/* Qui cambia anche la disposizione, senza toccare il markup:
    - la testata non e' piu' al centro: titolo a sinistra come nelle altre
      pagine, con «Torna al Gacha» sopra e i due saldi a destra;
    - le linguette stanno a sinistra, sotto il titolo;
@@ -1287,8 +1280,7 @@ input[type="range"].form-range {
 
    Restano come sono: l'anteprima dei badge del profilo con i loro colori
    e le loro animazioni, l'animazione di quando sblocchi un oggetto, il
-   pagamento (Stripe e PayPal non sono toccati).
-   ============================================================ */
+   pagamento (Stripe e PayPal non sono toccati). */
 html:root body.shop-shards-body {
     background: var(--nx-bg);
 }

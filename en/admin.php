@@ -73,6 +73,7 @@ $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
                 <button type="button" data-section="reports"><i class="fa-solid fa-flag"></i><span>Segnalazioni</span></button>
                 <button type="button" data-section="logs"><i class="fa-solid fa-clock-rotate-left"></i><span>Log</span></button>
                 <span class="admin-nav-label">Site</span>
+                <button type="button" data-section="news"><i class="fa-solid fa-newspaper"></i><span>News</span></button>
                 <button type="button" data-section="maintenance"<?php echo $maintenanceOn ? ' class="has-alert"' : ''; ?>><i class="fa-solid fa-screwdriver-wrench"></i><span>Maintenance</span></button>
             </nav>
 
@@ -343,6 +344,17 @@ $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
                 <div id="logsTable" class="admin-table-card"></div>
             </section>
 
+            <section class="admin-section" id="section-news" data-section-panel="news">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Novità</strong>
+                        <small>Le notizie della finestra «News &amp; Changelog» della homepage: quando ne esce una nuova, si apre da sola a chi non l'ha ancora letta.</small>
+                    </div>
+                    <button type="button" class="admin-btn admin-btn--primary" id="createNewsBtn"><i class="fa-solid fa-plus"></i> Nuova</button>
+                </div>
+                <div class="admin-table-card" data-news-admin></div>
+            </section>
+
             <section class="admin-section" id="section-maintenance" data-section-panel="maintenance">
                 <div class="admin-toolbar">
                     <div><strong>Manutenzione</strong><small>Chiude il sito a tutti tranne a chi scegli tu, con un motivo che legge chi arriva.</small></div>
@@ -426,6 +438,7 @@ $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-characters.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-community.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-maintenance.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-news.js')); ?>"></script>
 </body>
 
 </html>

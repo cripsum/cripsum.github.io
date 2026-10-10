@@ -708,14 +708,7 @@ body.msn-page {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Missioni
-   ============================================================
-
-   Correzioni a assets/missions/missions.css (it|en/missions.php).
-   Il foglio originale non si tocca.
-
-   Qui cambia anche la disposizione, senza toccare il markup:
+/* Qui cambia anche la disposizione, senza toccare il markup:
    - la testata non e' piu' un riquadro alto mezza pagina: titolo a sinistra
      e i tre numeri in fila a destra;
    - i due conti alla rovescia non sono piu' due barre larghe quanto la
@@ -724,8 +717,7 @@ body.msn-page {
 
    Restano come sono: i colori delle difficolta' (facile verde, media blu,
    difficile viola, epica oro) su icona, etichetta e barra; l'oro dei Godos;
-   l'ingresso a comparsa; il pulsante da riscuotere che pulsa.
-   ============================================================ */
+   l'ingresso a comparsa; il pulsante da riscuotere che pulsa. */
 html:root {
     --msn-accent: #f5f5f7;
     --msn-accent-rgb: 245, 245, 247;

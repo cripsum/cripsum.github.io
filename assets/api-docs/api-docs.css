@@ -517,17 +517,9 @@ body.api-docs-body {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — API Docs
-   ============================================================
-
-   Correzioni a assets/api-docs/api-docs.css
-   (includes/api-docs-template.php). Il foglio originale non si tocca.
-
-   Restano: il finto terminale con i tre pallini, i colori dei metodi
+/* Restano: il finto terminale con i tre pallini, i colori dei metodi
    HTTP, il pulsante «Copia», l'indice che resta fermo di lato.
-   Il codice resta in monospazio.
-   ============================================================ */
+   Il codice resta in monospazio. */
 html:root body.api-docs-body {
     --docs-blue: var(--nx-text);
     --docs-purple: var(--nx-text);

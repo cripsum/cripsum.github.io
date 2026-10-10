@@ -541,18 +541,8 @@ body.form-page .dropdown-menu button:hover {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Checkout Premium, verifiche, recupero password
-   ============================================================
-
-   Correzioni a assets/forms/forms.css per le pagine che lo usano:
-   checkout-premium, verifica-2fa, verifica-email, confirm-google-password,
-   password-dimenticata, invia_link, reset_password, salva_nuova_password.
-   Il foglio originale non si tocca.
-
-   Pulsanti, campi e avvisi riprendono i valori dei pezzi comuni (classi nx-
-   in theme.css) sulle classi che queste pagine hanno gia'.
-   ============================================================ */
+/* Pulsanti, campi e avvisi riprendono i valori dei pezzi comuni (classi nx-
+   in theme.css) sulle classi che queste pagine hanno gia'. */
 html:root {
     --forms-accent: #f5f5f7;
     --forms-accent-rgb: 245, 245, 247;

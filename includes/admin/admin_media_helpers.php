@@ -13,7 +13,7 @@
  * resta finche' serve a qualcuno.
  */
 
-const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personaggi', 'esports', 'team', 'edits'];
+const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personaggi', 'esports', 'team', 'edits', 'news'];
 
 /**
  * Cartelle di audio/ in cui carica il pannello (la musica dei player del
@@ -122,6 +122,7 @@ function admin_media_reference_columns(mysqli $mysqli): array
         'esports_giocatori' => ['foto', 'sfondo', 'musica_cover', 'musica_audio', 'clips'],
         'team_membri' => ['foto'],
         'edits' => ['copertina', 'video', 'gif_presence'],
+        'cripsum_news' => ['immagine'],
     ];
 
     $columns = [];

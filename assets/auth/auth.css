@@ -891,18 +891,9 @@ body.auth-page .dropdown-menu button:hover {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Accedi, Registrati, Impostazioni
-   ============================================================
-
-   Correzioni a assets/auth/auth.css per le pagine che lo usano: accedi,
-   registrati, conferma-registrazione, imposta_password, impostazioni (con i
-   pannelli in includes/settings_*.php). Il foglio originale non si tocca.
-
-   Pulsanti, campi, riquadri e avvisi riprendono i valori dei pezzi comuni
+/* Pulsanti, campi, riquadri e avvisi riprendono i valori dei pezzi comuni
    (classi nx- in theme.css): qui il markup resta quello di sempre, quindi
-   gli stessi valori vanno sulle classi che la pagina ha gia'.
-   ============================================================ */
+   gli stessi valori vanno sulle classi che la pagina ha gia'. */
 html:root {
     --auth-accent: #f5f5f7;
     --auth-accent-rgb: 245, 245, 247;

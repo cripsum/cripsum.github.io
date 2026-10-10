@@ -572,17 +572,38 @@
 
     const initReveal = () => {
         const items = $$('.home-reveal');
+        const show = (item) => item.classList.add('is-visible');
+
+        // Un riquadro con una foto, e la scritta che gli sta sotto, compaiono
+        // quando la foto e' pronta da disegnare: altrimenti si vede prima il
+        // riquadro vuoto e la foto arriva di colpo a meta' della comparsa. Se
+        // la foto tarda o manca, dopo poco compaiono lo stesso.
+        const photoOf = (item) => {
+            const tile = item.classList.contains('home-tile') ? item : item.parentElement?.querySelector(':scope > .home-tile');
+            return tile ? tile.querySelector('img') : null;
+        };
+
+        const reveal = (item) => {
+            const photo = photoOf(item);
+            if (!photo || typeof photo.decode !== 'function') { show(item); return; }
+
+            const timer = setTimeout(() => show(item), 1200);
+            photo.decode().catch(() => { /* foto mancante: compare il riquadro vuoto */ }).then(() => {
+                clearTimeout(timer);
+                show(item);
+            });
+        };
 
         if (!('IntersectionObserver' in window)) {
-            items.forEach((item) => item.classList.add('is-visible'));
+            items.forEach(show);
             return;
         }
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (!entry.isIntersecting) return;
-                entry.target.classList.add('is-visible');
                 observer.unobserve(entry.target);
+                reveal(entry.target);
             });
         }, { threshold: 0.12 });
 

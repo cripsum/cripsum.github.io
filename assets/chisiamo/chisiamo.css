@@ -358,16 +358,8 @@ body.about-page {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Chi siamo
-   ============================================================
-
-   Correzioni a assets/chisiamo/chisiamo.css (includes/chisiamo/page.php).
-   Il foglio originale non si tocca.
-
-   Restano: il collage delle foto che si muove al passaggio, la comparsa
-   delle card allo scorrimento, la gemma dorata del Premium, i social.
-   ============================================================ */
+/* Restano: il collage delle foto che si muove al passaggio, la comparsa
+   delle card allo scorrimento, la gemma dorata del Premium, i social. */
 html:root body.about-page {
     --chisiamo-accent: var(--nx-text);
     --chisiamo-accent-rgb: 245, 245, 247;

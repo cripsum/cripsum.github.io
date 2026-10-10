@@ -1122,17 +1122,11 @@ body.edits-page {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Edits (griglia ed edit aperto)
-   ============================================================
-
-   Correzioni a assets/edits/edits.css (includes/edits/page.php). Il foglio
-   originale non si tocca. Il lettore dei video ha il suo foglio,
+/*   Il lettore dei video ha il suo foglio,
    edits-player.css, perche' lo usano anche Shitpost e Top Rimasti.
 
    Restano come sono: le proporzioni vere dei video, la sfumatura scura
-   sotto i titoli sopra le copertine (serve a leggerli), l'etichetta «Nuovo».
-   ============================================================ */
+   sotto i titoli sopra le copertine (serve a leggerli), l'etichetta «Nuovo». */
 html:root {
     --edits-bg: var(--nx-bg);
     --edits-bg-2: var(--nx-bg);

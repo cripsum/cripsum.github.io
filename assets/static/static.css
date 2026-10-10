@@ -802,17 +802,8 @@ body.static-page .dropdown-menu button:hover {
    assets/global/theme.css.
    ============================================================ */
 
-/* ============================================================
-   Tema nuovo — Privacy, Termini, Cookie, Supporto, Regolamento
-   chat, Donazioni, Bannato
-   ============================================================
-
-   Correzioni a assets/static/static.css per le pagine che lo usano. Il foglio
-   originale non si tocca.
-
-   Pulsanti, campi, riquadri ed etichette riprendono i valori dei pezzi
-   comuni (classi nx- in theme.css) sulle classi che queste pagine hanno gia'.
-   ============================================================ */
+/* Pulsanti, campi, riquadri ed etichette riprendono i valori dei pezzi
+   comuni (classi nx- in theme.css) sulle classi che queste pagine hanno gia'. */
 html[data-theme="next"] {
     --static-accent: #f5f5f7;
     --static-accent-rgb: 245, 245, 247;

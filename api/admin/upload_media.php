@@ -4,7 +4,7 @@ require_once __DIR__ . '/bootstrap.php';
 /**
  * Le immagini del pannello vanno in una sottocartella di img/ secondo da
  * dove si caricano (POST folder): negozio, merch/{collezione}, download,
- * gacha, personaggi. Senza folder finiscono in img/ come prima.
+ * gacha, personaggi, news. Senza folder finiscono in img/ come prima.
  *
  * Il primo livello e' una lista chiusa (ADMIN_MEDIA_FOLDERS, in
  * admin_media_helpers.php): img/ ha gia' cartelle con un significato
