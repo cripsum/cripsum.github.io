@@ -31,7 +31,7 @@ $userRole = $_SESSION['ruolo'] ?? 'utente';
 // Fetch Discord ID if user is logged in
 $discordId = '';
 if ($isLogged) {
-    $stmt = $mysqli->prepare("SELECT discord_id FROM utenti WHERE id = ?");
+    $stmt = $mysqli->prepare("SELECT " . cripsum_linked_discord_sql() . " AS discord_id FROM utenti WHERE id = ?");
     if ($stmt) {
         $stmt->bind_param("i", $userId);
         $stmt->execute();
@@ -145,12 +145,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             ];
             
             if (function_exists('curl_init')) {
+                $botBody = (string)json_encode($ticketData);
                 $ch = curl_init(cripsum_bot_endpoint('/v1/tickets'));
                 curl_setopt_array($ch, [
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_POST => true,
-                    CURLOPT_POSTFIELDS => json_encode($ticketData),
-                    CURLOPT_HTTPHEADER => cripsum_bot_headers(),
+                    CURLOPT_POSTFIELDS => $botBody,
+                    CURLOPT_HTTPHEADER => cripsum_bot_headers([], '/v1/tickets', $botBody),
                     CURLOPT_CONNECTTIMEOUT => 3,
                     CURLOPT_TIMEOUT => 6,
                     CURLOPT_SSL_VERIFYPEER => true,

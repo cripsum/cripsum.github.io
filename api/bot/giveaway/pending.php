@@ -30,7 +30,7 @@ if ($guildId !== '') {
 }
 
 $sql =
-    "SELECT g.id, g.channel_id, g.message_id, g.title, g.winners_count, g.rewards, g.ends_at,
+    "SELECT g.id, g.guild_id, g.channel_id, g.message_id, g.title, g.winners_count, g.rewards, g.ends_at,
             (SELECT COUNT(*) FROM discord_giveaway_entries e WHERE e.giveaway_id = g.id) AS entries
      FROM discord_giveaways g
      WHERE $where
@@ -59,6 +59,7 @@ foreach ($rows as $row) {
 
     $entry = [
         'id' => (int)$row['id'],
+        'guild_id' => (string)$row['guild_id'],
         'channel_id' => (string)$row['channel_id'],
         'message_id' => $row['message_id'],
         'title' => (string)$row['title'],

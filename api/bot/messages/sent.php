@@ -49,7 +49,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
 }
 
 bot_require_method('POST');
-$actor = bot_require_actor($mysqli);
+$actor = bot_require_guild_actor($mysqli);
 
 $body = bot_input();
 $action = bot_text('action', 20, false, 'record');

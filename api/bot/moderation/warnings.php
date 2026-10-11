@@ -26,9 +26,17 @@ $guildId = bot_snowflake('guild_id');
 $targetDiscordId = bot_discord_id('discord_id');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
+// Dopo quanti giorni un warn smette di contare: lo decide ogni server dal
+// pannello e lo manda il bot. 0 = non scade mai. Un warn scaduto resta nello
+// storico, ma non entra nel conto di quelli attivi.
+$expiryDays = max(0, min(365, (int)(bot_input()['expiry_days'] ?? $_GET['expiry_days'] ?? 0)));
+$notExpired = $expiryDays > 0
+    ? ' AND created_at >= DATE_SUB(NOW(), INTERVAL ' . $expiryDays . ' DAY)'
+    : '';
+
 if ($method === 'GET') {
     $includeRevoked = bot_text('include_revoked', 5) === '1';
-    $where = $includeRevoked ? '' : ' AND revoked_at IS NULL';
+    $where = $includeRevoked ? '' : ' AND w.revoked_at IS NULL';
 
     $stmt = $mysqli->prepare(
         "SELECT w.id, w.reason, w.created_at, w.revoked_at, w.moderator_discord_id, u.username AS moderator
@@ -48,8 +56,11 @@ if ($method === 'GET') {
     $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
-    $warnings = array_map(static function (array $row): array {
+    $expiredBefore = $expiryDays > 0 ? time() - $expiryDays * 86400 : null;
+
+    $warnings = array_map(static function (array $row) use ($expiredBefore): array {
         return [
+            'expired' => $expiredBefore !== null && strtotime((string)$row['created_at']) < $expiredBefore,
             'id' => (int)$row['id'],
             'reason' => (string)$row['reason'],
             'moderator' => $row['moderator'] ?: null,
@@ -101,7 +112,7 @@ $stmt->close();
 $active = 0;
 $stmtCount = $mysqli->prepare(
     'SELECT COUNT(*) AS total FROM discord_warnings
-     WHERE guild_id = ? AND discord_user_id = ? AND revoked_at IS NULL'
+     WHERE guild_id = ? AND discord_user_id = ? AND revoked_at IS NULL' . $notExpired
 );
 
 if ($stmtCount) {

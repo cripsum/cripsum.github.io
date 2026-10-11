@@ -91,7 +91,7 @@ cripsum_release_session();
 // una scheda ancora aperta non deve poter scrivere né leggere.
 $chatUser = (static function () use ($mysqli, $userId): array {
     $timeout = rt_has_col($mysqli, 'utenti', 'chat_timeout_until') ? ', chat_timeout_until' : '';
-    $stmt = $mysqli->prepare("SELECT id, username, display_name, ruolo, is_premium, isBannato, banned_until, discord_id$timeout FROM utenti WHERE id = ? LIMIT 1");
+    $stmt = $mysqli->prepare("SELECT id, username, display_name, ruolo, is_premium, isBannato, banned_until, IF(COALESCE(LENGTH(discord_username), 0) > 0, discord_id, NULL) AS discord_id$timeout FROM utenti WHERE id = ? LIMIT 1");
     $stmt->bind_param('i', $userId);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();

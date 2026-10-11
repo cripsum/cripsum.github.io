@@ -19,6 +19,7 @@ $body = bot_input();
 $warningId = (int)($body['warning_id'] ?? $_GET['warning_id'] ?? 0);
 $guildId = bot_snowflake('guild_id');
 $moderatorDiscordId = bot_discord_id('moderator_discord_id');
+$expiryDays = max(0, min(365, (int)($body['expiry_days'] ?? 0)));
 
 if ($warningId <= 0) {
     bot_fail('Missing warning_id.', 400);
@@ -66,6 +67,8 @@ $active = 0;
 $stmtCount = $mysqli->prepare(
     'SELECT COUNT(*) AS total FROM discord_warnings
      WHERE guild_id = ? AND discord_user_id = ? AND revoked_at IS NULL'
+    // Stessa regola di warnings.php: i warn scaduti non contano.
+    . ($expiryDays > 0 ? ' AND created_at >= DATE_SUB(NOW(), INTERVAL ' . $expiryDays . ' DAY)' : '')
 );
 
 if ($stmtCount) {

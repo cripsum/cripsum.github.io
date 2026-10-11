@@ -115,7 +115,7 @@ function cripsum_ticket_generate_id(mysqli $mysqli): string
 function cripsum_ticket_find(mysqli $mysqli, string $ticketId = '', string $threadId = ''): ?array
 {
     $schema = cripsum_ticket_schema($mysqli);
-    $select = 't.id, t.ticket_id, t.user_id, t.title, t.topic, t.status, t.created_at, u.username, u.discord_id';
+    $select = 't.id, t.ticket_id, t.user_id, t.title, t.topic, t.status, t.created_at, u.username, IF(COALESCE(LENGTH(u.discord_username), 0) > 0, u.discord_id, NULL) AS discord_id';
     $select .= $schema['thread'] ? ', t.discord_thread_id' : ', NULL AS discord_thread_id';
     $select .= $schema['source'] ? ', t.source' : ", 'site' AS source";
 
@@ -277,7 +277,7 @@ function cripsum_ticket_messages(mysqli $mysqli, string $ticketId, int $limit = 
     $limit = max(1, min(500, $limit));
     $stmt = $mysqli->prepare(
         "SELECT tm.id, tm.sender_id, tm.message, tm.attachment_url, tm.created_at,
-                u.username, u.ruolo, u.discord_id
+                u.username, u.ruolo, IF(COALESCE(LENGTH(u.discord_username), 0) > 0, u.discord_id, NULL) AS discord_id
          FROM site_ticket_messages tm
          LEFT JOIN utenti u ON u.id = tm.sender_id
          WHERE tm.ticket_id = ?

@@ -85,12 +85,13 @@ function notifyDiscordNewPost($mysqli, $postId, $type)
         $payload['image'] = $mediaUrl;
     }
 
+    $botBody = (string)json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $ch = curl_init(cripsum_bot_endpoint('/v1/announce'));
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
-        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        CURLOPT_HTTPHEADER => cripsum_bot_headers([], '/v1/announce', $botBody),
+        CURLOPT_POSTFIELDS => $botBody,
         CURLOPT_TIMEOUT => 8,
         CURLOPT_CONNECTTIMEOUT => 4,
         CURLOPT_SSL_VERIFYPEER => true
@@ -128,12 +129,13 @@ function notifyDiscordSiteLogs(string $type, string $title, string $description,
         'fields' => $fields,
     ];
 
+    $botBody = (string)json_encode($payload);
     $ch = curl_init($endpoint);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
-        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => cripsum_bot_headers([], '/v1/logs', $botBody),
+        CURLOPT_POSTFIELDS => $botBody,
         CURLOPT_TIMEOUT => 5,
         CURLOPT_CONNECTTIMEOUT => 3,
         CURLOPT_SSL_VERIFYPEER => true
@@ -160,12 +162,13 @@ function notifyDiscordCandidatura(array $data): bool
         'discord_id' => $_SESSION['discord_id'] ?? null,
     ], $data);
 
+    $botBody = (string)json_encode($payload);
     $ch = curl_init($endpoint);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
-        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => cripsum_bot_headers([], '/v1/candidature', $botBody),
+        CURLOPT_POSTFIELDS => $botBody,
         CURLOPT_TIMEOUT => 6,
         CURLOPT_CONNECTTIMEOUT => 3,
         CURLOPT_SSL_VERIFYPEER => true
@@ -276,15 +279,16 @@ function notifyDiscordSupportReport(string $reportType, array $data): bool
         'target_url' => $targetUrl !== '' ? $targetUrl : null,
     ];
 
+    $botBody = (string)json_encode(
+        $payload,
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE
+    );
     $ch = curl_init(cripsum_bot_endpoint('/v1/tickets'));
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => json_encode(
-            $payload,
-            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE
-        ),
-        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
+        CURLOPT_POSTFIELDS => $botBody,
+        CURLOPT_HTTPHEADER => cripsum_bot_headers([], '/v1/tickets', $botBody),
         CURLOPT_CONNECTTIMEOUT => 3,
         CURLOPT_TIMEOUT => 8,
         CURLOPT_SSL_VERIFYPEER => true,
@@ -322,7 +326,7 @@ function notifyDiscordPremiumPurchase(mysqli $mysqli, int $userId): bool
         return false;
     }
 
-    $stmt = $mysqli->prepare('SELECT username, discord_id FROM utenti WHERE id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT username, ' . cripsum_linked_discord_sql() . ' AS discord_id FROM utenti WHERE id = ? LIMIT 1');
     if (!$stmt) {
         return false;
     }
@@ -346,12 +350,13 @@ function notifyDiscordPremiumPurchase(mysqli $mysqli, int $userId): bool
         'discord_id' => (string)($user['discord_id'] ?? ''),
     ];
 
+    $botBody = (string)json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $ch = curl_init(cripsum_bot_endpoint('/v1/celebrate'));
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
-        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        CURLOPT_HTTPHEADER => cripsum_bot_headers([], '/v1/celebrate', $botBody),
+        CURLOPT_POSTFIELDS => $botBody,
         CURLOPT_TIMEOUT => 6,
         CURLOPT_CONNECTTIMEOUT => 3,
         CURLOPT_SSL_VERIFYPEER => true,

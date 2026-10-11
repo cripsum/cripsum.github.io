@@ -12,13 +12,13 @@ if (!defined('CRIPSUM_STATELESS_REQUEST')) {
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
+require_once __DIR__ . '/../../includes/bot_auth.php';
 require_once __DIR__ . '/../../includes/gacha/public.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
-$apiKey = $_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '';
-if (empty($apiKey) || !hash_equals((string)CRIPSUM_BOT_API_KEY, (string)$apiKey)) {
+if (!cripsum_bot_request_authentic()) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Access denied.']);
     exit;

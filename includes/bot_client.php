@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/../config/discord_oauth.php';
+require_once __DIR__ . '/bot_auth.php';
 
 if (!function_exists('cripsum_bot_endpoint')) {
     /**
@@ -38,18 +39,34 @@ if (!function_exists('cripsum_bot_headers')) {
      * 401 e il chiamante registrerà l'errore, invece di inviare una stringa
      * vuota che sembrerebbe una chiave valida.
      *
+     * Passando anche $path e $body la richiesta viene firmata (vedi
+     * includes/bot_auth.php). $body deve essere esattamente la stringa messa
+     * in CURLOPT_POSTFIELDS: la firma copre quei byte, e un json_encode
+     * rifatto con opzioni diverse ne darebbe un'altra.
+     *
      * @param string[] $extra
      * @return string[]
      */
-    function cripsum_bot_headers(array $extra = []): array
+    function cripsum_bot_headers(array $extra = [], ?string $path = null, ?string $body = null): array
     {
         $headers = ['Content-Type: application/json'];
         $key = defined('CRIPSUM_BOT_API_KEY') ? trim((string)CRIPSUM_BOT_API_KEY) : '';
 
-        if ($key !== '') {
+        $signature = [];
+        if ($path !== null) {
+            // L'indirizzo che vede il bot: quello dopo il dominio, compresa
+            // un'eventuale cartella indicata in CRIPSUM_BOT_ENDPOINT.
+            $parts = parse_url(cripsum_bot_endpoint($path)) ?: [];
+            $signedPath = ($parts['path'] ?? '/') . (isset($parts['query']) ? '?' . $parts['query'] : '');
+            $signature = cripsum_bot_signature_headers('POST', $signedPath, (string)$body);
+        }
+
+        // Con la firma obbligatoria la chiave non viaggia piu': e' proprio
+        // quello che la firma serve a evitare.
+        if ($key !== '' && !($signature !== [] && cripsum_bot_signature_required())) {
             $headers[] = 'X-Cripsum-Bot-Key: ' . $key;
         }
 
-        return array_merge($headers, $extra);
+        return array_merge($headers, $signature, $extra);
     }
 }

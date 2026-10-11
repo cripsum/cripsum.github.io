@@ -17,6 +17,7 @@ if (!defined('CRIPSUM_STATELESS_REQUEST')) {
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
 require_once __DIR__ . '/../../includes/security_helpers.php';
+require_once __DIR__ . '/../../includes/bot_auth.php';
 require_once __DIR__ . '/../../includes/admin/admin_helpers.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -37,12 +38,13 @@ function bot_fail(string $message, int $status = 400): void
     bot_json(['ok' => false, 'error' => $message], $status);
 }
 
+/**
+ * Ferma la richiesta se non arriva dal bot: firma, oppure chiave condivisa
+ * finche' la firma non e' obbligatoria (vedi includes/bot_auth.php).
+ */
 function bot_require_key(): void
 {
-    $apiKey = (string)($_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '');
-    $expected = defined('CRIPSUM_BOT_API_KEY') ? (string)CRIPSUM_BOT_API_KEY : '';
-
-    if ($apiKey === '' || $expected === '' || !hash_equals($expected, $apiKey)) {
+    if (!cripsum_bot_request_authentic()) {
         bot_fail('Access denied. Invalid or missing X-Cripsum-Bot-Key.', 403);
     }
 }
@@ -109,7 +111,7 @@ function bot_find_user(mysqli $mysqli, string $discordId): ?array
     $stmt = $mysqli->prepare(
         'SELECT id, username, display_name, profile_visibility, is_premium, soldi,
                 ruolo, isBannato, discord_id
-         FROM utenti WHERE discord_id = ? LIMIT 1'
+         FROM utenti WHERE discord_id = ? AND COALESCE(LENGTH(discord_username), 0) > 0 ORDER BY id ASC LIMIT 1'
     );
 
     if (!$stmt) {
@@ -228,6 +230,89 @@ function bot_require_actor(mysqli $mysqli, string $field = 'actor_discord_id'): 
 }
 
 /**
+ * Chi sta cambiando qualcosa che riguarda un solo server Discord: i messaggi
+ * del bot, un giveaway senza premi del sito.
+ *
+ * Nel server di Cripsum vale la regola di sempre: serve un account
+ * amministratore del sito collegato a quel Discord. Negli altri server il
+ * sito non ha modo di sapere chi comanda: lo sa il bot, che prima di chiamare
+ * ha controllato su Discord che quella persona possa farlo, e lo dichiara
+ * con `guild_admin`. La chiamata e' firmata, quindi a dichiararlo e' davvero
+ * il bot. Qual e' il server di Cripsum lo dice sempre il bot (`is_home`),
+ * perche' e' scritto nel suo .env e da nessun'altra parte.
+ *
+ * Un amministratore del sito passa comunque, in qualsiasi server.
+ *
+ * @return array{id: ?int, discord_id: string, username: string, site_admin: bool}
+ */
+function bot_require_guild_actor(mysqli $mysqli, string $field = 'actor_discord_id'): array
+{
+    $body = bot_input();
+    $discordId = bot_discord_id($field);
+    $account = bot_find_user($mysqli, $discordId);
+
+    if ($account && (int)($account['isBannato'] ?? 0) === 1) {
+        bot_fail('The acting account is banned.', 403);
+    }
+
+    $siteAdmin = $account && in_array((string)($account['ruolo'] ?? ''), ['admin', 'owner'], true);
+
+    if (!$siteAdmin && (!empty($body['is_home']) || empty($body['guild_admin']))) {
+        bot_fail('The acting account is not a Cripsum administrator.', 403);
+    }
+
+    return [
+        'id' => $account ? (int)$account['id'] : null,
+        'discord_id' => $discordId,
+        'username' => $account ? (string)$account['username'] : $discordId,
+        'site_admin' => (bool)$siteAdmin,
+    ];
+}
+
+/**
+ * Lascia traccia di una modifica fatta da Discord: nel registro del server,
+ * che gli admin di quel server leggono dal pannello, e — se a farla e' stato
+ * un amministratore del sito — anche nel log admin del sito, come prima.
+ *
+ * @param array{id: ?int, discord_id: string, site_admin: bool} $actor
+ * @param array<string, mixed> $details
+ */
+function bot_record_guild_change(
+    mysqli $mysqli,
+    array $actor,
+    string $guildId,
+    string $module,
+    string $action,
+    array $details = []
+): void {
+    if (!empty($actor['site_admin']) && $actor['id'] !== null) {
+        bot_log_action($mysqli, ['id' => $actor['id'], 'discord_id' => $actor['discord_id']], $action, null, $details);
+    }
+
+    if (!auth_table_exists($mysqli, 'discord_guild_audit')) {
+        return;
+    }
+
+    $stmt = $mysqli->prepare(
+        "INSERT INTO discord_guild_audit
+            (guild_id, actor_user_id, actor_discord_id, source, module, action, after_json)
+         VALUES (?, ?, ?, 'discord', ?, ?, ?)"
+    );
+
+    if (!$stmt) {
+        return;
+    }
+
+    $userId = $actor['id'];
+    $discordId = (string)$actor['discord_id'];
+    $json = json_encode($details, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    $stmt->bind_param('sissss', $guildId, $userId, $discordId, $module, $action, $json);
+    $stmt->execute();
+    $stmt->close();
+}
+
+/**
  * Registra l'azione nel log admin del sito, a nome dell'account che l'ha
  * eseguita, annotando che e' arrivata da Discord.
  *
@@ -290,6 +375,27 @@ function bot_text(string $field, int $maxLength = 500, bool $required = false, s
     }
 
     return $value;
+}
+
+/**
+ * Ferma la richiesta se riguarda qualcosa che appartiene a un altro server.
+ *
+ * Giveaway e richiami si indicano con un numero progressivo: chi lo conosce,
+ * o lo indovina, non deve poterli toccare da un server diverso dal loro. Il
+ * bot manda sempre il server da cui arriva il comando, e qui si confronta con
+ * quello salvato. La risposta e' la stessa di quando il numero non esiste,
+ * cosi' non si puo' nemmeno scoprire quali numeri sono in uso altrove.
+ *
+ * Senza guild_id nella richiesta si lascia passare: e' un bot non ancora
+ * aggiornato, e fino ad allora il bot lavora in un server solo.
+ */
+function bot_require_same_guild(string $ownerGuildId, string $notFoundMessage = 'Not found.'): void
+{
+    $guildId = bot_snowflake('guild_id', false);
+
+    if ($guildId !== '' && $guildId !== $ownerGuildId) {
+        bot_fail($notFoundMessage, 404);
+    }
 }
 
 /**

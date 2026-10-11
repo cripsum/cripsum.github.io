@@ -166,7 +166,11 @@ function gacha_queue_announcements(mysqli $mysqli, int $userId, array $banner, a
 
     try {
         $schema = gacha_schema($mysqli);
-        $cols = 'username' . ($schema['visibility'] ? ', profile_visibility' : '') . (gacha_has_col($mysqli, 'utenti', 'discord_id') ? ', discord_id' : '');
+        // Nell'annuncio si menziona solo chi ha collegato Discord davvero: un
+        // ID scritto a mano nel profilo farebbe menzionare un'altra persona.
+        $linkedDiscord = gacha_has_col($mysqli, 'utenti', 'discord_id') && gacha_has_col($mysqli, 'utenti', 'discord_username');
+        $cols = 'username' . ($schema['visibility'] ? ', profile_visibility' : '')
+            . ($linkedDiscord ? ', IF(COALESCE(LENGTH(discord_username), 0) > 0, discord_id, NULL) AS discord_id' : '');
         $stmt = $mysqli->prepare("SELECT $cols FROM utenti WHERE id = ? LIMIT 1");
         $stmt->bind_param('i', $userId);
         $stmt->execute();
@@ -237,12 +241,13 @@ function gacha_flush_announcements(): void
             'footer_text' => 'Cripsum Lootbox • ' . date('d/m/Y H:i'),
         ];
 
+        $botBody = (string)json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $ch = curl_init(cripsum_bot_endpoint('/v1/announce'));
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => cripsum_bot_headers(),
-            CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            CURLOPT_HTTPHEADER => cripsum_bot_headers([], '/v1/announce', $botBody),
+            CURLOPT_POSTFIELDS => $botBody,
             CURLOPT_TIMEOUT => 5,
             CURLOPT_CONNECTTIMEOUT => 3,
         ]);

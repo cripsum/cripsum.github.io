@@ -112,12 +112,13 @@ chat_run(static function () use ($mysqli, $userId, $chatUser): void {
         if (!function_exists('curl_init')) {
             return null;
         }
+        $botBody = (string)json_encode($payload);
         $ch = curl_init(cripsum_bot_endpoint($path));
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => cripsum_bot_headers(),
+            CURLOPT_POSTFIELDS => $botBody,
+            CURLOPT_HTTPHEADER => cripsum_bot_headers([], $path, $botBody),
             CURLOPT_CONNECTTIMEOUT => 3,
             CURLOPT_TIMEOUT => 6,
             CURLOPT_SSL_VERIFYPEER => true,

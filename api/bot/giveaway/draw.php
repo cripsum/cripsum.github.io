@@ -51,6 +51,8 @@ if (!$giveaway) {
     bot_fail('Giveaway not found.', 404);
 }
 
+bot_require_same_guild((string)$giveaway['guild_id'], 'Giveaway not found.');
+
 $expired = strtotime((string)$giveaway['ends_at']) <= time();
 $actor = null;
 
@@ -126,6 +128,8 @@ if (!$winners) {
         'title' => (string)$giveaway['title'],
         'message_id' => $giveaway['message_id'],
         'channel_id' => (string)$giveaway['channel_id'],
+        // Il bot cerca il canale solo dentro questo server.
+        'guild_id' => (string)$giveaway['guild_id'],
     ]);
 }
 
@@ -197,6 +201,7 @@ bot_json([
     'reroll' => $reroll,
     'title' => (string)$giveaway['title'],
     'channel_id' => (string)$giveaway['channel_id'],
+    'guild_id' => (string)$giveaway['guild_id'],
     'message_id' => $giveaway['message_id'],
     'rewards' => $rewardLabels,
     'winners' => $delivered,

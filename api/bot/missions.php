@@ -2,12 +2,12 @@
 require_once __DIR__ . '/../../config/session_init.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
+require_once __DIR__ . '/../../includes/bot_auth.php';
 require_once __DIR__ . '/../../includes/mission_generator.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$apiKey = $_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '';
-if (empty($apiKey) || !hash_equals((string)CRIPSUM_BOT_API_KEY, (string)$apiKey)) {
+if (!cripsum_bot_request_authentic()) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'error' => 'Access denied.']);
     exit;
@@ -20,7 +20,7 @@ if (!preg_match('/^\d{15,25}$/', $discordId)) {
     exit;
 }
 
-$stmt = $mysqli->prepare('SELECT id, username FROM utenti WHERE discord_id = ? LIMIT 1');
+$stmt = $mysqli->prepare('SELECT id, username FROM utenti WHERE discord_id = ? AND COALESCE(LENGTH(discord_username), 0) > 0 ORDER BY id ASC LIMIT 1');
 $stmt->bind_param('s', $discordId);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();

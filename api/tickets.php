@@ -65,12 +65,13 @@ $notifyBot = static function (array $payload): void {
     if (!function_exists('curl_init')) {
         return;
     }
+    $botBody = (string)json_encode($payload);
     $ch = curl_init(cripsum_bot_endpoint('/v1/tickets/reply'));
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => json_encode($payload),
-        CURLOPT_HTTPHEADER => cripsum_bot_headers(),
+        CURLOPT_POSTFIELDS => $botBody,
+        CURLOPT_HTTPHEADER => cripsum_bot_headers([], '/v1/tickets/reply', $botBody),
         CURLOPT_CONNECTTIMEOUT => 2,
         CURLOPT_TIMEOUT => 3,
         CURLOPT_SSL_VERIFYPEER => true,

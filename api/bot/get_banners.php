@@ -14,11 +14,11 @@ if (!defined('CRIPSUM_STATELESS_REQUEST')) {
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
+require_once __DIR__ . '/../../includes/bot_auth.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$apiKey = (string)($_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '');
-if ($apiKey === '' || !defined('CRIPSUM_BOT_API_KEY') || !hash_equals((string)CRIPSUM_BOT_API_KEY, $apiKey)) {
+if (!cripsum_bot_request_authentic()) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Access denied. Invalid or missing X-Cripsum-Bot-Key.']);
     exit;
@@ -36,7 +36,7 @@ if ($discordId === '') {
     exit;
 }
 
-$stmt = $mysqli->prepare('SELECT id FROM utenti WHERE discord_id = ? LIMIT 1');
+$stmt = $mysqli->prepare('SELECT id FROM utenti WHERE discord_id = ? AND COALESCE(LENGTH(discord_username), 0) > 0 ORDER BY id ASC LIMIT 1');
 $stmt->bind_param('s', $discordId);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();

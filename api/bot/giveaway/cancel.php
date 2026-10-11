@@ -23,7 +23,7 @@ if ($giveawayId <= 0) {
     bot_fail('Missing giveaway_id.', 400);
 }
 
-$stmt = $mysqli->prepare('SELECT id, title, status, channel_id, message_id FROM discord_giveaways WHERE id = ? LIMIT 1');
+$stmt = $mysqli->prepare('SELECT id, guild_id, title, status, channel_id, message_id FROM discord_giveaways WHERE id = ? LIMIT 1');
 if (!$stmt) {
     bot_fail('Unable to read the giveaway.', 500);
 }
@@ -36,6 +36,8 @@ $stmt->close();
 if (!$giveaway) {
     bot_fail('Giveaway not found.', 404);
 }
+
+bot_require_same_guild((string)$giveaway['guild_id'], 'Giveaway not found.');
 
 if ((string)$giveaway['status'] !== 'running') {
     bot_json([

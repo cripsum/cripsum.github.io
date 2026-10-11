@@ -1,0 +1,1246 @@
+/* ============================================================
+   Pannello del bot (/it/bot, /en/bot)
+   ============================================================
+
+   Stesse regole del tema: fondo scuro neutro, niente sfumature ne' aloni,
+   il colore arriva dai contenuti (icone dei server, colori dei ruoli,
+   l'anteprima di Discord), un solo pulsante pieno per schermata.
+
+   I pezzi comuni sono quelli di assets/global/theme.css (nx-btn, nx-input,
+   nx-switch, nx-tabs, nx-table, nx-tag): qui c'e' solo quello che e' del
+   pannello, con prefisso bp-. L'anteprima di Discord ha prefisso dc- e i
+   colori di Discord, perche' deve somigliare a quello che uscira' la'.
+   ============================================================ */
+html[data-theme="next"] body.bot-panel-page {
+    background: var(--nx-bg);
+    color: var(--nx-text);
+    font-family: var(--nx-font);
+}
+
+html[data-theme="next"] .bp-shell {
+    width: min(1240px, calc(100% - 32px));
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 7.2rem 0 7rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+html[data-theme="next"] .bp-shell :where(h1, h2, h3, p, ul, ol) {
+    margin: 0;
+    padding: 0;
+}
+
+html[data-theme="next"] .bp-shell :where(ul, ol) {
+    list-style: none;
+}
+
+/* ── Testata: icona del server, nome, una riga. Sul fondo. ── */
+
+html[data-theme="next"] .bp-head {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    margin-bottom: 2.75rem;
+}
+
+html[data-theme="next"] .bp-head__icon,
+html[data-theme="next"] .bp-tile {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 1.4rem;
+    background: var(--nx-surface-2);
+    color: var(--nx-text-2);
+    font-weight: 600;
+    object-fit: cover;
+}
+
+html[data-theme="next"] .bp-head h1 {
+    margin-bottom: 0.3rem;
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+html[data-theme="next"] .bp-head p {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .bp-head__side {
+    display: flex;
+    gap: 0.6rem;
+    margin-left: auto;
+}
+
+/* ── Due colonne: menu a sinistra, contenuto a destra ────── */
+
+html[data-theme="next"] .bp-layout {
+    display: grid;
+    grid-template-columns: 13.5rem minmax(0, 1fr);
+    gap: 3.5rem;
+    align-items: start;
+}
+
+html[data-theme="next"] .bp-nav {
+    position: sticky;
+    top: 6.5rem;
+    display: grid;
+    gap: 0.15rem;
+}
+
+html[data-theme="next"] .bp-nav__group {
+    margin: 1.4rem 0 0.35rem 0.9rem;
+    color: var(--nx-text-3);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .bp-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0 0.9rem;
+    border-radius: 12px;
+    color: var(--nx-text-2);
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 240ms var(--nx-ease), color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .bp-nav a > i {
+    width: 1.1rem;
+    color: var(--nx-text-3);
+    font-size: 0.95rem;
+    text-align: center;
+    transition: color 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .bp-nav a:hover,
+html[data-theme="next"] .bp-nav a:hover > i {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .bp-nav a.is-active {
+    background: var(--nx-surface);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .bp-nav a.is-active > i {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .bp-nav a:focus-visible,
+html[data-theme="next"] .bp-chip--add:focus-visible,
+html[data-theme="next"] .bp-swatch:focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 3px;
+}
+
+/* Un modulo spento lo dice anche nel menu, senza doverlo aprire. */
+html[data-theme="next"] .bp-nav__off {
+    margin-left: auto;
+    color: var(--nx-text-3);
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+/* ── Contenuto ───────────────────────────────────────────── */
+
+html[data-theme="next"] .bp-main > * + * {
+    margin-top: 3rem;
+}
+
+html[data-theme="next"] .bp-title {
+    margin-bottom: 0.35rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+}
+
+html[data-theme="next"] .bp-lead {
+    max-width: 62ch;
+    color: var(--nx-text-2);
+    line-height: 1.55;
+}
+
+html[data-theme="next"] .bp-h {
+    margin-bottom: 0.9rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+html[data-theme="next"] .bp-h small {
+    margin-left: 0.5rem;
+    color: var(--nx-text-3);
+    font-size: 0.8125rem;
+    font-weight: 400;
+}
+
+html[data-theme="next"] .bp-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    margin-top: 1.5rem;
+}
+
+html[data-theme="next"] .bp-bar__end {
+    margin-left: auto;
+}
+
+/* ── Righe: elenchi sul fondo, divisi da una linea ───────── */
+
+html[data-theme="next"] .bp-rows {
+    border-top: 1px solid var(--nx-line);
+}
+
+html[data-theme="next"] .bp-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--nx-line);
+}
+
+html[data-theme="next"] .bp-row--plain {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+html[data-theme="next"] .bp-row__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .bp-row__icon--danger {
+    color: var(--nx-danger);
+}
+
+html[data-theme="next"] .bp-row__icon--emoji {
+    font-size: 1.15rem;
+}
+
+html[data-theme="next"] .bp-row .bp-tile {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.95rem;
+    font-size: 0.875rem;
+}
+
+html[data-theme="next"] .bp-row__title {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .bp-row__meta {
+    margin-top: 0.1rem;
+    color: var(--nx-text-2);
+    font-size: 0.875rem;
+}
+
+html[data-theme="next"] .bp-row__side {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+html[data-theme="next"] .bp-grip {
+    color: var(--nx-text-3);
+    cursor: grab;
+}
+
+/* ── Etichette di ruoli e canali ─────────────────────────── */
+
+html[data-theme="next"] .bp-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+html[data-theme="next"] .bp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 1.75rem;
+    padding: 0 0.7rem;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Il colore del ruolo, quello scelto su Discord: un pallino, non uno sfondo. */
+html[data-theme="next"] .bp-chip > b {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--c, var(--nx-text-3));
+}
+
+html[data-theme="next"] .bp-chip--channel::before {
+    content: "#";
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .bp-chip > .fa-xmark {
+    margin-left: 0.15rem;
+    color: var(--nx-text-3);
+    font-size: 0.7rem;
+}
+
+html[data-theme="next"] .bp-chip--add {
+    border: 1px dashed var(--nx-surface-3);
+    background: none;
+    color: var(--nx-text-2);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+html[data-theme="next"] .bp-chip--add:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .bp-edit .bp-chip,
+html[data-theme="next"] .bp-edit .nx-input {
+    background: var(--nx-surface-2);
+}
+
+/* ── Impostazioni: nome e spiegazione a sinistra, comando a destra ── */
+
+html[data-theme="next"] .bp-settings {
+    border-top: 1px solid var(--nx-line);
+}
+
+html[data-theme="next"] .bp-setting {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+    gap: 0.75rem 2rem;
+    align-items: center;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--nx-line);
+}
+
+html[data-theme="next"] .bp-setting--switch {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+html[data-theme="next"] .bp-setting__name {
+    font-weight: 500;
+}
+
+html[data-theme="next"] .bp-setting__hint {
+    margin-top: 0.15rem;
+    max-width: 52ch;
+    color: var(--nx-text-2);
+    font-size: 0.875rem;
+}
+
+/* ── Modulo di modifica: l'unica cosa in un riquadro ─────── */
+
+html[data-theme="next"] .bp-edit {
+    padding: 1.5rem;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .bp-form {
+    display: grid;
+    gap: 1.15rem;
+}
+
+html[data-theme="next"] .bp-form__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+html[data-theme="next"] .bp-form__pair--short {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+}
+
+html[data-theme="next"] .bp-form__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+html[data-theme="next"] .bp-form__foot .nx-btn--danger {
+    margin-left: auto;
+}
+
+/* Le domande del modulo di un ticket, in fila. */
+html[data-theme="next"] .bp-questions {
+    display: grid;
+    gap: 0.4rem;
+}
+
+html[data-theme="next"] .bp-question {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0 0.6rem 0 0.9rem;
+    border-radius: 12px;
+    background: var(--nx-surface-2);
+}
+
+html[data-theme="next"] .bp-question small {
+    color: var(--nx-text-3);
+    font-size: 0.8125rem;
+}
+
+html[data-theme="next"] .bp-question .nx-icon-btn {
+    width: 2rem;
+    height: 2rem;
+    background: none;
+}
+
+/* Colore dell'embed: il campione accanto al codice. */
+html[data-theme="next"] .bp-color {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem;
+}
+
+html[data-theme="next"] .bp-swatch {
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: var(--c);
+    cursor: pointer;
+}
+
+/* Segnaposto: si premono per inserirli nel testo. */
+html[data-theme="next"] .bp-tokens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+html[data-theme="next"] .bp-token {
+    min-height: 1.75rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--nx-surface-3);
+    border-radius: 8px;
+    background: none;
+    color: var(--nx-text-2);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+html[data-theme="next"] .bp-token:hover {
+    border-color: var(--nx-text-3);
+    color: var(--nx-text);
+}
+
+/* ── Modulo a sinistra, anteprima a destra ───────────────── */
+
+html[data-theme="next"] .bp-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 25rem;
+    gap: 3rem;
+    align-items: start;
+}
+
+html[data-theme="next"] .bp-preview {
+    position: sticky;
+    top: 6.5rem;
+}
+
+html[data-theme="next"] .bp-preview__label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+    color: var(--nx-text-3);
+    font-size: 0.8125rem;
+}
+
+/* ── Anteprima di Discord ────────────────────────────────── */
+
+html[data-theme="next"] .dc {
+    padding: 1rem 1rem 1.15rem;
+    border-radius: 16px;
+    background: #313338;
+    color: #dbdee1;
+    font-family: "gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.375;
+}
+
+html[data-theme="next"] .dc-msg {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0.9rem;
+}
+
+html[data-theme="next"] .dc-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+html[data-theme="next"] .dc-name {
+    color: #f2f3f5;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .dc-app {
+    margin: 0 0.3rem;
+    padding: 0.06rem 0.3rem;
+    border-radius: 0.25rem;
+    background: #5865f2;
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 600;
+    vertical-align: 0.12em;
+}
+
+html[data-theme="next"] .dc-time {
+    color: #949ba4;
+    font-size: 0.75rem;
+}
+
+html[data-theme="next"] .dc-mention {
+    padding: 0 2px;
+    border-radius: 3px;
+    background: rgba(88, 101, 242, 0.3);
+    color: #c9cdfb;
+    font-weight: 500;
+}
+
+/* La riga colorata a sinistra e' quella degli embed di Discord. */
+html[data-theme="next"] .dc-embed {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 1rem;
+    margin-top: 0.4rem;
+    padding: 0.7rem 1rem 0.9rem 0.85rem;
+    border-left: 4px solid var(--embed, #5865f2);
+    border-radius: 4px;
+    background: #2b2d31;
+}
+
+html[data-theme="next"] .dc-embed__title {
+    color: #f2f3f5;
+    font-weight: 600;
+}
+
+html[data-theme="next"] .dc-embed__text {
+    font-size: 0.875rem;
+}
+
+html[data-theme="next"] .dc-embed__text b {
+    color: #f2f3f5;
+    font-weight: 600;
+}
+
+html[data-theme="next"] .dc-embed__thumb {
+    grid-row: span 2;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+html[data-theme="next"] .dc-embed__fields {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+html[data-theme="next"] .dc-embed__fields b {
+    display: block;
+    color: #f2f3f5;
+    font-weight: 600;
+}
+
+html[data-theme="next"] .dc-embed__foot {
+    grid-column: 1 / -1;
+    margin-top: 0.2rem;
+    color: #b5bac1;
+    font-size: 0.75rem;
+}
+
+html[data-theme="next"] .dc-select {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px 8px 0 0;
+    background: #1e1f22;
+    color: #949ba4;
+}
+
+html[data-theme="next"] .dc-options {
+    border: 1px solid #1e1f22;
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    background: #2b2d31;
+}
+
+html[data-theme="next"] .dc-option {
+    display: grid;
+    grid-template-columns: 1.4rem minmax(0, 1fr);
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+}
+
+html[data-theme="next"] .dc-option.is-hover {
+    background: #35373c;
+}
+
+html[data-theme="next"] .dc-option b {
+    display: block;
+    color: #f2f3f5;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .dc-option small {
+    color: #b5bac1;
+    font-size: 0.8125rem;
+}
+
+html[data-theme="next"] .dc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2rem;
+    margin-top: 0.5rem;
+    padding: 0 1rem;
+    border-radius: 8px;
+    background: #248046;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* ── Tabelle del pannello ────────────────────────────────── */
+
+html[data-theme="next"] .bp-table-wrap {
+    overflow-x: auto;
+}
+
+html[data-theme="next"] .bp-shell .nx-table th:first-child,
+html[data-theme="next"] .bp-shell .nx-table td:first-child {
+    padding-left: 0;
+}
+
+html[data-theme="next"] .bp-shell .nx-table td {
+    vertical-align: middle;
+}
+
+html[data-theme="next"] .bp-who {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 500;
+}
+
+html[data-theme="next"] .bp-who img {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+}
+
+html[data-theme="next"] .bp-dim {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .bp-num {
+    color: var(--nx-text-3);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Prima e dopo di una modifica, nel registro. */
+html[data-theme="next"] .bp-diff {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    border-radius: 14px;
+    background: var(--nx-surface);
+    font-size: 0.875rem;
+}
+
+html[data-theme="next"] .bp-diff dt {
+    margin-bottom: 0.3rem;
+    color: var(--nx-text-3);
+    font-size: 0.8125rem;
+}
+
+html[data-theme="next"] .bp-diff dd {
+    margin: 0;
+}
+
+html[data-theme="next"] .bp-diff del {
+    color: var(--nx-text-2);
+}
+
+/* ── Barra delle modifiche non salvate ───────────────────── */
+
+html[data-theme="next"] .bp-savebar {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.55rem 0.55rem 0.55rem 1.4rem;
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+html[data-theme="next"] .bp-savebar__actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+/* ── Telefono ────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    html[data-theme="next"] .bp-shell {
+        padding-top: 6.2rem;
+    }
+
+    html[data-theme="next"] .bp-head {
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+
+    html[data-theme="next"] .bp-head__icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 1.1rem;
+    }
+
+    html[data-theme="next"] .bp-head h1 {
+        font-size: 2rem;
+    }
+
+    html[data-theme="next"] .bp-head__side {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    html[data-theme="next"] .bp-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.75rem;
+    }
+
+    /* Il menu diventa una fila che scorre, come nelle Impostazioni. */
+    html[data-theme="next"] .bp-nav {
+        position: static;
+        display: flex;
+        gap: 0.25rem;
+        margin: 0 -16px;
+        padding: 0 16px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    html[data-theme="next"] .bp-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    html[data-theme="next"] .bp-nav__group,
+    html[data-theme="next"] .bp-nav__off {
+        display: none;
+    }
+
+    html[data-theme="next"] .bp-nav a {
+        flex: none;
+        border-radius: var(--nx-pill);
+    }
+
+    html[data-theme="next"] .bp-main > * + * {
+        margin-top: 2.25rem;
+    }
+
+    html[data-theme="next"] .bp-title {
+        font-size: 1.5rem;
+    }
+
+    html[data-theme="next"] .bp-split {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2rem;
+    }
+
+    html[data-theme="next"] .bp-preview {
+        position: static;
+    }
+
+    html[data-theme="next"] .bp-setting,
+    html[data-theme="next"] .bp-form__pair {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    html[data-theme="next"] .bp-setting--switch {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    html[data-theme="next"] .bp-row {
+        gap: 0.75rem;
+    }
+
+    html[data-theme="next"] .bp-row__side .bp-chips,
+    html[data-theme="next"] .bp-row__side .nx-tag {
+        display: none;
+    }
+
+    html[data-theme="next"] .bp-savebar {
+        left: 16px;
+        right: 16px;
+        bottom: 1rem;
+        justify-content: space-between;
+        transform: none;
+    }
+
+    html[data-theme="next"] .bp-diff {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-theme="next"] .bp-nav a,
+    html[data-theme="next"] .bp-nav a > i {
+        transition: none;
+    }
+}
+
+/* ── Pezzi piccoli ───────────────────────────────────────── */
+
+/* La scelta del server e' una colonna sola, piu' stretta. */
+html[data-theme="next"] .bp-narrow {
+    max-width: 52rem;
+}
+
+html[data-theme="next"] .bp-foot {
+    max-width: 62ch;
+    color: var(--nx-text-2);
+    font-size: 0.875rem;
+    line-height: 1.55;
+}
+
+html[data-theme="next"] .bp-foot strong {
+    color: var(--nx-text);
+    font-weight: 500;
+}
+
+html[data-theme="next"] .bp-foot .nx-link {
+    display: flex;
+    min-height: 2.25rem;
+}
+
+html[data-theme="next"] .bp-shell code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 6px;
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+    font-size: 0.875em;
+}
+
+/* Un canale o un ruolo dentro una frase. */
+html[data-theme="next"] .bp-row__title .bp-chip,
+html[data-theme="next"] .bp-row__meta .bp-chip,
+html[data-theme="next"] .bp-dim .bp-chip {
+    min-height: 1.5rem;
+    margin: 0 0.1rem;
+    vertical-align: 0.05em;
+}
+
+html[data-theme="next"] .bp-form .nx-check {
+    min-height: 1.9rem;
+}
+
+html[data-theme="next"] .bp-form .nx-check input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+html[data-theme="next"] .bp-main > section > .nx-link {
+    margin-top: 0.4rem;
+}
+
+/* ── Rifiniture ──────────────────────────────────────────── */
+
+/* Una voce del menu resta su una riga, anche con "spento" accanto. */
+html[data-theme="next"] .bp-nav a {
+    white-space: nowrap;
+}
+
+html[data-theme="next"] .bp-row__meta {
+    max-width: 68ch;
+}
+
+/* Accanto all'anteprima la colonna e' stretta: il comando si accorcia. */
+html[data-theme="next"] .bp-split .bp-setting:not(.bp-setting--switch) {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+}
+
+/* Le celle in secondo piano restano grigie anche dentro una tabella. */
+html[data-theme="next"] .bp-shell .nx-table td.bp-dim {
+    color: var(--nx-text-2);
+}
+
+html[data-theme="next"] .bp-shell .nx-table td.bp-num {
+    color: var(--nx-text-3);
+}
+
+html[data-theme="next"] .bp-form__foot .nx-field__hint {
+    flex: 1 1 14rem;
+}
+
+html[data-theme="next"] .dc-avatar {
+    background: #1e1f22;
+}
+
+html[data-theme="next"] .bp-bar .nx-tabs {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+html[data-theme="next"] .bp-bar .nx-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+html[data-theme="next"] .bp-bar .nx-tab {
+    flex: none;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    /* Il pulsante scende sotto il testo, che cosi' tiene tutta la larghezza. */
+    html[data-theme="next"] .bp-row--stack {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    html[data-theme="next"] .bp-row--stack.bp-row--plain {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    html[data-theme="next"] .bp-row--stack .bp-row__side {
+        grid-column: -2 / -1;
+        flex-wrap: wrap;
+        justify-self: start;
+    }
+
+    html[data-theme="next"] .bp-row--stack .bp-row__side .nx-select {
+        width: auto !important;
+    }
+
+    html[data-theme="next"] .bp-savebar {
+        gap: 0.75rem;
+        padding-left: 1.1rem;
+        font-size: 0.875rem;
+    }
+
+    html[data-theme="next"] .bp-savebar .nx-btn {
+        padding: 0 0.85rem;
+    }
+
+    html[data-theme="next"] .bp-bar__end {
+        margin-left: 0;
+    }
+}
+
+/* ── Stati della pagina ──────────────────────────────────── */
+
+html[data-theme="next"] .bp-loading {
+    padding: 4rem 0;
+    color: var(--nx-text-3);
+}
+
+/* Quando non si puo' entrare (non collegato, Discord mancante, bot che non
+   risponde): una spiegazione e un pulsante, al centro della colonna. */
+html[data-theme="next"] .bp-gate {
+    display: grid;
+    gap: 1.1rem;
+    justify-items: start;
+    max-width: 34rem;
+}
+
+html[data-theme="next"] .bp-gate h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+html[data-theme="next"] .bp-gate p {
+    color: var(--nx-text-2);
+    line-height: 1.55;
+}
+
+html[data-theme="next"] .bp-empty {
+    padding: 1.4rem 0;
+    border-top: 1px solid var(--nx-line);
+    border-bottom: 1px solid var(--nx-line);
+    color: var(--nx-text-2);
+}
+
+/* Solo lettura: nel server di Cripsum chi non e' admin del sito guarda. */
+html[data-theme="next"] .bp-readonly :is(input, select, textarea, button):not(.bp-always) {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* ── Campi ───────────────────────────────────────────────── */
+
+html[data-theme="next"] .bp-setting .nx-input {
+    width: 100%;
+}
+
+html[data-theme="next"] .bp-setting__control {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+html[data-theme="next"] .bp-error {
+    color: var(--nx-danger);
+    font-size: 0.8125rem;
+}
+
+html[data-theme="next"] .nx-input.is-invalid,
+html[data-theme="next"] .bp-chips.is-invalid .bp-chip--add {
+    border-color: var(--nx-danger);
+}
+
+/* Aggiungere un ruolo: un menu che sembra l'etichetta tratteggiata. */
+html[data-theme="next"] select.bp-chip--add {
+    max-width: 11rem;
+    padding: 0 0.7rem;
+    appearance: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+html[data-theme="next"] select.bp-chip--add option {
+    background: var(--nx-surface-2);
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .bp-chip > button {
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.1rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--nx-text-3);
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+html[data-theme="next"] .bp-chip > button:hover {
+    color: var(--nx-text);
+}
+
+html[data-theme="next"] .bp-swatch {
+    appearance: none;
+    overflow: hidden;
+}
+
+html[data-theme="next"] .bp-swatch::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+html[data-theme="next"] .bp-swatch::-webkit-color-swatch {
+    border: 0;
+}
+
+/* Le voci di un elenco semplice (le soglie): i campi in fila. */
+html[data-theme="next"] .bp-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: flex-end;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--nx-line);
+}
+
+html[data-theme="next"] .bp-item:first-child {
+    border-top: 1px solid var(--nx-line);
+}
+
+html[data-theme="next"] .bp-item > .nx-field {
+    flex: 1 1 9rem;
+}
+
+html[data-theme="next"] .bp-item > .nx-icon-btn {
+    flex: none;
+    margin-bottom: 0.25rem;
+}
+
+html[data-theme="next"] .bp-item--block {
+    display: block;
+    margin-bottom: 0.75rem;
+    padding: 1.25rem;
+    border: 0;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+}
+
+html[data-theme="next"] .bp-item--block:first-child {
+    border-top: 0;
+}
+
+/* ── Avvisi ──────────────────────────────────────────────── */
+
+html[data-theme="next"] .bp-toasts {
+    position: fixed;
+    left: 50%;
+    bottom: 5.5rem;
+    z-index: 70;
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+html[data-theme="next"] .bp-toast {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: min(34rem, calc(100vw - 32px));
+    padding: 0.7rem 1.1rem;
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+    font-size: 0.9375rem;
+    animation: bp-toast-in 240ms var(--nx-ease);
+}
+
+html[data-theme="next"] .bp-toast > i {
+    color: var(--nx-ok);
+}
+
+html[data-theme="next"] .bp-toast--danger > i {
+    color: var(--nx-danger);
+}
+
+@keyframes bp-toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+html[data-theme="next"] .bp-savebar[hidden] {
+    display: none;
+}
+
+/* Riga del registro aperta: il prima e il dopo. */
+html[data-theme="next"] .bp-diff pre {
+    margin: 0;
+    max-height: 16rem;
+    overflow: auto;
+    color: var(--nx-text-2);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+html[data-theme="next"] .bp-diff__foot {
+    grid-column: 1 / -1;
+}
+
+html[data-theme="next"] .bp-main > section > .bp-rows + .bp-bar,
+html[data-theme="next"] .bp-main > section > .bp-settings + .bp-bar {
+    margin-top: 1rem;
+}
+
+html[data-theme="next"] button.bp-rowlink {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-theme="next"] .bp-toast {
+        animation: none;
+    }
+}
+
+/* ── Anteprima: immagini ─────────────────────────────────── */
+
+/* Al posto di un'immagine che arriva da un segnaposto ({user.avatar}): si
+   sa che ci sara', non quale. */
+html[data-theme="next"] .dc-ph {
+    display: grid;
+    place-items: center;
+    background: #1e1f22;
+    color: #6d6f78;
+}
+
+html[data-theme="next"] .dc-avatar.dc-ph {
+    font-size: 1.1rem;
+}
+
+html[data-theme="next"] .dc-embed__image {
+    display: block;
+    max-width: 100%;
+    max-height: 14rem;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+html[data-theme="next"] span.dc-embed__image {
+    width: 100%;
+    height: 8rem;
+}
+
+html[data-theme="next"] .dc code {
+    padding: 0.05rem 0.25rem;
+    border-radius: 3px;
+    background: #1e1f22;
+    color: #dbdee1;
+    font-size: 0.85em;
+}
+
+html[data-theme="next"] .bp-bar .bp-bar__end {
+    margin-left: auto;
+}

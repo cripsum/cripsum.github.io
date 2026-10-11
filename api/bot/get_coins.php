@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
+require_once __DIR__ . '/../../includes/bot_auth.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 // 1. Authenticate Request
-$apiKey = $_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '';
-if (empty($apiKey) || $apiKey !== CRIPSUM_BOT_API_KEY) {
+if (!cripsum_bot_request_authentic()) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'error' => 'Access denied. Invalid or missing X-Cripsum-Bot-Key.']);
     exit;
@@ -26,7 +26,7 @@ if (empty($discordId)) {
 }
 
 // 3. Find Linked User
-$stmt = $mysqli->prepare("SELECT username, soldi, godoshards_balance, is_premium FROM utenti WHERE discord_id = ? LIMIT 1");
+$stmt = $mysqli->prepare("SELECT username, soldi, godoshards_balance, is_premium FROM utenti WHERE discord_id = ? AND COALESCE(LENGTH(discord_username), 0) > 0 ORDER BY id ASC LIMIT 1");
 if (!$stmt) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => 'Database query preparation failed.']);

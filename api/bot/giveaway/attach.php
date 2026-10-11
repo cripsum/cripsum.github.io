@@ -23,12 +23,24 @@ if ($giveawayId <= 0) {
     bot_fail('Missing giveaway_id.', 400);
 }
 
-$stmt = $mysqli->prepare('UPDATE discord_giveaways SET message_id = ? WHERE id = ? LIMIT 1');
+// Stessa regola di bot_require_same_guild(), scritta nella query: il messaggio
+// si collega solo a un giveaway del server da cui arriva la richiesta.
+$guildId = bot_snowflake('guild_id', false);
+
+$stmt = $mysqli->prepare(
+    'UPDATE discord_giveaways SET message_id = ? WHERE id = ?'
+    . ($guildId !== '' ? ' AND guild_id = ?' : '')
+    . ' LIMIT 1'
+);
 if (!$stmt) {
     bot_fail('Unable to attach the message.', 500);
 }
 
-$stmt->bind_param('si', $messageId, $giveawayId);
+if ($guildId !== '') {
+    $stmt->bind_param('sis', $messageId, $giveawayId, $guildId);
+} else {
+    $stmt->bind_param('si', $messageId, $giveawayId);
+}
 $ok = $stmt->execute();
 $stmt->close();
 

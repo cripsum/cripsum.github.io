@@ -106,7 +106,7 @@ if ($stmt) {
         $reporterUsername = $_SESSION['username'] ?? '';
         $reporterRole = $_SESSION['ruolo'] ?? '';
         $reporterDiscordId = $_SESSION['discord_id'] ?? '';
-        $rStmt = $mysqli->prepare("SELECT username, ruolo, discord_id FROM utenti WHERE id = ? LIMIT 1");
+        $rStmt = $mysqli->prepare("SELECT username, ruolo, " . cripsum_linked_discord_sql() . " AS discord_id FROM utenti WHERE id = ? LIMIT 1");
         if ($rStmt) {
             $rStmt->bind_param('i', $reporter_id);
             $rStmt->execute();

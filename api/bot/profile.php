@@ -1,11 +1,11 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
+require_once __DIR__ . '/../../includes/bot_auth.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$apiKey = $_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '';
-if (empty($apiKey) || !hash_equals((string)CRIPSUM_BOT_API_KEY, (string)$apiKey)) {
+if (!cripsum_bot_request_authentic()) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'error' => 'Access denied.']);
     exit;
@@ -39,7 +39,7 @@ $stmt = $mysqli->prepare("
                COALESCE(SUM(" . cripsum_boxes_sql($mysqli) . "), 0) AS total_personaggi
         FROM utenti_personaggi GROUP BY utente_id
     ) inv ON inv.utente_id = u.id
-    WHERE u.discord_id = ? LIMIT 1
+    WHERE u.discord_id = ? AND COALESCE(LENGTH(u.discord_username), 0) > 0 ORDER BY u.id ASC LIMIT 1
 ");
 
 if (!$stmt) {

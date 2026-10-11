@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/discord_oauth.php';
+require_once __DIR__ . '/../../includes/bot_auth.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 // 1. Authenticate Request
-$apiKey = $_SERVER['HTTP_X_CRIPSUM_BOT_KEY'] ?? '';
-if (empty($apiKey) || $apiKey !== CRIPSUM_BOT_API_KEY) {
+if (!cripsum_bot_request_authentic()) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'error' => 'Access denied. Invalid or missing X-Cripsum-Bot-Key.']);
     exit;
@@ -23,6 +23,7 @@ $query = "
     FROM utenti u
     LEFT JOIN user_custom_badges ucb ON ucb.utente_id = u.id
     WHERE u.discord_id IS NOT NULL AND u.discord_id != ''
+      AND COALESCE(LENGTH(u.discord_username), 0) > 0
     GROUP BY u.id
 ";
 

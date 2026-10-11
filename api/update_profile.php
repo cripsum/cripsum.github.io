@@ -291,6 +291,16 @@ if (!profile_is_valid_discord_id($discordId)) {
     profile_json_response(['ok' => false, 'message' => 'Invalid Discord ID. Must contain only numbers.'], 422);
 }
 
+// Con Discord collegato l'ID e' quello confermato dall'autorizzazione, e non
+// si cambia da qui. Nell'editor il campo e' in sola lettura, ma bastava
+// mandare la richiesta a mano per sostituirlo con l'ID di un altro: ed e' da
+// quell'ID che il bot riconosce l'account (comandi, premi dei giveaway, ruoli).
+$connectedDiscordId = !empty($profile['discord_username']) ? trim((string)($profile['discord_id'] ?? '')) : '';
+if ($connectedDiscordId !== '') {
+    $discordId = $connectedDiscordId;
+    $discordIdDb = $connectedDiscordId;
+}
+
 $hasConnectedDiscord = !empty($profile['discord_username']) && $discordIdDb !== null && $discordIdDb === (string)($profile['discord_id'] ?? '');
 if (!$hasConnectedDiscord) {
     $discordUseAvatar = 0;

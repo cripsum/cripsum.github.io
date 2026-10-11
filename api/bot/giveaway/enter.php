@@ -26,7 +26,7 @@ if ($giveawayId <= 0) {
 }
 
 $stmt = $mysqli->prepare(
-    'SELECT id, status, ends_at, title FROM discord_giveaways WHERE id = ? LIMIT 1'
+    'SELECT id, guild_id, status, ends_at, title FROM discord_giveaways WHERE id = ? LIMIT 1'
 );
 
 if (!$stmt) {
@@ -41,6 +41,8 @@ $stmt->close();
 if (!$giveaway) {
     bot_fail('Giveaway not found.', 404);
 }
+
+bot_require_same_guild((string)$giveaway['guild_id'], 'Giveaway not found.');
 
 if ((string)$giveaway['status'] !== 'running' || strtotime((string)$giveaway['ends_at']) <= time()) {
     bot_json(['ok' => true, 'available' => true, 'entered' => false, 'reason' => 'closed']);

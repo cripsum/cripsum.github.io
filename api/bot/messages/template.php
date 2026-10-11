@@ -8,9 +8,11 @@ declare(strict_types=1);
  * GET  → legge un modello (o l'elenco di un tipo).
  * POST → salva o cancella.
  *
- * Salvare o cancellare un modello vuol dire decidere cosa pubblica il bot nel
- * server, quindi serve un account Cripsum admin/owner collegato. La lettura no:
- * la fa il bot da solo ogni volta che entra qualcuno.
+ * Salvare o cancellare un modello vuol dire decidere cosa pubblica il bot in
+ * un server. Nel server di Cripsum serve un account admin/owner del sito
+ * collegato; negli altri decide il bot, che ha controllato i permessi su
+ * Discord (vedi bot_require_guild_actor()). La lettura non chiede nessuno: la
+ * fa il bot da solo ogni volta che entra qualcuno.
  */
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -21,7 +23,7 @@ if (!auth_table_exists($mysqli, 'discord_message_templates')) {
     bot_json(['ok' => true, 'available' => false, 'templates' => []]);
 }
 
-const TEMPLATE_KINDS = ['welcome', 'boost', 'premium', 'custom'];
+const TEMPLATE_KINDS = ['welcome', 'welcome_dm', 'goodbye', 'boost', 'premium', 'custom'];
 
 $guildId = bot_snowflake('guild_id');
 $kind = bot_text('kind', 20, false, 'custom');
@@ -97,7 +99,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
 }
 
 bot_require_method('POST');
-$actor = bot_require_actor($mysqli);
+$actor = bot_require_guild_actor($mysqli);
+
+// Il ringraziamento per il Premium esiste solo nel server di Cripsum.
+if ($kind === 'premium' && empty(bot_input()['is_home'])) {
+    bot_fail('This message only exists in the Cripsum server.', 403);
+}
 
 $body = bot_input();
 $action = bot_text('action', 20, false, 'save');
@@ -117,7 +124,7 @@ if ($action === 'delete') {
     $deleted = $stmt->affected_rows;
     $stmt->close();
 
-    bot_log_action($mysqli, $actor, 'discord_template_delete', null, ['kind' => $kind, 'name' => $name]);
+    bot_record_guild_change($mysqli, $actor, $guildId, 'messages', 'discord_template_delete', ['kind' => $kind, 'name' => $name]);
     bot_json(['ok' => true, 'available' => true, 'deleted' => $deleted > 0]);
 }
 
@@ -168,7 +175,7 @@ if (!$stmt->execute()) {
 
 $stmt->close();
 
-bot_log_action($mysqli, $actor, 'discord_template_save', null, [
+bot_record_guild_change($mysqli, $actor, $guildId, 'messages', 'discord_template_save', [
     'kind' => $kind,
     'name' => $name,
     'enabled' => (bool)$enabled,
