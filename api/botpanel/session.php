@@ -43,7 +43,10 @@ if ($list === null) {
 
 botpanel_json($base + [
     'discord_linked' => true,
+    // Il proprio Discord: la pagina lo usa per «prendi tu questo ticket».
+    'discord_id' => $user['discord_id'],
     'bot_online' => true,
     'guilds' => $list['guilds'],
     'invite_url' => $list['invite_url'],
+    'bot' => $list['bot'] ?? null,
 ]);

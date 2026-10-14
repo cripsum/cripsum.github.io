@@ -21,7 +21,7 @@
     const STRINGS = {
         it: {
             loading: 'Carico…',
-            poppyLead: 'Il bot di Cripsum. Scegli il server da configurare.',
+            poppyLead: 'Ticket, moderazione, giveaway e messaggi automatici per il tuo server Discord. Scegli quale gestire.',
             addToServer: 'Aggiungi a un server',
             yourServers: 'I tuoi server',
             manage: 'Gestisci',
@@ -112,7 +112,7 @@
         },
         en: {
             loading: 'Loading…',
-            poppyLead: 'The Cripsum bot. Pick the server to set up.',
+            poppyLead: 'Tickets, moderation, giveaways and automatic messages for your Discord server. Pick the one to manage.',
             addToServer: 'Add to a server',
             yourServers: 'Your servers',
             manage: 'Manage',
@@ -208,7 +208,7 @@
     /** Cosa non va in un campo, detto a chi sta configurando. */
     const ERRORS = {
         it: {
-            required: 'Questa scelta è obbligatoria quando il modulo è acceso.',
+            required: 'Va compilato quando il modulo è acceso.',
             channel: 'Questo canale non esiste più: scegline un altro.',
             role: 'Uno di questi ruoli non esiste più: toglilo.',
             role_too_high: 'Poppy non può assegnare questo ruolo: sta sopra il suo.',
@@ -658,8 +658,15 @@
     }
 
     function pickerHead(extra = '') {
+        // La foto vera del bot arriva con l'elenco dei server; finche' non
+        // c'e' (pagina appena aperta, chi non ha fatto l'accesso) resta l'icona.
+        const avatar = state.session?.bot?.avatar;
+        const icon = avatar
+            ? `<img class="bp-head__icon" src="${esc(avatar)}" alt="" width="72" height="72">`
+            : '<span class="bp-head__icon" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>';
+
         return `<header class="bp-head">
-            <span class="bp-head__icon" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>
+            ${icon}
             <div><h1>Poppy</h1><p>${esc(S.poppyLead)}</p></div>
             ${extra ? `<div class="bp-head__side">${extra}</div>` : ''}
         </header>`;

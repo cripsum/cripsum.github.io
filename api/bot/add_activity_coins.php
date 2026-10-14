@@ -43,6 +43,20 @@ if (!$user) {
 
 // 4. Verify Activity Cooldown (max 1 coin per 60 seconds)
 $userId = (int)$user['id'];
+
+// I messaggi scritti dall'ultima chiamata: il bot li conta e li manda insieme
+// (al massimo dieci per volta, una volta al minuto), e fanno avanzare le
+// missioni di Discord anche quando la moneta e' in pausa.
+$messages = max(0, min(10, (int)($input['messages'] ?? 1)));
+if ($messages > 0) {
+    try {
+        require_once __DIR__ . '/../../includes/mission_tracker.php';
+        trackMissionProgress($mysqli, $userId, 'discord_message', $messages);
+    } catch (Throwable $error) {
+        error_log('[activity] missione: ' . $error->getMessage());
+    }
+}
+
 $lastActivity = $user['last_discord_activity'] ? strtotime($user['last_discord_activity']) : 0;
 $timeNow = time();
 $cooldownSeconds = 60;

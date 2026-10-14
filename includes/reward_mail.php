@@ -168,6 +168,22 @@ function cripsum_send_reward_mail(
         $stmtRecipient->close();
         $mysqli->commit();
 
+        // Un premio da riscattare si annuncia anche su Discord, ma solo a
+        // pochi destinatari: una posta a tutto il sito non diventa cento
+        // messaggi privati.
+        if (count($recipientIds) <= 5 && $rewards) {
+            require_once __DIR__ . '/discord_dm.php';
+
+            foreach ($recipientIds as $recipientId) {
+                cripsum_discord_dm($mysqli, (int)$recipientId, [
+                    'kind' => 'reward',
+                    'title' => 'You have a reward to claim',
+                    'text' => $titleEn,
+                    'url' => 'https://cripsum.com/it/inbox',
+                ]);
+            }
+        }
+
         return ['ok' => true, 'message_id' => $messageId, 'error' => null];
     } catch (Throwable $e) {
         if ($mysqli->errno) {

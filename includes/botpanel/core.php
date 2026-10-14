@@ -277,10 +277,16 @@ function botpanel_guilds(array $user, bool $refresh = false): ?array
     }
 
     $invite = (string)($response['invite_url'] ?? '');
+    $avatar = (string)($response['bot']['avatar'] ?? '');
     $data = [
         'guilds' => $guilds,
         // Solo un indirizzo di Discord: finisce in un link della pagina.
         'invite_url' => str_starts_with($invite, 'https://discord.com/oauth2/authorize?') ? $invite : null,
+        'bot' => [
+            'name' => mb_substr((string)($response['bot']['name'] ?? 'Poppy'), 0, 40),
+            // Solo immagini di Discord: finisce in un <img> della pagina.
+            'avatar' => str_starts_with($avatar, 'https://cdn.discordapp.com/') ? $avatar : null,
+        ],
     ];
 
     $_SESSION['botpanel_guilds'] = ['at' => time(), 'discord_id' => $user['discord_id'], 'data' => $data];

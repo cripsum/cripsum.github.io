@@ -549,6 +549,190 @@ function botpanel_modules(): array
             ],
         ],
 
+        'roles' => [
+            'icon' => 'fa-hand-pointer',
+            'toggle' => true,
+            'default_enabled' => false,
+            'ready' => true,
+            'name' => botpanel_t('Ruoli a scelta', 'Self roles'),
+            'lead' => botpanel_t(
+                'Messaggi con dei bottoni: chi ne preme uno prende quel ruolo, chi lo ripreme lo lascia. Per notifiche, colori, giochi, lingue.',
+                'Messages with buttons: pressing one gives that role, pressing it again drops it. For notifications, colours, games, languages.'
+            ),
+            'fields' => [
+                'menus' => [
+                    'type' => 'list',
+                    'max' => 10,
+                    'keyed' => true,
+                    'label' => botpanel_t('Menu', 'Menus'),
+                    'add' => botpanel_t('Nuovo menu', 'New menu'),
+                    'item' => [
+                        'title' => [
+                            'type' => 'text',
+                            'max' => 100,
+                            'required' => true,
+                            'default' => 'Pick your roles',
+                            'label' => botpanel_t('Titolo', 'Title'),
+                        ],
+                        'description' => [
+                            'type' => 'text',
+                            'max' => 1000,
+                            'multiline' => true,
+                            'label' => botpanel_t('Testo', 'Text'),
+                        ],
+                        'color' => [
+                            'type' => 'color',
+                            'default' => '#5865f2',
+                            'label' => botpanel_t('Colore', 'Colour'),
+                        ],
+                        'mode' => [
+                            'type' => 'choice',
+                            'default' => 'toggle',
+                            'options' => [
+                                'toggle' => botpanel_t('Quanti ruoli vuoi', 'As many roles as you like'),
+                                'single' => botpanel_t('Un ruolo alla volta', 'One role at a time'),
+                            ],
+                            'label' => botpanel_t('Come si sceglie', 'How people pick'),
+                        ],
+                        'entries' => [
+                            'type' => 'list',
+                            'max' => 20,
+                            'label' => botpanel_t('Bottoni', 'Buttons'),
+                            'hint' => botpanel_t(
+                                'Un ruolo per bottone. Solo ruoli sotto quello di Poppy e senza permessi di moderazione.',
+                                'One role per button. Only roles below Poppy\'s and without moderation permissions.'
+                            ),
+                            'add' => botpanel_t('Aggiungi bottone', 'Add button'),
+                            'item' => [
+                                'role_ids' => [
+                                    'type' => 'roles',
+                                    'max' => 1,
+                                    'assign' => true,
+                                    'label' => botpanel_t('Ruolo', 'Role'),
+                                ],
+                                'label' => [
+                                    'type' => 'text',
+                                    'max' => 80,
+                                    'label' => botpanel_t('Scritta (vuota = nome del ruolo)', 'Label (empty = role name)'),
+                                ],
+                                'emoji' => [
+                                    'type' => 'text',
+                                    'max' => 32,
+                                    'label' => botpanel_t('Emoji', 'Emoji'),
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+
+        'applications' => [
+            'icon' => 'fa-file-signature',
+            'toggle' => true,
+            'default_enabled' => false,
+            'ready' => true,
+            'name' => botpanel_t('Candidature', 'Applications'),
+            'lead' => botpanel_t(
+                'Moduli che i membri compilano da Discord: entrare nello staff, una partnership, un evento. Le risposte arrivano allo staff, che accetta o rifiuta da Discord o da qui.',
+                'Forms members fill in from Discord: joining the staff, a partnership, an event. The answers reach the staff, who accept or reject from Discord or from here.'
+            ),
+            'fields' => [
+                'review_channel_id' => [
+                    'type' => 'channel',
+                    'kinds' => $channelText,
+                    'need' => ['send', 'embed'],
+                    'required' => true,
+                    'label' => botpanel_t('Dove arrivano', 'Where they arrive'),
+                    'hint' => botpanel_t('Sceglilo visibile solo allo staff.', 'Pick one only the staff can see.'),
+                ],
+                'panel_title' => [
+                    'type' => 'text',
+                    'max' => 100,
+                    'default' => 'Applications',
+                    'label' => botpanel_t('Titolo del pannello', 'Panel title'),
+                ],
+                'panel_description' => [
+                    'type' => 'text',
+                    'max' => 1000,
+                    'multiline' => true,
+                    'default' => 'Pick what you want to apply for and answer a few questions. The staff will get back to you.',
+                    'label' => botpanel_t('Testo del pannello', 'Panel text'),
+                ],
+                'panel_color' => [
+                    'type' => 'color',
+                    'default' => '#5865f2',
+                    'label' => botpanel_t('Colore', 'Colour'),
+                ],
+                'forms' => [
+                    'type' => 'list',
+                    'max' => 5,
+                    'keyed' => true,
+                    'label' => botpanel_t('Moduli', 'Forms'),
+                    'add' => botpanel_t('Nuovo modulo', 'New form'),
+                    'item' => [
+                        'title' => [
+                            'type' => 'text',
+                            'max' => 45,
+                            'required' => true,
+                            'label' => botpanel_t('Nome', 'Name'),
+                        ],
+                        'description' => [
+                            'type' => 'text',
+                            'max' => 200,
+                            'label' => botpanel_t('Descrizione nel pannello', 'Description in the panel'),
+                        ],
+                        'emoji' => [
+                            'type' => 'text',
+                            'max' => 32,
+                            'label' => botpanel_t('Emoji', 'Emoji'),
+                        ],
+                        'role_ids' => [
+                            'type' => 'roles',
+                            'max' => 3,
+                            'assign' => true,
+                            'label' => botpanel_t('Ruoli a chi viene accettato', 'Roles for whoever is accepted'),
+                        ],
+                        'cooldown_days' => [
+                            'type' => 'choice',
+                            'default' => 7,
+                            'options' => [
+                                0 => botpanel_t('Subito', 'Right away'),
+                                1 => botpanel_t('Dopo 1 giorno', 'After 1 day'),
+                                7 => botpanel_t('Dopo una settimana', 'After a week'),
+                                30 => botpanel_t('Dopo un mese', 'After a month'),
+                            ],
+                            'label' => botpanel_t('Dopo un rifiuto si riprova', 'After a rejection, try again'),
+                        ],
+                        'questions' => [
+                            'type' => 'list',
+                            'max' => 5,
+                            'label' => botpanel_t('Domande', 'Questions'),
+                            'hint' => botpanel_t('Da una a cinque.', 'One to five.'),
+                            'add' => botpanel_t('Aggiungi domanda', 'Add question'),
+                            'item' => [
+                                'label' => [
+                                    'type' => 'text',
+                                    'max' => 45,
+                                    'required' => true,
+                                    'label' => botpanel_t('Domanda', 'Question'),
+                                ],
+                                'style' => [
+                                    'type' => 'choice',
+                                    'default' => 'paragraph',
+                                    'options' => [
+                                        'short' => botpanel_t('Riga singola', 'Single line'),
+                                        'paragraph' => botpanel_t('Testo lungo', 'Long text'),
+                                    ],
+                                    'label' => botpanel_t('Tipo', 'Type'),
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+
         'reports' => [
             'icon' => 'fa-flag',
             'toggle' => true,
@@ -935,6 +1119,29 @@ function botpanel_validate_module(string $module, $input, array $ctx): array
 
     if ($module === 'tickets' && $errors === [] && !empty($ctx['enabled']) && empty($config['categories'])) {
         $errors['categories'] = 'required';
+    }
+
+    // Un bottone senza ruolo non fa niente.
+    if ($module === 'roles' && $errors === []) {
+        foreach ($config['menus'] ?? [] as $menuIndex => $menu) {
+            foreach ($menu['entries'] ?? [] as $entryIndex => $entry) {
+                if (count($entry['role_ids'] ?? []) !== 1) {
+                    $errors['menus.' . $menuIndex . '.entries.' . $entryIndex . '.role_ids'] = 'required';
+                }
+            }
+        }
+    }
+
+    // Un modulo senza domande non si puo' compilare.
+    if ($module === 'applications' && $errors === []) {
+        if (!empty($ctx['enabled']) && empty($config['forms'])) {
+            $errors['forms'] = 'required';
+        }
+        foreach ($config['forms'] ?? [] as $index => $form) {
+            if (empty($form['questions'])) {
+                $errors['forms.' . $index . '.questions'] = 'required';
+            }
+        }
     }
 
     if ($module === 'tickets' && $errors === []) {

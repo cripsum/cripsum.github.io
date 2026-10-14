@@ -50,6 +50,28 @@ define('MISSIONS_WEEKLY_MEMORY_DAYS', 14);
 // ─────────────────────────────────────────────────────────────
 
 /**
+ * Vero se l'utente ha Discord collegato con l'accesso Discord: solo allora
+ * le sue azioni sul server contano, e solo allora riceve missioni di Discord.
+ */
+function missionUserHasDiscord(mysqli $mysqli, int $userId): bool
+{
+    $stmt = $mysqli->prepare(
+        'SELECT 1 FROM utenti WHERE id = ? AND discord_id IS NOT NULL AND COALESCE(LENGTH(discord_username), 0) > 0 LIMIT 1'
+    );
+
+    if (!$stmt) {
+        return false;
+    }
+
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $linked = (bool)$stmt->get_result()->fetch_row();
+    $stmt->close();
+
+    return $linked;
+}
+
+/**
  * Ritorna la data odierna nel formato DATE per il periodo daily.
  */
 function getMissionDailyPeriod(): string
@@ -130,7 +152,7 @@ function ensureUserMissions(mysqli $mysqli, int $userId, string $tipo): array
 
     // ── 2. Genera nuove missioni ─────────────────────────────
     $recent   = fetchRecentMissionIds($mysqli, $userId, $tipo, $periodo);
-    $selected = selectMissionsFromPool($mysqli, $tipo, $count, $recent);
+    $selected = selectMissionsFromPool($mysqli, $tipo, $count, $recent, missionUserHasDiscord($mysqli, $userId));
 
     if (empty($selected)) {
         // Pool vuoto o troppo pochi — ritorna vuoto senza crashare
@@ -170,9 +192,18 @@ function ensureUserMissions(mysqli $mysqli, int $userId, string $tipo): array
  * @param int[]  $exclude id di missioni viste di recente, da evitare
  * @return array  Array di righe missions (id, slug, categoria, incompatibili, ...)
  */
-function selectMissionsFromPool(mysqli $mysqli, string $tipo, int $count, array $exclude = []): array
+function selectMissionsFromPool(mysqli $mysqli, string $tipo, int $count, array $exclude = [], bool $withDiscord = true): array
 {
     $pool = fetchMissionPool($mysqli, $tipo);
+
+    // Le missioni che si fanno su Discord solo a chi ha Discord collegato:
+    // a tutti gli altri sarebbe una missione impossibile.
+    if (!$withDiscord) {
+        $pool = array_values(array_filter(
+            $pool,
+            static fn(array $mission): bool => !str_starts_with((string)$mission['evento_trigger'], 'discord_')
+        ));
+    }
 
     if (empty($pool)) {
         return [];

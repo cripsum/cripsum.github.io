@@ -5,6 +5,7 @@ require_once '../includes/functions.php';
 require_once '../includes/account_data_helpers.php';
 require_once '../includes/rewind_helpers.php';
 require_once '../includes/theme.php';
+require_once '../includes/discord_dm.php';
 
 if (function_exists('checkBan')) {
     checkBan($mysqli);
@@ -80,6 +81,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'update_discord_settings') {
         $useAvatar = isset($_POST['discord_use_avatar']) ? 1 : 0;
         $useDisplayName = isset($_POST['discord_use_display_name']) ? 1 : 0;
+        // Gli avvisi di Poppy stanno in una tabella a parte: finche' non c'e',
+        // la casella non compare e non c'e' niente da salvare.
+        if (auth_table_exists($mysqli, 'discord_dm_optout')) {
+            cripsum_discord_dm_set($mysqli, (int)$userId, isset($_POST['discord_dm_notices']));
+        }
         $stmt = $mysqli->prepare("UPDATE utenti SET discord_use_avatar = ?, discord_use_display_name = ?, profile_updated_at = NOW() WHERE id = ?");
         if ($stmt) {
             $stmt->bind_param('iii', $useAvatar, $useDisplayName, $userId);
@@ -343,6 +349,8 @@ $discordAvatar = (string)($currentUser['discord_avatar'] ?? '');
 $discordConnectedAt = $currentUser['discord_connected_at'] ?? null;
 $discordUseAvatar = (int)($currentUser['discord_use_avatar'] ?? 0);
 $discordUseDisplayName = (int)($currentUser['discord_use_display_name'] ?? 0);
+$discordDmAvailable = auth_table_exists($mysqli, 'discord_dm_optout');
+$discordDmNotices = $discordDmAvailable && cripsum_discord_dm_enabled($mysqli, (int)$userId);
 
 $discordAvatarUrl = null;
 if ($discordConnected && !empty($discordAvatar)) {
@@ -802,6 +810,12 @@ unset($_SESSION['account_deletion_cancelled']);
                                                 <input type="checkbox" name="discord_use_avatar" <?php echo $discordUseAvatar ? 'checked' : ''; ?>>
                                                 <span>Use Discord avatar on your profile</span>
                                             </label>
+                                            <?php if ($discordDmAvailable): ?>
+                                            <label class="auth-check">
+                                                <input type="checkbox" name="discord_dm_notices" <?php echo $discordDmNotices ? 'checked' : ''; ?>>
+                                                <span>Get Poppy's notices on Discord<br><small style="opacity: 0.7;">A private message when the staff answers one of your tickets or you have a reward to claim in your inbox.</small></span>
+                                            </label>
+                                            <?php endif; ?>
                                         </div>
 
                                         <button class="auth-btn auth-btn--primary" type="submit" style="margin-top: 1rem; width: auto; padding: 8px 20px;">

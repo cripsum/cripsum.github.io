@@ -69,6 +69,7 @@ $needs = [
     'restricted' => ['manage_messages'],
     'tickets' => ['manage_threads'],
     'voice' => ['manage_channels', 'move_members'],
+    'roles' => ['manage_roles'],
 ];
 
 foreach ($needs as $id => $permissions) {

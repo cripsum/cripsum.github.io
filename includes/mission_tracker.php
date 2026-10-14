@@ -71,6 +71,10 @@ const MISSION_EVENTS = [
     'shop_purchase'      => 'Acquisto al negozio',
     'convert_shards'     => 'Godos convertiti in Shards',
 
+    // ── Discord (dal bot, solo con l'account collegato) ───────
+    'discord_message' => 'Messaggio nel server Discord',
+    'discord_daily'   => 'Ricompensa giornaliera presa su Discord',
+
     // ── Presenza ──────────────────────────────────────────────
     'daily_login'   => 'Login giornaliero',
     'view_page'     => 'Pagina visitata',

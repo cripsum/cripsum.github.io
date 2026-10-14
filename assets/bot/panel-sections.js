@@ -187,7 +187,9 @@
 
         return `<p class="bp-preview__label"><span>${esc(TM.preview)}</span><span>${channelName ? `# ${esc(channelName)}` : ''}</span></p>
             <div class="dc"><div class="dc-msg">
-                <span class="dc-avatar dc-ph" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>
+                ${state.session?.bot?.avatar
+                    ? `<img class="dc-avatar" src="${esc(state.session.bot.avatar)}" alt="">`
+                    : '<span class="dc-avatar dc-ph" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>'}
                 <div>
                     <span class="dc-name">Poppy</span><span class="dc-app">APP</span><span class="dc-time">${esc(TM.todayAt)}</span>
                     ${content ? `<p style="margin:0">${richText(content)}</p>` : ''}
@@ -257,6 +259,22 @@
             badName: 'Solo lettere, cifre, spazi e trattini, fino a 60.',
             url: 'Serve un indirizzo https.',
             tooMany: 'Hai raggiunto il numero massimo di messaggi salvati.',
+            savingFirst: 'Salvo e pubblico…',
+            schedule: 'Programma',
+            scheduleLead: 'Poppy lo pubblica da solo all\'ora scelta, nel canale di «Pubblica in».',
+            scheduleWhen: 'Quando',
+            scheduleRepeat: 'Ripeti',
+            repeats: { none: 'Una volta', daily: 'Ogni giorno', weekly: 'Ogni settimana', monthly: 'Ogni mese' },
+            scheduleAdd: 'Programma',
+            scheduled: 'Programmato.',
+            scheduleRemove: 'Togli',
+            scheduleRemoved: 'Tolto.',
+            scheduleNone: 'Niente in programma.',
+            scheduleDone: 'già uscito',
+            scheduleError: 'l\'ultima volta non è uscito',
+            scheduledTag: 'in programma',
+            scheduleBad: { when: 'Scegli un momento futuro, entro un anno.', channel: 'Scegli un canale in cui Poppy può scrivere.', too_many: 'Hai già il massimo di messaggi programmati.' },
+            scheduleOff: 'Per programmare, accendi il modulo Messaggi e salva: senza, Poppy non pubblica niente da solo.',
         },
         en: {
             preview: 'How it looks on Discord',
@@ -313,6 +331,22 @@
             badName: 'Letters, digits, spaces and dashes only, up to 60.',
             url: 'An https address is needed.',
             tooMany: 'You reached the maximum number of saved messages.',
+            savingFirst: 'Saving and posting…',
+            schedule: 'Schedule',
+            scheduleLead: 'Poppy posts it on its own at the chosen time, in the "Post in" channel.',
+            scheduleWhen: 'When',
+            scheduleRepeat: 'Repeat',
+            repeats: { none: 'Once', daily: 'Every day', weekly: 'Every week', monthly: 'Every month' },
+            scheduleAdd: 'Schedule',
+            scheduled: 'Scheduled.',
+            scheduleRemove: 'Remove',
+            scheduleRemoved: 'Removed.',
+            scheduleNone: 'Nothing scheduled.',
+            scheduleDone: 'already out',
+            scheduleError: 'it did not go out last time',
+            scheduledTag: 'scheduled',
+            scheduleBad: { when: 'Pick a future time, within a year.', channel: 'Pick a channel Poppy can write in.', too_many: 'You already have the maximum of scheduled messages.' },
+            scheduleOff: 'To schedule, turn the Messages module on and save: without it, Poppy posts nothing on its own.',
         }
     }[LANG];
 
@@ -340,6 +374,11 @@
             const base = saved || this.store?.defaults?.[kind] || { enabled: true, content: '', embed: {} };
 
             this.editing = { kind, name, isNew, saved: !!saved };
+            // Canale di pubblicazione e programmazione ripartono da capo.
+            this.publishChannel = null;
+            this.scheduleWhen = null;
+            this.scheduleRepeat = null;
+            this.scheduleError = null;
             this.draft = {
                 enabled: saved ? saved.enabled : true,
                 channel_id: saved?.channel_id || '',
@@ -400,12 +439,12 @@
                         </div>`}
                     </div>`;
 
-            const publish = custom && !isNew ? `<div class="bp-bar">
-                    <select class="nx-input nx-select" style="width:14rem" data-tpl-publish-channel aria-label="${esc(TM.publishIn)}">${P.channelOptions({ need: ['send', 'embed'] }, sent?.channel_id || this.draft.channel_id)}</select>
+            const publish = custom ? `<div class="bp-bar">
+                    <select class="nx-input nx-select" style="width:14rem" data-tpl-publish-channel aria-label="${esc(TM.publishIn)}">${P.channelOptions({ need: ['send', 'embed'] }, this.publishChannel ?? (sent?.channel_id || this.draft.channel_id))}</select>
                     <button class="nx-btn nx-btn--outline nx-btn--sm" type="button" data-tpl-send="publish"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i>${esc(TM.publish)}</button>
                     ${sent ? `<button class="nx-btn nx-btn--outline nx-btn--sm" type="button" data-tpl-send="update"><i class="fa-solid fa-pen" aria-hidden="true"></i>${esc(TM.update)}</button>` : ''}
-                    <button class="nx-btn nx-btn--danger nx-btn--sm bp-bar__end" type="button" data-tpl-delete>${esc(TM.del)}</button>
-                </div>` : '';
+                    ${isNew ? '' : `<button class="nx-btn nx-btn--danger nx-btn--sm bp-bar__end" type="button" data-tpl-delete>${esc(TM.del)}</button>`}
+                </div>${isNew ? '' : this.scheduleBlock(name)}` : '';
 
             const test = !custom ? `<div class="bp-bar" style="margin-top:.4rem">
                     <button class="nx-btn nx-btn--outline nx-btn--sm" type="button" data-tpl-send="test"${saved ? '' : ' disabled'}><i class="fa-solid fa-paper-plane" aria-hidden="true"></i>${esc(TM.test)}</button>
@@ -447,6 +486,60 @@
             </div>`;
         },
 
+        /** Data e ora leggibili, nella lingua della pagina. */
+        when(unix) {
+            return new Date(unix * 1000).toLocaleString(LANG === 'it' ? 'it-IT' : 'en-GB', {
+                weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+            });
+        },
+
+        /** Il valore di partenza del campo data: fra un'ora, all'ora piena. */
+        nextHour() {
+            const at = new Date(Date.now() + 60 * 60 * 1000);
+            at.setMinutes(0, 0, 0);
+            const pad = value => String(value).padStart(2, '0');
+            return `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}T${pad(at.getHours())}:00`;
+        },
+
+        scheduleBlock(name) {
+            if (this.store.schedules === null) return '';
+
+            // Un messaggio programmato lo pubblica il modulo Messaggi: spento,
+            // non uscirebbe. Lo si dice qui invece di lasciar programmare.
+            const module = state.data.modules.messages;
+            if (!module.configured || !module.enabled) {
+                return `<p class="nx-note" style="margin-top:.75rem"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>${esc(TM.scheduleOff)}</span></p>`;
+            }
+
+            const channel = id => state.data.channels.find(entry => entry.id === id)?.name;
+            const mine = this.store.schedules.filter(entry => entry.name === name);
+            const error = this.scheduleError ? `<span class="bp-error">${esc(TM.scheduleBad[this.scheduleError] || P.ERRORS[this.scheduleError] || this.scheduleError)}</span>` : '';
+
+            const rows = mine.map(entry => `<li class="bp-row bp-row--plain">
+                    <div>
+                        <p class="bp-row__title">${esc(this.when(entry.next))}</p>
+                        <p class="bp-row__meta">${esc(TM.repeats[entry.repeat] || entry.repeat)}${channel(entry.channel_id) ? ` · # ${esc(channel(entry.channel_id))}` : ''}${entry.active ? '' : ` · ${esc(TM.scheduleDone)}`}${entry.last_error ? ` · ${esc(TM.scheduleError)}` : ''}</p>
+                    </div>
+                    <div class="bp-row__side"><button class="nx-btn nx-btn--outline nx-btn--sm" type="button" data-sch-remove="${entry.id}">${esc(TM.scheduleRemove)}</button></div>
+                </li>`).join('');
+
+            return `<div class="nx-field" style="margin-top:.75rem">
+                    <span class="nx-field__label">${esc(TM.schedule)}</span>
+                    <span class="nx-field__hint">${esc(TM.scheduleLead)}</span>
+                    <div class="bp-schedule">
+                        <div class="bp-form__pair">
+                            <div class="nx-field"><span class="nx-field__label">${esc(TM.scheduleWhen)}</span>
+                                <input class="nx-input" type="datetime-local" value="${esc(this.scheduleWhen || this.nextHour())}" data-sch-when aria-label="${esc(TM.scheduleWhen)}"></div>
+                            <div class="nx-field"><span class="nx-field__label">${esc(TM.scheduleRepeat)}</span>
+                                <select class="nx-input nx-select" data-sch-repeat aria-label="${esc(TM.scheduleRepeat)}">${Object.entries(TM.repeats).map(([value, label]) => `<option value="${value}"${(this.scheduleRepeat || 'none') === value ? ' selected' : ''}>${esc(label)}</option>`).join('')}</select></div>
+                        </div>
+                        ${error}
+                        <div class="bp-bar"><button class="nx-btn nx-btn--outline nx-btn--sm" type="button" data-sch-add><i class="fa-solid fa-clock" aria-hidden="true"></i>${esc(TM.scheduleAdd)}</button></div>
+                        ${mine.length ? `<ul class="bp-rows">${rows}</ul>` : `<p class="bp-dim">${esc(TM.scheduleNone)}</p>`}
+                    </div>
+                </div>`;
+        },
+
         savedList() {
             const list = this.store.templates.filter(template => template.kind === 'custom');
             const channel = id => state.data.channels.find(entry => entry.id === id)?.name;
@@ -457,7 +550,7 @@
                 return `<li class="bp-row bp-row--plain">
                     <div>
                         <p class="bp-row__title">${esc(template.name)}</p>
-                        <p class="bp-row__meta">${sent ? `${esc(TM.published)}${channel(sent.channel_id) ? ` · # ${esc(channel(sent.channel_id))}` : ''}` : esc(TM.notPublished)}</p>
+                        <p class="bp-row__meta">${sent ? `${esc(TM.published)}${channel(sent.channel_id) ? ` · # ${esc(channel(sent.channel_id))}` : ''}` : esc(TM.notPublished)}${(this.store.schedules || []).some(entry => entry.name === template.name && entry.active) ? ` · ${esc(TM.scheduledTag)}` : ''}</p>
                     </div>
                     <div class="bp-row__side"><button class="nx-icon-btn bp-always" type="button" data-tpl-open="${esc(template.name)}" aria-label="${esc(S.open)} ${esc(template.name)}"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>
                 </li>`;
@@ -493,12 +586,18 @@
 
         async load() {
             this.loading = true;
-            const response = await api(`templates.php?guild=${state.guildId}`);
+            const [response, schedules] = await Promise.all([
+                api(`templates.php?guild=${state.guildId}`),
+                api(`schedule.php?guild=${state.guildId}`)
+            ]);
             this.loading = false;
 
             this.store = response.ok
                 ? { templates: response.templates, defaults: response.defaults, sent: response.sent || {}, custom_max: response.custom_max || 50 }
                 : { templates: [], defaults: {}, sent: {}, custom_max: 50 };
+
+            // null = programmazione non disponibile (manca la migrazione): il blocco non compare.
+            this.store.schedules = schedules.ok && schedules.available !== false ? schedules.schedules : null;
 
             if (this.tab !== 'custom') this.open(this.tab, 'default');
             if (state.section === 'messages') P.renderSection();
@@ -543,6 +642,44 @@
             return response;
         },
 
+        async addSchedule(button) {
+            const value = this.scheduleWhen || this.nextHour();
+            const when = Math.floor(new Date(value).getTime() / 1000);
+            const channel = document.querySelector('[data-tpl-publish-channel]')?.value || '';
+
+            button.disabled = true;
+            const response = await api('schedule.php', {
+                method: 'POST',
+                body: {
+                    guild: state.guildId,
+                    action: 'add',
+                    name: this.editing.name,
+                    channel_id: channel,
+                    when,
+                    repeat: this.scheduleRepeat || 'none',
+                    tz: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Rome'
+                }
+            });
+            if (button.isConnected) button.disabled = false;
+
+            if (!response.ok) {
+                const errors = response.errors || {};
+                this.scheduleError = errors.schedule_when || errors.schedule_channel || errors.schedule_repeat || null;
+                if (!this.scheduleError) {
+                    P.toast(response.code === 'module_off' ? TM.scheduleOff : P.failText(response), true);
+                }
+                return P.renderSection();
+            }
+
+            this.scheduleError = null;
+            this.scheduleWhen = null;
+            const fresh = await api(`schedule.php?guild=${state.guildId}`);
+            if (fresh.ok) this.store.schedules = fresh.schedules;
+
+            P.toast(TM.scheduled);
+            P.renderSection();
+        },
+
         onChange(target) {
             if (target.matches('[data-tpl]')) {
                 const key = target.dataset.tpl;
@@ -563,6 +700,15 @@
                 this.draft.embed.timestamp = target.checked;
             } else if (target.matches('[data-tpl-channel]')) {
                 this.draft.channel_id = target.value;
+            } else if (target.matches('[data-tpl-publish-channel]')) {
+                this.publishChannel = target.value;
+                return;
+            } else if (target.matches('[data-sch-when]')) {
+                this.scheduleWhen = target.value;
+                return;
+            } else if (target.matches('[data-sch-repeat]')) {
+                this.scheduleRepeat = target.value;
+                return;
             } else {
                 return;
             }
@@ -573,11 +719,23 @@
         },
 
         async send(mode, button) {
-            // Si invia quello che e' salvato: con modifiche in sospeso sarebbe un altro.
-            if (state.extra) return P.toast(TM.testHint, true);
-
             button.disabled = true;
             const channel = document.querySelector('[data-tpl-publish-channel]')?.value || '';
+
+            // Si invia quello che e' salvato: con modifiche in sospeso, prima
+            // si salva, poi si pubblica. Un clic, non due.
+            if (state.extra) {
+                const saved = await this.save();
+
+                if (!saved.ok) {
+                    button.disabled = false;
+                    P.renderSection();
+                    return P.toast(P.failText(saved), true);
+                }
+
+                P.setExtra(null);
+                P.syncSavebar();
+            }
 
             const response = await api('templates.php', {
                 method: 'POST',
@@ -592,8 +750,9 @@
 
             if (mode === 'publish') {
                 this.store.sent[this.editing.name] = { channel_id: response.channel_id, message_id: response.message_id };
-                P.renderSection();
             }
+
+            P.renderSection();
 
             P.toast({ test: response.dm ? TM.testedDm : TM.tested, publish: TM.publishedOk, update: TM.updatedOk }[mode]);
         },
@@ -638,6 +797,21 @@
 
             if (target.matches('[data-tpl-send]')) return this.send(target.dataset.tplSend, target);
 
+            if (target.matches('[data-sch-add]')) return this.addSchedule(target);
+
+            if (target.matches('[data-sch-remove]')) {
+                return api('schedule.php', {
+                    method: 'POST',
+                    body: { guild: state.guildId, action: 'delete', id: Number(target.dataset.schRemove) }
+                }).then(response => {
+                    if (!response.ok) return P.toast(P.failText(response), true);
+
+                    this.store.schedules = this.store.schedules.filter(entry => entry.id !== Number(target.dataset.schRemove));
+                    P.toast(TM.scheduleRemoved);
+                    P.renderSection();
+                });
+            }
+
             if (target.matches('[data-tpl-delete]')) {
                 if (!window.confirm(TM.delAsk)) return;
 
@@ -654,226 +828,6 @@
                     P.renderSection();
                 });
             }
-        }
-    };
-
-    /* ── Ticket ───────────────────────────────────────────────
-       Le impostazioni, il bottone che fa pubblicare il pannello a Poppy e,
-       sotto, quello che sta succedendo: i ticket aperti e qualche numero. */
-
-    const TT = {
-        it: {
-            panel: 'Pannello su Discord',
-            panelLead: 'È il messaggio da cui le persone aprono un ticket. Poppy lo pubblica nel canale dei ticket; se cambi categorie o testi, pubblicalo di nuovo e cancella quello vecchio.',
-            publish: 'Pubblica il pannello',
-            publishHint: 'Salva e accendi il modulo prima di pubblicare.',
-            published: 'Pannello pubblicato.',
-            openIt: 'Apri su Discord',
-            failed: {
-                module_off: 'Il modulo Ticket è spento: accendilo, salva e riprova.',
-                channel_not_found: 'Poppy non trova il canale dei ticket.',
-                no_categories: 'Aggiungi almeno una categoria.',
-                send_failed: 'Poppy non riesce a scrivere nel canale dei ticket.',
-                unreachable: 'Poppy non risponde.',
-            },
-            now: 'Adesso',
-            notInstalled: 'I ticket non sono ancora attivi sul sito: manca la migrazione della fase 2.',
-            none: 'Nessun ticket aperto.',
-            stats: (s) => [
-                s.open + (s.open === 1 ? ' aperto' : ' aperti'),
-                s.closed_30d + ' chiusi negli ultimi 30 giorni',
-                s.rating_30d !== null ? 'voto medio ' + String(s.rating_30d).replace('.', ',') + ' su 5 (' + s.rated_30d + (s.rated_30d === 1 ? ' voto)' : ' voti)') : '',
-                s.minutes_30d !== null ? 'chiusi in media dopo ' + span(s.minutes_30d, 'it') : ''
-            ].filter(Boolean).join(' · '),
-            n: 'N°', subject: 'Oggetto', category: 'Categoria', opener: 'Aperto da', assignee: 'Assegnato a', when: 'Quando',
-            nobody: 'nessuno',
-        },
-        en: {
-            panel: 'Panel on Discord',
-            panelLead: 'It is the message people open a ticket from. Poppy posts it in the ticket channel; if you change categories or texts, post it again and delete the old one.',
-            publish: 'Post the panel',
-            publishHint: 'Save and turn the module on before posting.',
-            published: 'Panel posted.',
-            openIt: 'Open on Discord',
-            failed: {
-                module_off: 'The Tickets module is off: turn it on, save and try again.',
-                channel_not_found: 'Poppy can\'t find the ticket channel.',
-                no_categories: 'Add at least one category.',
-                send_failed: 'Poppy can\'t write in the ticket channel.',
-                unreachable: 'Poppy isn\'t answering.',
-            },
-            now: 'Right now',
-            notInstalled: 'Tickets are not active on the website yet: the phase 2 migration is missing.',
-            none: 'No open tickets.',
-            stats: (s) => [
-                s.open + ' open',
-                s.closed_30d + ' closed in the last 30 days',
-                s.rating_30d !== null ? 'average rating ' + s.rating_30d + ' out of 5 (' + s.rated_30d + (s.rated_30d === 1 ? ' rating)' : ' ratings)') : '',
-                s.minutes_30d !== null ? 'closed after ' + span(s.minutes_30d, 'en') + ' on average' : ''
-            ].filter(Boolean).join(' · '),
-            n: 'No.', subject: 'Subject', category: 'Category', opener: 'Opened by', assignee: 'Assigned to', when: 'When',
-            nobody: 'nobody',
-        }
-    }[LANG];
-
-    /** Minuti in parole: 45 min, 3 h, 2 giorni. */
-    function span(minutes, lang) {
-        if (minutes < 60) return minutes + ' min';
-        if (minutes < 60 * 48) return Math.round(minutes / 60) + ' h';
-
-        const days = Math.round(minutes / 1440);
-        return days + (lang === 'it' ? ' giorni' : ' days');
-    }
-
-    sections.tickets = {
-        data: null,
-
-        render() {
-            const { single, lists } = P.moduleFields('tickets');
-            const module = state.data.modules.tickets;
-            const ready = module.configured && module.enabled && !P.draftOf('tickets')?.dirty;
-
-            let activity;
-            if (this.data === null) {
-                activity = '<p class="bp-empty">' + esc(S.loading) + '</p>';
-            } else if (!this.data.available) {
-                activity = '<p class="bp-empty">' + esc(TT.notInstalled) + '</p>';
-            } else {
-                const rows = this.data.open.map(ticket => '<tr>'
-                    + '<td class="bp-num"><a href="https://discord.com/channels/' + esc(state.guildId) + '/' + esc(ticket.thread_id) + '" target="_blank" rel="noopener">#' + String(ticket.number).padStart(4, '0') + '</a></td>'
-                    + '<td>' + esc(ticket.subject) + '</td>'
-                    + '<td class="bp-dim">' + esc(ticket.category) + '</td>'
-                    + '<td>' + person(ticket.opener_id, this.data.users) + '</td>'
-                    + '<td>' + (ticket.claimed_by ? person(ticket.claimed_by, this.data.users) : '<span class="bp-dim">' + esc(TT.nobody) + '</span>') + '</td>'
-                    + '<td class="bp-dim">' + esc(P.formatWhen(ticket.when)) + '</td>'
-                    + '</tr>').join('');
-
-                activity = '<p class="bp-lead" style="margin-bottom:1rem">' + esc(TT.stats(this.data.stats)) + '</p>'
-                    + (this.data.open.length
-                        ? '<div class="bp-table-wrap"><table class="nx-table"><thead><tr><th>' + [TT.n, TT.subject, TT.category, TT.opener, TT.assignee, TT.when].map(esc).join('</th><th>') + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
-                        : '<p class="bp-empty">' + esc(TT.none) + '</p>');
-            }
-
-            return P.moduleHead('tickets')
-                + '<section class="bp-settings">' + single + '</section>'
-                + lists
-                + '<section><h2 class="bp-h">' + esc(TT.panel) + '</h2>'
-                + '<p class="bp-lead" style="margin-bottom:1rem">' + esc(TT.panelLead) + '</p>'
-                + '<div class="bp-bar"><button class="nx-btn nx-btn--soft nx-btn--sm" type="button" data-tk-publish' + (ready ? '' : ' disabled') + '><i class="fa-solid fa-paper-plane" aria-hidden="true"></i>' + esc(TT.publish) + '</button>'
-                + (this.url ? '<a class="nx-btn nx-btn--outline nx-btn--sm" href="' + esc(this.url) + '" target="_blank" rel="noopener">' + esc(TT.openIt) + '</a>' : '')
-                + (ready ? '' : '<span class="nx-field__hint">' + esc(TT.publishHint) + '</span>') + '</div></section>'
-                + '<section><h2 class="bp-h">' + esc(TT.now) + '</h2>' + activity + '</section>';
-        },
-
-        async load() {
-            this.loading = true;
-            const response = await api('activity.php?guild=' + state.guildId + '&what=tickets');
-            this.loading = false;
-
-            this.data = response.ok
-                ? { available: response.available !== false, stats: response.stats, open: response.open || [], users: response.users || {} }
-                : { available: true, stats: { open: 0, closed_30d: 0, rated_30d: 0, rating_30d: null, minutes_30d: null }, open: [], users: {} };
-
-            if (state.section === 'tickets') P.renderSection();
-        },
-
-        mount() {
-            if (this.guild !== state.guildId) {
-                this.guild = state.guildId;
-                this.data = null;
-                this.url = null;
-            }
-
-            if (this.data === null && !this.loading) this.load();
-        },
-
-        async onClick(target) {
-            const button = target.closest('[data-tk-publish]');
-            if (!button || button.disabled) return;
-
-            button.disabled = true;
-            const response = await api('activity.php', { method: 'POST', body: { guild: state.guildId, action: 'publish_tickets' } });
-            button.disabled = false;
-
-            if (!response.ok) {
-                return P.toast(TT.failed[response.reason] || P.failText(response), true);
-            }
-
-            this.url = response.url;
-            P.toast(TT.published);
-            P.renderSection();
-        }
-    };
-
-    /* ── Giveaway ─────────────────────────────────────────────
-       Le impostazioni e l'elenco di quelli in corso. Si lanciano da Discord,
-       nel canale in cui devono comparire. */
-
-    const TG = {
-        it: {
-            running: 'In corso e appena finiti',
-            how: 'Un giveaway si lancia da Discord, nel canale in cui deve comparire: /giveaway start. Con «repeat» riparte da solo ogni volta che finisce.',
-            none: 'Nessun giveaway in corso.',
-            code: 'N°', prize: 'Premio', entries: 'Partecipanti', winners: 'Vincitori', ends: 'Termina',
-            ended: 'finito', repeats: 'si ripete', site: 'premi del sito',
-        },
-        en: {
-            running: 'Running and just ended',
-            how: 'A giveaway is started from Discord, in the channel where it should show up: /giveaway start. With "repeat" it starts again on its own every time it ends.',
-            none: 'No giveaway is running.',
-            code: 'No.', prize: 'Prize', entries: 'Entries', winners: 'Winners', ends: 'Ends',
-            ended: 'ended', repeats: 'repeats', site: 'website prizes',
-        }
-    }[LANG];
-
-    sections.giveaway = {
-        list: null,
-
-        render() {
-            const { single, lists } = P.moduleFields('giveaway');
-
-            const rows = (this.list || []).map(g => {
-                const link = g.message_id
-                    ? '<a href="https://discord.com/channels/' + esc(state.guildId) + '/' + esc(g.channel_id) + '/' + esc(g.message_id) + '" target="_blank" rel="noopener">' + esc(g.code) + '</a>'
-                    : esc(g.code);
-
-                const tags = (g.site ? ' <span class="nx-tag">' + esc(TG.site) + '</span>' : '')
-                    + (g.repeats ? ' <span class="nx-tag">' + esc(TG.repeats) + '</span>' : '')
-                    + (g.running ? '' : ' <span class="nx-tag">' + esc(TG.ended) + '</span>');
-
-                return '<tr><td class="bp-num">' + link + '</td><td>' + esc(g.title) + tags + '</td>'
-                    + '<td>' + g.entries + '</td><td>' + g.winners + '</td>'
-                    + '<td class="bp-dim">' + esc(P.formatWhen(g.ends)) + '</td></tr>';
-            }).join('');
-
-            return P.moduleHead('giveaway')
-                + '<section class="bp-settings">' + single + '</section>'
-                + lists
-                + '<section><h2 class="bp-h">' + esc(TG.running) + '</h2>'
-                + '<p class="bp-lead" style="margin-bottom:1rem">' + esc(TG.how) + '</p>'
-                + (this.list === null ? '<p class="bp-empty">' + esc(S.loading) + '</p>'
-                    : (this.list.length
-                        ? '<div class="bp-table-wrap"><table class="nx-table"><thead><tr><th>' + [TG.code, TG.prize, TG.entries, TG.winners, TG.ends].map(esc).join('</th><th>') + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
-                        : '<p class="bp-empty">' + esc(TG.none) + '</p>'))
-                + '</section>';
-        },
-
-        async load() {
-            this.loading = true;
-            const response = await api('activity.php?guild=' + state.guildId + '&what=giveaways');
-            this.loading = false;
-
-            this.list = response.ok ? (response.giveaways || []) : [];
-            if (state.section === 'giveaway') P.renderSection();
-        },
-
-        mount() {
-            if (this.guild !== state.guildId) {
-                this.guild = state.guildId;
-                this.list = null;
-            }
-
-            if (this.list === null && !this.loading) this.load();
         }
     };
 

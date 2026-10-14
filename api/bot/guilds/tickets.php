@@ -252,6 +252,10 @@ switch ($action) {
         $row = dticket_by_thread($mysqli, $guildId);
         $id = (int)$row['id'];
 
+        if ($row['status'] === 'open') {
+            bot_json(['ok' => true, 'already' => true, 'ticket' => dticket_public($row)]);
+        }
+
         $stmt = $mysqli->prepare(
             "UPDATE discord_tickets
              SET status = 'open', closed_by = NULL, close_reason = NULL, closed_at = NULL, rating = NULL

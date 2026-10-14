@@ -1244,3 +1244,97 @@ html[data-theme="next"] .dc code {
 html[data-theme="next"] .bp-bar .bp-bar__end {
     margin-left: auto;
 }
+
+/* ── Pannello operativo: conversazioni, candidature ───────── */
+
+/* La conversazione di un ticket: quella di Discord, con il suo sfondo, in
+   una finestra che scorre. Si legge dal fondo. */
+html[data-theme="next"] .bp-convo {
+    display: grid;
+    gap: 1.1rem;
+    max-height: min(60vh, 42rem);
+    margin-top: 1.25rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+html[data-theme="next"] .bp-convo .dc-embed__fields {
+    display: grid;
+    gap: 0.5rem;
+}
+
+html[data-theme="next"] .bp-convo__image {
+    display: block;
+    max-width: min(100%, 22rem);
+    max-height: 16rem;
+    margin-top: 0.5rem;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+html[data-theme="next"] .bp-convo__file {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.5rem;
+    color: #00a8fc;
+    word-break: break-all;
+}
+
+html[data-theme="next"] .bp-composer {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+html[data-theme="next"] .bp-answers {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--nx-line);
+}
+
+html[data-theme="next"] .bp-answers p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+html[data-theme="next"] .bp-schedule {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 720px) {
+    html[data-theme="next"] .bp-convo {
+        max-height: 70vh;
+    }
+
+    html[data-theme="next"] .bp-row__side.bp-bar {
+        width: 100%;
+    }
+
+    html[data-theme="next"] .bp-row__side.bp-bar .nx-select {
+        flex: 1;
+        width: auto !important;
+    }
+}
+
+/* Una candidatura: in testa chi e cosa, sotto le risposte quando si apre. */
+html[data-theme="next"] .bp-app {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--nx-line);
+}
+
+html[data-theme="next"] .bp-app__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+html[data-theme="next"] .bp-app .bp-answers {
+    max-width: 46rem;
+}

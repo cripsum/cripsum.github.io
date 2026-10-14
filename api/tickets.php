@@ -20,6 +20,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/bot_client.php';
 require_once __DIR__ . '/../includes/ticket_helpers.php';
 require_once __DIR__ . '/../includes/realtime.php';
+require_once __DIR__ . '/../includes/discord_dm.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
@@ -305,6 +306,16 @@ try {
         'attachment_url' => $attachmentUrl ? 'https://cripsum.com' . $attachmentUrl : null,
         'thread_id' => $ticket['discord_thread_id'] ?? null,
     ]);
+
+    // Ha risposto lo staff: chi ha aperto il ticket lo sa anche su Discord.
+    if ($isAdmin && (int)$ticket['user_id'] !== $userId) {
+        cripsum_discord_dm($mysqli, (int)$ticket['user_id'], [
+            'kind' => 'ticket',
+            'title' => 'The staff answered your ticket',
+            'text' => $ticketId . ' · ' . (string)$ticket['title'],
+            'url' => 'https://cripsum.com/it/supporto?ticket=' . rawurlencode($ticketId),
+        ]);
+    }
 
     $reply(['ok' => true, 'attachment_url' => $attachmentUrl, 'message_id' => $messageId]);
 } catch (Throwable $e) {

@@ -43,6 +43,7 @@ $botPanelTitle = $botPanelLang === 'en' ? 'Poppy, the Cripsum bot' : 'Poppy, il 
     <link rel="stylesheet" href="<?= cripsum_theme_asset('/assets/bot/panel.css') ?>">
     <script src="<?= cripsum_theme_asset('/assets/bot/panel.js') ?>" defer></script>
     <script src="<?= cripsum_theme_asset('/assets/bot/panel-sections.js') ?>" defer></script>
+    <script src="<?= cripsum_theme_asset('/assets/bot/panel-ops.js') ?>" defer></script>
 </head>
 
 <body class="bot-panel-page">
