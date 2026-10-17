@@ -165,11 +165,11 @@
         scheduleSave();
     };
     form.addEventListener('input', (event) => {
-        if (event.target.matches('[data-cp-rel-search], [data-cp-pills] input')) return;
+        if (event.target.matches('[data-cp-rel-search], [data-cp-pills] input, .cp-linker input')) return;
         changed();
     });
     form.addEventListener('change', (event) => {
-        if (event.target.matches('[data-cp-rel-search], [data-cp-pills] input, [data-cp-photo-input], [data-cp-inline-photo]')) return;
+        if (event.target.matches('[data-cp-rel-search], [data-cp-pills] input, .cp-linker input, [data-cp-photo-input], [data-cp-inline-photo]')) return;
         changed();
     });
     window.addEventListener('online', () => { if (state.dirty) saveDraft(); });
@@ -394,7 +394,7 @@
         if (tool === 'heading') prefixLines('## ');
         if (tool === 'quote') prefixLines('> ');
         if (tool === 'spoiler') replaceSelection('[spoiler]\n', '\n[/spoiler]', '…');
-        if (tool === 'link') {
+        if (tool === 'link' && !openLinker()) {
             replaceSelection('[[', '');
             openSuggest();
         }
@@ -413,6 +413,7 @@
         text.hidden = showPreview;
         preview.hidden = !showPreview;
         closeSuggest();
+        if (showPreview) closeLinker(false);
         if (!showPreview) {
             text.focus();
             return;
@@ -471,6 +472,7 @@
             },
             hide() {
                 box.hidden = true;
+                box.innerHTML = '';
                 items = [];
             },
             key(event) {
@@ -500,13 +502,16 @@
         return list;
     };
 
+    // Il nome da mettere dentro [[ ]]: il titolo, o l'indirizzo se il titolo ha [ ] o | (romperebbero il link).
+    const linkTarget = (item) => (item.create || !/[[\]|]/.test(item.title) ? item.title : String(item.url || '').split('/').pop());
+
     // [[ dentro il testo.
     let linkStart = -1;
     let linkToken = 0;
     const linkSuggest = suggestBox(suggest, (item) => {
         if (!item || linkStart < 0) return;
         const end = text.selectionStart;
-        text.setRangeText(`[[${item.title}]]`, linkStart, end, 'end');
+        text.setRangeText(`[[${linkTarget(item)}]]`, linkStart, end, 'end');
         closeSuggest();
         text.focus();
         text.dispatchEvent(new Event('input', { bubbles: true }));
@@ -542,21 +547,116 @@
     }
     // L'elenco va sotto la riga dove si scrive: si misura con una copia del campo.
     const mirror = document.createElement('div');
-    function placeSuggest() {
+    function placeAt(el, index, width) {
         const style = getComputedStyle(text);
         ['fontFamily', 'fontSize', 'lineHeight', 'paddingTop', 'paddingLeft', 'paddingRight', 'letterSpacing', 'borderLeftWidth', 'boxSizing'].forEach((key) => { mirror.style[key] = style[key]; });
         Object.assign(mirror.style, { position: 'absolute', visibility: 'hidden', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', width: `${text.clientWidth}px`, top: '0', left: '0' });
-        mirror.textContent = text.value.slice(0, text.selectionStart);
+        mirror.textContent = text.value.slice(0, index);
         const marker = document.createElement('span');
         marker.textContent = '​';
         mirror.appendChild(marker);
         text.parentElement.appendChild(mirror);
         const top = marker.offsetTop - text.scrollTop + parseFloat(style.lineHeight || '24');
-        const left = Math.min(marker.offsetLeft, Math.max(0, text.clientWidth - 300));
+        const left = Math.min(marker.offsetLeft, Math.max(0, text.clientWidth - width));
         mirror.remove();
-        suggest.style.top = `${Math.max(0, top) + 8}px`;
-        suggest.style.left = `${Math.max(12, left)}px`;
+        el.style.top = `${Math.max(0, top) + 8}px`;
+        el.style.left = `${Math.max(12, left)}px`;
     }
+    const placeSuggest = () => placeAt(suggest, text.selectionStart, 300);
+
+    // Collegare parole scelte da chi scrive: si seleziona «il fratello di mychy», si preme [[ ]] e si
+    // sceglie la voce. Nel testo si legge quello che si è scritto, il link porta alla voce:
+    // [[Voce|il fratello di mychy]]. Su un collegamento già fatto si cambia la voce, il testo resta.
+    const linker = document.createElement('div');
+    linker.className = 'cp-linker';
+    linker.hidden = true;
+    linker.setAttribute('role', 'dialog');
+    linker.setAttribute('aria-label', S.link_dialog);
+    linker.innerHTML = `<p class="cp-linker__head"></p>
+        <label class="cp-linker__find"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" autocomplete="off" spellcheck="false" placeholder="${esc(S.link_ph)}" aria-label="${esc(S.link_ph)}"></label>
+        <div class="cp-linker__list" role="listbox" hidden></div>
+        <p class="cp-linker__tip"></p>`;
+    text.parentElement.appendChild(linker);
+    const linkerInput = $('input', linker);
+    let linkRange = null; // [inizio, fine, testo che si legge]
+    let linkerToken = 0;
+
+    function closeLinker(restore = true) {
+        if (linker.hidden) return;
+        linker.hidden = true;
+        linkerList.hide();
+        if (restore && linkRange) {
+            text.focus();
+            text.setSelectionRange(linkRange[0], linkRange[1]);
+        }
+        linkRange = null;
+    }
+
+    const linkerList = suggestBox($('.cp-linker__list', linker), (item) => {
+        if (!item || !linkRange) return;
+        const [start, end, label] = linkRange;
+        const same = label.toLowerCase() === String(item.title).trim().toLowerCase();
+        const link = same ? `[[${linkTarget(item)}]]` : `[[${linkTarget(item)}|${label}]]`;
+        closeLinker(false);
+        text.focus();
+        text.setRangeText(link, start, end, 'end');
+        text.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    const searchLinker = debounce(async () => {
+        const query = linkerInput.value.trim();
+        const token = ++linkerToken;
+        if (!query) {
+            linkerList.hide();
+            return;
+        }
+        try {
+            const list = (await searchEntries(query)).filter((item) => Number(item.id) !== Number(state.entryId));
+            if (token === linkerToken && !linker.hidden) linkerList.show(list, query.slice(0, 120), true);
+        } catch (_) {
+            // Si riprova scrivendo.
+        }
+    }, 180);
+
+    /** Apre la scelta della voce per le parole selezionate; false se non c'è niente di selezionato. */
+    function openLinker() {
+        let start = text.selectionStart;
+        let end = text.selectionEnd;
+        // Gli spazi intorno restano fuori dal collegamento.
+        while (start < end && /\s/.test(text.value[start])) start++;
+        while (end > start && /\s/.test(text.value[end - 1])) end--;
+        const chosen = text.value.slice(start, end);
+        if (!chosen || chosen.includes('\n') || chosen.length > 130) return false;
+        const existing = chosen.match(/^\[\[([^[\]|\n]+)(?:\|([^[\]\n]+))?\]\]$/);
+        const label = (existing ? (existing[2] || existing[1]) : chosen).trim();
+        if (!label || label.length > 120 || /[[\]]/.test(label)) return false;
+
+        linkRange = [start, end, label];
+        $('.cp-linker__head', linker).innerHTML = esc(S.link_to).replace('%s', `<b>${esc(label)}</b>`);
+        $('.cp-linker__tip', linker).textContent = fmt(S.link_tip, label);
+        closeSuggest();
+        placeAt(linker, start, 320);
+        linker.hidden = false;
+        linkerInput.value = existing ? existing[1] : label;
+        linkerInput.focus();
+        linkerInput.select();
+        searchLinker();
+        return true;
+    }
+
+    linkerInput.addEventListener('input', searchLinker);
+    linkerInput.addEventListener('keydown', (event) => {
+        if (linkerList.key(event)) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            closeLinker();
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
+    document.addEventListener('mousedown', (event) => {
+        if (!linker.hidden && !linker.contains(event.target) && !event.target.closest('[data-cp-tool="link"]')) closeLinker(false);
+    });
     text.addEventListener('input', () => {
         if (text.value.slice(0, text.selectionStart).lastIndexOf('[[') >= 0) openSuggest();
         else closeSuggest();

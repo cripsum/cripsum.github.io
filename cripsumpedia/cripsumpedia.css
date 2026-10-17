@@ -745,6 +745,22 @@ input[type="date"].cp-input { color-scheme: dark; }
 .cp-suggest__img--plus { color: var(--nx-text-2); font-weight: 600; }
 .cp-suggest__none { margin: 0; padding: 8px 10px; color: var(--nx-text-3); font-size: 0.875rem; }
 
+/* «Collega … a»: le parole selezionate diventano il testo di un collegamento. */
+.cp-linker { position: absolute; z-index: 25; width: 320px; max-width: calc(100% - 24px); padding: 12px; border: 1px solid var(--nx-line); border-radius: 18px; color: var(--nx-text); font-family: var(--nx-font); background: var(--nx-surface-2); box-shadow: var(--nx-float); }
+.cp-linker[hidden] { display: none; }
+.cp-main .cp-linker__head { margin: 0 2px 10px !important; color: var(--nx-text-2); font-size: 0.8125rem; overflow-wrap: anywhere; }
+.cp-linker__head b { color: var(--nx-text); font-weight: 600; }
+.cp-linker__find { display: flex; align-items: center; gap: 10px; height: 40px; margin: 0; padding: 0 12px; border: 1px solid var(--nx-line); border-radius: 12px; background: var(--nx-surface); }
+.cp-linker__find:focus-within { border-color: var(--nx-text-3); }
+.cp-linker__find i { color: var(--nx-text-3); font-size: 0.8125rem; }
+.cp-linker__find input { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; color: var(--nx-text); font: inherit; font-size: 0.9375rem; background: transparent; }
+.cp-linker__find input::-webkit-search-cancel-button { display: none; }
+.cp-linker__list { margin-top: 6px; }
+.cp-linker__list[hidden] { display: none; }
+.cp-main .cp-linker__tip { margin: 8px 2px 0 !important; color: var(--nx-text-3); font-size: 0.75rem; line-height: 1.4; }
+/* Un campo dentro un riquadro: il bordo del riquadro mostra già dove si scrive, niente secondo anello. */
+.cp-main :is(.cp-linker__find input, .cp-pills input, .cp-rels__find input, .cp-editor__text):focus-visible { outline: 0; }
+
 .cp-folds { display: grid; }
 .cp-fold { border-bottom: 1px solid var(--nx-line); }
 .cp-fold > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; cursor: pointer; list-style: none; }
@@ -1019,6 +1035,7 @@ fieldset .cp-check:first-of-type { margin-top: 0; }
     .cp-photo__drop > p { font-size: 0.8125rem; }
     .cp-editor__bar .cp-hide-phone { display: none; }
     .cp-editor__text { min-height: 280px; padding: 16px; }
+    .cp-linker__find input { font-size: 1rem; } /* 16 px: sotto, iPhone ingrandisce la pagina */
     .cp-fold__body { grid-template-columns: 1fr; }
     .cp-rel { grid-template-columns: 40px minmax(0, 1fr) 32px; }
     .cp-rel select { grid-column: 2; grid-row: 2; width: 100%; }
