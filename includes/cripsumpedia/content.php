@@ -16,7 +16,8 @@
 
 // 2: i titoletti hanno un id, per l'indice della voce (fase 2).
 // 3: id uguali su ogni sistema («Curiosità» → «curiosita»).
-const CP_RENDER_STAMP = '<!--cp-render:3-->';
+// 4: [[Titolo]], foto nel testo solo dal sito, link di fuori nofollow (fase 4).
+const CP_RENDER_STAMP = '<!--cp-render:4-->';
 
 /** Il testo in HTML col timbro, pronto da salvare. Vuoto se non c'è testo. */
 function cp_render_for_storage(string $markdown): string
@@ -46,7 +47,72 @@ function cp_entry_content_html(mysqli $mysqli, array $entry, string $lang): stri
     if ($html === null) {
         $html = cp_markdown_render($markdown);
     }
-    return cp_autolink_html($html, $mysqli, $lang, (int)($entry['id'] ?? 0));
+    return cp_autolink_html(cp_resolve_wiki_links($html, $mysqli, $lang), $mysqli, $lang, (int)($entry['id'] ?? 0));
+}
+
+/** «Cripsum», « cripsum » e «CRIPSUM» sono lo stesso titolo. */
+function cp_wiki_key(string $title): string
+{
+    return mb_strtolower(trim((string)preg_replace('~\s+~u', ' ', $title)), 'UTF-8');
+}
+
+/**
+ * Le voci pubblicate per titolo, soprannome e indirizzo, per i [[collegamenti]]
+ * scritti a mano. A differenza dei collegamenti automatici valgono anche i nomi
+ * corti: qui li ha scelti chi scrive.
+ */
+function cp_wiki_lookup(mysqli $mysqli, string $lang): array
+{
+    static $cache = [];
+    if (isset($cache[$lang])) return $cache[$lang];
+    $map = [];
+    $add = static function (string $key, array $row) use (&$map, $lang): void {
+        if ($key === '' || isset($map[$key])) return;
+        $map[$key] = ['id' => (int)$row['id'], 'url' => cp_entry_url($row, $lang)];
+    };
+    $entries = [];
+    if ($result = $mysqli->query("SELECT id, entry_type, slug, title, title_en FROM cripsumpedia_entries WHERE status = 'published'" . cp_not_deleted_sql($mysqli) . ' ORDER BY id ASC')) {
+        while ($row = $result->fetch_assoc()) $entries[(int)$row['id']] = $row;
+    }
+    // Prima i titoli, poi i soprannomi: se un soprannome è anche il titolo di
+    // un'altra voce, vince la voce con quel titolo.
+    foreach ($entries as $row) {
+        $add(cp_wiki_key((string)$row['title']), $row);
+        $add(cp_wiki_key((string)($row['title_en'] ?? '')), $row);
+    }
+    if ($entries && ($result = $mysqli->query('SELECT entry_id, alias, alias_en FROM cripsumpedia_aliases ORDER BY id ASC'))) {
+        while ($alias = $result->fetch_assoc()) {
+            $row = $entries[(int)$alias['entry_id']] ?? null;
+            if (!$row) continue;
+            $add(cp_wiki_key((string)$alias['alias']), $row);
+            $add(cp_wiki_key((string)($alias['alias_en'] ?? '')), $row);
+        }
+    }
+    foreach ($entries as $row) $add('slug:' . $row['slug'], $row);
+    return $cache[$lang] = $map;
+}
+
+/**
+ * I [[collegamenti]] salvati nel testo diventano link alla voce. Se la voce non
+ * esiste, chi può scrivere vede un link per crearla; gli altri il testo e basta.
+ */
+function cp_resolve_wiki_links(string $html, mysqli $mysqli, string $lang): string
+{
+    if (!str_contains($html, 'data-cp-wiki=')) return $html;
+    $lookup = cp_wiki_lookup($mysqli, $lang);
+    $canWrite = cp_can_write();
+    $missing = $lang === 'en' ? 'This entry does not exist yet: write it' : 'Questa voce non c\'è ancora: scrivila';
+    return preg_replace_callback('~<a class="cp-wiki" data-cp-wiki="([^"]*)">(.*?)</a>~su', static function (array $m) use ($lookup, $canWrite, $lang, $missing): string {
+        $target = html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $term = $lookup[cp_wiki_key($target)] ?? $lookup['slug:' . cp_slugify($target)] ?? null;
+        if ($term) {
+            return '<a class="cp-lore-link" href="' . cp_h($term['url']) . '" data-lore-id="' . $term['id'] . '">' . $m[2] . '</a>';
+        }
+        if ($canWrite) {
+            return '<a class="cp-wiki-missing" href="' . cp_h(cp_write_url($lang, null, $target)) . '" title="' . cp_h($missing) . '">' . $m[2] . '</a>';
+        }
+        return '<span>' . $m[2] . '</span>';
+    }, $html) ?? $html;
 }
 
 /** Rifà e salva l'HTML di una voce, nelle due lingue. */
@@ -86,6 +152,8 @@ function cp_mention_haystack(array $entry): string
             // Ogni tag diventa uno spazio: tolto e basta, «Cripsum<br>e» darebbe «Cripsume».
             $plain = preg_replace('~<[^>]*>~', ' ', cp_markdown_render($markdown)) ?? '';
             $text .= ' ' . html_entity_decode($plain, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            // [[Cripsum|lui]] cita Cripsum anche se nel testo si legge «lui».
+            if (preg_match_all('~\[\[([^\[\]|\n]{1,120})~u', $markdown, $m)) $text .= ' ' . implode(' · ', $m[1]);
         }
     }
     return $text;

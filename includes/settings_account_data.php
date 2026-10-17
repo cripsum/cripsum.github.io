@@ -33,7 +33,7 @@ $copy = $isEn
         'how' => [
             'Your account is hidden right away and you are signed out everywhere.',
             'Sign in again within %d days and the deletion is cancelled.',
-            'After that everything is erased for good.',
+            'After that everything is erased for good, except the Cripsumpedia entries and edits you wrote: they stay, without your name.',
         ],
         'download_first' => 'Download your data first if you want to keep a copy.',
         'pending_title' => 'Deletion scheduled',
@@ -72,7 +72,7 @@ $copy = $isEn
         'how' => [
             'Il tuo account viene nascosto subito e vieni disconnesso ovunque.',
             'Accedi di nuovo entro %d giorni e la cancellazione viene annullata.',
-            'Dopo, tutto viene eliminato per sempre.',
+            'Dopo, tutto viene eliminato per sempre, tranne le voci e le modifiche che hai scritto nella Cripsumpedia: restano, senza il tuo nome.',
         ],
         'download_first' => 'Scarica prima i tuoi dati se vuoi conservarne una copia.',
         'pending_title' => 'Cancellazione programmata',

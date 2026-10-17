@@ -7,6 +7,9 @@ require_once __DIR__ . '/_bootstrap.php';
 $lang = cp_detect_lang();
 $ready = cp_schema_ready($mysqli);
 $canWrite = cp_can_write();
+// Con le proposte aperte l'invito spiega i tre passi; chi non ha un account va ad accedere.
+$proposalsOpen = $ready && cp_v2_ready($mysqli) && cp_settings($mysqli)['proposals_open'];
+$showInvite = $canWrite || ($proposalsOpen && cp_current_user_id() <= 0);
 
 $stats = cp_fetch_stats($mysqli);
 $featured = $ready ? cp_featured_entry($mysqli) : null;
@@ -147,7 +150,7 @@ $description = cp_t('subtitle', $lang);
                 </div>
             <?php endif; ?>
 
-            <?php if ($changes || $canWrite): ?>
+            <?php if ($changes || $showInvite): ?>
                 <div class="cp-split cp-sec">
                     <?php if ($changes): ?>
                         <section>
@@ -160,11 +163,23 @@ $description = cp_t('subtitle', $lang);
                         </section>
                     <?php endif; ?>
 
-                    <?php if ($canWrite): ?>
+                    <?php if ($showInvite): ?>
                         <aside class="cp-invite">
                             <h3><?= cp_h(cp_ui('invite_title', $lang)) ?></h3>
-                            <p><?= cp_h(cp_ui('invite_text', $lang)) ?></p>
-                            <a class="cp-btn" href="<?= cp_h(cp_write_url($lang)) ?>"><i class="fa-solid fa-pen" aria-hidden="true"></i><?= cp_h(cp_ui('write', $lang)) ?></a>
+                            <?php if ($proposalsOpen): ?>
+                                <ol class="cp-steps">
+                                    <li><?= cp_h(cp_ui('invite_step_1', $lang)) ?></li>
+                                    <li><?= cp_h(cp_ui('invite_step_2', $lang)) ?></li>
+                                    <li><?= cp_h(cp_ui('invite_step_3', $lang)) ?></li>
+                                </ol>
+                            <?php else: ?>
+                                <p><?= cp_h(cp_ui('invite_text', $lang)) ?></p>
+                            <?php endif; ?>
+                            <?php if ($canWrite): ?>
+                                <a class="cp-btn" href="<?= cp_h(cp_write_url($lang)) ?>"><i class="fa-solid fa-pen" aria-hidden="true"></i><?= cp_h(cp_ui('write', $lang)) ?></a>
+                            <?php else: ?>
+                                <a class="cp-btn" href="<?= cp_h(cp_write_url($lang)) ?>"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><?= cp_h(cp_ui('invite_login', $lang)) ?></a>
+                            <?php endif; ?>
                         </aside>
                     <?php endif; ?>
                 </div>

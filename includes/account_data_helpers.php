@@ -1102,6 +1102,84 @@ function account_purge_chat_traces(mysqli $mysqli, int $userId): void
  *
  * Returns ['ok' => bool, 'deleted' => ['table' => rows], 'message' => string].
  */
+/**
+ * Cripsumpedia: the entries someone wrote and their approved edits are the
+ * server's shared history, so they stay, shown as «account eliminato» (the
+ * privacy page says so). Here the account's id is taken off them; the generic
+ * sweep below then deletes what is still theirs alone: drafts, suggestions
+ * waiting or rejected, the photo log, the favourites. Returns the photos those
+ * drafts and suggestions used, to remove from disk if nothing else uses them.
+ */
+function account_keep_cripsumpedia_anonymous(mysqli $mysqli, int $userId): array
+{
+    $photos = [];
+    try {
+        $stmt = $mysqli->prepare("SELECT data FROM cripsumpedia_revisions WHERE user_id = ? AND status <> 'approved'");
+        if ($stmt) {
+            $stmt->bind_param('i', $userId);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            while ($row = $res->fetch_row()) {
+                if (preg_match_all('~/img/cripsumpedia/\d{4}/\d{2}/[a-z0-9-]+\.(?:jpe?g|png|gif|webp)~', (string)$row[0], $m)) {
+                    array_push($photos, ...$m[0]);
+                }
+            }
+            $stmt->close();
+        }
+    } catch (Throwable $e) {
+        error_log('[account_purge_user] cripsumpedia photos: ' . $e->getMessage());
+    }
+
+    foreach ([
+        "UPDATE cripsumpedia_entries SET created_by = NULL WHERE created_by = ?",
+        "UPDATE cripsumpedia_entries SET updated_by = NULL WHERE updated_by = ?",
+        // A person's entry linked to this account stays, unlinked.
+        "UPDATE cripsumpedia_entries SET profile_user_id = NULL WHERE profile_user_id = ?",
+        "UPDATE cripsumpedia_revisions SET user_id = NULL WHERE user_id = ? AND status = 'approved'",
+    ] as $sql) {
+        try {
+            $stmt = $mysqli->prepare($sql);
+            if (!$stmt) {
+                continue; // table or column not there (migration not applied)
+            }
+            $stmt->bind_param('i', $userId);
+            $stmt->execute();
+            $stmt->close();
+        } catch (Throwable $e) {
+            error_log('[account_purge_user] cripsumpedia: ' . $e->getMessage());
+        }
+    }
+
+    return array_values(array_unique($photos));
+}
+
+/** Removes Cripsumpedia photos that no entry and no remaining version uses. */
+function account_forget_cripsumpedia_uploads(mysqli $mysqli, array $paths): void
+{
+    $root = realpath(__DIR__ . '/../img/cripsumpedia');
+    foreach ($paths as $path) {
+        try {
+            $like = '%' . addcslashes($path, '%_\\') . '%';
+            $stmt = $mysqli->prepare("SELECT
+                    (SELECT COUNT(*) FROM cripsumpedia_entries WHERE image_url = ? OR banner_url = ? OR content_md LIKE ? OR content_md_en LIKE ?)
+                  + (SELECT COUNT(*) FROM cripsumpedia_revisions WHERE data LIKE ?)");
+            if (!$stmt) {
+                return;
+            }
+            $stmt->bind_param('sssss', $path, $path, $like, $like, $like);
+            $stmt->execute();
+            $used = (int)($stmt->get_result()->fetch_row()[0] ?? 1);
+            $stmt->close();
+            $file = realpath(__DIR__ . '/..' . $path);
+            if ($used === 0 && $root && $file && str_starts_with($file, $root . DIRECTORY_SEPARATOR) && is_file($file)) {
+                @unlink($file);
+            }
+        } catch (Throwable $e) {
+            error_log('[account_purge_user] cripsumpedia photo: ' . $e->getMessage());
+        }
+    }
+}
+
 function account_purge_user(mysqli $mysqli, int $userId): array
 {
     if ($userId <= 0) {
@@ -1133,6 +1211,9 @@ function account_purge_user(mysqli $mysqli, int $userId): array
         error_log('[account_purge_user] exports: ' . $e->getMessage());
     }
 
+    // Cripsumpedia: published entries and approved edits stay, without the name.
+    $pediaUploads = account_keep_cripsumpedia_anonymous($mysqli, $userId);
+
     // Child rows across every discovered table, then the account itself.
     foreach (account_owned_tables($mysqli) as $table => $columns) {
         foreach ($columns as $column) {
@@ -1151,6 +1232,8 @@ function account_purge_user(mysqli $mysqli, int $userId): array
             }
         }
     }
+
+    account_forget_cripsumpedia_uploads($mysqli, $pediaUploads);
 
     $stmt = $mysqli->prepare("DELETE FROM `utenti` WHERE id = ? LIMIT 1");
     if (!$stmt) {

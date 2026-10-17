@@ -1,7 +1,9 @@
 /* Cripsumpedia — le pagine da leggere.
    Foto che entrano a fuoco, anteprima delle voci nominate nel testo, condividi,
    una voce a caso, l'indice che segue la lettura, la ricerca sopra la pagina.
-   Editor e pannello dello staff usano ancora staff.js fino alla fase 4. */
+   Dalla fase 4 anche i pulsanti dello staff in «Da approvare» e in cronologia
+   (approva, rifiuta, ripristina); la pagina Scrivi ha il suo scrivi.js, che
+   usa post() e toast() da qui. */
 (() => {
     'use strict';
 
@@ -29,8 +31,41 @@
         el.classList.toggle('is-error', error);
         el.hidden = false;
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => { el.hidden = true; }, 2600);
+        toastTimer = setTimeout(() => { el.hidden = true; }, error ? 4200 : 2600);
     }
+
+    // Scrivere e approvare (fase 4): POST con il token del sito. Un errore
+    // porta con sé la risposta (err.data), per i campi da segnare.
+    function post(endpoint, body) {
+        const isForm = body instanceof FormData;
+        const url = new URL(endpoint, location.origin);
+        url.searchParams.set('lang', cfg.lang || 'it');
+        return fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'X-CSRF-Token': cfg.csrf || '', 'X-Requested-With': 'XMLHttpRequest', ...(isForm ? {} : { 'Content-Type': 'application/json' }) },
+            body: isForm ? body : JSON.stringify(body),
+        }).then(async (res) => {
+            let data;
+            try {
+                data = await res.json();
+            } catch (_) {
+                data = { ok: false, message: res.status === 413 ? (en ? 'File too large.' : 'File troppo grande.') : `HTTP ${res.status}` };
+            }
+            data.httpStatus = res.status;
+            if (!res.ok || data.ok === false) {
+                const error = new Error(data.message || `HTTP ${res.status}`);
+                error.data = data;
+                throw error;
+            }
+            return data;
+        });
+    }
+
+    cfg.toast = toast;
+    cfg.post = post;
+    cfg.search = api;
+    cfg.escapeHtml = escapeHtml;
 
     // Le foto entrano a fuoco quando sono pronte, non a pezzi mentre scaricano.
     function initFade() {
@@ -405,6 +440,84 @@
         });
     }
 
+    // «Da approvare» e cronologia (solo staff): approva, rifiuta, ripristina.
+    function initReview() {
+        const root = document.querySelector('[data-cp-review]');
+        if (!root) return;
+        const endpoint = cfg.reviewEndpoint || '/api/cripsumpedia_review.php';
+        const reviewUrl = root.dataset.reviewUrl || '';
+        const next = (data) => {
+            if (data.next && reviewUrl) location.href = `${reviewUrl}?id=${encodeURIComponent(data.next)}`;
+            else location.href = data.url || reviewUrl || location.href;
+        };
+
+        $$('[data-cp-review-tab]', root).forEach((tab) => tab.addEventListener('click', () => {
+            $$('[data-cp-review-tab]', root).forEach((other) => {
+                const on = other === tab;
+                other.classList.toggle('is-on', on);
+                other.setAttribute('aria-selected', String(on));
+            });
+            $$('[data-cp-review-pane]', root).forEach((pane) => { pane.hidden = pane.dataset.cpReviewPane !== tab.dataset.cpReviewTab; });
+        }));
+
+        root.addEventListener('click', async (event) => {
+            const approve = event.target.closest('[data-cp-approve]');
+            const restore = event.target.closest('[data-cp-restore]');
+            const opener = event.target.closest('[data-cp-reject-open]');
+            const cancel = event.target.closest('[data-cp-reject-cancel]');
+            const form = root.querySelector('[data-cp-reject]');
+
+            if (opener || cancel) {
+                const open = !!opener && form.hidden;
+                form.hidden = !open;
+                root.querySelector('[data-cp-reject-open]')?.setAttribute('aria-expanded', String(open));
+                if (open) {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    form.querySelector('input')?.focus({ preventScroll: true });
+                }
+                return;
+            }
+            const button = approve || restore;
+            if (!button || button.disabled) return;
+            if (restore && !window.confirm(restore.dataset.confirm || '')) return;
+            button.disabled = true;
+            try {
+                const data = approve
+                    ? await post(endpoint, { action: 'approve', id: Number(approve.dataset.cpApprove) })
+                    : await post(endpoint, { action: 'restore', revision_id: Number(restore.dataset.cpRestore) });
+                if (approve) {
+                    toast(en ? 'Published.' : 'Pubblicata.');
+                    setTimeout(() => next(data), 500);
+                } else {
+                    location.href = data.url;
+                }
+            } catch (error) {
+                button.disabled = false;
+                toast(error.message, true);
+            }
+        });
+
+        root.querySelector('[data-cp-reject]')?.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const submit = form.querySelector('[type="submit"]');
+            const reason = form.querySelector('input[name="reason"]:checked')?.value || '';
+            if (!reason) {
+                toast(en ? 'Choose a reason.' : 'Scegli un motivo.', true);
+                return;
+            }
+            submit.disabled = true;
+            try {
+                const data = await post(endpoint, { action: 'reject', id: Number(form.dataset.cpReject), reason, note: form.elements.note.value });
+                toast(en ? 'Not published: the reason goes to their Inbox.' : 'Non pubblicata: il motivo arriva nella Posta.');
+                setTimeout(() => next(data), 700);
+            } catch (error) {
+                submit.disabled = false;
+                toast(error.message, true);
+            }
+        });
+    }
+
     function init() {
         initFade();
         initPeek();
@@ -412,6 +525,7 @@
         initRandom();
         initToc();
         initPalette();
+        initReview();
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

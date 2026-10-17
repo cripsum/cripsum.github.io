@@ -1986,3 +1986,30 @@ html:root .admin-btn--online.is-active {
 html:root .admin-toast.is-error {
     border-color: var(--nx-danger);
 }
+
+/* ── Cripsumpedia (fase 4) ── */
+.cpa-tabs { width: fit-content; max-width: 100%; margin-bottom: 1rem; }
+.cpa-body { display: grid; gap: .9rem; }
+.cpa-note { display: flex; gap: .5rem; align-items: baseline; margin: .2rem 0 0; font-size: .82rem; }
+.cpa-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.cpa-seg { grid-template-columns: repeat(4, auto); }
+.cpa-seg button { padding: 0 .7rem; }
+.cpa-seg small { opacity: .7; font-weight: 700; }
+.cpa-search { flex: 1 1 12rem; min-width: 0; }
+.cpa-bar .admin-btn--primary { margin-left: auto; }
+.cpa-settings { display: grid; gap: .9rem; }
+.cpa-card { display: grid; gap: .8rem; padding: 1rem; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-md); }
+.cpa-card h3 { margin: 0; font-size: 1rem; font-weight: 800; }
+.cpa-card p { margin: 0; }
+.cpa-card > .admin-btn { justify-self: start; }
+.cpa-switch { display: flex; gap: .8rem; align-items: flex-start; cursor: pointer; }
+.cpa-switch input { width: 1.1rem; height: 1.1rem; margin-top: .2rem; flex: none; accent-color: var(--admin-accent); }
+.cpa-switch b { display: block; }
+.cpa-switch small { display: block; margin-top: .15rem; color: var(--admin-muted); }
+.cpa-warn { display: flex; gap: .5rem; align-items: baseline; padding: .65rem .8rem; border-radius: var(--admin-radius-sm); color: var(--admin-warning); background: rgba(245, 158, 11, .08); font-size: .85rem; }
+.cpa-block { display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) auto; gap: .5rem; }
+@media (max-width: 720px) {
+    .cpa-seg { grid-template-columns: repeat(2, 1fr); width: 100%; }
+    .cpa-bar .admin-btn--primary { margin-left: 0; width: 100%; }
+    .cpa-block { grid-template-columns: 1fr; }
+}

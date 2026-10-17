@@ -38,6 +38,7 @@ if ($entry) {
     $relations = cp_fetch_relations($mysqli, $entryId);
     $mentionedIn = cp_mentioned_in($mysqli, $entryId);
     $authorship = cp_entry_authorship($mysqli, $entry);
+    $versions = cp_history_count($mysqli, $entryId);
     $profile = $entryType === 'person' ? cp_entry_profile($mysqli, $entry) : null;
     $people = $entryType === 'event' ? array_values(array_filter($relations, static fn(array $r): bool => ($r['entry_type'] ?? '') === 'person')) : [];
     $image = cp_entry_image($entry);
@@ -141,7 +142,7 @@ if ($entry) {
                         </div>
                         <div class="cp-meta__actions">
                             <?php if (cp_can_write()): ?>
-                                <a class="cp-btn" href="<?= cp_h(cp_url('editor', ['id' => $entryId], $lang)) ?>"><i class="fa-solid fa-pen" aria-hidden="true"></i><?= cp_h(cp_ui('edit', $lang)) ?></a>
+                                <a class="cp-btn" href="<?= cp_h(cp_edit_url($lang, $entryId)) ?>"><i class="fa-solid fa-pen" aria-hidden="true"></i><?= cp_h(cp_ui('edit', $lang)) ?></a>
                             <?php endif; ?>
                             <button class="cp-icon" type="button" data-cp-share title="<?= cp_h(cp_ui('share', $lang)) ?>" aria-label="<?= cp_h(cp_ui('share', $lang)) ?>"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i></button>
                         </div>
@@ -192,6 +193,7 @@ if ($entry) {
 
                     <footer class="cp-foot">
                         <span><?= cp_h(cp_ui('last_edit', $lang, cp_format_date($authorship['at'], $lang, 'long') . ', ' . date('H:i', strtotime($authorship['at']) ?: time()))) ?></span>
+                        <?php if ($versions > 0): ?><a href="<?= cp_h(cp_url('history', ['voce' => $entryId], $lang)) ?>"><?= cp_h(sprintf(cp_write_strings($lang)['history_n'][0], $versions)) ?></a><?php endif; ?>
                         <?php if ($mentionedIn): ?><a href="#cp-citata"><?= cp_h(cp_ui_n('cited_in_n', count($mentionedIn), $lang)) ?></a><?php endif; ?>
                     </footer>
                 </article>

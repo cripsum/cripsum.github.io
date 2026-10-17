@@ -211,11 +211,13 @@ function cp_revision_baseline(mysqli $mysqli, array $entry): void
 }
 
 /**
- * Dopo un salvataggio dello staff: la voce com'è adesso diventa la versione
- * online. Se non è cambiato niente rispetto all'ultima, non aggiunge niente.
- * Restituisce l'id della versione online, o null prima della migrazione.
+ * Dopo un salvataggio: la voce com'è adesso diventa la versione online.
+ * $userId è chi l'ha scritta, $reviewerId chi l'ha approvata (lo stesso, se è
+ * lo staff a scrivere). Se non è cambiato niente rispetto all'ultima, non
+ * aggiunge niente. Restituisce l'id della versione online, o null prima della
+ * migrazione.
  */
-function cp_revision_record(mysqli $mysqli, int $entryId, ?int $userId, string $kind = 'edit', string $summary = ''): ?int
+function cp_revision_record(mysqli $mysqli, int $entryId, ?int $userId, string $kind = 'edit', string $summary = '', ?int $reviewerId = null): ?int
 {
     if (!cp_v2_ready($mysqli)) return null;
 
@@ -237,7 +239,7 @@ function cp_revision_record(mysqli $mysqli, int $entryId, ?int $userId, string $
         'status' => 'approved',
         'data' => $data,
         'summary' => $summary,
-        'reviewer_id' => $userId,
+        'reviewer_id' => $reviewerId ?? $userId,
         'reviewed' => true,
     ]);
     if ($revisionId <= 0) return null;

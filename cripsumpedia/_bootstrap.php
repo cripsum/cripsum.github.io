@@ -15,6 +15,11 @@ require_once __DIR__ . '/../includes/cripsumpedia/media.php';
 require_once __DIR__ . '/../includes/cripsumpedia/lists.php';
 require_once __DIR__ . '/../includes/cripsumpedia/ui.php';
 require_once __DIR__ . '/../includes/cripsumpedia/palette.php';
+require_once __DIR__ . '/../includes/cripsumpedia/write.php';
+require_once __DIR__ . '/../includes/cripsumpedia/proposals.php';
+require_once __DIR__ . '/../includes/cripsumpedia/review.php';
+require_once __DIR__ . '/../includes/cripsumpedia/diff.php';
+require_once __DIR__ . '/../includes/cripsumpedia/write_ui.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 
@@ -389,9 +394,14 @@ function cp_url(string $route = 'home', array $params = [], ?string $lang = null
     } elseif ($route === 'search') {
         $url = $base . '/search';
     } elseif ($route === 'admin') {
-        $url = $base . '/admin';
-    } elseif ($route === 'editor') {
-        $url = $base . '/editor';
+        // Dalla fase 4 la Cripsumpedia si gestisce dal Pannello admin.
+        return '/' . $lang . '/admin#cripsumpedia';
+    } elseif ($route === 'write' || $route === 'editor') {
+        $url = $base . '/scrivi';
+    } elseif ($route === 'review') {
+        $url = $base . '/revisione';
+    } elseif ($route === 'history') {
+        $url = $base . '/cronologia';
     } elseif ($route === 'category') {
         $type = cp_normalize_type($params['type'] ?? 'person') ?? 'person';
         $url = $base . '/' . cp_category_slug($type, $lang);
@@ -953,14 +963,32 @@ function cp_safe_url(string $url): string
 
 function cp_render_inline_markdown(string $text): string
 {
+    // [[Titolo]] e [[Titolo|testo]]: si mettono da parte prima del resto, così
+    // grassetto e corsivo non ci entrano, e diventano un segnaposto che la
+    // pagina risolve quando la voce viene mostrata (cp_resolve_wiki_links).
+    $wiki = [];
+    $text = preg_replace_callback('~\[\[([^\[\]|\n]{1,120})(?:\|([^\[\]\n]{1,120}))?\]\]~u', static function (array $m) use (&$wiki): string {
+        $target = trim($m[1]);
+        $label = trim((string)($m[2] ?? ''));
+        if ($target === '') return $m[0];
+        $wiki[] = '<a class="cp-wiki" data-cp-wiki="' . cp_h($target) . '">' . cp_h($label !== '' ? $label : $target) . '</a>';
+        return "\u{E000}" . (count($wiki) - 1) . "\u{E001}";
+    }, $text) ?? $text;
+
     $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $text = preg_replace_callback('/`([^`]+)`/u', static fn(array $m): string => '<code>' . $m[1] . '</code>', $text) ?? $text;
     $text = preg_replace_callback('/\*\*([^*]+)\*\*/u', static fn(array $m): string => '<strong>' . $m[1] . '</strong>', $text) ?? $text;
     $text = preg_replace_callback('/(?<!\*)\*([^*]+)\*(?!\*)/u', static fn(array $m): string => '<em>' . $m[1] . '</em>', $text) ?? $text;
     $text = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/u', static function (array $m): string {
         $url = cp_safe_url($m[2]);
-        return '<a href="' . cp_h($url) . '" target="_blank" rel="noopener noreferrer">' . $m[1] . '</a>';
+        // I link del sito si aprono qui, quelli di fuori in un'altra scheda.
+        if (str_starts_with($url, '/') || $url === '#') return '<a href="' . cp_h($url) . '">' . $m[1] . '</a>';
+        return '<a href="' . cp_h($url) . '" target="_blank" rel="noopener noreferrer nofollow ugc">' . $m[1] . '</a>';
     }, $text) ?? $text;
+
+    if ($wiki) {
+        $text = preg_replace_callback('~\x{E000}(\d+)\x{E001}~u', static fn(array $m): string => $wiki[(int)$m[1]] ?? '', $text) ?? $text;
+    }
     return $text;
 }
 
@@ -1044,9 +1072,17 @@ function cp_markdown_render(string $markdown, bool $nested = false): string
         }
 
         if (preg_match('/^!\[([^\]]*)\]\(([^)]+)\)$/u', $block, $m)) {
-            $src = cp_safe_url($m[2]);
-            $alt = cp_h($m[1]);
-            $html[] = '<figure class="cp-content-image"><img src="' . cp_h($src) . '" alt="' . $alt . '" loading="lazy"><figcaption>' . $alt . '</figcaption></figure>';
+            $src = html_entity_decode(trim($m[2]), ENT_QUOTES, 'UTF-8');
+            $alt = cp_h(trim($m[1]));
+            // Nel testo solo foto del sito: una presa da fuori può sparire o
+            // dire a qualcun altro chi sta leggendo. Le altre restano un link.
+            if (preg_match('~^/img/[^"\'<>\\\\\s]+$~u', $src) && !str_contains($src, '..')) {
+                $html[] = '<figure class="cp-content-image"><img src="' . cp_h($src) . '" alt="' . $alt . '" loading="lazy">'
+                    . ($alt !== '' ? '<figcaption>' . $alt . '</figcaption>' : '') . '</figure>';
+            } else {
+                $url = cp_safe_url($src);
+                $html[] = '<p><a href="' . cp_h($url) . '" target="_blank" rel="noopener noreferrer nofollow ugc">' . ($alt !== '' ? $alt : cp_h($url)) . '</a></p>';
+            }
             continue;
         }
 
@@ -1086,14 +1122,8 @@ function cp_markdown_render(string $markdown, bool $nested = false): string
     return implode("\n", $html);
 }
 
-/**
- * $assets: 'public' per le pagine da leggere (foglio e script nuovi, fase 2),
- * 'staff' per editor e pannello, che fino alla fase 4 restano com'erano
- * (staff.css e staff.js sono il vecchio cripsumpedia.css/.js).
- */
-function cp_render_head(string $title, string $description, string $lang, string $bodyClass = 'cp-body', ?string $ogImage = null, string $assets = 'public'): void
+function cp_render_head(string $title, string $description, string $lang, string $bodyClass = 'cp-body', ?string $ogImage = null): void
 {
-    $staff = $assets === 'staff';
     // Una voce senza banner prende l'anteprima del sito, quella di head-import.
     $ogImage = $ogImage ? cp_asset_url($ogImage) : null;
 
@@ -1108,29 +1138,23 @@ function cp_render_head(string $title, string $description, string $lang, string
     <link rel="icon" href="/img/Susremaster.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@<?= $staff ? '400;600;700;800;900' : '400;500;600' ?>&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
-    <?php if ($staff): ?>
-    <link rel="stylesheet" href="<?= cripsum_theme_asset('/cripsumpedia/staff.css') ?>">
-    <?php endif; ?>
     <?php cripsum_theme_head(); ?>
-    <?php if (!$staff): ?>
     <link rel="stylesheet" href="<?= cripsum_theme_asset('/cripsumpedia/cripsumpedia.css') ?>">
-    <?php endif; ?>
     <script>
         document.documentElement.classList.add('cp-js');
         window.Cripsumpedia = {
             lang: <?= json_encode($lang) ?>,
             searchEndpoint: '/api/cripsumpedia_search.php',
             saveEndpoint: '/api/cripsumpedia_save.php',
-            relationsEndpoint: '/api/cripsumpedia_relations.php',
-            csrf: <?= json_encode(cp_csrf_token()) ?><?php if (!$staff): ?>,
+            reviewEndpoint: '/api/cripsumpedia_review.php',
+            csrf: <?= json_encode(cp_csrf_token()) ?>,
             searchUrl: <?= json_encode(cp_url('search', [], $lang)) ?>,
-            ui: <?= json_encode(cp_palette_strings($lang), JSON_UNESCAPED_UNICODE) ?><?php endif; ?>
-
+            ui: <?= json_encode(cp_palette_strings($lang), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?>
         };
     </script>
-    <script src="<?= cripsum_theme_asset($staff ? '/cripsumpedia/staff.js' : '/cripsumpedia/cripsumpedia.js') ?>" defer></script>
+    <script src="<?= cripsum_theme_asset('/cripsumpedia/cripsumpedia.js') ?>" defer></script>
 <?php
 }
 

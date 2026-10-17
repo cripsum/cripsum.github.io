@@ -5,7 +5,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = '10 ottobre 2026';
+$lastUpdated = '18 ottobre 2026';
 ?>
 <!DOCTYPE html>
 <html lang="it"<?= cripsum_theme_html_attr() ?>>
@@ -98,6 +98,7 @@ $lastUpdated = '10 ottobre 2026';
                         <li>Quello che metti nel profilo: foto, banner, bio, link, social, musica, contenuti incorporati, preferiti, progetti, badge e personaggi in evidenza.</li>
                         <li>Amicizie, richieste di amicizia, follow e utenti bloccati.</li>
                         <li>Shitpost, post di Top Rimasti, commenti, like, voti, contenuti salvati e segnalazioni che invii.</li>
+                        <li>Le voci e le modifiche che scrivi nella Cripsumpedia, le bozze (si salvano da sole mentre scrivi), il messaggio per lo staff e le foto che carichi lì, da cui togliamo i dati nascosti dello scatto. Se lo staff non pubblica una proposta, il motivo ti arriva nella Posta.</li>
                         <li>I messaggi nella chat globale, nelle chat private e di gruppo, con allegati, reazioni e GIF. Per cercare le GIF inviamo a Klipy le parole che scrivi nella ricerca.</li>
                         <li>Nelle chat private e di gruppo: fino a quale messaggio hai letto (da qui le conferme di lettura, che puoi spegnere dalla Privacy della chat), le chat che hai silenziato, archiviato o fissato, i messaggi salvati, i soprannomi che dai e le tue scelte su chi può scriverti. L'indicazione «sta scrivendo» dura pochi secondi e non viene conservata.</li>
                         <li>Dalle foto che carichi in chat togliamo i dati nascosti dello scatto, per esempio la posizione GPS, quando il formato lo permette (JPEG e WebP).</li>
@@ -198,6 +199,7 @@ $lastUpdated = '10 ottobre 2026';
                         <li>il profilo (username, foto, banner, bio, link, social, musica, contenuti incorporati, preferiti, badge, achievement, statistiche e attività del profilo), visibile a chiunque, anche senza account, e nelle anteprime dei link condivisi su altre app;</li>
                         <li>le classifiche e i punteggi dei giochi;</li>
                         <li>shitpost, post di Top Rimasti e commenti pubblicati;</li>
+                        <li>le voci della Cripsumpedia e la loro cronologia, con il nome di chi le ha scritte o modificate (bozze e proposte non ancora approvate le vedono solo lo staff e chi le ha scritte);</li>
                         <li>i messaggi della chat globale, visibili agli utenti del sito;</li>
                         <li>se colleghi Discord e attivi la Rich Presence, lo stato e le attività Discord sul profilo;</li>
                         <li>i dati del profilo, le classifiche e la presenza Discord sono leggibili anche tramite le nostre <a href="api-docs">API pubbliche</a>;</li>
@@ -313,7 +315,11 @@ $lastUpdated = '10 ottobre 2026';
                             <tbody>
                                 <tr>
                                     <td>Account, profilo, messaggi, post, giochi, statistiche, ticket, acquisti registrati da noi</td>
-                                    <td>Finché l'account esiste. Se chiedi di cancellarlo hai 30 giorni per ripensarci; poi l'account e tutti i dati collegati, compresi i file caricati, vengono cancellati</td>
+                                    <td>Finché l'account esiste. Se chiedi di cancellarlo hai 30 giorni per ripensarci; poi l'account e tutti i dati collegati, compresi i file caricati, vengono cancellati, tranne le voci della Cripsumpedia (riga qui sotto)</td>
+                                </tr>
+                                <tr>
+                                    <td>Voci e modifiche approvate della Cripsumpedia</td>
+                                    <td>Restano anche dopo la cancellazione dell'account, perché sono la storia del server scritta insieme: il tuo nome viene tolto e al suo posto si legge «account eliminato». Bozze e proposte non approvate vengono cancellate con l'account. Se vuoi che sparisca una voce o una tua modifica, scrivi a <a href="mailto:privacy@cripsum.com">privacy@cripsum.com</a></td>
                                 </tr>
                                 <tr>
                                     <td>Sessione di accesso</td>

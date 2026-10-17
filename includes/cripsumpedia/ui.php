@@ -35,6 +35,10 @@ function cp_ui_strings(string $lang): array
             'someone' => 'qualcuno',
             'invite_title' => 'Manca qualcuno? Scrivilo tu.',
             'invite_text' => 'Per ora le voci le scrive lo staff. Presto potrà proporne una chiunque abbia un account.',
+            'invite_step_1' => 'Scrivi la voce, anche a metà: si salva da sola.',
+            'invite_step_2' => 'Lo staff la legge.',
+            'invite_step_3' => 'Va online col tuo nome.',
+            'invite_login' => 'Accedi per scrivere',
             'on_this_day' => 'Accadde oggi',
             'years_ago' => ['un anno fa', '%d anni fa'],
             'add_person' => 'Manca qualcuno? Scrivi la sua voce',
@@ -131,6 +135,10 @@ function cp_ui_strings(string $lang): array
             'someone' => 'someone',
             'invite_title' => 'Someone missing? Write them in.',
             'invite_text' => 'For now entries are written by the staff. Soon anyone with an account will be able to suggest one.',
+            'invite_step_1' => 'Write the entry, even half-done: it saves by itself.',
+            'invite_step_2' => 'The staff reads it.',
+            'invite_step_3' => 'It goes live with your name.',
+            'invite_login' => 'Sign in to write',
             'on_this_day' => 'On this day',
             'years_ago' => ['a year ago', '%d years ago'],
             'add_person' => 'Someone missing? Write their entry',
@@ -350,6 +358,9 @@ function cp_toc(string $html): array
 function cp_render_bar(string $lang, string $active = '', bool $withSearch = true, string $query = ''): void
 {
     $links = ['person' => cp_t('people', $lang), 'event' => cp_t('events', $lang), 'meme' => cp_t('memes', $lang)];
+    // Allo staff: quante proposte aspettano (il numero rosso).
+    global $mysqli;
+    $pending = cp_is_admin_user() && $mysqli instanceof mysqli ? cp_pending_count($mysqli) : 0;
 ?>
     <nav class="cp-bar<?= $withSearch ? '' : ' cp-bar--home' ?>" aria-label="Cripsumpedia">
         <a class="cp-brand" href="<?= cp_h(cp_url('home', [], $lang)) ?>"><i class="fa-solid fa-book-open" aria-hidden="true"></i>Cripsumpedia</a>
@@ -369,6 +380,9 @@ function cp_render_bar(string $lang, string $active = '', bool $withSearch = tru
                 <a class="cp-icon cp-bar__find" href="<?= cp_h(cp_url('search', ['q' => $query], $lang)) ?>" data-cp-search-open title="<?= cp_h(cp_ui('search_pedia', $lang)) ?>" aria-label="<?= cp_h(cp_ui('search_pedia', $lang)) ?>"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></a>
             <?php endif; ?>
             <button class="cp-icon" type="button" data-cp-random title="<?= cp_h(cp_ui('random_entry', $lang)) ?>" aria-label="<?= cp_h(cp_ui('random_entry', $lang)) ?>"><i class="fa-solid fa-shuffle" aria-hidden="true"></i></button>
+            <?php if ($pending > 0): ?>
+                <a class="cp-btn" href="<?= cp_h(cp_url('review', [], $lang)) ?>" aria-label="<?= cp_h(cp_w('queue', $lang) . ': ' . $pending) ?>"><i class="fa-solid fa-inbox" aria-hidden="true"></i><span><?= cp_h(cp_w('queue', $lang)) ?></span><em class="cp-badge"><?= $pending > 99 ? '99+' : $pending ?></em></a>
+            <?php endif; ?>
             <?php if (cp_can_write()): ?>
                 <a class="cp-btn" href="<?= cp_h(cp_write_url($lang)) ?>" aria-label="<?= cp_h(cp_ui('write', $lang)) ?>"><i class="fa-solid fa-pen" aria-hidden="true"></i><span><?= cp_h(cp_ui('write', $lang)) ?></span></a>
             <?php endif; ?>

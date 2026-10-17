@@ -5,7 +5,7 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkBan($mysqli);
 
-$lastUpdated = 'October 10, 2026';
+$lastUpdated = 'October 18, 2026';
 ?>
 <!DOCTYPE html>
 <html lang="en"<?= cripsum_theme_html_attr() ?>>
@@ -98,6 +98,7 @@ $lastUpdated = 'October 10, 2026';
                         <li>What you put on your profile: picture, banner, bio, links, socials, music, embedded content, favourites, projects, featured badges and characters.</li>
                         <li>Friendships, friend requests, follows and blocked users.</li>
                         <li>Shitposts, Top Rimasti posts, comments, likes, votes, saved content and the reports you send.</li>
+                        <li>The Cripsumpedia entries and edits you write, your drafts (they save by themselves while you write), your message to the staff and the photos you upload there, from which we remove hidden shot data. If the staff does not publish a suggestion, the reason reaches your Inbox.</li>
                         <li>Messages in the global chat, private and group chats, with attachments, reactions and GIFs. To search GIFs we send Klipy the words you type in the search.</li>
                         <li>In private and group chats: the last message you have read (this is what read receipts are based on; you can turn them off in the chat Privacy settings), the chats you muted, archived or pinned, saved messages, the nicknames you set and your choices about who can message you. The "is typing" indicator lasts a few seconds and is not stored.</li>
                         <li>We remove hidden shot data, such as GPS location, from the photos you upload in chat when the format allows it (JPEG and WebP).</li>
@@ -198,6 +199,7 @@ $lastUpdated = 'October 10, 2026';
                         <li>your profile (username, picture, banner, bio, links, socials, music, embedded content, favourites, badges, achievements, profile stats and activity), visible to anyone, even without an account, and in link previews shared on other apps;</li>
                         <li>leaderboards and game scores;</li>
                         <li>published shitposts, Top Rimasti posts and comments;</li>
+                        <li>Cripsumpedia entries and their history, with the name of whoever wrote or edited them (drafts and suggestions not yet approved are seen only by the staff and by whoever wrote them);</li>
                         <li>global chat messages, visible to the site's users;</li>
                         <li>if you connect Discord and turn on Rich Presence, your Discord status and activities on your profile;</li>
                         <li>profile data, leaderboards and Discord presence can also be read through our <a href="api-docs">public API</a>;</li>
@@ -313,7 +315,11 @@ $lastUpdated = 'October 10, 2026';
                             <tbody>
                                 <tr>
                                     <td>Account, profile, messages, posts, games, statistics, tickets, purchases recorded by us</td>
-                                    <td>As long as the account exists. If you ask for deletion you have 30 days to change your mind; then the account and all linked data, including uploaded files, are deleted</td>
+                                    <td>As long as the account exists. If you ask for deletion you have 30 days to change your mind; then the account and all linked data, including uploaded files, are deleted, except Cripsumpedia entries (row below)</td>
+                                </tr>
+                                <tr>
+                                    <td>Approved Cripsumpedia entries and edits</td>
+                                    <td>They stay after the account is deleted, because they are the server's history written together: your name is removed and "deleted account" is shown instead. Drafts and suggestions that were not approved are deleted with the account. If you want an entry or one of your edits removed, write to <a href="mailto:privacy@cripsum.com">privacy@cripsum.com</a></td>
                                 </tr>
                                 <tr>
                                     <td>Sign-in session</td>

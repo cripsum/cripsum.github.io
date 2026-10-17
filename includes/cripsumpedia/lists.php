@@ -6,18 +6,29 @@
  */
 
 /**
- * Chi vede i pulsanti per scrivere. Per ora solo lo staff: dalla fase 4 anche
- * chi ha un account, quando le proposte sono aperte dal pannello.
+ * Chi vede i pulsanti per scrivere: lo staff sempre, gli altri quando le
+ * proposte sono aperte dal pannello e il loro account può proporre
+ * (cp_can_propose).
  */
 function cp_can_write(): bool
 {
-    return cp_is_admin_user();
+    static $can = null;
+    if ($can !== null) return $can;
+    if (cp_is_admin_user()) return $can = true;
+    global $mysqli;
+    return $can = $mysqli instanceof mysqli && cp_can_propose($mysqli)[0];
 }
 
-/** Dove porta «Scrivi una voce» (per ora l'editor dello staff). */
+/** Dove porta «Scrivi una voce». */
 function cp_write_url(string $lang, ?string $type = null, string $title = ''): string
 {
-    return cp_url('editor', ['type' => cp_normalize_type($type), 'title' => trim($title)], $lang);
+    return cp_url('write', ['type' => cp_normalize_type($type), 'title' => trim($title)], $lang);
+}
+
+/** Dove porta «Modifica» su una voce. */
+function cp_edit_url(string $lang, int $entryId): string
+{
+    return cp_url('write', ['voce' => $entryId], $lang);
 }
 
 /**

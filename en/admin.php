@@ -14,6 +14,11 @@ $currentAdmin = admin_require_access($mysqli, false);
 $csrfToken = admin_csrf_token();
 // Il pallino sulla voce «Manutenzione» del menu, gia' giusto al primo caricamento.
 $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
+// Le proposte della Cripsumpedia in attesa: il numero accanto alla voce del menu.
+$cripsumpediaPending = 0;
+if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $mysqli->query("SELECT COUNT(*) FROM cripsumpedia_revisions WHERE status = 'pending'"))) {
+    $cripsumpediaPending = (int)($pendingResult->fetch_row()[0] ?? 0);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en"<?= cripsum_theme_html_attr() ?>>
@@ -65,6 +70,7 @@ $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
                 <span class="admin-nav-label">Community</span>
                 <button type="button" data-section="shitposts"><i class="fa-solid fa-image"></i><span>Shitpost</span></button>
                 <button type="button" data-section="toprimasti"><i class="fa-solid fa-ranking-star"></i><span>Top Rimasti</span></button>
+                <button type="button" data-section="cripsumpedia"><i class="fa-solid fa-book-open"></i><span>Cripsumpedia</span><?php if ($cripsumpediaPending > 0): ?><em class="cmod-navcount" title="<?php echo (int)$cripsumpediaPending; ?> to approve"><?php echo $cripsumpediaPending > 99 ? '99+' : (int)$cripsumpediaPending; ?></em><?php endif; ?></button>
                 <button type="button" data-section="reports"><i class="fa-solid fa-flag"></i><span>Segnalazioni</span></button>
                 <button type="button" data-section="logs"><i class="fa-solid fa-clock-rotate-left"></i><span>Log</span></button>
                 <span class="admin-nav-label">Site</span>
@@ -307,6 +313,16 @@ $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
                 <div class="admin-table-card cmod" data-community-admin="rimasto"></div>
             </section>
 
+            <section class="admin-section" id="section-cripsumpedia" data-section-panel="cripsumpedia">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Cripsumpedia</strong>
+                        <small>Suggestions to approve, every entry, who can write and the import from About us. Suggestions are read and approved on the <a href="/en/cripsumpedia/revisione" target="_blank" rel="noopener">To approve</a> page.</small>
+                    </div>
+                </div>
+                <div class="admin-table-card" data-cripsumpedia-admin></div>
+            </section>
+
             <section class="admin-section" id="section-reports" data-section-panel="reports">
                 <div class="admin-toolbar">
                     <div>
@@ -432,6 +448,7 @@ $maintenanceOn = cripsum_maintenance_state($mysqli)['enabled'];
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-pages.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-characters.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-community.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-cripsumpedia.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-maintenance.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-news.js')); ?>"></script>
 </body>
