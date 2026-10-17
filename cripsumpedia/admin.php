@@ -33,7 +33,7 @@ $title = cp_t('admin', $lang) . ' - Cripsumpedia';
 <html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
-    <?php cp_render_head($title, cp_t('subtitle', $lang), $lang); ?>
+    <?php cp_render_head($title, cp_t('subtitle', $lang), $lang, 'cp-body', null, 'staff'); ?>
 </head>
 
 <body class="cp-body cp-page-admin">

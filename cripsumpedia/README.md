@@ -4,19 +4,19 @@ Sezione lore moderna per cripsum.com: persone, eventi, meme, relazioni wiki, aut
 
 ## File
 
-- `index.php`: homepage immersiva con statistiche live, ricerca globale, categorie, ultimi elementi, trending, evento del giorno e citazione random.
-- `category.php`: liste per persone/eventi/meme con ricerca, tag, ordinamenti e timeline animata per gli eventi.
-- `entry.php`: pagina premium di una voce lore con hero, markdown, autolink, hover preview, sidebar, relazioni, quote, share, focus mode, reaction e preferiti.
-- `search.php`: motore ricerca globale con suggerimenti live e risultati su titoli, descrizioni, contenuti, tag, alias e citazioni.
-- `admin.php`: dashboard interna moderna per filtrare, aprire, modificare ed eliminare voci.
-- `editor.php`: editor con markdown, preview live, upload immagini, campi IT/EN, SEO, tag, alias, citazioni e relazioni AJAX.
+- `index.php`: pagina d'ingresso: ricerca, voce in evidenza, accadde oggi, persone, eventi, meme, ultime modifiche.
+- `category.php`: persone (annuario), eventi (linea del tempo per anno), meme (galleria), con filtro per tag e due ordini.
+- `entry.php`: una voce: testo con indice, citazioni, collegamenti, «ne parlano anche», foto e fatti a destra; i nomi delle altre voci si collegano da soli alla prima occorrenza.
+- `search.php`: risultati di ricerca su titoli, descrizioni, testo, tag, soprannomi e citazioni, divisi per tipo.
+- `admin.php`: pannello dello staff (com'era; dalla fase 4 passa al Pannello admin del sito).
+- `editor.php`: editor dello staff (com'era fino alla fase 4); `?type=` e `?title=` precompilano una voce nuova.
 - `_bootstrap.php`: helper condivisi per routing bilingue, query MySQLi, rendering, markdown, sicurezza admin e componenti UI.
-- `cripsumpedia.css`: stile dark cyber glassmorphism responsive, senza Bootstrap.
-- `cripsumpedia.js`: ricerca live, hover preview, editor, upload, relazioni, focus mode, share e azioni AJAX.
+- `cripsumpedia.css`, `cripsumpedia.js`: aspetto e comportamento delle pagine da leggere (fase 2).
+- `staff.css`, `staff.js`: il foglio e lo script di prima, solo per editor e pannello fino alla fase 4.
 - `../api/cripsumpedia_search.php`: endpoint pubblico per ricerca, preview hover, tag e voce random.
-- `../api/cripsumpedia_save.php`: endpoint per salvataggio admin, upload, delete, reaction e preferiti.
+- `../api/cripsumpedia_save.php`: salvataggio dello staff (con cronologia), upload delle foto (ripulite), eliminazione (nasconde), preferiti.
 - `../api/cripsumpedia_relations.php`: endpoint admin per cercare le voci da collegare (i collegamenti si salvano con la voce).
-- `../includes/cripsumpedia/`: cronologia delle voci, testo salvato già in HTML, chi cita chi, indirizzi vecchi, letture per giorno, pulizia delle foto caricate.
+- `../includes/cripsumpedia/`: cronologia delle voci, testo salvato già in HTML, chi cita chi, indirizzi vecchi, letture per giorno, pulizia delle foto caricate, liste e pezzi delle pagine (`lists.php`, `ui.php`).
 
 ## Database
 

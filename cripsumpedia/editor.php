@@ -51,9 +51,10 @@ foreach ($relations as $relation) {
 
 $defaults = [
     'id' => 0,
-    'entry_type' => 'person',
+    // «Scrivi la voce» da una categoria o da una ricerca senza risultati.
+    'entry_type' => cp_normalize_type($_GET['type'] ?? null) ?? 'person',
     'status' => 'draft',
-    'title' => '',
+    'title' => mb_substr(trim((string)($_GET['title'] ?? '')), 0, 190, 'UTF-8'),
     'title_en' => '',
     'slug' => '',
     'subtitle' => '',
@@ -83,7 +84,7 @@ $pageTitle = ($entry ? cp_i18n($entry, 'title', $lang) : cp_t('new_entry', $lang
 <html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
-    <?php cp_render_head($pageTitle, cp_t('subtitle', $lang), $lang); ?>
+    <?php cp_render_head($pageTitle, cp_t('subtitle', $lang), $lang, 'cp-body', null, 'staff'); ?>
 </head>
 
 <body class="cp-body cp-page-editor">

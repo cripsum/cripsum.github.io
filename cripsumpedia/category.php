@@ -6,24 +6,51 @@ require_once __DIR__ . '/_bootstrap.php';
 
 $lang = cp_detect_lang();
 $type = cp_normalize_type($_GET['type'] ?? $_GET['category'] ?? 'person') ?? 'person';
-$query = trim((string)($_GET['q'] ?? ''));
 $tag = trim((string)($_GET['tag'] ?? ''));
-$order = trim((string)($_GET['order'] ?? ($type === 'event' ? 'timeline' : 'latest')));
-$validOrders = ['latest', 'popular', 'trending', 'importance', 'timeline', 'alphabetical', 'date'];
-if (!in_array($order, $validOrders, true)) $order = 'latest';
+$canWrite = cp_can_write();
+
+// Ogni categoria ha due ordini, scelti per quello che contiene. I valori
+// vecchi (?order=timeline, popular…) portano a quello più vicino.
+$sorts = match ($type) {
+    'person' => ['az' => [cp_ui('sort_az', $lang), 'alphabetical'], 'new' => [cp_ui('sort_newest_people', $lang), 'latest']],
+    'event' => ['new' => [cp_ui('sort_recent', $lang), 'date'], 'old' => [cp_ui('sort_oldest', $lang), 'timeline']],
+    default => ['new' => [cp_ui('sort_new', $lang), 'latest'], 'az' => [cp_ui('sort_az', $lang), 'alphabetical']],
+};
+$sort = (string)($_GET['order'] ?? '');
+$sort = match ($sort) {
+    'timeline' => $type === 'event' ? 'old' : array_key_first($sorts),
+    'alphabetical' => isset($sorts['az']) ? 'az' : array_key_first($sorts),
+    'latest', 'date' => 'new',
+    default => isset($sorts[$sort]) ? $sort : array_key_first($sorts),
+};
 
 $stats = cp_fetch_stats($mysqli);
-$entries = cp_fetch_entries($mysqli, [
-    'type' => $type,
-    'q' => $query,
-    'tag' => $tag,
-    'order' => $order,
-    'limit' => 60,
-]);
-$allTags = cp_fetch_tags($mysqli);
-$count = cp_count_entries($mysqli, ['type' => $type]);
-$pageTitle = cp_type_plural($type, $lang) . ' - Cripsumpedia';
-$description = cp_t('subtitle', $lang);
+$entries = cp_fetch_entries($mysqli, ['type' => $type, 'tag' => $tag, 'order' => $sorts[$sort][1], 'limit' => 80]);
+$tags = cp_category_tags($mysqli, $type);
+$count = (int)($stats[$type] ?? 0);
+
+$sortUrl = static fn(string $key): string => cp_url('category', ['type' => $type, 'tag' => $tag, 'order' => $key === array_key_first($sorts) ? null : $key], $lang);
+$tagUrl = static fn(string $slug): string => cp_url('category', ['type' => $type, 'tag' => $slug, 'order' => $sort === array_key_first($sorts) ? null : $sort], $lang);
+
+// Gli eventi si raggruppano per anno; quelli senza data vanno in fondo.
+$years = [];
+$peopleByEvent = [];
+if ($type === 'event') {
+    foreach ($entries as $entry) {
+        $year = !empty($entry['real_date']) ? substr((string)$entry['real_date'], 0, 4) : '';
+        $years[$year][] = $entry;
+    }
+    if (isset($years[''])) {
+        $undated = $years[''];
+        unset($years['']);
+        $years[''] = $undated;
+    }
+    $peopleByEvent = cp_people_for_events($mysqli, array_map(static fn(array $e): int => (int)$e['id'], $entries));
+}
+
+$plural = cp_type_plural($type, $lang);
+$pageTitle = $plural . ' - Cripsumpedia';
+$description = cp_ui('lead_' . $type, $lang);
 ?>
 <!DOCTYPE html>
 <html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
@@ -32,151 +59,86 @@ $description = cp_t('subtitle', $lang);
     <?php cp_render_head($pageTitle, $description, $lang); ?>
 </head>
 
-<body class="cp-body cp-page-category">
-    <?php cp_render_background(); ?>
+<body class="cp-body cp-page-category cp-page-<?= cp_h($type) ?>">
     <?php cp_render_topbar($lang, $type); ?>
 
-    <main class="cp-shell">
+    <main class="cp-main">
         <?php if (!cp_schema_ready($mysqli)): ?>
             <?php cp_render_install_notice($lang); ?>
         <?php else: ?>
-            <?php cp_render_breadcrumbs($lang, [
-                ['label' => cp_type_plural($type, $lang), 'url' => null],
-            ]); ?>
+            <?php cp_render_bar($lang, $type); ?>
 
-            <nav class="cp-category-tabs cp-reveal" aria-label="<?= cp_h($lang === 'en' ? 'Lore sections' : 'Sezioni lore') ?>">
-                <?php foreach ([
-                    ['person', '#2f6bff'],
-                    ['event', '#60a5fa'],
-                    ['meme', '#f97316'],
-                ] as [$tabType, $accent]): ?>
-                    <a class="<?= $type === $tabType ? 'is-active' : '' ?>" href="<?= cp_h(cp_url('category', ['type' => $tabType], $lang)) ?>" style="--entry-accent: <?= cp_h($accent) ?>">
-                        <i class="fa-solid <?= cp_h(cp_type_icon($tabType)) ?>"></i>
-                        <span><?= cp_h(cp_type_plural($tabType, $lang)) ?></span>
-                        <strong><?= (int)($stats[$tabType] ?? 0) ?></strong>
-                    </a>
-                <?php endforeach; ?>
-            </nav>
+            <header class="cp-head">
+                <h1><?= cp_h($plural) ?> <small><?= $count ?></small></h1>
+                <p><?= cp_h($description) ?></p>
+            </header>
 
-            <section class="cp-category-hero cp-reveal" style="--entry-accent: <?= cp_h($type === 'person' ? '#2f6bff' : ($type === 'event' ? '#60a5fa' : '#f97316')) ?>">
-                <div>
-                    <span class="cp-kicker"><i class="fa-solid <?= cp_h(cp_type_icon($type)) ?>"></i> <?= cp_h(cp_type_plural($type, $lang)) ?></span>
-                    <h1><?= cp_h(cp_type_plural($type, $lang)) ?></h1>
-                    <p><?= cp_h($type === 'event'
-                            ? ($lang === 'en' ? 'Browse events in chronological order, filter by date and importance.' : 'Sfoglia gli eventi in ordine cronologico, filtra per data e importanza.')
-                            : ($lang === 'en' ? 'Browse all entries with live search, tag and order filters.' : 'Sfoglia tutte le voci con ricerca live, filtri per tag e ordinamento.')) ?></p>
-                    <div class="cp-category-hero__actions">
-                        <a class="cp-btn cp-btn--primary" href="<?= cp_h(cp_url('search', ['type' => $type], $lang)) ?>">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <span><?= cp_h(cp_t('search', $lang)) ?></span>
-                        </a>
-                        <button class="cp-btn cp-btn--ghost" type="button" data-cp-random data-cp-random-type="<?= cp_h($type) ?>">
-                            <i class="fa-solid fa-shuffle"></i>
-                            <span><?= cp_h(cp_t('random', $lang)) ?></span>
-                        </button>
-                    </div>
-                </div>
-                <aside>
-                    <strong><?= (int)$count ?></strong>
-                    <span><?= cp_h(cp_type_plural($type, $lang)) ?></span>
-                </aside>
-            </section>
+            <div class="cp-filters">
+                <?php if ($tags): ?>
+                    <nav class="cp-chips" aria-label="<?= cp_h(cp_ui('filter_label', $lang)) ?>">
+                        <a class="cp-chip<?= $tag === '' ? ' is-on' : '' ?>" href="<?= cp_h($tagUrl('')) ?>"<?= $tag === '' ? ' aria-current="true"' : '' ?>><?= cp_h(cp_t('all', $lang)) ?></a>
+                        <?php foreach ($tags as $row): ?>
+                            <?php $on = $tag === (string)$row['slug']; ?>
+                            <a class="cp-chip<?= $on ? ' is-on' : '' ?>" href="<?= cp_h($tagUrl((string)$row['slug'])) ?>"<?= $on ? ' aria-current="true"' : '' ?>><?= cp_h(cp_i18n($row, 'name', $lang)) ?> <small><?= (int)$row['total'] ?></small></a>
+                        <?php endforeach; ?>
+                    </nav>
+                <?php else: ?>
+                    <span></span>
+                <?php endif; ?>
+                <nav class="cp-seg" aria-label="<?= cp_h(cp_ui('sort_label', $lang)) ?>">
+                    <?php foreach ($sorts as $key => [$label]): ?>
+                        <a href="<?= cp_h($sortUrl($key)) ?>"<?= $sort === $key ? ' class="is-on" aria-current="true"' : '' ?>><?= cp_h($label) ?></a>
+                    <?php endforeach; ?>
+                </nav>
+            </div>
 
-            <section class="cp-toolbar cp-reveal" aria-label="<?= cp_h(cp_t('filters', $lang)) ?>">
-                <?php cp_render_search_box($lang, $query, 'toolbar', cp_url('category', ['type' => $type], $lang), [
-                    'tag' => $tag,
-                    'order' => $order,
-                ]); ?>
+            <?php if (!$entries && !$canWrite): ?>
+                <p class="cp-empty"><?= cp_h(cp_ui('nobody_here', $lang)) ?></p>
 
-                <div class="cp-toolbar-actions">
-                    <form class="cp-filter-bar" method="get" action="<?= cp_h(cp_url('category', ['type' => $type], $lang)) ?>">
-                        <input type="hidden" name="type" value="<?= cp_h($type) ?>">
-                        <input type="hidden" name="q" value="<?= cp_h($query) ?>">
-                        <label>
-                            <span><?= cp_h(cp_t('tag', $lang)) ?></span>
-                            <select name="tag" onchange="this.form.submit()">
-                                <option value=""><?= cp_h(cp_t('all', $lang)) ?></option>
-                                <?php foreach ($allTags as $row): ?>
-                                    <?php $slug = (string)$row['slug']; ?>
-                                    <option value="<?= cp_h($slug) ?>" <?= $tag === $slug ? 'selected' : '' ?>>
-                                        <?= cp_h(cp_i18n($row, 'name', $lang)) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </label>
-                        <label>
-                            <span><?= cp_h($lang === 'en' ? 'Sort by' : 'Ordina per') ?></span>
-                            <select name="order" onchange="this.form.submit()">
-                                <option value="latest" <?= $order === 'latest' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Latest' : 'Ultimi inseriti') ?></option>
-                                <option value="popular" <?= $order === 'popular' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Popular' : 'Più visti') ?></option>
-                                <option value="trending" <?= $order === 'trending' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Trending' : 'In tendenza') ?></option>
-                                <option value="importance" <?= $order === 'importance' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Importance' : 'Importanza') ?></option>
-                                <option value="alphabetical" <?= $order === 'alphabetical' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Alphabetical' : 'Alfabetico') ?></option>
-                                <option value="date" <?= $order === 'date' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Lore Date' : 'Data cronologica') ?></option>
-                                <?php if ($type === 'event'): ?>
-                                    <option value="timeline" <?= $order === 'timeline' ? 'selected' : '' ?>><?= cp_h($lang === 'en' ? 'Timeline' : 'Cronologia') ?></option>
-                                <?php endif; ?>
-                            </select>
-                        </label>
-                        <button class="cp-btn cp-btn--small" type="submit">
-                            <i class="fa-solid fa-filter"></i>
-                            <span><?= cp_h(cp_t('filters', $lang)) ?></span>
-                        </button>
-                    </form>
-
-                    <?php if ($order !== 'timeline' || $type !== 'event'): ?>
-                        <div class="cp-view-toggle">
-                            <button type="button" class="cp-icon-btn is-active" data-cp-view-toggle="grid" title="<?= cp_h($lang === 'en' ? 'Grid view' : 'Visualizzazione griglia') ?>"><i class="fa-solid fa-table-cells"></i></button>
-                            <button type="button" class="cp-icon-btn" data-cp-view-toggle="list" title="<?= cp_h($lang === 'en' ? 'List view' : 'Visualizzazione lista') ?>"><i class="fa-solid fa-list"></i></button>
-                        </div>
+            <?php elseif ($type === 'person'): ?>
+                <div class="cp-people cp-people--5">
+                    <?php foreach ($entries as $entry): ?>
+                        <?php cp_render_person_tile($entry, $lang); ?>
+                    <?php endforeach; ?>
+                    <?php if ($canWrite): ?>
+                        <?php cp_render_ghost_tile(cp_ui('add_person', $lang), cp_write_url($lang, 'person')); ?>
                     <?php endif; ?>
                 </div>
-            </section>
 
-            <?php if ($type === 'event' && $order === 'timeline'): ?>
-                <section class="cp-section cp-reveal">
-                    <div class="cp-section-head">
-                        <div>
-                            <span class="cp-kicker"><?= cp_h(cp_t('timeline', $lang)) ?></span>
-                            <h2><?= cp_h(cp_t('timeline', $lang)) ?></h2>
-                        </div>
-                    </div>
-                    <?php if (!$entries): ?>
-                        <div class="cp-empty"><?= cp_h(cp_t('empty', $lang)) ?></div>
-                    <?php else: ?>
-                        <ol class="cp-timeline" data-cp-timeline>
-                            <?php foreach ($entries as $entry): ?>
-                                <?php $item = cp_entry_public($entry, $lang, $mysqli); ?>
-                                <li style="--entry-accent: <?= cp_h($item['accent']) ?>">
-                                    <time><?= cp_h($entry['real_date'] ? cp_safe_date($entry['real_date']) : ($entry['lore_date'] ?: cp_safe_date($entry['created_at']))) ?></time>
-                                    <a href="<?= cp_h($item['url']) ?>">
-                                        <span><?= cp_h($item['title']) ?></span>
-                                        <small><?= cp_h(cp_excerpt($item['description'], 130)) ?></small>
-                                    </a>
-                                    <em><?= (int)$item['importance'] ?></em>
-                                </li>
+            <?php elseif ($type === 'event'): ?>
+                <?php foreach ($years as $year => $yearEntries): ?>
+                    <section class="cp-year">
+                        <h2><?= cp_h($year !== '' ? (string)$year : cp_ui('no_date', $lang)) ?></h2>
+                        <ol>
+                            <?php foreach ($yearEntries as $entry): ?>
+                                <?php cp_render_timeline_item($entry, $peopleByEvent[(int)$entry['id']] ?? [], $lang); ?>
                             <?php endforeach; ?>
                         </ol>
-                    <?php endif; ?>
-                </section>
+                    </section>
+                <?php endforeach; ?>
+                <?php if ($canWrite): ?>
+                    <section class="cp-year cp-year--ghost">
+                        <h2 aria-hidden="true"></h2>
+                        <ol>
+                            <li>
+                                <a class="cp-tl cp-tl--ghost" href="<?= cp_h(cp_write_url($lang, 'event')) ?>">
+                                    <time><i class="fa-solid fa-plus" aria-hidden="true"></i></time>
+                                    <span class="cp-tl__text"><strong><?= cp_h(cp_ui('add_event', $lang)) ?></strong><span class="cp-tl__line"><?= cp_h(cp_ui('add_event_text', $lang)) ?></span></span>
+                                </a>
+                            </li>
+                        </ol>
+                    </section>
+                <?php endif; ?>
+
             <?php else: ?>
-                <section class="cp-section cp-reveal">
-                    <div class="cp-section-head">
-                        <div>
-                            <span class="cp-kicker"><?= count($entries) ?> <?= cp_h($lang === 'en' ? 'results' : 'risultati') ?></span>
-                            <h2><?= cp_h(cp_type_plural($type, $lang)) ?></h2>
-                        </div>
-                    </div>
-                    <?php if (!$entries): ?>
-                        <div class="cp-empty"><?= cp_h(cp_t('no_results', $lang)) ?></div>
-                    <?php else: ?>
-                        <div class="cp-card-grid" data-cp-card-grid>
-                            <?php foreach ($entries as $entry): ?>
-                                <?php cp_render_entry_card($mysqli, $entry, $lang); ?>
-                            <?php endforeach; ?>
-                        </div>
+                <div class="cp-memes cp-memes--4">
+                    <?php foreach ($entries as $entry): ?>
+                        <?php cp_render_meme_tile($entry, $lang); ?>
+                    <?php endforeach; ?>
+                    <?php if ($canWrite): ?>
+                        <?php cp_render_ghost_tile(cp_ui('add_meme', $lang), cp_write_url($lang, 'meme'), 'cp-meme'); ?>
                     <?php endif; ?>
-                </section>
+                </div>
             <?php endif; ?>
         <?php endif; ?>
     </main>

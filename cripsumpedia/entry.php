@@ -26,283 +26,201 @@ if ($entry) {
     cp_record_view($mysqli, (int)$entry['id']);
 }
 
+$entryType = (string)($entry['entry_type'] ?? '');
 $titleText = $entry ? cp_i18n($entry, 'title', $lang) : 'Cripsumpedia';
-$description = $entry ? cp_excerpt(cp_i18n($entry, 'description', $lang), 160) : cp_t('subtitle', $lang);
-$tags = $entry ? cp_fetch_tags($mysqli, (int)$entry['id']) : [];
-$aliases = $entry ? cp_fetch_aliases($mysqli, (int)$entry['id']) : [];
-$quotes = $entry ? cp_fetch_quotes($mysqli, (int)$entry['id'], 12) : [];
-$relations = $entry ? cp_fetch_relations($mysqli, (int)$entry['id']) : [];
-$groupedRelations = cp_group_relations_by_type($relations);
-$public = $entry ? cp_entry_public($entry, $lang, $mysqli, false) : null;
+$metaDescription = $entry ? cp_excerpt(cp_entry_line($entry, $lang, 300) ?: cp_i18n($entry, 'description', $lang), 160) : cp_t('subtitle', $lang);
 
-$creatorName = '';
-if ($entry && !empty($entry['created_by'])) {
-    $stmt = $mysqli->prepare("SELECT display_name, username FROM utenti WHERE id = ? LIMIT 1");
-    if ($stmt) {
-        $stmt->bind_param('i', $entry['created_by']);
-        $stmt->execute();
-        $userRow = $stmt->get_result()->fetch_assoc();
-        $creatorName = $userRow ? ($userRow['display_name'] ?: $userRow['username']) : '';
-        $stmt->close();
+if ($entry) {
+    $entryId = (int)$entry['id'];
+    $tags = cp_fetch_tags($mysqli, $entryId);
+    $aliases = array_values(array_filter(array_map(static fn(array $row): string => cp_i18n($row, 'alias', $lang), cp_fetch_aliases($mysqli, $entryId))));
+    $quotes = cp_fetch_quotes($mysqli, $entryId, 12);
+    $relations = cp_fetch_relations($mysqli, $entryId);
+    $mentionedIn = cp_mentioned_in($mysqli, $entryId);
+    $authorship = cp_entry_authorship($mysqli, $entry);
+    $profile = $entryType === 'person' ? cp_entry_profile($mysqli, $entry) : null;
+    $people = $entryType === 'event' ? array_values(array_filter($relations, static fn(array $r): bool => ($r['entry_type'] ?? '') === 'person')) : [];
+    $image = cp_entry_image($entry);
+
+    // «In breve» sotto il titolo; la descrizione diventa il primo paragrafo
+    // solo se dice qualcosa in più e il testo non comincia già così.
+    $subtitle = cp_i18n($entry, 'subtitle', $lang);
+    $descriptionText = cp_i18n($entry, 'description', $lang);
+    $lead = $subtitle !== '' ? $subtitle : (mb_strlen($descriptionText, 'UTF-8') <= 160 ? $descriptionText : '');
+    $contentHtml = cp_entry_content_html($mysqli, $entry, $lang);
+    $flat = static fn(string $text): string => mb_strtolower(trim((string)preg_replace('~\s+~u', ' ', html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8'))), 'UTF-8');
+    $intro = $descriptionText !== '' && $descriptionText !== $lead && !str_starts_with($flat($contentHtml), $flat($descriptionText))
+        ? $descriptionText : '';
+    $toc = cp_toc($contentHtml);
+
+    $note = match (true) {
+        ($entry['status'] ?? '') === 'draft' => cp_ui('note_draft', $lang),
+        ($entry['status'] ?? '') === 'archived' => cp_ui('note_archived', $lang),
+        ($entry['canonical_status'] ?? '') === 'non_canon' => cp_ui('note_non_canon', $lang),
+        ($entry['canonical_status'] ?? '') === 'disputed' => cp_ui('note_disputed', $lang),
+        default => '',
+    };
+
+    // I fatti della colonna di destra cambiano col tipo di voce.
+    $facts = [];
+    if ($aliases) $facts[] = [cp_ui('known_as', $lang), implode(', ', $aliases), null];
+    if ($profile) $facts[] = [cp_ui('profile', $lang), '@' . $profile['username'], ['url' => '/u/' . rawurlencode((string)$profile['username']), 'avatar' => cp_avatar_url((int)$profile['id'], 64)]];
+    $realDate = cp_format_date($entry['real_date'] ?? null, $lang, 'long');
+    if ($realDate !== '') {
+        $facts[] = [cp_ui(['person' => 'since_person', 'event' => 'when', 'meme' => 'since_meme'][$entryType] ?? 'when', $lang), $realDate, null];
     }
+    $loreDate = trim((string)($entry['lore_date'] ?? ''));
+    if ($loreDate !== '') $facts[] = [cp_ui('lore_date', $lang), $loreDate, null];
+    if ($people) $facts[] = [cp_ui('who_was_there', $lang), implode(', ', array_map(static fn(array $p): string => cp_i18n($p, 'title', $lang), $people)), null];
 }
-
-// Fetch automatic related pages
-$relatedEntries = $entry ? cp_fetch_related_entries($mysqli, (int)$entry['id'], (string)$entry['entry_type'], 4) : [];
-
-// Fetch adjacent entries (prev/next)
-$adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (string)$entry['entry_type']) : ['prev' => null, 'next' => null];
 ?>
 <!DOCTYPE html>
 <html lang="<?= cp_h($lang) ?>"<?= cripsum_theme_html_attr() ?>>
 
 <head>
-    <?php cp_render_head($titleText . ' - Cripsumpedia', $description, $lang, 'cp-body', $entry['banner_url'] ?? null); ?>
+    <?php cp_render_head($titleText . ' - Cripsumpedia', $metaDescription, $lang, 'cp-body', $entry ? (($entry['image_url'] ?? '') ?: ($entry['banner_url'] ?? null)) : null); ?>
 </head>
 
 <body class="cp-body cp-page-entry">
-    <?php cp_render_background(); ?>
-    <?php cp_render_topbar($lang, $entry['entry_type'] ?? 'home'); ?>
+    <?php cp_render_topbar($lang, $entryType ?: 'home'); ?>
 
-    <main class="cp-shell">
+    <main class="cp-main">
         <?php if (!cp_schema_ready($mysqli)): ?>
             <?php cp_render_install_notice($lang); ?>
-        <?php elseif (!$entry || !$public): ?>
-            <section class="cp-install">
-                <i class="fa-solid fa-circle-question"></i>
-                <h1>404</h1>
-                <p><?= cp_h(cp_t('no_results', $lang)) ?></p>
-                <a class="cp-btn cp-btn--primary" href="<?= cp_h(cp_url('home', [], $lang)) ?>"><?= cp_h(cp_t('back_home', $lang)) ?></a>
+        <?php elseif (!$entry): ?>
+            <?php cp_render_bar($lang, (string)$type); ?>
+            <section class="cp-notfound">
+                <h1><?= cp_h(cp_ui('not_found_title', $lang)) ?></h1>
+                <p><?= cp_h(cp_ui('not_found_text', $lang)) ?></p>
+                <div class="cp-notfound__actions">
+                    <a class="cp-btn cp-btn--primary" href="<?= cp_h(cp_url('home', [], $lang)) ?>"><?= cp_h(cp_ui('back_to_pedia', $lang)) ?></a>
+                    <?php if (cp_can_write() && $slugOrId !== '' && !ctype_digit($slugOrId)): ?>
+                        <?php $guess = ucfirst(str_replace('-', ' ', $slugOrId)); ?>
+                        <a class="cp-btn" href="<?= cp_h(cp_write_url($lang, $type, $guess)) ?>"><i class="fa-solid fa-pen" aria-hidden="true"></i><?= cp_h(cp_ui('write_this', $lang, $guess)) ?></a>
+                    <?php endif; ?>
+                </div>
             </section>
         <?php else: ?>
-            <?php cp_render_breadcrumbs($lang, [
-                ['label' => cp_type_plural((string)$entry['entry_type'], $lang), 'url' => cp_url('category', ['type' => $entry['entry_type']], $lang)],
-                ['label' => $titleText, 'url' => null],
-            ]); ?>
+            <?php cp_render_bar($lang, $entryType); ?>
 
-            <section class="cp-entry-hero cp-reveal" style="--entry-accent: <?= cp_h($public['accent']) ?>">
-                <div class="cp-entry-hero__media">
-                    <img src="<?= cp_h(cp_asset_url($entry['banner_url'] ?: $entry['image_url'])) ?>" alt="<?= cp_h($titleText) ?>" loading="eager" class="img-cripsumpedias" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
-                </div>
-                <div class="cp-entry-hero__content">
-                    <span class="cp-kicker"><i class="fa-solid <?= cp_h(cp_type_icon((string)$entry['entry_type'])) ?>"></i> <?= cp_h(cp_type_label((string)$entry['entry_type'], $lang)) ?></span>
+            <div class="cp-entry">
+                <article class="cp-article">
+                    <a class="cp-crumb" href="<?= cp_h(cp_url('category', ['type' => $entryType], $lang)) ?>"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><?= cp_h(cp_type_plural($entryType, $lang)) ?></a>
                     <h1><?= cp_h($titleText) ?></h1>
-                    <?php if (cp_i18n($entry, 'subtitle', $lang) !== ''): ?>
-                        <p><?= cp_h(cp_i18n($entry, 'subtitle', $lang)) ?></p>
-                    <?php else: ?>
-                        <p><?= cp_h(cp_i18n($entry, 'description', $lang)) ?></p>
+                    <?php if ($lead !== ''): ?><p class="cp-lead"><?= cp_h($lead) ?></p><?php endif; ?>
+                    <?php if ($note !== ''): ?><p class="cp-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><?= cp_h($note) ?></p><?php endif; ?>
+
+                    <?php if ($image || $facts): ?>
+                        <div class="cp-phone-card">
+                            <?php if ($image): ?><span class="cp-side__img"><img src="<?= cp_h($image) ?>" alt="<?= cp_h($titleText) ?>" decoding="async" data-cp-fade></span><?php endif; ?>
+                            <?php if ($facts): ?>
+                                <dl class="cp-facts">
+                                    <?php foreach (array_slice($facts, 0, 3) as [$label, $value, $link]): ?>
+                                        <div><dt><?= cp_h($label) ?></dt><dd><?php if ($link): ?><a href="<?= cp_h($link['url']) ?>"><img src="<?= cp_h($link['avatar']) ?>" alt="" loading="lazy"><?= cp_h($value) ?></a><?php else: ?><?= cp_h($value) ?><?php endif; ?></dd></div>
+                                    <?php endforeach; ?>
+                                </dl>
+                            <?php endif; ?>
+                        </div>
                     <?php endif; ?>
-                    <div class="cp-hero-badges">
-                        <span class="cp-badge cp-badge--status"><?= cp_h(cp_status_label($entry['canonical_status'] ?? 'canon', $lang)) ?></span>
-                        <span class="cp-badge cp-badge--rarity cp-badge--<?= cp_h($entry['rarity'] ?? 'common') ?>"><?= cp_h($entry['rarity'] ?? 'common') ?></span>
-                        <span class="cp-badge cp-badge--views"><i class="fa-solid fa-eye"></i> <?= (int)($entry['views_count'] ?? 0) ?></span>
+
+                    <div class="cp-meta">
+                        <div class="cp-meta__by">
+                            <?php if ($authorship['user_id'] > 0): ?><img src="<?= cp_h(cp_avatar_url($authorship['user_id'], 64)) ?>" alt="" loading="lazy"><?php endif; ?>
+                            <span>
+                                <?php if ($authorship['name'] !== ''): ?>
+                                    <?= cp_h(cp_ui('modified', $lang, cp_relative_time($authorship['at'], $lang))) ?>
+                                    <?= cp_h($lang === 'en' ? 'by' : 'da') ?> <a href="/u/<?= cp_h(rawurlencode($authorship['username'])) ?>"><b><?= cp_h($authorship['name']) ?></b></a>
+                                <?php else: ?>
+                                    <?= cp_h(cp_ui('modified', $lang, cp_relative_time($authorship['at'], $lang))) ?>
+                                <?php endif; ?>
+                                <span class="cp-meta__more">
+                                    <?php if ($authorship['authors'] > 1): ?> · <?= cp_h(cp_ui_n('authors', $authorship['authors'], $lang)) ?><?php endif; ?>
+                                    · <?= cp_h(cp_ui_n('reads', (int)($entry['views_count'] ?? 0), $lang)) ?>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="cp-meta__actions">
+                            <?php if (cp_can_write()): ?>
+                                <a class="cp-btn" href="<?= cp_h(cp_url('editor', ['id' => $entryId], $lang)) ?>"><i class="fa-solid fa-pen" aria-hidden="true"></i><?= cp_h(cp_ui('edit', $lang)) ?></a>
+                            <?php endif; ?>
+                            <button class="cp-icon" type="button" data-cp-share title="<?= cp_h(cp_ui('share', $lang)) ?>" aria-label="<?= cp_h(cp_ui('share', $lang)) ?>"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i></button>
+                        </div>
                     </div>
-                    <div class="cp-entry-actions">
-                        <button class="cp-btn cp-btn--primary" type="button" data-cp-share>
-                            <i class="fa-solid fa-share-nodes"></i>
-                            <span><?= cp_h(cp_t('share', $lang)) ?></span>
-                        </button>
-                        <button class="cp-btn" type="button" data-cp-favorite data-entry-id="<?= (int)$entry['id'] ?>">
-                            <i class="fa-solid fa-star"></i>
-                            <span><?= cp_h(cp_t('favorite', $lang)) ?></span>
-                        </button>
-                        <button class="cp-icon-btn" type="button" data-cp-focus title="<?= cp_h(cp_t('focus', $lang)) ?>" aria-label="<?= cp_h(cp_t('focus', $lang)) ?>">
-                            <i class="fa-solid fa-book-open-reader"></i>
-                        </button>
-                        <?php if (cp_is_admin_user()): ?>
-                            <a class="cp-icon-btn" href="<?= cp_h(cp_url('editor', ['id' => (int)$entry['id']], $lang)) ?>" title="<?= cp_h(cp_t('editor', $lang)) ?>">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </a>
-                        <?php endif; ?>
+
+                    <div class="cp-prose" data-cp-prose>
+                        <?php if ($intro !== ''): ?><p><?= nl2br(cp_h($intro)) ?></p><?php endif; ?>
+                        <?= $contentHtml ?>
                     </div>
-                </div>
-            </section>
 
-            <div class="cp-entry-layout">
-                <div class="cp-entry-main">
-                    <article class="cp-entry-content cp-reveal" data-cp-readable>
-                        <?php if (cp_i18n($entry, 'description', $lang) !== ''): ?>
-                            <p class="cp-entry-lead"><?= cp_h(cp_i18n($entry, 'description', $lang)) ?></p>
-                        <?php endif; ?>
+                    <?php if ($quotes): ?>
+                        <section class="cp-block" id="cp-citazioni">
+                            <h2><?= cp_h(cp_ui('quotes', $lang)) ?></h2>
+                            <div class="cp-quotes">
+                                <?php foreach ($quotes as $quote): ?>
+                                    <figure class="cp-quote">
+                                        <blockquote><p><?= cp_h(cp_i18n($quote, 'quote_text', $lang)) ?></p></blockquote>
+                                        <?php if (cp_i18n($quote, 'speaker', $lang) !== ''): ?><figcaption><?= cp_h(cp_i18n($quote, 'speaker', $lang)) ?></figcaption><?php endif; ?>
+                                    </figure>
+                                <?php endforeach; ?>
+                            </div>
+                        </section>
+                    <?php endif; ?>
 
-                        <div class="cp-markdown">
-                            <?= cp_entry_content_html($mysqli, $entry, $lang) ?>
-                        </div>
-
-                        <?php if ($quotes): ?>
-                            <section class="cp-content-block">
-                                <h2><?= cp_h(cp_t('quotes', $lang)) ?></h2>
-                                <div class="cp-quote-grid">
-                                    <?php foreach ($quotes as $quote): ?>
-                                        <blockquote>
-                                            <?= cp_h(cp_i18n($quote, 'quote_text', $lang)) ?>
-                                            <?php if (cp_i18n($quote, 'speaker', $lang) !== ''): ?>
-                                                <cite><?= cp_h(cp_i18n($quote, 'speaker', $lang)) ?></cite>
-                                            <?php endif; ?>
-                                        </blockquote>
-                                    <?php endforeach; ?>
-                                </div>
-                            </section>
-                        <?php endif; ?>
-
-                        <!-- Dedicated Connections (Collegamenti) Section -->
-                        <?php
-                        $hasRels = !empty($groupedRelations['person']) || !empty($groupedRelations['event']) || !empty($groupedRelations['meme']);
-                        if ($hasRels):
-                        ?>
-                            <section class="cp-content-block cp-connections-section">
-                                <h2><i class="fa-solid fa-circle-nodes"></i> <?= cp_h($lang === 'en' ? 'Encyclopedic Connections' : 'Collegamenti Enciclopedici') ?></h2>
-                                <div class="cp-connections-container">
-                                    <?php foreach (['person' => 'related_people', 'event' => 'related_events', 'meme' => 'related_memes'] as $gType => $tKey): ?>
-                                        <?php if (!empty($groupedRelations[$gType])): ?>
-                                            <div class="cp-connections-group">
-                                                <h3><?= cp_h(cp_t($tKey, $lang)) ?></h3>
-                                                <div class="cp-relation-grid">
-                                                    <?php foreach ($groupedRelations[$gType] as $relation): ?>
-                                                        <?php $rel = cp_entry_public($relation, $lang, $mysqli, false); ?>
-                                                        <a class="cp-relation-card" href="<?= cp_h($rel['url']) ?>" style="--entry-accent: <?= cp_h($rel['accent']) ?>">
-                                                            <span class="cp-relation-card__media">
-                                                                <img src="<?= cp_h($rel['image']) ?>" alt="<?= cp_h($rel['title']) ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
-                                                                <i class="fa-solid <?= cp_h(cp_type_icon($rel['type'])) ?>"></i>
-                                                            </span>
-                                                            <div class="cp-relation-card__info">
-                                                                <strong><?= cp_h($rel['title']) ?></strong>
-                                                                <small><?= cp_h(cp_i18n($relation, 'relation_label', $lang) ?: $relation['relation_type']) ?></small>
-                                                            </div>
-                                                        </a>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                </div>
-                            </section>
-                        <?php endif; ?>
-
-                        <!-- Automatic Related Pages Section -->
-                        <?php if ($relatedEntries): ?>
-                            <section class="cp-content-block cp-related-section">
-                                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> <?= cp_h($lang === 'en' ? 'Related Lore' : 'Voci correlate') ?></h2>
-                                <div class="cp-card-grid cp-card-grid--compact">
-                                    <?php foreach ($relatedEntries as $rEntry): ?>
-                                        <?php cp_render_entry_card($mysqli, $rEntry, $lang); ?>
-                                    <?php endforeach; ?>
-                                </div>
-                            </section>
-                        <?php endif; ?>
-                    </article>
-
-                    <!-- Previous / Next Navigation Footer -->
-                    <nav class="cp-entry-navigation cp-reveal" aria-label="<?= cp_h($lang === 'en' ? 'Entry navigation' : 'Navigazione voci') ?>">
-                        <div class="cp-entry-navigation__prev">
-                            <?php if ($adjacent['prev']): ?>
-                                <?php $prevItem = cp_entry_public($adjacent['prev'], $lang, $mysqli, false); ?>
-                                <a href="<?= cp_h($prevItem['url']) ?>">
-                                    <small><i class="fa-solid fa-arrow-left"></i> <?= cp_h($lang === 'en' ? 'Previous' : 'Precedente') ?></small>
-                                    <strong><?= cp_h($prevItem['title']) ?></strong>
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                        <button class="cp-btn cp-btn--ghost" type="button" data-cp-random title="<?= cp_h($lang === 'en' ? 'Random entry' : 'Voce casuale') ?>">
-                            <i class="fa-solid fa-shuffle"></i>
-                            <span><?= cp_h(cp_t('random', $lang)) ?></span>
-                        </button>
-                        <div class="cp-entry-navigation__next">
-                            <?php if ($adjacent['next']): ?>
-                                <?php $nextItem = cp_entry_public($adjacent['next'], $lang, $mysqli, false); ?>
-                                <a href="<?= cp_h($nextItem['url']) ?>">
-                                    <small><?= cp_h($lang === 'en' ? 'Next' : 'Successivo') ?> <i class="fa-solid fa-arrow-right"></i></small>
-                                    <strong><?= cp_h($nextItem['title']) ?></strong>
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </nav>
-                </div>
-
-                <aside class="cp-entry-sidebar cp-reveal">
-                    <!-- Premium Wiki Infobox -->
-                    <section class="cp-infobox" style="--entry-accent: <?= cp_h($public['accent']) ?>">
-                        <div class="cp-infobox__header">
-                            <h2><?= cp_h($titleText) ?></h2>
-                            <?php if (cp_i18n($entry, 'subtitle', $lang) !== ''): ?>
-                                <small><?= cp_h(cp_i18n($entry, 'subtitle', $lang)) ?></small>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="cp-infobox__media">
-                            <img src="<?= cp_h($public['image']) ?>" alt="<?= cp_h($titleText) ?>" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
-                            <span class="cp-infobox__fallback"><i class="fa-solid <?= cp_h(cp_type_icon((string)$entry['entry_type'])) ?>"></i></span>
-                        </div>
-
-                        <div class="cp-infobox__badges">
-                            <span class="cp-badge cp-badge--rarity cp-badge--<?= cp_h($entry['rarity'] ?? 'common') ?>"><?= cp_h($entry['rarity'] ?? 'common') ?></span>
-                            <span class="cp-badge cp-badge--status cp-badge--<?= cp_h($entry['canonical_status'] ?? 'canon') ?>"><?= cp_h(cp_status_label($entry['canonical_status'] ?? 'canon', $lang)) ?></span>
-                        </div>
-
-                        <table class="cp-infobox__table">
-                            <tbody>
-                                <tr>
-                                    <th><?= cp_h($lang === 'en' ? 'Category' : 'Categoria') ?></th>
-                                    <td>
-                                        <span class="cp-infobox-cat-badge">
-                                            <i class="fa-solid <?= cp_h(cp_type_icon((string)$entry['entry_type'])) ?>"></i>
-                                            <?= cp_h(cp_type_label((string)$entry['entry_type'], $lang)) ?>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php if (!empty($entry['lore_date'])): ?>
-                                    <tr>
-                                        <th><?= cp_h(cp_t('lore_date', $lang)) ?></th>
-                                        <td><?= cp_h($entry['lore_date']) ?></td>
-                                    </tr>
-                                <?php endif; ?>
-                                <?php if (!empty($entry['real_date'])): ?>
-                                    <tr>
-                                        <th><?= cp_h(cp_t('real_date', $lang)) ?></th>
-                                        <td><?= cp_h(cp_safe_date($entry['real_date'])) ?></td>
-                                    </tr>
-                                <?php endif; ?>
-                                <?php if ($creatorName !== ''): ?>
-                                    <tr>
-                                        <th><?= cp_h($lang === 'en' ? 'Author' : 'Autore') ?></th>
-                                        <td><?= cp_h($creatorName) ?></td>
-                                    </tr>
-                                <?php endif; ?>
-                                <tr>
-                                    <th><?= cp_h($lang === 'en' ? 'Last edit' : 'Ultima modifica') ?></th>
-                                    <td><?= cp_h(cp_safe_date($entry['updated_at'] ?? '')) ?></td>
-                                </tr>
-                                <tr>
-                                    <th><?= cp_h($lang === 'en' ? 'Views' : 'Letture') ?></th>
-                                    <td><?= (int)($entry['views_count'] ?? 0) ?></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </section>
-
-                    <?php if ($tags): ?>
-                        <section class="cp-sidebar-card">
-                            <h2><?= cp_h(cp_t('tag', $lang)) ?></h2>
-                            <div class="cp-tag-row cp-tag-row--sidebar">
-                                <?php foreach ($tags as $tagRow): ?>
-                                    <a href="<?= cp_h(cp_url('category', ['type' => $entry['entry_type'], 'tag' => $tagRow['slug']], $lang)) ?>" style="--tag-color: <?= cp_h(cp_valid_color($tagRow['color'] ?? null, '#7dd3fc')) ?>">
-                                        <?= cp_h(cp_i18n($tagRow, 'name', $lang)) ?>
+                    <?php if ($relations): ?>
+                        <section class="cp-block" id="cp-collegamenti">
+                            <h2><?= cp_h(cp_ui('links', $lang)) ?></h2>
+                            <div class="cp-links">
+                                <?php foreach ($relations as $relation): ?>
+                                    <a class="cp-link" href="<?= cp_h(cp_entry_url($relation, $lang)) ?>">
+                                        <?php cp_render_media($relation, 'cp-link__img', $lang); ?>
+                                        <span><small><?= cp_h(cp_relation_label($relation, $lang)) ?></small><strong><?= cp_h(cp_i18n($relation, 'title', $lang)) ?></strong></span>
+                                        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
                         </section>
                     <?php endif; ?>
 
-                    <?php if ($aliases): ?>
-                        <section class="cp-sidebar-card">
-                            <h2><?= cp_h(cp_t('aliases', $lang)) ?></h2>
-                            <div class="cp-chip-list">
-                                <?php foreach ($aliases as $alias): ?>
-                                    <?php $label = cp_i18n($alias, 'alias', $lang); ?>
-                                    <?php if ($label !== ''): ?><span><?= cp_h($label) ?></span><?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
+                    <?php if ($mentionedIn): ?>
+                        <section class="cp-block cp-block--small" id="cp-citata">
+                            <h2><?= cp_h(cp_ui('cited_in', $lang)) ?></h2>
+                            <p class="cp-cited">
+                                <?php foreach ($mentionedIn as $i => $other): ?><?= $i > 0 ? ', ' : '' ?><a href="<?= cp_h(cp_entry_url($other, $lang)) ?>"><?= cp_h(cp_i18n($other, 'title', $lang)) ?></a><?php endforeach; ?>
+                            </p>
                         </section>
+                    <?php endif; ?>
+
+                    <footer class="cp-foot">
+                        <span><?= cp_h(cp_ui('last_edit', $lang, cp_format_date($authorship['at'], $lang, 'long') . ', ' . date('H:i', strtotime($authorship['at']) ?: time()))) ?></span>
+                        <?php if ($mentionedIn): ?><a href="#cp-citata"><?= cp_h(cp_ui_n('cited_in_n', count($mentionedIn), $lang)) ?></a><?php endif; ?>
+                    </footer>
+                </article>
+
+                <aside class="cp-side">
+                    <?php if ($image): ?>
+                        <span class="cp-side__img"><img src="<?= cp_h($image) ?>" alt="<?= cp_h($titleText) ?>" decoding="async" data-cp-fade></span>
+                    <?php endif; ?>
+                    <?php if ($facts || $tags): ?>
+                        <dl class="cp-facts">
+                            <?php foreach ($facts as [$label, $value, $link]): ?>
+                                <div><dt><?= cp_h($label) ?></dt><dd><?php if ($link): ?><a href="<?= cp_h($link['url']) ?>"><img src="<?= cp_h($link['avatar']) ?>" alt="" loading="lazy"><?= cp_h($value) ?></a><?php else: ?><?= cp_h($value) ?><?php endif; ?></dd></div>
+                            <?php endforeach; ?>
+                            <?php if ($tags): ?>
+                                <div><dt><?= cp_h(cp_ui('tags', $lang)) ?></dt><dd><span class="cp-tags">
+                                    <?php foreach ($tags as $tagRow): ?>
+                                        <a class="cp-tag" href="<?= cp_h(cp_url('category', ['type' => $entryType, 'tag' => $tagRow['slug']], $lang)) ?>"><?= cp_h(cp_i18n($tagRow, 'name', $lang)) ?></a>
+                                    <?php endforeach; ?>
+                                </span></dd></div>
+                            <?php endif; ?>
+                        </dl>
+                    <?php endif; ?>
+                    <?php if ($toc): ?>
+                        <nav class="cp-toc" aria-label="<?= cp_h(cp_ui('in_this_entry', $lang)) ?>">
+                            <h3><?= cp_h(cp_ui('in_this_entry', $lang)) ?></h3>
+                            <?php foreach ($toc as $item): ?>
+                                <a class="cp-toc__l<?= $item['level'] ?>" href="#<?= cp_h($item['id']) ?>" data-cp-toc="<?= cp_h($item['id']) ?>"><?= cp_h($item['text']) ?></a>
+                            <?php endforeach; ?>
+                        </nav>
                     <?php endif; ?>
                 </aside>
             </div>

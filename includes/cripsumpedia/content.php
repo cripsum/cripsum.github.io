@@ -14,7 +14,9 @@
  * prima apertura del pannello da parte dello staff (cp_v2_backfill).
  */
 
-const CP_RENDER_STAMP = '<!--cp-render:1-->';
+// 2: i titoletti hanno un id, per l'indice della voce (fase 2).
+// 3: id uguali su ogni sistema («Curiosità» → «curiosita»).
+const CP_RENDER_STAMP = '<!--cp-render:3-->';
 
 /** Il testo in HTML col timbro, pronto da salvare. Vuoto se non c'è testo. */
 function cp_render_for_storage(string $markdown): string

@@ -12,6 +12,8 @@ require_once __DIR__ . '/../includes/cripsumpedia/content.php';
 require_once __DIR__ . '/../includes/cripsumpedia/revisions.php';
 require_once __DIR__ . '/../includes/cripsumpedia/views.php';
 require_once __DIR__ . '/../includes/cripsumpedia/media.php';
+require_once __DIR__ . '/../includes/cripsumpedia/lists.php';
+require_once __DIR__ . '/../includes/cripsumpedia/ui.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 
@@ -561,100 +563,6 @@ function cp_fetch_entries(mysqli $mysqli, array $options = []): array
     return array_values($unique);
 }
 
-function cp_fetch_related_entries(mysqli $mysqli, int $entryId, string $type, int $limit = 4): array
-{
-    if (!cp_schema_ready($mysqli)) return [];
-    $limit = max(1, min(20, $limit));
-
-    // First try: entries that share tags with the current entry
-    $sql = "SELECT DISTINCT e.*
-            FROM cripsumpedia_entries e
-            INNER JOIN cripsumpedia_entry_tags et ON et.entry_id = e.id
-            WHERE e.id <> ? AND e.status = 'published' AND et.tag_id IN (
-                SELECT tag_id FROM cripsumpedia_entry_tags WHERE entry_id = ?
-            )
-            ORDER BY e.trending_score DESC, e.views_count DESC
-            LIMIT ?";
-    $stmt = $mysqli->prepare($sql);
-    $results = [];
-    if ($stmt) {
-        $stmt->bind_param('iii', $entryId, $entryId, $limit);
-        $stmt->execute();
-        $results = cp_stmt_all($stmt);
-        $stmt->close();
-    }
-
-    // Second try: if we don't have enough entries, fill with entries of the same type
-    if (count($results) < $limit) {
-        $needed = $limit - count($results);
-        $excludeIds = array_map(static fn($r) => (int)$r['id'], $results);
-        $excludeIds[] = $entryId;
-        $inClause = implode(',', $excludeIds);
-
-        $sql = "SELECT * FROM cripsumpedia_entries
-                WHERE id NOT IN ($inClause) AND entry_type = ? AND status = 'published'
-                ORDER BY trending_score DESC, views_count DESC
-                LIMIT ?";
-        $stmt = $mysqli->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param('si', $type, $needed);
-            $stmt->execute();
-            $fill = cp_stmt_all($stmt);
-            $stmt->close();
-            $results = array_merge($results, $fill);
-        }
-    }
-
-    // Third try: if still not enough, fill with any entries
-    if (count($results) < $limit) {
-        $needed = $limit - count($results);
-        $excludeIds = array_map(static fn($r) => (int)$r['id'], $results);
-        $excludeIds[] = $entryId;
-        $inClause = implode(',', $excludeIds);
-
-        $sql = "SELECT * FROM cripsumpedia_entries
-                WHERE id NOT IN ($inClause) AND status = 'published'
-                ORDER BY trending_score DESC, views_count DESC
-                LIMIT ?";
-        $stmt = $mysqli->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param('i', $needed);
-            $stmt->execute();
-            $fill = cp_stmt_all($stmt);
-            $stmt->close();
-            $results = array_merge($results, $fill);
-        }
-    }
-
-    return array_slice($results, 0, $limit);
-}
-
-function cp_fetch_adjacent_entries(mysqli $mysqli, int $currentId, string $type): array
-{
-    $adjacent = ['prev' => null, 'next' => null];
-    if (!cp_schema_ready($mysqli)) return $adjacent;
-
-    // Previous entry (smaller ID)
-    $stmt = $mysqli->prepare("SELECT * FROM cripsumpedia_entries WHERE entry_type = ? AND status = 'published' AND id < ? ORDER BY id DESC LIMIT 1");
-    if ($stmt) {
-        $stmt->bind_param('si', $type, $currentId);
-        $stmt->execute();
-        $adjacent['prev'] = $stmt->get_result()->fetch_assoc() ?: null;
-        $stmt->close();
-    }
-
-    // Next entry (larger ID)
-    $stmt = $mysqli->prepare("SELECT * FROM cripsumpedia_entries WHERE entry_type = ? AND status = 'published' AND id > ? ORDER BY id ASC LIMIT 1");
-    if ($stmt) {
-        $stmt->bind_param('si', $type, $currentId);
-        $stmt->execute();
-        $adjacent['next'] = $stmt->get_result()->fetch_assoc() ?: null;
-        $stmt->close();
-    }
-
-    return $adjacent;
-}
-
 function cp_count_entries(mysqli $mysqli, array $options = []): int
 {
     if (!cp_schema_ready($mysqli)) return 0;
@@ -969,7 +877,8 @@ function cp_lore_terms(mysqli $mysqli, string $lang): array
         while ($row = $result->fetch_assoc()) {
             foreach (['alias', 'alias_en'] as $field) {
                 $term = trim((string)($row[$field] ?? ''));
-                if (mb_strlen($term, 'UTF-8') < 3) continue;
+                // Un soprannome corto è quasi sempre anche una parola comune.
+                if (mb_strlen($term, 'UTF-8') < 4) continue;
                 $key = mb_strtolower($term, 'UTF-8');
                 $terms[$key] = [
                     'term' => $term,
@@ -1002,23 +911,28 @@ function cp_autolink_html(string $html, mysqli $mysqli, string $lang, ?int $curr
     $parts = preg_split('/(<[^>]+>)/u', $html, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
     if (!$parts) return $html;
 
-    $insideLink = false;
+    // Come in una wiki: una voce si collega solo la prima volta che compare, e
+    // mai dentro un link, un titoletto, il titolo di uno spoiler o del codice.
+    $skipDepth = 0;
+    $linked = [];
     $out = '';
     foreach ($parts as $part) {
         if (str_starts_with($part, '<')) {
-            if (preg_match('/^<a\b/i', $part)) $insideLink = true;
-            if (preg_match('/^<\/a>/i', $part)) $insideLink = false;
+            if (preg_match('~^<(a|h[2-4]|summary|code)\b~i', $part)) $skipDepth++;
+            if (preg_match('~^</(a|h[2-4]|summary|code)>~i', $part)) $skipDepth = max(0, $skipDepth - 1);
             $out .= $part;
             continue;
         }
-        if ($insideLink) {
+        if ($skipDepth > 0) {
             $out .= $part;
             continue;
         }
-        $out .= preg_replace_callback($pattern, static function (array $m) use ($lookup): string {
+        $out .= preg_replace_callback($pattern, static function (array $m) use ($lookup, &$linked): string {
             $key = mb_strtolower($m[1], 'UTF-8');
             if (!isset($lookup[$key])) return $m[0];
             $term = $lookup[$key];
+            if (isset($linked[$term['id']])) return $m[0];
+            $linked[$term['id']] = true;
             return '<a class="cp-lore-link" href="' . cp_h($term['url']) . '" data-lore-id="' . (int)$term['id'] . '">' . $m[0] . '</a>';
         }, $part) ?? $part;
     }
@@ -1049,18 +963,44 @@ function cp_render_inline_markdown(string $text): string
     return $text;
 }
 
-/** Markdown → HTML con i collegamenti alle altre voci (anteprima dell'editor e testi non ancora salvati). */
-function cp_markdown_to_html(string $markdown, mysqli $mysqli, string $lang, ?int $currentEntryId = null): string
+/**
+ * L'id di un titoletto, per l'indice della voce: «Chi è» → «chi-e», unico
+ * dentro lo stesso testo («storia», «storia-2»). $reset ricomincia da capo.
+ */
+function cp_heading_id(string $text, bool $reset = false): string
 {
-    return cp_autolink_html(cp_markdown_render($markdown), $mysqli, $lang, $currentEntryId);
+    static $used = [];
+    if ($reset) {
+        $used = [];
+        return '';
+    }
+    // Le lettere accentate a mano: iconv le traslittera in modo diverso a
+    // seconda del sistema («à» → «a» su Linux, «`a» su Windows).
+    $plain = strtr(mb_strtolower($text, 'UTF-8'), [
+        'à' => 'a', 'á' => 'a', 'â' => 'a', 'ä' => 'a', 'ã' => 'a', 'å' => 'a',
+        'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e',
+        'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i',
+        'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'ö' => 'o', 'õ' => 'o',
+        'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ü' => 'u',
+        'ñ' => 'n', 'ç' => 'c', 'ß' => 'ss',
+    ]);
+    $base = trim((string)preg_replace('~[^a-z0-9]+~', '-', strtolower((string)(@iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $plain) ?: ''))), '-');
+    if ($base === '') $base = 'sezione';
+    $id = $base;
+    for ($n = 2; isset($used[$id]); $n++) {
+        $id = $base . '-' . $n;
+    }
+    $used[$id] = true;
+    return $id;
 }
 
 /**
  * Markdown → HTML, senza i collegamenti alle altre voci: è quello che si salva
  * in content_html (i collegamenti si aggiungono quando la voce viene mostrata).
  */
-function cp_markdown_render(string $markdown): string
+function cp_markdown_render(string $markdown, bool $nested = false): string
 {
+    if (!$nested) cp_heading_id('', true);
     $markdown = trim(str_replace(["\r\n", "\r"], "\n", $markdown));
     if ($markdown === '') return '';
 
@@ -1079,7 +1019,7 @@ function cp_markdown_render(string $markdown): string
 
         if (preg_match('/^:::spoiler\s*(.*?)\n(.*?)\n:::$/su', $block, $m)) {
             $summary = cp_h(trim($m[1]) !== '' ? trim($m[1]) : 'Spoiler');
-            $body = cp_markdown_render(trim($m[2]));
+            $body = cp_markdown_render(trim($m[2]), true);
             $html[] = '<details class="cp-spoiler"><summary>' . $summary . '</summary><div>' . $body . '</div></details>';
             continue;
         }
@@ -1111,7 +1051,9 @@ function cp_markdown_render(string $markdown): string
 
         if (preg_match('/^(#{1,4})\s+(.+)$/u', $block, $m)) {
             $level = min(4, max(2, strlen($m[1]) + 1));
-            $html[] = '<h' . $level . '>' . cp_render_inline_markdown(trim($m[2])) . '</h' . $level . '>';
+            $inner = cp_render_inline_markdown(trim($m[2]));
+            $id = cp_heading_id(html_entity_decode(strip_tags($inner), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            $html[] = '<h' . $level . ' id="' . cp_h($id) . '">' . $inner . '</h' . $level . '>';
             continue;
         }
 
@@ -1143,8 +1085,14 @@ function cp_markdown_render(string $markdown): string
     return implode("\n", $html);
 }
 
-function cp_render_head(string $title, string $description, string $lang, string $bodyClass = 'cp-body', ?string $ogImage = null): void
+/**
+ * $assets: 'public' per le pagine da leggere (foglio e script nuovi, fase 2),
+ * 'staff' per editor e pannello, che fino alla fase 4 restano com'erano
+ * (staff.css e staff.js sono il vecchio cripsumpedia.css/.js).
+ */
+function cp_render_head(string $title, string $description, string $lang, string $bodyClass = 'cp-body', ?string $ogImage = null, string $assets = 'public'): void
 {
+    $staff = $assets === 'staff';
     // Una voce senza banner prende l'anteprima del sito, quella di head-import.
     $ogImage = $ogImage ? cp_asset_url($ogImage) : null;
 
@@ -1159,10 +1107,15 @@ function cp_render_head(string $title, string $description, string $lang, string
     <link rel="icon" href="/img/Susremaster.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@<?= $staff ? '400;600;700;800;900' : '400;500;600' ?>&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
-    <link rel="stylesheet" href="<?= cripsum_theme_asset('/cripsumpedia/cripsumpedia.css') ?>">
+    <?php if ($staff): ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/cripsumpedia/staff.css') ?>">
+    <?php endif; ?>
     <?php cripsum_theme_head(); ?>
+    <?php if (!$staff): ?>
+    <link rel="stylesheet" href="<?= cripsum_theme_asset('/cripsumpedia/cripsumpedia.css') ?>">
+    <?php endif; ?>
     <script>
         document.documentElement.classList.add('cp-js');
         window.Cripsumpedia = {
@@ -1173,7 +1126,7 @@ function cp_render_head(string $title, string $description, string $lang, string
             csrf: <?= json_encode(cp_csrf_token()) ?>
         };
     </script>
-    <script src="<?= cripsum_theme_asset('/cripsumpedia/cripsumpedia.js') ?>" defer></script>
+    <script src="<?= cripsum_theme_asset($staff ? '/cripsumpedia/staff.js' : '/cripsumpedia/cripsumpedia.js') ?>" defer></script>
 <?php
 }
 
@@ -1197,8 +1150,8 @@ function cp_render_footer(string $lang): void
     $footerLang = $lang;
 ?>
     <?php include __DIR__ . '/../includes/footer.php'; ?>
-    <div class="cp-toast" data-cp-toast hidden></div>
-    <div class="cp-hover-card" data-cp-hover-card hidden></div>
+    <div class="cp-toast" data-cp-toast role="status" aria-live="polite" hidden></div>
+    <div class="cp-hover-card" data-cp-hover-card aria-hidden="true" hidden></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <?php
 }
@@ -1210,59 +1163,8 @@ function cp_render_install_notice(string $lang): void
         <i class="fa-solid fa-database"></i>
         <h1><?= cp_h(cp_t('install_title', $lang)) ?></h1>
         <p><?= cp_h(cp_t('install_text', $lang)) ?></p>
-        <code>cripsumpedia/install.sql</code>
+        <code>migrations/2026_10_17_cripsumpedia_schema.sql</code>
     </section>
-<?php
-}
-
-function cp_render_search_box(string $lang, string $value = '', string $variant = 'hero', ?string $actionUrl = null, array $hidden = []): void
-{
-    $actionUrl = $actionUrl ?: cp_url('search', [], $lang);
-?>
-    <form class="cp-search cp-search--<?= cp_h($variant) ?>" action="<?= cp_h($actionUrl) ?>" method="get" data-cp-live-search>
-        <?php foreach ($hidden as $key => $hiddenValue): ?>
-            <?php if ($hiddenValue !== null && $hiddenValue !== ''): ?>
-                <input type="hidden" name="<?= cp_h($key) ?>" value="<?= cp_h($hiddenValue) ?>">
-            <?php endif; ?>
-        <?php endforeach; ?>
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="search" name="q" value="<?= cp_h($value) ?>" placeholder="<?= cp_h(cp_t('search_placeholder', $lang)) ?>" autocomplete="off" spellcheck="false" data-cp-search-input>
-        <button type="submit">
-            <span><?= cp_h(cp_t('search', $lang)) ?></span>
-            <i class="fa-solid fa-arrow-right"></i>
-        </button>
-        <div class="cp-search-results" data-cp-search-results hidden></div>
-    </form>
-<?php
-}
-
-function cp_render_entry_card(mysqli $mysqli, array $entry, string $lang, string $class = ''): void
-{
-    $public = cp_entry_public($entry, $lang, $mysqli);
-    $style = '--entry-accent:' . cp_h($public['accent']);
-?>
-    <article class="cp-entry-card <?= cp_h($class) ?>" style="<?= $style ?>" data-cp-entry-card data-type="<?= cp_h($public['type']) ?>" data-title="<?= cp_h($public['title']) ?>">
-        <a class="cp-entry-card__media" href="<?= cp_h($public['url']) ?>" aria-label="<?= cp_h($public['title']) ?>">
-            <img src="<?= cp_h($public['image']) ?>" alt="<?= cp_h($public['title']) ?>" loading="lazy" onerror="this.parentElement.classList.add('is-broken'); this.remove();">
-            <span class="cp-entry-card__fallback"><i class="fa-solid <?= cp_h(cp_type_icon($public['type'])) ?>"></i></span>
-            <em><?= cp_h($public['type_label']) ?></em>
-        </a>
-        <div class="cp-entry-card__body">
-            <div class="cp-entry-card__meta">
-                <span><?= cp_h(cp_status_label($public['canonical_status'], $lang)) ?></span>
-                <span><?= (int)$public['views'] ?> <?= cp_h(cp_t('views', $lang)) ?></span>
-            </div>
-            <h2><a href="<?= cp_h($public['url']) ?>"><?= cp_h($public['title']) ?></a></h2>
-            <?php if ($public['description'] !== ''): ?>
-                <p><?= cp_h(cp_excerpt($public['description'], 150)) ?></p>
-            <?php endif; ?>
-            <div class="cp-tag-row">
-                <?php foreach (array_slice($public['tags'], 0, 4) as $tag): ?>
-                    <a href="<?= cp_h(cp_url('category', ['type' => $public['type'], 'tag' => $tag['slug']], $lang)) ?>" style="--tag-color: <?= cp_h($tag['color']) ?>"><?= cp_h($tag['name']) ?></a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </article>
 <?php
 }
 
@@ -1281,16 +1183,6 @@ function cp_render_breadcrumbs(string $lang, array $items): void
         <?php endforeach; ?>
     </nav>
 <?php
-}
-
-function cp_group_relations_by_type(array $relations): array
-{
-    $grouped = ['person' => [], 'event' => [], 'meme' => []];
-    foreach ($relations as $relation) {
-        $type = cp_normalize_type($relation['entry_type'] ?? $relation['related_entry_type'] ?? '');
-        if ($type) $grouped[$type][] = $relation;
-    }
-    return $grouped;
 }
 
 function cp_seeded_daily_index(int $count): int

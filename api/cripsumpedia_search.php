@@ -24,8 +24,10 @@ if ($action === 'preview') {
         'html' => [
             'title' => $public['title'],
             'description' => cp_excerpt($public['description'], 180),
-            'image' => $public['image'],
+            'image' => cp_entry_image($entry),
             'type' => $public['type_label'],
+            'date' => $entry['entry_type'] === 'event' ? cp_event_date($entry, $lang) : '',
+            'line' => cp_entry_line($entry, $lang, 140),
             'relations' => array_map(static fn(array $row): string => cp_i18n($row, 'title', $lang), $relations),
         ],
     ]);
