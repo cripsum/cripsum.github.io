@@ -76,6 +76,8 @@ html.cp-js img[data-cp-fade]:not(.is-loaded) { animation: cp-show 0s 2.5s forwar
 
 .cp-bar__tools { display: flex; align-items: center; gap: 8px; }
 .cp-bar--home .cp-bar__tools { margin-left: auto; }
+/* Sul telefono al posto del campo c'è l'icona che apre la ricerca. */
+.cp-bar .cp-bar__find { display: none; }
 
 /* ── Pulsanti ── */
 
@@ -542,6 +544,85 @@ a:hover > .cp-ghost { border-color: var(--nx-text-3); color: var(--nx-text); }
 .cp-toast[hidden] { display: none; }
 .cp-toast.is-error { color: var(--nx-danger); }
 
+/* ── Ricerca sopra la pagina (fase 3) ──
+   Sta fuori da <main>, dentro <body>: Bootstrap e il foglio del sito qui
+   arrivano senza i ripristini di .cp-main, quindi ogni pezzo ha i suoi. */
+
+html.cp-pal-open, html.cp-pal-open body { overflow: hidden; }
+html.cp-pal-open body { padding-right: var(--cp-scrollbar, 0px); }
+
+.cp-dim { position: fixed; inset: 0; z-index: 2000; background: rgba(0, 0, 0, .68); opacity: 0; transition: opacity .2s; }
+.cp-dim.is-open { opacity: 1; }
+
+.cp-palette {
+    position: fixed;
+    z-index: 2001;
+    top: 120px;
+    left: 50%;
+    display: flex;
+    flex-direction: column;
+    width: min(680px, calc(100% - 32px));
+    max-height: calc(100vh - 160px);
+    overflow: hidden;
+    border: 1px solid var(--nx-line);
+    border-radius: 28px;
+    color: var(--nx-text);
+    font-family: var(--nx-font);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    background: var(--nx-surface);
+    box-shadow: var(--nx-float);
+    opacity: 0;
+    transform: translate(-50%, -8px) scale(.985);
+    transition: opacity .2s var(--nx-ease), transform .28s var(--nx-ease);
+}
+
+.cp-palette.is-open { opacity: 1; transform: translate(-50%, 0); }
+.cp-palette[hidden], .cp-dim[hidden] { display: none; }
+
+.cp-palette__in { display: flex; flex: none; align-items: center; gap: 14px; height: 68px; margin: 0; padding: 0 16px 0 22px; border-bottom: 1px solid var(--nx-line); }
+.cp-palette__in > i { color: var(--nx-text-2); }
+.cp-palette__in input { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; color: var(--nx-text); font: inherit; font-size: 1.125rem; background: transparent; }
+.cp-palette__in input::placeholder { color: var(--nx-text-3); }
+.cp-palette__in input::-webkit-search-cancel-button { display: none; }
+
+.cp-kbd { display: inline-block; padding: 2px 8px; border: 1px solid var(--nx-line); border-radius: 8px; color: var(--nx-text-3); font: inherit; font-size: 0.75rem; line-height: 1.5; background: transparent; }
+button.cp-kbd { cursor: pointer; transition: color .2s, border-color .2s; }
+button.cp-kbd:hover { color: var(--nx-text); border-color: var(--nx-text-3); }
+
+.cp-palette__body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 6px 10px 10px; }
+.cp-pal-group h4 { margin: 0; padding: 12px 12px 6px; color: var(--nx-text-3); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.cp-palette a.cp-pal-hit {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 16px;
+    color: var(--nx-text);
+    text-decoration: none;
+}
+
+.cp-palette a.cp-pal-hit.is-on { background: var(--nx-surface-2); }
+.cp-pal-hit__img { display: grid; place-items: center; width: 48px; height: 48px; overflow: hidden; border-radius: 12px; color: var(--nx-text); background: var(--nx-surface-2); }
+.cp-pal-hit__img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.cp-pal-hit__img .cp-mono { font-size: 0.9375rem; background: var(--nx-surface-3); }
+.cp-pal-hit strong { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-pal-hit__line { display: block; color: var(--nx-text-2); font-size: 0.875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-pal-hit mark { padding: 0; color: inherit; background: none; border-bottom: 2px solid var(--nx-text); }
+.cp-pal-hit > i { color: var(--nx-text-3); opacity: 0; }
+.cp-pal-hit.is-on > i { opacity: 1; }
+
+.cp-pal-tail { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--nx-line); }
+.cp-pal-hit--create > span:not(.cp-pal-hit__img) { color: var(--nx-text-2); }
+.cp-pal-hit--create strong { display: inline; color: var(--nx-text); white-space: normal; }
+
+.cp-pal-status { margin: 0; padding: 18px 12px; color: var(--nx-text-2); }
+.cp-pal-status strong { color: var(--nx-text); font-weight: 600; }
+
+.cp-palette__foot { display: flex; flex: none; gap: 18px; padding: 12px 22px; border-top: 1px solid var(--nx-line); color: var(--nx-text-3); font-size: 0.75rem; }
+
 /* ── Telefono e tablet ── */
 
 @media (max-width: 1100px) {
@@ -556,7 +637,8 @@ a:hover > .cp-ghost { border-color: var(--nx-text-3); color: var(--nx-text); }
     .cp-main { width: calc(100% - 32px); padding-top: 5.6rem; }
 
     .cp-bar { flex-wrap: wrap; gap: 12px; padding-bottom: 0; border-bottom: 0; }
-    .cp-bar__search { order: 4; width: 100%; height: 44px; margin: 0; }
+    .cp-bar__search { display: none; }
+    .cp-bar .cp-bar__find { display: inline-grid; }
     .cp-bar__tools { margin-left: auto; }
     .cp-bar__tools .cp-btn span { display: none; }
     .cp-bar__tools .cp-btn { width: 40px; padding: 0; }
@@ -630,6 +712,14 @@ a:hover > .cp-ghost { border-color: var(--nx-text-3); color: var(--nx-text); }
     .cp-notfound, .cp-install { padding-top: 56px; }
     .cp-notfound h1, .cp-install h1 { font-size: 2.125rem; }
     .cp-hover-card { display: none; }
+
+    .cp-palette { top: 12px; width: calc(100% - 24px); max-height: calc(100dvh - 24px); border-radius: 24px; }
+    .cp-palette__in { height: 60px; padding-left: 18px; }
+    .cp-palette__in input { font-size: 1rem; } /* 16 px: sotto, iPhone ingrandisce la pagina */
+    .cp-palette__foot { display: none; }
+    .cp-palette a.cp-pal-hit { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 9px 10px; }
+    .cp-pal-hit__img { width: 44px; height: 44px; }
+    .cp-pal-hit > i { display: none; }
 }
 
 @media (max-width: 360px) {
@@ -641,5 +731,5 @@ a:hover > .cp-ghost { border-color: var(--nx-text-3); color: var(--nx-text); }
 
 @media (prefers-reduced-motion: reduce) {
     html.cp-js img[data-cp-fade] { opacity: 1; filter: none; transition: none; }
-    .cp-main *, .cp-hover-card { transition: none !important; }
+    .cp-main *, .cp-hover-card, .cp-dim, .cp-palette { transition: none !important; }
 }

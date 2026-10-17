@@ -14,6 +14,7 @@ require_once __DIR__ . '/../includes/cripsumpedia/views.php';
 require_once __DIR__ . '/../includes/cripsumpedia/media.php';
 require_once __DIR__ . '/../includes/cripsumpedia/lists.php';
 require_once __DIR__ . '/../includes/cripsumpedia/ui.php';
+require_once __DIR__ . '/../includes/cripsumpedia/palette.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 
@@ -1123,7 +1124,10 @@ function cp_render_head(string $title, string $description, string $lang, string
             searchEndpoint: '/api/cripsumpedia_search.php',
             saveEndpoint: '/api/cripsumpedia_save.php',
             relationsEndpoint: '/api/cripsumpedia_relations.php',
-            csrf: <?= json_encode(cp_csrf_token()) ?>
+            csrf: <?= json_encode(cp_csrf_token()) ?><?php if (!$staff): ?>,
+            searchUrl: <?= json_encode(cp_url('search', [], $lang)) ?>,
+            ui: <?= json_encode(cp_palette_strings($lang), JSON_UNESCAPED_UNICODE) ?><?php endif; ?>
+
         };
     </script>
     <script src="<?= cripsum_theme_asset($staff ? '/cripsumpedia/staff.js' : '/cripsumpedia/cripsumpedia.js') ?>" defer></script>

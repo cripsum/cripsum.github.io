@@ -33,6 +33,24 @@ if ($action === 'preview') {
     ]);
 }
 
+// La finestra di ricerca sopra la pagina (fase 3).
+if ($action === 'palette') {
+    $query = (string)($_GET['q'] ?? '');
+    $result = cp_palette_search($mysqli, $query, $lang);
+    $q = $result['query'];
+    cp_json([
+        'ok' => true,
+        'query' => $q,
+        'groups' => $result['groups'],
+        'text' => $result['text'],
+        'popular' => $result['popular'],
+        'total' => $result['total'],
+        'total_label' => cp_ui_n('results', $result['total'], $lang),
+        'all_url' => $q !== '' ? cp_url('search', ['q' => $q], $lang) : null,
+        'write_url' => $q !== '' && cp_can_write() ? cp_write_url($lang, null, $q) : null,
+    ]);
+}
+
 if ($action === 'random') {
     $type = cp_normalize_type($_GET['type'] ?? null);
     $rows = cp_fetch_entries($mysqli, ['type' => $type, 'order' => 'random', 'limit' => 1]);

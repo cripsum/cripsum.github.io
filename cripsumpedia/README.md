@@ -13,10 +13,10 @@ Sezione lore moderna per cripsum.com: persone, eventi, meme, relazioni wiki, aut
 - `_bootstrap.php`: helper condivisi per routing bilingue, query MySQLi, rendering, markdown, sicurezza admin e componenti UI.
 - `cripsumpedia.css`, `cripsumpedia.js`: aspetto e comportamento delle pagine da leggere (fase 2).
 - `staff.css`, `staff.js`: il foglio e lo script di prima, solo per editor e pannello fino alla fase 4.
-- `../api/cripsumpedia_search.php`: endpoint pubblico per ricerca, preview hover, tag e voce random.
+- `../api/cripsumpedia_search.php`: endpoint pubblico per ricerca, finestra di ricerca sopra la pagina (`action=palette`), anteprima al passaggio, tag e voce a caso.
 - `../api/cripsumpedia_save.php`: salvataggio dello staff (con cronologia), upload delle foto (ripulite), eliminazione (nasconde), preferiti.
 - `../api/cripsumpedia_relations.php`: endpoint admin per cercare le voci da collegare (i collegamenti si salvano con la voce).
-- `../includes/cripsumpedia/`: cronologia delle voci, testo salvato già in HTML, chi cita chi, indirizzi vecchi, letture per giorno, pulizia delle foto caricate, liste e pezzi delle pagine (`lists.php`, `ui.php`).
+- `../includes/cripsumpedia/`: cronologia delle voci, testo salvato già in HTML, chi cita chi, indirizzi vecchi, letture per giorno, pulizia delle foto caricate, liste e pezzi delle pagine (`lists.php`, `ui.php`), ricerca sopra la pagina (`palette.php`).
 
 ## Database
 

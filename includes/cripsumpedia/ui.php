@@ -87,6 +87,17 @@ function cp_ui_strings(string $lang): array
             'not_found_text' => 'Forse ha cambiato nome, o nessuno l\'ha ancora scritta.',
             'back_to_pedia' => 'Torna alla Cripsumpedia',
             'link_copied' => 'Link copiato',
+            'palette_results' => 'Risultati',
+            'group_text' => 'Nel testo di',
+            'aka' => 'detto anche «%s»',
+            'write_hint' => 'Non trovi quello che cercavi?',
+            'all_results' => 'Tutti i risultati',
+            'hint_move' => 'per muoverti',
+            'hint_open' => 'per aprire',
+            'hint_close' => 'per chiudere',
+            'searching' => 'Cerco…',
+            'close' => 'Chiudi',
+            'key_enter' => 'Invio',
             'just_now' => 'ora',
             'minutes_ago' => '%d min fa',
             'today_at' => 'oggi, %s',
@@ -172,6 +183,17 @@ function cp_ui_strings(string $lang): array
             'not_found_text' => 'Maybe it was renamed, or nobody has written it yet.',
             'back_to_pedia' => 'Back to the Cripsumpedia',
             'link_copied' => 'Link copied',
+            'palette_results' => 'Results',
+            'group_text' => 'In the text of',
+            'aka' => 'also known as “%s”',
+            'write_hint' => 'Can\'t find what you were looking for?',
+            'all_results' => 'All results',
+            'hint_move' => 'to move',
+            'hint_open' => 'to open',
+            'hint_close' => 'to close',
+            'searching' => 'Searching…',
+            'close' => 'Close',
+            'key_enter' => 'Enter',
             'just_now' => 'just now',
             'minutes_ago' => '%d min ago',
             'today_at' => 'today, %s',
@@ -339,10 +361,13 @@ function cp_render_bar(string $lang, string $active = '', bool $withSearch = tru
         <?php if ($withSearch): ?>
             <form class="cp-bar__search" action="<?= cp_h(cp_url('search', [], $lang)) ?>" method="get" role="search">
                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <input type="search" name="q" value="<?= cp_h($query) ?>" placeholder="<?= cp_h(cp_ui('search_pedia', $lang)) ?>" aria-label="<?= cp_h(cp_ui('search_pedia', $lang)) ?>" autocomplete="off" spellcheck="false">
+                <input type="search" name="q" value="<?= cp_h($query) ?>" placeholder="<?= cp_h(cp_ui('search_pedia', $lang)) ?>" aria-label="<?= cp_h(cp_ui('search_pedia', $lang)) ?>" autocomplete="off" spellcheck="false" data-cp-search-open>
             </form>
         <?php endif; ?>
         <div class="cp-bar__tools">
+            <?php if ($withSearch): ?>
+                <a class="cp-icon cp-bar__find" href="<?= cp_h(cp_url('search', ['q' => $query], $lang)) ?>" data-cp-search-open title="<?= cp_h(cp_ui('search_pedia', $lang)) ?>" aria-label="<?= cp_h(cp_ui('search_pedia', $lang)) ?>"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></a>
+            <?php endif; ?>
             <button class="cp-icon" type="button" data-cp-random title="<?= cp_h(cp_ui('random_entry', $lang)) ?>" aria-label="<?= cp_h(cp_ui('random_entry', $lang)) ?>"><i class="fa-solid fa-shuffle" aria-hidden="true"></i></button>
             <?php if (cp_can_write()): ?>
                 <a class="cp-btn" href="<?= cp_h(cp_write_url($lang)) ?>" aria-label="<?= cp_h(cp_ui('write', $lang)) ?>"><i class="fa-solid fa-pen" aria-hidden="true"></i><span><?= cp_h(cp_ui('write', $lang)) ?></span></a>

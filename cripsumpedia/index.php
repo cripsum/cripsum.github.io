@@ -51,7 +51,7 @@ $description = cp_t('subtitle', $lang);
                     <p class="cp-hero__lead"><?= cp_h(cp_ui('hero_lead', $lang)) ?></p>
                     <form class="cp-search" action="<?= cp_h(cp_url('search', [], $lang)) ?>" method="get" role="search">
                         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <input type="search" name="q" placeholder="<?= cp_h(cp_ui('search_hint', $lang)) ?>" aria-label="<?= cp_h(cp_ui('search_pedia', $lang)) ?>" autocomplete="off" spellcheck="false">
+                        <input type="search" name="q" placeholder="<?= cp_h(cp_ui('search_hint', $lang)) ?>" aria-label="<?= cp_h(cp_ui('search_pedia', $lang)) ?>" autocomplete="off" spellcheck="false" data-cp-search-open>
                         <button class="cp-btn cp-btn--primary" type="submit"><span><?= cp_h(cp_t('search', $lang)) ?></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </form>
                     <?php if ($tryWith): ?>
