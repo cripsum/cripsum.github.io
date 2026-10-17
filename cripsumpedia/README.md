@@ -15,12 +15,13 @@ Sezione lore moderna per cripsum.com: persone, eventi, meme, relazioni wiki, aut
 - `cripsumpedia.js`: ricerca live, hover preview, editor, upload, relazioni, focus mode, share e azioni AJAX.
 - `../api/cripsumpedia_search.php`: endpoint pubblico per ricerca, preview hover, tag e voce random.
 - `../api/cripsumpedia_save.php`: endpoint per salvataggio admin, upload, delete, reaction e preferiti.
-- `../api/cripsumpedia_relations.php`: endpoint admin per ricerca e gestione relazioni.
-- `install.sql`: schema completo MySQL con foreign key, indici e fulltext.
+- `../api/cripsumpedia_relations.php`: endpoint admin per cercare le voci da collegare (i collegamenti si salvano con la voce).
+- `../includes/cripsumpedia/`: cronologia delle voci, testo salvato già in HTML, chi cita chi, indirizzi vecchi, letture per giorno, pulizia delle foto caricate.
 
 ## Database
 
-Importa `install.sql` nel database del sito. Le tabelle principali sono:
+Lo schema sta in `migrations/2026_10_17_cripsumpedia_schema.sql` (le tabelle di sempre) e
+`migrations/2026_10_17_cripsumpedia_v2.sql` (cronologia e il resto della fase 1). Le tabelle principali sono:
 
 - `cripsumpedia_entries`
 - `cripsumpedia_relations`
@@ -32,14 +33,18 @@ Importa `install.sql` nel database del sito. Le tabelle principali sono:
 
 Extra premium:
 
-- `cripsumpedia_reactions`
+- `cripsumpedia_reactions` (non si scrive più)
 - `cripsumpedia_favorites`
+
+Dalla v2: `cripsumpedia_revisions`, `cripsumpedia_mentions`, `cripsumpedia_slug_redirects`,
+`cripsumpedia_views_daily`, `cripsumpedia_settings`, `cripsumpedia_blocked`. Finché la v2 manca
+la Cripsumpedia funziona come prima, senza cronologia.
 
 Tutti i campi testuali principali hanno versione italiana e inglese con suffisso `_en`.
 
 ## Installazione
 
-1. Importa `cripsumpedia/install.sql`.
+1. Esegui `migrations/2026_10_17_cripsumpedia_schema.sql` e poi `migrations/2026_10_17_cripsumpedia_v2.sql`.
 2. Verifica che `secure/config.php` punti al DB corretto.
 3. Assicurati che gli utenti admin abbiano `ruolo = 'admin'` oppure `ruolo = 'owner'`.
 4. Apri `/it/cripsumpedia/admin` e crea la prima voce.
@@ -60,7 +65,7 @@ Tutti i campi testuali principali hanno versione italiana e inglese con suffisso
 - `Cripsumpedia non installata`: manca almeno una tabella dello schema.
 - Errore foreign key su `utenti`: controlla engine InnoDB e tipo della colonna `utenti.id`.
 - Upload non funziona: verifica permessi scrittura su `/img/cripsumpedia`.
-- Preferiti non disponibili: importa anche le tabelle extra `cripsumpedia_favorites` e `cripsumpedia_reactions`.
+- Preferiti non disponibili: manca la tabella `cripsumpedia_favorites` (è nel file `schema`).
 - Link `/it/cripsumpedia` non risolve: verifica le regole `.htaccess`.
 
 ## Fix Consigliati

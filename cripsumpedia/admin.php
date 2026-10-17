@@ -7,6 +7,11 @@ require_once __DIR__ . '/_bootstrap.php';
 cp_require_admin(false);
 
 $lang = cp_detect_lang();
+
+// Le voci scritte prima della cronologia: versione di partenza e testo pronto.
+// Quando non c'è niente da fare costa una query.
+cp_v2_backfill($mysqli);
+
 $type = cp_normalize_type($_GET['type'] ?? null);
 $query = trim((string)($_GET['q'] ?? ''));
 $status = trim((string)($_GET['status'] ?? 'all'));

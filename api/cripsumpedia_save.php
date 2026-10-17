@@ -200,39 +200,28 @@ function cp_api_sync_relations(mysqli $mysqli, int $entryId, array $relations): 
     }
 }
 
+function cp_api_csrf_ok(array $input): bool
+{
+    $csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? '');
+    return cp_validate_csrf(is_string($csrf) ? $csrf : '');
+}
+
+// Le «Reaction» non ci sono più: erano l'unica scrittura della Cripsumpedia
+// senza login né CSRF, e con uno script si gonfiava il punteggio di una voce.
 if ($action === 'react') {
-    $entryId = (int)($input['entry_id'] ?? 0);
-    $reaction = preg_replace('/[^a-z0-9_\-]/i', '', (string)($input['reaction'] ?? 'hype')) ?: 'hype';
-    if ($entryId <= 0 || !cp_table_exists($mysqli, 'cripsumpedia_reactions')) {
-        cp_json(['ok' => false, 'message' => 'Reaction non disponibile.'], 400);
-    }
-    $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
-    $sessionHash = hash('sha256', session_id() . '|' . ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+    cp_json(['ok' => false, 'message' => 'Funzione non più disponibile.'], 410);
+}
 
-    $stmt = $mysqli->prepare("DELETE FROM cripsumpedia_reactions WHERE entry_id = ? AND session_hash = ? AND reaction = ?");
-    if ($stmt) {
-        $stmt->bind_param('iss', $entryId, $sessionHash, $reaction);
-        $stmt->execute();
-        $removed = $stmt->affected_rows > 0;
-        $stmt->close();
-        if ($removed) {
-            $mysqli->query("UPDATE cripsumpedia_entries SET reactions_count = IF(reactions_count > 0, reactions_count - 1, 0) WHERE id = " . (int)$entryId);
-            cp_json(['ok' => true, 'state' => 'removed']);
-        }
-    }
-
-    $stmt = $mysqli->prepare("INSERT INTO cripsumpedia_reactions (entry_id, user_id, session_hash, reaction, created_at) VALUES (?, ?, ?, ?, NOW())");
-    if (!$stmt) cp_json(['ok' => false, 'message' => 'Errore reaction.'], 500);
-    $stmt->bind_param('iiss', $entryId, $userId, $sessionHash, $reaction);
-    $stmt->execute();
-    $stmt->close();
-    $mysqli->query("UPDATE cripsumpedia_entries SET reactions_count = reactions_count + 1, trending_score = trending_score + 1 WHERE id = " . (int)$entryId);
-    cp_json(['ok' => true, 'state' => 'added']);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    cp_json(['ok' => false, 'message' => 'Metodo non consentito.'], 405);
 }
 
 if ($action === 'favorite') {
     if (!function_exists('isLoggedIn') || !isLoggedIn()) {
         cp_json(['ok' => false, 'message' => 'Login richiesto per i preferiti.'], 401);
+    }
+    if (!cp_api_csrf_ok($input)) {
+        cp_json(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.'], 419);
     }
     $entryId = (int)($input['entry_id'] ?? 0);
     $userId = (int)($_SESSION['user_id'] ?? 0);
@@ -252,21 +241,27 @@ if ($action === 'favorite') {
         }
     }
 
+    if (!cp_fetch_entry($mysqli, null, (string)$entryId)) {
+        cp_json(['ok' => false, 'message' => cp_t('no_results', $lang)], 404);
+    }
     $stmt = $mysqli->prepare("INSERT INTO cripsumpedia_favorites (entry_id, user_id, created_at) VALUES (?, ?, NOW())");
     if (!$stmt) cp_json(['ok' => false, 'message' => 'Errore preferito.'], 500);
     $stmt->bind_param('ii', $entryId, $userId);
     $stmt->execute();
     $stmt->close();
-    $mysqli->query("UPDATE cripsumpedia_entries SET favorites_count = favorites_count + 1, trending_score = trending_score + 2 WHERE id = " . (int)$entryId);
+    $bump = cp_v2_ready($mysqli) ? '' : ', trending_score = trending_score + 2';
+    $mysqli->query("UPDATE cripsumpedia_entries SET favorites_count = favorites_count + 1$bump WHERE id = " . (int)$entryId);
     cp_json(['ok' => true, 'state' => 'added']);
 }
 
 cp_require_admin(true);
 
-$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($input['csrf_token'] ?? '');
-if (!cp_validate_csrf(is_string($csrf) ? $csrf : '')) {
+if (!cp_api_csrf_ok($input)) {
     cp_json(['ok' => false, 'message' => 'Sessione scaduta. Ricarica la pagina.'], 419);
 }
+
+// Le voci scritte prima della cronologia: versione di partenza e testo pronto.
+cp_v2_backfill($mysqli);
 
 if ($action === 'upload_media') {
     $uploaded = [];
@@ -286,6 +281,7 @@ if ($action === 'upload_media') {
     $sizes = is_array($files['size']) ? $files['size'] : [$files['size']];
     $allowed = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif', 'webp' => 'image/webp'];
     $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $skipped = 0;
 
     foreach ($names as $idx => $name) {
         if (($errors[$idx] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) continue;
@@ -296,18 +292,51 @@ if ($action === 'upload_media') {
         if (!isset($allowed[$ext]) || $allowed[$ext] !== $mime) continue;
         $fileName = cp_slugify(pathinfo((string)$name, PATHINFO_FILENAME)) . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
         $target = $targetDir . DIRECTORY_SEPARATOR . $fileName;
-        if (!move_uploaded_file($tmp, $target)) continue;
+
+        // Ridisegnata senza EXIF (niente posizione GPS) e al massimo 1600 px.
+        $clean = cp_reencode_image($tmp, $ext);
+        if ($clean === false) {
+            $skipped++;
+            continue;
+        }
+        $saved = is_string($clean)
+            ? file_put_contents($target, $clean, LOCK_EX) !== false
+            : move_uploaded_file($tmp, $target);
+        if (!$saved) continue;
         $uploaded[] = '/img/cripsumpedia/' . date('Y') . '/' . date('m') . '/' . $fileName;
     }
 
-    cp_json(['ok' => true, 'files' => $uploaded]);
+    $response = ['ok' => true, 'files' => $uploaded];
+    if ($skipped > 0) {
+        $response['message'] = $skipped === 1
+            ? 'Un file non è un\'immagine leggibile o è troppo grande.'
+            : $skipped . ' file non sono immagini leggibili o sono troppo grandi.';
+    }
+    cp_json($response);
 }
 
 if ($action === 'delete_entry') {
     $entryId = (int)($input['id'] ?? 0);
     if ($entryId <= 0) cp_json(['ok' => false, 'message' => 'ID non valido.'], 400);
+
+    // Con la cronologia eliminare vuol dire nascondere: la voce esce dal sito
+    // ma resta, con tutte le sue versioni, e si può rimettere.
+    if (cp_v2_ready($mysqli)) {
+        $stmt = $mysqli->prepare("UPDATE cripsumpedia_entries
+                                  SET status = 'archived', deleted_at = NOW(), updated_by = ?, updated_at = NOW()
+                                  WHERE id = ? AND deleted_at IS NULL");
+        if (!$stmt) cp_json(['ok' => false, 'message' => 'Eliminazione non riuscita.'], 500);
+        $userId = (int)($_SESSION['user_id'] ?? 0);
+        $stmt->bind_param('ii', $userId, $entryId);
+        $ok = $stmt->execute();
+        $hidden = $stmt->affected_rows > 0;
+        $stmt->close();
+        if ($hidden) cp_revision_record($mysqli, $entryId, $userId, 'hide');
+        cp_json(['ok' => $ok]);
+    }
+
     $stmt = $mysqli->prepare("DELETE FROM cripsumpedia_entries WHERE id = ?");
-    if (!$stmt) cp_json(['ok' => false, 'message' => 'Errore preparazione query.'], 500);
+    if (!$stmt) cp_json(['ok' => false, 'message' => 'Eliminazione non riuscita.'], 500);
     $stmt->bind_param('i', $entryId);
     $ok = $stmt->execute();
     $stmt->close();
@@ -319,15 +348,35 @@ if ($action !== 'save_entry') {
 }
 
 $entryId = (int)($input['id'] ?? 0);
+
+// La voce com'era: serve per la cronologia e per l'indirizzo vecchio.
+$old = null;
+if ($entryId > 0) {
+    $old = cp_fetch_entry($mysqli, null, (string)$entryId, true, true);
+    if (!$old) cp_json(['ok' => false, 'message' => cp_t('no_results', $lang)], 404);
+    if (!empty($old['deleted_at'])) {
+        cp_json(['ok' => false, 'message' => 'Questa voce è stata eliminata. Ricarica il pannello.'], 410);
+    }
+    cp_revision_baseline($mysqli, $old);
+}
+
 $entryType = cp_normalize_type($input['entry_type'] ?? 'person') ?? 'person';
-$status = in_array(($input['status'] ?? 'draft'), ['draft', 'published', 'archived'], true) ? (string)$input['status'] : 'draft';
-$canonical = in_array(($input['canonical_status'] ?? 'canon'), ['canon', 'non_canon', 'disputed'], true) ? (string)$input['canonical_status'] : 'canon';
-$rarity = in_array(($input['rarity'] ?? 'common'), ['common', 'rare', 'epic', 'legendary', 'mythic', 'cursed'], true) ? (string)$input['rarity'] : 'common';
+// Un campo che manca prende il valore di sempre (prima diventava vuoto e il
+// database rifiutava la voce).
+$pick = static function (string $key, array $allowed, string $default) use ($input): string {
+    $value = (string)($input[$key] ?? $default);
+    return in_array($value, $allowed, true) ? $value : $default;
+};
+$status = $pick('status', ['draft', 'published', 'archived'], 'draft');
+$canonical = $pick('canonical_status', ['canon', 'non_canon', 'disputed'], 'canon');
+$rarity = $pick('rarity', ['common', 'rare', 'epic', 'legendary', 'mythic', 'cursed'], 'common');
 $title = trim((string)($input['title'] ?? ''));
 $titleEn = trim((string)($input['title_en'] ?? ''));
 if ($title === '' && $titleEn === '') cp_json(['ok' => false, 'message' => 'Titolo richiesto.'], 422);
 if ($title === '') $title = $titleEn;
-$slug = cp_api_unique_slug($mysqli, $entryType, (string)($input['slug'] ?? $title), $entryId);
+// Un indirizzo lasciato vuoto si fa dal titolo (prima diventava una sigla a caso).
+$slugInput = trim((string)($input['slug'] ?? ''));
+$slug = cp_api_unique_slug($mysqli, $entryType, $slugInput !== '' ? $slugInput : $title, $entryId);
 $importance = max(0, min(100, (int)($input['importance'] ?? 50)));
 $featured = !empty($input['featured']) ? 1 : 0;
 $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
@@ -360,6 +409,11 @@ $fields = [
     'updated_by' => $userId,
 ];
 
+// A capo sempre come \n: i moduli li mandano come \r\n.
+foreach (['description', 'description_en', 'content_md', 'content_md_en', 'seo_description', 'seo_description_en'] as $field) {
+    $fields[$field] = str_replace(["\r\n", "\r"], "\n", $fields[$field]);
+}
+
 $types = 'sssssssssssssssss' . 'ii' . 'sssss' . 'i';
 $values = array_values($fields);
 
@@ -367,7 +421,10 @@ if ($entryId > 0) {
     $set = implode(', ', array_map(static fn(string $field): string => "$field = ?", array_keys($fields)));
     $sql = "UPDATE cripsumpedia_entries SET $set, updated_at = NOW() WHERE id = ?";
     $stmt = $mysqli->prepare($sql);
-    if (!$stmt) cp_json(['ok' => false, 'message' => 'Errore query update: ' . $mysqli->error], 500);
+    if (!$stmt) {
+        error_log('[cripsumpedia] update non preparato: ' . $mysqli->error);
+        cp_json(['ok' => false, 'message' => 'Salvataggio non riuscito.'], 500);
+    }
     $values[] = $entryId;
     $types .= 'i';
     $stmt->bind_param($types, ...$values);
@@ -380,15 +437,18 @@ if ($entryId > 0) {
     $placeholders = rtrim(str_repeat('?, ', count($fields)), ', ');
     $sql = "INSERT INTO cripsumpedia_entries ($columns, created_at, updated_at) VALUES ($placeholders, NOW(), NOW())";
     $stmt = $mysqli->prepare($sql);
-    if (!$stmt) cp_json(['ok' => false, 'message' => 'Errore query insert: ' . $mysqli->error], 500);
+    if (!$stmt) {
+        error_log('[cripsumpedia] insert non preparato: ' . $mysqli->error);
+        cp_json(['ok' => false, 'message' => 'Salvataggio non riuscito.'], 500);
+    }
     $values = array_values($fields);
     $types .= 'i';
     $stmt->bind_param($types, ...$values);
     $ok = $stmt->execute();
     if (!$ok) {
-        $message = $stmt->error ?: 'Inserimento non riuscito.';
+        error_log('[cripsumpedia] insert non riuscito: ' . $stmt->error);
         $stmt->close();
-        cp_json(['ok' => false, 'message' => $message], 500);
+        cp_json(['ok' => false, 'message' => 'Salvataggio non riuscito.'], 500);
     }
     $entryId = (int)$stmt->insert_id;
     $stmt->close();
@@ -401,6 +461,13 @@ cp_api_sync_quotes($mysqli, $entryId, cp_api_lines((string)($input['quotes'] ?? 
 $relationsJson = (string)($input['relations_json'] ?? '[]');
 $relations = json_decode($relationsJson, true);
 cp_api_sync_relations($mysqli, $entryId, is_array($relations) ? $relations : []);
+
+if (cp_v2_ready($mysqli)) {
+    cp_store_entry_html($mysqli, $entryId);
+    cp_remember_old_slug($mysqli, $entryId, (string)($old['entry_type'] ?? $entryType), (string)($old['slug'] ?? ''), $entryType, $slug);
+    cp_refresh_mentions($mysqli, $entryId);
+    cp_revision_record($mysqli, $entryId, $userId, $old ? 'edit' : 'new');
+}
 
 $entry = cp_fetch_entry($mysqli, null, (string)$entryId, true);
 cp_json([

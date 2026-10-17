@@ -35,18 +35,6 @@ if ($action === 'get') {
     $entryId = (int)($_GET['entry_id'] ?? $input['entry_id'] ?? 0);
     if ($entryId <= 0) cp_json(['ok' => false, 'message' => 'ID non valido.'], 400);
 
-    $rawRelations = cp_fetch_relations($mysqli, $entryId, null, 120);
-    // Deduplicate: bidirectional relations may appear in both directions
-    $seenTids = [];
-    $uniqueRels = [];
-    foreach ($rawRelations as $r) {
-        $tid = (int)$r['id'];
-        if (!isset($seenTids[$tid])) {
-            $seenTids[$tid] = true;
-            $uniqueRels[] = $r;
-        }
-    }
-
     $relations = array_map(static function (array $relation) use ($mysqli, $lang): array {
         $item = cp_entry_public($relation, $lang, $mysqli, false);
         return [
@@ -61,60 +49,13 @@ if ($action === 'get') {
             'relation_label' => cp_i18n($relation, 'relation_label', $lang),
             'weight' => (int)($relation['weight'] ?? 50),
         ];
-    }, $uniqueRels);
+    }, cp_fetch_relations($mysqli, $entryId, null, 120));
 
     cp_json(['ok' => true, 'relations' => $relations]);
 }
 
-if ($action === 'save') {
-    $entryId = (int)($input['entry_id'] ?? 0);
-    $relations = $input['relations'] ?? [];
-    if (!is_array($relations)) {
-        $relations = json_decode((string)$relations, true);
-    }
-    if ($entryId <= 0 || !is_array($relations)) cp_json(['ok' => false, 'message' => 'Payload non valido.'], 400);
-
-    $stmt = $mysqli->prepare("DELETE FROM cripsumpedia_relations WHERE source_entry_id = ? OR (target_entry_id = ? AND is_bidirectional = 1)");
-    if ($stmt) {
-        $stmt->bind_param('ii', $entryId, $entryId);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    $saved = 0;
-    foreach ($relations as $relation) {
-        if (!is_array($relation)) continue;
-        $targetId = (int)($relation['target_id'] ?? 0);
-        if ($targetId <= 0 || $targetId === $entryId) continue;
-        $relationType = preg_replace('/[^a-z0-9_\-]/i', '', (string)($relation['relation_type'] ?? 'related')) ?: 'related';
-        $label = trim((string)($relation['relation_label'] ?? ''));
-        $labelEn = trim((string)($relation['relation_label_en'] ?? ''));
-        $weight = max(0, min(100, (int)($relation['weight'] ?? 50)));
-        $bidirectional = array_key_exists('bidirectional', $relation) ? (!empty($relation['bidirectional']) ? 1 : 0) : 1;
-
-        $stmt = $mysqli->prepare("INSERT IGNORE INTO cripsumpedia_relations
-            (source_entry_id, target_entry_id, relation_type, relation_label, relation_label_en, weight, is_bidirectional, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
-        if (!$stmt) continue;
-        $stmt->bind_param('iisssii', $entryId, $targetId, $relationType, $label, $labelEn, $weight, $bidirectional);
-        $stmt->execute();
-        $stmt->close();
-        $saved++;
-
-        if ($bidirectional === 1) {
-            $stmt = $mysqli->prepare("INSERT IGNORE INTO cripsumpedia_relations
-                (source_entry_id, target_entry_id, relation_type, relation_label, relation_label_en, weight, is_bidirectional, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, 1, NOW(), NOW())");
-            if ($stmt) {
-                $stmt->bind_param('iisssi', $targetId, $entryId, $relationType, $label, $labelEn, $weight);
-                $stmt->execute();
-                $stmt->close();
-            }
-        }
-    }
-
-    cp_json(['ok' => true, 'saved' => $saved]);
-}
+// I collegamenti si salvano solo insieme alla voce (api/cripsumpedia_save.php),
+// così ogni cambiamento finisce nella cronologia.
 
 $query = trim((string)($_GET['q'] ?? ''));
 $type = cp_normalize_type($_GET['type'] ?? null);

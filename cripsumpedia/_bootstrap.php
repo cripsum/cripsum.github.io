@@ -6,6 +6,12 @@ require_once __DIR__ . '/../config/session_init.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/theme.php';
+require_once __DIR__ . '/../includes/security_helpers.php';
+require_once __DIR__ . '/../includes/cripsumpedia/schema.php';
+require_once __DIR__ . '/../includes/cripsumpedia/content.php';
+require_once __DIR__ . '/../includes/cripsumpedia/revisions.php';
+require_once __DIR__ . '/../includes/cripsumpedia/views.php';
+require_once __DIR__ . '/../includes/cripsumpedia/media.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 
@@ -221,19 +227,15 @@ function cp_require_admin(bool $json = false): void
     }
 }
 
+// Lo stesso token del resto del sito (includes/security_helpers.php).
 function cp_csrf_token(): string
 {
-    if (empty($_SESSION['cripsumpedia_csrf_token'])) {
-        $_SESSION['cripsumpedia_csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['cripsumpedia_csrf_token'];
+    return csrf_token();
 }
 
 function cp_validate_csrf(?string $token): bool
 {
-    return is_string($token)
-        && $token !== ''
-        && hash_equals($_SESSION['cripsumpedia_csrf_token'] ?? '', $token);
+    return csrf_validate($token);
 }
 
 function cp_json(array $payload, int $status = 200): void
@@ -485,6 +487,9 @@ function cp_fetch_entries(mysqli $mysqli, array $options = []): array
         $types .= 's';
         $params[] = $status;
     }
+    if (cp_v2_ready($mysqli)) {
+        $where[] = 'e.deleted_at IS NULL';
+    }
 
     $entryType = cp_normalize_type($options['type'] ?? null);
     if ($entryType) {
@@ -504,7 +509,7 @@ function cp_fetch_entries(mysqli $mysqli, array $options = []): array
 
     $query = trim((string)($options['q'] ?? ''));
     if ($query !== '') {
-        $like = '%' . $query . '%';
+        $like = '%' . addcslashes($query, '%_\\') . '%'; // % e _ cercati come testo
         $where[] = "(e.title LIKE ? OR e.title_en LIKE ? OR e.description LIKE ? OR e.description_en LIKE ?
                     OR e.content_md LIKE ? OR e.content_md_en LIKE ?
                     OR EXISTS (SELECT 1 FROM cripsumpedia_aliases a WHERE a.entry_id = e.id AND (a.alias LIKE ? OR a.alias_en LIKE ?))
@@ -516,7 +521,7 @@ function cp_fetch_entries(mysqli $mysqli, array $options = []): array
     $lang = cp_detect_lang();
     $order = match ((string)($options['order'] ?? 'latest')) {
         'popular' => 'e.views_count DESC, e.updated_at DESC',
-        'trending' => 'e.trending_score DESC, e.views_count DESC, e.updated_at DESC',
+        'trending' => cp_trending_order_sql($mysqli, 'e'),
         'importance' => 'e.importance DESC, e.real_date DESC, e.updated_at DESC',
         'timeline' => 'COALESCE(e.real_date, e.created_at) ASC, e.importance DESC',
         'alphabetical' => ($lang === 'en' ? "COALESCE(NULLIF(e.title_en, ''), e.title) ASC" : "e.title ASC"),
@@ -671,6 +676,9 @@ function cp_count_entries(mysqli $mysqli, array $options = []): int
         $types .= 's';
         $params[] = $entryType;
     }
+    if (cp_v2_ready($mysqli)) {
+        $where[] = 'deleted_at IS NULL';
+    }
 
     $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
     $stmt = $mysqli->prepare("SELECT COUNT(*) AS total FROM cripsumpedia_entries $whereSql");
@@ -682,12 +690,15 @@ function cp_count_entries(mysqli $mysqli, array $options = []): int
     return (int)($row['total'] ?? 0);
 }
 
-function cp_fetch_entry(mysqli $mysqli, ?string $type, string $slugOrId, bool $includeDrafts = false): ?array
+function cp_fetch_entry(mysqli $mysqli, ?string $type, string $slugOrId, bool $includeDrafts = false, bool $includeDeleted = false): ?array
 {
     if (!cp_schema_ready($mysqli)) return null;
 
     $isId = ctype_digit($slugOrId);
     $statusSql = $includeDrafts ? '' : " AND status = 'published'";
+    if (!$includeDeleted) {
+        $statusSql .= cp_not_deleted_sql($mysqli);
+    }
 
     if ($isId) {
         $id = (int)$slugOrId;
@@ -789,6 +800,10 @@ function cp_fetch_relations(mysqli $mysqli, int $entryId, ?string $targetType = 
         }
     }
 
+    // Un collegamento «nei due sensi» è salvato due volte (A→B e B→A), quindi
+    // la stessa voce torna sia in uscita sia in entrata: si tiene una riga sola
+    // per voce collegata. Per questo se ne chiedono il doppio.
+    $fetch = $limit * 2;
     $sql = "SELECT * FROM (
                 SELECT r.id AS relation_id, r.relation_type, r.relation_label, r.relation_label_en, r.weight,
                        'out' AS direction, e.*,
@@ -805,8 +820,8 @@ function cp_fetch_relations(mysqli $mysqli, int $entryId, ?string $targetType = 
                 WHERE r.target_entry_id = ? AND e.status = 'published'
             ) rel
             $typeSql
-            ORDER BY weight DESC, updated_at DESC
-            LIMIT $limit";
+            ORDER BY weight DESC, direction DESC, updated_at DESC
+            LIMIT $fetch";
 
     $stmt = $mysqli->prepare($sql);
     if (!$stmt) return [];
@@ -814,32 +829,15 @@ function cp_fetch_relations(mysqli $mysqli, int $entryId, ?string $targetType = 
     $stmt->execute();
     $rows = cp_stmt_all($stmt);
     $stmt->close();
-    return $rows;
-}
 
-function cp_record_view(mysqli $mysqli, int $entryId): void
-{
-    if (!cp_schema_ready($mysqli)) return;
-    $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
-    $sessionHash = hash('sha256', session_id() . '|' . ($_SERVER['HTTP_USER_AGENT'] ?? ''));
-    $ipHash = hash('sha256', (string)($_SERVER['REMOTE_ADDR'] ?? ''));
-    $uaHash = hash('sha256', (string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
-    $referrer = substr((string)($_SERVER['HTTP_REFERER'] ?? ''), 0, 500);
-
-    $stmt = $mysqli->prepare("INSERT INTO cripsumpedia_views (entry_id, user_id, session_hash, ip_hash, user_agent_hash, referrer, viewed_at)
-                              VALUES (?, ?, ?, ?, ?, ?, NOW())");
-    if ($stmt) {
-        $stmt->bind_param('iissss', $entryId, $userId, $sessionHash, $ipHash, $uaHash, $referrer);
-        $stmt->execute();
-        $stmt->close();
+    $unique = [];
+    foreach ($rows as $row) {
+        $relatedId = (int)($row['id'] ?? 0);
+        if ($relatedId > 0 && !isset($unique[$relatedId])) {
+            $unique[$relatedId] = $row;
+        }
     }
-
-    $stmt = $mysqli->prepare("UPDATE cripsumpedia_entries SET views_count = views_count + 1, trending_score = trending_score + 0.35 WHERE id = ?");
-    if ($stmt) {
-        $stmt->bind_param('i', $entryId);
-        $stmt->execute();
-        $stmt->close();
-    }
+    return array_slice(array_values($unique), 0, $limit);
 }
 
 function cp_search_entries(mysqli $mysqli, string $query, string $lang, array $options = []): array
@@ -850,7 +848,7 @@ function cp_search_entries(mysqli $mysqli, string $query, string $lang, array $o
 
     $type = cp_normalize_type($options['type'] ?? null);
     $limit = max(1, min(30, (int)($options['limit'] ?? 12)));
-    $like = '%' . $query . '%';
+    $like = '%' . addcslashes($query, '%_\\') . '%'; // % e _ cercati come testo
     $whereType = $type ? 'AND e.entry_type = ?' : '';
 
     $sql = "SELECT DISTINCT e.*,
@@ -873,7 +871,7 @@ function cp_search_entries(mysqli $mysqli, string $query, string $lang, array $o
                   OR EXISTS (SELECT 1 FROM cripsumpedia_aliases a WHERE a.entry_id = e.id AND (a.alias LIKE ? OR a.alias_en LIKE ?))
                   OR EXISTS (SELECT 1 FROM cripsumpedia_quotes q WHERE q.entry_id = e.id AND (q.quote_text LIKE ? OR q.quote_text_en LIKE ?))
               )
-            ORDER BY relevance DESC, e.trending_score DESC, e.views_count DESC
+            ORDER BY relevance DESC, e.views_count DESC
             LIMIT ?";
 
     $params = [$query, $query, $like, $like, $like, $like, $like, $like];
@@ -1051,7 +1049,17 @@ function cp_render_inline_markdown(string $text): string
     return $text;
 }
 
+/** Markdown → HTML con i collegamenti alle altre voci (anteprima dell'editor e testi non ancora salvati). */
 function cp_markdown_to_html(string $markdown, mysqli $mysqli, string $lang, ?int $currentEntryId = null): string
+{
+    return cp_autolink_html(cp_markdown_render($markdown), $mysqli, $lang, $currentEntryId);
+}
+
+/**
+ * Markdown → HTML, senza i collegamenti alle altre voci: è quello che si salva
+ * in content_html (i collegamenti si aggiungono quando la voce viene mostrata).
+ */
+function cp_markdown_render(string $markdown): string
 {
     $markdown = trim(str_replace(["\r\n", "\r"], "\n", $markdown));
     if ($markdown === '') return '';
@@ -1071,7 +1079,7 @@ function cp_markdown_to_html(string $markdown, mysqli $mysqli, string $lang, ?in
 
         if (preg_match('/^:::spoiler\s*(.*?)\n(.*?)\n:::$/su', $block, $m)) {
             $summary = cp_h(trim($m[1]) !== '' ? trim($m[1]) : 'Spoiler');
-            $body = cp_markdown_to_html(trim($m[2]), $mysqli, $lang, $currentEntryId);
+            $body = cp_markdown_render(trim($m[2]));
             $html[] = '<details class="cp-spoiler"><summary>' . $summary . '</summary><div>' . $body . '</div></details>';
             continue;
         }
@@ -1132,7 +1140,7 @@ function cp_markdown_to_html(string $markdown, mysqli $mysqli, string $lang, ?in
         $html[] = '<p>' . implode('<br>', array_map('cp_render_inline_markdown', $lines)) . '</p>';
     }
 
-    return cp_autolink_html(implode("\n", $html), $mysqli, $lang, $currentEntryId);
+    return implode("\n", $html);
 }
 
 function cp_render_head(string $title, string $description, string $lang, string $bodyClass = 'cp-body', ?string $ogImage = null): void
@@ -1146,8 +1154,6 @@ function cp_render_head(string $title, string $description, string $lang, string
     $ogDescription = $description;
 ?>
     <?php include __DIR__ . '/../includes/head-import.php'; ?>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0a0a0b">
     <title><?= cp_h($title) ?></title>
     <link rel="icon" href="/img/Susremaster.png" type="image/png">
@@ -1167,7 +1173,7 @@ function cp_render_head(string $title, string $description, string $lang, string
             csrf: <?= json_encode(cp_csrf_token()) ?>
         };
     </script>
-    <script src="/cripsumpedia/cripsumpedia.js?v=2.3" defer></script>
+    <script src="<?= cripsum_theme_asset('/cripsumpedia/cripsumpedia.js') ?>" defer></script>
 <?php
 }
 

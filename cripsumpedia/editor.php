@@ -19,24 +19,23 @@ $aliases = $entry ? cp_fetch_aliases($mysqli, (int)$entry['id']) : [];
 $quotes = $entry ? cp_fetch_quotes($mysqli, (int)$entry['id'], 30) : [];
 $relations = $entry ? cp_fetch_relations($mysqli, (int)$entry['id'], null, 120) : [];
 
-// Deduplicate: bidirectional relations may appear in both directions
-$seenRelIds = [];
-$uniqueRelations = [];
-foreach ($relations as $rel) {
-    $tid = (int)$rel['id'];
-    if (!isset($seenRelIds[$tid])) {
-        $seenRelIds[$tid] = true;
-        $uniqueRelations[] = $rel;
-    }
-}
-$relations = $uniqueRelations;
-
+// Il salvataggio accoppia righe italiane e inglesi per posizione, quindi una
+// lista inglese si mostra intera (con l'italiano dove manca) o per niente:
+// vuota se nessuna riga ha l'inglese, altrimenti salvare copierebbe
+// l'italiano nei campi inglesi.
+$hasEn = static fn(array $rows, string $field): bool => (bool)array_filter($rows, static fn(array $row): bool => trim((string)($row[$field . '_en'] ?? '')) !== '');
 $tagIt = implode(', ', array_map(static fn(array $row): string => cp_i18n($row, 'name', 'it'), $tags));
-$tagEn = implode(', ', array_map(static fn(array $row): string => cp_i18n($row, 'name', 'en'), $tags));
+$tagEn = $hasEn($tags, 'name') ? implode(', ', array_map(static fn(array $row): string => cp_i18n($row, 'name', 'en'), $tags)) : '';
 $aliasIt = implode("\n", array_map(static fn(array $row): string => cp_i18n($row, 'alias', 'it'), $aliases));
-$aliasEn = implode("\n", array_map(static fn(array $row): string => cp_i18n($row, 'alias', 'en'), $aliases));
-$quoteIt = implode("\n", array_map(static fn(array $row): string => cp_i18n($row, 'quote_text', 'it'), $quotes));
-$quoteEn = implode("\n", array_map(static fn(array $row): string => cp_i18n($row, 'quote_text', 'en'), $quotes));
+$aliasEn = $hasEn($aliases, 'alias') ? implode("\n", array_map(static fn(array $row): string => cp_i18n($row, 'alias', 'en'), $aliases)) : '';
+// «frase | chi l'ha detta», come le legge il salvataggio: senza la seconda parte
+// ogni salvataggio cancellava chi aveva detto la citazione.
+$quoteLine = static function (array $row, string $lang): string {
+    $speaker = cp_i18n($row, 'speaker', $lang);
+    return cp_i18n($row, 'quote_text', $lang) . ($speaker !== '' ? ' | ' . $speaker : '');
+};
+$quoteIt = implode("\n", array_map(static fn(array $row): string => $quoteLine($row, 'it'), $quotes));
+$quoteEn = $hasEn($quotes, 'quote_text') ? implode("\n", array_map(static fn(array $row): string => $quoteLine($row, 'en'), $quotes)) : '';
 $relationSeed = [];
 foreach ($relations as $relation) {
     $item = cp_entry_public($relation, $lang, $mysqli, false);

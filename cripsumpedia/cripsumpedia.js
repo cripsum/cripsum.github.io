@@ -410,14 +410,12 @@
         }
 
         document.addEventListener('click', async (event) => {
-            const reaction = event.target.closest('[data-cp-reaction]');
-            const favorite = event.target.closest('[data-cp-favorite]');
-            const button = reaction || favorite;
+            const button = event.target.closest('[data-cp-favorite]');
             if (!button) return;
             const body = new FormData();
-            body.set('action', reaction ? 'react' : 'favorite');
+            body.set('action', 'favorite');
             body.set('entry_id', button.dataset.entryId || '');
-            if (reaction) body.set('reaction', button.dataset.reaction || 'hype');
+            body.set('csrf_token', cfg.csrf || '');
             button.disabled = true;
             try {
                 const data = await fetchJson(cfg.saveEndpoint, { method: 'POST', body });

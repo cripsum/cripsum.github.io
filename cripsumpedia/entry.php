@@ -9,6 +9,15 @@ $type = cp_normalize_type($_GET['type'] ?? $_GET['category'] ?? null);
 $slugOrId = trim((string)($_GET['id'] ?? $_GET['slug'] ?? ''));
 $entry = $slugOrId !== '' ? cp_fetch_entry($mysqli, $type, $slugOrId, cp_is_admin_user()) : null;
 
+// Una voce che ha cambiato titolo: l'indirizzo vecchio porta a quello nuovo.
+if (!$entry && $slugOrId !== '' && !ctype_digit($slugOrId)) {
+    $moved = cp_find_slug_redirect($mysqli, $type, $slugOrId);
+    if ($moved) {
+        header('Location: ' . cp_entry_url($moved, $lang), true, 301);
+        exit;
+    }
+}
+
 if (cp_schema_ready($mysqli) && !$entry) {
     http_response_code(404);
 }
@@ -19,21 +28,10 @@ if ($entry) {
 
 $titleText = $entry ? cp_i18n($entry, 'title', $lang) : 'Cripsumpedia';
 $description = $entry ? cp_excerpt(cp_i18n($entry, 'description', $lang), 160) : cp_t('subtitle', $lang);
-$content = $entry ? cp_i18n($entry, 'content_md', $lang) : '';
 $tags = $entry ? cp_fetch_tags($mysqli, (int)$entry['id']) : [];
 $aliases = $entry ? cp_fetch_aliases($mysqli, (int)$entry['id']) : [];
 $quotes = $entry ? cp_fetch_quotes($mysqli, (int)$entry['id'], 12) : [];
-$rawRels = $entry ? cp_fetch_relations($mysqli, (int)$entry['id']) : [];
-$_seenRelIds = [];
-$relations = [];
-foreach ($rawRels as $_r) {
-    $_tid = (int)$_r['id'];
-    if (!isset($_seenRelIds[$_tid])) {
-        $_seenRelIds[$_tid] = true;
-        $relations[] = $_r;
-    }
-}
-unset($_seenRelIds, $_r, $_tid, $rawRels);
+$relations = $entry ? cp_fetch_relations($mysqli, (int)$entry['id']) : [];
 $groupedRelations = cp_group_relations_by_type($relations);
 $public = $entry ? cp_entry_public($entry, $lang, $mysqli, false) : null;
 
@@ -108,10 +106,6 @@ $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (stri
                             <i class="fa-solid fa-star"></i>
                             <span><?= cp_h(cp_t('favorite', $lang)) ?></span>
                         </button>
-                        <button class="cp-btn" type="button" data-cp-reaction data-entry-id="<?= (int)$entry['id'] ?>" data-reaction="hype">
-                            <i class="fa-solid fa-bolt"></i>
-                            <span><?= cp_h(cp_t('reaction', $lang)) ?></span>
-                        </button>
                         <button class="cp-icon-btn" type="button" data-cp-focus title="<?= cp_h(cp_t('focus', $lang)) ?>" aria-label="<?= cp_h(cp_t('focus', $lang)) ?>">
                             <i class="fa-solid fa-book-open-reader"></i>
                         </button>
@@ -132,7 +126,7 @@ $adjacent = $entry ? cp_fetch_adjacent_entries($mysqli, (int)$entry['id'], (stri
                         <?php endif; ?>
 
                         <div class="cp-markdown">
-                            <?= cp_markdown_to_html($content, $mysqli, $lang, (int)$entry['id']) ?>
+                            <?= cp_entry_content_html($mysqli, $entry, $lang) ?>
                         </div>
 
                         <?php if ($quotes): ?>
