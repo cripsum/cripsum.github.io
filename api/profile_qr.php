@@ -5,7 +5,9 @@ require_once __DIR__ . '/../includes/profile_helpers.php';
 $url = trim((string)($_GET['url'] ?? ''));
 $host = strtolower((string)(parse_url($url, PHP_URL_HOST) ?: ''));
 
-if (!profile_is_safe_url($url, true) || !in_array($host, ['cripsum.com', 'www.cripsum.com'], true)) {
+// Solo indirizzi del sito: cripsum.com e bio.cripsum.com (i profili aperti da
+// bio condividono quello di bio, vedi includes/bio.php).
+if (!profile_is_safe_url($url, true) || !in_array($host, ['cripsum.com', 'www.cripsum.com', 'bio.cripsum.com', 'bio-prova.cripsum.com'], true)) {
     http_response_code(400);
     header('Content-Type: image/svg+xml; charset=utf-8');
     echo '<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280"><rect width="100%" height="100%" fill="#111827"/><text x="50%" y="50%" text-anchor="middle" fill="#fff" font-size="16">QR non valido</text></svg>';

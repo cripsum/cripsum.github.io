@@ -19,6 +19,25 @@ declare(strict_types=1);
 /** Gli host che sono bio. */
 const CRIPSUM_BIO_HOSTS = ['bio.cripsum.com', 'bio-prova.cripsum.com', 'bio.localhost'];
 
+/**
+ * bio.cripsum.com e' aperto a tutti? Finche' e' false, su Cloudflare ci sono
+ * ancora le regole che rimandano bio.cripsum.com al profilo di cripsum, e il
+ * sito non ci manda nessuno (la voce «La tua pagina» del menu c'e' solo
+ * quando si e' gia' su bio, cioe' su bio-prova). Si mette a true il giorno in
+ * cui si tolgono quelle regole (fase 5 del piano).
+ */
+const CRIPSUM_BIO_OPEN = false;
+
+/** Dove porta «La tua pagina» nel menu dell'account, o null se non va mostrata. */
+function cripsum_bio_menu_url(): ?string
+{
+    if (cripsum_site() === 'bio') {
+        return cripsum_bio_url('/');
+    }
+
+    return CRIPSUM_BIO_OPEN ? cripsum_bio_url('/') : null;
+}
+
 /** L'host della richiesta, minuscolo e senza porta. */
 function cripsum_request_host(): string
 {

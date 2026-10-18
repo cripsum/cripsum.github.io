@@ -1,0 +1,562 @@
+/* Le pagine di bio.cripsum.com: ingresso, «La tua pagina», Esplora
+   (bio/index.php, bio/esplora.php, includes/bio_pages.php). Sono le tavole
+   approvate (proposte-home/bio-tavola-1..4.png) messe nel sito: valori presi
+   dai pezzi nx- del tema e dalla Cripsumpedia (testate, ricerca, «Tutti →»).
+   Prefisso bh- (bio hub): le classi bio- sono gia' delle pagine profilo. */
+
+html[data-theme="next"] .bh-shell {
+    width: min(1240px, calc(100% - 32px));
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 6.6rem 0 6rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--nx-text);
+}
+
+/* Pesa quanto le regole per tag di Bootstrap (e arriva dopo), meno delle classi qui sotto. */
+:where(html[data-theme="next"] .bh-shell) :is(h1, h2, h3, p, ul, ol, dl, dd, figure) { margin: 0; padding: 0; }
+:where(html[data-theme="next"] .bh-shell) :is(ul, ol) { list-style: none; }
+:where(html[data-theme="next"] .bh-shell) :where(a) { color: inherit; text-decoration: none; }
+:where(html[data-theme="next"] .bh-shell) :where(img) { display: block; max-width: 100%; }
+
+.bh-more { color: var(--nx-text-2); font-weight: 500; white-space: nowrap; transition: color .2s; }
+.bh-more:hover { color: var(--nx-text); }
+.bh-more i { margin-left: 6px; font-size: 0.8em; }
+
+/* ── Ingresso ───────────────────────────────────────────────── */
+
+.bh-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 96px;
+    align-items: center;
+    padding: 48px 0 88px;
+}
+
+.bh-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px !important;
+    color: var(--nx-text-2);
+    font-weight: 500;
+}
+
+.bh-hero h1 {
+    font-size: 3.5rem;
+    line-height: 1.06;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+}
+
+.bh-hero h1 span { color: var(--nx-text-3); }
+
+.bh-lead {
+    max-width: 560px;
+    margin-top: 22px !important;
+    color: var(--nx-text-2);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+}
+
+/* Il nome da provare: lo stesso campo a pillola della ricerca della Cripsumpedia. */
+.bh-claim {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 600px;
+    height: 64px;
+    margin-top: 34px;
+    padding: 0 8px 0 24px;
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+}
+
+.bh-claim__field {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-width: 0;
+    height: 100%;
+    font-size: 1.0625rem;
+    cursor: text;
+}
+
+.bh-claim__field span { color: var(--nx-text-3); white-space: nowrap; }
+
+.bh-claim__field input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--nx-text);
+    font: inherit;
+    font-weight: 600;
+}
+
+.bh-claim .nx-btn { flex: none; }
+
+.bh-claim__state {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px !important;
+    padding-left: 24px;
+    color: var(--nx-text-2);
+    font-size: 0.9375rem;
+}
+
+.bh-claim__state b { color: var(--nx-text); font-weight: 600; }
+
+.bh-dot { flex: none; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--nx-ok); }
+.bh-dot--no { background: var(--nx-danger); }
+
+.bh-hero__alt { margin-top: 30px !important; color: var(--nx-text-3); }
+.bh-hero__alt a { color: var(--nx-text); border-bottom: 1px solid var(--nx-line); }
+
+/* Il telefono con un profilo vero dentro: la pagina vera, larga 390 e
+   rimpicciolita (--s lo calcola bio.js sulla larghezza vera dello schermo;
+   qui c'e' un valore buono per partire). Non si clicca e non suona. */
+.bh-phone {
+    aspect-ratio: 390 / 780;
+    padding: 9px;
+    border-radius: 46px;
+    background: var(--nx-surface-2);
+}
+
+.bh-phone__screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 38px;
+    background: var(--nx-bg);
+}
+
+.bh-phone__screen iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 390px;
+    height: 780px;
+    border: 0;
+    transform: scale(var(--s, 0.8));
+    transform-origin: 0 0;
+    pointer-events: none;
+}
+
+.bh-hero__phone .bh-phone__cap a { color: var(--nx-text-2); }
+.bh-hero__phone .bh-phone__cap a:hover { color: var(--nx-text); }
+
+.bh-phone__cap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    color: var(--nx-text-2);
+    font-size: 0.875rem;
+}
+
+/* ── Sezioni ────────────────────────────────────────────────── */
+
+.bh-sec { padding: 0 0 72px; }
+
+.bh-sec__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.bh-sec__head h2 { font-size: 1.625rem; font-weight: 600; letter-spacing: -0.02em; }
+.bh-sec__head h2 small { margin-left: 10px; color: var(--nx-text-3); font-size: 1rem; font-weight: 500; }
+
+/* Schede dei profili: lo sfondo vero, la foto col colore del profilo. */
+.bh-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+
+.bh-card > a {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--nx-radius);
+    background: var(--nx-surface);
+    transition: background-color .24s var(--nx-ease);
+}
+
+.bh-card > a:hover { background: var(--nx-surface-2); }
+
+.bh-card__bg { aspect-ratio: 16 / 10; overflow: hidden; background: var(--nx-surface-2); }
+.bh-card__bg img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--nx-ease); }
+.bh-card > a:hover .bh-card__bg img { transform: scale(1.03); }
+
+/* La foto scavalca il bordo dello sfondo; nome e indirizzo stanno sotto, mai sopra l'immagine. */
+.bh-card__body {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: -26px;
+    padding: 0 16px 18px;
+}
+
+.bh-card__pfp {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border: 3px solid var(--nx-surface);
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--acc, var(--nx-line));
+    transition: border-color .24s var(--nx-ease);
+}
+
+.bh-card > a:hover .bh-card__pfp { border-color: var(--nx-surface-2); }
+
+.bh-card__text { min-width: 0; padding-top: 32px; }
+
+.bh-card__name,
+.bh-card__url { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+.bh-card__name { font-weight: 600; }
+.bh-card__url { color: var(--nx-text-2); font-size: 0.8125rem; }
+
+/* Cosa ci puoi mettere: niente riquadri, icona e due righe. */
+.bh-feats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 48px; }
+
+.bh-feat { display: flex; gap: 16px; align-items: flex-start; }
+.bh-feat > div { min-width: 0; }
+
+.bh-feat__ico {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: var(--nx-surface);
+    font-size: 1.05rem;
+}
+
+.bh-feat h3 { padding-top: 2px; font-size: 1rem; font-weight: 600; }
+.bh-feat p { margin-top: 4px; color: var(--nx-text-2); line-height: 1.5; }
+
+/* ── La tua pagina ──────────────────────────────────────────── */
+
+.bh-me {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 28px 0 32px;
+}
+
+.bh-me__pfp {
+    flex: none;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 3px var(--nx-bg), 0 0 0 5px var(--acc, var(--nx-line));
+}
+
+.bh-me h1 { font-size: 2.25rem; line-height: 1.1; font-weight: 600; letter-spacing: -0.03em; }
+.bh-me__link { margin-top: 6px !important; color: var(--nx-text-3); font-size: 1.0625rem; }
+.bh-me__link b { color: var(--nx-text); font-weight: 600; }
+
+.bh-me__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
+
+.bh-dash {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 48px;
+    padding-top: 8px;
+}
+
+.bh-dash__main { display: grid; gap: 40px; align-content: start; }
+
+.bh-dash h2 { margin-bottom: 16px !important; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+
+.bh-panel { padding: 24px; border-radius: var(--nx-radius); background: var(--nx-surface); }
+
+.bh-vis { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; }
+.bh-vis__now { margin-top: 14px !important; color: var(--nx-text-2); }
+
+.bh-line { height: 1px; margin: 20px 0; background: var(--nx-line); }
+
+.bh-switch-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.bh-switch-row strong { display: block; font-weight: 500; }
+.bh-switch-row span { color: var(--nx-text-3); font-size: 0.875rem; }
+
+/* Le sei aree dell'editor, con i nomi e le descrizioni che ha gia'. */
+.bh-areas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+
+.bh-area > a {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 2px 14px;
+    height: 100%;
+    padding: 18px;
+    border-radius: 20px;
+    background: var(--nx-surface);
+    transition: background-color .24s var(--nx-ease);
+}
+
+.bh-area > a:hover { background: var(--nx-surface-2); }
+
+.bh-area__ico {
+    display: grid;
+    grid-row: span 2;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--nx-surface-2);
+}
+
+.bh-area strong { font-weight: 600; }
+.bh-area__desc { color: var(--nx-text-2); font-size: 0.8125rem; line-height: 1.45; }
+
+.bh-side { display: grid; gap: 14px; align-content: start; }
+.bh-side .bh-phone { width: 236px; margin: 0 auto 8px; border-radius: 40px; }
+.bh-side .bh-phone__screen { border-radius: 32px; }
+.bh-side .bh-phone__screen iframe { transform: scale(var(--s, 0.559)); }
+
+.bh-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.bh-stat { padding: 16px 18px; border-radius: 20px; background: var(--nx-surface); }
+.bh-stat dt { color: var(--nx-text-2); font-size: 0.8125rem; font-weight: 500; }
+.bh-stat dd { margin-top: 2px; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.bh-stat dd small { margin-left: 4px; color: var(--nx-text-3); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0; }
+
+.bh-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 20px;
+    background: var(--nx-surface);
+    transition: background-color .24s var(--nx-ease);
+}
+
+a.bh-row:hover { background: var(--nx-surface-2); }
+
+.bh-row__ico {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--nx-surface-2);
+}
+
+.bh-row__ico img { width: 18px; height: 18px; }
+.bh-row__text { flex: 1; min-width: 0; }
+.bh-row__text strong { display: block; font-weight: 500; }
+.bh-row__text span { color: var(--nx-text-3); font-size: 0.8125rem; }
+.bh-row__go { color: var(--nx-text-3); font-size: 0.8rem; }
+
+.bh-small { padding: 4px 4px 0; color: var(--nx-text-3); font-size: 0.8125rem; line-height: 1.5; }
+.bh-small a { color: var(--nx-text-2); border-bottom: 1px solid var(--nx-line); }
+
+/* Primo arrivo: il nome preso e cosa manca. */
+.bh-welcome { margin-bottom: 24px !important; }
+
+.bh-todo-head { display: flex; align-items: baseline; justify-content: space-between; }
+.bh-todo-head small { color: var(--nx-text-3); font-size: 0.875rem; font-weight: 500; }
+
+.bh-todo-bar { height: 6px; margin: 14px 0 8px; overflow: hidden; border-radius: var(--nx-pill); background: var(--nx-surface-3); }
+.bh-todo-bar span { display: block; height: 100%; border-radius: inherit; background: var(--nx-text); }
+
+.bh-todo li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--nx-line); }
+.bh-todo li:first-child { border-top: 0; }
+.bh-todo li > i { width: 18px; color: var(--nx-text-3); text-align: center; }
+.bh-todo li > span { flex: 1; }
+.bh-todo li.is-done > i { color: var(--nx-ok); }
+.bh-todo li.is-done > span { color: var(--nx-text-3); }
+
+/* ── Esplora ────────────────────────────────────────────────── */
+
+.bh-ex-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    padding: 28px 0 28px;
+}
+
+.bh-ex-head h1 { font-size: 2.75rem; line-height: 1.06; font-weight: 600; letter-spacing: -0.035em; }
+.bh-ex-head p { margin-top: 10px !important; color: var(--nx-text-2); font-size: 1.0625rem; }
+
+.bh-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 360px;
+    height: 52px;
+    padding: 0 20px;
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface);
+    color: var(--nx-text-2);
+}
+
+.bh-search input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--nx-text);
+    font: inherit;
+}
+
+.bh-search input::placeholder { color: var(--nx-text-3); }
+
+.bh-ex-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.bh-ex-bar .bh-small { padding: 0; }
+
+.bh-ex-grid { gap: 28px 16px; }
+
+.bh-ex-note { margin-top: 40px !important; text-align: center; }
+
+/* ── Telefono ───────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    html[data-theme="next"] .bh-shell { padding-top: 5.6rem; padding-bottom: 4rem; }
+
+    .bh-hero { grid-template-columns: 1fr; gap: 44px; padding: 28px 0 56px; }
+    .bh-hero h1 { font-size: 2.375rem; }
+    .bh-lead { font-size: 1rem; }
+
+    .bh-claim { flex-direction: column; align-items: stretch; height: auto; gap: 10px; margin-top: 28px; padding: 0; border: 0; background: none; }
+    /* flex: none, altrimenti in colonna la base 0 di "flex: 1" vince sull'altezza. */
+    .bh-claim__field { flex: none; height: 56px; padding: 0 20px; border: 1px solid var(--nx-line); border-radius: var(--nx-pill); background: var(--nx-surface); }
+    .bh-claim .nx-btn { min-height: 52px; }
+    .bh-claim__state { padding-left: 20px; }
+
+    .bh-hero__phone { width: 250px; margin: 0 auto; }
+
+    .bh-sec { padding-bottom: 52px; }
+    .bh-sec__head h2 { font-size: 1.375rem; }
+    .bh-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .bh-card__body { flex-direction: column; align-items: flex-start; gap: 8px; margin-top: -24px; padding: 0 12px 14px; }
+    .bh-card__pfp { width: 46px; height: 46px; }
+    .bh-card__text { width: 100%; padding-top: 0; }
+    .bh-card__url { font-size: 0.75rem; }
+
+    .bh-feats { grid-template-columns: 1fr; gap: 24px; }
+
+    .bh-me { flex-wrap: wrap; gap: 16px; padding: 20px 0 28px; }
+    .bh-me__pfp { width: 60px; height: 60px; }
+    .bh-me h1 { font-size: 1.75rem; }
+    .bh-me__link { font-size: 0.9375rem; }
+    .bh-me__actions { width: 100%; margin-left: 0; }
+    .bh-me__actions .nx-btn--primary { order: -1; width: 100%; }
+
+    .bh-dash { grid-template-columns: 1fr; gap: 32px; }
+    .bh-dash__main { gap: 32px; }
+    .bh-side .bh-phone { display: none; }
+    .bh-areas { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .bh-area > a { grid-template-columns: 36px minmax(0, 1fr); align-items: center; padding: 12px 14px; }
+    .bh-area__ico { grid-row: auto; width: 36px; height: 36px; }
+    .bh-area__desc { display: none; }
+    .bh-vis .nx-tabs { width: 100%; }
+    .bh-vis .nx-tab { flex: 1; padding: 0 4px; white-space: nowrap; font-size: 0.8125rem; }
+
+    .bh-ex-head { flex-direction: column; align-items: stretch; gap: 20px; padding: 20px 0 22px; }
+    .bh-ex-head h1 { font-size: 2.25rem; }
+    .bh-search { width: 100%; }
+    .bh-ex-bar { flex-direction: column; align-items: stretch; }
+    .bh-ex-bar .nx-tabs { width: 100%; }
+    .bh-ex-bar .nx-tab { flex: 1; padding: 0 4px; white-space: nowrap; font-size: 0.8125rem; }
+    .bh-ex-grid { gap: 20px 12px; }
+}
+
+/* ── Pezzi in piu' rispetto alle tavole ─────────────────────── */
+
+/* Linguette che sono link (Esplora): stesse misure dei bottoni nx-tab. */
+a.nx-tab { display: inline-flex; align-items: center; justify-content: center; color: var(--nx-text-2); text-decoration: none; }
+a.nx-tab:hover { color: var(--nx-text); }
+
+/* Lo stato del nome: il link alla pagina di chi l'ha gia'. */
+.bh-claim__state a { color: var(--nx-text); border-bottom: 1px solid var(--nx-line); }
+.bh-claim__state[hidden] { display: none; }
+
+/* La stellina della vetrina, solo per lo staff, sopra la scheda. */
+.bh-card { position: relative; }
+
+.bh-star {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(10, 10, 11, 0.72);
+    color: var(--nx-text);
+    cursor: pointer;
+    transition: background-color .2s var(--nx-ease), transform .2s var(--nx-ease);
+}
+
+.bh-star:hover { background: rgba(10, 10, 11, 0.9); }
+.bh-star:active { transform: scale(0.94); }
+.bh-star.is-on { color: #ffd60a; }
+.bh-star:focus-visible { outline: 2px solid var(--nx-text); outline-offset: 2px; }
+
+/* Senza sfondo (o con un video): il colore del profilo, piatto. */
+.bh-card__bg--plain { background: color-mix(in srgb, var(--acc, var(--nx-surface-3)) 22%, var(--nx-surface-2)); }
+
+/* «Vuoi anche bio.cripsum.com/nome?» */
+.bh-claim-card { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-bottom: 24px; }
+.bh-claim-card > div { flex: 1; min-width: 220px; }
+.bh-claim-card strong { display: block; font-weight: 600; }
+.bh-claim-card span { color: var(--nx-text-2); font-size: 0.875rem; }
+
+/* Elenchi vuoti e avvisi in pagina. */
+.bh-empty { padding: 56px 16px; color: var(--nx-text-2); text-align: center; }
+.bh-empty small { display: block; margin-top: 6px; color: var(--nx-text-3); font-size: 0.875rem; }
+.bh-install { margin-bottom: 24px !important; }
+
+.bh-more-wrap { display: flex; justify-content: center; margin-top: 32px; }
+
+/* Il QR della pagina. */
+.bh-qr { width: min(360px, calc(100% - 32px)); padding: 24px; border: 0; border-radius: var(--nx-radius); background: var(--nx-surface); color: var(--nx-text); text-align: center; }
+.bh-qr::backdrop { background: rgba(0, 0, 0, 0.6); }
+.bh-qr h2 { margin: 0 0 16px; font-size: 1.125rem; font-weight: 600; }
+.bh-qr img { width: 100%; max-width: 280px; margin: 0 auto 16px; border-radius: 16px; background: #fff; }
+.bh-qr p { margin: 0 0 16px; color: var(--nx-text-2); font-size: 0.875rem; word-break: break-all; }
+
+/* Messaggio in basso (copia, salvato). */
+.bh-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 9800;
+    padding: 12px 18px;
+    border-radius: var(--nx-pill);
+    background: var(--nx-text);
+    color: #000;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transform: translateX(-50%);
+}
+
+@media (max-width: 900px) {
+    .bh-claim-card .nx-btn { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bh-card__bg img,
+    .bh-card > a,
+    .bh-star { transition: none; }
+}

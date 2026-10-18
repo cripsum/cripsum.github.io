@@ -12,6 +12,12 @@ if (function_exists('isLoggedIn') && isLoggedIn()) {
 $error = '';
 $success = '';
 
+// Arrivati da bio.cripsum.com («Prendilo», bio/prendi.php): lo username e' gia'
+// scritto e dopo il primo accesso si torna su bio.
+if (($_GET['da'] ?? '') === 'bio') {
+    $_SESSION['redirect_after_login'] = cripsum_bio_url('/');
+}
+
 function auth_recaptcha_verify(): bool
 {
     $secret = defined('RECAPTCHA_SECRET') ? RECAPTCHA_SECRET : (getenv('RECAPTCHA_SECRET') ?: '');
@@ -138,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <label class="auth-field">
                         <span>Username</span>
-                        <input type="text" name="username" autocomplete="username" required maxlength="20" value="<?php echo auth_h($_POST['username'] ?? ''); ?>">
+                        <input type="text" name="username" autocomplete="username" required maxlength="20" value="<?php echo auth_h($_POST['username'] ?? $_GET['username'] ?? ''); ?>">
                     </label>
 
                     <label class="auth-field">

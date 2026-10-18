@@ -53,6 +53,7 @@ if (!function_exists('nav_lang')) {
                 'login'          => 'Accedi',
                 'register'       => 'Registrati',
                 'my_profile'     => 'Il mio profilo',
+                'bio_page'       => 'La tua pagina',
                 'settings'       => 'Impostazioni',
                 'inventory'      => 'Inventario',
                 'global_chat'    => 'Chat Globale',
@@ -117,6 +118,7 @@ if (!function_exists('nav_lang')) {
                 'login'          => 'Log in',
                 'register'       => 'Sign up',
                 'my_profile'     => 'My profile',
+                'bio_page'       => 'Your page',
                 'settings'       => 'Settings',
                 'inventory'      => 'Inventory',
                 'global_chat'    => 'Global Chat',
@@ -198,6 +200,16 @@ if (!function_exists('nav_lang')) {
      */
     function nav_switch_url(string $uri, string $lang, string $altLang): string
     {
+        // Le pagine di bio.cripsum.com non hanno /it/ o /en/: la lingua passa
+        // con ?lang= (bio_lang() in includes/bio_pages.php).
+        if (function_exists('cripsum_site') && cripsum_site() === 'bio' && !preg_match('#^/(it|en)(/|$)#', $uri)) {
+            $path = (string)(parse_url($uri, PHP_URL_PATH) ?: '/');
+            parse_str((string)(parse_url($uri, PHP_URL_QUERY) ?? ''), $query);
+            $query['lang'] = $altLang;
+
+            return $path . '?' . http_build_query($query);
+        }
+
         return preg_replace('#^/' . $lang . '(/|$)#', '/' . $altLang . '$1', $uri) ?? $uri;
     }
 

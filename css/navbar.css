@@ -561,6 +561,61 @@
     transform: translateX(3px);
 }
 
+/* «La tua pagina»: la pagina su bio.cripsum.com, sotto il nome (includes/bio.php). */
+.cnav-bio-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 10px;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    background: var(--cn-raise);
+    color: var(--cn-text);
+    text-decoration: none;
+    transition: background-color var(--cn-hover-dur) ease;
+}
+
+.cnav-bio-row:hover,
+.cnav-bio-row:focus-visible {
+    background: var(--cn-hover);
+    color: var(--cn-text);
+}
+
+.cnav-bio-row:focus-visible {
+    outline: 2px solid var(--cn-accent);
+    outline-offset: -2px;
+}
+
+.cnav-bio-row__ico {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--cn-hover);
+}
+
+.cnav-bio-row__text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    line-height: 1.25;
+}
+
+.cnav-bio-row__text span { font-weight: 500; }
+.cnav-bio-row__text small { color: var(--cn-faint); font-size: 0.75rem; }
+
+.cnav-bio-row__go {
+    font-size: 0.75rem;
+    color: var(--cn-faint);
+    transition: transform var(--cn-hover-dur) ease;
+}
+
+.cnav-bio-row:hover .cnav-bio-row__go {
+    transform: translateX(3px);
+}
+
 /* ── Riga stat ───────────────────────────────────────────── */
 
 .cnav-acct-stats {

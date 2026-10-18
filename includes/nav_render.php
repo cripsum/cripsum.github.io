@@ -322,6 +322,16 @@ if (!function_exists('nav_bootstrap')) {
                     <i class="fa-solid fa-chevron-right cnav-acct-head__go" aria-hidden="true"></i>
                 </a>
 
+                <?php $bioMenuUrl = function_exists('cripsum_bio_menu_url') ? cripsum_bio_menu_url() : null; ?>
+                <?php if ($bioMenuUrl !== null): ?>
+                    <?php /* La pagina su bio.cripsum.com (includes/bio.php, bio/index.php). */ ?>
+                    <a class="cnav-bio-row" role="menuitem" href="<?= nav_e($bioMenuUrl) ?>">
+                        <span class="cnav-bio-row__ico"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
+                        <span class="cnav-bio-row__text"><span><?= nav_e($t['bio_page']) ?></span><small><?= nav_e((string)parse_url($bioMenuUrl, PHP_URL_HOST)) ?></small></span>
+                        <i class="fa-solid fa-chevron-right cnav-bio-row__go" aria-hidden="true"></i>
+                    </a>
+                <?php endif; ?>
+
                 <?php if ($statRow): ?>
                     <div class="cnav-acct-stats">
                         <?php foreach ($statRow as $s): ?>
