@@ -109,6 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Username is required.';
         } elseif (!auth_is_valid_username($newUsername)) {
             $error = 'Invalid username.';
+        } elseif ($newUsername !== strtolower($username) && cripsum_is_reserved_name($newUsername)) {
+            $error = 'This username is a word the site uses, pick another one.';
         } else {
             $result = updateUserSettings($mysqli, $userId, $newUsername, $email, '', $newNsfw, $newRichpresence);
 

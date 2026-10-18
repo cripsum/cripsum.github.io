@@ -131,6 +131,39 @@ function auth_is_valid_username(string $username): bool
     return true;
 }
 
+/**
+ * Parole che non possono diventare un alias o uno username nuovo: sono
+ * indirizzi del sito (cripsum.com/<parola>) o di bio.cripsum.com, dove alias e
+ * username stanno nello stesso posto (bio.cripsum.com/<nome>).
+ *
+ * Prima l'elenco era scritto due volte, in api/check_alias.php e in
+ * api/update_profile.php, e valeva solo per gli alias. Chi ha gia' un nome che
+ * e' finito qui lo tiene: alias e username si ricontrollano solo quando
+ * cambiano.
+ */
+function cripsum_reserved_names(): array
+{
+    return [
+        // Cartelle e file del sito
+        'api', 'assets', 'audio', 'auth', 'config', 'css', 'data', 'db', 'en', 'fonts', 'img', 'includes', 'it', 'js',
+        'mc', 'migrations', 'scripts', 'secure', 'uploads', 'user', 'vid', 'presence-bot', 'subway-builds',
+        'subway-builds-br', 'index', '404', 'aura', 'discord', 'logout', 'maintenance', 'manifest', 'robots',
+        'sitemap', 'favicon', 'sw', 'status', 'uwu', 'www',
+        // Pagine del sito
+        'u', 'admin', 'profile', 'profilo', 'bio', 'gaming', 'game', 'negozio', 'shop', 'privacy', 'tos', 'terms',
+        'about', 'chisiamo', 'merch', 'checkout', 'lootbox', 'shitpost', 'missions', 'register', 'registrati',
+        'login', 'accedi', 'settings', 'impostazioni', 'dashboard', 'help', 'support', 'search', 'ohpy', 'esports',
+        'cripsumpedia', 'rewind', 'bot', 'edits',
+        // Pagine di bio.cripsum.com
+        'esplora', 'explore', 'editor', 'esci', 'callback', 'vetrina', 'cerca', 'home',
+    ];
+}
+
+function cripsum_is_reserved_name(string $name): bool
+{
+    return in_array(strtolower(trim($name)), cripsum_reserved_names(), true);
+}
+
 function auth_password_policy_error(string $password, string $username = '', string $email = ''): ?string
 {
     $length = mb_strlen($password, 'UTF-8');
@@ -561,7 +594,7 @@ function auth_google_create_account(mysqli $mysqli, string $email, string $googl
     while (true) {
         $check->bind_param("s", $username);
         $check->execute();
-        if ($check->get_result()->num_rows == 0) {
+        if ($check->get_result()->num_rows == 0 && !cripsum_is_reserved_name($username)) {
             break;
         }
         $username = $baseUsername . $i;

@@ -71,6 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Devi avere almeno 14 anni e accettare i Termini di servizio.';
     } elseif (!auth_is_valid_username($username)) {
         $error = 'Username non valido. Usa 3-20 caratteri, lettere, numeri e underscore.';
+    } elseif (cripsum_is_reserved_name($username)) {
+        $error = 'Questo username è una parola del sito, scegline un altro.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Email non valida.';
     } elseif ($password !== $repeatPassword) {

@@ -28,16 +28,14 @@ if (!preg_match('/^[a-zA-Z0-9_-]{3,30}$/', $alias)) {
     exit;
 }
 
-// Blacklist di parole riservate
-$blacklist = [
-    'api', 'assets', 'audio', 'auth', 'config', 'css', 'data', 'en', 'img', 'includes', 'it', 'js', 'mc', 'user', 'vid', 
-    'u', 'admin', 'logout', 'profile', 'bio', 'gaming', 'game', 'negozio', 'shop', 'privacy', 'tos', 'terms', 'about', 
-    'chisiamo', 'merch', 'checkout', 'lootbox', 'shitpost', 'missions', 'index', '404', 'aura', 'discord', 'register', 
-    'registrati', 'login', 'accedi', 'settings', 'impostazioni', 'dashboard', 'help', 'support', 'uwu', 'db', 'search',
-    'ohpy', 'esports'
-];
+// Parole riservate (cripsum_reserved_names). Chi ha gia' quell'alias lo tiene.
+$stmt = $mysqli->prepare("SELECT custom_alias FROM utenti WHERE id = ? LIMIT 1");
+$stmt->bind_param('i', $targetUserId);
+$stmt->execute();
+$currentAlias = (string)($stmt->get_result()->fetch_assoc()['custom_alias'] ?? '');
+$stmt->close();
 
-if (in_array(strtolower($alias), $blacklist, true)) {
+if (strtolower($alias) !== strtolower($currentAlias) && cripsum_is_reserved_name($alias)) {
     echo json_encode(['ok' => true, 'available' => false, 'message' => 'Questo alias è riservato e non può essere utilizzato.']);
     exit;
 }

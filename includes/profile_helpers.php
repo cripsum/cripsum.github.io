@@ -375,9 +375,13 @@ function profile_favorites_available(mysqli $mysqli): bool
     return $available;
 }
 
-function profile_get_public_profile(mysqli $mysqli, string $identifier): ?array
+/**
+ * $allowId = false: l'identificatore e' sempre uno username, anche se e' fatto
+ * solo di cifre (bio.cripsum.com/<nome> non deve aprire un profilo per id).
+ */
+function profile_get_public_profile(mysqli $mysqli, string $identifier, bool $allowId = true): ?array
 {
-    $byId = ctype_digit($identifier);
+    $byId = $allowId && ctype_digit($identifier);
     $sql = "
         SELECT
             u.id,

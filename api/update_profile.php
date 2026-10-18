@@ -173,8 +173,14 @@ if ($customAliasDb !== null) {
     if (!preg_match('/^[a-zA-Z0-9_-]{3,30}$/', $customAliasDb)) {
         profile_json_response(['ok' => false, 'message' => 'L\'alias URL personalizzato non è valido.'], 422);
     }
-    $blacklist = ['api', 'assets', 'audio', 'auth', 'config', 'css', 'data', 'en', 'img', 'includes', 'it', 'js', 'mc', 'user', 'vid', 'u', 'admin', 'logout', 'profile', 'bio', 'gaming', 'game', 'negozio', 'shop', 'privacy', 'tos', 'terms', 'about', 'chisiamo', 'merch', 'checkout', 'lootbox', 'shitpost', 'missions', 'index', '404', 'aura', 'discord', 'register', 'registrati', 'login', 'accedi', 'settings', 'impostazioni', 'dashboard', 'help', 'support', 'uwu', 'db', 'search', 'ohpy', 'esports'];
-    if (in_array(strtolower($customAliasDb), $blacklist, true)) {
+    // Parole riservate (cripsum_reserved_names). Si guarda solo un alias che
+    // cambia: chi ha gia' un alias finito nell'elenco deve poter salvare il resto.
+    $stmt = $mysqli->prepare("SELECT custom_alias FROM utenti WHERE id = ? LIMIT 1");
+    $stmt->bind_param('i', $targetUserId);
+    $stmt->execute();
+    $currentAlias = (string)($stmt->get_result()->fetch_assoc()['custom_alias'] ?? '');
+    $stmt->close();
+    if (strtolower($customAliasDb) !== strtolower($currentAlias) && cripsum_is_reserved_name($customAliasDb)) {
         profile_json_response(['ok' => false, 'message' => 'Questo alias è riservato.'], 422);
     }
     $stmt = $mysqli->prepare("SELECT id FROM utenti WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1");

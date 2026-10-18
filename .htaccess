@@ -69,6 +69,28 @@ RewriteRule ^uploads/candidature(?:/|$) - [F,L,NC]
 # RewriteCond %{REQUEST_URI} !^/logout\.php$ [NC]
 # RewriteRule ^ - [R=503,L]
 
+# ── bio.cripsum.com ─────────────────────────────────────────────────────────
+# Lo stesso sito su un altro indirizzo: in hPanel il sottodominio usa questa
+# cartella (vedi includes/bio.php). Su bio si aprono i profili,
+# bio.cripsum.com/<nome> (prima l'alias, poi lo username), e i file che servono
+# loro; ogni altra pagina del sito torna su cripsum.com. bio-prova.cripsum.com
+# serve a provare prima che su Cloudflare si tolgano i redirect di bio.
+RewriteCond %{HTTP_HOST} ^(?:bio|bio-prova)\.cripsum\.com$ [NC]
+RewriteRule ^(?:assets|css|js|img|vid|audio|fonts|uploads|api|includes)/ - [L]
+RewriteCond %{HTTP_HOST} ^(?:bio|bio-prova)\.cripsum\.com$ [NC]
+RewriteRule ^(?:profile|404)\.php$ - [L]
+RewriteCond %{HTTP_HOST} ^(?:bio|bio-prova)\.cripsum\.com$ [NC]
+RewriteRule ^(?:favicon\.ico|manifest\.json|sw\.js|robots\.txt)$ - [L]
+# Finche' non c'e' la pagina d'ingresso, l'indirizzo nudo apre il profilo di cripsum, come oggi.
+RewriteCond %{HTTP_HOST} ^(?:bio|bio-prova)\.cripsum\.com$ [NC]
+RewriteRule ^$ /cripsum [R=302,L]
+RewriteCond %{HTTP_HOST} ^(?:bio|bio-prova)\.cripsum\.com$ [NC]
+RewriteRule ^(?:it/|en/)?u/([a-zA-Z0-9_]{3,20})/?$ /$1 [R=301,L,NC]
+RewriteCond %{HTTP_HOST} ^(?:bio|bio-prova)\.cripsum\.com$ [NC]
+RewriteRule ^([a-zA-Z0-9_-]{3,30})/?$ profile.php?bio_name=$1 [L,QSA]
+RewriteCond %{HTTP_HOST} ^(?:bio|bio-prova)\.cripsum\.com$ [NC]
+RewriteRule ^(.*)$ https://cripsum.com/$1 [R=302,L]
+
 RewriteRule ^cripsumpedia/?$ cripsumpedia/index.php [L,QSA]
 RewriteRule ^cripsumpedia/home/?$ cripsumpedia/index.php [L,QSA]
 RewriteRule ^cripsumpedia/search/?$ cripsumpedia/search.php [L,QSA]

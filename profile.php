@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/cripsum_og.php';
 require_once __DIR__ . '/includes/profile_sections_favorites.php';
 require_once __DIR__ . '/includes/mission_tracker.php';
 require_once __DIR__ . '/includes/social_functions.php';
+require_once __DIR__ . '/includes/bio.php';
 
 if (empty($_SESSION['social_csrf'])) {
     $_SESSION['social_csrf'] = bin2hex(random_bytes(32));
@@ -25,7 +26,14 @@ if ($customAlias !== null) {
     }
 }
 
-if ($customAlias !== null && $customAlias !== '') {
+// bio.cripsum.com/<name> (see includes/bio.php): the alias first, then the
+// username, and the page stays there instead of moving to /u/.
+$bioName = cripsum_site() === 'bio' ? trim((string)($_GET['bio_name'] ?? '')) : '';
+
+if ($bioName !== '') {
+    $profile = profile_get_public_profile_by_alias($mysqli, $bioName)
+        ?? profile_get_public_profile($mysqli, $bioName, false);
+} elseif ($customAlias !== null && $customAlias !== '') {
     $profile = profile_get_public_profile_by_alias($mysqli, $customAlias);
 
     // Redirect SEO: alias visits redirect to the canonical /u/username URL
@@ -582,6 +590,10 @@ $socialsStyle = $style['socials_style'];
 
 $displayName = $profile ? profile_display_name($profile) : 'Profilo';
 $profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
+// Opened on bio, the link to share (and the QR code) is the bio one.
+if ($profile && cripsum_site() === 'bio') {
+    $profileUrl = cripsum_bio_url(rawurlencode(cripsum_bio_profile_name($profile)));
+}
 $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
 $customStatus = $profile ? trim((string)($profile['profile_status'] ?? '')) : '';
 $musicExternalUrl = $profile ? trim((string)($profile['profile_music_url'] ?? '')) : '';
