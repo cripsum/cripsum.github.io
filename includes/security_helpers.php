@@ -536,6 +536,35 @@ function auth_complete_login(array $user, $mysqli = null)
         }
     }
 
+    auth_establish_session($user);
+
+    if (isset($mysqli) && $mysqli instanceof mysqli && function_exists('auth_register_device_session')) {
+        auth_register_device_session($mysqli, (int)$user['id']);
+    }
+
+    // Signing in cancels a pending account deletion: this is the single choke
+    // point every login path goes through, so the account is restored whether
+    // the user came back through password, 2FA or Google.
+    if (isset($mysqli) && $mysqli instanceof mysqli) {
+        require_once __DIR__ . '/account_data_helpers.php';
+        if (account_cancel_deletion($mysqli, (int)$user['id'])) {
+            $_SESSION['account_deletion_cancelled'] = true;
+        }
+    }
+
+    // The hint that lets bio.cripsum.com sign this browser in by itself
+    // (includes/bio_sso.php). It carries no secret.
+    cripsum_sso_hint_cookie(true);
+}
+
+/**
+ * Opens $user's session in this browser: a new session id and the fields the
+ * site reads. Used by a real login (auth_complete_login above) and by
+ * bio/callback.php, which is not a new login: no new-login message, no new
+ * device row, no hint cookie.
+ */
+function auth_establish_session(array $user): void
+{
     session_regenerate_id(true);
 
     $sessionNow = time();
@@ -554,20 +583,6 @@ function auth_complete_login(array $user, $mysqli = null)
 
     if (empty($user['password'])) {
         $_SESSION['needs_password'] = true;
-    }
-
-    if (isset($mysqli) && $mysqli instanceof mysqli && function_exists('auth_register_device_session')) {
-        auth_register_device_session($mysqli, (int)$user['id']);
-    }
-
-    // Signing in cancels a pending account deletion: this is the single choke
-    // point every login path goes through, so the account is restored whether
-    // the user came back through password, 2FA or Google.
-    if (isset($mysqli) && $mysqli instanceof mysqli) {
-        require_once __DIR__ . '/account_data_helpers.php';
-        if (account_cancel_deletion($mysqli, (int)$user['id'])) {
-            $_SESSION['account_deletion_cancelled'] = true;
-        }
     }
 }
 

@@ -693,10 +693,12 @@ function logoutUser($database = null)
     }
 
     if ($database instanceof mysqli) {
+        // The device row goes: a bio.cripsum.com session tied to it ends with it.
         auth_revoke_current_device_session($database);
     }
 
     auth_destroy_local_session();
+    cripsum_sso_hint_cookie(false);
     header('Location: https://cripsum.com');
     exit();
 }

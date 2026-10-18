@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/bio.php';
+
 const AUTH_DEVICE_SESSION_LIFETIME = 1209600; // 2 settimane (14 giorni)
 const AUTH_DEVICE_GEO_SUCCESS_TTL = 2592000; // 30 days
 const AUTH_DEVICE_GEO_FAILURE_TTL = 21600;   // retry failures after 6 hours
@@ -413,6 +415,12 @@ function auth_sync_current_device_session(mysqli $mysqli): bool
         return true;
     }
 
+    // Una sessione di bio.cripsum.com non ha un dispositivo suo: e' legata alla
+    // riga della sessione di cripsum.com da cui e' passata (bio/callback.php).
+    if (!empty($_SESSION['auth_linked'])) {
+        return auth_sync_linked_session($mysqli, $userId);
+    }
+
     $token = (string)($_SESSION['auth_device_token'] ?? '');
 
     // Adotta in modo trasparente le sessioni aperte prima dell'introduzione del registro dispositivi.
@@ -478,7 +486,108 @@ function auth_sync_current_device_session(mysqli $mysqli): bool
         $_SESSION['auth_device_last_sync'] = time();
     }
 
+    // Chi era gia' dentro prima di bio.cripsum.com riceve l'indizio per
+    // l'accesso automatico lassu' (auth_complete_login lo da' a chi entra ora).
+    if (empty($_COOKIE[CRIPSUM_SSO_HINT_COOKIE]) && cripsum_site() === 'main' && !headers_sent()) {
+        cripsum_sso_hint_cookie(true);
+    }
+
     return true;
+}
+
+/**
+ * Il controllo di una sessione di bio. La riga di cripsum.com a cui e' legata
+ * deve essere ancora valida e dello stesso accesso: se e' revocata (uscita,
+ * dispositivo tolto dalle Impostazioni), scaduta, o se su cripsum.com si e'
+ * entrati di nuovo (il token della riga cambia), la sessione di bio finisce e
+ * l'accesso automatico ne apre una nuova se serve. Usare bio tiene viva la
+ * riga come usare il sito.
+ */
+function auth_sync_linked_session(mysqli $mysqli, int $userId): bool
+{
+    $parentId = (int)($_SESSION['auth_parent_session_id'] ?? 0);
+    if ($parentId <= 0) {
+        // Passata quando il registro dei dispositivi non c'era: non c'e' niente a cui legarla.
+        return true;
+    }
+
+    $row = auth_session_row($mysqli, $userId, $parentId);
+    if (!$row || !hash_equals((string)$row['token_hash'], (string)($_SESSION['auth_parent_token_hash'] ?? ''))) {
+        auth_destroy_local_session();
+        return false;
+    }
+
+    if (time() - (int)($_SESSION['auth_device_last_sync'] ?? 0) >= 60) {
+        $update = $mysqli->prepare("
+            UPDATE user_sessions
+            SET last_seen_at = NOW(),
+                expires_at = DATE_ADD(NOW(), INTERVAL 14 DAY)
+            WHERE id = ? AND user_id = ?
+        ");
+        if ($update) {
+            $update->bind_param('ii', $parentId, $userId);
+            $update->execute();
+            $update->close();
+        }
+        $_SESSION['auth_device_last_sync'] = time();
+    }
+
+    return true;
+}
+
+/** La riga $sessionId di user_sessions di $userId, se non e' revocata ne' scaduta. */
+function auth_session_row(mysqli $mysqli, int $userId, int $sessionId): ?array
+{
+    $stmt = $mysqli->prepare("
+        SELECT id, token_hash
+        FROM user_sessions
+        WHERE id = ?
+          AND user_id = ?
+          AND revoked_at IS NULL
+          AND expires_at > NOW()
+        LIMIT 1
+    ");
+    if (!$stmt) {
+        return null;
+    }
+
+    $stmt->bind_param('ii', $sessionId, $userId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return $row ?: null;
+}
+
+/** La riga di user_sessions della sessione di questo browser su cripsum.com, se c'e'. */
+function auth_current_device_session(mysqli $mysqli): ?array
+{
+    $userId = (int)($_SESSION['user_id'] ?? 0);
+    $token = (string)($_SESSION['auth_device_token'] ?? '');
+    if ($userId <= 0 || $token === '' || !auth_device_sessions_available($mysqli)) {
+        return null;
+    }
+
+    $tokenHash = auth_device_token_hash($token);
+    $stmt = $mysqli->prepare("
+        SELECT id, token_hash
+        FROM user_sessions
+        WHERE user_id = ?
+          AND token_hash = ?
+          AND revoked_at IS NULL
+          AND expires_at > NOW()
+        LIMIT 1
+    ");
+    if (!$stmt) {
+        return null;
+    }
+
+    $stmt->bind_param('is', $userId, $tokenHash);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return $row ?: null;
 }
 
 function auth_get_device_sessions(mysqli $mysqli, int $userId): array

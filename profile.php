@@ -7,7 +7,7 @@ require_once __DIR__ . '/includes/cripsum_og.php';
 require_once __DIR__ . '/includes/profile_sections_favorites.php';
 require_once __DIR__ . '/includes/mission_tracker.php';
 require_once __DIR__ . '/includes/social_functions.php';
-require_once __DIR__ . '/includes/bio.php';
+require_once __DIR__ . '/includes/bio_sso.php';
 
 if (empty($_SESSION['social_csrf'])) {
     $_SESSION['social_csrf'] = bin2hex(random_bytes(32));
@@ -15,6 +15,8 @@ if (empty($_SESSION['social_csrf'])) {
 $socialCsrfToken = $_SESSION['social_csrf'];
 
 checkBan($mysqli);
+// On bio, a guest who is signed in on cripsum.com gets signed in here too.
+cripsum_bio_auto_login($mysqli);
 
 $isLoggedIn = isLoggedIn();
 $currentUserId = profile_current_user_id();
@@ -354,14 +356,20 @@ if ($isPrivateBlocked || $isLoginBlocked) {
     $backAction = ['href' => 'javascript:history.back()', 'icon' => 'fa-arrow-left', 'label' => $nt('Indietro', 'Go back')];
 
     if ($isLoginBlocked) {
-        // Logging in from here brings them back to this profile.
-        $_SESSION['redirect_after_login'] = '/u/' . rawurlencode(strtolower((string)$profile['username']));
+        // Logging in from here brings them back to this profile. On bio the
+        // login goes through bio/accedi.php, which returns to this address.
+        if (cripsum_site() === 'bio') {
+            $loginHref = '/accedi?' . http_build_query(['return' => cripsum_safe_return_path((string)($_SERVER['REQUEST_URI'] ?? '/'))]);
+        } else {
+            $_SESSION['redirect_after_login'] = '/u/' . rawurlencode(strtolower((string)$profile['username']));
+            $loginHref = '/' . $noticeLang . '/accedi';
+        }
         $notice = [
             'icon' => 'fa-user-lock',
             'headline' => $nt('Accesso richiesto', 'Login required'),
             'text' => $nt('Questo profilo è visibile solo agli utenti registrati.', 'This profile is only visible to registered users.'),
             'actions' => [
-                ['href' => '/' . $noticeLang . '/accedi', 'icon' => 'fa-right-to-bracket', 'label' => $nt('Accedi', 'Log in'), 'primary' => true],
+                ['href' => $loginHref, 'icon' => 'fa-right-to-bracket', 'label' => $nt('Accedi', 'Log in'), 'primary' => true],
                 $homeAction,
             ],
         ];

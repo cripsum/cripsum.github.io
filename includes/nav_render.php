@@ -645,8 +645,14 @@ if (!function_exists('nav_bootstrap')) {
                         <?php if (!$ctx['show_account']): ?>
                             <?php /* barra ridotta: nessun accesso all'account */ ?>
                         <?php elseif (!$isLoggedIn): ?>
+                            <?php
+                            // Su bio.cripsum.com l'accesso passa da bio/accedi.php, che riporta a questa pagina.
+                            $navLoginHref = function_exists('cripsum_site') && cripsum_site() === 'bio'
+                                ? '/accedi?' . http_build_query(['return' => cripsum_safe_return_path((string)($_SERVER['REQUEST_URI'] ?? '/'))])
+                                : '/' . $lang . '/accedi';
+                            ?>
                             <li class="nav-item nav-auth-group">
-                                <a class="nav-link" href="/<?= $lang ?>/accedi"><i class="fa-solid fa-right-to-bracket me-2" aria-hidden="true"></i><?= nav_e($t['login']) ?></a>
+                                <a class="nav-link" href="<?= nav_e($navLoginHref) ?>"><i class="fa-solid fa-right-to-bracket me-2" aria-hidden="true"></i><?= nav_e($t['login']) ?></a>
                                 <a class="nav-link cnav-cta" href="/<?= $lang ?>/registrati"><i class="fa-solid fa-user-plus me-2" aria-hidden="true"></i><?= nav_e($t['register']) ?></a>
                             </li>
                         <?php else: ?>

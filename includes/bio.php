@@ -65,6 +65,70 @@ function cripsum_main_url(string $path = '/'): string
 }
 
 /**
+ * Un percorso relativo di questo sito, buono per un redirect: inizia con una
+ * sola "/", niente host, niente "\" o caratteri di controllo. Tutto il resto
+ * diventa $fallback, cosi' un ?return= non puo' mandare nessuno altrove.
+ */
+function cripsum_safe_return_path(string $path, string $fallback = '/'): string
+{
+    if ($path === '' || $path[0] !== '/' || str_starts_with($path, '//') || strlen($path) > 255) {
+        return $fallback;
+    }
+    if (str_contains($path, '\\') || preg_match('/[\x00-\x1F\x7F]/', $path)) {
+        return $fallback;
+    }
+
+    return $path;
+}
+
+/** L'indizio per l'accesso automatico su bio (includes/bio_sso.php). */
+const CRIPSUM_SSO_HINT_COOKIE = 'cripsum_li';
+
+/** «Non riprovare l'accesso automatico per un po'», solo su bio. */
+const CRIPSUM_BIO_NOAUTO_COOKIE = 'bio_noauto';
+
+/**
+ * Accende o spegne l'indizio «in questo browser c'e' probabilmente qualcuno
+ * dentro su cripsum.com». Vale per cripsum.com e per tutti i sottodomini, cosi'
+ * bio lo vede. Non contiene niente: non fa entrare nessuno, dice solo a bio
+ * che vale la pena chiedere a cripsum.com. In locale non si puo' condividere
+ * tra localhost e bio.localhost e resta sull'host.
+ */
+function cripsum_sso_hint_cookie(bool $on): void
+{
+    $host = cripsum_request_host();
+    $shared = $host === 'cripsum.com' || str_ends_with($host, '.cripsum.com');
+
+    setcookie(CRIPSUM_SSO_HINT_COOKIE, $on ? '1' : '', [
+        'expires' => $on ? time() + 1209600 : time() - 3600,
+        'path' => '/',
+        'domain' => $shared ? '.cripsum.com' : '',
+        'secure' => $shared,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+
+    if ($on) {
+        $_COOKIE[CRIPSUM_SSO_HINT_COOKIE] = '1';
+    } else {
+        unset($_COOKIE[CRIPSUM_SSO_HINT_COOKIE]);
+    }
+}
+
+/** Ferma l'accesso automatico su bio per dieci minuti (dopo un tentativo a vuoto o un'uscita). */
+function cripsum_bio_noauto(): void
+{
+    setcookie(CRIPSUM_BIO_NOAUTO_COOKIE, '1', [
+        'expires' => time() + 600,
+        'path' => '/',
+        'secure' => !empty(session_get_cookie_params()['secure']),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    $_COOKIE[CRIPSUM_BIO_NOAUTO_COOKIE] = '1';
+}
+
+/**
  * Il nome di un profilo nell'indirizzo di bio: l'alias se c'e', altrimenti lo
  * username. bio.cripsum.com/<nome> li cerca nello stesso ordine.
  */
