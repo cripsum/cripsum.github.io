@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * bio.cripsum.com/esplora: le pagine della community (tavola 3).
  *
- *   ?vista=vetrina|nuove|viste|amici   (amici solo per chi e' dentro)
+ *   ?vista=vetrina|nuove|viste|premium|amici   (amici solo per chi e' dentro)
  *   ?q=...                             cerca per nome, username o alias
  *   ?pagina=N
  *
@@ -31,9 +31,10 @@ $q = mb_substr(trim((string)($_GET['q'] ?? '')), 0, 40);
 $page = max(1, (int)($_GET['pagina'] ?? 1));
 $view = (string)($_GET['vista'] ?? '');
 if (!in_array($view, $views, true)) {
-    // Di base la vetrina; finche' e' vuota, le pagine nuove.
-    [$firstFeatured] = bio_explore_cards($mysqli, 'vetrina', '', 0, 1, 1);
-    $view = $firstFeatured ? 'vetrina' : 'nuove';
+    // Di base la vetrina, se riempie almeno una riga (4); se no le piu' viste,
+    // che ce ne siano sempre parecchie da guardare.
+    [$featured] = bio_explore_cards($mysqli, 'vetrina', '', 0, 1, 4);
+    $view = count($featured) >= 4 ? 'vetrina' : 'viste';
 }
 
 [$cards, $more] = bio_explore_cards($mysqli, $view, $q, $userId, $page);
@@ -65,7 +66,7 @@ bio_page_open($t('explore') . ' — ' . parse_url(cripsum_bio_url(), PHP_URL_HOS
 <nav class="bh-ex-bar" aria-label="<?= bio_h($t('explore')) ?>">
     <div class="nx-tabs">
         <?php foreach ($views as $option): ?>
-            <a class="nx-tab<?= $option === $view ? ' is-active' : '' ?>" href="<?= bio_h($link(['vista' => $option, 'pagina' => null])) ?>"<?= $option === $view ? ' aria-current="page"' : '' ?>><?= bio_h($t('tab_' . $option)) ?></a>
+            <a class="nx-tab<?= $option === $view ? ' is-active' : '' ?>" href="<?= bio_h($link(['vista' => $option, 'pagina' => null])) ?>"<?= $option === $view ? ' aria-current="page"' : '' ?>><?php if ($option === 'premium'): ?><img class="cr-premium-gem bh-gem" src="/img/premium.svg" alt="" width="14" height="14"><?php endif; ?><?= bio_h($t('tab_' . $option)) ?></a>
         <?php endforeach; ?>
     </div>
 </nav>
@@ -86,6 +87,8 @@ bio_page_open($t('explore') . ' — ' . parse_url(cripsum_bio_url(), PHP_URL_HOS
             <?php if ($staff): ?><small><?= bio_h($t('empty_vetrina_staff')) ?></small><?php endif; ?>
         <?php elseif ($view === 'amici'): ?>
             <?= bio_h($t('empty_amici')) ?>
+        <?php elseif ($view === 'premium'): ?>
+            <?= bio_h($t('empty_premium')) ?>
         <?php else: ?>
             <?= bio_h($t('empty_all')) ?>
         <?php endif; ?>

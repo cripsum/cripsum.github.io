@@ -145,12 +145,13 @@ function bio_t(string $key, string $lang): string
             'explore_lead' => 'Le pagine della community di Cripsum.',
             'search_ph' => 'Cerca un nome…',
             'search_label' => 'Cerca un nome',
-            'tab_vetrina' => 'In vetrina', 'tab_nuove' => 'Nuove', 'tab_viste' => 'Più viste', 'tab_amici' => 'Amici',
+            'tab_vetrina' => 'In vetrina', 'tab_nuove' => 'Nuove', 'tab_viste' => 'Più viste', 'tab_premium' => 'Premium', 'tab_amici' => 'Amici',
             'more' => 'Mostra altre',
             'hide_note' => 'Non vuoi comparire qui? Lo togli da %s.',
             'empty_vetrina' => 'La vetrina è vuota, per ora.',
-            'empty_vetrina_staff' => 'Metti una pagina in vetrina con la stellina sulla sua scheda, in «Nuove».',
+            'empty_vetrina_staff' => 'Metti una pagina in vetrina con la stellina sulla sua scheda, o dalla sezione «Vetrina» di «La tua pagina».',
             'empty_amici' => 'I tuoi amici non hanno ancora una pagina che si vede qui.',
+            'empty_premium' => 'Ancora nessuna pagina Premium da mostrare.',
             'empty_search' => 'Nessuna pagina con questo nome.',
             'empty_all' => 'Ancora nessuna pagina da mostrare.',
             'feature_on' => 'Metti in vetrina',
@@ -162,6 +163,30 @@ function bio_t(string $key, string $lang): string
             'err_generic' => 'Qualcosa non è andato. Riprova.',
             'err_taken' => 'Quel nome non è più libero.',
             'install' => 'Per Esplora e la vetrina manca un passo nel database: migrations/2026_10_18_bio_esplora.sql.',
+            // La vetrina nel pannello (solo staff).
+            'sv_title' => 'Vetrina',
+            'sv_staff' => 'Staff',
+            'sv_lead' => "Le pagine in alto su bio.cripsum.com per chi non è dentro. Nell'ingresso vanno le prime 4; se sono meno, il resto lo riempiono le più viste.",
+            'sv_order_hint' => "Trascina le pagine dalla maniglia per cambiare l'ordine. Le nuove arrivano in cima.",
+            'sv_move' => 'Sposta',
+            'sv_move_hint' => 'Trascina, o usa le frecce su e giù.',
+            'sv_order_saved' => 'Ordine salvato.',
+            'sv_order_stale' => 'La vetrina è cambiata nel frattempo: ricarica la pagina.',
+            'sv_empty' => "La vetrina è vuota: l'ingresso mostra le pagine più viste.",
+            'sv_add_label' => 'Aggiungi una pagina alla vetrina',
+            'sv_add_ph' => 'Nome o link della pagina',
+            'sv_add' => 'Aggiungi',
+            'sv_phone' => 'Nel telefono',
+            'sv_phone_label' => "La pagina nel telefono dell'ingresso",
+            'sv_phone_set' => 'Fatto: adesso è nel telefono.',
+            'sv_only_explore' => 'solo in Esplora',
+            'sv_or_star' => 'Puoi anche usare la stellina sulle schede di %s.',
+            'sv_install' => "Per cambiare l'ordine e scegliere la pagina nel telefono manca un passo nel database: migrations/2026_10_18_bio_vetrina.sql. Intanto le pagine vanno dall'ultima aggiunta e nel telefono c'è la prima.",
+            'sv_added' => 'Aggiunta alla vetrina.',
+            'sv_removed' => 'Tolta dalla vetrina.',
+            'sv_not_found' => 'Nessuna pagina con questo nome.',
+            'sv_not_public' => "Questa pagina non può andare in vetrina: dev'essere pubblica e visibile in Esplora.",
+            'sv_not_featured' => 'Nel telefono va una pagina della vetrina.',
         ],
         'en' => [
             'meta_title' => 'bio.cripsum.com — your link in bio',
@@ -258,12 +283,13 @@ function bio_t(string $key, string $lang): string
             'explore_lead' => "The pages of Cripsum's community.",
             'search_ph' => 'Search a name…',
             'search_label' => 'Search a name',
-            'tab_vetrina' => 'Featured', 'tab_nuove' => 'New', 'tab_viste' => 'Most viewed', 'tab_amici' => 'Friends',
+            'tab_vetrina' => 'Featured', 'tab_nuove' => 'New', 'tab_viste' => 'Most viewed', 'tab_premium' => 'Premium', 'tab_amici' => 'Friends',
             'more' => 'Show more',
             'hide_note' => "Don't want to show up here? Turn it off in %s.",
             'empty_vetrina' => 'Nothing featured yet.',
-            'empty_vetrina_staff' => 'Feature a page with the star on its card, under "New".',
+            'empty_vetrina_staff' => 'Feature a page with the star on its card, or from the "Showcase" section of "Your page".',
             'empty_amici' => 'Your friends do not have a page that shows up here yet.',
+            'empty_premium' => 'No Premium pages to show yet.',
             'empty_search' => 'No page with this name.',
             'empty_all' => 'No pages to show yet.',
             'feature_on' => 'Feature',
@@ -275,6 +301,29 @@ function bio_t(string $key, string $lang): string
             'err_generic' => 'Something went wrong. Try again.',
             'err_taken' => 'That name is no longer free.',
             'install' => 'Explore and featured pages need one database step: migrations/2026_10_18_bio_esplora.sql.',
+            'sv_title' => 'Showcase',
+            'sv_staff' => 'Staff',
+            'sv_lead' => "The pages at the top of bio.cripsum.com for people who aren't signed in. The landing page shows the first 4; if there are fewer, the most viewed fill the rest.",
+            'sv_order_hint' => 'Drag the pages by the handle to change the order. New ones go to the top.',
+            'sv_move' => 'Move',
+            'sv_move_hint' => 'Drag, or use the up and down arrows.',
+            'sv_order_saved' => 'Order saved.',
+            'sv_order_stale' => 'The showcase changed in the meantime: reload the page.',
+            'sv_empty' => 'The showcase is empty: the landing page shows the most viewed pages.',
+            'sv_add_label' => 'Add a page to the showcase',
+            'sv_add_ph' => 'Name or link of the page',
+            'sv_add' => 'Add',
+            'sv_phone' => 'In the phone',
+            'sv_phone_label' => "The page in the landing page's phone",
+            'sv_phone_set' => 'Done: it is in the phone now.',
+            'sv_only_explore' => 'only in Explore',
+            'sv_or_star' => 'You can also use the star on the cards in %s.',
+            'sv_install' => 'Changing the order and choosing the page in the phone need one database step: migrations/2026_10_18_bio_vetrina.sql. Until then the pages go from the last one added and the phone shows the first.',
+            'sv_added' => 'Added to the showcase.',
+            'sv_removed' => 'Removed from the showcase.',
+            'sv_not_found' => 'No page with this name.',
+            'sv_not_public' => 'This page cannot be featured: it must be public and visible in Explore.',
+            'sv_not_featured' => 'The phone shows a page from the showcase.',
         ],
     ];
 
@@ -333,6 +382,13 @@ function bio_explore_ready(mysqli $mysqli): bool
 {
     return auth_column_exists($mysqli, 'utenti', 'profile_discoverable')
         && auth_column_exists($mysqli, 'utenti', 'profile_featured_at');
+}
+
+/** L'ordine della vetrina e la pagina nel telefono (migration 2026_10_18_bio_vetrina.sql). */
+function bio_showcase_ready(mysqli $mysqli): bool
+{
+    return auth_column_exists($mysqli, 'utenti', 'profile_featured_pos')
+        && auth_table_exists($mysqli, 'bio_settings');
 }
 
 /**
@@ -620,7 +676,7 @@ function bio_color(?string $value): ?string
 }
 
 /** Le viste di Esplora. */
-const BIO_EXPLORE_VIEWS = ['vetrina', 'nuove', 'viste', 'amici'];
+const BIO_EXPLORE_VIEWS = ['vetrina', 'nuove', 'viste', 'premium', 'amici'];
 
 /**
  * Le schede di Esplora. Solo profili pubblici (per «Amici» anche quelli che
@@ -659,6 +715,9 @@ function bio_explore_cards(mysqli $mysqli, string $view, string $q, int $viewerI
         }
         $where[] = 'u.profile_featured_at IS NOT NULL';
     }
+    if ($view === 'premium') {
+        $where[] = 'u.is_premium = 1';
+    }
 
     $q = trim($q);
     if ($q !== '') {
@@ -668,9 +727,13 @@ function bio_explore_cards(mysqli $mysqli, string $view, string $q, int $viewerI
         array_push($params, $like, $like, $like);
     }
 
+    // La vetrina nell'ordine dello staff; le appena aggiunte (posto NULL) in cima.
+    $showcaseOrder = auth_column_exists($mysqli, 'utenti', 'profile_featured_pos')
+        ? 'u.profile_featured_pos IS NOT NULL, u.profile_featured_pos ASC, u.profile_featured_at DESC'
+        : 'u.profile_featured_at DESC';
     $order = match ($view) {
-        'vetrina' => 'u.profile_featured_at DESC',
-        'viste' => 'u.profile_views DESC, u.id DESC',
+        'vetrina' => $showcaseOrder,
+        'viste', 'premium' => 'u.profile_views DESC, u.id DESC',
         'amici' => 'u.username ASC',
         default => 'COALESCE(u.profile_updated_at, u.data_creazione) DESC, u.id DESC',
     };
@@ -679,7 +742,7 @@ function bio_explore_cards(mysqli $mysqli, string $view, string $q, int $viewerI
     $limit = $perPage + 1;
     $offset = max(0, ($page - 1) * $perPage);
     $sql = "
-        SELECT u.id, u.username, u.display_name, u.custom_alias, u.accent_color,
+        SELECT u.id, u.username, u.display_name, u.custom_alias, u.accent_color, u.is_premium,
                u.profile_banner_type, u.profile_updated_at, {$featured}
         FROM utenti u
         {$join}
@@ -704,6 +767,71 @@ function bio_explore_cards(mysqli $mysqli, string $view, string $q, int $viewerI
     return [array_slice($rows, 0, $perPage), $more];
 }
 
+/**
+ * La vetrina dello staff, nel suo ordine: tutte le pagine (l'ingresso mostra
+ * le prime 4) e quella nel telefono dell'ingresso, cioe' la scelta dello staff
+ * finche' e' in vetrina, se no la prima.
+ */
+function bio_showcase(mysqli $mysqli): array
+{
+    [$picks] = bio_explore_cards($mysqli, 'vetrina', '', 0, 1, 48);
+    $ids = array_map(static fn(array $row): int => (int)$row['id'], $picks);
+
+    $chosen = 0;
+    if ($picks && bio_showcase_ready($mysqli)) {
+        $result = $mysqli->query('SELECT hero_user_id FROM bio_settings WHERE id = 1');
+        $chosen = (int)(($result ? $result->fetch_assoc() : null)['hero_user_id'] ?? 0);
+    }
+
+    return ['picks' => $picks, 'hero_id' => in_array($chosen, $ids, true) ? $chosen : ($ids[0] ?? 0)];
+}
+
+/**
+ * Una pagina da mettere in vetrina dal pannello: per username o alias, anche
+ * incollando il link. Restituisce [riga, chiave dell'errore]; la riga solo se
+ * Esplora la mostrerebbe (pubblica, «Mostrami in Esplora», non bannata).
+ */
+function bio_showcase_lookup(mysqli $mysqli, string $input): array
+{
+    $name = rtrim((string)strtok(trim($input), '?#'), '/');
+    $name = ltrim(rawurldecode((string)substr($name, (int)strrpos('/' . $name, '/'))), '@');
+    if ($name === '') {
+        return [null, 'sv_not_found'];
+    }
+
+    $deleting = auth_column_exists($mysqli, 'utenti', 'deletion_requested_at') ? 'deletion_requested_at' : 'NULL';
+    $stmt = $mysqli->prepare("
+        SELECT id, isBannato, profile_visibility, profile_discoverable, {$deleting} AS deleting
+        FROM utenti
+        WHERE LOWER(username) = LOWER(?) OR LOWER(custom_alias) = LOWER(?)
+        ORDER BY LOWER(username) = LOWER(?) DESC
+        LIMIT 1
+    ");
+    $stmt->bind_param('sss', $name, $name, $name);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$row) {
+        return [null, 'sv_not_found'];
+    }
+    if ((int)$row['isBannato'] !== 0 || $row['deleting'] !== null || $row['profile_visibility'] !== 'public' || (int)$row['profile_discoverable'] !== 1) {
+        return [null, 'sv_not_public'];
+    }
+
+    return [$row, ''];
+}
+
+/** La gemma Premium del sito (img/premium.svg) dopo il nome, per chi e' Premium. */
+function bio_premium_gem(array $row): string
+{
+    if ((int)($row['is_premium'] ?? 0) !== 1) {
+        return '';
+    }
+
+    return '<img class="cr-premium-gem bh-gem" src="/img/premium.svg" alt="Premium" title="Premium" width="14" height="14">';
+}
+
 /** La scheda di un profilo (Esplora e vetrina dell'ingresso). */
 function bio_render_card(array $row, bool $staff, string $lang): void
 {
@@ -712,20 +840,23 @@ function bio_render_card(array $row, bool $staff, string $lang): void
     $accent = bio_color($row['accent_color'] ?? null);
     $stamp = !empty($row['profile_updated_at']) ? (int)strtotime((string)$row['profile_updated_at']) : 0;
     $mime = strtolower((string)($row['profile_banner_type'] ?? ''));
-    $isImage = str_starts_with($mime, 'image/');
+    $banner = '/includes/get_profile_banner.php?id=' . (int)$row['id'] . '&t=' . $stamp;
     $featured = !empty($row['profile_featured_at']);
     ?>
     <li class="bh-card"<?= $accent ? ' style="--acc:' . bio_h($accent) . '"' : '' ?>>
         <a href="/<?= bio_h(rawurlencode($name)) ?>">
-            <?php if ($isImage): ?>
-                <div class="bh-card__bg"><img src="/includes/get_profile_banner.php?id=<?= (int)$row['id'] ?>&amp;t=<?= $stamp ?>" alt="" loading="lazy" decoding="async"></div>
+            <?php if (str_starts_with($mime, 'image/')): ?>
+                <div class="bh-card__bg"><img src="<?= bio_h($banner) ?>" alt="" loading="lazy" decoding="async"></div>
+            <?php elseif (str_starts_with($mime, 'video/')): ?>
+                <?php /* Parte solo quando la scheda si vede (bio.js); fino ad allora il primo fotogramma (#t=0.1). */ ?>
+                <div class="bh-card__bg"><video src="<?= bio_h($banner) ?>#t=0.1" muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1" data-bh-video></video></div>
             <?php else: ?>
                 <div class="bh-card__bg bh-card__bg--plain"></div>
             <?php endif; ?>
             <div class="bh-card__body">
                 <img class="bh-card__pfp" src="<?= bio_h(profile_avatar_url($row, 128)) ?>" alt="" loading="lazy" decoding="async">
                 <span class="bh-card__text">
-                    <span class="bh-card__name"><?= bio_h($display) ?></span>
+                    <span class="bh-card__name"><span><?= bio_h($display) ?></span><?= bio_premium_gem($row) ?></span>
                     <span class="bh-card__url"><?= bio_h((string)parse_url(cripsum_bio_url(), PHP_URL_HOST)) ?>/<?= bio_h($name) ?></span>
                 </span>
             </div>

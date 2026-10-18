@@ -192,8 +192,8 @@ html[data-theme="next"] .bh-shell {
 .bh-card > a:hover { background: var(--nx-surface-2); }
 
 .bh-card__bg { aspect-ratio: 16 / 10; overflow: hidden; background: var(--nx-surface-2); }
-.bh-card__bg img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--nx-ease); }
-.bh-card > a:hover .bh-card__bg img { transform: scale(1.03); }
+.bh-card__bg :is(img, video) { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--nx-ease); }
+.bh-card > a:hover .bh-card__bg :is(img, video) { transform: scale(1.03); }
 
 /* La foto scavalca il bordo dello sfondo; nome e indirizzo stanno sotto, mai sopra l'immagine. */
 .bh-card__body {
@@ -223,7 +223,10 @@ html[data-theme="next"] .bh-shell {
 .bh-card__name,
 .bh-card__url { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-.bh-card__name { font-weight: 600; }
+/* Il nome si accorcia coi puntini, la gemma Premium resta sempre visibile. */
+.bh-card__name { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.bh-card__name > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.bh-gem { flex: none; font-size: 0.875rem; }
 .bh-card__url { color: var(--nx-text-2); font-size: 0.8125rem; }
 
 /* Cosa ci puoi mettere: niente riquadri, icona e due righe. */
@@ -476,15 +479,19 @@ a.bh-row:hover { background: var(--nx-surface-2); }
     .bh-ex-head h1 { font-size: 2.25rem; }
     .bh-search { width: 100%; }
     .bh-ex-bar { flex-direction: column; align-items: stretch; }
-    .bh-ex-bar .nx-tabs { width: 100%; }
-    .bh-ex-bar .nx-tab { flex: 1; padding: 0 4px; white-space: nowrap; font-size: 0.8125rem; }
+    /* Col prefisso del tema come in «Chi può vederla». Le cinque linguette di chi
+       è dentro (c'è anche «Amici») stanno fino a 360px, senza la gemma; sotto,
+       la barra scorre di lato. */
+    .bh-ex-bar .nx-tabs { width: 100%; overflow-x: auto; scrollbar-width: none; }
+    html[data-theme="next"] .bh-ex-bar .nx-tab { flex: 1 0 auto; padding: 0 4px; white-space: nowrap; font-size: 0.8125rem; }
+    .bh-ex-bar .nx-tab .bh-gem { display: none; }
     .bh-ex-grid { gap: 20px 12px; }
 }
 
 /* ── Pezzi in piu' rispetto alle tavole ─────────────────────── */
 
 /* Linguette che sono link (Esplora): stesse misure dei bottoni nx-tab. */
-a.nx-tab { display: inline-flex; align-items: center; justify-content: center; color: var(--nx-text-2); text-decoration: none; }
+a.nx-tab { display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: var(--nx-text-2); text-decoration: none; }
 a.nx-tab:hover { color: var(--nx-text); }
 
 /* Lo stato del nome: il link alla pagina di chi l'ha gia'. */
@@ -632,6 +639,112 @@ a.nx-tab:hover { color: var(--nx-text); }
     .bh-chart__bars { gap: 1px; }
 }
 
+/* ── La vetrina nel pannello (solo staff) ───────────────────── */
+
+.bh-tag {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 10px;
+    border-radius: var(--nx-pill);
+    background: var(--nx-surface-2);
+    color: var(--nx-text-2);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    vertical-align: 3px;
+}
+
+.bh-sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.bh-picks__lead { color: var(--nx-text-2); }
+.bh-picks__add { display: flex; gap: 8px; margin-top: 16px; }
+.bh-picks__add .nx-btn { flex: none; }
+.bh-picks__empty { margin-top: 16px !important; color: var(--nx-text-3); }
+.bh-picks .bh-small { padding: 12px 0 0; }
+
+.bh-picks__list { min-width: 0; margin: 12px 0 0; padding: 0; border: 0; }
+
+.bh-pick { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--nx-line); background: var(--nx-surface); }
+.bh-pick__pfp { flex: none; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.bh-pick__text { flex: 1; min-width: 0; }
+.bh-pick__name { display: flex; align-items: center; gap: 6px; }
+.bh-pick__name strong { min-width: 0; overflow: hidden; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.bh-pick__url { display: block; overflow: hidden; color: var(--nx-text-3); font-size: 0.8125rem; text-overflow: ellipsis; white-space: nowrap; }
+.bh-pick__extra { display: none; font-style: normal; }
+.bh-pick.is-extra .bh-pick__extra { display: inline; }
+.bh-pick.is-extra :is(.bh-pick__pfp, .bh-pick__name) { opacity: .55; }
+
+/* La maniglia per riordinare: si trascina, o frecce su e giù quando ha il fuoco. */
+.bh-pick__grip {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 28px;
+    height: 40px;
+    margin-left: -6px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--nx-text-3);
+    cursor: grab;
+    touch-action: none;
+}
+.bh-pick__grip:hover { color: var(--nx-text); background: var(--nx-surface-2); }
+.bh-pick__grip:focus-visible { outline: 2px solid var(--nx-text); outline-offset: 2px; }
+.bh-pick.is-dragging { position: relative; z-index: 1; border-radius: 14px; background: var(--nx-surface-2); }
+.bh-pick.is-dragging .bh-pick__grip { color: var(--nx-text); cursor: grabbing; }
+.bh-picks__list.is-sorting { cursor: grabbing; user-select: none; }
+
+/* «Nel telefono»: un'icona; quella scelta diventa una pillola con la scritta. */
+.bh-pick__phone {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: var(--nx-pill);
+    color: var(--nx-text-3);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color .24s var(--nx-ease), color .24s var(--nx-ease);
+}
+.bh-pick__phone input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.bh-pick__phone span { display: none; }
+.bh-pick__phone:hover { color: var(--nx-text); background: var(--nx-surface-2); }
+.bh-pick__phone:has(input:checked),
+.bh-pick__phone.is-on { color: var(--nx-text); background: var(--nx-surface-2); }
+.bh-pick__phone:has(input:checked) span,
+.bh-pick__phone.is-on span { display: inline; }
+.bh-pick__phone:has(input:focus-visible) { outline: 2px solid var(--nx-text); outline-offset: 2px; }
+
+.bh-pick__remove {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--nx-text-3);
+    cursor: pointer;
+}
+.bh-pick__remove:hover { color: var(--nx-text); background: var(--nx-surface-2); }
+.bh-pick__remove:focus-visible { outline: 2px solid var(--nx-text); outline-offset: 2px; }
+
+@media (max-width: 520px) {
+    /* Sul telefono la scelta resta solo l'icona accesa. */
+    .bh-pick__phone:has(input:checked) span,
+    .bh-pick__phone.is-on span { display: none; }
+}
+
 /* Messaggio in basso (copia, salvato). */
 .bh-toast {
     position: fixed;
@@ -657,7 +770,7 @@ a.nx-tab:hover { color: var(--nx-text); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .bh-card__bg img,
+    .bh-card__bg :is(img, video),
     .bh-card > a,
     .bh-star { transition: none; }
 }

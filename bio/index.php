@@ -46,13 +46,29 @@ $jsConfig = [
 
 if (!$owner) {
     // ── Ingresso ─────────────────────────────────────────────────────
-    [$showcase] = bio_explore_cards($mysqli, 'vetrina', '', 0, 1, 4);
-    $showcaseTitle = $t('showcase');
-    if (!$showcase) {
-        [$showcase] = bio_explore_cards($mysqli, 'viste', '', 0, 1, 4);
-        $showcaseTitle = $t('from_community');
+    // Le ultime 4 della vetrina dello staff, completate dalle piu' viste; nel
+    // telefono la pagina scelta dallo staff (bio_showcase()).
+    $vetrina = bio_showcase($mysqli);
+    $showcase = array_slice($vetrina['picks'], 0, 4);
+    $showcaseTitle = $t($showcase ? 'showcase' : 'from_community');
+    $hero = null;
+    foreach ($vetrina['picks'] as $row) {
+        if ((int)$row['id'] === $vetrina['hero_id']) {
+            $hero = $row;
+            break;
+        }
     }
-    $heroName = $showcase ? cripsum_bio_profile_name($showcase[0]) : 'cripsum';
+    if (count($showcase) < 4) {
+        [$popular] = bio_explore_cards($mysqli, 'viste', '', 0, 1, 8);
+        $shown = array_map(static fn(array $row): int => (int)$row['id'], $showcase);
+        foreach ($popular as $row) {
+            if (count($showcase) < 4 && !in_array((int)$row['id'], $shown, true)) {
+                $showcase[] = $row;
+            }
+        }
+    }
+    $hero ??= $showcase[0] ?? null;
+    $heroName = $hero ? cripsum_bio_profile_name($hero) : 'cripsum';
 
     // Senza JavaScript il nome si controlla qui (bio/prendi.php rimanda con ?nome=).
     $typed = trim((string)($_GET['nome'] ?? ''));
@@ -142,6 +158,10 @@ $isNew = !empty($owner['data_creazione']) && strtotime((string)$owner['data_crea
 [$editNumber, $editWord] = bio_days_ago($owner['profile_updated_at'] ?? null, $lang);
 $requests = bio_pending_friend_requests($mysqli, $userId);
 $dailyViews = bio_owner_daily_views($mysqli, $userId);
+// La vetrina dell'ingresso, solo per lo staff: le pagine nel loro ordine,
+// quella nel telefono, l'aggiunta per nome (api/bio/vetrina.php).
+$staffShowcase = $exploreReady && profile_is_staff() ? bio_showcase($mysqli) : null;
+$showcaseReady = $staffShowcase !== null && bio_showcase_ready($mysqli);
 // L'editor sta su bio (bio/editor.php); l'area si apre col frammento.
 $editorUrl = static fn(string $area): string => '/editor#' . $area;
 
@@ -246,6 +266,62 @@ bio_page_open($t('your_page') . ' — ' . $bioHost, $t('meta_desc'), $lang, 'bh-
             <section>
                 <h2><?= bio_h($t('v_title')) ?></h2>
                 <div class="bh-panel bh-views"><?php bio_render_views_chart($dailyViews, $lang); ?></div>
+            </section>
+        <?php endif; ?>
+
+        <?php if ($staffShowcase !== null): ?>
+            <section>
+                <h2><?= bio_h($t('sv_title')) ?><span class="bh-tag"><?= bio_h($t('sv_staff')) ?></span></h2>
+                <div class="bh-panel bh-picks" data-bh-picks>
+                    <p class="bh-picks__lead"><?= bio_h($t('sv_lead')) ?></p>
+                    <form class="bh-picks__add" data-bh-pick-add>
+                        <input class="nx-input" type="text" name="name" placeholder="<?= bio_h($t('sv_add_ph')) ?>" aria-label="<?= bio_h($t('sv_add_label')) ?>"
+                            maxlength="120" autocomplete="off" spellcheck="false" autocapitalize="off" required>
+                        <button type="submit" class="nx-btn nx-btn--primary"><?= bio_h($t('sv_add')) ?></button>
+                    </form>
+                    <?php if ($staffShowcase['picks']): ?>
+                        <fieldset class="bh-picks__list">
+                            <legend class="bh-sr"><?= bio_h($t('sv_phone_label')) ?></legend>
+                            <?php if ($showcaseReady): ?><p class="bh-sr" id="bh-move-hint"><?= bio_h($t('sv_move_hint')) ?></p><?php endif; ?>
+                            <ul data-bh-pick-list>
+                                <?php foreach ($staffShowcase['picks'] as $i => $row): ?>
+                                    <?php
+                                    $pickName = cripsum_bio_profile_name($row);
+                                    $pickDisplay = trim((string)($row['display_name'] ?? '')) ?: (string)$row['username'];
+                                    $isHero = (int)$row['id'] === $staffShowcase['hero_id'];
+                                    ?>
+                                    <li class="bh-pick<?= $i >= 4 ? ' is-extra' : '' ?>" data-bh-pick="<?= (int)$row['id'] ?>">
+                                        <?php if ($showcaseReady): ?>
+                                            <button type="button" class="bh-pick__grip" aria-label="<?= bio_h($t('sv_move') . ': ' . $pickDisplay) ?>" aria-describedby="bh-move-hint" title="<?= bio_h($t('sv_move_hint')) ?>" data-bh-grip>
+                                                <i class="fa-solid fa-grip-vertical" aria-hidden="true"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                        <img class="bh-pick__pfp" src="<?= bio_h(profile_avatar_url($row, 128)) ?>" alt="" loading="lazy" decoding="async" draggable="false">
+                                        <a class="bh-pick__text" href="/<?= bio_h(rawurlencode($pickName)) ?>" draggable="false">
+                                            <span class="bh-pick__name"><strong><?= bio_h($pickDisplay) ?></strong><?= bio_premium_gem($row) ?></span>
+                                            <span class="bh-pick__url"><?= bio_h($bioHost . '/' . $pickName) ?><em class="bh-pick__extra"> · <?= bio_h($t('sv_only_explore')) ?></em></span>
+                                        </a>
+                                        <?php if ($showcaseReady): ?>
+                                            <label class="bh-pick__phone">
+                                                <input type="radio" name="bh-hero" value="<?= (int)$row['id'] ?>" aria-label="<?= bio_h($t('sv_phone') . ': ' . $pickDisplay) ?>" data-bh-hero<?= $isHero ? ' checked' : '' ?>>
+                                                <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i><span aria-hidden="true"><?= bio_h($t('sv_phone')) ?></span>
+                                            </label>
+                                        <?php elseif ($isHero): ?>
+                                            <span class="bh-pick__phone is-on"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i><span><?= bio_h($t('sv_phone')) ?></span></span>
+                                        <?php endif; ?>
+                                        <button type="button" class="bh-pick__remove" data-bh-unpick="<?= (int)$row['id'] ?>" aria-label="<?= bio_h($t('feature_off') . ': ' . $pickDisplay) ?>">
+                                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                        </button>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </fieldset>
+                        <p class="bh-small"><?= bio_h($t($showcaseReady ? 'sv_order_hint' : 'sv_install')) ?></p>
+                    <?php else: ?>
+                        <p class="bh-picks__empty"><?= bio_h($t('sv_empty')) ?></p>
+                    <?php endif; ?>
+                    <p class="bh-small"><?= sprintf(bio_h($t('sv_or_star')), '<a href="/esplora?vista=viste">' . bio_h($t('explore')) . '</a>') ?></p>
+                </div>
             </section>
         <?php endif; ?>
     </div>

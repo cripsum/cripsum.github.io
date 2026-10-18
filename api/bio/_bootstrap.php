@@ -25,9 +25,10 @@ function bio_api_ok(array $data = []): never
 
 function bio_api_fail(string $key, int $status = 400): never
 {
-    global $bioLang;
+    // bio_lang() e non la globale $bioLang: questa funzione va anche quando il
+    // file e' incluso dentro una funzione, dove la globale non c'e'.
     http_response_code($status);
-    echo json_encode(['ok' => false, 'message' => bio_t($key, $bioLang)], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok' => false, 'message' => bio_t($key, bio_lang())], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

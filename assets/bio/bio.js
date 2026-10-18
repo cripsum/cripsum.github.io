@@ -46,6 +46,40 @@
         screens.forEach(fit);
     }
 
+    // La schermata «entra» della pagina (click to enter) nel telefono non
+    // serve: si mostra la pagina come dopo il clic, ma senza farla suonare
+    // (il clic vero toglierebbe il muto al video di sfondo, qui bloccato).
+    const skipEnter = (frame) => {
+        try {
+            const doc = frame.contentDocument;
+            const overlay = doc?.getElementById('clickToEnterOverlay');
+            if (!overlay) return;
+            overlay.remove();
+            doc.documentElement.classList.remove('click-to-enter-active');
+            doc.body?.classList.remove('click-to-enter-active');
+        } catch (_) { /* un'altra origine: resta com'e' */ }
+    };
+    screens.forEach((screen) => {
+        const frame = $('iframe', screen);
+        if (!frame) return;
+        frame.addEventListener('load', () => skipEnter(frame));
+        skipEnter(frame);
+    });
+
+    // ── I banner video delle schede: girano solo quando si vedono ─────
+    const videos = $$('[data-bh-video]');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches || navigator.connection?.saveData === true;
+    if (videos.length && !still && 'IntersectionObserver' in window) {
+        const seen = new IntersectionObserver((entries) => entries.forEach(({ target, isIntersecting }) => {
+            if (isIntersecting) target.play().catch(() => {});
+            else target.pause();
+        }), { threshold: 0.25 });
+        videos.forEach((video) => {
+            video.muted = true;
+            seen.observe(video);
+        });
+    }
+
     // ── Il nome sull'ingresso ─────────────────────────────────────────
     const claim = $('[data-bh-claim]');
     if (claim) {
@@ -215,6 +249,120 @@
             else if (event.key === 'Escape') { hide(); }
         });
     });
+
+    // ── La vetrina nel pannello (staff) ───────────────────────────────
+    const picks = $('[data-bh-picks]');
+    if (picks) {
+        // Aggiungere e togliere cambiano l'elenco e il telefono: si ricarica.
+        const change = async (btn, body) => {
+            btn.disabled = true;
+            try {
+                const data = await post('/api/bio/vetrina.php', body);
+                toast(data.message);
+                setTimeout(() => window.location.reload(), 700);
+            } catch (error) {
+                btn.disabled = false;
+                toast(error.message || t.failed);
+            }
+        };
+
+        const form = $('[data-bh-pick-add]', picks);
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            change($('button', form), { name: form.elements.name.value });
+        });
+        $$('[data-bh-unpick]', picks).forEach((btn) => btn.addEventListener('click', () => {
+            change(btn, { user_id: Number(btn.dataset.bhUnpick), on: 0 });
+        }));
+
+        // L'ordine: si trascina dalla maniglia, o frecce su e giù quando ha il
+        // fuoco. Le prime 4 sono quelle dell'ingresso. Si salva poco dopo
+        // l'ultimo spostamento; se non va, si ricarica l'ordine vero.
+        const list = $('[data-bh-pick-list]', picks);
+        if (list && $('[data-bh-grip]', list)) {
+            const rows = () => $$('[data-bh-pick]', list);
+            const ids = () => rows().map((row) => Number(row.dataset.bhPick));
+            const mark = () => rows().forEach((row, index) => row.classList.toggle('is-extra', index >= 4));
+            let saved = ids().join(',');
+            let saveTimer = null;
+            const save = () => {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(async () => {
+                    const order = ids();
+                    if (order.join(',') === saved) return;
+                    try {
+                        const data = await post('/api/bio/vetrina.php', { order });
+                        saved = order.join(',');
+                        toast(data.message);
+                    } catch (error) {
+                        toast(error.message || t.failed);
+                        setTimeout(() => window.location.reload(), 1200);
+                    }
+                }, 400);
+            };
+
+            $$('[data-bh-grip]', list).forEach((grip) => {
+                const row = grip.closest('[data-bh-pick]');
+
+                grip.addEventListener('keydown', (event) => {
+                    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+                    event.preventDefault();
+                    const up = event.key === 'ArrowUp';
+                    const other = up ? row.previousElementSibling : row.nextElementSibling;
+                    if (!other) return;
+                    if (up) list.insertBefore(row, other);
+                    else list.insertBefore(other, row);
+                    grip.focus();
+                    mark();
+                    save();
+                });
+
+                // Ascolta window, non la maniglia: spostare la riga nella pagina
+                // le farebbe perdere il puntatore catturato al primo scambio.
+                grip.addEventListener('pointerdown', (event) => {
+                    if (event.button !== 0) return;
+                    event.preventDefault();
+                    row.classList.add('is-dragging');
+                    list.parentElement.classList.add('is-sorting');
+
+                    // La riga si sposta davanti alla prima il cui centro e' sotto il puntatore.
+                    const move = (e) => {
+                        const below = rows().find((other) => {
+                            if (other === row) return false;
+                            const box = other.getBoundingClientRect();
+                            return e.clientY < box.top + box.height / 2;
+                        });
+                        if (below && below !== row.nextElementSibling) list.insertBefore(row, below);
+                        else if (!below && list.lastElementChild !== row) list.appendChild(row);
+                        mark();
+                    };
+                    const end = () => {
+                        row.classList.remove('is-dragging');
+                        list.parentElement.classList.remove('is-sorting');
+                        window.removeEventListener('pointermove', move);
+                        window.removeEventListener('pointerup', end);
+                        window.removeEventListener('pointercancel', end);
+                        save();
+                    };
+                    window.addEventListener('pointermove', move);
+                    window.addEventListener('pointerup', end);
+                    window.addEventListener('pointercancel', end);
+                });
+            });
+        }
+
+        let hero = $('[data-bh-hero]:checked', picks);
+        $$('[data-bh-hero]', picks).forEach((radio) => radio.addEventListener('change', async () => {
+            try {
+                const data = await post('/api/bio/vetrina.php', { hero: Number(radio.value) });
+                hero = radio;
+                toast(data.message);
+            } catch (error) {
+                if (hero) hero.checked = true;
+                toast(error.message || t.failed);
+            }
+        }));
+    }
 
     // ── La stellina della vetrina (staff) ─────────────────────────────
     $$('[data-bh-feature]').forEach((btn) => btn.addEventListener('click', async () => {
