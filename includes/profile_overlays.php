@@ -10,9 +10,6 @@
  * niente, quindi cliccando non succedeva nulla e in console non compariva
  * nessun errore.
  *
- * Sta in un file solo perche' lo usano sia profile.php sia bio.php: due copie
- * dello stesso pannello si sarebbero disallineate al primo ritocco.
- *
  * Gli identificatori qui sotto sono un contratto con profile.js: i nomi delle
  * classi `js-*`, gli id e i `name` dei campi del form vanno cambiati in tutti
  * e due i posti insieme.

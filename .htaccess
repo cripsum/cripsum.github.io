@@ -124,6 +124,13 @@ RewriteRule ^it/u/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
 RewriteRule ^user/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 
+# /bio era la pagina personale di cripsum: ora porta al suo profilo. Il "?" in
+# fondo toglie la query, che altrimenti si sommerebbe a username=cripsum.
+RewriteRule ^bio(?:\.php)?/?$ /u/cripsum? [R=301,L,NC]
+
+# La 404 esce solo da 404.php: 404.html da sola ha ancora l'aspetto vecchio.
+RewriteRule ^404(?:\.html)?/?$ 404.php [L,NC]
+
 RewriteRule ^it/game/?$ /it/game/lobby.php [L,QSA]
 RewriteRule ^it/game/lobby/?$ /it/game/lobby.php [L,QSA]
 RewriteRule ^it/game/arena/([0-9]+)/?$ /it/game/arena.php?match_id=$1 [L,QSA]

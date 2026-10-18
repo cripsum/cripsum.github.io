@@ -35,10 +35,9 @@ if ($customAlias !== null && $customAlias !== '') {
         exit;
     }
 
-    // Serve standard website 404.html if the custom alias doesn't exist
+    // An alias nobody owns is just a wrong address: the site's 404.
     if (!$profile) {
-        header("HTTP/1.1 404 Not Found");
-        include __DIR__ . '/404.html';
+        include __DIR__ . '/404.php';
         exit;
     }
 } else {
@@ -324,6 +323,14 @@ if ($profile) {
         }
         $lastSeen = $profile['ultimo_accesso'] ?? null;
     }
+}
+
+// A missing profile gets the site's 404, like any other wrong address. An
+// account mid-deletion gets the very same page: whether it exists is nobody
+// else's business.
+if ($isNotFound || $isDeactivated) {
+    include __DIR__ . '/404.php';
+    exit;
 }
 
 function profile_flag(array $profile, string $key, bool $default = true): bool
@@ -1073,23 +1080,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <?php profile_render_background($profile, $backgroundUrl, $backgroundType); ?>
     <div class="profile-effects-layer" aria-hidden="true"></div>
 
-    <?php if ($isNotFound): ?>
-        <?php profile_state_page('404', $pt('Profilo non trovato', 'Profile Not Found'), $pt('Questo utente non esiste o ha cambiato username.', 'This user does not exist or has changed their username.'), 'Home', '/' . $lang . '/home'); ?>
-    <?php elseif ($isDeactivated): ?>
-        <?php
-        // Deliberately worded like a missing profile: whether an account is
-        // mid-deletion is nobody else's business.
-        profile_state_page(
-            '404',
-            ($lang === 'it') ? 'Profilo non disponibile' : 'Profile Unavailable',
-            ($lang === 'it')
-                ? 'Questo profilo non è al momento disponibile.'
-                : 'This profile is currently unavailable.',
-            'Home',
-            '/' . $lang . '/home'
-        );
-        ?>
-    <?php elseif ($isPrivateBlocked): ?>
+    <?php if ($isPrivateBlocked): ?>
         <?php
         $blockTitle = (($profile['profile_visibility'] ?? '') === 'friends')
             ? (($lang === 'it') ? 'Solo Amici' : 'Friends Only')

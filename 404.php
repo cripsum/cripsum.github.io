@@ -4,12 +4,15 @@ declare(strict_types=1);
 /**
  * La pagina 404, col tema del sito.
  *
- * Il contenuto resta in 404.html, che e' una pagina ferma: la include anche
- * profile.php quando un profilo non esiste, e li' deve uscire com'e'. Per
- * questo .htaccess manda qui i 404: alla pagina ferma si aggiungono
- * l'attributo sul tag <html> e il foglio del tema, come fanno tutte le altre.
- * Le regole che la vestono col tema stanno gia' dentro 404.html e in
- * assets/static/static.css, e valgono solo con quell'attributo.
+ * Il contenuto resta in 404.html, che e' una pagina ferma: qui le si
+ * aggiungono l'attributo sul tag <html> e il foglio del tema, come fanno
+ * tutte le altre. Le regole che la vestono col tema stanno gia' dentro
+ * 404.html e in assets/static/static.css, e valgono solo con quell'attributo.
+ *
+ * Ogni 404 deve passare da qui, mai da 404.html da sola, che senza
+ * l'attributo esce con l'aspetto vecchio: .htaccess ci manda i 404 di Apache
+ * e gli indirizzi /404 e /404.html, profile.php ci manda gli alias e i
+ * profili che non esistono.
  */
 
 require_once __DIR__ . '/includes/theme.php';
