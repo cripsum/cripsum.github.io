@@ -17,14 +17,15 @@ $tabAnimation = (string)($profile['profile_tab_animation'] ?? 'static');
 <div class="pe-field">
     <div class="pe-field-label"><span class="pe-field-title"><?php echo pe_h($tt('Il tuo link', 'Your link')); ?></span></div>
     <div class="pe-copy">
-        <code id="peProfileLink">cripsum.com/u/<?php echo pe_h(strtolower((string)$profile['username'])); ?></code>
+        <code id="peProfileLink"><?php echo pe_h((string)preg_replace('#^https?://#', '', $profileUrl)); ?></code>
         <button type="button" class="pe-btn pe-btn-secondary pe-btn-sm" data-copy="#peProfileLink"><i class="fa-regular fa-copy" aria-hidden="true"></i><span><?php echo pe_h($tt('Copia', 'Copy')); ?></span></button>
     </div>
 </div>
 <?php pe_text('custom_alias', $pv('custom_alias'), [
     'label' => $tt('Link breve', 'Short link'),
     'maxlength' => 30,
-    'prefix' => 'cripsum.com/',
+    // L'alias vale su cripsum.com/<alias> e su bio.cripsum.com/<alias>: si mostra quello vero.
+    'prefix' => (CRIPSUM_BIO_PROFILES || cripsum_site() === 'bio') ? parse_url(cripsum_bio_url(), PHP_URL_HOST) . '/' : 'cripsum.com/',
     'placeholder' => $tt('iltuonome', 'yourname'),
     'input_id' => 'peAlias',
     'suffix_html' => '<span class="pe-input-status" id="peAliasStatus" aria-hidden="true"></span>',

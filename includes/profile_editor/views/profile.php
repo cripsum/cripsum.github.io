@@ -44,7 +44,7 @@
     'label' => 'Username',
     'maxlength' => 20,
     'required' => true,
-    'prefix' => 'cripsum.com/u/',
+    'prefix' => cripsum_profile_url_prefix(),
     'input_id' => 'peUsername',
     'help' => pe_h($tt('Da 3 a 20 caratteri: lettere, numeri e trattino basso.', '3 to 20 characters: letters, numbers and underscore.')),
 ]); ?>

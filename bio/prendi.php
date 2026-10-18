@@ -36,5 +36,5 @@ if ($userId > 0) {
     exit;
 }
 
-header('Location: ' . cripsum_main_url($lang . '/registrati?' . http_build_query(['username' => $name, 'da' => 'bio'])));
+header('Location: ' . cripsum_main_url($lang . '/registrati?' . http_build_query(['username' => $name, 'da' => 'bio', 'host' => cripsum_request_host()])));
 exit;

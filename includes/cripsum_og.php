@@ -300,9 +300,12 @@ function cripsum_og_profile(mysqli $mysqli, ?array $profile = null, ?string $ide
         $bio = $username !== '' ? '@' . $username . ' su Cripsum™' : 'Profilo pubblico su Cripsum™.';
     }
 
-    $url = $username !== ''
-        ? cripsum_og_abs('/u/' . rawurlencode(strtolower($username)))
-        : cripsum_og_current_url();
+    // L'indirizzo vero del profilo: bio, quando i profili vivono li' (includes/bio.php).
+    $url = $username === ''
+        ? cripsum_og_current_url()
+        : (function_exists('cripsum_profile_url')
+            ? cripsum_profile_url($profile)
+            : cripsum_og_abs('/u/' . rawurlencode(strtolower($username))));
 
     return [
         'title' => $displayName . ' - Cripsum™',

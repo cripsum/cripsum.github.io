@@ -22,6 +22,16 @@ $editorLang = ($editorLang ?? 'it') === 'en' ? 'en' : 'it';
 $lang = $editorLang;
 $tt = static fn(string $it, string $en): string => $editorLang === 'it' ? $it : $en;
 
+// Quando i profili vivono su bio (CRIPSUM_BIO_PROFILES, includes/bio.php)
+// l'editor e' bio.cripsum.com/editor: da cripsum.com si va li', con la lingua.
+// L'area aperta (#aspetto...) il browser la tiene da solo.
+$onBio = cripsum_site() === 'bio';
+if (!$onBio && CRIPSUM_BIO_PROFILES) {
+    $bioQuery = ['lang' => $editorLang] + (isset($_GET['user_id']) ? ['user_id' => (int)$_GET['user_id']] : []);
+    header('Location: ' . cripsum_bio_url('editor?' . http_build_query($bioQuery)), true, 302);
+    exit;
+}
+
 checkBan($mysqli);
 
 if (!isLoggedIn()) {
@@ -134,8 +144,11 @@ if (!$hasCustomAvatar && ($picStmt = $mysqli->prepare("SELECT profile_pic FROM u
     $hasCustomAvatar = trim((string)($picStmt->get_result()->fetch_assoc()['profile_pic'] ?? '')) !== '';
     $picStmt->close();
 }
-$profileUrl = '/u/' . rawurlencode(strtolower((string)$profile['username']));
-$switchLangUrl = '/' . ($editorLang === 'it' ? 'en' : 'it') . '/edit-profile' . (!empty($_GET['user_id']) && profile_is_staff() ? '?user_id=' . (int)$_GET['user_id'] : '');
+$profileUrl = cripsum_profile_url($profile);
+$staffUserQuery = !empty($_GET['user_id']) && profile_is_staff() ? ['user_id' => (int)$_GET['user_id']] : [];
+$switchLangUrl = $onBio
+    ? '/editor?' . http_build_query(['lang' => $editorLang === 'it' ? 'en' : 'it'] + $staffUserQuery)
+    : '/' . ($editorLang === 'it' ? 'en' : 'it') . '/edit-profile' . ($staffUserQuery ? '?' . http_build_query($staffUserQuery) : '');
 $serverUploadLimit = profile_server_upload_limit();
 $uploadLimits = [
     'avatar' => profile_effective_upload_limit(($isPremium ? 10 : 2) * 1024 * 1024),

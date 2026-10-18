@@ -28,6 +28,40 @@ const CRIPSUM_BIO_HOSTS = ['bio.cripsum.com', 'bio-prova.cripsum.com', 'bio.loca
  */
 const CRIPSUM_BIO_OPEN = false;
 
+/**
+ * I profili vivono su bio? Con true l'indirizzo vero di un profilo diventa
+ * bio.cripsum.com/<alias o username>: cripsum.com/u/<nome>, /<alias> e gli
+ * altri vecchi indirizzi portano li' con un 301, l'editor di cripsum.com porta
+ * a bio.cripsum.com/editor, e anteprime dei link e canonical usano bio.
+ * Si mette a true all'apertura (fase 5) insieme a CRIPSUM_BIO_OPEN; rimetterlo
+ * a false riporta i profili su cripsum.com/u/ senza toccare altro.
+ */
+const CRIPSUM_BIO_PROFILES = false;
+
+/**
+ * L'indirizzo pieno di un profilo, quello da linkare e condividere: su bio se
+ * i profili vivono li' o se siamo gia' su bio, altrimenti cripsum.com/u/.
+ * Basta lo username; con l'alias si evita un passaggio.
+ */
+function cripsum_profile_url(array $profile): string
+{
+    if (CRIPSUM_BIO_PROFILES || cripsum_site() === 'bio') {
+        return cripsum_bio_url(rawurlencode(cripsum_bio_profile_name($profile)));
+    }
+
+    return cripsum_main_url('u/' . rawurlencode(strtolower((string)($profile['username'] ?? ''))));
+}
+
+/** L'host da mostrare davanti al nome di un profilo («bio.cripsum.com/» o «cripsum.com/u/»). */
+function cripsum_profile_url_prefix(): string
+{
+    if (CRIPSUM_BIO_PROFILES || cripsum_site() === 'bio') {
+        return (string)parse_url(cripsum_bio_url(), PHP_URL_HOST) . '/';
+    }
+
+    return (string)parse_url(cripsum_main_url(), PHP_URL_HOST) . '/u/';
+}
+
 /** Dove porta «La tua pagina» nel menu dell'account, o null se non va mostrata. */
 function cripsum_bio_menu_url(): ?string
 {
@@ -81,6 +115,24 @@ function cripsum_bio_url(string $path = '/'): string
 function cripsum_main_url(string $path = '/'): string
 {
     return cripsum_site_origin('main') . '/' . ltrim($path, '/');
+}
+
+/**
+ * Un indirizzo su un host di bio preciso, da cripsum.com: quello da cui e'
+ * partita la richiesta (bio-prova o bio). Solo host dell'elenco; un host
+ * sconosciuto diventa bio.cripsum.com.
+ */
+function cripsum_bio_url_on(string $bioHost, string $path = '/'): string
+{
+    $bioHost = strtolower(trim($bioHost));
+    if (!in_array($bioHost, CRIPSUM_BIO_HOSTS, true)) {
+        $bioHost = 'bio.cripsum.com';
+    }
+    if ($bioHost === 'bio.localhost') {
+        return cripsum_site_origin('bio') . '/' . ltrim($path, '/');
+    }
+
+    return 'https://' . $bioHost . '/' . ltrim($path, '/');
 }
 
 /**

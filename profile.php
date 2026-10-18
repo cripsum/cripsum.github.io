@@ -38,10 +38,11 @@ if ($bioName !== '') {
 } elseif ($customAlias !== null && $customAlias !== '') {
     $profile = profile_get_public_profile_by_alias($mysqli, $customAlias);
 
-    // Redirect SEO: alias visits redirect to the canonical /u/username URL
+    // Redirect SEO: alias visits redirect to the canonical URL (/u/username,
+    // or the bio address once profiles live there).
     if ($profile && !empty($profile['username']) && !isset($_GET['preview_mode'])) {
         header("HTTP/1.1 301 Moved Permanently");
-        header('Location: /u/' . rawurlencode(strtolower($profile['username'])));
+        header('Location: ' . (CRIPSUM_BIO_PROFILES ? cripsum_profile_url($profile) : '/u/' . rawurlencode(strtolower($profile['username']))));
         exit;
     }
 
@@ -63,6 +64,27 @@ if ($bioName !== '') {
         exit;
     } else {
         $profile = profile_get_public_profile($mysqli, $identifier);
+    }
+}
+
+// The profile's real address (includes/bio.php). On bio, /<username> of
+// someone with an alias moves to /<alias>; once profiles live on bio
+// (CRIPSUM_BIO_PROFILES) the old cripsum.com addresses (/u/, /profile/,
+// /user/, ?id=) move there too. Never in the editor's preview, never for
+// anything but a plain GET.
+if ($profile && !isset($_GET['preview_mode']) && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+    $canonicalTarget = null;
+    if (cripsum_site() === 'bio') {
+        $canonicalName = cripsum_bio_profile_name($profile);
+        if ($bioName !== '' && strcasecmp($bioName, $canonicalName) !== 0) {
+            $canonicalTarget = '/' . rawurlencode($canonicalName);
+        }
+    } elseif (CRIPSUM_BIO_PROFILES) {
+        $canonicalTarget = cripsum_profile_url($profile);
+    }
+    if ($canonicalTarget !== null) {
+        header('Location: ' . $canonicalTarget, true, 301);
+        exit;
     }
 }
 
@@ -597,11 +619,9 @@ $embeds = $showEmbeds ? ($draftEmbeds ?? profile_list_embeds($mysqli, $profileId
 $socialsStyle = $style['socials_style'];
 
 $displayName = $profile ? profile_display_name($profile) : 'Profilo';
-$profileUrl = $profile ? 'https://cripsum.com/u/' . rawurlencode(strtolower($profile['username'])) : 'https://cripsum.com/profile.php';
-// Opened on bio, the link to share (and the QR code) is the bio one.
-if ($profile && cripsum_site() === 'bio') {
-    $profileUrl = cripsum_bio_url(rawurlencode(cripsum_bio_profile_name($profile)));
-}
+// The link to share and the QR code: the bio address on bio (or once profiles
+// live there), cripsum.com/u/ otherwise (includes/bio.php).
+$profileUrl = $profile ? cripsum_profile_url($profile) : 'https://cripsum.com/profile.php';
 $discordId = $profile ? trim((string)($profile['discord_id'] ?? '')) : '';
 $customStatus = $profile ? trim((string)($profile['profile_status'] ?? '')) : '';
 $musicExternalUrl = $profile ? trim((string)($profile['profile_music_url'] ?? '')) : '';
@@ -753,6 +773,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
+    <?php if ($profile): ?><link rel="canonical" href="<?php echo profile_h($profileUrl); ?>"><?php endif; ?>
     <?php
     $pageTitle = 'Cripsum™ - ' . ($profile ? profile_display_name($profile) : 'Profilo');
     if ($profile && !empty($profile['profile_tab_title'])) {

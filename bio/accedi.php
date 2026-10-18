@@ -28,7 +28,8 @@ if (!cripsum_sso_available($mysqli)) {
     exit;
 }
 
-$query = ['state' => cripsum_sso_start_state($auto), 'return' => $return];
+// host: cripsum.com deve rimandare qui (bio o bio-prova), non a un altro bio.
+$query = ['state' => cripsum_sso_start_state($auto), 'return' => $return, 'host' => cripsum_request_host()];
 if ($auto) {
     $query['auto'] = 1;
 }

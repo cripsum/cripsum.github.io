@@ -289,6 +289,12 @@ if (!profile_is_valid_username($username)) {
     profile_json_response(['ok' => false, 'message' => 'Invalid username. Use 3-20 characters, letters, numbers, or underscores.'], 422);
 }
 
+// Parole riservate (cripsum_reserved_names), come in registrazione e nelle
+// impostazioni: solo per uno username che cambia.
+if (strcasecmp($username, (string)($profile['username'] ?? '')) !== 0 && cripsum_is_reserved_name($username)) {
+    profile_json_response(['ok' => false, 'message' => 'Questo username è una parola del sito, scegline un altro.'], 422);
+}
+
 if (mb_strlen($bio, 'UTF-8') > 280) {
     profile_json_response(['ok' => false, 'message' => 'Bio too long.'], 422);
 }
@@ -1121,7 +1127,8 @@ try {
     profile_json_response([
         'ok' => true,
         'message' => 'Profile saved.',
-        'profile_url' => '/u/' . rawurlencode(strtolower($username)),
+        // «Vedi profilo» dopo Pubblica: l'indirizzo vero (bio, se i profili vivono li').
+        'profile_url' => cripsum_profile_url(['username' => $username, 'custom_alias' => $customAliasDb]),
     ]);
 } catch (Throwable $e) {
     $mysqli->rollback();

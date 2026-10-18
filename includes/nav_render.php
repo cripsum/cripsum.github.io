@@ -306,7 +306,7 @@ if (!function_exists('nav_bootstrap')) {
             </div>
 
             <div class="cnav-pop__body">
-                <a class="cnav-acct-head" role="menuitem" href="/u/<?= rawurlencode($ctx['username']) ?>">
+                <a class="cnav-acct-head" role="menuitem" href="<?= nav_e(function_exists('cripsum_profile_url') ? cripsum_profile_url(['username' => $ctx['username']]) : '/u/' . rawurlencode($ctx['username'])) ?>">
                     <img class="cnav-acct-head__pfp" src="<?= nav_e($ctx['profilePic']) ?>" alt="" loading="lazy" width="44" height="44">
                     <span class="cnav-acct-head__text">
                         <span class="cnav-acct-head__name" id="cnav-account-name">

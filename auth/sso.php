@@ -23,9 +23,12 @@ if (cripsum_site() !== 'main') {
 $stateHash = strtolower((string)($_GET['state'] ?? ''));
 $return = cripsum_safe_return_path((string)($_GET['return'] ?? '/'));
 $auto = ($_GET['auto'] ?? '') === '1';
+// L'host di bio che ha chiesto l'accesso (bio o bio-prova): solo quelli
+// dell'elenco, altrimenti bio.cripsum.com.
+$bioHost = (string)($_GET['host'] ?? 'bio.cripsum.com');
 
-$backToBio = static function (array $query): void {
-    header('Location: ' . cripsum_bio_url('auth/callback?' . http_build_query($query)));
+$backToBio = static function (array $query) use ($bioHost): void {
+    header('Location: ' . cripsum_bio_url_on($bioHost, 'auth/callback?' . http_build_query($query)));
     exit;
 };
 
@@ -41,7 +44,7 @@ if (!isLoggedIn()) {
     }
 
     // Il login di sempre; finito, si torna qui con gli stessi parametri.
-    $_SESSION['redirect_after_login'] = '/auth/sso.php?' . http_build_query(['state' => $stateHash, 'return' => $return]);
+    $_SESSION['redirect_after_login'] = '/auth/sso.php?' . http_build_query(['state' => $stateHash, 'return' => $return, 'host' => $bioHost]);
     header('Location: /' . cripsum_preferred_lang() . '/accedi');
     exit;
 }

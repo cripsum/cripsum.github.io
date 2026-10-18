@@ -15,7 +15,7 @@ $success = '';
 // Arrivati da bio.cripsum.com («Prendilo», bio/prendi.php): lo username e' gia'
 // scritto e dopo il primo accesso si torna su bio.
 if (($_GET['da'] ?? '') === 'bio') {
-    $_SESSION['redirect_after_login'] = cripsum_bio_url('/');
+    $_SESSION['redirect_after_login'] = cripsum_bio_url_on((string)($_GET['host'] ?? ''), '/');
 }
 
 function auth_recaptcha_verify(): bool

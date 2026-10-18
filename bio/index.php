@@ -141,7 +141,8 @@ $todoDone = count(array_filter($todo, static fn(array $item): bool => $item[1]))
 $isNew = !empty($owner['data_creazione']) && strtotime((string)$owner['data_creazione']) > time() - 86400;
 [$editNumber, $editWord] = bio_days_ago($owner['profile_updated_at'] ?? null, $lang);
 $requests = bio_pending_friend_requests($mysqli, $userId);
-$editorUrl = static fn(string $area): string => cripsum_main_url($lang . '/edit-profile#' . $area);
+// L'editor sta su bio (bio/editor.php); l'area si apre col frammento.
+$editorUrl = static fn(string $area): string => '/editor#' . $area;
 
 // Il nome scelto da ospite prima di entrare: si offre solo se e' ancora libero
 // e se non c'e' gia' un alias (bio/prendi.php, api/bio/alias.php).
