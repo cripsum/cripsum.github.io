@@ -64,6 +64,23 @@ function cripsum_profile_url(array $profile): string
     return cripsum_main_url('u/' . rawurlencode(strtolower((string)($profile['username'] ?? ''))));
 }
 
+/**
+ * Dove cripsum.com manda un profilo col 301: l'indirizzo vero con una barra in
+ * fondo (bio.cripsum.com/<nome>/).
+ *
+ * Il 17 e 18 ottobre 2026 su Cloudflare c'erano due regole 301 che portavano
+ * bio.cripsum.com/<x> su cripsum.com/<x>, e i browser che le hanno viste se le
+ * ricordano. Mandandoli su bio.cripsum.com/<nome> esatto, il browser tornerebbe
+ * su cripsum.com/<nome> senza chiedere niente al server, e cripsum.com lo
+ * rimanderebbe su bio: un giro senza fine. Con la barra l'indirizzo e' uno mai
+ * visto; bio lo accetta e profile.php toglie la barra dalla barra degli
+ * indirizzi senza ricaricare.
+ */
+function cripsum_profile_redirect_url(array $profile): string
+{
+    return cripsum_profile_url($profile) . '/';
+}
+
 /** L'host da mostrare davanti al nome di un profilo («bio.cripsum.com/» o «cripsum.com/u/»). */
 function cripsum_profile_url_prefix(): string
 {

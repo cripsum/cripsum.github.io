@@ -42,7 +42,7 @@ if ($bioName !== '') {
     // or the bio address once profiles live there).
     if ($profile && !empty($profile['username']) && !isset($_GET['preview_mode'])) {
         header("HTTP/1.1 301 Moved Permanently");
-        header('Location: ' . (CRIPSUM_BIO_PROFILES ? cripsum_profile_url($profile) : '/u/' . rawurlencode(strtolower($profile['username']))));
+        header('Location: ' . (CRIPSUM_BIO_PROFILES ? cripsum_profile_redirect_url($profile) : '/u/' . rawurlencode(strtolower($profile['username']))));
         exit;
     }
 
@@ -80,7 +80,7 @@ if ($profile && !isset($_GET['preview_mode']) && ($_SERVER['REQUEST_METHOD'] ?? 
             $canonicalTarget = '/' . rawurlencode($canonicalName);
         }
     } elseif (CRIPSUM_BIO_PROFILES) {
-        $canonicalTarget = cripsum_profile_url($profile);
+        $canonicalTarget = cripsum_profile_redirect_url($profile);
     }
     if ($canonicalTarget !== null) {
         header('Location: ' . $canonicalTarget, true, 301);
@@ -774,6 +774,10 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
 <head>
     <?php include __DIR__ . '/includes/head-import.php'; ?>
     <?php if ($profile): ?><link rel="canonical" href="<?php echo profile_h($profileUrl); ?>"><?php endif; ?>
+    <?php if (cripsum_site() === 'bio' && preg_match('#^/[^/?]+/(\?|$)#', (string)($_SERVER['REQUEST_URI'] ?? ''))): ?>
+        <?php /* Arrivati da cripsum.com con la barra in fondo (cripsum_profile_redirect_url): si toglie dalla barra degli indirizzi. */ ?>
+        <script>history.replaceState(history.state, '', location.pathname.replace(/\/+$/, '') + location.search + location.hash);</script>
+    <?php endif; ?>
     <?php
     $pageTitle = 'Cripsum™ - ' . ($profile ? profile_display_name($profile) : 'Profilo');
     if ($profile && !empty($profile['profile_tab_title'])) {

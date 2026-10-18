@@ -174,6 +174,48 @@
         }
     });
 
+    // ── Le visite per giorno: tooltip col mouse e con le frecce ────────
+    $$('[data-bh-chart]').forEach((chart) => {
+        const bars = $$('.bh-chart__bars li', chart);
+        const tip = $('.bh-chart__tip', chart);
+        let active = -1;
+
+        const show = (index) => {
+            if (index < 0 || index >= bars.length) return;
+            bars[active]?.classList.remove('is-active');
+            active = index;
+            const bar = bars[index];
+            bar.classList.add('is-active');
+            tip.textContent = bar.dataset.tip;
+            tip.hidden = false;
+            // Sopra la colonna, dentro il grafico ai bordi.
+            const box = chart.getBoundingClientRect();
+            const b = bar.getBoundingClientRect();
+            const fill = bar.firstElementChild.getBoundingClientRect();
+            const half = tip.offsetWidth / 2;
+            const x = Math.min(Math.max(b.left + b.width / 2 - box.left, half), box.width - half);
+            tip.style.left = `${x}px`;
+            tip.style.top = `${Math.min(fill.top, b.bottom - 2) - box.top}px`;
+        };
+        const hide = () => {
+            bars[active]?.classList.remove('is-active');
+            active = -1;
+            tip.hidden = true;
+        };
+
+        bars.forEach((bar, index) => bar.addEventListener('pointerenter', () => show(index)));
+        chart.addEventListener('pointerleave', hide);
+        chart.addEventListener('blur', hide);
+        chart.addEventListener('focus', () => show(bars.length - 1));
+        chart.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') { event.preventDefault(); show(Math.max(0, active - 1)); }
+            else if (event.key === 'ArrowRight') { event.preventDefault(); show(Math.min(bars.length - 1, active + 1)); }
+            else if (event.key === 'Home') { event.preventDefault(); show(0); }
+            else if (event.key === 'End') { event.preventDefault(); show(bars.length - 1); }
+            else if (event.key === 'Escape') { hide(); }
+        });
+    });
+
     // ── La stellina della vetrina (staff) ─────────────────────────────
     $$('[data-bh-feature]').forEach((btn) => btn.addEventListener('click', async () => {
         const on = !btn.classList.contains('is-on');

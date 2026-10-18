@@ -459,15 +459,18 @@ a.bh-row:hover { background: var(--nx-surface-2); }
     .bh-me__actions { width: 100%; margin-left: 0; }
     .bh-me__actions .nx-btn--primary { order: -1; width: 100%; }
 
-    .bh-dash { grid-template-columns: 1fr; gap: 32px; }
+    .bh-dash { grid-template-columns: minmax(0, 1fr); gap: 32px; }
     .bh-dash__main { gap: 32px; }
     .bh-side .bh-phone { display: none; }
     .bh-areas { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .bh-area > a { grid-template-columns: 36px minmax(0, 1fr); align-items: center; padding: 12px 14px; }
-    .bh-area__ico { grid-row: auto; width: 36px; height: 36px; }
+    /* «Impostazioni» è lunga 99px: ci sta di fianco all'icona da 372px in su. */
+    .bh-area > a { grid-template-columns: 32px minmax(0, 1fr); align-items: center; gap: 2px 10px; padding: 12px; }
+    .bh-area__ico { grid-row: auto; width: 32px; height: 32px; }
     .bh-area__desc { display: none; }
     .bh-vis .nx-tabs { width: 100%; }
-    .bh-vis .nx-tab { flex: 1; padding: 0 4px; white-space: nowrap; font-size: 0.8125rem; }
+    /* Col prefisso del tema, altrimenti vince html[data-theme="next"] .nx-tab (padding 0 1rem)
+       e le quattro voci allargano la colonna oltre il bordo dello schermo. */
+    html[data-theme="next"] .bh-vis .nx-tab { flex: 1; padding: 0 4px; white-space: nowrap; font-size: 0.8125rem; }
 
     .bh-ex-head { flex-direction: column; align-items: stretch; gap: 20px; padding: 20px 0 22px; }
     .bh-ex-head h1 { font-size: 2.25rem; }
@@ -536,6 +539,99 @@ a.nx-tab:hover { color: var(--nx-text); }
 .bh-qr img { width: 100%; max-width: 280px; margin: 0 auto 16px; border-radius: 16px; background: #fff; }
 .bh-qr p { margin: 0 0 16px; color: var(--nx-text-2); font-size: 0.875rem; word-break: break-all; }
 
+/* Le visite per giorno (fase 6): una serie, colonne grigie sottili, la piu'
+   vicina al puntatore diventa bianca. Grigio voluto: il sito non usa colori
+   decorativi, e #8e8e93 sul fondo della scheda passa il contrasto 3:1. */
+.bh-views__head { display: flex; align-items: baseline; gap: 10px; }
+.bh-views__head strong { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.02em; }
+.bh-views__head span { color: var(--nx-text-2); }
+
+.bh-chart { position: relative; margin-top: 20px; padding-top: 10px; border-radius: 12px; outline: none; }
+.bh-chart:focus-visible { outline: 2px solid var(--nx-text); outline-offset: 6px; }
+
+.bh-chart__plot {
+    position: relative;
+    height: 150px;
+    border-top: 1px solid var(--nx-line);
+    border-bottom: 1px solid var(--nx-line);
+}
+
+.bh-chart__top {
+    position: absolute;
+    top: -9px;
+    right: 0;
+    padding-left: 8px;
+    background: var(--nx-surface);
+    color: var(--nx-text-3);
+    font-size: 0.75rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.bh-chart__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none;
+}
+
+.bh-chart__bars li {
+    display: flex;
+    flex: 1;
+    align-items: flex-end;
+    justify-content: center;
+    height: 100%;
+}
+
+.bh-chart__bars span {
+    display: block;
+    width: 100%;
+    max-width: 24px;
+    border-radius: 4px 4px 0 0;
+    background: #8e8e93;
+    transition: background-color .15s var(--nx-ease);
+}
+
+.bh-chart__bars li:hover span,
+.bh-chart__bars li.is-active span { background: var(--nx-text); }
+
+.bh-chart__x {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    color: var(--nx-text-3);
+    font-size: 0.75rem;
+}
+
+.bh-chart__tip {
+    position: absolute;
+    z-index: 2;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 8px));
+}
+
+.bh-views__table { margin-top: 18px; }
+.bh-views__table summary { color: var(--nx-text-2); cursor: pointer; font-size: 0.875rem; }
+.bh-views__table summary:hover { color: var(--nx-text); }
+.bh-views__table .nx-table { margin-top: 10px; }
+.bh-views__table[open] { max-height: 340px; overflow: auto; }
+.bh-views .bh-small { padding: 12px 0 0; }
+
+@media (max-width: 900px) {
+    .bh-chart__plot { height: 120px; }
+    .bh-chart__bars { gap: 1px; }
+}
+
 /* Messaggio in basso (copia, salvato). */
 .bh-toast {
     position: fixed;
@@ -553,6 +649,11 @@ a.nx-tab:hover { color: var(--nx-text); }
 
 @media (max-width: 900px) {
     .bh-claim-card .nx-btn { width: 100%; }
+}
+
+/* Telefoni stretti (360, 320): l'icona va sopra il nome, se no «Impostazioni» esce dalla scheda. */
+@media (max-width: 371px) {
+    .bh-area > a { grid-template-columns: minmax(0, 1fr); gap: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

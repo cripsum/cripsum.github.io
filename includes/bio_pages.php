@@ -118,6 +118,16 @@ function bio_t(string $key, string $lang): string
             'preview' => 'Anteprima della tua pagina',
             'views' => 'Visite',
             'last_edit' => 'Ultima modifica',
+            'v_title' => 'Visite',
+            'v_total' => 'negli ultimi 30 giorni',
+            'v_aria' => 'Visite al giorno negli ultimi 30 giorni: %d in tutto, al massimo %d in un giorno.',
+            'v_one' => '1 visita',
+            'v_many' => '%d visite',
+            'v_table' => 'Vedi i numeri',
+            'v_day' => 'Giorno',
+            'v_since' => 'Il conto per giorno parte dal %s.',
+            'v_off' => 'Hai spento le statistiche: le visite per giorno non si contano. Le riaccendi nelle %s.',
+            'v_off_link' => 'Impostazioni',
             'today' => 'oggi',
             'yesterday' => 'ieri',
             'days_ago' => 'giorni fa',
@@ -221,6 +231,16 @@ function bio_t(string $key, string $lang): string
             'preview' => 'Preview of your page',
             'views' => 'Views',
             'last_edit' => 'Last edit',
+            'v_title' => 'Views',
+            'v_total' => 'in the last 30 days',
+            'v_aria' => 'Views per day in the last 30 days: %d in total, at most %d in a day.',
+            'v_one' => '1 view',
+            'v_many' => '%d views',
+            'v_table' => 'See the numbers',
+            'v_day' => 'Day',
+            'v_since' => 'Daily counting starts on %s.',
+            'v_off' => 'You turned statistics off: daily views are not counted. Turn them back on in %s.',
+            'v_off_link' => 'Settings',
             'today' => 'today',
             'yesterday' => 'yesterday',
             'days_ago' => 'days ago',
@@ -424,6 +444,153 @@ function bio_pending_friend_requests(mysqli $mysqli, int $userId): int
     $stmt->close();
 
     return $n;
+}
+
+/**
+ * Le visite ricevute giorno per giorno negli ultimi $days giorni (oggi
+ * compreso), dalle statistiche del Rewind: profile_increment_views() le scrive
+ * gia' in user_daily_stats.profile_views_received, una volta per visitatore e
+ * sessione come il contatore totale. Niente tabella nuova.
+ *
+ * Restituisce ['state' => 'ok', 'days' => [Y-m-d => visite], 'since' => primo
+ * giorno con statistiche o null], ['state' => 'off'] se la persona ha spento le
+ * statistiche (Impostazioni, Rewind), ['state' => 'none'] se la tabella non c'e'.
+ */
+function bio_owner_daily_views(mysqli $mysqli, int $userId, int $days = 30): array
+{
+    if (!auth_table_exists($mysqli, 'user_daily_stats') || !auth_column_exists($mysqli, 'user_daily_stats', 'profile_views_received')) {
+        return ['state' => 'none'];
+    }
+
+    if (auth_table_exists($mysqli, 'user_stats_prefs')) {
+        $stmt = $mysqli->prepare('SELECT tracking_enabled FROM user_stats_prefs WHERE utente_id = ? LIMIT 1');
+        if ($stmt) {
+            $stmt->bind_param('i', $userId);
+            $stmt->execute();
+            $pref = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            if ($pref && (int)$pref['tracking_enabled'] === 0) {
+                return ['state' => 'off'];
+            }
+        }
+    }
+
+    $series = [];
+    for ($i = $days - 1; $i >= 0; $i--) {
+        $series[date('Y-m-d', strtotime("-{$i} days"))] = 0;
+    }
+    $from = array_key_first($series);
+
+    $stmt = $mysqli->prepare('SELECT day, profile_views_received AS views FROM user_daily_stats WHERE utente_id = ? AND day >= ?');
+    if (!$stmt) {
+        return ['state' => 'none'];
+    }
+    $stmt->bind_param('is', $userId, $from);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $day = substr((string)$row['day'], 0, 10);
+        if (isset($series[$day])) {
+            $series[$day] = (int)$row['views'];
+        }
+    }
+    $stmt->close();
+
+    // Da quando ci sono statistiche: se e' dentro la finestra, si dice.
+    $since = null;
+    $stmt = $mysqli->prepare('SELECT MIN(day) AS first_day FROM user_daily_stats WHERE utente_id = ?');
+    if ($stmt) {
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $first = substr((string)($stmt->get_result()->fetch_assoc()['first_day'] ?? ''), 0, 10);
+        $stmt->close();
+        $since = $first !== '' && $first > $from ? $first : null;
+    }
+
+    return ['state' => 'ok', 'days' => $series, 'since' => $since];
+}
+
+/** «19 ott» / «Oct 19». Senza intl: i nomi dei mesi sono qui. */
+function bio_short_date(string $ymd, string $lang): string
+{
+    $ts = strtotime($ymd);
+    $month = (int)date('n', $ts) - 1;
+    $it = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+    $en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    return $lang === 'it' ? date('j', $ts) . ' ' . $it[$month] : $en[$month] . ' ' . date('j', $ts);
+}
+
+/** Il valore pulito sopra il massimo, per la riga in alto del grafico: 1, 2, 5, 10, 20, 50... */
+function bio_nice_max(int $max): int
+{
+    if ($max <= 1) {
+        return 1;
+    }
+    $power = 10 ** (int)floor(log10($max));
+    foreach ([1, 2, 5, 10] as $step) {
+        if ($step * $power >= $max) {
+            return $step * $power;
+        }
+    }
+
+    return 10 * $power;
+}
+
+/**
+ * Le visite per giorno: un istogramma a colonne, una sola serie. Colonne
+ * sottili grigie col bordo arrotondato in cima, 2px di spazio fra l'una e
+ * l'altra, una riga in alto col valore pulito e la base; sotto il primo giorno
+ * e «oggi». Passando sopra una colonna (o con le frecce, col grafico a fuoco)
+ * si vedono giorno e visite; i numeri sono anche nella tabella sotto.
+ */
+function bio_render_views_chart(array $data, string $lang): void
+{
+    $t = static fn(string $key): string => bio_t($key, $lang);
+
+    if (($data['state'] ?? '') === 'off') {
+        ?>
+        <p class="bh-small"><?= sprintf(bio_h($t('v_off')), '<a href="' . bio_h(cripsum_main_url($lang . '/impostazioni')) . '">' . bio_h($t('v_off_link')) . '</a>') ?></p>
+        <?php
+        return;
+    }
+
+    $days = $data['days'];
+    $total = array_sum($days);
+    $max = max($days);
+    $top = bio_nice_max($max);
+    $keys = array_keys($days);
+    $views = static fn(int $n): string => $n === 1 ? $t('v_one') : sprintf($t('v_many'), $n);
+    ?>
+    <div class="bh-views__head"><strong><?= number_format($total, 0, ',', '.') ?></strong><span><?= bio_h($t('v_total')) ?></span></div>
+    <div class="bh-chart" tabindex="0" role="img" aria-label="<?= bio_h(sprintf($t('v_aria'), $total, $max)) ?>" data-bh-chart>
+        <div class="bh-chart__plot">
+            <span class="bh-chart__top" aria-hidden="true"><?= number_format($top, 0, ',', '.') ?></span>
+            <ol class="bh-chart__bars" aria-hidden="true">
+                <?php foreach ($days as $day => $count): ?>
+                    <?php $label = $day === end($keys) ? $t('today') : bio_short_date($day, $lang); ?>
+                    <li data-tip="<?= bio_h($views($count) . ' · ' . $label) ?>"><span style="height:<?= round($count / $top * 100, 2) ?>%"></span></li>
+                <?php endforeach; ?>
+            </ol>
+        </div>
+        <div class="bh-chart__x" aria-hidden="true"><span><?= bio_h(bio_short_date($keys[0], $lang)) ?></span><span><?= bio_h($t('today')) ?></span></div>
+        <div class="bh-chart__tip" role="status" hidden></div>
+    </div>
+    <details class="bh-views__table">
+        <summary><?= bio_h($t('v_table')) ?></summary>
+        <table class="nx-table">
+            <thead><tr><th scope="col"><?= bio_h($t('v_day')) ?></th><th scope="col"><?= bio_h($t('v_title')) ?></th></tr></thead>
+            <tbody>
+                <?php foreach (array_reverse($days, true) as $day => $count): ?>
+                    <tr><td><?= bio_h($day === end($keys) ? $t('today') : bio_short_date($day, $lang)) ?></td><td><?= (int)$count ?></td></tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </details>
+    <?php if (!empty($data['since'])): ?>
+        <p class="bh-small"><?= bio_h(sprintf($t('v_since'), bio_short_date((string)$data['since'], $lang))) ?></p>
+    <?php endif; ?>
+    <?php
 }
 
 /** «oggi», «ieri», «3 giorni fa». */

@@ -141,6 +141,7 @@ $todoDone = count(array_filter($todo, static fn(array $item): bool => $item[1]))
 $isNew = !empty($owner['data_creazione']) && strtotime((string)$owner['data_creazione']) > time() - 86400;
 [$editNumber, $editWord] = bio_days_ago($owner['profile_updated_at'] ?? null, $lang);
 $requests = bio_pending_friend_requests($mysqli, $userId);
+$dailyViews = bio_owner_daily_views($mysqli, $userId);
 // L'editor sta su bio (bio/editor.php); l'area si apre col frammento.
 $editorUrl = static fn(string $area): string => '/editor#' . $area;
 
@@ -240,6 +241,13 @@ bio_page_open($t('your_page') . ' — ' . $bioHost, $t('meta_desc'), $lang, 'bh-
                 <?php endforeach; ?>
             </ul>
         </section>
+
+        <?php if ($dailyViews['state'] !== 'none'): ?>
+            <section>
+                <h2><?= bio_h($t('v_title')) ?></h2>
+                <div class="bh-panel bh-views"><?php bio_render_views_chart($dailyViews, $lang); ?></div>
+            </section>
+        <?php endif; ?>
     </div>
 
     <aside class="bh-side">
