@@ -128,7 +128,7 @@ RewriteRule ^user/([a-zA-Z0-9_]{3,20})/?$ profile.php?username=$1 [L,QSA]
 # fondo toglie la query, che altrimenti si sommerebbe a username=cripsum.
 RewriteRule ^bio(?:\.php)?/?$ /u/cripsum? [R=301,L,NC]
 
-# La 404 esce solo da 404.php: 404.html da sola ha ancora l'aspetto vecchio.
+# /404 e /404.html (dove stava la pagina prima) danno la 404 vera.
 RewriteRule ^404(?:\.html)?/?$ 404.php [L,NC]
 
 RewriteRule ^it/game/?$ /it/game/lobby.php [L,QSA]

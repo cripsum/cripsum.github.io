@@ -1833,30 +1833,6 @@ body[data-theme="light"] .ds-status-dot {
     grid-column: 1 / -1;
 }
 
-.bio-state-page {
-    grid-template-columns: minmax(0, 560px);
-    justify-content: center;
-    align-content: center;
-}
-
-.bio-state-card {
-    padding: 2rem;
-    text-align: center;
-}
-
-.bio-state-card h1 {
-    margin: 1rem 0 0.5rem;
-    font-size: clamp(2.2rem, 6vw, 4rem);
-    letter-spacing: -0.06em;
-}
-
-.bio-state-card p {
-    margin: 0 auto 1.2rem;
-    color: var(--muted);
-    line-height: 1.6;
-    max-width: 32rem;
-}
-
 .bio-activity-list a {
     color: var(--text);
     text-decoration: none;

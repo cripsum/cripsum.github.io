@@ -333,26 +333,59 @@ if ($isNotFound || $isDeactivated) {
     exit;
 }
 
+// A profile this visitor may not see gets its notice on the site's own page,
+// the same for every profile: none of the owner's background, colours or tab
+// title shows through.
+if ($isPrivateBlocked || $isLoginBlocked) {
+    require_once __DIR__ . '/includes/avviso_page.php';
+
+    $noticeLang = cripsum_preferred_lang();
+    $nt = static fn(string $it, string $en): string => $noticeLang === 'it' ? $it : $en;
+    $noticeUser = '@' . $profile['username'];
+    $homeAction = ['href' => '/' . $noticeLang . '/home', 'icon' => 'fa-house', 'label' => $nt('Torna alla home', 'Go back home')];
+    $backAction = ['href' => 'javascript:history.back()', 'icon' => 'fa-arrow-left', 'label' => $nt('Indietro', 'Go back')];
+
+    if ($isLoginBlocked) {
+        // Logging in from here brings them back to this profile.
+        $_SESSION['redirect_after_login'] = '/u/' . rawurlencode(strtolower((string)$profile['username']));
+        $notice = [
+            'icon' => 'fa-user-lock',
+            'headline' => $nt('Accesso richiesto', 'Login required'),
+            'text' => $nt('Questo profilo è visibile solo agli utenti registrati.', 'This profile is only visible to registered users.'),
+            'actions' => [
+                ['href' => '/' . $noticeLang . '/accedi', 'icon' => 'fa-right-to-bracket', 'label' => $nt('Accedi', 'Log in'), 'primary' => true],
+                $homeAction,
+            ],
+        ];
+    } elseif (($profile['profile_visibility'] ?? '') === 'friends') {
+        $notice = [
+            'icon' => 'fa-user-group',
+            'headline' => $nt('Solo amici', 'Friends only'),
+            'text' => $nt('Il profilo di ' . $noticeUser . ' è visibile solo agli amici.', $noticeUser . '\'s profile is only visible to friends.'),
+            'actions' => [$homeAction + ['primary' => true], $backAction],
+        ];
+    } else {
+        $notice = [
+            'icon' => 'fa-lock',
+            'headline' => $nt('Profilo privato', 'Private profile'),
+            'text' => $nt($noticeUser . ' non mostra questo profilo.', $noticeUser . ' is not showing this profile.'),
+            'actions' => [$homeAction + ['primary' => true], $backAction],
+        ];
+    }
+
+    cripsum_avviso_page($notice + [
+        'status' => 200,
+        'lang' => $noticeLang,
+        'title' => $notice['headline'],
+        'og' => cripsum_og_profile($mysqli, $profile),
+    ]);
+    exit;
+}
+
 function profile_flag(array $profile, string $key, bool $default = true): bool
 {
     if (!array_key_exists($key, $profile)) return $default;
     return (int)$profile[$key] === 1;
-}
-
-function profile_state_page(string $code, string $title, string $text, ?string $buttonText = null, ?string $buttonUrl = null): void
-{
-?>
-    <main class="bio-page bio-state-page profile-smart-page profile-smart-page--single">
-        <section class="bio-card bio-state-card js-reveal">
-            <span class="bio-pill"><?php echo profile_h($code); ?></span>
-            <h1><?php echo profile_h($title); ?></h1>
-            <p><?php echo profile_h($text); ?></p>
-            <?php if ($buttonText && $buttonUrl): ?>
-                <a class="bio-button bio-button--primary" href="<?php echo profile_h($buttonUrl); ?>"><?php echo profile_h($buttonText); ?></a>
-            <?php endif; ?>
-        </section>
-    </main>
-<?php
 }
 
 function profile_render_background(?array $profile, ?string $backgroundUrl, string $backgroundType): void
@@ -1080,19 +1113,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
     <?php profile_render_background($profile, $backgroundUrl, $backgroundType); ?>
     <div class="profile-effects-layer" aria-hidden="true"></div>
 
-    <?php if ($isPrivateBlocked): ?>
-        <?php
-        $blockTitle = (($profile['profile_visibility'] ?? '') === 'friends')
-            ? (($lang === 'it') ? 'Solo Amici' : 'Friends Only')
-            : (($lang === 'it') ? 'Profilo Privato' : 'Private Profile');
-        $blockText = (($profile['profile_visibility'] ?? '') === 'friends')
-            ? (($lang === 'it') ? 'Il profilo di @' . $profile['username'] . ' è visibile solo agli amici.' : '@' . $profile['username'] . '\'s profile is only visible to friends.')
-            : (($lang === 'it') ? '@' . $profile['username'] . ' non mostra questo profilo.' : '@' . $profile['username'] . ' is not showing this profile.');
-        profile_state_page('Private', $blockTitle, $blockText, 'Home', '/' . $lang . '/home');
-        ?>
-    <?php elseif ($isLoginBlocked): ?>
-        <?php profile_state_page('Login', $pt('Accesso richiesto', 'Login Required'), $pt('Questo profilo è visibile solo agli utenti registrati.', 'This profile is only visible to registered users.'), $pt('Accedi', 'Log In'), '/' . $lang . '/accedi'); ?>
-    <?php else: ?>
         <?php
         $tiltAttrs = 'data-tilt-enabled="' . (int)($profile['tilt_enabled'] ?? 1) . '" ' .
             'data-tilt-max="' . (int)($profile['tilt_max'] ?? 15) . '" ' .
@@ -1871,7 +1891,6 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                 </section>
             <?php endif; ?>
         </main>
-    <?php endif; ?>
 
     <?php /* Navigazione, ricerca utenti e segnalazione: i pulsanti del menu li
              cercano per id, e senza questo markup non si apriva niente. */ ?>
