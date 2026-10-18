@@ -155,7 +155,7 @@ if ($claim !== '' && (trim((string)($owner['custom_alias'] ?? '')) !== '' || bio
 bio_page_open($t('your_page') . ' — ' . $bioHost, $t('meta_desc'), $lang, 'bh-page-pannello');
 ?>
 <header class="bh-me"<?= $accent ? ' style="--acc:' . bio_h($accent) . '"' : '' ?>>
-    <img class="bh-me__pfp" src="/includes/get_pfp.php?id=<?= (int)$owner['id'] ?>" alt="">
+    <img class="bh-me__pfp" src="<?= bio_h(profile_avatar_url($owner, 128)) ?>" alt="">
     <div>
         <h1><?= bio_h($t('your_page')) ?></h1>
         <p class="bh-me__link"><?= bio_h($bioHost) ?>/<b><?= bio_h($name) ?></b></p>

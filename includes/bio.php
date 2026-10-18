@@ -19,24 +19,36 @@ declare(strict_types=1);
 /** Gli host che sono bio. */
 const CRIPSUM_BIO_HOSTS = ['bio.cripsum.com', 'bio-prova.cripsum.com', 'bio.localhost'];
 
-/**
- * bio.cripsum.com e' aperto a tutti? Finche' e' false, su Cloudflare ci sono
- * ancora le regole che rimandano bio.cripsum.com al profilo di cripsum, e il
- * sito non ci manda nessuno (la voce «La tua pagina» del menu c'e' solo
- * quando si e' gia' su bio, cioe' su bio-prova). Si mette a true il giorno in
- * cui si tolgono quelle regole (fase 5 del piano).
+/*
+ * I due interruttori dell'apertura (fase 5 del piano, 18 ottobre 2026).
+ *
+ * ATTENZIONE all'ordine. Con questi a true, cripsum.com manda i profili su
+ * bio.cripsum.com: se su Cloudflare ci sono ancora le due regole che rimandano
+ * bio.cripsum.com a cripsum.com, i profili con un alias girano in tondo.
+ * Quindi: prima si tolgono le regole su Cloudflare, poi si carica questo file
+ * con true. Per tornare indietro, al contrario: prima false qui, poi le regole.
  */
-const CRIPSUM_BIO_OPEN = false;
 
 /**
- * I profili vivono su bio? Con true l'indirizzo vero di un profilo diventa
- * bio.cripsum.com/<alias o username>: cripsum.com/u/<nome>, /<alias> e gli
+ * bio.cripsum.com e' aperto a tutti: il sito ci manda la gente (la voce «La
+ * tua pagina» nel menu dell'account). Con false la voce c'e' solo quando si e'
+ * gia' su bio.
+ */
+const CRIPSUM_BIO_OPEN = true;
+
+/**
+ * I profili vivono su bio: l'indirizzo vero di un profilo e'
+ * bio.cripsum.com/<alias o username>; cripsum.com/u/<nome>, /<alias> e gli
  * altri vecchi indirizzi portano li' con un 301, l'editor di cripsum.com porta
  * a bio.cripsum.com/editor, e anteprime dei link e canonical usano bio.
- * Si mette a true all'apertura (fase 5) insieme a CRIPSUM_BIO_OPEN; rimetterlo
- * a false riporta i profili su cripsum.com/u/ senza toccare altro.
+ * Rimetterlo a false riporta i profili su cripsum.com/u/ senza toccare altro.
  */
-const CRIPSUM_BIO_PROFILES = false;
+const CRIPSUM_BIO_PROFILES = true;
+
+// bio-prova serve solo a provare: che i motori di ricerca non lo indicizzino.
+if (PHP_SAPI !== 'cli' && !headers_sent() && cripsum_request_host() === 'bio-prova.cripsum.com') {
+    header('X-Robots-Tag: noindex, nofollow');
+}
 
 /**
  * L'indirizzo pieno di un profilo, quello da linkare e condividere: su bio se

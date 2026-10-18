@@ -155,7 +155,7 @@ function cripsum_reserved_names(): array
         'login', 'accedi', 'settings', 'impostazioni', 'dashboard', 'help', 'support', 'search', 'ohpy', 'esports',
         'cripsumpedia', 'rewind', 'bot', 'edits',
         // Pagine di bio.cripsum.com
-        'esplora', 'explore', 'editor', 'esci', 'callback', 'vetrina', 'cerca', 'home',
+        'esplora', 'explore', 'editor', 'esci', 'callback', 'vetrina', 'cerca', 'home', 'prendi',
     ];
 }
 

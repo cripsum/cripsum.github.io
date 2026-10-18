@@ -556,7 +556,7 @@ function bio_render_card(array $row, bool $staff, string $lang): void
                 <div class="bh-card__bg bh-card__bg--plain"></div>
             <?php endif; ?>
             <div class="bh-card__body">
-                <img class="bh-card__pfp" src="/includes/get_pfp.php?id=<?= (int)$row['id'] ?>" alt="" loading="lazy" decoding="async">
+                <img class="bh-card__pfp" src="<?= bio_h(profile_avatar_url($row, 128)) ?>" alt="" loading="lazy" decoding="async">
                 <span class="bh-card__text">
                     <span class="bh-card__name"><?= bio_h($display) ?></span>
                     <span class="bh-card__url"><?= bio_h((string)parse_url(cripsum_bio_url(), PHP_URL_HOST)) ?>/<?= bio_h($name) ?></span>
