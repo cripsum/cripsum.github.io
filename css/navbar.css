@@ -1403,6 +1403,28 @@
     }
 }
 
+/* Telefoni stretti da dentro: logo, lingua, campanella, avatar e menu su una
+   riga sola. A 360px mancavano 2px e il menu andava a capo (navbar-search.css
+   sotto i 375px mette flex-wrap): si stringono gli spazi. Sotto i 360px non
+   basta, e la scritta «Cripsum™» lascia il posto al logo, che resta il link
+   alla home (alt «Cripsum»). Da ospite c'e' posto e la scritta resta. */
+@media (max-width: 374.98px) {
+    .navbarutenti .navbar-brand {
+        margin-right: 8px;
+    }
+
+    .navbarutenti .navbar-mobile-actions {
+        gap: 4px !important;
+        margin-right: 4px !important;
+    }
+}
+
+@media (max-width: 359.98px) {
+    .navbarutenti .container-fluid:has(.cnav-avatar-btn) .navbar-brand span {
+        display: none;
+    }
+}
+
 /* ── Hamburger ───────────────────────────────────────────────
    I fogli di tema ruotano l'icona di 90 gradi all'apertura: tre righe
    orizzontali diventano tre righe verticali, che non vogliono dire niente.
