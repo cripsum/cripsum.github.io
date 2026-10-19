@@ -34,7 +34,8 @@ function duel_character_kit(array $char, int $level, array $opts = []): array
     $role = duel_role_key((string)($char['ruolo'] ?? ''));
     $kit = duel_role_kit($role, $rarity, $opts);
 
-    $unique = duel_unique_kits()[$id] ?? null;
+    // Un kit scritto dal pannello (game_kits) vale piu' di quello del codice.
+    $unique = duel_overrides()['kits'][$id] ?? duel_unique_kits()[$id] ?? null;
     if ($unique) {
         foreach ($unique as $key => $value) {
             $kit[$key] = $value;

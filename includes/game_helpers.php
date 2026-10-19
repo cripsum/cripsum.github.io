@@ -97,6 +97,15 @@ function gd_inv_cols(mysqli $m): array
         'qty' => gd_first($c, ['quantità', 'quantita', 'quantity', 'qty'])
     ];
 }
+/**
+ * Le partite dei Duelli 2.0 stanno nella stessa tabella (engine_version non
+ * nullo) ma le gioca un altro motore (includes/duel/): queste funzioni non
+ * devono vederle. Prima della migrazione la colonna non c'e' e non serve.
+ */
+function gd_v1_only(mysqli $m, string $alias = ''): string
+{
+    return gd_has_col($m, 'game_matches', 'engine_version') ? ' AND ' . ($alias !== '' ? $alias . '.' : '') . 'engine_version IS NULL' : '';
+}
 function gd_room_code(): string
 {
     return strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
@@ -389,6 +398,9 @@ function gd_match(mysqli $m, int $mid): ?array
     $st->execute();
     $r = $st->get_result()->fetch_assoc();
     $st->close();
+    if ($r && !empty($r['engine_version'])) {
+        return null; // partita dei Duelli 2.0
+    }
     return $r ?: null;
 }
 function gd_is_player(array $match, int $uid): bool

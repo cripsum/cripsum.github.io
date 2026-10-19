@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/rules.php';
+
 /**
  * Duelli 2.0 — il catalogo degli stati, dei terreni e delle interazioni.
  *
@@ -21,13 +23,14 @@ declare(strict_types=1);
  *   "finche' non si consuma"
  * - it, en: nome; d_it, d_en: descrizione con {v} {t} {max}
  */
-
 function duel_statuses(): array
 {
     static $all = null;
-    if ($all !== null) {
+    static $gen = -1;
+    if ($all !== null && $gen === DuelOverrides::$gen) {
         return $all;
     }
+    $gen = DuelOverrides::$gen;
 
     $all = [
         // ── Danni nel tempo ───────────────────────────────────────────────
@@ -159,6 +162,16 @@ function duel_statuses(): array
         'resistenza' => ['fam' => 'spe', 'neg' => false, 'cc' => false, 'stack' => 'refresh', 'max' => 1, 'v' => 0, 't' => 1,
             'it' => 'Resistenza al controllo', 'en' => 'Control resistance', 'd_it' => 'Per un turno non riceve controlli.', 'd_en' => 'Cannot be controlled for a turn.'],
     ];
+
+    // Valori cambiati dal pannello: solo valore, durata e massimo, solo numeri.
+    foreach (duel_overrides()['status'] as $key => $values) {
+        foreach (['v', 't', 'max'] as $field) {
+            if (isset($all[$key], $values[$field]) && is_numeric($values[$field])) {
+                $num = (float)$values[$field];
+                $all[$key][$field] = $field === 'v' && floor($num) !== $num ? $num : (int)$num;
+            }
+        }
+    }
 
     return $all;
 }

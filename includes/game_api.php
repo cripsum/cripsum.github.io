@@ -58,7 +58,7 @@ function gd_api_find_match(mysqli $mysqli): void {
 
     $mysqli->begin_transaction();
     try {
-        $q = $mysqli->prepare("SELECT * FROM game_matches WHERE status='waiting' AND mode=? AND player1_id<>? AND player2_id IS NULL ORDER BY created_at ASC LIMIT 1 FOR UPDATE");
+        $q = $mysqli->prepare("SELECT * FROM game_matches WHERE status='waiting' AND mode=? AND player1_id<>? AND player2_id IS NULL" . gd_v1_only($mysqli) . " ORDER BY created_at ASC LIMIT 1 FOR UPDATE");
         if (!$q) throw new Exception('prepare');
         $q->bind_param('si', $mode, $uid);
         $q->execute();
@@ -101,7 +101,7 @@ function gd_api_join_match(mysqli $mysqli): void {
     $mysqli->begin_transaction();
 
     try {
-        $q = $mysqli->prepare('SELECT * FROM game_matches WHERE room_code=? LIMIT 1 FOR UPDATE');
+        $q = $mysqli->prepare('SELECT * FROM game_matches WHERE room_code=?' . gd_v1_only($mysqli) . ' LIMIT 1 FOR UPDATE');
         if (!$q) throw new Exception('prepare');
         $q->bind_param('s', $code);
         $q->execute();
@@ -224,7 +224,7 @@ function gd_api_action(mysqli $mysqli): void {
 
     $mysqli->begin_transaction();
     try {
-        $st = $mysqli->prepare('SELECT * FROM game_matches WHERE id=? LIMIT 1 FOR UPDATE');
+        $st = $mysqli->prepare('SELECT * FROM game_matches WHERE id=?' . gd_v1_only($mysqli) . ' LIMIT 1 FOR UPDATE');
         $st->bind_param('i', $mid);
         $st->execute();
         $match = $st->get_result()->fetch_assoc();
@@ -318,7 +318,7 @@ function gd_api_send_chat(mysqli $mysqli): void {
     gd_ok(['message' => 'Messaggio inviato.']);
 }
 
-function gd_api_active_match(mysqli $mysqli): void { $uid=gd_require_login(); $q=$mysqli->prepare("SELECT id,room_code,status,mode FROM game_matches WHERE (player1_id=? OR player2_id=?) AND status IN ('waiting','team_select','active') ORDER BY updated_at DESC LIMIT 1"); $q->bind_param('ii',$uid,$uid); $q->execute(); $m=$q->get_result()->fetch_assoc(); $q->close(); gd_ok(['match'=>$m ?: null]); }
+function gd_api_active_match(mysqli $mysqli): void { $uid=gd_require_login(); $q=$mysqli->prepare("SELECT id,room_code,status,mode FROM game_matches WHERE (player1_id=? OR player2_id=?) AND status IN ('waiting','team_select','active')" . gd_v1_only($mysqli) . " ORDER BY updated_at DESC LIMIT 1"); $q->bind_param('ii',$uid,$uid); $q->execute(); $m=$q->get_result()->fetch_assoc(); $q->close(); gd_ok(['match'=>$m ?: null]); }
 
 function gd_api_live_matches(mysqli $mysqli): void {
     $uid = gd_require_login();
@@ -346,6 +346,7 @@ function gd_api_live_matches(mysqli $mysqli): void {
           AND m.mode <> 'bot'
           AND m.player2_id IS NOT NULL
           AND m.spectator_allowed = 1
+          " . gd_v1_only($mysqli, 'm') . "
         ORDER BY m.updated_at DESC
         LIMIT 12
     ";

@@ -23,15 +23,57 @@ const DUEL_ENGINE_VERSION = 1;
 const DUEL_ROLES = ['Tank', 'Bruiser', 'DPS', 'Burst DPS', 'Sub DPS', 'Support', 'Healer', 'Controller', 'Debuffer', 'Buffer'];
 
 /**
+ * I valori cambiati dal pannello (tabelle game_catalog_values, game_kits,
+ * game_traits): li carica includes/duel/db.php e li passa qui, perche' il
+ * motore resti senza database. Senza argomenti restituisce quelli attivi.
+ *
+ * - rules:  [chiave di duel_rules() => valore]
+ * - status: [stato => ['v' => .., 't' => .., 'max' => ..]]
+ * - kits:   [id del personaggio => kit come quelli di kits_unique.php]
+ * - traits: elenco dei legami come duel_traits(), o null = quelli del codice
+ *
+ * Una partita usa le regole con cui e' cominciata: lo store le salva con la
+ * partita e le rimette qui prima di ogni mossa.
+ */
+function duel_overrides(?array $set = null): array
+{
+    if ($set !== null) {
+        DuelOverrides::$gen++;
+        DuelOverrides::$data = [
+            'gen' => DuelOverrides::$gen,
+            'rules' => $set['rules'] ?? [],
+            'status' => $set['status'] ?? [],
+            'kits' => $set['kits'] ?? [],
+            'traits' => $set['traits'] ?? null,
+        ];
+    }
+    return DuelOverrides::$data;
+}
+
+/**
+ * Dove stanno i valori del pannello. Una proprieta' statica e non una
+ * funzione: duel_rules() e duel_statuses() la guardano a ogni chiamata (il
+ * motore le chiama migliaia di volte a partita) e cosi' non costa niente.
+ */
+final class DuelOverrides
+{
+    public static int $gen = 0;
+    public static array $data = ['gen' => 0, 'rules' => [], 'status' => [], 'kits' => [], 'traits' => null];
+}
+
+/**
  * Le costanti del combattimento. Valori di partenza: il simulatore e il
- * pannello li tarano senza toccare il codice.
+ * pannello li tarano senza toccare il codice (duel_overrides()).
  */
 function duel_rules(): array
 {
     static $rules = null;
-    if ($rules !== null) {
+    static $gen = -1;
+    if ($rules !== null && $gen === DuelOverrides::$gen) {
         return $rules;
     }
+    $gen = DuelOverrides::$gen;
+    $over = DuelOverrides::$data;
 
     $rules = [
         // Danno = ATK × % × K / (K + DEF × (1 − penetrazione)) × bonus × critico × caso.
@@ -85,6 +127,14 @@ function duel_rules(): array
         'level_max' => 6,
         'level_step' => 4,             // % a livello su HP, ATK, DEF
     ];
+
+    // Solo chiavi che esistono e solo numeri: un valore sbagliato nel
+    // pannello non deve poter rompere il motore.
+    foreach ($over['rules'] as $key => $value) {
+        if (array_key_exists($key, $rules) && is_numeric($value)) {
+            $rules[$key] = is_int($rules[$key]) ? (int)round((float)$value) : (float)$value;
+        }
+    }
 
     return $rules;
 }

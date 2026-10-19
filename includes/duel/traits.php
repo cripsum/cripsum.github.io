@@ -17,10 +17,19 @@ declare(strict_types=1);
  * - charge: carica dell'ultimate a inizio partita
  * - ps: punti squadra a inizio partita (una volta per legame)
  * - regen: Rigenerazione % per 2 turni a inizio partita
+ *
+ * Quando il pannello li ha cambiati (tabelle game_traits e
+ * game_character_traits) valgono quelli del database: duel_overrides().
  */
+
+require_once __DIR__ . '/rules.php';
 
 function duel_traits(): array
 {
+    $fromDb = duel_overrides()['traits'];
+    if (is_array($fromDb)) {
+        return $fromDb;
+    }
     return [
         'amici' => ['it' => 'Amici di Cripsum', 'en' => 'Cripsum\'s friends', 'cat' => ['Friends'],
             'tiers' => [2 => ['hp' => 6], 3 => ['hp' => 6, 'atk' => 6]]],

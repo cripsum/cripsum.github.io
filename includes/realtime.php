@@ -113,6 +113,17 @@ if (!function_exists('rt_dir')) {
             return $bucket . '/' . $name . '.php';
         }
 
+        // Una partita dei duelli: solo versione e scadenza del turno, niente
+        // di privato (chi puo' vedere la partita lo decide api/duel/state.php).
+        if (strncmp($key, 'd:', 2) === 0) {
+            $matchId = (int)substr($key, 2);
+            $bucket = $dir . '/d/' . sprintf('%02d', $matchId % 100);
+            if (!is_dir($bucket)) {
+                @mkdir($bucket, 0755, true);
+            }
+            return $bucket . '/' . $matchId . '.php';
+        }
+
         return $dir . '/' . preg_replace('/[^a-z0-9_-]/', '', strtolower($key)) . '.php';
     }
 
@@ -522,6 +533,11 @@ if (!function_exists('rt_dir')) {
             'friendships', 'friendship_requests', 'blocked_users', 'user_follows',
             'site_messages', 'site_message_recipients', 'site_message_rewards',
             'site_tickets', 'site_ticket_messages', 'admin_logs',
+            // Duelli 2.0 (includes/duel/db.php).
+            'game_matches', 'game_match_events', 'game_teams', 'game_queue', 'game_duel_notices',
+            'game_settings', 'game_kits', 'game_catalog_values', 'game_traits', 'game_character_traits',
+            'game_player_stats', 'game_match_chat', 'game_spectators', 'game_match_reactions',
+            'personaggi', 'utenti_personaggi',
         ];
     }
 
