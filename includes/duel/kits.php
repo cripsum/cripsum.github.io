@@ -17,6 +17,38 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/rules.php';
+require_once __DIR__ . '/kits_unique.php';
+require_once __DIR__ . '/traits.php';
+
+/**
+ * Il kit di un personaggio del database pronto per una partita: quello unico
+ * se ce l'ha, altrimenti quello del suo ruolo alla sua rarita' (con i nomi a
+ * tema per gli Speciali), piu' i suoi legami.
+ * $char: una riga di `personaggi` (id, nome, rarita'/rarità, ruolo,
+ * categoria, limitato).
+ */
+function duel_character_kit(array $char, int $level, array $opts = []): array
+{
+    $id = (int)($char['id'] ?? 0);
+    $rarity = duel_rarity_key((string)($char['rarita'] ?? $char['rarità'] ?? ''), !empty($char['limitato']));
+    $role = duel_role_key((string)($char['ruolo'] ?? ''));
+    $kit = duel_role_kit($role, $rarity, $opts);
+
+    $unique = duel_unique_kits()[$id] ?? null;
+    if ($unique) {
+        foreach ($unique as $key => $value) {
+            $kit[$key] = $value;
+        }
+        $kit['unique'] = true;
+    } elseif (isset(duel_special_names()[$id])) {
+        [$passive, $skill] = duel_special_names()[$id];
+        $kit['passive']['name'] = $passive;
+        $kit['skill']['name'] = $skill;
+    }
+    $kit['traits'] = duel_character_traits($id, (string)($char['categoria'] ?? ''));
+
+    return duel_kit_build($kit, ['id' => $id, 'name' => (string)($char['nome'] ?? 'Personaggio')], $level);
+}
 
 function duel_kit_round(float $v): int
 {
@@ -41,10 +73,18 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
     // aiuta, non quanto la sua rarita': un Buffer Comune (costo 1) accanto a
     // due Segreti rendeva troppo, un attaccante Comune troppo poco. Per i
     // supporti la scala sale di piu' (0,85 → 1,41), per gli attaccanti di
-    // meno (1,08 → 1,36).
-    if (in_array($role, ['Bruiser', 'DPS', 'Burst DPS', 'Sub DPS'], true)) {
+    // meno (1,08 → 1,36), per i Bruiser ancora meno (1,20 → 1,36: in alto
+    // hanno gia' Furia e Indistruttibile). I Debuffer stanno coi supporti:
+    // Veleno e Difesa − sono in percentuale e altrimenti non crescerebbero
+    // con la rarita'. Gli Healer un po' meno ripidi (0,92 → 1,41). Tank e
+    // Controller usano la scala della rarita' (1,00 → 1,35).
+    if ($role === 'Bruiser') {
+        $k = 1.20 + ($k - 1) * 0.45;
+    } elseif (in_array($role, ['DPS', 'Burst DPS', 'Sub DPS'], true)) {
         $k = 1.08 + ($k - 1) * 0.8;
-    } elseif (in_array($role, ['Tank', 'Support', 'Healer', 'Buffer'], true)) {
+    } elseif ($role === 'Healer') {
+        $k = 0.92 + ($k - 1) * 1.4;
+    } elseif (in_array($role, ['Support', 'Buffer', 'Debuffer'], true)) {
         $k = 0.85 + ($k - 1) * 1.6;
     }
 
@@ -77,15 +117,13 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
             if ($T >= 2) {
                 $skill[] = ['e' => 'apply', 'to' => 'self', 'k' => 'def_su', 'v' => 20, 't' => 2];
             }
-            $kit['skill'] = ['name' => 'Bastione', 'cost' => 1, 'target' => 'self', 'effects' => $skill];
+            $kit['skill'] = ['name' => 'Bastione', 'cost' => 1, 'cd' => 2, 'target' => 'self', 'effects' => $skill];
             $ult = [
                 ['e' => 'guardian', 'to' => 'allies_other', 'v' => min(50, $r(20 * $U)), 't' => 2],
                 ['e' => 'shield', 'to' => 'self', 'pct' => $r(12 * $U)],
             ];
-            if ($T >= 4) {
-                $ult[] = ['e' => 'apply', 'to' => 'allies', 'k' => 'barriera', 't' => 2];
-            }
             if ($T >= 5) {
+                $ult[] = ['e' => 'apply', 'to' => 'allies', 'k' => 'barriera', 't' => 2];
                 $ult[] = ['e' => 'apply', 'to' => 'self', 'k' => 'riflesso', 'v' => 20, 't' => 2];
             }
             $kit['ultimate'] = ['name' => 'Guardiano', 'target' => 'self', 'effects' => $ult];
@@ -96,10 +134,8 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
             if ($T >= 3) {
                 $kit['passive']['triggers'][] = ['when' => 'self_low', 'below' => 30, 'effects' => [['e' => 'apply', 'to' => 'self', 'k' => 'rubavita', 'v' => 25, 't' => 2]]];
             }
-            $skill = [$hit($r(150 * $k)), ['e' => 'apply', 'to' => 'target', 'k' => 'sanguinamento', 'v' => 30, 't' => 2, 'chance' => 100]];
-            if ($T >= 2) {
-                $skill[] = ['e' => 'heal', 'to' => 'self', 'of' => 'damage', 'pct' => 20, 'name' => 'rubavita'];
-            }
+            $skill = [$hit($r(165 * $k)), ['e' => 'apply', 'to' => 'target', 'k' => 'sanguinamento', 'v' => 30, 't' => 2, 'chance' => 100]];
+            $skill[] = ['e' => 'heal', 'to' => 'self', 'of' => 'damage', 'pct' => 20, 'name' => 'rubavita'];
             $kit['skill'] = ['name' => 'Fendente', 'cost' => 1, 'target' => 'enemy', 'effects' => $skill];
             $ult = [$hit($r(260 * $U)), ['e' => 'heal', 'to' => 'self', 'of' => 'damage', 'pct' => 30, 'name' => 'rubavita']];
             if ($T >= 4) {
@@ -120,7 +156,7 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
             if ($T >= 3) {
                 $kit['passive']['triggers'][] = ['when' => 'on_crit', 'silent' => true, 'effects' => [['e' => 'charge', 'to' => 'self', 'n' => 10]]];
             }
-            $skill = [$hit($r(200 * $k))];
+            $skill = [$hit($r(250 * $k))];
             if ($T >= 2) {
                 $skill[] = ['e' => 'ps', 'n' => 1, 'if' => ['crit' => true]];
             }
@@ -137,14 +173,8 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
 
         case 'Burst DPS':
             $kit['attack'] = ['name' => 'Attacco', 'target' => 'enemy', 'effects' => [$hit(110)]];
-            $kit['passive'] = ['name' => 'Precisione letale', 'mods' => ['cdmg' => $r(20 * $k)], 'triggers' => []];
-            if ($T >= 3) {
-                $kit['passive']['first_crit'] = true;
-            }
-            $skill = [$hit($r(230 * $k), ['pen' => 20])];
-            if ($T <= 2) {
-                $skill[] = ['e' => 'apply', 'to' => 'self', 'k' => 'def_giu', 'v' => 20, 't' => 1];
-            }
+            $kit['passive'] = ['name' => 'Precisione letale', 'mods' => ['cdmg' => $r(20 * $k) + ($T >= 2 ? 10 : 0)], 'first_crit' => true, 'triggers' => []];
+            $skill = [$hit($r(240 * $k), ['pen' => $T >= 3 ? 25 : 20])];
             $kit['skill'] = ['name' => 'Colpo da maestro', 'cost' => 2, 'target' => 'enemy', 'effects' => $skill];
             $ult = [];
             if ($T >= 4) {
@@ -158,7 +188,7 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
             $kit['attack'] = ['name' => 'Attacco', 'target' => 'enemy', 'effects' => [$hit(90)]];
             $kit['passive'] = ['name' => 'Opportunismo', 'vs' => [['if' => ['target_has' => 'neg'], 'dmg_pct' => $r(12 * $k)]], 'triggers' => []];
             $kit['skill'] = ['name' => 'Colpo rallentante', 'cost' => 1, 'target' => 'enemy', 'effects' => [
-                $hit($r(140 * $k)),
+                $hit($r(155 * $k)),
                 ['e' => 'delay', 'to' => 'target', 'pct' => 15],
                 ['e' => 'apply', 'to' => 'target', 'k' => 'vel_giu', 'v' => 15, 't' => 2, 'chance' => 100],
             ]];
@@ -204,11 +234,11 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
             $kit['passive'] = ['name' => 'Cure costanti', 'triggers' => [
                 ['when' => 'turn_start', 'silent' => true, 'effects' => [['e' => 'heal', 'to' => 'lowest_ally', 'of' => 'target_max', 'pct' => $r(4 * $k)]]],
             ]];
-            if ($T >= 3) {
-                $kit['passive']['overheal_shield'] = 15;
+            if ($T >= 2) {
+                $kit['passive']['overheal_shield'] = $T >= 3 ? 15 : 10;
             }
             $skill = [
-                ['e' => 'heal', 'to' => 'target', 'of' => 'target_max', 'pct' => $r(22 * $k)],
+                ['e' => 'heal', 'to' => 'target', 'of' => 'target_max', 'pct' => $r(20 * $k)],
                 ['e' => 'apply', 'to' => 'target', 'k' => 'rigenerazione', 'v' => $r(5 * $k), 't' => 2],
             ];
             if ($T >= 2) {
@@ -217,11 +247,13 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
             $kit['skill'] = ['name' => 'Soffio vitale', 'cost' => 1, 'target' => 'ally', 'effects' => $skill];
             $ult = [['e' => 'heal', 'to' => 'allies', 'of' => 'target_max', 'pct' => $r(20 * $U)]];
             if ($T >= 3) {
-                $revive = [3 => 25, 4 => 30, 5 => 40, 6 => 40, 7 => 50][$T];
+                $revive = [3 => 20, 4 => 25, 5 => 35, 6 => 35, 7 => 45][$T];
                 array_unshift($ult, ['e' => 'revive', 'pct' => $revive]);
             }
             if ($T >= 5) {
                 $ult[] = ['e' => 'apply', 'to' => 'allies', 'k' => 'rigenerazione', 'v' => 10, 't' => 2];
+            } elseif ($T >= 2) {
+                $ult[] = ['e' => 'apply', 'to' => 'allies', 'k' => 'rigenerazione', 'v' => 6, 't' => 2];
             }
             $kit['ultimate'] = ['name' => 'Rinascita', 'target' => 'self', 'effects' => $ult];
             break;
@@ -231,14 +263,14 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
                 $hit(100),
                 ['e' => 'delay', 'to' => 'target', 'pct' => 20, 'chance' => $r(10 * $k)],
             ]];
-            $kit['passive'] = ['name' => 'Tempismo', 'triggers' => []];
+            $kit['passive'] = ['name' => 'Tempismo', 'vs' => [['if' => ['target_has' => 'cc'], 'dmg_pct' => $r(10 * $k)]], 'triggers' => []];
             if ($T >= 3) {
                 $kit['passive']['cc_feed'] = 5;
             }
             $cc = $T <= 1 ? 'stordimento' : ($opts['cc'] ?? 'congelamento');
             $chance = [0 => 55, 1 => 55, 2 => 65, 3 => 75, 4 => 80, 5 => 85, 6 => 85, 7 => 90][$T];
             $kit['skill'] = ['name' => 'Blocco', 'cost' => 1, 'target' => 'enemy', 'effects' => [
-                $hit($r(150 * $k)),
+                $hit($r(165 * $k)),
                 ['e' => 'delay', 'to' => 'target', 'pct' => 20],
                 ['e' => 'apply', 'to' => 'target', 'k' => $cc, 'chance' => $chance],
             ]];
@@ -261,9 +293,9 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
                 $attack[] = ['e' => 'apply', 'to' => 'target', 'k' => 'ferita', 't' => 2, 'if' => ['target_stacks' => ['veleno', 3]]];
             }
             $kit['attack'] = ['name' => 'Attacco', 'target' => 'enemy', 'effects' => $attack];
-            $kit['passive'] = ['name' => 'Tossine', 'triggers' => []];
+            $kit['passive'] = ['name' => 'Tossine', 'vs' => [['if' => ['target_has' => 'veleno'], 'dmg_pct' => $r(8 * $k)]], 'triggers' => []];
             $skill = [
-                $hit($r(130 * $k)),
+                $hit($r(150 * $k)),
                 ['e' => 'apply', 'to' => 'target', 'k' => 'def_giu', 'v' => $r(25 * $k), 't' => 2, 'chance' => 100],
                 ['e' => 'apply', 'to' => 'target', 'k' => $dot, 'st' => 2, 'chance' => 100],
             ];
@@ -288,8 +320,8 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
             $kit['attack'] = ['name' => 'Attacco', 'target' => 'enemy', 'effects' => [$hit(90)]];
             $kit['passive'] = ['name' => 'Presenza', 'aura' => ['atk_pct' => round(8 * $k, 1)], 'triggers' => []];
             $skill = [
-                ['e' => 'apply', 'to' => 'target', 'k' => 'atk_su', 'v' => $r(28 * $k), 't' => 2],
-                ['e' => 'advance', 'to' => 'target', 'pct' => 30],
+                ['e' => 'apply', 'to' => 'target', 'k' => 'atk_su', 'v' => $r(24 * $k), 't' => 2],
+                ['e' => 'advance', 'to' => 'target', 'pct' => 25],
                 ['e' => 'ps', 'n' => 1],
             ];
             if ($T >= 2) {

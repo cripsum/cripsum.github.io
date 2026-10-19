@@ -107,8 +107,8 @@ function duel_rarities(): array
     return [
         'comune'           => ['stat' => 1.00, 'spd' => 0,  'k' => 1.00, 'u' => 1.00, 'tier' => 0, 'charge' => 25, 'cost' => 1, 'power' => 1.00],
         'raro'             => ['stat' => 1.08, 'spd' => 2,  'k' => 1.07, 'u' => 1.10, 'tier' => 1, 'charge' => 25, 'cost' => 2, 'power' => 1.08],
-        'epico'            => ['stat' => 1.15, 'spd' => 4,  'k' => 1.13, 'u' => 1.26, 'tier' => 2, 'charge' => 22, 'cost' => 3, 'power' => 1.16],
-        'leggendario'      => ['stat' => 1.20, 'spd' => 6,  'k' => 1.16, 'u' => 1.38, 'tier' => 3, 'charge' => 22, 'cost' => 4, 'power' => 1.25],
+        'epico'            => ['stat' => 1.17, 'spd' => 4,  'k' => 1.13, 'u' => 1.26, 'tier' => 2, 'charge' => 22, 'cost' => 3, 'power' => 1.16],
+        'leggendario'      => ['stat' => 1.23, 'spd' => 6,  'k' => 1.16, 'u' => 1.38, 'tier' => 3, 'charge' => 22, 'cost' => 4, 'power' => 1.25],
         'speciale'         => ['stat' => 1.26, 'spd' => 8,  'k' => 1.22, 'u' => 1.52, 'tier' => 4, 'charge' => 20, 'cost' => 5, 'power' => 1.34],
         'segreto'          => ['stat' => 1.32, 'spd' => 10, 'k' => 1.28, 'u' => 1.68, 'tier' => 5, 'charge' => 18, 'cost' => 6, 'power' => 1.44],
         'segreto_limitato' => ['stat' => 1.33, 'spd' => 11, 'k' => 1.29, 'u' => 1.71, 'tier' => 6, 'charge' => 18, 'cost' => 6, 'power' => 1.46],
@@ -146,15 +146,15 @@ function duel_rarity(string $key): array
 function duel_role_stats(): array
 {
     return [
-        'Tank'       => ['hp' => 1350, 'atk' => 105, 'def' => 145, 'spd' => 88,  'crit' => 5,  'cdmg' => 150, 'prec' => 0,  'ten' => 30],
-        'Bruiser'    => ['hp' => 1250, 'atk' => 145, 'def' => 115, 'spd' => 95,  'crit' => 10, 'cdmg' => 150, 'prec' => 0,  'ten' => 15],
+        'Tank'       => ['hp' => 1300, 'atk' => 105, 'def' => 145, 'spd' => 88,  'crit' => 5,  'cdmg' => 150, 'prec' => 0,  'ten' => 30],
+        'Bruiser'    => ['hp' => 1250, 'atk' => 158, 'def' => 115, 'spd' => 95,  'crit' => 10, 'cdmg' => 150, 'prec' => 0,  'ten' => 15],
         'DPS'        => ['hp' => 950,  'atk' => 180, 'def' => 85,  'spd' => 105, 'crit' => 20, 'cdmg' => 160, 'prec' => 0,  'ten' => 0],
-        'Burst DPS'  => ['hp' => 850,  'atk' => 170, 'def' => 75,  'spd' => 100, 'crit' => 20, 'cdmg' => 165, 'prec' => 0,  'ten' => 0],
-        'Sub DPS'    => ['hp' => 950,  'atk' => 170, 'def' => 90,  'spd' => 110, 'crit' => 15, 'cdmg' => 150, 'prec' => 15, 'ten' => 0],
+        'Burst DPS'  => ['hp' => 850,  'atk' => 182, 'def' => 75,  'spd' => 100, 'crit' => 20, 'cdmg' => 165, 'prec' => 0,  'ten' => 0],
+        'Sub DPS'    => ['hp' => 950,  'atk' => 175, 'def' => 90,  'spd' => 110, 'crit' => 15, 'cdmg' => 150, 'prec' => 15, 'ten' => 0],
         'Support'    => ['hp' => 1100, 'atk' => 120, 'def' => 115, 'spd' => 105, 'crit' => 5,  'cdmg' => 150, 'prec' => 10, 'ten' => 15],
         'Healer'     => ['hp' => 1050, 'atk' => 128, 'def' => 100, 'spd' => 105, 'crit' => 5,  'cdmg' => 150, 'prec' => 0,  'ten' => 10],
         'Controller' => ['hp' => 1000, 'atk' => 180, 'def' => 95,  'spd' => 112, 'crit' => 10, 'cdmg' => 150, 'prec' => 30, 'ten' => 0],
-        'Debuffer'   => ['hp' => 1000, 'atk' => 165, 'def' => 95,  'spd' => 105, 'crit' => 10, 'cdmg' => 150, 'prec' => 25, 'ten' => 0],
+        'Debuffer'   => ['hp' => 1000, 'atk' => 175, 'def' => 95,  'spd' => 105, 'crit' => 10, 'cdmg' => 150, 'prec' => 25, 'ten' => 0],
         'Buffer'     => ['hp' => 1000, 'atk' => 128, 'def' => 100, 'spd' => 115, 'crit' => 5,  'cdmg' => 150, 'prec' => 10, 'ten' => 10],
     ];
 }

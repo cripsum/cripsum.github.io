@@ -186,11 +186,14 @@ function duel_bot_score(array $st, string $move, int $target): float
         }
     }
 
+    // Un PS vale circa quanto il danno in piu' che un'abilita' fa rispetto
+    // all'Attacco (0,08 ≈ 55 di danno). Con 0,16 il bot non usava mai le
+    // abilita' dei personaggi di rarita' bassa.
     if ($move === 'abilita') {
-        $score -= 0.16 * duel_skill_cost($st, $id);
+        $score -= 0.08 * duel_skill_cost($st, $id);
     }
-    if ($move === 'attacco' && $ps >= $rules['ps_max']) {
-        $score -= 0.08; // PS gia' pieni: l'Attacco ne spreca uno
+    if ($move === 'attacco') {
+        $score += $ps >= $rules['ps_max'] ? -0.04 : 0.08; // il PS che guadagna (o spreca, se sono pieni)
     }
     if ($move === 'ultimate') {
         $score *= 1.1;

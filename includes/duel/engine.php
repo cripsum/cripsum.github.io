@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/rules.php';
 require_once __DIR__ . '/catalog.php';
+require_once __DIR__ . '/traits.php';
 
 final class DuelError extends RuntimeException
 {
@@ -135,6 +136,7 @@ function duel_new_match(array $teams, int $seed, array $opts = []): array
                 'once' => [],
                 'stk' => 0,
                 'form' => null,
+                'tmods' => [],
                 'stats' => ['dealt' => 0, 'taken' => 0, 'healed' => 0, 'kos' => 0],
             ];
         }
@@ -142,6 +144,7 @@ function duel_new_match(array $teams, int $seed, array $opts = []): array
 
     $c = duel_ctx($st);
     duel_ev($c, ['t' => 'start']);
+    duel_apply_traits($c);
 
     // Passive di inizio partita, carta per carta nell'ordine delle squadre.
     foreach (array_keys($c['st']['units']) as $uid) {
@@ -154,6 +157,55 @@ function duel_new_match(array $teams, int $seed, array $opts = []): array
 
     duel_next_turn($c);
     return duel_ctx_close($c);
+}
+
+/**
+ * Legami: chi ne fa parte prende statistiche in piu' (subito, prima degli
+ * scudi d'inizio partita), modificatori come una passiva, carica, PS e
+ * rigenerazione d'inizio partita.
+ */
+function duel_apply_traits(array &$c): void
+{
+    $defs = duel_traits();
+    foreach ([0, 1] as $side) {
+        $ids = [];
+        $kits = [];
+        foreach ($c['st']['units'] as $id => $u) {
+            if ($u['side'] === $side) {
+                $ids[] = (int)$id;
+                $kits[] = $u['kit'];
+            }
+        }
+        foreach (duel_team_traits($kits) as $key => [$tier, $who]) {
+            $bonus = $defs[$key]['tiers'][$tier];
+            $units = array_map(static fn($i) => $ids[$i], $who);
+            foreach ($units as $uid) {
+                $u = &$c['st']['units'][$uid];
+                foreach (['hp', 'atk', 'def'] as $stat) {
+                    if (!empty($bonus[$stat])) {
+                        $u['max'][$stat] = (int)round($u['max'][$stat] * (1 + $bonus[$stat] / 100));
+                    }
+                }
+                $u['hp'] = $u['max']['hp'];
+                foreach (['crit', 'cdmg', 'spd_pct', 'lifesteal', 'dmg_pct', 'heal_out_pct', 'heal_in_pct', 'prec'] as $mod) {
+                    if (!empty($bonus[$mod])) {
+                        $u['tmods'][$mod] = ($u['tmods'][$mod] ?? 0) + $bonus[$mod];
+                    }
+                }
+                unset($u);
+                if (!empty($bonus['charge'])) {
+                    duel_add_charge($c, $uid, (int)$bonus['charge']);
+                }
+                if (!empty($bonus['regen'])) {
+                    duel_put_status($c, $uid, $uid, 'rigenerazione', (float)$bonus['regen'], 2, 1, []);
+                }
+            }
+            if (!empty($bonus['ps'])) {
+                duel_add_ps($c, $side, (int)$bonus['ps']);
+            }
+            duel_ev($c, ['t' => 'trait', 'side' => $side, 'k' => $key, 'tier' => $tier, 'units' => $units]);
+        }
+    }
 }
 
 /** Contesto di lavoro: lo stato, il dado acceso e gli eventi. */
@@ -271,6 +323,7 @@ function duel_eff(array $st, int $id): array
 
     $passive = $u['kit']['passive'] ?? [];
     $add($m, $passive['mods'] ?? null);
+    $add($m, $u['tmods'] ?? null);
 
     // Aure: valgono per tutti gli alleati in piedi, chi le ha compreso.
     foreach ($st['units'] as $ally) {
