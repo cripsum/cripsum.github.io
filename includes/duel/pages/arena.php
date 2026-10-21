@@ -92,7 +92,8 @@ $dConfig = [
         return $q ? ['mode' => (string)$q['mode'], 'waited' => (int)$q['waited']] : null;
     })(),
     'music' => '/audio/ultimates/',
-    // Le musiche delle ultimate che esistono (audio/ultimates/<id>.mp3): le altre suonano default.mp3.
+    // Le musiche delle ultimate che esistono (audio/ultimates/<id>.mp3): gli altri suonano la musica
+    // del loro pull (audio_url) e, se manca anche quella, default.mp3.
     'tracks' => array_values(array_filter(array_map(static fn($f) => (int)basename($f, '.mp3'),
         glob(__DIR__ . '/../../../audio/ultimates/*.mp3') ?: []))),
     'staff' => duel_is_staff(),

@@ -19,6 +19,7 @@ html body.d2 {
     --fam-dot: #ff9f0a; --fam-ctrl: #64d2ff; --fam-deb: #ff7a72; --fam-buf: #30d158; --fam-pro: #f5f5f7; --fam-spe: #ffd60a;
     --t-bronzo: #c8793a; --t-argento: #c7c7cc; --t-oro: #eab308; --t-diamante: #22b8cf; --t-campione: #a855f7; --t-leggenda: #ff453a;
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in: cubic-bezier(0.32, 0, 0.67, 0);
     --spd: 1;
     --font: "Poppins", -apple-system, "Segoe UI", sans-serif;
     margin: 0;
@@ -104,7 +105,7 @@ body.d2 :focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
 .d2-ps i { width: 11px; height: 11px; transform: rotate(45deg); border: 1.5px solid var(--tx2); border-radius: 2px; transition: background .2s, border-color .2s; }
 .d2-ps i.f { background: var(--tx); border-color: var(--tx); }
 .d2-foe .d2-ps i.f { background: var(--foe); border-color: var(--foe); }
-.d2-ps i.d2-pop { animation: d2-ps-pop calc(420ms * var(--spd)) var(--ease); }
+.d2-ps i.d2-ps-new { animation: d2-ps-pop calc(420ms * var(--spd)) var(--ease); }
 @keyframes d2-ps-pop { 40% { transform: rotate(45deg) scale(1.5); } }
 .d2-row { display: flex; justify-content: center; gap: 30px; }
 .d2-row-foe { margin-top: 22px; }
@@ -319,37 +320,111 @@ body.d2 .d2-moves:focus, body.d2 .d2-moves:focus-visible { outline: none; }
 .d2-burst i { position: absolute; left: 50%; top: 50%; width: 3px; height: 26px; background: #fff; transform-origin: 50% 0; animation: d2-ray calc(400ms * var(--spd)) ease-out forwards; }
 @keyframes d2-ray { from { opacity: 1; } to { opacity: 0; } }
 
-.d2-cut { position: absolute; inset: 0; display: grid; grid-template-columns: 1.1fr 1fr; background: #0a0a0b; animation: d2-cut-in calc(250ms * var(--spd)) var(--ease); }
-.d2-cut.d2-out { animation: d2-cut-out calc(350ms * var(--spd)) ease-in forwards; }
-@keyframes d2-cut-in { from { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); } to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); } }
-@keyframes d2-cut-out { to { transform: translateX(-12%); opacity: 0; } }
-.d2-cut-a { position: relative; background: var(--theme, var(--bad)); clip-path: polygon(0 0, 100% 0, 78% 100%, 0 100%); display: flex; flex-direction: column; justify-content: center; padding: 0 9vw 0 7vw; z-index: 1; }
-.d2-cut-a .d2-cut-k { display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; background: #0a0a0b; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: .12em; padding: 5px 10px; text-transform: uppercase; }
-.d2-cut-a h2 { position: relative; z-index: 1; margin: 18px 0 10px; font-size: clamp(36px, 7vw, 92px); line-height: .95; font-weight: 600; letter-spacing: -0.03em; text-transform: uppercase; color: #fff; }
-.d2-cut-a p { margin: 0; color: rgba(255,255,255,.85); font-weight: 500; }
-.d2-cut-a::after { content: ""; position: absolute; top: 0; bottom: 0; right: 0; width: 14px; background: #fff; transform: skewX(-12deg); transform-origin: top; }
-.d2-cut-b { position: relative; margin-left: -12vw; }
-.d2-cut-b img { width: 100%; height: 100%; object-fit: cover; }
-.d2-cut-ini { position: absolute; inset: 0; display: grid; place-items: center; padding-left: 12vw; font-size: 34vw; font-weight: 600; line-height: 1; color: var(--theme); }
-.d2-cut-lines i { position: absolute; z-index: 0; height: 2px; background: rgba(255,255,255,.45); animation: d2-line calc(1200ms * var(--spd)) linear infinite; }
-@keyframes d2-line { from { transform: translateX(-40px); opacity: 0; } 30% { opacity: 1; } to { transform: translateX(80px); opacity: 0; } }
+/* ── Taglio dell'ultimate (tavola 18) ──
+ * Il colore del personaggio entra di taglio, la foto arriva da destra e avanza
+ * piano, il nome sale riga per riga e atterra con un lampo; per uscire la scena
+ * viene tagliata via lungo la stessa diagonale. 1,83 s (per --spd). La lama
+ * passa per --x e pende di --k per lato; --a e' il suo angolo (atan 0,18). */
+.d2-cut { --k: 9vh; --x: 57%; --a: 10.2deg; --c: var(--bad); --ink: #fff; --blade: #fff; --blade-ink: var(--bg);
+    position: absolute; inset: 0; overflow: hidden; background: var(--bg); animation: d2-fade-in calc(140ms * var(--spd)) linear both; }
+/* Sui colori chiari (grigio dei Comuni, azzurro, giallo, bianco) testo e lama neri. */
+.d2-cut.d2-cut-light { --ink: var(--bg); --blade: var(--bg); --blade-ink: #fff; }
+.d2-cut-band { position: absolute; inset: 0; background: var(--c); clip-path: polygon(0 0, calc(var(--x) + var(--k)) 0, calc(var(--x) - var(--k)) 100%, 0 100%);
+    animation: d2-cut-band calc(300ms * var(--spd)) var(--ease) both; }
+@keyframes d2-cut-band { from { clip-path: polygon(0 0, 0 0, calc(0% - 2 * var(--k)) 100%, 0 100%); } }
+.d2-cut-pic { position: absolute; inset: 0; clip-path: polygon(calc(var(--x) + var(--k)) 0, 100% 0, 100% 100%, calc(var(--x) - var(--k)) 100%);
+    animation: d2-cut-pic calc(420ms * var(--spd)) var(--ease) calc(110ms * var(--spd)) both; }
+@keyframes d2-cut-pic { from { clip-path: polygon(100% 0, 100% 0, 100% 100%, calc(100% - 2 * var(--k)) 100%); } }
+.d2-cut-pic img, .d2-cut-ini { position: absolute; top: 0; bottom: 0; right: 0; width: calc(100% - var(--x) + var(--k) + 4vw); height: 100%; }
+.d2-cut-pic img { object-fit: cover; object-position: 50% 22%; animation: d2-cut-push calc(1700ms * var(--spd)) cubic-bezier(0.2, 0.6, 0.3, 1) calc(110ms * var(--spd)) both; }
+@keyframes d2-cut-push { from { transform: scale(1.16) translateX(4%); } to { transform: scale(1.02); } }
+.d2-cut-ini { display: grid; place-items: center; background: var(--s1); font-size: 30vw; font-weight: 700; line-height: 1; color: var(--c); }
+.d2-cut-seam { position: absolute; left: var(--x); top: 50%; width: 38px; height: 140vmax; overflow: hidden; background: var(--blade); transform: translate(-50%, -50%) rotate(var(--a));
+    animation: d2-cut-seam calc(380ms * var(--spd)) var(--ease) calc(160ms * var(--spd)) both; }
+@keyframes d2-cut-seam { from { transform: translate(-50%, -50%) rotate(var(--a)) scaleY(0); } }
+.d2-cut-seam span { position: absolute; left: 0; right: 0; top: 0; writing-mode: vertical-rl; white-space: nowrap; text-align: center; color: var(--blade-ink);
+    font-size: 12px; font-weight: 700; letter-spacing: .32em; line-height: 38px; animation: d2-cut-run calc(2400ms * var(--spd)) linear both; }
+@keyframes d2-cut-run { to { transform: translateY(-18%); } }
+/* Linee di velocita': solo all'entrata, dal taglio verso sinistra. */
+.d2-cut-lines i { position: absolute; left: calc(var(--x) - 34vw); height: 2px; background: var(--ink); opacity: 0; animation: d2-cut-line calc(560ms * var(--spd)) cubic-bezier(0.3, 0, 0.2, 1) both; }
+@keyframes d2-cut-line { 0% { opacity: 0; transform: translateX(30vw) scaleX(.4); } 30% { opacity: .5; } 100% { opacity: 0; transform: translateX(-24vw) scaleX(1); } }
+.d2-cut-text { position: absolute; left: 7vw; top: 50%; width: calc(var(--x) - var(--k) - 13vw); transform: translateY(-50%); color: var(--ink); }
+.d2-cut-name { margin: 0; font-size: clamp(50px, 7.4vw, 124px); line-height: .9; font-weight: 700; letter-spacing: -0.04em; text-transform: uppercase; color: inherit; }
+.d2-cut-name span { display: block; overflow: hidden; padding-bottom: .04em; }
+.d2-cut-name b { display: inline-block; font-weight: inherit; white-space: nowrap; animation: d2-cut-up calc(460ms * var(--spd)) var(--ease) calc(260ms * var(--spd)) both; }
+.d2-cut-name span:nth-child(2) b { animation-delay: calc(320ms * var(--spd)); }
+.d2-cut-name span:nth-child(3) b { animation-delay: calc(380ms * var(--spd)); }
+@keyframes d2-cut-up { from { transform: translateY(150%) skewY(4deg); } }
+.d2-cut-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 22px; font-size: 16px; font-weight: 600; animation: d2-fade-in calc(320ms * var(--spd)) ease calc(560ms * var(--spd)) both; }
+.d2-cut-chip { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: 99px; background: var(--bg); color: #fff; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.d2-cut-chip svg { width: 14px; height: 14px; }
+.d2-cut-meta .d2-cut-who { opacity: .82; }
+/* L'urto: un lampo bianco di un attimo quando il nome atterra (spento prima e dopo). */
+.d2-cut-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: d2-cut-flash calc(200ms * var(--spd)) ease-out calc(520ms * var(--spd)); }
+@keyframes d2-cut-flash { 0% { opacity: .55; } 100% { opacity: 0; } }
+.d2-cut.d2-out { animation: d2-cut-away calc(380ms * var(--spd)) var(--ease-in) both; }
+@keyframes d2-cut-away {
+    from { clip-path: polygon(-12% 0, 124% 0, 124% 100%, -24% 100%); }
+    to   { clip-path: polygon(124% 0, 124% 0, 124% 100%, 112% 100%); }
+}
 
-.d2-vs { position: fixed; inset: 0; z-index: 40; display: grid; grid-template-columns: 1fr 1fr; background: #0a0a0b; cursor: pointer; }
-.d2-vs-side { display: flex; flex-direction: column; justify-content: center; gap: 24px; padding: 0 6vw; }
-.d2-vs-you { background: var(--tx); color: #0a0a0b; clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%); animation: d2-vs-l calc(500ms * var(--spd)) var(--ease); }
-.d2-vs-foe { background: var(--foe); color: #fff; clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%); margin-left: -12%; align-items: flex-end; animation: d2-vs-r calc(500ms * var(--spd)) var(--ease); }
+/* ── Presentazione VS (tavola 17) ──
+ * Due meta' piene (bianco tu, rosso l'avversario) che si scontrano sul centro
+ * esatto; il VS batte sul taglio con un solo urto, le carte arrivano una alla
+ * volta, i nomi salgono da una maschera. Per uscire le meta' si aprono lungo
+ * il taglio. 2,46 s (per --spd), si salta con un tocco. */
+.d2-vs { --k: 9vh; --a: 10.2deg; position: fixed; inset: 0; z-index: 40; overflow: hidden; cursor: pointer; }
+.d2-vs-shake { position: absolute; inset: 0; animation: d2-vs-shake calc(220ms * var(--spd)) linear calc(560ms * var(--spd)) both; }
+@keyframes d2-vs-shake { 0%, 100% { transform: none; } 25% { transform: translate(-7px, 3px); } 50% { transform: translate(6px, -4px); } 75% { transform: translate(-3px, 2px); } }
+.d2-vs-half { position: absolute; inset: 0; will-change: transform; }
+.d2-vs-you { background: var(--you); color: var(--bg); clip-path: polygon(0 0, calc(50% + var(--k)) 0, calc(50% - var(--k)) 100%, 0 100%);
+    animation: d2-vs-l calc(420ms * var(--spd)) var(--ease) both; }
+.d2-vs-foe { background: var(--foe); color: #fff; clip-path: polygon(calc(50% + var(--k)) 0, 100% 0, 100% 100%, calc(50% - var(--k)) 100%);
+    animation: d2-vs-r calc(420ms * var(--spd)) var(--ease) calc(60ms * var(--spd)) both; }
 @keyframes d2-vs-l { from { transform: translateX(-100%); } }
 @keyframes d2-vs-r { from { transform: translateX(100%); } }
-.d2-vs-cards { display: flex; gap: 12px; }
-.d2-vs-cards span { width: clamp(70px, 9vw, 120px); aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; border: 3px solid currentColor; background: var(--s2); display: grid; place-items: center; font-size: 28px; font-weight: 600; }
+.d2-vs.d2-out .d2-vs-you { animation: d2-vs-l-out calc(340ms * var(--spd)) var(--ease-in) both; }
+.d2-vs.d2-out .d2-vs-foe { animation: d2-vs-r-out calc(340ms * var(--spd)) var(--ease-in) both; }
+@keyframes d2-vs-l-out { to { transform: translate(-64%, -11%); } }
+@keyframes d2-vs-r-out { to { transform: translate(64%, 11%); } }
+.d2-vs-in { position: absolute; top: 50%; width: calc(50% - var(--k) - 11vw); display: flex; flex-direction: column; gap: 26px; transform: translateY(-50%); }
+.d2-vs-you .d2-vs-in { left: 7vw; }
+.d2-vs-foe .d2-vs-in { right: 7vw; align-items: flex-end; text-align: right; }
+.d2-vs-cards { display: flex; gap: 14px; }
+.d2-vs-foe .d2-vs-cards { flex-direction: row-reverse; }
+.d2-vs-cards span { width: clamp(84px, 9.4vw, 150px); aspect-ratio: 3 / 4; border-radius: 14px; overflow: hidden; background: var(--s2); box-shadow: 0 0 0 3px var(--r);
+    display: grid; place-items: center; color: var(--r); font-size: 36px; font-weight: 600; animation: d2-vs-card-l calc(460ms * var(--spd)) var(--ease) calc(430ms * var(--spd)) both; }
 .d2-vs-cards img { width: 100%; height: 100%; object-fit: cover; }
-.d2-vs-name { font-size: clamp(24px, 3vw, 40px); font-weight: 600; letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; }
-.d2-vs-name small { font-size: 14px; font-weight: 500; opacity: .7; }
-.d2-vs-mid { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 110px; height: 110px; border-radius: 50%; background: #0a0a0b; color: #fff; display: grid; place-items: center; font-size: 44px; font-weight: 600; z-index: 41; animation: d2-vs-beat calc(700ms * var(--spd)) var(--ease) calc(350ms * var(--spd)) both; }
-@keyframes d2-vs-beat { from { transform: translate(-50%, -50%) scale(0); } 60% { transform: translate(-50%, -50%) scale(1.15); } }
-.d2-vs-tag { position: fixed; left: 50%; top: 12%; transform: translateX(-50%); background: #0a0a0b; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: .1em; padding: 6px 14px; border-radius: 99px; text-transform: uppercase; z-index: 41; }
-.d2-vs-skip { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); color: #0a0a0b; background: rgba(255,255,255,.8); font-size: 12px; padding: 4px 12px; border-radius: 99px; z-index: 41; }
-.d2-vs.d2-out { animation: d2-fade-out calc(300ms * var(--spd)) ease-in forwards; }
+.d2-vs-foe .d2-vs-cards span { animation-name: d2-vs-card-r; }
+.d2-vs-cards span:nth-child(2) { animation-delay: calc(500ms * var(--spd)); }
+.d2-vs-cards span:nth-child(3) { animation-delay: calc(570ms * var(--spd)); }
+.d2-vs-cards span:nth-child(n+4) { animation-delay: calc(640ms * var(--spd)); }
+@keyframes d2-vs-card-l { from { transform: translateX(-60px) rotate(-4deg); opacity: 0; } }
+@keyframes d2-vs-card-r { from { transform: translateX(60px) rotate(4deg); opacity: 0; } }
+.d2-vs-name { align-self: stretch; overflow: hidden; padding-bottom: 6px; font-size: clamp(44px, 5.6vw, 92px); }
+.d2-vs-name b { display: inline-block; font-size: 1em; line-height: 1; font-weight: 600; letter-spacing: -0.035em; white-space: nowrap;
+    animation: d2-vs-up calc(520ms * var(--spd)) var(--ease) calc(560ms * var(--spd)) both; }
+@keyframes d2-vs-up { from { transform: translateY(150%); } }
+.d2-vs-meta { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; height: 38px; padding: 0 16px; border-radius: 99px; background: rgba(10,10,11,.08);
+    font-size: 16px; font-weight: 600; animation: d2-fade-in calc(400ms * var(--spd)) ease calc(760ms * var(--spd)) both; }
+.d2-vs-foe .d2-vs-meta { align-self: flex-end; background: rgba(255,255,255,.16); }
+.d2-vs-meta .emb-svg { width: 20px; height: 20px; }
+.d2-vs-seam { position: absolute; left: 50%; top: 50%; width: 16px; height: 140vmax; background: var(--bg); transform: translate(-50%, -50%) rotate(var(--a));
+    animation: d2-vs-seam calc(380ms * var(--spd)) var(--ease) calc(230ms * var(--spd)) both; }
+@keyframes d2-vs-seam { from { transform: translate(-50%, -50%) rotate(var(--a)) scaleY(0); } }
+.d2-vs-mid { position: absolute; left: 50%; top: 50%; width: 148px; height: 148px; margin: -74px 0 0 -74px; border-radius: 50%; background: var(--bg); color: #fff;
+    display: grid; place-items: center; font-size: 60px; font-weight: 700; letter-spacing: -0.04em; box-shadow: 0 0 0 6px #fff;
+    animation: d2-vs-stamp calc(420ms * var(--spd)) var(--ease) calc(330ms * var(--spd)) both; }
+@keyframes d2-vs-stamp { 0% { transform: scale(2.2) rotate(-14deg); opacity: 0; } 55% { opacity: 1; } 100% { transform: none; } }
+.d2-vs-tag { position: absolute; left: 50%; top: 7vh; translate: -50% 0; z-index: 2; height: 34px; padding: 0 16px; border-radius: 99px; background: var(--bg); color: #fff;
+    display: flex; align-items: center; font-size: 12.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    animation: d2-fade-in calc(300ms * var(--spd)) ease calc(700ms * var(--spd)) both; }
+.d2-vs-skip { position: absolute; left: 50%; bottom: 4vh; translate: -50% 0; z-index: 2; height: 30px; padding: 0 14px; border-radius: 99px; background: var(--bg); color: var(--tx2);
+    display: flex; align-items: center; font-size: 12.5px; font-weight: 500; animation: d2-fade-in calc(300ms * var(--spd)) ease calc(1100ms * var(--spd)) both; }
+.d2-vs.d2-out .d2-vs-mid, .d2-vs.d2-out .d2-vs-seam { animation: d2-vs-gone calc(220ms * var(--spd)) var(--ease-in) both; }
+@keyframes d2-vs-gone { to { opacity: 0; scale: .6; } }
+.d2-vs.d2-out .d2-vs-tag, .d2-vs.d2-out .d2-vs-skip { animation: d2-fade-out calc(200ms * var(--spd)) ease both; }
+@keyframes d2-fade-in { from { opacity: 0; } }
 @keyframes d2-fade-out { to { opacity: 0; } }
 
 .d2-terrain { position: absolute; left: 0; top: 0; z-index: 3; height: 34px; padding: 0 22px 0 16px; background: var(--fam-ctrl); color: #0a0a0b; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%); }
@@ -508,14 +583,50 @@ body.d2 .d2-moves:focus, body.d2 .d2-moves:focus-visible { outline: none; }
     .d2-menu { right: 8px; left: 8px; width: auto; top: 54px; }
     .d2-num { font-size: 22px; }
     .d2-num.d2-crit { font-size: 38px; }
-    .d2-cut { grid-template-columns: 1fr; }
-    .d2-cut-a { clip-path: none; padding: 0 8vw; }
-    .d2-cut-a::after { display: none; }
-    .d2-cut-b { position: absolute; inset: 0; margin: 0; opacity: .35; }
-    .d2-vs { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
-    .d2-vs-you { clip-path: polygon(0 0, 100% 0, 100% 88%, 0 100%); }
-    .d2-vs-foe { clip-path: polygon(0 12%, 100% 0, 100% 100%, 0 100%); margin: -12% 0 0; }
+    .d2-vs { --k: 7vw; --a: 82.03deg; }
+    .d2-vs-you { clip-path: polygon(0 0, 100% 0, 100% calc(50% - var(--k)), 0 calc(50% + var(--k))); }
+    .d2-vs-foe { clip-path: polygon(0 calc(50% + var(--k)), 100% calc(50% - var(--k)), 100% 100%, 0 100%); }
+    @keyframes d2-vs-l { from { transform: translateY(-100%); } }
+    @keyframes d2-vs-r { from { transform: translateY(100%); } }
+    @keyframes d2-vs-l-out { to { transform: translate(-11%, -64%); } }
+    @keyframes d2-vs-r-out { to { transform: translate(11%, 64%); } }
+    .d2-vs-in, .d2-vs-you .d2-vs-in, .d2-vs-foe .d2-vs-in { width: auto; left: 6vw; right: 6vw; transform: none; gap: 16px; }
+    .d2-vs-you .d2-vs-in { top: 11vh; }
+    .d2-vs-foe .d2-vs-in { top: auto; bottom: 11vh; }
+    .d2-vs-cards span { width: 25vw; border-radius: 12px; }
+    .d2-vs-name { font-size: 46px; }
+    .d2-vs-seam { width: 12px; }
+    .d2-vs-mid { width: 104px; height: 104px; margin: -52px 0 0 -52px; font-size: 42px; box-shadow: 0 0 0 5px #fff; }
+    .d2-vs-tag { top: 3vh; }
+    /* Ultimate: foto sopra, nome sotto; la lama pende di 7vw per lato come nella VS. */
+    .d2-cut { --x: 0%; --a: 82.03deg; }
+    .d2-cut-band { clip-path: polygon(0 calc(55% + 1vw), 100% calc(55% - 13vw), 100% 100%, 0 100%); }
+    @keyframes d2-cut-band { from { clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); } }
+    .d2-cut-pic { clip-path: polygon(0 0, 100% 0, 100% calc(55% - 13vw), 0 calc(55% + 1vw)); }
+    @keyframes d2-cut-pic { from { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); } }
+    .d2-cut-pic img, .d2-cut-ini { width: 100%; height: 60%; bottom: auto; }
+    .d2-cut-ini { font-size: 60vw; }
+    .d2-cut-seam { left: 50%; top: calc(55% - 6vw); width: 26px; }
+    .d2-cut-seam span { font-size: 10px; line-height: 26px; rotate: 180deg; }
+    .d2-cut-lines i { left: 36vw; }
+    .d2-cut-text { left: 6vw; right: 6vw; width: auto; top: auto; bottom: 9vh; transform: none; }
+    .d2-cut-name { font-size: 54px; }
+    @keyframes d2-cut-away {
+        from { clip-path: polygon(0 -20%, 100% -28%, 100% 120%, 0 120%); }
+        to   { clip-path: polygon(0 120%, 100% 112%, 100% 120%, 0 120%); }
+    }
     .d2-toast { bottom: 110px; }
+}
+/* Telefoni bassi (375x667): la VS si stringe per non finire sotto il cerchio. */
+@media (max-width: 700px) and (max-height: 760px) {
+    .d2-vs-in, .d2-vs-you .d2-vs-in, .d2-vs-foe .d2-vs-in { gap: 8px; }
+    .d2-vs-you .d2-vs-in { top: 10vh; }
+    .d2-vs-foe .d2-vs-in { bottom: 10vh; }
+    .d2-vs-cards { gap: 10px; }
+    .d2-vs-cards span { width: 17vw; }
+    .d2-vs-name { font-size: 34px; }
+    .d2-vs-meta { height: 32px; padding: 0 12px; font-size: 14px; }
+    .d2-vs-mid { width: 88px; height: 88px; margin: -44px 0 0 -44px; font-size: 36px; }
 }
 @media (max-width: 700px) and (max-height: 700px) {
     .d2-card .d2-art { aspect-ratio: 4 / 3; }
@@ -533,4 +644,9 @@ body.d2 .d2-moves:focus, body.d2 .d2-moves:focus-visible { outline: none; }
     .d2-num, .d2-total, .d2-banner, .d2-toast { animation: d2-fade-only 1.2s linear forwards !important; transform: translate(-50%, -50%); }
     @keyframes d2-fade-only { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
     .d2-card.d2-turn, .d2-card.d2-lunge, .d2-card.d2-ko { transform: none !important; }
+    .d2-vs *, .d2-cut * { animation-delay: 0ms !important; }
+    .d2-vs, .d2-cut { animation: d2-fade-in 200ms ease both !important; }
+    .d2-vs.d2-out .d2-vs-half, .d2-vs.d2-out .d2-vs-mid, .d2-vs.d2-out .d2-vs-seam { animation: none !important; }
+    .d2-vs.d2-out, .d2-cut.d2-out { animation: d2-fade-out 200ms ease both !important; }
+    .d2-cut-lines, .d2-cut-flash { display: none; }
 }

@@ -743,6 +743,7 @@ function duel_view_static(mysqli $m, array $row, array $st): array
             'id' => (int)$id, 'side' => (int)$u['side'], 'slot' => (int)$u['slot'], 'pid' => (int)$u['pid'],
             'name' => (string)$u['name'], 'rarity' => (string)$u['rarity'], 'role' => (string)$u['role'], 'level' => (int)$u['level'],
             'img' => duel_media($chars[(int)$u['pid']]['img_url'] ?? ''),
+            'audio' => duel_audio($chars[(int)$u['pid']]['audio_url'] ?? ''),
             'max' => $u['max'],
             'cost' => duel_rarity((string)$u['rarity'])['cost'],
             'theme' => $kit['theme'] ?? null,

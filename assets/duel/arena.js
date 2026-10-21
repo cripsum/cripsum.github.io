@@ -163,17 +163,24 @@
         },
     };
     let music = null;
-    function playMusic(pid) {
+    /**
+     * La musica dell'ultimate: quella sua se c'e' (audio/ultimates/<id>.mp3,
+     * la pagina passa l'elenco), se no la musica del suo pull nella lootbox,
+     * se no quella generica. Se un file non si apre si passa al successivo.
+     */
+    function playMusic(pid, pullAudio) {
         if (!SET.music || SET.volume <= 0) return;
         stopMusic(0);
-        // Solo le musiche che esistono (la pagina passa l'elenco), le altre usano quella generica.
-        const a = new Audio(CFG.music + ((CFG.tracks || []).includes(Number(pid)) ? pid : 'default') + '.mp3');
+        const chain = [];
+        if ((CFG.tracks || []).includes(Number(pid))) chain.push(CFG.music + pid + '.mp3');
+        if (pullAudio) chain.push(pullAudio);
+        chain.push(CFG.music + 'default.mp3');
+        const a = new Audio(chain.shift());
         a.volume = Math.min(1, 0.85 * SET.volume / 100);
         a.onerror = () => {
-            if (!a.src.endsWith('/default.mp3')) {
-                a.src = CFG.music + 'default.mp3';
-                a.play().catch(() => {});
-            }
+            if (!chain.length) return;
+            a.src = chain.shift();
+            a.play().catch(() => {});
         };
         a.play().catch(() => {});
         music = a;
@@ -1218,7 +1225,7 @@
                         if (!box) return;
                         box.innerHTML = psDiamonds(e.now);
                         const d = box.querySelectorAll('i')[Math.max(0, e.now - 1)];
-                        if (d && e.delta > 0) d.classList.add('d2-pop');
+                        if (d && e.delta > 0) d.classList.add('d2-ps-new'); // non d2-pop: e' la classe del popup
                     });
                     SND.play('ps');
                     break;
@@ -1326,29 +1333,59 @@
         if (VISUAL.includes(k)) el.classList.remove('st-' + k);
     }
 
+    /** Un colore chiaro (grigio dei Comuni, azzurro, giallo, bianco) vuole il testo nero. */
+    function isLight(color) {
+        let h = String(color || '').trim().replace('#', '');
+        if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+        if (!/^[0-9a-f]{6}$/i.test(h)) return false;
+        const n = parseInt(h, 16);
+        const lin = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+        const L = 0.2126 * lin(n >> 16) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+        return (L + 0.05) / 0.05 > 1.05 / (L + 0.05);
+    }
+    /** Rimpicciolisce il testo di box finche' ogni riga (sel) entra nella sua colonna. */
+    function fitText(box, sel) {
+        if (!box) return;
+        const rows = [...box.querySelectorAll(sel)];
+        let size = parseFloat(getComputedStyle(box).fontSize) || 40;
+        while (size > 24 && rows.some((b) => b.offsetWidth > b.parentElement.clientWidth)) {
+            size = Math.floor(size * 0.94);
+            box.style.fontSize = size + 'px';
+        }
+    }
+
+    // Il taglio dell'ultimate (tavola 18): 1,45 s di scena e 0,38 s di uscita, per spd().
     async function cutIn(id, name) {
         const u = unitSt(id);
-        const theme = (u.theme && u.theme.color) || rarColor(u.rarity);
+        const color = (u.theme && u.theme.color) || rarColor(u.rarity);
         SND.play('ult');
-        playMusic(u.pid);
-        if (spd() < 0.5) {
-            banner('ULTIMATE · ' + name);
-            await wait(800);
-            stopMusic(1500);
-            return;
-        }
+        playMusic(u.pid, u.audio);
         const el = document.createElement('div');
-        el.className = 'd2-cut';
-        el.style.setProperty('--theme', theme);
+        el.className = 'd2-cut' + (isLight(color) ? ' d2-cut-light' : '');
+        el.style.setProperty('--c', color);
+        // Il nome in righe di parole (al massimo 12 lettere l'una), per salire una alla volta.
+        const rows = [];
+        String(name).split(' ').forEach((w) => {
+            if (!rows.length || (rows[rows.length - 1] + ' ' + w).length > 12) rows.push(w);
+            else rows[rows.length - 1] += ' ' + w;
+        });
         let lines = '';
-        for (let i = 0; i < 5; i++) lines += '<i style="left:' + (8 + i * 9) + '%;top:' + (12 + i * 17) + '%;width:' + (60 + i * 25) + 'px;animation-delay:' + (i * 120) + 'ms"></i>';
-        el.innerHTML = '<div class="d2-cut-a"><span class="d2-cut-k">' + ic('ultimate') + ' Ultimate · ' + esc(uName(id)) + '</span><h2>' + esc(name) + '</h2><p>'
-            + esc(uName(id)) + ' · ' + esc(rarName(u.rarity)) + '</p><span class="d2-cut-lines">' + lines + '</span></div><div class="d2-cut-b">'
-            + (u.img ? '<img src="' + esc(u.img) + '" alt="">' : '<span class="d2-cut-ini">' + esc(uName(id).charAt(0)) + '</span>') + '</div>';
+        [[18, 340, 0], [31, 220, 40], [44, 420, 70], [57, 260, 20], [70, 360, 90], [83, 200, 50]].forEach(([top, w, d]) => {
+            lines += '<i style="top:' + top + '%;width:' + w + 'px;animation-delay:calc(' + (150 + d) + 'ms * var(--spd))"></i>';
+        });
+        el.innerHTML = '<div class="d2-cut-band"></div><div class="d2-cut-lines">' + lines + '</div>'
+            + '<div class="d2-cut-pic">' + (u.img ? '<img src="' + esc(u.img) + '" alt="">' : '<span class="d2-cut-ini">' + esc(uName(id).charAt(0)) + '</span>') + '</div>'
+            + '<div class="d2-cut-seam" aria-hidden="true"><span>' + 'ULTIMATE ★ '.repeat(16) + '</span></div>'
+            + '<div class="d2-cut-text"><h2 class="d2-cut-name">' + rows.map((r) => '<span><b>' + esc(r) + '</b></span>').join('') + '</h2>'
+            + '<div class="d2-cut-meta"><span class="d2-cut-chip">' + ic('ultimate') + 'Ultimate</span><span class="d2-cut-who">' + esc(uName(id)) + ' · ' + esc(rarName(u.rarity)) + '</span></div></div>'
+            + '<div class="d2-cut-flash"></div>';
         $('d2-layer').appendChild(el);
-        await wait(1450);
+        fitText(el.querySelector('.d2-cut-name'), 'b');
+        // Riduci movimento: la scena ferma, solo in dissolvenza, il tempo di leggerla.
+        const reduced = reducedMq.matches;
+        await (reduced ? sleep(1200) : wait(1450));
         el.classList.add('d2-out');
-        await wait(350);
+        await (reduced ? sleep(200) : wait(380));
         el.remove();
         stopMusic(1800);
     }
@@ -1523,31 +1560,39 @@
         } catch (e) { /* niente */ }
         return false;
     }
+    // Tavola 17: 2,1 s di scena e 0,36 s di uscita, per spd(); con «Riduci
+    // movimento» la stessa scena ferma, in dissolvenza.
     function intro() {
-        if (spd() < 0.5) { settle(); return; }
+        const reduced = reducedMq.matches;
         const p = S.st.players;
-        const cards = (side) => unitIds().filter((id) => unitSt(id).side === side).map((id) => {
-            const u = unitSt(id);
-            return '<span style="color:' + rarColor(u.rarity) + '">' + (u.img ? '<img src="' + esc(u.img) + '" alt="">' : esc(uName(id).charAt(0))) + '</span>';
-        }).join('');
-        const name = (side) => { const pl = p[side] || p[String(side)] || {}; return esc(pl.username || '?') + (pl.rating ? ' <small>' + fmt(pl.rating) + '</small>' : ''); };
+        const half = (side, cls) => {
+            const pl = p[side] || p[String(side)] || {};
+            const cards = unitIds().filter((id) => unitSt(id).side === side).map((id) => {
+                const u = unitSt(id);
+                return '<span style="--r:' + rarColor(u.rarity) + '">' + (u.img ? '<img src="' + esc(u.img) + '" alt="">' : esc(uName(id).charAt(0))) + '</span>';
+            }).join('');
+            const meta = pl.rank ? '<span style="color: var(--t-' + esc(pl.rank.key) + ')">' + (window.D2Icons ? window.D2Icons.emblem(pl.rank.key) : '') + '</span>' + esc(pl.rank.label) + ' · ' + fmt(pl.rating)
+                : pl.bot ? 'Bot · ' + esc(botLevel(pl.level)) : '';
+            return '<div class="d2-vs-half ' + cls + '"><div class="d2-vs-in"><div class="d2-vs-cards">' + cards + '</div>'
+                + '<div class="d2-vs-name"><b>' + esc(pl.username || '?') + '</b></div>' + (meta ? '<span class="d2-vs-meta">' + meta + '</span>' : '') + '</div></div>';
+        };
         const el = document.createElement('div');
         el.className = 'd2-vs';
         const a = mySide();
-        el.innerHTML = '<div class="d2-vs-side d2-vs-you"><div class="d2-vs-cards">' + cards(a) + '</div><div class="d2-vs-name">' + name(a) + '</div></div>'
-            + '<div class="d2-vs-side d2-vs-foe"><div class="d2-vs-cards">' + cards(1 - a) + '</div><div class="d2-vs-name">' + name(1 - a) + '</div></div>'
-            + '<span class="d2-vs-tag">' + esc(modeLabel()) + '</span><span class="d2-vs-mid">VS</span><span class="d2-vs-skip">' + esc(T('Tocca per saltare', 'Tap to skip')) + '</span>';
+        el.innerHTML = '<div class="d2-vs-shake">' + half(a, 'd2-vs-you') + half(1 - a, 'd2-vs-foe') + '<div class="d2-vs-seam"></div><span class="d2-vs-mid">VS</span></div>'
+            + '<span class="d2-vs-tag">' + esc(modeLabel()) + '</span><span class="d2-vs-skip">' + esc(T('Tocca per saltare', 'Tap to skip')) + '</span>';
         document.body.appendChild(el);
+        el.querySelectorAll('.d2-vs-name').forEach((n) => fitText(n, 'b'));
         let done = false;
         const close = () => {
             if (done) return;
             done = true;
             el.classList.add('d2-out');
-            setTimeout(() => { el.remove(); settle(); }, 300 * spd());
+            setTimeout(() => { el.remove(); settle(); }, reduced ? 200 : 360 * spd());
         };
         el.addEventListener('click', close);
         window.addEventListener('keydown', close, { once: true });
-        setTimeout(close, 2500 * spd());
+        setTimeout(close, reduced ? 1800 : 2100 * spd());
     }
 
     // ── Fine partita ─────────────────────────────────────────────────────

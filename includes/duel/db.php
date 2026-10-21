@@ -193,6 +193,7 @@ function duel_db_characters(mysqli $m, array $ids): array
     $fields = ['p.id', 'p.nome', 'p.ruolo'];
     $fields[] = rt_has_col($m, 'personaggi', 'rarità') ? 'p.`rarità` AS rarita' : "'comune' AS rarita";
     $fields[] = rt_has_col($m, 'personaggi', 'img_url') ? 'p.img_url' : "'' AS img_url";
+    $fields[] = rt_has_col($m, 'personaggi', 'audio_url') ? 'p.audio_url' : "'' AS audio_url";
     $fields[] = rt_has_col($m, 'personaggi', 'categoria') ? 'p.categoria' : "'' AS categoria";
     $fields[] = rt_has_col($m, 'personaggi', 'limitato') ? 'p.limitato' : '0 AS limitato';
 
@@ -220,6 +221,22 @@ function duel_media(?string $path): string
         return $path;
     }
     return '/img/' . implode('/', array_map('rawurlencode', explode('/', str_replace('\\', '/', $path))));
+}
+
+/**
+ * La musica del pull di un personaggio come indirizzo (come gacha_media con
+ * /audio/): l'arena la suona nell'ultimate di chi non ha una musica sua.
+ */
+function duel_audio(?string $path): string
+{
+    $path = trim((string)$path);
+    if ($path === '') {
+        return '';
+    }
+    if (preg_match('~^https?://~i', $path) || str_starts_with($path, '/')) {
+        return $path;
+    }
+    return '/audio/' . implode('/', array_map('rawurlencode', explode('/', str_replace('\\', '/', $path))));
 }
 
 /** I personaggi posseduti tra quelli chiesti: [id => livello]. */
