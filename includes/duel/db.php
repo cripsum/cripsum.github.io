@@ -279,10 +279,10 @@ function duel_db_collection(mysqli $m, int $userId): array
  * game_catalog_values ('rule.turn_limit', 'status.veleno.v'...), game_kits,
  * game_traits con game_character_traits. Tabelle vuote o assenti = niente.
  */
-function duel_db_overrides(mysqli $m): array
+function duel_db_overrides(mysqli $m, bool $fresh = false): array
 {
     static $loaded = null;
-    if ($loaded !== null) {
+    if ($loaded !== null && !$fresh) {
         return $loaded;
     }
     $out = ['rules' => [], 'status' => [], 'kits' => [], 'traits' => null];
@@ -341,10 +341,13 @@ function duel_db_overrides(mysqli $m): array
     return $loaded = $out;
 }
 
-/** Mette in uso i valori del pannello di adesso (partite nuove, testi dei kit). */
-function duel_use_current_values(mysqli $m): array
+/**
+ * Mette in uso i valori del pannello di adesso (partite nuove, testi dei
+ * kit). $fresh: rilette dal database (il pannello, dopo aver salvato).
+ */
+function duel_use_current_values(mysqli $m, bool $fresh = false): array
 {
-    $over = duel_db_overrides($m);
+    $over = duel_db_overrides($m, $fresh);
     duel_overrides($over);
     return $over;
 }

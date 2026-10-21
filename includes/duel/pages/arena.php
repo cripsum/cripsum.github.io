@@ -94,8 +94,8 @@ $dConfig = [
     'music' => '/audio/ultimates/',
     // Le musiche delle ultimate che esistono (audio/ultimates/<id>.mp3): gli altri suonano la musica
     // del loro pull (audio_url) e, se manca anche quella, default.mp3.
-    'tracks' => array_values(array_filter(array_map(static fn($f) => (int)basename($f, '.mp3'),
-        glob(__DIR__ . '/../../../audio/ultimates/*.mp3') ?: []))),
+    'tracks' => array_values(array_map(static fn($f) => (int)basename($f, '.mp3'),
+        array_filter(glob(__DIR__ . '/../../../audio/ultimates/*.mp3') ?: [], static fn($f) => ctype_digit(basename($f, '.mp3'))))),
     'staff' => duel_is_staff(),
     'statuses' => $dStatuses,
     'terrains' => $dTerrains,

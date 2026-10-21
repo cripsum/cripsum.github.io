@@ -57,6 +57,12 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
                 <span class="admin-nav-label">Pages</span>
                 <button type="button" data-section="chisiamo"><i class="fa-solid fa-people-group"></i><span>About us</span></button>
                 <button type="button" data-section="edits"><i class="fa-solid fa-clapperboard"></i><span>Edits</span></button>
+                <span class="admin-nav-label">Duelli</span>
+                <button type="button" data-section="duel-kits"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Kit personaggi</span></button>
+                <button type="button" data-section="duel-values"><i class="fa-solid fa-sliders"></i><span>Stati e regole</span></button>
+                <button type="button" data-section="duel-balance"><i class="fa-solid fa-scale-balanced"></i><span>Bilanciamento</span></button>
+                <button type="button" data-section="duel-seasons"><i class="fa-solid fa-calendar"></i><span>Stagioni</span></button>
+                <button type="button" data-section="duel-matches"><i class="fa-solid fa-chess-board"></i><span>Partite</span></button>
                 <span class="admin-nav-label">Gacha</span>
                 <button type="button" data-section="gacha-banner"><i class="fa-solid fa-star"></i><span>Banners</span></button>
                 <button type="button" data-section="gacha-categorie"><i class="fa-solid fa-tags"></i><span>Categories</span></button>
@@ -199,6 +205,56 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
                     <button type="button" class="admin-btn admin-btn--primary" id="createHomeSlideBtn"><i class="fa-solid fa-plus"></i> Nuova</button>
                 </div>
                 <div id="homeSlidesTable" class="admin-table-card"></div>
+            </section>
+
+            <section class="admin-section" id="section-duel-kits" data-section-panel="duel-kits">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Kit personaggi</strong>
+                        <small>Passiva, mosse e ultimate di ogni personaggio, con il testo che legge il giocatore e la prova contro i bot. Un kit salvato vale dalla prossima partita; ogni salvataggio resta tra le versioni.</small>
+                    </div>
+                </div>
+                <div class="dz-root" data-duel-admin="kits"></div>
+            </section>
+
+            <section class="admin-section" id="section-duel-values" data-section-panel="duel-values">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Stati e regole</strong>
+                        <small>I valori base degli stati del catalogo e le costanti del combattimento. Cambiarne uno vale per tutti i kit che lo usano.</small>
+                    </div>
+                </div>
+                <div class="dz-root" data-duel-admin="values"></div>
+            </section>
+
+            <section class="admin-section" id="section-duel-balance" data-section-panel="duel-balance">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Bilanciamento</strong>
+                        <small>Vittorie e scelte per personaggio, ruolo e rarità dalle partite vere, più le prove tra bot.</small>
+                    </div>
+                </div>
+                <div class="dz-root" data-duel-admin="balance"></div>
+            </section>
+
+            <section class="admin-section" id="section-duel-seasons" data-section-panel="duel-seasons">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Stagioni</strong>
+                        <small>Accese o spente, nome e fine di quella in corso, premi in Godos, archivio.</small>
+                    </div>
+                </div>
+                <div class="dz-root" data-duel-admin="seasons"></div>
+            </section>
+
+            <section class="admin-section" id="section-duel-matches" data-section-panel="duel-matches">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Partite</strong>
+                        <small>Partite in corso e finite: guardare, rivedere, annullare. Qui si aprono i duelli a tutti.</small>
+                    </div>
+                </div>
+                <div class="dz-root" data-duel-admin="matches"></div>
             </section>
 
             <section class="admin-section" id="section-gacha-banner" data-section-panel="gacha-banner">
@@ -451,6 +507,7 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-cripsumpedia.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-maintenance.js')); ?>"></script>
     <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-news.js')); ?>"></script>
+    <script src="<?php echo admin_h(cripsum_asset('/assets/admin-v2/admin-duels.js')); ?>"></script>
 </body>
 
 </html>

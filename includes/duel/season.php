@@ -32,6 +32,28 @@ const DUEL_SEASON_REWARDS = ['bronzo' => 100, 'argento' => 250, 'oro' => 500, 'd
 const DUEL_DAILY_WIN = 150;
 
 /** La migrazione della fase 6 e' stata applicata. */
+/**
+ * I Godos per fascia a fine stagione: quelli scritti dal pannello
+ * (game_settings reward_<fascia>, fase 7) o quelli di DUEL_SEASON_REWARDS.
+ */
+function duel_season_rewards(mysqli $m): array
+{
+    $settings = duel_settings($m);
+    $out = [];
+    foreach (DUEL_SEASON_REWARDS as $tier => $godos) {
+        $value = $settings['reward_' . $tier] ?? null;
+        $out[$tier] = $value !== null && is_numeric($value) ? max(0, (int)$value) : $godos;
+    }
+    return $out;
+}
+
+/** Quanti giorni dura una stagione nuova (pannello: season_days, da 7 a 120). */
+function duel_season_days(mysqli $m): int
+{
+    $days = (int)(duel_settings($m)['season_days'] ?? 0);
+    return $days >= 7 && $days <= 120 ? $days : DUEL_SEASON_DAYS;
+}
+
 function duel_phase6_ready(mysqli $m): bool
 {
     static $ready = null;
@@ -211,7 +233,7 @@ function duel_season_open(mysqli $m): ?int
 {
     $next = 1 + (int)(duel_row($m, 'SELECT MAX(number) AS n FROM game_seasons')['n'] ?? 0);
     $added = duel_exec($m, "INSERT IGNORE INTO game_seasons (number, starts_at, ends_at, status) VALUES (?, NOW(), NOW() + INTERVAL ? DAY, 'active')",
-        'ii', [$next, DUEL_SEASON_DAYS]);
+        'ii', [$next, duel_season_days($m)]);
     return $added === 1 ? $next : null;
 }
 
@@ -236,11 +258,12 @@ function duel_season_close(mysqli $m, int $seasonId): bool
         $players = duel_rows($m, 'SELECT r.user_id, r.games, r.peak, COALESCE(s.rating, 1000) AS rating
             FROM game_season_ratings r LEFT JOIN game_player_stats s ON s.user_id = r.user_id WHERE r.season_id = ?', 'i', [$seasonId]);
         $paid = [];
+        $godos = duel_season_rewards($m);
         foreach ($players as $p) {
             $userId = (int)$p['user_id'];
             $placed = (int)$p['games'] >= DUEL_SEASON_PLACEMENT;
             $tier = $placed ? duel_rank((int)$p['peak'])['key'] : null;
-            $reward = $tier ? (DUEL_SEASON_REWARDS[$tier] ?? 0) : 0;
+            $reward = $tier ? ($godos[$tier] ?? 0) : 0;
             $now = duel_tx($m, static function () use ($m, $seasonId, $userId, $p, $tier, $reward): bool {
                 duel_exec($m, 'UPDATE game_season_ratings SET rating_end = ?, tier = ?, reward = ? WHERE season_id = ? AND user_id = ?', 'isiii',
                     [(int)$p['rating'], $tier, $reward, $seasonId, $userId]);
@@ -305,7 +328,7 @@ function duel_season_page(mysqli $m, int $userId): array
     }
     $peak = $me && $me['peak'] !== null ? $me['peak'] : $rating;
     $rewards = [];
-    foreach (DUEL_SEASON_REWARDS as $key => $godos) {
+    foreach (duel_season_rewards($m) as $key => $godos) {
         $min = ['bronzo' => 0, 'argento' => 1000, 'oro' => 1200, 'diamante' => 1400, 'campione' => 1600, 'leggenda' => 1900][$key];
         $rewards[] = ['tier' => $key, 'min' => $min, 'godos' => $godos, 'reached' => $peak >= $min && (!$season || ($me && $me['placement'] === 0))];
     }
@@ -320,6 +343,6 @@ function duel_season_page(mysqli $m, int $userId): array
     return [
         'season' => $season, 'me' => $me, 'rating' => $rating, 'rank' => duel_rank($rating), 'peak' => $peak,
         'pos' => $pos, 'total' => $total, 'rewards' => $rewards, 'past' => $past,
-        'placement_games' => DUEL_SEASON_PLACEMENT, 'days' => DUEL_SEASON_DAYS,
+        'placement_games' => DUEL_SEASON_PLACEMENT, 'days' => duel_season_days($m),
     ];
 }

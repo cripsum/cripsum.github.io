@@ -17,10 +17,10 @@ const ADMIN_MEDIA_FOLDERS = ['negozio', 'merch', 'download', 'gacha', 'personagg
 
 /**
  * Cartelle di audio/ in cui carica il pannello (la musica dei player del
- * team). Gli audio storici nella radice di audio/ restano fuori, come le
- * immagini nella radice di img/.
+ * team, le musiche delle ultimate dei duelli). Gli audio storici nella
+ * radice di audio/ restano fuori, come le immagini nella radice di img/.
  */
-const ADMIN_AUDIO_FOLDERS = ['esports'];
+const ADMIN_AUDIO_FOLDERS = ['esports', 'ultimates'];
 
 /**
  * Cartelle di vid/ in cui carica il pannello (i video degli edit e le clip
@@ -123,6 +123,9 @@ function admin_media_reference_columns(mysqli $mysqli): array
         'team_membri' => ['foto'],
         'edits' => ['copertina', 'video', 'gif_presence'],
         'cripsum_news' => ['immagine'],
+        // La musica dell'ultimate scelta nel pannello Duelli sta dentro il kit.
+        'game_kits' => ['kit_json'],
+        'game_kit_versions' => ['kit_json'],
     ];
 
     $columns = [];

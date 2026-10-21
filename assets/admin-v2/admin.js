@@ -806,6 +806,16 @@
         create_character: ['fa-solid fa-box-open', 'Personaggio creato'],
         update_character: ['fa-solid fa-box-open', 'Personaggio modificato'],
         delete_character: ['fa-solid fa-trash', 'Personaggio eliminato'],
+        duel_kit_save: ['fa-solid fa-wand-magic-sparkles', 'Kit di un personaggio salvato'],
+        duel_kit_reset: ['fa-solid fa-rotate-left', 'Kit tornato a quello del codice'],
+        duel_traits: ['fa-solid fa-link', 'Legami di un personaggio cambiati'],
+        duel_values: ['fa-solid fa-sliders', 'Valori di stati e regole dei duelli'],
+        duel_balance_sim: ['fa-solid fa-scale-balanced', 'Prove del bilanciamento rifatte'],
+        duel_switch: ['fa-solid fa-toggle-on', 'Interruttore dei duelli'],
+        duel_season: ['fa-solid fa-calendar', 'Stagione modificata'],
+        duel_season_rules: ['fa-solid fa-coins', 'Premi delle stagioni cambiati'],
+        duel_season_close: ['fa-solid fa-flag-checkered', 'Stagione chiusa a mano'],
+        duel_match_cancel: ['fa-solid fa-ban', 'Partita annullata'],
     };
     const LOG_FIELDS = {
         name: 'nome', rarita: 'rarità', categoria: 'categoria', limitato: 'limitato', in_pool_standard: 'banner standard',
@@ -818,6 +828,8 @@
         personaggio: 'personaggio', character_id: 'ID personaggio', achievement_id: 'ID achievement', quantity: 'copie', rimaste: 'rimaste',
         badge: 'badge', badge_id: 'badge #', message_id: 'messaggio #', title_it: 'titolo', target_type: 'destinatari',
         post_id: 'post #', title: 'titolo', comment_id: 'commento #', from: 'da', via: 'tramite', nome: 'nome', titolo: 'titolo', member_id: 'membro #', candidatura_id: 'candidatura #', edit_id: 'edit #', category_id: 'categoria #', visibile: 'visibile', stato: 'stato', nascosti: 'nascosti',
+        versione: 'versione', nota: 'nota', aggiunti: 'aggiunti', tolti: 'tolti', interruttore: 'interruttore', acceso: 'acceso',
+        stagione: 'stagione', fine: 'fine', giorni: 'giorni', vittoria_del_giorno: 'prima vittoria del giorno', partita: 'partita #', modalita: 'modalità',
     };
     const LOG_FLAGS = ['email_verificata', 'is_premium', 'nsfw', 'richpresence', 'twofa_enabled', 'limitato', 'in_pool_standard'];
     const CURRENCY_IMAGES = { Godos: '/img/godos.png', 'Godo Shards': '/img/godoshards.png', Frammenti: '/img/frammento.svg' };

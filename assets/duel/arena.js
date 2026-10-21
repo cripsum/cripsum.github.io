@@ -168,10 +168,11 @@
      * la pagina passa l'elenco), se no la musica del suo pull nella lootbox,
      * se no quella generica. Se un file non si apre si passa al successivo.
      */
-    function playMusic(pid, pullAudio) {
+    function playMusic(pid, pullAudio, themeMusic) {
         if (!SET.music || SET.volume <= 0) return;
         stopMusic(0);
         const chain = [];
+        if (themeMusic) chain.push(themeMusic);
         if ((CFG.tracks || []).includes(Number(pid))) chain.push(CFG.music + pid + '.mp3');
         if (pullAudio) chain.push(pullAudio);
         chain.push(CFG.music + 'default.mp3');
@@ -357,7 +358,7 @@
                 return;
             }
             fatal({ expired: T('La stanza è scaduta.', 'The room expired.'), declined: T('L\'amico ha rifiutato la sfida.', 'Your friend declined the challenge.'),
-                cancelled: T('Sfida ritirata.', 'Challenge withdrawn.') }[r.reason] || T('Partita annullata.', 'Match cancelled.'));
+                cancelled: T('Sfida ritirata.', 'Challenge withdrawn.'), admin: T('Partita annullata dallo staff.', 'Match cancelled by the staff.') }[r.reason] || T('Partita annullata.', 'Match cancelled.'));
             return;
         }
         if (r.chat) addChat(r.chat);
@@ -1359,7 +1360,7 @@
         const u = unitSt(id);
         const color = (u.theme && u.theme.color) || rarColor(u.rarity);
         SND.play('ult');
-        playMusic(u.pid, u.audio);
+        playMusic(u.pid, u.audio, u.theme && u.theme.music);
         const el = document.createElement('div');
         el.className = 'd2-cut' + (isLight(color) ? ' d2-cut-light' : '');
         el.style.setProperty('--c', color);
