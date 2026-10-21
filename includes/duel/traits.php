@@ -60,6 +60,9 @@ function duel_traits(): array
         // 21/10/2026: le due versioni di Mychy, come le altre coppie.
         'mychy' => ['it' => 'Mychy', 'en' => 'Mychy', 'ids' => [243, 262],
             'tiers' => [2 => ['def' => 10]]],
+        // 22/10/2026: Cripsum e Nauz principesse cosmiche (139 e 138), su tua richiesta.
+        'principesse' => ['it' => 'Principesse cosmiche', 'en' => 'Cosmic princesses', 'ids' => [138, 139],
+            'tiers' => [2 => ['charge' => 20]]],
     ];
 }
 

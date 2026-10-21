@@ -2241,6 +2241,32 @@ select.dz-chip[multiple] { height: auto; padding: .2rem; }
 .dz-row-actions { white-space: nowrap; text-align: right; }
 .dz-row-actions .admin-btn + .admin-btn { margin-left: .3rem; }
 
+/* Sfida del giorno e Legami (fase 8) */
+.dz-faces { display: flex; flex: none; }
+.dz-faces span { display: grid; place-items: center; width: 2.1rem; height: 2.6rem; overflow: hidden; border: 2px solid var(--nx-surface, #161617); border-radius: 9px; background: var(--nx-surface-2, #1f1f21); color: var(--nx-text-2, #a1a1a6); font-size: .8rem; font-weight: 600; }
+.dz-faces span + span { margin-left: -.6rem; }
+.dz-faces img { width: 100%; height: 100%; object-fit: cover; }
+.dz-dtable td small { display: block; color: var(--nx-text-2, #a1a1a6); font-size: .78rem; line-height: 1.4; }
+.dz-dtable td:first-child b, .dz-dtable td[data-label="Giocatori"] small { white-space: nowrap; }
+.dz-f--mid { flex: 1 1 13rem; }
+.dz-dtable tr.is-today td { background: var(--nx-surface-2, #1f1f21); }
+.dz-dtable .dz-who { display: flex; align-items: center; gap: .7rem; }
+.dz-dtable .dz-who > span:last-child { display: grid; }
+.dz-dform { display: grid; gap: .8rem; }
+.dz-tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: 1rem; }
+.dz-tcard.is-off { opacity: .55; }
+.dz-thead { display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; }
+.dz-thead h4 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.dz-thead small { color: var(--nx-text-2, #a1a1a6); }
+.dz-tiers { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; font-size: .86rem; }
+.dz-tiers li { display: flex; gap: .6rem; }
+.dz-tiers b { flex: none; width: 6.5rem; color: var(--nx-text-2, #a1a1a6); font-weight: 500; }
+.dz-members { display: flex; flex-wrap: wrap; gap: .3rem; }
+.dz-member { display: inline-flex; align-items: center; gap: .35rem; height: 1.9rem; padding: 0 .55rem 0 .25rem; border-radius: 999px; background: var(--nx-surface-2, #1f1f21); font-size: .8rem; }
+.dz-member img { width: 1.4rem; height: 1.4rem; border-radius: 50%; object-fit: cover; }
+.dz-member.is-cat { background: none; border: 1px dashed var(--nx-line, #2a2a2d); }
+.dz-member .dz-tool { width: 1.4rem; height: 1.4rem; }
+
 @media (max-width: 1280px) {
     .dz-kits { grid-template-columns: 240px minmax(0, 1fr); }
     .dz-side { position: static; grid-column: 2; }

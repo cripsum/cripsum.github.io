@@ -23,7 +23,7 @@ require_once __DIR__ . '/store.php';
 const DUEL_NOTICE_AFTER = 20;        // secondi in coda prima dell'avviso
 const DUEL_NOTICE_USER_MINUTES = 30; // un avviso ogni 30 minuti per giocatore
 const DUEL_NOTICE_ALL_MINUTES = 5;   // uno ogni 5 minuti in tutto
-const DUEL_LOBBY_URL = 'https://cripsum.com/it/game/lobby.php';
+const DUEL_LOBBY_URL = 'https://cripsum.com/it/duelli/';
 
 function duel_notice_enabled(mysqli $m): bool
 {

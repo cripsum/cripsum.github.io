@@ -10,7 +10,9 @@
  * - Bilanciamento: partite vere degli ultimi giorni e prove tra bot;
  * - Stagioni: accese o spente, nome, fine, premi, archivio;
  * - Partite: in corso e finite, annulla, guarda, replay, abbandoni sospetti,
- *   e gli interruttori «aperti a tutti» e «avvisi su Discord».
+ *   e gli interruttori «aperti a tutti» e «avvisi su Discord»;
+ * - Sfida del giorno e Legami (fase 8): il calendario degli scenari, i
+ *   legami da creare e cambiare.
  *
  * Tutto passa da /api/admin/duels.php.
  */
@@ -602,7 +604,7 @@
     const jsonEdit = (title, value, onSave) => {
         A.openModal?.(title, 'Per i campi che l\'editor non mostra. Il controllo e la prova girano quando chiudi.',
             `<textarea class="admin-input dz-json dz-json--big" id="dzJson" spellcheck="false" rows="14">${e(JSON.stringify(value, null, 2))}</textarea>`,
-            '<button type="button" class="admin-btn" data-bs-dismiss="modal">Annulla</button><button type="button" class="admin-btn admin-btn--primary" id="dzJsonOk">Usa questo</button>');
+            '<button type="button" class="admin-btn" data-admin-close="1">Annulla</button><button type="button" class="admin-btn admin-btn--primary" id="dzJsonOk">Usa questo</button>');
         $('#dzJsonOk')?.addEventListener('click', () => {
             try {
                 onSave(JSON.parse($('#dzJson').value));
@@ -1288,6 +1290,251 @@
         });
     }
     A.registerSection('duel-matches', loadMatches);
+
+    // ════════════════════════════════════════════════════════════════════
+    // Sfida del giorno (fase 8)
+    // ════════════════════════════════════════════════════════════════════
+    const dayRoot = $('[data-duel-admin="daily"]');
+    let DD = null;
+    const BOTS = { facile: 'Facile', normale: 'Normale', difficile: 'Difficile', incubo: 'Incubo' };
+    const dayName = (d) => {
+        if (d === DD.today) return 'Oggi';
+        const diff = Math.round((new Date(d + 'T12:00:00') - new Date(DD.today + 'T12:00:00')) / 86400000);
+        if (diff === 1) return 'Domani';
+        if (diff === -1) return 'Ieri';
+        return new Date(d + 'T12:00:00').toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+    };
+    const faces = (enemy) => `<span class="dz-faces">${enemy.map((c) => `<span title="${e(c.name)} · Lv ${c.level}">${c.img ? `<img src="${e(c.img)}" alt="" loading="lazy">` : e(c.name.charAt(0))}</span>`).join('')}</span>`;
+
+    const renderDaily = () => {
+        if (!dayRoot) return;
+        if (!DD) { dayRoot.innerHTML = '<div class="dz-pad admin-muted">Caricamento…</div>'; return; }
+        dayRoot.innerHTML = `
+            <p class="admin-muted">Ogni giorno una sfida uguale per tutti contro il bot. Un giorno senza sfida scritta qui ne ha una automatica (quattro modelli a rotazione: il muro, solo Comuni e Rari, tre Segreti, l'Incubo), salvata alla prima richiesta. Una sfida che qualcuno ha già giocato non si cambia più.</p>
+            <table class="admin-table dz-dtable"><thead><tr><th>Giorno</th><th>Sfida</th><th>Regole</th><th>Giocatori</th><th></th></tr></thead><tbody>
+                ${DD.days.map((d) => {
+                    const editable = d.when !== 'past' && !d.players;
+                    const src = d.saved ? (d.auto ? 'automatica' : 'scritta qui') : 'automatica (non ancora salvata)';
+                    return `<tr class="${d.when === 'today' ? 'is-today' : ''}">
+                        <td data-label="Giorno"><b>${e(dayName(d.day))}</b><small>${e(d.day)}</small></td>
+                        <td data-label="Sfida"><span class="dz-who">${faces(d.enemy)}<span><b>${e(d.title.it)}</b><small>${e(src)} · bot ${e(BOTS[d.bot] || d.bot)}</small></span></span></td>
+                        <td data-label="Regole"><small>${e((d.goal ? `Vinci entro ${d.goal} turni · ` : 'Vinci · ') + d.rules_text)}${d.reward ? ` · +${num(d.reward)} Godos` : ''}</small></td>
+                        <td data-label="Giocatori">${d.when === 'future' ? '—' : `<b>${num(d.players)}</b><small>${num(d.done)} ${d.done === 1 ? 'centrata' : 'centrate'}</small>`}</td>
+                        <td class="dz-row-actions">
+                            ${d.players ? `<button type="button" class="admin-btn admin-btn--small admin-btn--ghost" data-dd-board="${e(d.day)}">Classifica</button>` : ''}
+                            ${editable ? `<button type="button" class="admin-btn admin-btn--small" data-dd-edit="${e(d.day)}">${d.saved && !d.auto ? 'Modifica' : 'Scrivila'}</button>` : ''}
+                            ${editable && d.saved && !d.auto ? `<button type="button" class="admin-btn admin-btn--small admin-btn--ghost" data-dd-del="${e(d.day)}">Togli</button>` : ''}
+                        </td></tr>`;
+                }).join('')}
+            </tbody></table>`;
+    };
+
+    const loadDaily = async () => {
+        if (!dayRoot) return;
+        try {
+            DD = await get({ action: 'daily' });
+            renderDaily();
+        } catch (error) {
+            dayRoot.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Sfida del giorno non disponibile', error.message);
+        }
+    };
+
+    const dailyForm = (day) => {
+        const d = DD.days.find((x) => x.day === day);
+        const charOptions = (sel) => DD.characters.slice().sort((a, b) => a.name.localeCompare(b.name)).map((c) =>
+            `<option value="${c.id}"${c.id === sel ? ' selected' : ''}>${e(c.name)} · ${e(c.rarity.label)}</option>`).join('');
+        const allowed = d.rules.rarities.length ? d.rules.rarities : DD.rarities.map((r) => r.key);
+        A.openModal?.(`Sfida del giorno · ${dayName(day)}`, `${day}${d.saved && !d.auto ? '' : ' · parte da quella automatica'}`, `
+            <form class="dz-root dz-dform" id="dzDailyForm">
+                <div class="dz-fields">
+                    <label class="dz-f dz-f--wide"><span>Titolo</span><input class="admin-input" name="title_it" maxlength="90" value="${e(d.title.it)}" required></label>
+                    <label class="dz-f dz-f--wide"><span>Titolo in inglese</span><input class="admin-input" name="title_en" maxlength="90" value="${e(d.title.en)}"></label>
+                </div>
+                <p class="dz-label">Squadra nemica</p>
+                ${[0, 1, 2].map((i) => `<div class="dz-fields">
+                    <label class="dz-f dz-f--wide"><span>Personaggio ${i + 1}</span><select class="admin-input" name="team${i}">${charOptions(d.team[i]?.id)}</select></label>
+                    <label class="dz-f"><span>Livello</span><input class="admin-input" type="number" name="level${i}" min="1" max="${DD.level_max}" value="${d.team[i]?.level ?? DD.level_max}"></label>
+                </div>`).join('')}
+                <div class="dz-fields">
+                    <label class="dz-f"><span>Bot</span><select class="admin-input" name="bot">${Object.entries(BOTS).map(([k, l]) => `<option value="${k}"${d.bot === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+                    <label class="dz-f dz-f--mid"><span>Livello della tua squadra</span><input class="admin-input" type="number" name="level" min="1" max="${DD.level_max}" value="${d.rules.level}"></label>
+                    <label class="dz-f dz-f--mid"><span>Costo massimo (0 = libero)</span><input class="admin-input" type="number" name="cost_max" min="0" max="30" value="${d.rules.cost_max}"></label>
+                </div>
+                <p class="dz-label">Rarità ammesse nella tua squadra</p>
+                <div class="dz-traits">${DD.rarities.map((r) => `<label class="dz-trait${allowed.includes(r.key) ? ' is-on' : ''}"><input type="checkbox" name="rar" value="${e(r.key)}"${allowed.includes(r.key) ? ' checked' : ''}><b style="color:${e(r.color)}">${e(r.label)}</b></label>`).join('')}</div>
+                <div class="dz-fields">
+                    <label class="dz-f dz-f--mid"><span>Obiettivo in turni (0 = basta vincere)</span><input class="admin-input" type="number" name="goal" min="0" max="200" value="${d.goal}"></label>
+                    <label class="dz-f dz-f--mid"><span>Premio la prima volta</span><span class="dz-unit"><input class="admin-input" type="number" name="reward" min="0" max="5000" value="${d.reward}"><em>Godos</em></span></label>
+                </div>
+                <p class="admin-muted dz-small">Le sfide automatiche mettono l'obiettivo vicino a quello che centra poco più di metà di chi vince (55–60 turni): un turno è la mossa di una carta.</p>
+            </form>`,
+            '<button type="button" class="admin-btn" data-admin-close="1">Annulla</button><button type="button" class="admin-btn admin-btn--primary" id="dzDailySave">Salva la sfida</button>');
+        $('#dzDailySave')?.addEventListener('click', async () => {
+            const f = $('#dzDailyForm');
+            const v = (n) => f.elements[n].value;
+            try {
+                const data = await post('daily_save', {
+                    day, title_it: v('title_it'), title_en: v('title_en'), bot: v('bot'), level: Number(v('level')), cost_max: Number(v('cost_max')),
+                    team: [0, 1, 2].map((i) => Number(v(`team${i}`))), levels: [0, 1, 2].map((i) => Number(v(`level${i}`))),
+                    rarities: $$('[name="rar"]:checked', f).map((x) => x.value), goal: Number(v('goal')), reward: Number(v('reward')),
+                });
+                showToast(data.message);
+                A.closeModal?.();
+                loadDaily();
+            } catch (error) {
+                showToast(error.message, true);
+            }
+        });
+    };
+
+    if (dayRoot) {
+        dayRoot.addEventListener('click', async (ev) => {
+            const t = ev.target.closest('button');
+            if (!t) return;
+            if (t.dataset.ddEdit) dailyForm(t.dataset.ddEdit);
+            if (t.dataset.ddDel) {
+                confirmBox('Togliere la sfida scritta?', '<p class="admin-muted">Quel giorno avrà la sfida automatica.</p>', async () => {
+                    const data = await post('daily_delete', { day: t.dataset.ddDel });
+                    showToast(data.message);
+                    loadDaily();
+                });
+            }
+            if (t.dataset.ddBoard) {
+                try {
+                    const data = await get({ action: 'daily_board', day: t.dataset.ddBoard });
+                    A.openModal?.(`Classifica · ${dayName(t.dataset.ddBoard)}`, 'Prima chi ha centrato l\'obiettivo, poi meno turni, poi chi c\'è arrivato prima.',
+                        data.board.length ? `<table class="dz-mini"><thead><tr><th>#</th><th>Giocatore</th><th>Turni</th><th>Tentativi</th></tr></thead><tbody>${data.board.map((r, i) =>
+                            `<tr><td>${i + 1}</td><td>${r.completed ? '<i class="fa-solid fa-check"></i> ' : ''}${e(r.username)}</td><td>${r.best === null ? '—' : num(r.best)}</td><td>${num(r.attempts)}</td></tr>`).join('')}</tbody></table>`
+                            : '<p class="admin-muted">Nessuno.</p>', '<button type="button" class="admin-btn" data-admin-close="1">Chiudi</button>');
+                } catch (error) {
+                    showToast(error.message, true);
+                }
+            }
+        });
+    }
+    A.registerSection('duel-daily', loadDaily);
+
+    // ════════════════════════════════════════════════════════════════════
+    // Legami (fase 8)
+    // ════════════════════════════════════════════════════════════════════
+    const trRoot = $('[data-duel-admin="traits"]');
+    let TR = null;
+    const BONUS = {
+        hp: 'HP %', atk: 'ATK %', def: 'DEF %', crit: 'Critico', cdmg: 'Danno critico %', spd_pct: 'Velocità %', lifesteal: 'Rubavita %', dmg_pct: 'Danni %',
+        heal_out_pct: 'Cure fatte %', heal_in_pct: 'Cure ricevute %', prec: 'Precisione', charge: 'Carica iniziale', regen: 'Rigenerazione % iniziale', ps: 'PS in più a inizio partita',
+    };
+
+    const renderTraits = () => {
+        if (!trRoot) return;
+        if (!TR) { trRoot.innerHTML = '<div class="dz-pad admin-muted">Caricamento…</div>'; return; }
+        trRoot.innerHTML = `
+            <div class="dz-bar-top">
+                <p class="admin-muted">Due o tre personaggi dello stesso legame nella stessa squadra danno un bonus a chi ne fa parte. Si entra per nome o per categoria. ${TR.saved ? '' : 'Finché non ne cambi uno valgono quelli del codice: alla prima modifica si copiano tutti qui.'}</p>
+                <button type="button" class="admin-btn admin-btn--primary" data-tr-new><i class="fa-solid fa-plus"></i> Nuovo legame</button>
+            </div>
+            <div class="dz-tgrid">
+                ${TR.traits.map((t) => `<article class="dz-card dz-tcard${t.active ? '' : ' is-off'}">
+                    <div class="dz-thead"><div><h4>${e(t.it)}</h4><small>${e(t.en)} · <code>${e(t.key)}</code>${t.active ? '' : ' · spento'}</small></div>
+                        <div class="dz-actions"><button type="button" class="admin-btn admin-btn--small" data-tr-edit="${e(t.key)}">Modifica</button></div></div>
+                    <ul class="dz-tiers">${t.tiers.map((x) => `<li><b>${x.need} in squadra</b><span>${e(x.text)}</span></li>`).join('')}</ul>
+                    <div class="dz-members">${t.members.slice(0, 18).map((c) => `<span class="dz-member${c.by_category ? ' is-cat' : ''}" title="${e(c.name)}${c.by_category ? ' (per categoria)' : ''}">${c.img ? `<img src="${e(c.img)}" alt="" loading="lazy">` : ''}${e(c.name)}</span>`).join('')}${t.members.length > 18 ? `<span class="dz-member">+${t.members.length - 18}</span>` : ''}</div>
+                    ${t.categories.length ? `<small class="admin-muted">Categorie: ${e(t.categories.join(', '))}</small>` : ''}
+                </article>`).join('')}
+            </div>`;
+    };
+
+    const loadTraits = async () => {
+        if (!trRoot) return;
+        try {
+            TR = await get({ action: 'traits' });
+            renderTraits();
+        } catch (error) {
+            trRoot.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'Legami non disponibili', error.message);
+        }
+    };
+
+    const traitForm = (key) => {
+        const t = key ? TR.traits.find((x) => x.key === key) : null;
+        const F = {
+            ids: new Set(t ? t.ids : []),
+            tiers: { 2: { ...(t?.tiers.find((x) => x.need === 2)?.bonus || {}) }, 3: { ...(t?.tiers.find((x) => x.need === 3)?.bonus || {}) } },
+        };
+        const tierHtml = (need) => `<div class="dz-mods" data-tier="${need}"><span class="dz-label">Con ${need} in squadra</span>
+            ${Object.entries(F.tiers[need]).map(([k, v]) => `<span class="dz-mod"><span class="dz-word">${e(BONUS[k] || k)}</span><input type="number" class="dz-chip dz-num" data-tier-k="${need}:${e(k)}" value="${v}" step="any"><button type="button" class="dz-tool" data-tier-del="${need}:${e(k)}" aria-label="Togli"><i class="fa-solid fa-xmark"></i></button></span>`).join('')}
+            <select class="dz-chip dz-chip--soft" data-tier-add="${need}"><option value="">+ bonus</option>${Object.keys(BONUS).filter((k) => !(k in F.tiers[need])).map((k) => `<option value="${k}">${e(BONUS[k])}</option>`).join('')}</select></div>`;
+        const membersHtml = () => [...F.ids].map((id) => {
+            const c = TR.characters.find((x) => x.id === id);
+            return `<span class="dz-member">${e(c ? c.name : '#' + id)}<button type="button" class="dz-tool" data-mem-del="${id}" aria-label="Togli"><i class="fa-solid fa-xmark"></i></button></span>`;
+        }).join('') || '<span class="admin-muted dz-small">Nessuno per nome.</span>';
+        A.openModal?.(t ? `Legame · ${t.it}` : 'Nuovo legame', 'I bonus valgono per i membri del legame in squadra, dalla prossima partita.', `
+            <form id="dzTraitForm" class="dz-root dz-dform">
+                <div class="dz-fields">
+                    <label class="dz-f dz-f--wide"><span>Nome</span><input class="admin-input" name="it" maxlength="60" value="${e(t?.it || '')}" required></label>
+                    <label class="dz-f dz-f--wide"><span>Nome in inglese</span><input class="admin-input" name="en" maxlength="60" value="${e(t?.en || '')}"></label>
+                    <label class="dz-f dz-f--check"><input type="checkbox" name="active"${!t || t.active ? ' checked' : ''}><span>attivo</span></label>
+                </div>
+                <p class="dz-label">Personaggi (per nome)</p>
+                <div class="dz-members" data-members>${membersHtml()}</div>
+                <label class="dz-f dz-f--wide"><span>Aggiungi</span><input class="admin-input" list="dzTraitChars" data-mem-add placeholder="Scrivi un nome e scegli"></label>
+                <datalist id="dzTraitChars">${TR.characters.map((c) => `<option value="${e(c.name)}"></option>`).join('')}</datalist>
+                <p class="dz-label">Categorie (tutti i personaggi della categoria)</p>
+                <div class="dz-traits">${TR.categories.map((c) => `<label class="dz-trait${t?.categories.includes(c) ? ' is-on' : ''}"><input type="checkbox" name="cat" value="${e(c)}"${t?.categories.includes(c) ? ' checked' : ''}><b>${e(c)}</b></label>`).join('')}</div>
+                <p class="dz-label">Bonus</p>
+                <div data-tiers>${tierHtml(2)}${tierHtml(3)}</div>
+            </form>`,
+            `${t ? '<button type="button" class="admin-btn admin-btn--ghost" id="dzTraitDel">Togli il legame</button>' : ''}<button type="button" class="admin-btn" data-admin-close="1">Annulla</button><button type="button" class="admin-btn admin-btn--primary" id="dzTraitSave">Salva</button>`);
+        const form = $('#dzTraitForm');
+        const paint = () => { $('[data-members]', form).innerHTML = membersHtml(); $('[data-tiers]', form).innerHTML = tierHtml(2) + tierHtml(3); };
+        form.addEventListener('change', (ev) => {
+            const el = ev.target;
+            if (el.dataset.tierAdd && el.value) { F.tiers[el.dataset.tierAdd][el.value] = 5; paint(); }
+            if (el.dataset.tierK) { const [n, k] = el.dataset.tierK.split(':'); F.tiers[n][k] = Number(el.value); }
+            if (el.matches('[data-mem-add]')) {
+                const c = TR.characters.find((x) => x.name.toLowerCase() === el.value.trim().toLowerCase());
+                if (c) { F.ids.add(c.id); el.value = ''; paint(); }
+            }
+        });
+        form.addEventListener('click', (ev) => {
+            const b = ev.target.closest('button');
+            if (!b) return;
+            if (b.dataset.memDel) { F.ids.delete(Number(b.dataset.memDel)); paint(); }
+            if (b.dataset.tierDel) { const [n, k] = b.dataset.tierDel.split(':'); delete F.tiers[n][k]; paint(); }
+        });
+        $('#dzTraitSave')?.addEventListener('click', async () => {
+            try {
+                const data = await post('trait_save', {
+                    new: !t, key: t?.key || '', it: form.elements.it.value, en: form.elements.en.value, active: form.elements.active.checked,
+                    ids: [...F.ids], categories: $$('[name="cat"]:checked', form).map((x) => x.value),
+                    tiers: [2, 3].map((need) => ({ need, bonus: F.tiers[need] })),
+                });
+                showToast(data.message);
+                TR = data;
+                A.closeModal?.();
+                renderTraits();
+            } catch (error) {
+                showToast(error.message.split('\n').join(' '), true);
+            }
+        });
+        $('#dzTraitDel')?.addEventListener('click', () => {
+            A.closeModal?.();
+            confirmBox(`Togliere «${t.it}»?`, '<p class="admin-muted">Il legame sparisce dalle squadre dalla prossima partita.</p>', async () => {
+                const data = await post('trait_delete', { key: t.key });
+                showToast(data.message);
+                TR = data;
+                renderTraits();
+            });
+        });
+    };
+
+    if (trRoot) {
+        trRoot.addEventListener('click', (ev) => {
+            const t = ev.target.closest('button');
+            if (!t) return;
+            if ('trNew' in t.dataset) traitForm(null);
+            if (t.dataset.trEdit) traitForm(t.dataset.trEdit);
+        });
+    }
+    A.registerSection('duel-traits', loadTraits);
 
     // Lasciare la pagina con un kit non salvato: il browser chiede conferma.
     window.addEventListener('beforeunload', (ev) => {

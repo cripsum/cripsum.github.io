@@ -59,9 +59,11 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
                 <button type="button" data-section="edits"><i class="fa-solid fa-clapperboard"></i><span>Edits</span></button>
                 <span class="admin-nav-label">Duelli</span>
                 <button type="button" data-section="duel-kits"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Kit personaggi</span></button>
+                <button type="button" data-section="duel-traits"><i class="fa-solid fa-link"></i><span>Legami</span></button>
                 <button type="button" data-section="duel-values"><i class="fa-solid fa-sliders"></i><span>Stati e regole</span></button>
                 <button type="button" data-section="duel-balance"><i class="fa-solid fa-scale-balanced"></i><span>Bilanciamento</span></button>
                 <button type="button" data-section="duel-seasons"><i class="fa-solid fa-calendar"></i><span>Stagioni</span></button>
+                <button type="button" data-section="duel-daily"><i class="fa-solid fa-calendar-day"></i><span>Sfida del giorno</span></button>
                 <button type="button" data-section="duel-matches"><i class="fa-solid fa-chess-board"></i><span>Partite</span></button>
                 <span class="admin-nav-label">Gacha</span>
                 <button type="button" data-section="gacha-banner"><i class="fa-solid fa-star"></i><span>Banners</span></button>
@@ -245,6 +247,26 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
                     </div>
                 </div>
                 <div class="dz-root" data-duel-admin="seasons"></div>
+            </section>
+
+            <section class="admin-section" id="section-duel-traits" data-section-panel="duel-traits">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Legami</strong>
+                        <small>I legami tra personaggi: chi ne fa parte (per nome o per categoria) e i bonus con 2 o 3 membri in squadra.</small>
+                    </div>
+                </div>
+                <div class="dz-root" data-duel-admin="traits"></div>
+            </section>
+
+            <section class="admin-section" id="section-duel-daily" data-section-panel="duel-daily">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Sfida del giorno</strong>
+                        <small>Il calendario delle sfide del giorno: quelle scritte qui e quelle automatiche, chi le ha giocate, la classifica.</small>
+                    </div>
+                </div>
+                <div class="dz-root" data-duel-admin="daily"></div>
             </section>
 
             <section class="admin-section" id="section-duel-matches" data-section-panel="duel-matches">

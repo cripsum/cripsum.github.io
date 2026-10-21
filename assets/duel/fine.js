@@ -70,14 +70,21 @@
         // Fase 6: i Godos pagati con questa partita e la stagione.
         (R.rewards || []).forEach((r) => {
             if (r.kind === 'daily_win') rows.push(['coppa', T('Prima vittoria del giorno', 'First win of the day'), '+' + fmt(r.amount) + ' Godos']);
+            if (r.kind === 'daily_ch') rows.push(['coppa', T('Obiettivo della sfida del giorno', 'Daily challenge goal'), '+' + fmt(r.amount) + ' Godos']);
         });
+        // Fase 8: com'e' andata la sfida del giorno, e dove sei in classifica.
+        if (R.daily) {
+            const d = R.daily;
+            const res = !d.won ? T('persa', 'lost') : d.completed ? T('centrata in ' + d.turns + ' turni', 'done in ' + d.turns + ' turns') : T('vinta in ' + d.turns + ' turni, obiettivo ' + d.goal, 'won in ' + d.turns + ' turns, goal ' + d.goal);
+            rows.push([d.completed ? 'check' : 'orologio', T('Sfida del giorno', 'Daily challenge'), res + (d.me && d.me.pos ? ' · ' + T(d.me.pos + 'º in classifica', '#' + d.me.pos + ' today') : '')]);
+        }
         if (R.season) {
             const placing = R.season.games < R.season.placement;
             rows.push(['calendario', T('Stagione ', 'Season ') + R.season.n + (placing ? T(' · piazzamento', ' · placement') : ''),
                 placing ? R.season.games + ' / ' + R.season.placement : T('conta per la stagione', 'counts for the season')]);
         }
         if (!watcher && R.winner === mine && R.streak >= 2) rows.push(['fulmine', T('Serie di vittorie', 'Win streak'), fmt(R.streak)]);
-        if (R.mode === 'bot') rows.push(['robot', T('Contro il bot', 'Vs bot'), T('non conta per la classifica', 'does not count for the ranking')]);
+        if (R.mode === 'bot' && !R.daily) rows.push(['robot', T('Contro il bot', 'Vs bot'), T('non conta per la classifica', 'does not count for the ranking')]);
         if (R.mode === 'casual') rows.push(['dadi', T('Veloce', 'Quick'), T('non conta per la classifica', 'does not count for the ranking')]);
         if (R.mode === 'private') rows.push(R.async ? ['orologio', T('In differita', 'Turn-based'), T('non conta per la classifica', 'does not count for the ranking')]
             : ['lucchetto', T('Stanza o sfida', 'Room or challenge'), T('non conta per la classifica', 'does not count for the ranking')]);
@@ -120,7 +127,8 @@
         const BOT_LV = { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard'), incubo: T('Incubo', 'Nightmare') };
         const botLv = R.bot ? (players(R.side === null || R.side === undefined ? 1 : other).level || '') : '';
         const sub = [R.bot ? T('Contro il bot ', 'Vs bot ') + (BOT_LV[botLv] || botLv) : R.async ? T('In differita', 'Turn-based') : D.MODE[R.mode] || R.mode, R.bot ? '' : opp, R.turns + (R.turns === 1 ? T(' turno', ' turn') : T(' turni', ' turns')), duration(R.seconds)].filter(Boolean).join(' · ');
-        const acts = (R.rematch ? '<button class="d2p-btn d2p-btn-w d2p-btn-big" type="button" id="d2p-rematch">' + esc(T('Rivincita', 'Rematch')) + '</button>' : '')
+        const again = R.daily ? (R.daily.today ? T('Riprova la sfida', 'Try the challenge again') : '') : T('Rivincita', 'Rematch');
+        const acts = (R.rematch && again ? '<button class="d2p-btn d2p-btn-w d2p-btn-big" type="button" id="d2p-rematch">' + esc(again) + '</button>' : '')
             + '<a class="d2p-btn d2p-btn-big' + (R.rematch ? '' : ' d2p-btn-w') + '" href="' + esc(U.replay + '?m=' + R.id) + '">' + ic('replay') + ' ' + esc(T('Rivedi la partita', 'Watch the replay')) + '</a>'
             + '<a class="d2p-btn d2p-btn-big" href="' + esc(U.lobby) + '">' + esc(T('Torna ai duelli', 'Back to duels')) + '</a>';
         $('d2p-res').innerHTML = '<section><h1 class="d2p-res-big ' + cls + '">' + esc(t) + '</h1><p class="d2p-res-sub">' + esc(sub) + '</p>'

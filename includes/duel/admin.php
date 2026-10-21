@@ -1281,3 +1281,158 @@ function duel_admin_switch(mysqli $m, string $key, bool $on): array
     }
     return $out;
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Legami (fase 8: crearli e cambiarli dal pannello)
+// ─────────────────────────────────────────────────────────────────────────
+
+/** I bonus che il motore sa dare a un legame (engine.php, duel_apply_traits()), coi limiti del pannello. */
+const DUEL_ADMIN_TRAIT_BONUS = [
+    'hp' => [0, 50], 'atk' => [0, 50], 'def' => [0, 50], 'crit' => [0, 50], 'cdmg' => [0, 100], 'spd_pct' => [0, 50],
+    'lifesteal' => [0, 50], 'dmg_pct' => [0, 50], 'heal_out_pct' => [0, 100], 'heal_in_pct' => [0, 100], 'prec' => [0, 50],
+    'charge' => [0, 100], 'regen' => [0, 20], 'ps' => [0, 2],
+];
+
+/**
+ * Tutti i legami per il pannello: nome, categorie, chi ne fa parte (per nome
+ * e per categoria), i bonus a 2, 3... membri, attivo o no. Finche' il
+ * pannello non ne ha mai cambiato uno sono quelli del codice.
+ */
+function duel_admin_traits(mysqli $m): array
+{
+    duel_use_current_values($m, true);
+    $chars = duel_admin_characters($m);
+    $saved = (int)(duel_row($m, 'SELECT COUNT(*) AS n FROM game_traits')['n'] ?? 0) > 0;
+    $list = [];
+    if ($saved) {
+        $ids = [];
+        foreach (duel_rows($m, 'SELECT character_id, trait_key FROM game_character_traits') as $r) {
+            $ids[(string)$r['trait_key']][] = (int)$r['character_id'];
+        }
+        foreach (duel_rows($m, 'SELECT * FROM game_traits ORDER BY sort, trait_key') as $r) {
+            $tiers = json_decode((string)$r['tiers_json'], true);
+            $list[(string)$r['trait_key']] = ['it' => (string)$r['name_it'], 'en' => (string)$r['name_en'], 'active' => (int)$r['active'] === 1,
+                'cat' => array_values(array_filter(array_map('trim', explode(',', (string)$r['categories'])))), 'ids' => $ids[(string)$r['trait_key']] ?? [],
+                'tiers' => is_array($tiers) ? $tiers : []];
+        }
+    } else {
+        foreach (duel_traits() as $key => $t) {
+            $list[(string)$key] = $t + ['active' => true, 'ids' => [], 'cat' => []];
+        }
+    }
+
+    $out = [];
+    foreach ($list as $key => $t) {
+        $cats = array_map(static fn($c) => mb_strtolower((string)$c, 'UTF-8'), $t['cat']);
+        $members = [];
+        foreach ($chars as $id => $c) {
+            $byCat = in_array(mb_strtolower(trim((string)($c['categoria'] ?? '')), 'UTF-8'), $cats, true);
+            if ($byCat || in_array($id, $t['ids'], true)) {
+                $members[] = ['id' => $id, 'name' => duel_admin_name((string)$c['nome']), 'img' => duel_media($c['img_url'] ?? ''), 'by_category' => $byCat];
+            }
+        }
+        $tiers = [];
+        foreach ($t['tiers'] as $need => $bonus) {
+            $tiers[] = ['need' => (int)$need, 'bonus' => (array)$bonus, 'text' => duel_text_trait_bonus((array)$bonus, 'it')];
+        }
+        usort($tiers, static fn($a, $b) => $a['need'] <=> $b['need']);
+        $out[] = ['key' => $key, 'it' => $t['it'], 'en' => $t['en'], 'active' => $t['active'], 'categories' => $t['cat'], 'ids' => $t['ids'],
+            'members' => $members, 'tiers' => $tiers];
+    }
+    $categories = array_values(array_unique(array_filter(array_map(static fn($c) => trim((string)($c['categoria'] ?? '')), $chars))));
+    sort($categories);
+    $names = array_map(static fn($c) => ['id' => (int)$c['id'], 'name' => duel_admin_name((string)$c['nome'])], array_values($chars));
+    usort($names, static fn($a, $b) => strcasecmp($a['name'], $b['name']));
+    return ['saved' => $saved, 'traits' => $out, 'bonus' => array_keys(DUEL_ADMIN_TRAIT_BONUS), 'categories' => $categories, 'characters' => $names];
+}
+
+/** Un legame dal pannello (nuovo o cambiato). Torna la chiave. */
+function duel_admin_trait_save(mysqli $m, array $in): string
+{
+    $err = [];
+    $isNew = !empty($in['new']);
+    $key = strtolower(trim((string)($in['key'] ?? '')));
+    if ($key === '' && $isNew) {
+        $key = trim((string)preg_replace('/[^a-z0-9]+/', '_', strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string)($in['it'] ?? '')) ?: '')), '_');
+    }
+    if (!preg_match('/^[a-z0-9_]{2,32}$/', $key)) {
+        $err[] = 'Il codice del legame: da 2 a 32 lettere minuscole, numeri o _.';
+    }
+    $it = trim((string)($in['it'] ?? ''));
+    $en = trim((string)($in['en'] ?? '')) ?: $it;
+    if ($it === '' || mb_strlen($it) > 60 || mb_strlen($en) > 60) {
+        $err[] = 'Il nome va da 1 a 60 caratteri.';
+    }
+    $cats = array_values(array_unique(array_filter(array_map(static fn($c) => mb_substr(trim((string)$c), 0, 40), (array)($in['categories'] ?? [])))));
+    $chars = duel_admin_characters($m);
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array)($in['ids'] ?? [])), static fn($id) => isset($chars[$id]))));
+    if (count($cats) > 10 || count($ids) > 60) {
+        $err[] = 'Al massimo 10 categorie e 60 personaggi.';
+    }
+    if (!$cats && !$ids) {
+        $err[] = 'Un legame ha almeno un personaggio o una categoria.';
+    }
+    $tiers = [];
+    foreach ((array)($in['tiers'] ?? []) as $tier) {
+        $need = (int)($tier['need'] ?? 0);
+        if ($need < 2 || $need > 3) {
+            $err[] = 'I bonus valgono con 2 o 3 membri in squadra.';
+            continue;
+        }
+        $bonus = [];
+        foreach ((array)($tier['bonus'] ?? []) as $k => $v) {
+            if (!isset(DUEL_ADMIN_TRAIT_BONUS[$k]) || !is_numeric($v)) {
+                $err[] = "Bonus sconosciuto: $k.";
+                continue;
+            }
+            [$lo, $hi] = DUEL_ADMIN_TRAIT_BONUS[$k];
+            if ((float)$v < $lo || (float)$v > $hi) {
+                $err[] = "Bonus $k: da $lo a $hi.";
+                continue;
+            }
+            if ((float)$v > 0) {
+                $bonus[$k] = (float)$v == (int)$v ? (int)$v : (float)$v;
+            }
+        }
+        if ($bonus) {
+            $tiers[$need] = $bonus;
+        }
+    }
+    if (!$tiers) {
+        $err[] = 'Serve almeno un bonus.';
+    }
+    if ($err) {
+        throw new DuelKitInvalid(array_values(array_unique($err)));
+    }
+    ksort($tiers);
+    $active = !array_key_exists('active', $in) || !empty($in['active']);
+    duel_tx($m, static function () use ($m, $isNew, $key, $it, $en, $cats, $ids, $tiers, $active): void {
+        duel_admin_traits_seed($m);
+        $exists = duel_row($m, 'SELECT sort FROM game_traits WHERE trait_key = ?', 's', [$key]);
+        if ($isNew && $exists) {
+            throw new DuelKitInvalid(['Esiste già un legame con questo codice.']);
+        }
+        if (!$isNew && !$exists) {
+            throw new DuelKitInvalid(['Legame non trovato.']);
+        }
+        $sort = $exists ? (int)$exists['sort'] : 10 + (int)(duel_row($m, 'SELECT MAX(sort) AS s FROM game_traits')['s'] ?? 0);
+        duel_exec($m, 'INSERT INTO game_traits (trait_key, name_it, name_en, categories, tiers_json, active, sort) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE name_it = VALUES(name_it), name_en = VALUES(name_en), categories = VALUES(categories), tiers_json = VALUES(tiers_json), active = VALUES(active)',
+            'sssssii', [$key, $it, $en, implode(',', $cats), json_encode($tiers, JSON_UNESCAPED_UNICODE), $active ? 1 : 0, $sort]);
+        duel_exec($m, 'DELETE FROM game_character_traits WHERE trait_key = ?', 's', [$key]);
+        foreach ($ids as $id) {
+            duel_exec($m, 'INSERT IGNORE INTO game_character_traits (character_id, trait_key) VALUES (?, ?)', 'is', [$id, $key]);
+        }
+    });
+    return $key;
+}
+
+/** Toglie un legame (e chi ne faceva parte per nome). */
+function duel_admin_trait_delete(mysqli $m, string $key): bool
+{
+    return duel_tx($m, static function () use ($m, $key): bool {
+        duel_admin_traits_seed($m);
+        duel_exec($m, 'DELETE FROM game_character_traits WHERE trait_key = ?', 's', [$key]);
+        return duel_exec($m, 'DELETE FROM game_traits WHERE trait_key = ?', 's', [$key]) === 1;
+    });
+}

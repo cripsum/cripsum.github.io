@@ -7,8 +7,8 @@
  * I dati arrivano gia' dentro la pagina (duel_lobby_view); assets/duel/
  * lobby.js disegna e gestisce coda, bot, stanze, classifica.
  *
- * Della tavola 1 restano alle fasi dopo: sfide in differita e agli amici
- * (fase 6), stagione con premi (fase 6), sfida del giorno (fase 8).
+ * Fase 6: sfide in differita e agli amici, stagione con premi. Fase 8: la
+ * sfida del giorno (sotto «Le tue sfide»).
  */
 
 require __DIR__ . '/_start.php';
@@ -50,7 +50,6 @@ $dConfig = duel_page_config($dLang, $dUserId);
             </div>
             <div class="d2p-head-side">
                 <div id="d2p-season"></div>
-                <a class="d2p-link" href="<?= $h($dUrls['classic']) ?>"><?= $h($dT('Duelli di sempre', 'Classic duels')) ?> <i data-i="freccia"></i></a>
             </div>
         </header>
 
@@ -62,6 +61,7 @@ $dConfig = duel_page_config($dLang, $dUserId);
                 <div id="d2p-extra"></div>
                 <div class="d2p-play" id="d2p-play"></div>
                 <div class="d2p-block" id="d2p-going" hidden></div>
+                <div class="d2p-block" id="d2p-daily" hidden></div>
             </section>
 
             <aside class="d2p-side">

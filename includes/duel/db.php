@@ -310,11 +310,14 @@ function duel_db_overrides(mysqli $m, bool $fresh = false): array
     }
 
     if (rt_has_table($m, 'game_traits')) {
+        // Basta una riga (anche spenta) perche' valgano quelli del database: spenti tutti = nessun legame.
         $traits = [];
-        $res = $m->query('SELECT trait_key, name_it, name_en, categories, tiers_json FROM game_traits WHERE active = 1 ORDER BY sort, trait_key');
+        $seeded = false;
+        $res = $m->query('SELECT trait_key, name_it, name_en, categories, tiers_json, active FROM game_traits ORDER BY sort, trait_key');
         while ($res && ($row = $res->fetch_assoc())) {
+            $seeded = true;
             $tiers = json_decode((string)$row['tiers_json'], true);
-            if (!is_array($tiers)) {
+            if ((int)$row['active'] !== 1 || !is_array($tiers)) {
                 continue;
             }
             $traits[(string)$row['trait_key']] = [
@@ -325,8 +328,8 @@ function duel_db_overrides(mysqli $m, bool $fresh = false): array
                 'tiers' => $tiers,
             ];
         }
-        if ($traits) {
-            if (rt_has_table($m, 'game_character_traits')) {
+        if ($seeded) {
+            if ($traits && rt_has_table($m, 'game_character_traits')) {
                 $res = $m->query('SELECT character_id, trait_key FROM game_character_traits');
                 while ($res && ($row = $res->fetch_assoc())) {
                     if (isset($traits[(string)$row['trait_key']])) {

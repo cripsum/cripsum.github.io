@@ -15,7 +15,8 @@
  */
 
 require_once __DIR__ . '/public.php';
-require_once __DIR__ . '/../game_helpers.php';
+// Costi dei potenziamenti, statistiche e kit dei Duelli 2.0 (fase 8: il vecchio motore non c'e' piu').
+require_once __DIR__ . '/upgrades.php';
 
 class GachaActionException extends RuntimeException
 {
@@ -230,6 +231,8 @@ function gacha_collection_payload(mysqli $mysqli, int $userId, string $lang): ar
     $owned = gacha_owned_rows($mysqli, $userId);
     $wishlist = gacha_wishlist_ids($mysqli, $userId);
     $cardRows = gacha_card_stats_rows($mysqli, array_keys($owned));
+    // Le schede dicono quello che succede in partita: kit e valori del pannello.
+    gd_use_duel_values($mysqli);
 
     // Dove si trova ora ogni personaggio: featured nei banner attivi o
     // annunciati (non quelli di cui l'utente ha finito le pull), e il pool
@@ -346,8 +349,8 @@ function gacha_collection_payload(mysqli $mysqli, int $userId, string $lang): ar
             'nuovo' => !$own['visto'],
             'preferito' => $own['preferito'],
             'banner' => $inBanners[$id] ?? [],
-            'stats' => gd_stats_build($id, $game, $cardRows[$id] ?? null, $level),
-            'stats_next' => $level < 6 ? gd_stats_build($id, $game, $cardRows[$id] ?? null, $level + 1) : null,
+            'stats' => gd_stats_build($id, $game, $cardRows[$id] ?? null, $level, $lang),
+            'stats_next' => $level < 6 ? gd_stats_build($id, $game, $cardRows[$id] ?? null, $level + 1, $lang) : null,
         ];
     }
 

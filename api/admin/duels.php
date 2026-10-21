@@ -6,10 +6,11 @@
  * staff, CSRF da bootstrap.php), le risposte e il registro admin: ogni
  * modifica a kit, valori, interruttori, stagioni e partite ci finisce.
  *
- * GET  action=kits | kit (id) | values | balance (days) | seasons | matches (filter, mode, page)
+ * GET  action=kits | kit (id) | values | balance (days) | seasons | matches (filter, mode, page) | daily | daily_board (day) | traits
  * POST action=kit_preview | kit_save | kit_reset | kit_restore | kit_traits | kit_sim
  *      | values_save | values_sim | balance_sim_start | balance_sim_chunk
  *      | switch | season_save | season_rules | season_close | match_cancel
+ *      | daily_save | daily_delete | trait_save | trait_delete (fase 8)
  */
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../includes/duel/admin.php';
@@ -169,6 +170,63 @@ try {
             // Se le stagioni sono accese parte subito la prossima.
             duel_season_tick($m);
             admin_ok(['message' => 'Stagione ' . (int)$season['number'] . ' chiusa: premi pagati e punti verso 1.000.'] + duel_admin_seasons($m));
+            break;
+
+        // ── Sfida del giorno (fase 8) ────────────────────────────────────
+        case 'daily':
+            require_once __DIR__ . '/../../includes/duel/daily.php';
+            if (!duel_daily_ready($m)) {
+                admin_fail('Manca la migrazione migrations/2026_10_22_duelli2_fase8.sql: eseguila in phpMyAdmin.', 503);
+            }
+            // Oggi c'e' sempre: quello automatico si salva alla prima richiesta.
+            duel_daily_get($m, duel_daily_today(), true);
+            admin_ok(['today' => duel_daily_today(), 'days' => duel_daily_calendar($m, date('Y-m-d', strtotime('-7 days')), 21),
+                'characters' => array_map(static fn($c) => ['id' => (int)$c['id'], 'name' => duel_admin_name((string)$c['nome']), 'rarity' => duel_admin_rarity(duel_rarity_key((string)$c['rarita'], !empty($c['limitato'])))],
+                    array_values(duel_admin_characters($m))),
+                'rarities' => array_map(static fn($k) => duel_admin_rarity($k), array_keys(duel_rarities())), 'level_max' => duel_rules()['level_max']]);
+            break;
+
+        case 'daily_board':
+            require_once __DIR__ . '/../../includes/duel/daily.php';
+            $sc = duel_daily_get($m, (string)($input['day'] ?? ''));
+            admin_ok(['board' => $sc ? duel_daily_board($m, $sc['id'], 50) : []]);
+            break;
+
+        case 'daily_save':
+            require_once __DIR__ . '/../../includes/duel/daily.php';
+            $saved = duel_daily_save($m, $adminId, $input);
+            admin_log($m, $adminId, 'duel_daily_save', null, ['giorno' => $saved['day'], 'titolo' => $saved['title']]);
+            admin_ok(['message' => 'Sfida salvata.']);
+            break;
+
+        case 'daily_delete':
+            require_once __DIR__ . '/../../includes/duel/daily.php';
+            $day = (string)($input['day'] ?? '');
+            if (!duel_daily_delete($m, $day)) {
+                admin_fail('Quel giorno ha già quella automatica.', 409);
+            }
+            admin_log($m, $adminId, 'duel_daily_delete', null, ['giorno' => $day]);
+            admin_ok(['message' => 'Tolta: quel giorno avrà la sfida automatica.']);
+            break;
+
+        // ── Legami (fase 8) ──────────────────────────────────────────────
+        case 'traits':
+            admin_ok(duel_admin_traits($m));
+            break;
+
+        case 'trait_save':
+            $key = duel_admin_trait_save($m, $input);
+            admin_log($m, $adminId, 'duel_trait_save', null, ['legame' => (string)($input['it'] ?? $key), 'nuovo' => !empty($input['new']) ? 'sì' : 'no']);
+            admin_ok(['key' => $key, 'message' => 'Legame salvato: vale dalla prossima partita.'] + duel_admin_traits($m));
+            break;
+
+        case 'trait_delete':
+            $key = (string)($input['key'] ?? '');
+            if (!duel_admin_trait_delete($m, $key)) {
+                admin_fail('Legame non trovato.', 404);
+            }
+            admin_log($m, $adminId, 'duel_trait_delete', null, ['legame' => $key]);
+            admin_ok(['message' => 'Legame tolto.'] + duel_admin_traits($m));
             break;
 
         // ── Partite e interruttori ───────────────────────────────────────

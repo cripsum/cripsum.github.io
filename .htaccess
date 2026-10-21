@@ -168,9 +168,11 @@ RewriteRule ^bio(?:\.php)?/?$ /u/cripsum? [R=301,L,NC]
 # /404 e /404.html (dove stava la pagina prima) danno la 404 vera.
 RewriteRule ^404(?:\.html)?/?$ 404.php [L,NC]
 
-RewriteRule ^it/game/?$ /it/game/lobby.php [L,QSA]
-RewriteRule ^it/game/lobby/?$ /it/game/lobby.php [L,QSA]
-RewriteRule ^it/game/arena/([0-9]+)/?$ /it/game/arena.php?match_id=$1 [L,QSA]
+# I duelli di prima sono diventati i Duelli 2.0 (fase 8): i vecchi indirizzi
+# portano per sempre alle pagine nuove. /it/game/arena.php?match_id= lo
+# rimanda it/game/arena.php.
+RewriteRule ^(it|en)/game(?:/(?:lobby|index)(?:\.php)?)?/?$ /$1/duelli/ [R=301,L,NC]
+RewriteRule ^(it|en)/game/arena/([0-9]+)/?$ /$1/duelli/arena?m=$2 [R=301,L,NC]
 
 
 RewriteCond %{REQUEST_FILENAME}.html -f

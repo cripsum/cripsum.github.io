@@ -1061,7 +1061,7 @@
             <div class="inv-dpanel" data-dpanel="kit" ${drawerTab === 'kit' ? '' : 'hidden'}>
                 ${s.role ? `<p class="inv-role"><i class="fa-solid fa-shield-halved"></i> ${esc(s.role)}</p>` : ''}
                 <div class="inv-ability"><span class="inv-ability__tag is-passive">${T.passive}</span><strong>${esc(s.passive_name || T.none)}</strong><p>${esc(s.passive_desc || '')}</p></div>
-                <div class="inv-ability"><span class="inv-ability__tag is-special">${T.special}</span><strong>${esc(s.special_name || '')}</strong><small>${T.costE}: ${num(s.special_cost)} E · CD ${num(s.special_cooldown)}</small><p>${esc(s.special_desc || '')}</p></div>
+                <div class="inv-ability"><span class="inv-ability__tag is-special">${T.special}</span><strong>${esc(s.special_name || '')}</strong><small>${esc(s.special_meta || "")}</small><p>${esc(s.special_desc || '')}</p></div>
                 ${s.ultimate_name ? `<div class="inv-ability"><span class="inv-ability__tag is-ultimate">${T.ultimate}</span><strong>${esc(s.ultimate_name)}</strong><p>${esc(s.ultimate_desc || '')}</p></div>` : ''}
             </div>`;
 

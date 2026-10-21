@@ -14,6 +14,8 @@
  * Fase 6: stagione in alto, «Le tue sfide» (sfide ricevute e mandate,
  * partite in differita), il foglio «Sfida un amico» (tavola 6), il bot
  * Incubo. Le sfide arrivano anche dal timbro personale (evento 'dc').
+ *
+ * Fase 8: la sfida del giorno, sotto «Le tue sfide», con il suo foglio.
  */
 (function () {
     'use strict';
@@ -347,7 +349,7 @@
             const res = r.draw ? ['P', 'd2p-l', T('Pareggio', 'Draw')] : r.won ? ['V', '', T('Vittoria', 'Victory')] : ['S', 'd2p-l', T('Sconfitta', 'Defeat')];
             const d = r.rating_delta;
             return '<div class="d2p-hist"><a class="d2p-hist-main" href="' + esc(U.end + '?m=' + r.id) + '"><span class="d2p-r ' + res[1] + '" title="' + esc(res[2]) + '">' + (D.EN ? res[2].charAt(0) : res[0]) + '</span>'
-                + '<span><span class="d2p-hist-who">' + esc(T('contro ', 'vs ') + r.opponent) + '</span><small>' + esc((D.MODE[r.mode] || r.mode) + ' · ' + D.ago(r.at)) + '</small></span>'
+                + '<span><span class="d2p-hist-who">' + esc(T('contro ', 'vs ') + r.opponent) + '</span><small>' + esc((r.daily ? T('Sfida del giorno', 'Daily challenge') : D.MODE[r.mode] || r.mode) +' · ' + D.ago(r.at)) + '</small></span>'
                 + (d !== null && d !== undefined ? '<span class="d2p-dl d2p-num ' + (d > 0 ? 'd2p-up' : d < 0 ? 'd2p-dn' : '') + '">' + (d > 0 ? '+' : d < 0 ? '−' : '') + fmt(Math.abs(d)) + '</span>' : '<span></span>') + '</a>'
                 + '<a class="d2p-ibtn" href="' + esc(U.replay + '?m=' + r.id) + '" aria-label="' + esc(T('Rivedi la partita', 'Watch the replay')) + '" title="' + esc(T('Rivedi la partita', 'Watch the replay')) + '">' + ic('replay') + '</a></div>';
         }).join('');
@@ -377,6 +379,7 @@
         renderExtra();
         renderPlay();
         renderGoing();
+        renderDaily();
         renderRank();
         renderBoard();
         renderLive();
@@ -406,6 +409,7 @@
             return;
         }
         if (act === 'friends') { openFriends(); return; }
+        if (act === 'daily') { openDaily(); return; }
         if (act === 'room') {
             const t = team();
             const r = await api('room', null, { action: 'create', slot: t.slot, levels: S.room.levels, cost_limit: S.room.cost });
@@ -450,6 +454,81 @@
     setInterval(refresh, 30000);
     watchPersonal(refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+
+
+    // ── Sfida del giorno (fase 8, tavola 1) ──────────────────────────────
+    // Il riquadro con la squadra nemica, l'obiettivo e il tuo record; «Prova»
+    // apre il foglio con le regole, le tue squadre (solo quelle che vanno
+    // bene oggi) e la classifica del giorno.
+    const DY = { slot: null, busy: false };
+    const dayLabel = (d) => new Date(d + 'T12:00:00').toLocaleDateString(D.EN ? 'en-GB' : 'it-IT', { day: 'numeric', month: 'long' });
+    function renderDaily() {
+        const box = $('d2p-daily');
+        const d = H.daily;
+        if (!box) return;
+        if (!d) { box.hidden = true; return; }
+        box.hidden = false;
+        const me = d.me;
+        const bits = [];
+        if (me && me.best !== null) bits.push(T('il tuo record: ' + me.best + ' turni', 'your best: ' + me.best + ' turns'));
+        else if (me) bits.push(T('tentativi: ' + me.attempts, 'attempts: ' + me.attempts));
+        bits.push(d.players ? T('ci hanno provato in ' + d.players, d.players + ' tried it') : T('nessuno ci ha ancora provato', 'nobody tried it yet'));
+        box.innerHTML = '<div class="d2p-sec-t"><h2 class="d2p-h2">' + esc(T('Sfida del giorno', 'Daily challenge')) + '</h2>'
+            + '<button class="d2p-link" type="button" data-act="daily">' + esc(dayLabel(d.day)) + '</button></div>'
+            + '<div class="d2p-daily"><div class="d2p-faces">' + d.enemy.map((c) => '<span style="--r:' + D.rarColor(c.rarity) + '">'
+                + (c.img ? '<img src="' + esc(c.img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '<i>' + esc(D.niceName(c.name).charAt(0)) + '</i></span>').join('') + '</div>'
+            + '<div><strong>' + (me && me.completed ? ic('check') + ' ' : '') + esc(d.title) + '</strong>'
+            + '<p>' + esc(d.goal ? d.goal_text + ' · ' + d.rules_text : d.rules_text) + '. ' + esc(bits.join(' · ').replace(/^./, (x) => x.toUpperCase())) + '.</p></div>'
+            + '<button class="d2p-btn' + (me && me.completed ? '' : ' d2p-btn-w') + '" type="button" data-act="daily">' + esc(me ? T('Riprova', 'Try again') : T('Prova', 'Try it')) + '</button></div>';
+        D.hydrate(box);
+    }
+    /** Perche' una squadra salvata non va bene oggi (o null). */
+    function dailyError(t) {
+        const r = H.daily.rules;
+        if (!t || t.cards.length < 3 || t.missing) return T('Squadra incompleta', 'Incomplete team');
+        if (r.rarities && r.rarities.length && t.cards.some((c) => !r.rarities.includes(c.rarity))) return T('Rarità non ammesse oggi', 'Rarities not allowed today');
+        if (r.cost_max > 0 && t.cost > r.cost_max) return T('Costa ' + t.cost + ', oggi al massimo ' + r.cost_max, 'Costs ' + t.cost + ', today ' + r.cost_max + ' at most');
+        return null;
+    }
+    function openDaily() {
+        if (!H.daily) return;
+        const ok = H.teams.filter((t) => !dailyError(t));
+        if (!ok.some((t) => t.slot === DY.slot)) DY.slot = ok.some((t) => t.slot === S.slot) ? S.slot : (ok[0] || {}).slot ?? null;
+        F.back = document.activeElement;
+        sheet().hidden = false;
+        document.body.classList.add('d2p-lock');
+        drawDaily();
+        const first = $('d2p-sheet-p').querySelector('button[data-dslot]:not([disabled]), button[data-close]');
+        if (first) first.focus();
+    }
+    function drawDaily() {
+        const d = H.daily;
+        const me = d.me;
+        const board = d.board.map((x, i) => '<div class="d2p-lb' + (x.id === CFG.me ? ' d2p-me' : '') + '"><span class="d2p-p">' + (i + 1) + '</span>'
+            + '<span>' + (x.completed ? ic('check') : '') + '</span><b>' + esc(x.username) + '</b><span class="d2p-d d2p-num">'
+            + esc(x.best !== null ? T(x.best + ' turni', x.best + ' turns') : T('non ancora', 'not yet')) + '</span></div>').join('');
+        const mine = me && me.pos && !d.board.some((x) => x.id === CFG.me)
+            ? '<div class="d2p-lb d2p-me d2p-gap"><span class="d2p-p">' + me.pos + '</span><span>' + (me.completed ? ic('check') : '') + '</span><b>' + esc(T('Tu', 'You')) + '</b><span class="d2p-d d2p-num">' + esc(T(me.best + ' turni', me.best + ' turns')) + '</span></div>' : '';
+        const teams = H.teams.map((t) => {
+            const err = dailyError(t);
+            return '<button type="button" class="d2p-fr d2p-dteam" data-dslot="' + t.slot + '" aria-pressed="' + (t.slot === DY.slot) + '"' + (err ? ' disabled' : '') + '>'
+                + '<span class="d2p-av">' + t.slot + '</span><span><b>' + esc(t.name) + '</b><small>' + esc(err || t.cards.map((c) => D.niceName(c.name)).join(', ')) + '</small></span>'
+                + '<span class="d2p-num">' + t.cost + '</span></button>';
+        }).join('');
+        const anyOk = H.teams.some((t) => !dailyError(t));
+        $('d2p-sheet-p').innerHTML = '<div class="d2p-sheet-h"><button type="button" class="d2p-ibtn" data-close="1" aria-label="' + esc(T('Chiudi', 'Close')) + '">' + ic('x') + '</button>'
+            + '<h3 id="d2p-sheet-t">' + esc(T('Sfida del giorno', 'Daily challenge')) + ' · ' + esc(dayLabel(d.day)) + '</h3></div>'
+            + '<p class="d2p-dtitle">' + esc(d.title) + '</p>'
+            + '<p class="d2p-sheet-note">' + ic('coppa') + '<span>' + esc(d.goal_text + '. ' + d.rules_text + '.')
+                + (d.reward > 0 ? ' ' + esc(T('La prima volta che centri l\'obiettivo: +' + d.reward + ' Godos.', 'The first time you hit the goal: +' + d.reward + ' Godos.')) : '') + '</span></p>'
+            + '<span class="d2p-lab">' + esc(T('Contro', 'Against')) + '</span><div class="d2p-cards d2p-dcards">' + d.enemy.map((c) => D.card(c, { lv: true })).join('') + '</div>'
+            + '<span class="d2p-lab">' + esc(T('La tua squadra', 'Your team')) + '</span><div class="d2p-fl">' + (teams || '') + '</div>'
+            + (anyOk ? '' : '<p class="d2p-mut">' + esc(T('Nessuna delle tue squadre va bene oggi. ', 'None of your teams fits today. ')) + '<a class="d2p-link" href="' + esc(U.team) + '">' + esc(T('Prepara una squadra', 'Build a team')) + ' ' + ic('freccia') + '</a></p>')
+            + '<span class="d2p-lab">' + esc(T('Classifica di oggi', 'Today\'s ranking')) + '</span>'
+            + (board + mine || '<p class="d2p-mut">' + esc(T('Ancora nessuno: la prima vittoria è in cima.', 'Nobody yet: the first win goes to the top.')) + '</p>')
+            + '<button class="d2p-btn d2p-btn-w d2p-btn-big" type="button" data-dplay="1"' + (DY.slot === null || DY.busy ? ' disabled' : '') + '>' + esc(T('Gioca la sfida', 'Play the challenge')) + '</button>';
+        D.hydrate($('d2p-sheet-p'));
+    }
 
     // ── Foglio «Sfida un amico» (tavola 6) ───────────────────────────────
     const F = { list: null, teams: [], pick: null, kind: 'live', levels: 'own', q: '', slot: null, sending: false, back: null };
@@ -538,6 +617,16 @@
         const b = e.target.closest('[data-close], button');
         if (!b || b.disabled) return;
         if (b.dataset.close) { closeFriends(); return; }
+        if (b.dataset.dslot) { DY.slot = Number(b.dataset.dslot); drawDaily(); return; }
+        if (b.dataset.dplay) {
+            DY.busy = true;
+            drawDaily();
+            const r = await api('daily', null, { action: 'start', slot: DY.slot });
+            DY.busy = false;
+            if (!r.ok) { fail(r); drawDaily(); return; }
+            go(r.match);
+            return;
+        }
         if (b.dataset.friend) { F.pick = Number(b.dataset.friend); drawFriends(); return; }
         if (b.dataset.kind) { F.kind = b.dataset.kind; drawFriends(); return; }
         if (b.dataset.levels) { F.levels = b.dataset.levels; drawFriends(); return; }

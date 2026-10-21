@@ -239,8 +239,10 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
 
         case 'Healer':
             $kit['attack'] = ['name' => 'Attacco', 'target' => 'enemy', 'effects' => [$hit(90)]];
+            // I Leggendari, appena arriva la Rinascita, restano al 4% (giro finale
+            // della fase 8: col 5% e la rinascita al 20% vincevano il 56%).
             $kit['passive'] = ['name' => 'Cure costanti', 'triggers' => [
-                ['when' => 'turn_start', 'silent' => true, 'effects' => [['e' => 'heal', 'to' => 'lowest_ally', 'of' => 'target_max', 'pct' => $r(4 * $k)]]],
+                ['when' => 'turn_start', 'silent' => true, 'effects' => [['e' => 'heal', 'to' => 'lowest_ally', 'of' => 'target_max', 'pct' => $T === 3 ? 4 : $r(4 * $k)]]],
             ]];
             if ($T >= 2) {
                 $kit['passive']['overheal_shield'] = $T >= 3 ? 15 : 10;
@@ -255,7 +257,7 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
             $kit['skill'] = ['name' => 'Soffio vitale', 'cost' => 1, 'target' => 'ally', 'effects' => $skill];
             $ult = [['e' => 'heal', 'to' => 'allies', 'of' => 'target_max', 'pct' => $r(20 * $U)]];
             if ($T >= 3) {
-                $revive = [3 => 20, 4 => 25, 5 => 35, 6 => 35, 7 => 45][$T];
+                $revive = [3 => 15, 4 => 25, 5 => 35, 6 => 35, 7 => 45][$T];
                 array_unshift($ult, ['e' => 'revive', 'pct' => $revive]);
             }
             if ($T >= 5) {
@@ -327,9 +329,11 @@ function duel_role_kit(string $role, string $rarityKey, array $opts = []): array
         case 'Buffer':
             $kit['attack'] = ['name' => 'Attacco', 'target' => 'enemy', 'effects' => [$hit(90)]];
             $kit['passive'] = ['name' => 'Presenza', 'aura' => ['atk_pct' => round(8 * $k, 1)], 'triggers' => []];
+            // Dagli Epici arriva Concentrazione e la spinta in avanti cala (giro
+            // finale della fase 8: con tutte e due gli Epici vincevano il 57%).
             $skill = [
                 ['e' => 'apply', 'to' => 'target', 'k' => 'atk_su', 'v' => $r(24 * $k), 't' => 2],
-                ['e' => 'advance', 'to' => 'target', 'pct' => 25],
+                ['e' => 'advance', 'to' => 'target', 'pct' => $T >= 2 ? 10 : 25],
                 ['e' => 'ps', 'n' => 1],
             ];
             if ($T >= 2) {

@@ -23,6 +23,7 @@ if ($userId <= 0) {
 $chars = gacha_characters($mysqli);
 $owned = gacha_owned_rows($mysqli, $userId);
 $cards = gacha_card_stats_rows($mysqli, array_keys($owned));
+gd_use_duel_values($mysqli);
 
 $out = [];
 foreach ($owned as $id => $own) {

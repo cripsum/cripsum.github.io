@@ -468,3 +468,22 @@ body.d2p-lock { overflow: hidden; }
 /* La ricerca: il segno del fuoco sul campo arrotondato, non un rettangolo sull'input. */
 .d2p-search:focus-within { border-color: var(--tx2); box-shadow: 0 0 0 2px var(--tx); }
 body.d2p .d2p-search input:focus-visible { outline: none; }
+
+/* Sfida del giorno (fase 8, tavola 1): i volti della squadra nemica, l'obiettivo, il record. */
+.d2p-daily { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 22px; align-items: center; }
+.d2p-faces { display: flex; }
+.d2p-faces span { position: relative; width: 58px; height: 72px; border-radius: 12px; overflow: hidden; border: 3px solid var(--bg); background: var(--s2); box-shadow: inset 0 -3px 0 var(--r); }
+.d2p-faces span + span { margin-left: -16px; }
+.d2p-faces img { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; }
+.d2p-faces i { display: grid; place-items: center; height: 100%; color: var(--tx2); font-style: normal; font-weight: 600; }
+.d2p-daily strong { display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 600; }
+.d2p-daily p { margin: 4px 0 0; color: var(--tx2); font-size: 13px; line-height: 1.45; }
+.d2p-dtitle { margin: 0 0 4px; font-size: 18px; font-weight: 600; line-height: 1.3; }
+.d2p-sheet .d2p-dcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.d2p-dteam .d2p-av { border-radius: 12px; font-size: 15px; font-weight: 600; }
+.d2p-dteam .d2p-num { color: var(--tx2); font-size: 13px; text-align: right; }
+.d2p-sheet .d2p-btn-big { margin-top: 16px; }
+@media (max-width: 700px) {
+    .d2p-daily { grid-template-columns: auto minmax(0, 1fr); gap: 16px; }
+    .d2p-daily .d2p-btn { grid-column: 1 / -1; }
+}

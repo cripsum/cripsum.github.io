@@ -215,6 +215,9 @@ function duel_match_start(mysqli $m, array $p): int
     if (!empty($p['room_options'])) {
         $rules['room'] = $p['room_options'];
     }
+    if (!empty($p['daily'])) {
+        $rules['daily'] = $p['daily'];
+    }
 
     $data = duel_match_columns($m, [
         'status' => 'active',
@@ -536,6 +539,12 @@ function duel_finish(mysqli $m, array &$row, array $st): void
     if ($winner !== null && $winner > 0) {
         duel_reward_daily_win($m, $row, $winner);
     }
+    // Fase 8: la sfida del giorno conta il tentativo, il risultato migliore e il premio.
+    $daily = duel_match_rules($row)['daily'] ?? null;
+    if ($daily) {
+        require_once __DIR__ . '/daily.php';
+        duel_daily_record($m, $row, $st, $daily);
+    }
 
     $data = duel_match_columns($m, [
         'winner_rating_delta' => $rating['wd'],
@@ -766,6 +775,7 @@ function duel_view_static(mysqli $m, array $row, array $st): array
         'units' => $units,
         'rules' => ['levels' => $rules['levels'], 'cost_limit' => (int)$rules['cost_limit'], 'turn_seconds' => (int)$rules['turn_seconds'],
             'async' => !empty($rules['async']), 'timeouts_max' => (int)$rules['timeouts_max'],
+            'daily' => !empty($rules['daily']) ? ['goal' => (int)$rules['daily']['goal'], 'title' => (string)($rules['daily']['title'][$lang] ?? $rules['daily']['title']['it'] ?? '')] : null,
             'turn_limit' => duel_rules()['turn_limit'], 'ps_max' => duel_rules()['ps_max'], 'charge_max' => duel_rules()['charge_max']],
         'costs' => [(int)($row['team_cost_p1'] ?? 0), (int)($row['team_cost_p2'] ?? 0)],
     ];

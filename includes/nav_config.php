@@ -258,7 +258,7 @@ if (!function_exists('nav_lang')) {
                 'items' => [
                     ['icon' => 'fa-dice',              'label' => 'Gambling',   'href' => "/$lang/gambling"],
                     ['icon' => 'fa-box-open',          'label' => 'Lootbox',    'href' => "/$lang/lootbox"],
-                    ['icon' => 'fa-gamepad',           'label' => $t['duels'],  'href' => "/$lang/game/"],
+                    ['icon' => 'fa-gamepad',           'label' => $t['duels'],  'href' => "/$lang/duelli/"],
                     ['icon' => 'fa-train',             'label' => $t['subway'], 'href' => "/$lang/subway"],
                     ['icon' => 'fa-headphones-simple', 'label' => 'Pullspot',   'href' => "/$lang/pullspot"],
                     ['icon' => 'fa-compact-disc',      'label' => 'Animespot',  'href' => "/$lang/animespot"],

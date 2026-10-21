@@ -47,6 +47,7 @@ function duel_api_routes(): array
         'friends' => ['GET', 'duel_ep_friends'],
         'challenge' => ['POST', 'duel_ep_challenge'],
         'season' => ['GET', 'duel_ep_season'],
+        'daily' => ['ANY', 'duel_ep_daily'],
     ];
 }
 
@@ -235,6 +236,19 @@ function duel_ep_room(mysqli $m, int $userId, array $in): array
         return duel_room_join($m, $userId, duel_in_str($in, 'code', 16), duel_team_input($m, $userId, $in));
     }
     throw duel_user_error('Azione non valida.', 'Invalid action.', 400, 'BAD_ACTION');
+}
+
+/**
+ * Fase 8: la sfida del giorno. GET: lo scenario di oggi, il tuo risultato e
+ * la classifica; POST action=start con la squadra (slot): la partita.
+ */
+function duel_ep_daily(mysqli $m, int $userId, array $in): array
+{
+    require_once __DIR__ . '/daily.php';
+    if (strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'POST') {
+        return duel_daily_start($m, $userId, duel_team_input($m, $userId, $in));
+    }
+    return ['daily' => duel_daily_view($m, $userId, rt_lang())];
 }
 
 function duel_ep_bot(mysqli $m, int $userId, array $in): array

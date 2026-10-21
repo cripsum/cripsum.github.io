@@ -444,7 +444,7 @@
     // ── Costruzione della pagina ─────────────────────────────────────────
     function build() {
         const st = S.st;
-        $('d2-mode').textContent = modeLabel();
+        $('d2-mode').textContent = modeLabel(true);
         const top = 1 - mySide();
         const bottom = mySide();
         $('d2-row-foe').innerHTML = '';
@@ -472,8 +472,10 @@
     }
 
     /** Il modo della partita a parole: in differita, una sfida a un amico o una stanza col codice. */
-    function modeLabel() {
+    function modeLabel(goal) {
         const st = S.st || {};
+        const daily = st.rules && st.rules.daily;
+        if (daily) return T('Sfida del giorno', 'Daily challenge') + (goal && daily.goal ? ' · ' + T('entro ' + daily.goal + ' turni', 'within ' + daily.goal + ' turns') : '');
         if (st.rules && st.rules.async) return T('In differita', 'Turn-based');
         return MODE[st.mode] || st.mode || '';
     }

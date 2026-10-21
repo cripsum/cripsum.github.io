@@ -4,8 +4,8 @@
  * Lista con filtri e ricerca, catalogo e banner standard modificabili dalla
  * riga; scheda in una finestra con l'anteprima della card (anche come la
  * vede chi non ce l'ha), i file della pull (immagine, audio, video) e il
- * kit dei duelli calcolato dal server con i valori del form. Le abilita'
- * vere stanno in includes/game_config.php: qui si vedono e basta.
+ * kit dei duelli calcolato dal server con i valori del form. I kit si
+ * scrivono in Duelli › Kit personaggi: qui si vedono e basta.
  *
  * API: /api/admin/characters.php. Usa gli strumenti dei form dello shop
  * (A.forms, da admin-shop.js: va caricato dopo).
@@ -109,7 +109,7 @@
         const role = c.ruolo || 'DPS';
         const mismatch = c.kit.role && c.kit.role !== role;
         const kit = c.kit.unique
-            ? `<small class="is-unique${mismatch ? ' is-warn' : ''}" title="${e(mismatch ? `Il kit è scritto per ${c.kit.role}: con ${role} cambiano statistiche e bonus del ruolo` : 'Abilità scritte apposta in includes/game_config.php')}"><i class="fa-solid ${mismatch ? 'fa-triangle-exclamation' : 'fa-wand-magic-sparkles'}"></i> Kit unico</small>`
+            ? `<small class="is-unique${mismatch ? ' is-warn' : ''}" title="${e(mismatch ? `Il kit è scritto per ${c.kit.role}: con ${role} cambiano statistiche e bonus del ruolo` : 'Abilità scritte apposta (Duelli › Kit personaggi)')}"><i class="fa-solid ${mismatch ? 'fa-triangle-exclamation' : 'fa-wand-magic-sparkles'}"></i> Kit unico</small>`
             : `<small${needsKit(c) ? ' class="is-todo" title="Segreto con le abilità generiche del ruolo"' : ''}>Kit del ruolo</small>`;
         return `<div class="char-admin-role"><span><i class="${ROLE_ICONS[role] || 'fa-solid fa-user'}"></i> ${e(role)}</span>${kit}</div>`;
     };
@@ -149,7 +149,7 @@
             ${generic.length ? `
             <div class="char-admin-note">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span><b>${generic.length === 1 ? '1 segreto usa' : `${generic.length} segreti usano`} il kit del ruolo:</b> nei duelli ha${generic.length === 1 ? '' : 'nno'} abilità generiche. Quelle uniche si scrivono in <code>includes/game_config.php</code> con l'id del personaggio.</span>
+                <span><b>${generic.length === 1 ? '1 segreto usa' : `${generic.length} segreti usano`} il kit del ruolo:</b> nei duelli ha${generic.length === 1 ? '' : 'nno'} abilità generiche. Quelle uniche si scrivono in <b>Duelli › Kit personaggi</b>.</span>
                 <button type="button" class="admin-btn admin-btn--small" data-f-generic>${st.generici ? 'Mostra tutti' : 'Mostra solo questi'}</button>
             </div>` : ''}
             <div class="shop-admin-bar">
@@ -468,7 +468,7 @@
 
     /* ── Kit dei duelli ─────────────────────────────────────────────── */
 
-    const STAT_ROWS = [['hp', 'HP'], ['attack', 'Attacco'], ['defense', 'Difesa'], ['speed', 'Velocità'], ['max_energy', 'Energia max'], ['crit_rate', 'Crit Rate', '%'], ['crit_dmg', 'Danno critico', '%']];
+    const STAT_ROWS = [['hp', 'HP'], ['attack', 'Attacco'], ['defense', 'Difesa'], ['speed', 'Velocità'], ['crit_rate', 'Critico', '%'], ['crit_dmg', 'Danno critico', '%']];
 
     const skill = (cls, label, s, meta = '') => `
         <div class="char-admin-skill is-${cls}">
@@ -479,7 +479,7 @@
         </div>`;
 
     const kitHtml = (kit, id) => {
-        const where = '<code>includes/game_config.php</code>';
+        const where = '<b>Duelli › Kit personaggi</b>';
         const roleWarn = kit.kit_role && kit.kit_role !== kit.role;
         return `
             <div class="char-admin-kit__head${kit.unique ? ' is-unique' : ''}">
@@ -487,8 +487,8 @@
                 <div>
                     <strong>${kit.unique ? 'Kit unico' : 'Kit del ruolo'}</strong>
                     <small>${kit.unique
-                        ? `Abilità scritte apposta per questo personaggio in ${where} (id ${Number(id)}). Si vedono così nell'inventario e in partita.`
-                        : `Abilità generate da ruolo (${e(kit.role)}) e rarità: cambiano se cambi uno dei due. Per dargliene di sue vanno scritte in ${where}${id ? ` con l'id ${Number(id)}` : ', con l\'id che avrà dopo il salvataggio'}.`}</small>
+                        ? `Abilità scritte apposta per questo personaggio (si cambiano in ${where}). Si vedono così nell'inventario e in partita.`
+                        : `Abilità generate da ruolo (${e(kit.role)}) e rarità: cambiano se cambi uno dei due. Per dargliene di sue: ${where}${id ? '' : ', dopo il salvataggio'}.`}</small>
                 </div>
             </div>
             ${roleWarn ? `
@@ -504,16 +504,14 @@
                 </table>
                 <div class="char-admin-skills">
                     ${skill('passive', 'Passiva', kit.passive)}
-                    ${skill('special', 'Speciale', kit.special, `${kit.special.cost} Energia · ricarica in ${kit.special.cooldown} ${kit.special.cooldown === 1 ? 'turno' : 'turni'}`)}
-                    ${kit.ultimate
-                        ? skill('ultimate', 'Ultimate', kit.ultimate, 'Energia piena, dal 6° turno, una volta a partita')
-                        : '<div class="char-admin-skill is-none"><span class="char-admin-skill__tag">Ultimate</span><p>Nessuna: ce l\'hanno solo Segreti e The One.</p></div>'}
+                    ${kit.attack ? skill('special', 'Attacco', kit.attack, '+1 PS') : ''}
+                    ${skill('special', 'Abilità', kit.special, e(kit.special.meta || ''))}
+                    ${skill('ultimate', 'Ultimate', kit.ultimate, 'Carica piena')}
                 </div>
             </div>
             <ul class="char-admin-kit__facts">
-                <li><i class="fa-solid fa-angles-up"></i><span>Potenziamento: ${kit.upgrade.costs.map((c, i) => `Lv. ${i + 1}→${i + 2} <b>${c}</b>`).join(' · ')} ${kit.upgrade.total === 1 ? 'copia' : 'copie'} (${kit.upgrade.total} in tutto${kit.upgrade.limited ? ', prezzi da limitato' : ''}). Ogni livello +${kit.level_step}% alle statistiche.</span></li>
-                ${kit.ultimate ? `<li><i class="fa-solid fa-volume-high"></i><span>Audio della cinematica: ${kit.ultimate_audio ? `<code>audio/ultimates/${Number(id)}.mp3</code>` : `quello di default${id ? `. Per dargliene uno suo: <code>audio/ultimates/${Number(id)}.mp3</code>` : ''}`}.</span></li>` : ''}
-                ${kit.overrides ? '<li><i class="fa-solid fa-sliders"></i><span>Alcune statistiche arrivano dalla tabella <code>game_card_stats</code>.</span></li>' : ''}
+                <li><i class="fa-solid fa-angles-up"></i><span>Potenziamento: ${kit.upgrade.costs.map((c, i) => `Lv. ${i + 1}→${i + 2} <b>${c}</b>`).join(' · ')} ${kit.upgrade.total === 1 ? 'copia' : 'copie'} (${kit.upgrade.total} in tutto${kit.upgrade.limited ? ', prezzi da limitato' : ''}). Ogni livello +${kit.level_step}% a HP, ATK e DEF.</span></li>
+                <li><i class="fa-solid fa-volume-high"></i><span>Musica dell'ultimate: ${kit.ultimate_audio ? `<code>audio/ultimates/${Number(id)}.mp3</code>` : 'quella scelta in Duelli › Kit personaggi, altrimenti quella del pull, altrimenti quella di default'}.</span></li>
             </ul>`;
     };
 

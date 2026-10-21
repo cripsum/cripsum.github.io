@@ -816,6 +816,10 @@
         duel_season_rules: ['fa-solid fa-coins', 'Premi delle stagioni cambiati'],
         duel_season_close: ['fa-solid fa-flag-checkered', 'Stagione chiusa a mano'],
         duel_match_cancel: ['fa-solid fa-ban', 'Partita annullata'],
+        duel_daily_save: ['fa-solid fa-calendar-day', 'Sfida del giorno scritta'],
+        duel_daily_delete: ['fa-solid fa-calendar-xmark', 'Sfida del giorno tolta'],
+        duel_trait_save: ['fa-solid fa-link', 'Legame salvato'],
+        duel_trait_delete: ['fa-solid fa-link-slash', 'Legame tolto'],
     };
     const LOG_FIELDS = {
         name: 'nome', rarita: 'rarità', categoria: 'categoria', limitato: 'limitato', in_pool_standard: 'banner standard',
@@ -829,6 +833,7 @@
         badge: 'badge', badge_id: 'badge #', message_id: 'messaggio #', title_it: 'titolo', target_type: 'destinatari',
         post_id: 'post #', title: 'titolo', comment_id: 'commento #', from: 'da', via: 'tramite', nome: 'nome', titolo: 'titolo', member_id: 'membro #', candidatura_id: 'candidatura #', edit_id: 'edit #', category_id: 'categoria #', visibile: 'visibile', stato: 'stato', nascosti: 'nascosti',
         versione: 'versione', nota: 'nota', aggiunti: 'aggiunti', tolti: 'tolti', interruttore: 'interruttore', acceso: 'acceso',
+        giorno: 'giorno', legame: 'legame', nuovo: 'nuovo',
         stagione: 'stagione', fine: 'fine', giorni: 'giorni', vittoria_del_giorno: 'prima vittoria del giorno', partita: 'partita #', modalita: 'modalità',
     };
     const LOG_FLAGS = ['email_verificata', 'is_premium', 'nsfw', 'richpresence', 'twofa_enabled', 'limitato', 'in_pool_standard'];

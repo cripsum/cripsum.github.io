@@ -2,7 +2,7 @@
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../includes/admin/admin_shop_helpers.php';
 require_once __DIR__ . '/../../includes/gacha/config.php';
-require_once __DIR__ . '/../../includes/game_helpers.php';
+require_once __DIR__ . '/../../includes/gacha/upgrades.php';
 
 /**
  * Personaggi dal pannello (sezione Personaggi).
@@ -15,9 +15,9 @@ require_once __DIR__ . '/../../includes/game_helpers.php';
  * GET  ?action=options  id, nome e rarita' di tutti (premi del Centro messaggi)
  * POST action = save | set_flag | delete
  *
- * Le abilita' dei duelli non si scrivono qui: i kit unici stanno in
- * includes/game_config.php (per id), gli altri nascono da ruolo e rarita'.
- * Il pannello le mostra come le calcola il gioco.
+ * Le abilita' dei duelli non si scrivono qui: i kit si scrivono in Duelli ›
+ * Kit personaggi (o stanno nel codice, includes/duel/), gli altri nascono da
+ * ruolo e rarita'. Qui si vedono come le calcola il gioco.
  *
  * I file si salvano relativi alla loro cartella (personaggi/x.jpg, x.mp3,
  * x.mp4): lootbox e animazione ci mettono davanti /img/, /audio/ e /vid/
@@ -38,6 +38,8 @@ $cols = admin_character_columns($mysqli);
 if (!$cols['name']) {
     admin_fail('Campo nome personaggio mancante.', 500);
 }
+// «Kit unico» vale anche per i kit scritti nel pannello Duelli.
+gd_use_duel_values($mysqli);
 
 /** SELECT con gli alias fissi, qualunque sia il nome vero delle colonne. */
 function ac_select(array $cols): string
@@ -60,29 +62,16 @@ function ac_select(array $cols): string
     return implode(', ', $parts);
 }
 
-/** Come il motore dei duelli decide chi puo' usare l'ultimate (gd_apply_battle_action). */
-function ac_ultimate_eligible(int $id, string $rarity): bool
+/** Il personaggio ha un kit suo nei Duelli 2.0 (scritto nel pannello o nel codice)? */
+function ac_unique_kit(int $id): bool
 {
-    $r = strtolower(trim($rarity));
-    return str_contains($r, 'secret') || str_contains($r, 'segreto') || str_contains($r, 'limited') || str_contains($r, 'one') || $id === 87;
-}
-
-/**
- * Il ruolo per cui e' scritto un kit unico, se ne ha uno fisso (Rias e'
- * "DPS" qualunque cosa dica il pannello). Null = va bene qualsiasi ruolo.
- */
-function ac_kit_role(int $id, string $rarity, string $name): ?string
-{
-    $probe = gd_get_character_config($id, $rarity, $name, '');
-    return !empty($probe['unique']) && ($probe['role'] ?? '') !== '' ? (string)$probe['role'] : null;
+    return $id > 0 && (isset(duel_overrides()['kits'][$id]) || isset(duel_unique_kits()[$id]));
 }
 
 function ac_row(array $row, array $owners, array $banners): array
 {
     $id = (int)$row['id'];
     $rarity = gacha_rarity_key($row['rarita'] ?? '') ?: (string)($row['rarita'] ?? '');
-    $role = in_array($row['ruolo'] ?? '', ADMIN_CHARACTER_ROLES, true) ? $row['ruolo'] : 'DPS';
-    $cfg = gd_get_character_config($id, $rarity, (string)$row['nome'], $role);
 
     return [
         'id' => $id,
@@ -104,11 +93,7 @@ function ac_row(array $row, array $owners, array $banners): array
         'image_url' => admin_asset_url($row['img_url'] ?? null),
         'utenti' => $owners[$id] ?? 0,
         'banner' => $banners[$id] ?? [],
-        'kit' => [
-            'unique' => !empty($cfg['unique']),
-            'role' => ac_kit_role($id, $rarity, (string)$row['nome']),
-            'ultimate' => ac_ultimate_eligible($id, $rarity) && !empty($cfg['ultimate_name']),
-        ],
+        'kit' => ['unique' => ac_unique_kit($id), 'role' => null, 'ultimate' => true],
     ];
 }
 
@@ -167,51 +152,46 @@ function ac_find(mysqli $mysqli, array $cols, int $id): array
 }
 
 /**
- * Il kit da duello come lo costruisce il gioco (gd_stats_build), a Lv. 1 e
- * al MAX (Lv. 6, quello dei bot e delle partite "livello massimo").
+ * Il kit da duello come lo costruisce il gioco (Duelli 2.0, coi kit e i
+ * valori del pannello), a Lv. 1 e al MAX, piu' le copie per potenziarlo.
  */
 function ac_kit(mysqli $mysqli, int $id, string $name, string $rarity, string $role, int $limited): array
 {
+    gd_use_duel_values($mysqli);
     $ch = ['nome' => $name, 'rarita' => $rarity, 'ruolo' => $role, 'limitato' => $limited, 'categoria' => ''];
-
-    $cardRow = null;
-    if ($id > 0 && admin_table_exists($mysqli, 'game_card_stats')) {
-        $cardRow = admin_shop_row($mysqli, 'SELECT hp, attack, defense, speed, max_energy, special_name, special_cost, special_cooldown FROM game_card_stats WHERE personaggio_id = ? LIMIT 1', 'i', [$id]);
-    }
-
-    $cfg = gd_get_character_config($id, $rarity, $name, $role);
-    $base = gd_stats_build($id, $ch, $cardRow, 1);
-    $max = gd_stats_build($id, $ch, $cardRow, 6);
+    $max = duel_rules()['level_max'];
+    $base = gd_stats_build($id, $ch, null, 1);
+    $top = gd_stats_build($id, $ch, null, $max);
     $marker = gd_limited_marker($ch);
 
     $costs = [];
-    for ($lvl = 1; $lvl < 6; $lvl++) {
+    for ($lvl = 1; $lvl < $max; $lvl++) {
         $costs[] = gd_get_upgrade_requirement($rarity, $lvl, $marker);
     }
 
     $pick = static fn(array $s): array => [
         'hp' => (int)$s['hp'], 'attack' => (int)$s['attack'], 'defense' => (int)$s['defense'], 'speed' => (int)$s['speed'],
-        'max_energy' => (int)$s['max_energy'], 'crit_rate' => (int)$s['crit_rate'], 'crit_dmg' => (int)$s['crit_dmg'],
+        'crit_rate' => (int)$s['crit_rate'], 'crit_dmg' => (int)$s['crit_dmg'],
     ];
 
-    $ultimate = ac_ultimate_eligible($id, $rarity) && !empty($cfg['ultimate_name']);
-
     return [
-        'unique' => !empty($cfg['unique']),
-        'kit_role' => ac_kit_role($id, $rarity, $name),
+        'unique' => ac_unique_kit($id),
+        'kit_role' => null,
         'role' => $role,
-        'overrides' => $cardRow !== null,
-        'stats' => ['base' => $pick($base), 'max' => $pick($max)],
-        'level_step' => (int)round((gd_get_stat_multiplier($rarity, 2, $marker) - 1) * 100),
-        'passive' => ['name' => (string)$cfg['passive_name'], 'desc' => (string)$cfg['passive_desc']],
+        'overrides' => false,
+        'stats' => ['base' => $pick($base), 'max' => $pick($top)],
+        'level_step' => (int)duel_rules()['level_step'],
+        'passive' => ['name' => (string)$base['passive_name'], 'desc' => (string)$base['passive_desc']],
+        'attack' => ['name' => (string)$base['attack_name'], 'desc' => (string)$base['attack_desc']],
         'special' => [
             'name' => (string)$base['special_name'],
-            'desc' => (string)$cfg['special_desc'],
+            'desc' => (string)$base['special_desc'],
             'cost' => (int)$base['special_cost'],
             'cooldown' => (int)$base['special_cooldown'],
+            'meta' => (string)$base['special_meta'],
         ],
-        'ultimate' => $ultimate ? ['name' => (string)$cfg['ultimate_name'], 'desc' => (string)$cfg['ultimate_desc']] : null,
-        'ultimate_audio' => $ultimate && $id > 0 && is_file(__DIR__ . '/../../audio/ultimates/' . $id . '.mp3'),
+        'ultimate' => ['name' => (string)$base['ultimate_name'], 'desc' => (string)$base['ultimate_desc']],
+        'ultimate_audio' => $id > 0 && is_file(__DIR__ . '/../../audio/ultimates/' . $id . '.mp3'),
         'upgrade' => ['costs' => $costs, 'total' => array_sum($costs), 'limited' => $marker !== ''],
     ];
 }

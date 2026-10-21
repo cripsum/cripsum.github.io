@@ -126,27 +126,16 @@ if (strcasecmp($eventType, 'ACTIVITY_INVITE_CREATE') === 0 || strcasecmp($eventT
         $inviterName = $inviterUser['username'] ?? "Discord Utente ({$inviterDiscordId})";
         $inviterId   = $inviterUser['id'] ?? null;
 
-        // Generate a new room code for the duel
-        $roomCode = strtoupper(substr(md5(uniqid((string)mt_rand(), true)), 0, 6));
-
-        // Create match entry in game_matches
-        $stmtMatch = $mysqli->prepare("INSERT INTO game_matches (room_code, status, mode, player1_id, spectator_allowed) VALUES (?, 'waiting', 'casual', ?, 1)");
-        if ($stmtMatch) {
-            $stmtMatch->bind_param('si', $roomCode, $inviterId);
-            $stmtMatch->execute();
-            $matchId = $stmtMatch->insert_id;
-            $stmtMatch->close();
-        }
+        // Duelli 2.0 (fase 8): la stanza si apre dalla lobby, con la propria squadra.
 
         // Send log notification to #site-logs
         notifyDiscordSiteLogs(
             'default',
             '⚔️ Invito Duello da Discord',
-            "L'utente **{$inviterName}** ha inviato un invito a un duello da Discord!\nStanza creata: **{$roomCode}**",
+            "L'utente **{$inviterName}** ha inviato un invito a un duello da Discord!",
             [
                 ['name' => 'Sfidante', 'value' => "<@{$inviterDiscordId}>", 'inline' => true],
-                ['name' => 'Stanza', 'value' => "`{$roomCode}`", 'inline' => true],
-                ['name' => 'Link Arena', 'value' => "https://cripsum.com/it/game/arena.php?room={$roomCode}", 'inline' => false]
+                ['name' => 'Duelli', 'value' => 'https://cripsum.com/it/duelli/', 'inline' => false]
             ],
             $inviterId,
             $inviterDiscordId

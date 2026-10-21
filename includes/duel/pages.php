@@ -28,7 +28,7 @@ function duel_urls(string $lang): array
     $base = '/' . $lang . '/duelli/';
     return [
         'lobby' => $base, 'team' => $base . 'squadra', 'arena' => $base . 'arena', 'end' => $base . 'fine', 'replay' => $base . 'replay', 'season' => $base . 'stagione',
-        'classic' => '/' . $lang . '/game/lobby.php',
+        'home' => '/' . $lang . '/home',
     ];
 }
 
@@ -196,6 +196,9 @@ function duel_lobby_view(mysqli $m, int $userId, string $lang): array
     $hub['traits'] = duel_traits_view($lang);
     $hub['board'] = duel_leaderboard($m, $userId);
     $hub['collection'] = count(duel_db_collection($m, $userId));
+    // Fase 8: la sfida del giorno (tavola 1).
+    require_once __DIR__ . '/daily.php';
+    $hub['daily'] = duel_daily_view($m, $userId, $lang);
 
     // La partita aperta con chi e contro chi, e se tocca a te.
     if ($hub['active']) {
@@ -332,5 +335,9 @@ function duel_summary(mysqli $m, int $userId, array $row, string $lang): array
         'async' => duel_is_async($row),
         'rewards' => $rewards,
         'season' => $season,
+        'daily' => (static function () use ($m, $row, $lang) {
+            require_once __DIR__ . '/daily.php';
+            return duel_daily_summary($m, $row, $lang);
+        })(),
     ];
 }

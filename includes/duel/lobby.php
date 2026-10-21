@@ -459,6 +459,13 @@ function duel_rematch(mysqli $m, int $userId, int $matchId): array
     }
     $rules = duel_match_rules($row);
     $pids = $rules['teams'][$side] ?? [];
+    if (!empty($rules['daily'])) {
+        require_once __DIR__ . '/daily.php';
+        if (($rules['daily']['day'] ?? '') !== duel_daily_today()) {
+            throw duel_user_error('La sfida di quel giorno è finita: prova quella di oggi.', 'That day\'s challenge is over: try today\'s.', 409, 'DAILY_OVER');
+        }
+        return duel_daily_start($m, $userId, $pids);
+    }
     if (duel_is_bot_match($row)) {
         return duel_start_bot($m, $userId, $pids, (string)$row['bot_level']);
     }
@@ -494,7 +501,7 @@ function duel_hub(mysqli $m, int $userId): array
 
     $recent = [];
     foreach (duel_rows($m, "SELECT m.id, m.mode, m.player1_id, m.player2_id, m.winner_id, m.end_reason, m.finished_at,
-            m.winner_rating_delta, m.loser_rating_delta, u1.username AS p1, u2.username AS p2
+            m.winner_rating_delta, m.loser_rating_delta, u1.username AS p1, u2.username AS p2, m.rules_json LIKE '%\"daily\":%' AS daily
         FROM game_matches m LEFT JOIN utenti u1 ON u1.id = m.player1_id LEFT JOIN utenti u2 ON u2.id = m.player2_id
         WHERE m.engine_version IS NOT NULL AND m.status = 'finished' AND (m.player1_id = ? OR m.player2_id = ?)
         ORDER BY m.finished_at DESC LIMIT 10", 'ii', [$userId, $userId]) as $r) {
@@ -502,7 +509,7 @@ function duel_hub(mysqli $m, int $userId): array
         $won = $r['winner_id'] !== null && (int)$r['winner_id'] === $userId;
         $draw = $r['winner_id'] === null;
         $opponent = (string)$r['mode'] === 'bot' ? 'Cripsum Bot' : (string)($mine === 0 ? ($r['p2'] ?? '') : ($r['p1'] ?? ''));
-        $recent[] = ['id' => (int)$r['id'], 'mode' => (string)$r['mode'], 'opponent' => $opponent, 'won' => $won, 'draw' => $draw,
+        $recent[] = ['id' => (int)$r['id'], 'mode' => (string)$r['mode'], 'daily' => (bool)$r['daily'], 'opponent' => $opponent, 'won' => $won, 'draw' => $draw,
             'reason' => (string)$r['end_reason'], 'at' => (string)$r['finished_at'],
             'rating_delta' => $draw ? null : ($won ? ($r['winner_rating_delta'] !== null ? (int)$r['winner_rating_delta'] : null)
                 : ($r['loser_rating_delta'] !== null ? (int)$r['loser_rating_delta'] : null))];
