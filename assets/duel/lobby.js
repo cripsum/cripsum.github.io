@@ -8,7 +8,12 @@
  * partite in corso.
  *
  * In coda il browser manda il segnale ogni 4 secondi (queue ping): il server
- * abbina e risponde «matched» con la partita.
+ * abbina e risponde «matched» con la partita. Dopo un minuto propone il bot
+ * restando in coda.
+ *
+ * Fase 6: stagione in alto, «Le tue sfide» (sfide ricevute e mandate,
+ * partite in differita), il foglio «Sfida un amico» (tavola 6), il bot
+ * Incubo. Le sfide arrivano anche dal timbro personale (evento 'dc').
  */
 (function () {
     'use strict';
@@ -50,8 +55,8 @@
         return {
             casual: '<b>' + T('Veloce:', 'Quick:') + '</b> ' + esc(T('i tuoi livelli, squadra libera, 45 secondi a turno. Non conta per la classifica.', 'your own levels, any team, 45 seconds per turn. Does not count for the ranking.')),
             ranked: '<b>Ranked:</b> ' + esc(T('tutti i personaggi al livello massimo, squadra con costo fino a ' + b + ', 45 secondi a turno.', 'every character at max level, team cost up to ' + b + ', 45 seconds per turn.')),
-            friend: '<b>' + esc(T('Sfida un amico:', 'Challenge a friend:')) + '</b> ' + esc(T('apri una stanza e manda il codice, oppure entra con il codice che ti hanno mandato. Il codice vale 10 minuti.', 'open a room and send the code, or join with the code you got. The code lasts 10 minutes.')),
-            bot: '<b>' + esc(T('Contro il bot:', 'Vs bot:')) + '</b> ' + esc(T('i tuoi livelli, tre bot dal più facile al più bravo. Non conta per la classifica.', 'your own levels, three bots from easiest to hardest. Does not count for the ranking.')),
+            friend: '<b>' + esc(T('Sfida un amico:', 'Challenge a friend:')) + '</b> ' + esc(T('adesso o in differita (24 ore a turno), le arriva nella campanella. Oppure una stanza con un codice. Non conta per la classifica.', 'now or turn-based (24 hours per turn); it shows up in their bell. Or a room with a code. Does not count for the ranking.')),
+            bot: '<b>' + esc(T('Contro il bot:', 'Vs bot:')) + '</b> ' + esc(T('i tuoi livelli, quattro bot dal Facile all\'Incubo. Non conta per la classifica.', 'your own levels, four bots from Easy to Nightmare. Does not count for the ranking.')),
         }[S.mode];
     }
     function renderModes() {
@@ -99,16 +104,9 @@
     function renderExtra() {
         const box = $('d2p-extra');
         if (S.mode === 'bot') {
-            const lv = { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard') };
+            const lv = { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard'), incubo: T('Incubo', 'Nightmare') };
             box.innerHTML = '<div class="d2p-opts"><span class="d2p-lab">' + esc(T('Bot', 'Bot')) + '</span><div class="d2p-tabs2" role="group">'
                 + Object.keys(lv).map((k) => '<button type="button" data-level="' + k + '" aria-pressed="' + (k === S.level) + '"' + (k === S.level ? ' class="d2p-on"' : '') + '>' + esc(lv[k]) + '</button>').join('') + '</div></div>';
-        } else if (S.mode === 'friend') {
-            box.innerHTML = '<div class="d2p-opts"><span class="d2p-lab">' + esc(T('Livelli', 'Levels')) + '</span><div class="d2p-tabs2" role="group">'
-                + '<button type="button" data-levels="max" aria-pressed="' + (S.room.levels === 'max') + '"' + (S.room.levels === 'max' ? ' class="d2p-on"' : '') + '>' + esc(T('Pareggiati', 'Equal')) + '</button>'
-                + '<button type="button" data-levels="own" aria-pressed="' + (S.room.levels === 'own') + '"' + (S.room.levels === 'own' ? ' class="d2p-on"' : '') + '>' + esc(T('I vostri', 'Your own')) + '</button></div>'
-                + '<span class="d2p-lab">' + esc(T('Costo', 'Cost')) + '</span><div class="d2p-tabs2" role="group">'
-                + '<button type="button" data-cost="0" aria-pressed="' + !S.room.cost + '"' + (!S.room.cost ? ' class="d2p-on"' : '') + '>' + esc(T('Libero', 'Free')) + '</button>'
-                + '<button type="button" data-cost="1" aria-pressed="' + S.room.cost + '"' + (S.room.cost ? ' class="d2p-on"' : '') + '>' + esc(T('Fino a ', 'Up to ') + CFG.budget) + '</button></div></div>';
         } else {
             box.innerHTML = '';
         }
@@ -123,11 +121,11 @@
             const long = secs >= 60;
             box.innerHTML = '<button class="d2p-btn d2p-btn-big" type="button" data-act="cancel">' + esc(T('Annulla la ricerca', 'Cancel search')) + '</button>'
                 + '<small class="d2p-status"><span class="d2p-dot d2p-pulse"></span> <span id="d2p-search-t">' + esc(T('Cerco un avversario ', 'Looking for an opponent ') + MODE_LABEL[S.search.mode]) + ' · ' + clock(secs) + '</span></small>'
-                + (long ? '<p class="d2p-hint">' + esc(T('Poca gente in coda adesso. Puoi aspettare ancora o giocare col bot (esci dalla coda).', 'Few people in queue right now. Keep waiting or play the bot (you leave the queue).'))
-                    + ' <button class="d2p-btn d2p-btn-sm" type="button" data-act="bot-now">' + esc(T('Gioca col bot', 'Play the bot')) + '</button></p>' : '');
+                + (long ? '<p class="d2p-hint">' + esc(T('Poca gente in coda adesso. Gioca col bot mentre aspetti: resti in coda e quando arriva qualcuno ti porto da lui.', 'Few people in queue right now. Play the bot while you wait: you stay in the queue and I take you to your opponent when one shows up.'))
+                    + ' <button class="d2p-btn d2p-btn-sm" type="button" data-act="bot-now">' + esc(T('Gioca col bot mentre aspetti', 'Play the bot while waiting')) + '</button></p>' : '');
             return;
         }
-        const label = { casual: T('Gioca Veloce', 'Play Quick'), ranked: T('Gioca Ranked', 'Play Ranked'), friend: T('Apri una stanza', 'Open a room'), bot: T('Gioca contro il bot', 'Play the bot') }[S.mode];
+        const label = { casual: T('Gioca Veloce', 'Play Quick'), ranked: T('Gioca Ranked', 'Play Ranked'), friend: T('Scegli un amico', 'Pick a friend'), bot: T('Gioca contro il bot', 'Play the bot') }[S.mode];
         let note = '';
         let disabled = !t || t.missing > 0 || t.cards.length < 3;
         if (t && S.mode === 'ranked' && t.cost > CFG.budget) {
@@ -139,22 +137,30 @@
                 + esc(n ? (n === 1 ? T('1 in coda adesso', '1 in queue now') : T(n + ' in coda adesso', n + ' in queue now')) : T('Nessuno in coda adesso: chi entra aspetta il prossimo.', 'Nobody in queue right now: whoever joins waits for the next one.')) + '</small>';
         }
         box.innerHTML = '<button class="d2p-btn d2p-btn-w d2p-btn-big" type="button" data-act="play"' + (disabled ? ' disabled' : '') + '>' + esc(label) + '</button>' + note
-            + (S.mode === 'friend' ? '<form class="d2p-join" id="d2p-join" autocomplete="off"><input id="d2p-code" maxlength="8" spellcheck="false" autocapitalize="characters" placeholder="' + esc(T('Codice', 'Code')) + '" aria-label="' + esc(T('Codice della stanza', 'Room code')) + '">'
-                + '<button class="d2p-btn" type="submit"' + (!t || t.cards.length < 3 ? ' disabled' : '') + '>' + esc(T('Entra con il codice', 'Join with code')) + '</button></form>' : '');
+            + (S.mode === 'friend' ? codeOptions() + '<form class="d2p-join" id="d2p-join" autocomplete="off"><button class="d2p-btn" type="button" data-act="room"' + (disabled ? ' disabled' : '') + '>' + esc(T('Apri una stanza con codice', 'Open a code room')) + '</button>'
+                + '<input id="d2p-code" maxlength="8" spellcheck="false" autocapitalize="characters" placeholder="' + esc(T('Codice', 'Code')) + '" aria-label="' + esc(T('Codice della stanza', 'Room code')) + '">'
+                + '<button class="d2p-btn" type="submit"' + (!t || t.cards.length < 3 ? ' disabled' : '') + '>' + esc(T('Entra', 'Join')) + '</button></form>' : '');
     }
     const clock = (s) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    /** La stanza con codice, sotto il pulsante degli amici: livelli e limite di costo. */
+    function codeOptions() {
+        const tab = (key, val, on, label) => '<button type="button" data-' + key + '="' + val + '" aria-pressed="' + on + '"' + (on ? ' class="d2p-on"' : '') + '>' + esc(label) + '</button>';
+        return '<div class="d2p-opts d2p-code-opts"><span class="d2p-lab">' + esc(T('Con un codice', 'With a code')) + '</span>'
+            + '<span class="d2p-tabs2" role="group" aria-label="' + esc(T('Livelli', 'Levels')) + '">' + tab('levels', 'max', S.room.levels === 'max', T('Livelli pareggiati', 'Equal levels')) + tab('levels', 'own', S.room.levels === 'own', T('I vostri', 'Your own')) + '</span>'
+            + '<span class="d2p-tabs2" role="group" aria-label="' + esc(T('Costo', 'Cost')) + '">' + tab('cost', '0', !S.room.cost, T('Costo libero', 'Any cost')) + tab('cost', '1', S.room.cost, T('Fino a ', 'Up to ') + CFG.budget) + '</span></div>';
+    }
 
     async function play() {
         const t = team();
         if (!t || S.busy) return;
         S.busy = true;
         let r;
+        if (S.mode === 'friend') { S.busy = false; openFriends(); return; }
         if (S.mode === 'bot') r = await api('bot', null, { slot: t.slot, level: S.level });
-        else if (S.mode === 'friend') r = await api('room', null, { action: 'create', slot: t.slot, levels: S.room.levels, cost_limit: S.room.cost });
         else r = await api('queue', null, { action: 'join', mode: S.mode, slot: t.slot });
         S.busy = false;
         if (!r.ok) { fail(r); return; }
-        if (r.match && (S.mode === 'bot' || S.mode === 'friend' || r.status === 'matched')) { go(r.match); return; }
+        if (r.match && (S.mode === 'bot' || r.status === 'matched')) { go(r.match); return; }
         startSearch(S.mode, Date.now() - (r.waited || 0) * 1000);
     }
     function fail(r) {
@@ -200,27 +206,94 @@
         S.search = null;
     }
 
-    // ── In corso ─────────────────────────────────────────────────────────
+    // ── Le tue sfide: partita in corso, stanza aperta, sfide, differita ──
+    const AV = ['#ffd60a', '#64d2ff', '#ff9f0a', '#30d158', '#ff375f', '#bf5af2'];
+    function avatar(name) {
+        let h = 0;
+        for (const ch of String(name || '?')) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+        return '<span class="d2p-av d2p-av-u" style="--c:' + AV[h % AV.length] + '">' + esc(String(name || '?').charAt(0).toUpperCase()) + '</span>';
+    }
+    function leftText(s) {
+        if (s === null || s === undefined) return '';
+        if (s >= 3600) {
+            const h = Math.floor(s / 3600);
+            return h + T(h === 1 ? ' ora' : ' ore', ' h');
+        }
+        if (s >= 60) return Math.floor(s / 60) + ' min';
+        return T('meno di un minuto', 'under a minute');
+    }
+    const chl = (av, mid, acts) => '<div class="d2p-chl">' + av + '<div>' + mid + '</div><div class="d2p-acts">' + acts + '</div></div>';
     function renderGoing() {
         const box = $('d2p-going');
+        const rows = [];
         const a = H.active;
-        if (!a) { box.hidden = true; return; }
-        box.hidden = false;
-        let row;
-        if (a.status === 'waiting') {
+        if (a && a.status === 'waiting') {
             const left = Math.max(0, (a.expires || 0) - Date.now() / 1000);
-            row = '<div class="d2p-chl"><span class="d2p-av">' + ic('lucchetto') + '</span><div><strong>' + esc(T('La tua stanza è aperta', 'Your room is open')) + '</strong>'
-                + '<span>' + esc(T('Codice ', 'Code ')) + '<b class="d2p-code">' + esc(a.code || '') + '</b> · ' + esc(T('scade tra ', 'expires in ')) + clock(Math.floor(left)) + '</span></div>'
-                + '<div class="d2p-acts"><a class="d2p-btn d2p-btn-w d2p-btn-sm" href="' + esc(U.arena + '?m=' + a.id) + '">' + esc(T('Apri', 'Open')) + '</a>'
-                + '<button class="d2p-btn d2p-btn-sm" type="button" data-act="close-room">' + esc(T('Chiudi', 'Close')) + '</button></div></div>';
-        } else {
-            row = '<div class="d2p-chl"><span class="d2p-av">' + ic('attacco') + '</span><div><strong>' + (a.my_turn ? '<span class="d2p-badge">' + esc(T('Tocca a te', 'Your turn')) + '</span>' : '')
+            rows.push(chl('<span class="d2p-av">' + ic('lucchetto') + '</span>', '<strong>' + esc(T('La tua stanza è aperta', 'Your room is open')) + '</strong>'
+                + '<span>' + esc(T('Codice ', 'Code ')) + '<b class="d2p-code">' + esc(a.code || '') + '</b> · ' + esc(T('scade tra ', 'expires in ')) + clock(Math.floor(left)) + '</span>',
+                '<a class="d2p-btn d2p-btn-w d2p-btn-sm" href="' + esc(U.arena + '?m=' + a.id) + '">' + esc(T('Apri', 'Open')) + '</a>'
+                + '<button class="d2p-btn d2p-btn-sm" type="button" data-act="close-room">' + esc(T('Chiudi', 'Close')) + '</button>'));
+        } else if (a) {
+            rows.push(chl('<span class="d2p-av">' + ic('attacco') + '</span>', '<strong>' + (a.my_turn ? '<span class="d2p-badge">' + esc(T('Tocca a te', 'Your turn')) + '</span>' : '')
                 + esc(a.opponent ? T('contro ', 'vs ') + a.opponent : T('Partita in corso', 'Match in progress')) + '</strong>'
-                + '<span>' + esc(D.MODE[a.mode] || a.mode) + (a.turn ? ' · ' + T('turno ', 'turn ') + a.turn : '') + '</span></div>'
-                + '<div class="d2p-acts"><a class="d2p-btn d2p-btn-w d2p-btn-sm" href="' + esc(U.arena + '?m=' + a.id) + '">' + esc(T('Torna in campo', 'Back to the match')) + '</a></div></div>';
+                + '<span>' + esc(D.MODE[a.mode] || a.mode) + (a.turn ? ' · ' + T('turno ', 'turn ') + a.turn : '') + '</span>',
+                '<a class="d2p-btn d2p-btn-w d2p-btn-sm" href="' + esc(U.arena + '?m=' + a.id) + '">' + esc(T('Torna in campo', 'Back to the match')) + '</a>'));
         }
-        box.innerHTML = '<div class="d2p-sec-t"><h2 class="d2p-h2">' + esc(T('In corso', 'In progress')) + '</h2></div>' + row;
+        (H.async || []).forEach((g) => {
+            rows.push(chl(avatar(g.opponent), '<strong>' + (g.my_turn ? '<span class="d2p-badge">' + esc(T('Tocca a te', 'Your turn')) + '</span>' + esc(T('contro ', 'vs ') + g.opponent) : esc(T('In attesa di ', 'Waiting for ') + g.opponent)) + '</strong>'
+                + '<span>' + esc(T('In differita · turno ', 'Turn-based · turn ') + g.turn + (g.left !== null ? ' · ' + T('scade tra ', 'expires in ') + leftText(g.left) : '')) + '</span>',
+                '<a class="d2p-btn ' + (g.my_turn ? 'd2p-btn-w ' : '') + 'd2p-btn-sm" href="' + esc(U.arena + '?m=' + g.id) + '">' + esc(g.my_turn ? T('Gioca', 'Play') : T('Guarda', 'View')) + '</a>'));
+        });
+        (H.challenges || []).forEach((c) => {
+            const kind = (c.kind === 'async' ? T('In differita', 'Turn-based') : T('Live', 'Live')) + (c.levels === 'max' ? T(' · livelli pareggiati', ' · equal levels') : '');
+            if (c.sent) {
+                rows.push(chl(avatar(c.other), '<strong>' + esc(T('In attesa di ', 'Waiting for ') + c.other) + '</strong><span>' + esc(kind + ' · ' + T('scade tra ', 'expires in ') + leftText(c.left)) + '</span>',
+                    (c.kind === 'live' && c.match ? '<a class="d2p-btn d2p-btn-sm" href="' + esc(U.arena + '?m=' + c.match) + '">' + esc(T('Apri', 'Open')) + '</a>' : '')
+                    + '<button class="d2p-btn d2p-btn-sm" type="button" data-act="withdraw" data-id="' + c.id + '">' + esc(T('Ritira', 'Withdraw')) + '</button>'));
+            } else {
+                rows.push(chl(avatar(c.other), '<strong>' + esc(c.other + T(' ti sfida', ' challenges you')) + '</strong><span>' + esc(kind + ' · ' + T('scade tra ', 'expires in ') + leftText(c.left)) + '</span>',
+                    '<button class="d2p-btn d2p-btn-w d2p-btn-sm" type="button" data-act="accept" data-id="' + c.id + '">' + esc(T('Accetta', 'Accept')) + '</button>'
+                    + '<button class="d2p-btn d2p-btn-sm" type="button" data-act="decline" data-id="' + c.id + '">' + esc(T('No', 'No')) + '</button>'));
+            }
+        });
+        box.hidden = false;
+        box.innerHTML = '<div class="d2p-sec-t"><h2 class="d2p-h2">' + esc(T('Le tue sfide', 'Your challenges')) + '</h2>'
+            + '<button class="d2p-link" type="button" data-act="friends">' + esc(T('Sfida un amico', 'Challenge a friend')) + '</button></div>'
+            + (rows.join('') || '<p class="d2p-mut">' + esc(T('Nessuna sfida in corso. Sfida un amico adesso, o in differita: un turno al giorno, quando potete.', 'No challenges going. Challenge a friend now, or turn-based: one turn a day, whenever you can.')) + '</p>');
         D.hydrate(box);
+    }
+
+    async function challengeAct(act, id) {
+        const t = team();
+        if (act === 'accept') {
+            if (!t || t.cards.length < 3 || t.missing) { D.toast(T('Prima prepara la squadra.', 'Set up your team first.'), true); return; }
+            const r = await api('challenge', null, { action: 'accept', id, slot: t.slot });
+            if (!r.ok) { fail(r); refresh(); return; }
+            go(r.match);
+            return;
+        }
+        const r = await api('challenge', null, { action: act === 'withdraw' ? 'cancel' : 'decline', id });
+        if (!r.ok) { fail(r); return; }
+        H.challenges = r.challenges || [];
+        renderGoing();
+        say(act === 'withdraw' ? T('Sfida ritirata.', 'Challenge withdrawn.') : T('Sfida rifiutata.', 'Challenge declined.'));
+    }
+
+    /** Il timbro personale: una sfida nuova o rifiutata ('dc'), una partita partita ('dm'). */
+    function watchPersonal(onChange) {
+        let cursor = -1;
+        const loop = async () => {
+            if (!document.hidden) {
+                const r = await fetch(CFG.rt + '?u=' + cursor, { credentials: 'same-origin', cache: 'no-store' }).then((x) => x.json()).catch(() => null);
+                if (r && r.u) {
+                    const fresh = cursor >= 0 && (r.u.events || []).some((e) => e.t === 'dc' || e.t === 'dm');
+                    if (r.u.seq) cursor = r.u.seq;
+                    if (fresh) onChange();
+                }
+            }
+            setTimeout(loop, 5000);
+        };
+        loop();
     }
 
     // ── Rango, classifica, diretta, ultime ───────────────────────────────
@@ -230,13 +303,18 @@
         const next = r.next;
         const pct = next ? Math.max(4, Math.min(100, ((me.rating - r.min) / (next - r.min)) * 100)) : 100;
         const nextTier = next ? D.TIER[{ 1000: 'argento', 1200: 'oro', 1400: 'diamante', 1600: 'campione', 1900: 'leggenda' }[next]] || '' : '';
-        $('d2p-rank').innerHTML = '<div class="d2p-rank">' + D.emblem(r.key, 'd2p-emb-l') + '<div><strong>' + esc(r.label) + '</strong><span class="d2p-num">' + fmt(me.rating) + ' ' + esc(T('punti', 'points')) + '</span></div></div>'
+        const sm = H.season_me;
+        const placing = H.season && sm && sm.placement > 0;
+        $('d2p-rank').innerHTML = '<div class="d2p-rank">' + D.emblem(r.key, 'd2p-emb-l') + '<div><strong>' + esc(placing ? T('Piazzamento', 'Placement') : r.label) + '</strong><span class="d2p-num">'
+            + (placing ? esc(T('ancora ' + sm.placement + ' Ranked per il rango', sm.placement + ' more Ranked for your rank')) : fmt(me.rating) + ' ' + esc(T('punti', 'points'))) + '</span></div></div>'
             + '<div class="d2p-bar d2p-rank-bar" style="--tc: var(--t-' + esc(r.key) + ')"><i style="width:' + pct.toFixed(1) + '%"></i></div>'
             + '<div class="d2p-rank-note">' + (next ? '<span>' + esc(nextTier + T(' a ', ' at ') + fmt(next)) + '</span><span class="d2p-num">' + esc(T('mancano ', '')) + fmt(next - me.rating) + esc(T('', ' to go')) + '</span>'
                 : '<span>' + esc(T('Il rango più alto', 'The top rank')) + '</span>') + '</div>'
             + '<div class="d2p-rank-wl"><span><b class="d2p-num">' + fmt(me.wins) + '</b> ' + esc(T('vittorie', 'wins')) + '</span><span><b class="d2p-num">' + fmt(me.losses) + '</b> ' + esc(T('sconfitte', 'losses')) + '</span>'
             + '<span>' + esc(T('serie', 'streak')) + ' <b class="d2p-num">' + fmt(me.streak) + '</b></span></div>'
-            + (me.games ? '' : '<p class="d2p-mut">' + esc(T('Gioca una Ranked per entrare in classifica. I punti sono quelli dei duelli di sempre.', 'Play a Ranked match to enter the ranking. Points carry over from the classic duels.')) + '</p>');
+            + (me.games ? '' : '<p class="d2p-mut">' + esc(T('Gioca una Ranked per entrare in classifica. I punti sono quelli dei duelli di sempre.', 'Play a Ranked match to enter the ranking. Points carry over from the classic duels.')) + '</p>')
+            + '<a class="d2p-link d2p-rank-more" href="' + esc(U.season) + '">' + esc(H.season ? T('Stagione e premi', 'Season and rewards') : T('Premi delle stagioni', 'Season rewards')) + ' ' + ic('freccia') + '</a>';
+        D.hydrate($('d2p-rank'));
     }
 
     function renderBoard() {
@@ -277,7 +355,23 @@
             + (rows || '<p class="d2p-mut">' + esc(T('Le tue partite compariranno qui.', 'Your matches will show up here.')) + '</p>');
     }
 
+    // ── Stagione, in alto ────────────────────────────────────────────────
+    function renderSeason() {
+        const box = $('d2p-season');
+        if (!box) return;
+        const s = H.season;
+        if (!s) {
+            box.innerHTML = '<a class="d2p-season" href="' + esc(U.season) + '"><p><span><b>' + esc(T('Stagione 0', 'Season 0')) + '</b> · ' + esc(T('la classifica di sempre', 'the all-time ranking')) + '</span>' + ic('freccia') + '</p></a>';
+        } else {
+            const left = s.days_left <= 1 ? T('ultimo giorno', 'last day') : T('ancora ' + s.days_left + ' giorni', s.days_left + ' days left');
+            box.innerHTML = '<a class="d2p-season" href="' + esc(U.season) + '"><p><span><b>' + esc(T('Stagione ', 'Season ') + s.number) + '</b>' + (s.name ? ' · ' + esc(s.name) : '') + '</span><span>' + esc(left) + '</span></p>'
+                + '<span class="d2p-bar"><i style="width:' + (s.progress * 100).toFixed(1) + '%"></i></span></a>';
+        }
+        D.hydrate(box);
+    }
+
     function render() {
+        renderSeason();
         renderModes();
         renderTeam();
         renderExtra();
@@ -296,20 +390,30 @@
         if (b.dataset.mode) { S.mode = b.dataset.mode; store.set('mode', S.mode); renderModes(); renderTeam(); renderExtra(); renderPlay(); return; }
         if (b.dataset.slot) { S.slot = Number(b.dataset.slot); store.set('slot', S.slot); renderTeam(); renderPlay(); return; }
         if (b.dataset.level) { S.level = b.dataset.level; store.set('bot', S.level); renderExtra(); return; }
-        if (b.dataset.levels) { S.room.levels = b.dataset.levels; store.set('room', S.room); renderExtra(); return; }
-        if (b.dataset.cost) { S.room.cost = b.dataset.cost === '1'; store.set('room', S.room); renderExtra(); return; }
+        if (b.dataset.levels) { S.room.levels = b.dataset.levels; store.set('room', S.room); renderPlay(); return; }
+        if (b.dataset.cost) { S.room.cost = b.dataset.cost === '1'; store.set('room', S.room); renderPlay(); return; }
         if (b.dataset.board) { S.board = b.dataset.board; renderBoard(); return; }
         const act = b.dataset.act;
         if (act === 'play') { play(); return; }
         if (act === 'cancel') { stopSearch(); await api('queue', null, { action: 'leave' }); render(); return; }
         if (act === 'bot-now') {
-            stopSearch();
+            // Si resta in coda: l'arena continua a mandare il segnale e porta dall'avversario.
             const t = team();
-            const r = await api('bot', null, { slot: t.slot, level: S.level });
-            if (!r.ok) { fail(r); render(); return; }
+            const r = await api('bot', null, { slot: t.slot, level: S.level, keep_queue: true });
+            if (!r.ok) { fail(r); return; }
+            stopSearch();
             go(r.match);
             return;
         }
+        if (act === 'friends') { openFriends(); return; }
+        if (act === 'room') {
+            const t = team();
+            const r = await api('room', null, { action: 'create', slot: t.slot, levels: S.room.levels, cost_limit: S.room.cost });
+            if (!r.ok) { fail(r); return; }
+            go(r.match);
+            return;
+        }
+        if (act === 'accept' || act === 'decline' || act === 'withdraw') { challengeAct(act, Number(b.dataset.id)); return; }
         if (act === 'close-room') {
             const r = await api('forfeit', null, { m: H.active.id });
             if (!r.ok) { fail(r); return; }
@@ -331,6 +435,10 @@
         H.live = r.live || [];
         H.recent = r.recent || H.recent;
         H.queue_now = r.queue_now || H.queue_now;
+        H.challenges = r.challenges || [];
+        H.async = r.async || [];
+        H.season = r.season || null;
+        H.season_me = r.season_me || null;
         const wasActive = H.active && H.active.id;
         if (!r.active) H.active = null;
         else if (!wasActive || wasActive !== r.active.id || H.active.status !== r.active.status) location.reload();
@@ -340,7 +448,113 @@
         if (!S.search) renderPlay();
     }
     setInterval(refresh, 30000);
+    watchPersonal(refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+
+    // ── Foglio «Sfida un amico» (tavola 6) ───────────────────────────────
+    const F = { list: null, teams: [], pick: null, kind: 'live', levels: 'own', q: '', slot: null, sending: false, back: null };
+    function sheet() {
+        let el = $('d2p-sheet');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'd2p-sheet';
+            el.className = 'd2p-sheet';
+            el.hidden = true;
+            el.innerHTML = '<div class="d2p-sheet-bg" data-close="1"></div><section class="d2p-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="d2p-sheet-t" id="d2p-sheet-p"></section>';
+            document.body.appendChild(el);
+            el.addEventListener('click', onSheetClick);
+            el.addEventListener('input', (e) => { if (e.target.id === 'd2p-fq') { F.q = e.target.value; drawFriends(true); } });
+            el.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFriends(); });
+        }
+        return el;
+    }
+    async function openFriends() {
+        const t = team();
+        if (!t || t.cards.length < 3 || t.missing) { D.toast(T('Prima prepara la squadra.', 'Set up your team first.'), true); return; }
+        F.slot = t.slot;
+        F.back = document.activeElement;
+        const el = sheet();
+        el.hidden = false;
+        document.body.classList.add('d2p-lock');
+        $('d2p-sheet-p').innerHTML = '<p class="d2p-mut">' + esc(T('Carico i tuoi amici…', 'Loading your friends…')) + '</p>';
+        const r = await api('friends');
+        if (!r.ok) { fail(r); closeFriends(); return; }
+        F.list = r.friends || [];
+        F.teams = (r.teams || []).filter((x) => x.team && x.team.length === 3);
+        if (!F.teams.some((x) => x.slot === F.slot) && F.teams[0]) F.slot = F.teams[0].slot;
+        if (!F.list.some((f) => f.id === F.pick && !f.open)) F.pick = (F.list.find((f) => !f.open) || {}).id || null;
+        drawFriends();
+        const q = $('d2p-fq');
+        if (q) q.focus();
+    }
+    function closeFriends() {
+        const el = $('d2p-sheet');
+        if (el) el.hidden = true;
+        document.body.classList.remove('d2p-lock');
+        if (F.back && F.back.focus) F.back.focus();
+    }
+    function seenText(f) {
+        if (f.online) return T('Online adesso', 'Online now');
+        if (f.idle === null) return '';
+        const s = f.idle;
+        if (s < 3600) return T('Visto ' + Math.max(1, Math.floor(s / 60)) + ' min fa', 'Seen ' + Math.max(1, Math.floor(s / 60)) + ' min ago');
+        if (s < 86400) { const h = Math.floor(s / 3600); return T('Visto ' + (h === 1 ? 'un\'ora fa' : h + ' ore fa'), 'Seen ' + h + ' h ago'); }
+        const d = Math.floor(s / 86400);
+        return T('Visto ' + (d === 1 ? 'ieri' : d + ' giorni fa'), 'Seen ' + (d === 1 ? 'yesterday' : d + ' days ago'));
+    }
+    function drawFriends(listOnly) {
+        const panel = $('d2p-sheet-p');
+        const q = F.q.trim().toLowerCase();
+        const shown = F.list.filter((f) => !q || f.username.toLowerCase().includes(q));
+        const rows = shown.map((f) => '<button type="button" class="d2p-fr" data-friend="' + f.id + '" aria-pressed="' + (f.id === F.pick) + '"' + (f.open ? ' disabled' : '') + '>'
+            + avatar(f.username).replace('d2p-av d2p-av-u', 'd2p-av d2p-av-u' + (f.online ? ' d2p-online' : ''))
+            + '<span><b>' + esc(f.username) + '</b><small>' + esc([f.open ? T('Sfida già aperta', 'Challenge already open') : seenText(f), f.games ? D.TIER[f.rank] : ''].filter(Boolean).join(' · ')) + '</small></span>'
+            + (f.games ? D.emblem(f.rank) : '<span></span>') + '</button>').join('');
+        const listHtml = rows || '<p class="d2p-mut">' + esc(F.list.length ? T('Nessun amico con questo nome.', 'No friend with this name.') : T('Non hai ancora amici sul sito: aggiungili dalla pagina Amici.', 'You have no friends on the site yet: add them from the Friends page.'))
+            + (F.list.length ? '' : ' <a class="d2p-link" href="/' + CFG.lang + '/amici">' + esc(T('Amici', 'Friends')) + ' ' + ic('freccia') + '</a>') + '</p>';
+        if (listOnly && $('d2p-fl')) {
+            $('d2p-fl').innerHTML = listHtml;
+            D.hydrate($('d2p-fl'));
+            return;
+        }
+        const pick = F.list.find((f) => f.id === F.pick) || null;
+        const tabs = (key, opts) => '<span class="d2p-tabs2" role="group">' + opts.map(([v, l]) => '<button type="button" data-' + key + '="' + v + '" aria-pressed="' + (F[key] === v) + '"' + (F[key] === v ? ' class="d2p-on"' : '') + '>' + esc(l) + '</button>').join('') + '</span>';
+        panel.innerHTML = '<div class="d2p-sheet-h"><button type="button" class="d2p-ibtn" data-close="1" aria-label="' + esc(T('Chiudi', 'Close')) + '">' + ic('x') + '</button><h3 id="d2p-sheet-t">' + esc(T('Sfida un amico', 'Challenge a friend')) + '</h3></div>'
+            + '<label class="d2p-search">' + ic('cerca') + '<input id="d2p-fq" type="search" autocomplete="off" value="' + esc(F.q) + '" placeholder="' + esc(T('Cerca tra gli amici', 'Search your friends')) + '" aria-label="' + esc(T('Cerca tra gli amici', 'Search your friends')) + '"></label>'
+            + '<span class="d2p-lab">' + esc(T('Amici', 'Friends')) + '</span><div class="d2p-fl" id="d2p-fl">' + listHtml + '</div>'
+            + '<span class="d2p-lab">' + esc(T('Come', 'How')) + '</span>'
+            + '<div class="d2p-seg d2p-seg-s">' + [['live', T('Adesso, live', 'Now, live')], ['async', T('In differita', 'Turn-based')]].map(([v, l]) => '<button type="button" data-kind="' + v + '" aria-pressed="' + (F.kind === v) + '"' + (F.kind === v ? ' class="d2p-on"' : '') + '>' + esc(l) + '</button>').join('') + '</div>'
+            + '<div class="d2p-srow"><span>' + esc(T('Tempo per turno', 'Time per turn')) + '</span><span class="d2p-mut0">' + esc(F.kind === 'live' ? T('45 secondi', '45 seconds') : T('24 ore', '24 hours')) + '</span></div>'
+            + '<div class="d2p-srow"><span>' + esc(T('Livelli', 'Levels')) + '</span>' + tabs('levels', [['own', T('I vostri', 'Your own')], ['max', T('Pareggiati', 'Equal')]]) + '</div>'
+            + '<div class="d2p-srow"><span>' + esc(T('Squadra', 'Team')) + '</span>' + (F.teams.length ? tabs('slot', F.teams.map((x) => [x.slot, x.name])) : '<span class="d2p-mut0">—</span>') + '</div>'
+            + '<p class="d2p-sheet-note">' + ic('campana') + '<span>' + esc(pick ? T(pick.username + ' la vede nella campanella e nei Duelli. ', pick.username + ' sees it in the bell and in Duels. ') : '')
+            + esc(F.kind === 'live' ? T('Aspetti nell\'arena finché accetta (10 minuti). ', 'You wait in the arena until they accept (10 minutes). ') : T('Vale un giorno; poi ognuno ha 24 ore per mossa. ', 'It lasts a day; then each move has 24 hours. '))
+            + esc(T('Non conta per la classifica.', 'Does not count for the ranking.')) + '</span></p>'
+            + '<button class="d2p-btn d2p-btn-w d2p-btn-big" type="button" data-send="1"' + (!pick || pick.open || F.sending ? ' disabled' : '') + '>'
+            + esc(pick ? T('Sfida ', 'Challenge ') + pick.username : T('Scegli un amico', 'Pick a friend')) + '</button>';
+        D.hydrate(panel);
+    }
+    async function onSheetClick(e) {
+        const b = e.target.closest('[data-close], button');
+        if (!b || b.disabled) return;
+        if (b.dataset.close) { closeFriends(); return; }
+        if (b.dataset.friend) { F.pick = Number(b.dataset.friend); drawFriends(); return; }
+        if (b.dataset.kind) { F.kind = b.dataset.kind; drawFriends(); return; }
+        if (b.dataset.levels) { F.levels = b.dataset.levels; drawFriends(); return; }
+        if (b.dataset.slot) { F.slot = Number(b.dataset.slot); drawFriends(); return; }
+        if (b.dataset.send) {
+            F.sending = true;
+            drawFriends();
+            const r = await api('challenge', null, { action: 'send', to: F.pick, kind: F.kind, levels: F.levels, slot: F.slot });
+            F.sending = false;
+            if (!r.ok) { fail(r); drawFriends(); return; }
+            if (r.kind === 'live' && r.match) { go(r.match); return; }
+            const who = (F.list.find((f) => f.id === F.pick) || {}).username || '';
+            closeFriends();
+            D.toast(T('Sfida mandata a ', 'Challenge sent to ') + who);
+            refresh();
+        }
+    }
 
     render();
     // Chi era gia' in coda (pagina ricaricata) riprende la ricerca.

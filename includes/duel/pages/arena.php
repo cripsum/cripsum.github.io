@@ -83,6 +83,14 @@ $dConfig = [
     'lobby' => $dUrls['lobby'],
     'urls' => $dUrls,
     'replay' => $dReplay,
+    // Fase 6: chi gioca col bot restando in coda (la pillola in alto, il segnale).
+    'queued' => (static function () use ($mysqli, $dUserId, $dOpen) {
+        if (!$dOpen) {
+            return null;
+        }
+        $q = duel_row($mysqli, 'SELECT mode, TIMESTAMPDIFF(SECOND, joined_at, NOW()) AS waited FROM game_queue WHERE user_id = ?', 'i', [$dUserId]);
+        return $q ? ['mode' => (string)$q['mode'], 'waited' => (int)$q['waited']] : null;
+    })(),
     'music' => '/audio/ultimates/',
     // Le musiche delle ultimate che esistono (audio/ultimates/<id>.mp3): le altre suonano default.mp3.
     'tracks' => array_values(array_filter(array_map(static fn($f) => (int)basename($f, '.mp3'),

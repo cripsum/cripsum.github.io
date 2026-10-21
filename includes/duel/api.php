@@ -44,6 +44,9 @@ function duel_api_routes(): array
         'chat' => ['POST', 'duel_ep_chat'],
         'react' => ['POST', 'duel_ep_react'],
         'replay' => ['GET', 'duel_ep_replay'],
+        'friends' => ['GET', 'duel_ep_friends'],
+        'challenge' => ['POST', 'duel_ep_challenge'],
+        'season' => ['GET', 'duel_ep_season'],
     ];
 }
 
@@ -236,7 +239,41 @@ function duel_ep_room(mysqli $m, int $userId, array $in): array
 
 function duel_ep_bot(mysqli $m, int $userId, array $in): array
 {
-    return duel_start_bot($m, $userId, duel_team_input($m, $userId, $in), duel_in_str($in, 'level', 12));
+    // keep_queue: si gioca col bot mentre si aspetta in coda (la lobby lo propone dopo un minuto).
+    return duel_start_bot($m, $userId, duel_team_input($m, $userId, $in), duel_in_str($in, 'level', 12), !empty($in['keep_queue']));
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Fase 6: amici, sfide, stagione
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Gli amici da sfidare (chi e' online, fascia, sfida gia' aperta) e le tue squadre. */
+function duel_ep_friends(mysqli $m, int $userId): array
+{
+    return ['friends' => duel_friends($m, $userId), 'teams' => duel_teams($m, $userId), 'challenges' => duel_challenges_for($m, $userId)];
+}
+
+/** Sfide: send (to, kind live|async, levels, cost_limit, slot|team), accept (id, slot|team), decline, cancel (id). */
+function duel_ep_challenge(mysqli $m, int $userId, array $in): array
+{
+    $action = duel_in_str($in, 'action', 12);
+    if ($action === 'send') {
+        return duel_challenge_send($m, $userId, duel_in_int($in, 'to'), duel_in_str($in, 'kind', 8), duel_in_str($in, 'levels', 4),
+            !empty($in['cost_limit']), duel_team_input($m, $userId, $in));
+    }
+    if ($action === 'accept') {
+        return duel_challenge_accept($m, $userId, duel_in_int($in, 'id'), duel_team_input($m, $userId, $in));
+    }
+    if ($action === 'decline' || $action === 'cancel') {
+        duel_challenge_close($m, $userId, duel_in_int($in, 'id'), $action);
+        return ['challenges' => duel_challenges_for($m, $userId)];
+    }
+    throw duel_user_error('Azione non valida.', 'Invalid action.', 400, 'BAD_ACTION');
+}
+
+function duel_ep_season(mysqli $m, int $userId): array
+{
+    return duel_season_page($m, $userId);
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -278,12 +315,16 @@ function duel_state_payload(mysqli $m, int $userId, int $matchId, int $since, in
     $out = ['m' => $matchId, 'v' => (int)$row['version'], 'status' => (string)$row['status'], 'side' => $side, 'now' => time(), 'mode' => (string)$row['mode']];
     if ((string)$row['status'] === 'waiting') {
         $rules = duel_match_rules($row);
+        $invite = (int)($rules['room']['invite'] ?? 0);
         return $out + ['code' => $side === 0 ? (string)$row['room_code'] : null,
             'expires' => strtotime((string)$row['created_at']) + DUEL_ROOM_MINUTES * 60,
-            'rules' => ['levels' => $rules['levels'], 'cost_limit' => (int)$rules['cost_limit']]];
+            'rules' => ['levels' => $rules['levels'], 'cost_limit' => (int)$rules['cost_limit']],
+            // Stanza di una sfida a un amico: si aspetta lui, non un codice.
+            'invite' => $invite > 0 ? duel_username($m, $invite) : null];
     }
     if ((string)$row['status'] === 'cancelled') {
-        return $out + ['reason' => (string)($row['end_reason'] ?? '')];
+        // declined: l'amico ha rifiutato la sfida; queue: col bot in attesa, e' arrivato un avversario.
+        return $out + ['reason' => (string)($row['end_reason'] ?? ''), 'next' => duel_active_for($m, $userId)['id'] ?? null];
     }
 
     duel_use_match_values(duel_match_rules($row));

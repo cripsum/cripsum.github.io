@@ -48,7 +48,10 @@ $dConfig = duel_page_config($dLang, $dUserId);
                 <span class="d2p-kick"><i data-i="attacco"></i> Cripsum™ Duel</span>
                 <h1 class="d2p-h1"><?= $h($dT('Duelli', 'Duels')) ?></h1>
             </div>
-            <a class="d2p-link" href="<?= $h($dUrls['classic']) ?>"><?= $h($dT('Duelli di sempre', 'Classic duels')) ?> <i data-i="freccia"></i></a>
+            <div class="d2p-head-side">
+                <div id="d2p-season"></div>
+                <a class="d2p-link" href="<?= $h($dUrls['classic']) ?>"><?= $h($dT('Duelli di sempre', 'Classic duels')) ?> <i data-i="freccia"></i></a>
+            </div>
         </header>
 
         <div class="d2p-grid">

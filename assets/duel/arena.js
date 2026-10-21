@@ -230,6 +230,10 @@
     const unitIds = () => Object.keys(S.st.units).map(Number).sort((a, b) => a - b);
     const myTurn = () => S.latest && S.side !== null && !S.latest.over && S.status === 'active' && S.latest.actor_side === S.side && S.latest.legal;
 
+    /** «Tocca a» o «Tocca ad» (d eufonica davanti alla a: «Tocca ad Anna»). */
+    function toA(name) {
+        return /^a/i.test(String(name || '')) ? 'Tocca ad ' : 'Tocca a ';
+    }
     function niceName(name) {
         return String(name || '').toLowerCase().replace(/(^|[\s(\-./])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
     }
@@ -265,6 +269,44 @@
         }
         bindUi();
         if (CFG.replay) replayBoot(); else load(true);
+        if (CFG.queued && !CFG.replay) queueWhileBot(CFG.queued);
+    }
+
+    /**
+     * Col bot mentre si aspetta in coda (fase 6): la pillola in alto dice da
+     * quanto si aspetta; il segnale continua ogni 4 secondi e quando arriva
+     * un avversario si va da lui (la partita col bot si annulla, non conta).
+     */
+    function queueWhileBot(q) {
+        const started = Date.now() - (q.waited || 0) * 1000;
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'd2-pill d2-queue-pill';
+        pill.title = T('Esci dalla coda', 'Leave the queue');
+        $('d2-spect').after(pill);
+        let stopped = false;
+        const draw = () => {
+            const s = Math.floor((Date.now() - started) / 1000);
+            pill.innerHTML = '<span class="d2-qdot"></span>' + esc(T('In coda ', 'In queue ') + (MODE[q.mode] || q.mode)) + ' · ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') + ' ' + ic('x');
+        };
+        draw();
+        const clockT = setInterval(draw, 1000);
+        const stop = () => { stopped = true; clearInterval(clockT); pill.remove(); };
+        pill.addEventListener('click', async () => { stop(); await api('queue', null, { action: 'leave' }); toast(T('Sei uscito dalla coda.', 'You left the queue.')); });
+        const ping = async () => {
+            if (stopped) return;
+            const r = await api('queue', null, { action: 'ping' });
+            if (stopped) return;
+            if (r.ok && r.status === 'matched' && r.match && r.match !== S.match) {
+                stop();
+                toast(T('Avversario trovato!', 'Opponent found!'));
+                setTimeout(() => { location.href = CFG.self + '?m=' + r.match; }, 700);
+                return;
+            }
+            if (r.ok && r.status === 'idle') { stop(); return; }
+            setTimeout(ping, 4000);
+        };
+        setTimeout(ping, 1500);
     }
 
     async function load(first) {
@@ -302,7 +344,13 @@
         $('d2-wait').hidden = true;
         if (r.status === 'cancelled') {
             stopPolling();
-            fatal(r.reason === 'expired' ? T('La stanza è scaduta.', 'The room expired.') : T('Partita annullata.', 'Match cancelled.'));
+            if (r.reason === 'queue' && r.next) {
+                toast(T('Avversario trovato!', 'Opponent found!'));
+                location.href = CFG.self + '?m=' + r.next;
+                return;
+            }
+            fatal({ expired: T('La stanza è scaduta.', 'The room expired.'), declined: T('L\'amico ha rifiutato la sfida.', 'Your friend declined the challenge.'),
+                cancelled: T('Sfida ritirata.', 'Challenge withdrawn.') }[r.reason] || T('Partita annullata.', 'Match cancelled.'));
             return;
         }
         if (r.chat) addChat(r.chat);
@@ -388,7 +436,7 @@
     // ── Costruzione della pagina ─────────────────────────────────────────
     function build() {
         const st = S.st;
-        $('d2-mode').textContent = MODE[st.mode] || st.mode;
+        $('d2-mode').textContent = modeLabel();
         const top = 1 - mySide();
         const bottom = mySide();
         $('d2-row-foe').innerHTML = '';
@@ -415,14 +463,23 @@
         S.kitUnit = 0;
     }
 
+    /** Il modo della partita a parole: in differita, una sfida a un amico o una stanza col codice. */
+    function modeLabel() {
+        const st = S.st || {};
+        if (st.rules && st.rules.async) return T('In differita', 'Turn-based');
+        return MODE[st.mode] || st.mode || '';
+    }
     function sideHead(side, isTop) {
         const p = S.st.players[side] || S.st.players[String(side)] || {};
         const rank = p.rank ? '<span class="d2-pill">' + esc(p.rank.label) + ' · ' + fmt(p.rating) + '</span>' : (p.bot ? '<span class="d2-pill">' + esc(botLevel(p.level)) + '</span>' : '');
         const ps = isTop ? '<span class="d2-ps" data-ps="' + side + '"></span>' : '';
-        return '<span class="d2-sw"></span>' + esc(p.username || '?') + ' ' + rank + ' ' + ps;
+        // Fase 6: l'emblema dell'ultima stagione finita (si vede solo nei duelli).
+        const badge = p.badge && window.D2Icons ? '<span class="d2-badge-s" style="--tc: var(--t-' + esc(p.badge.tier) + ')" title="' + esc(T('Stagione ', 'Season ') + p.badge.n) + '">'
+            + window.D2Icons.emblem(p.badge.tier) + '<small>S' + p.badge.n + '</small></span>' : '';
+        return '<span class="d2-sw"></span>' + esc(p.username || '?') + ' ' + badge + rank + ' ' + ps;
     }
     function botLevel(l) {
-        return { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard') }[l] || l || '';
+        return { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard'), incubo: T('Incubo', 'Nightmare') }[l] || l || '';
     }
 
     function cardEl(id) {
@@ -810,7 +867,11 @@
             return;
         }
         if (myTurn()) {
-            cap.innerHTML = '<strong>' + esc(T('Tocca a ', 'Your turn: ')) + esc(uName(dyn.actor)) + '</strong><span>' + esc(T('Scegli una mossa (1–4)', 'Pick a move (1–4)')) + '</span>' + (S.lastLine ? '<br><span class="d2-last">' + S.lastLine + '</span>' : '');
+            cap.innerHTML = '<strong>' + esc(T(toA(uName(dyn.actor)), 'Your turn: ')) + esc(uName(dyn.actor)) + '</strong><span>' + esc(T('Scegli una mossa (1–4)', 'Pick a move (1–4)')) + '</span>' + (S.lastLine ? '<br><span class="d2-last">' + S.lastLine + '</span>' : '');
+        } else if (dyn.actor && S.st.rules && S.st.rules.async && S.side !== null) {
+            const who = S.st.players[unitSt(dyn.actor).side] || {};
+            cap.innerHTML = '<strong>' + esc(T(toA(who.username || ''), 'Turn: ')) + esc(who.username || '') + '</strong><span>' + esc(T('In differita: puoi chiudere, quando tocca a te arriva nella campanella.', 'Turn-based: you can close this, the bell tells you when it\'s your turn.')) + '</span>'
+                + (S.lastLine ? '<br><span class="d2-last">' + S.lastLine + '</span>' : '');
         } else if (dyn.actor) {
             const who = S.st.players[unitSt(dyn.actor).side] || {};
             cap.innerHTML = '<strong>' + esc(T('Turno di ', 'Turn: ')) + esc(uName(dyn.actor)) + '</strong><span>' + esc(S.side === null ? (who.username || '') : T('Aspetta la mossa di ', 'Waiting for ') + (who.username || '')) + '</span>' + (S.lastLine ? '<br><span class="d2-last">' + S.lastLine + '</span>' : '');
@@ -1442,8 +1503,9 @@
             const left = Math.max(0, dyn.deadline - now());
             const mine = myTurn();
             el.style.setProperty('--p', Math.max(0, Math.min(1, left / total)));
-            $('d2-timer-n').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
-            el.classList.toggle('d2-late', mine && left <= 10);
+            $('d2-timer-n').textContent = left >= 3600 ? Math.floor(left / 3600) + ' h ' + String(Math.floor((left % 3600) / 60)).padStart(2, '0') + ' min'
+                : Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+            el.classList.toggle('d2-late', mine && left <= (total >= 3600 ? 4 * 3600 : 10));
             el.classList.toggle('d2-wait-opp', !mine);
             el.setAttribute('aria-label', (mine ? T('Tempo per la tua mossa: ', 'Time for your move: ') : T('Tempo dell\'avversario: ', 'Opponent\'s time: ')) + Math.ceil(left) + 's');
             if (left <= 0) { schedule(800); return; }
@@ -1474,7 +1536,7 @@
         const a = mySide();
         el.innerHTML = '<div class="d2-vs-side d2-vs-you"><div class="d2-vs-cards">' + cards(a) + '</div><div class="d2-vs-name">' + name(a) + '</div></div>'
             + '<div class="d2-vs-side d2-vs-foe"><div class="d2-vs-cards">' + cards(1 - a) + '</div><div class="d2-vs-name">' + name(1 - a) + '</div></div>'
-            + '<span class="d2-vs-tag">' + esc(MODE[S.st.mode] || '') + '</span><span class="d2-vs-mid">VS</span><span class="d2-vs-skip">' + esc(T('Tocca per saltare', 'Tap to skip')) + '</span>';
+            + '<span class="d2-vs-tag">' + esc(modeLabel()) + '</span><span class="d2-vs-mid">VS</span><span class="d2-vs-skip">' + esc(T('Tocca per saltare', 'Tap to skip')) + '</span>';
         document.body.appendChild(el);
         let done = false;
         const close = () => {
@@ -1582,15 +1644,17 @@
         $('d2-app').hidden = true;
         const el = $('d2-wait');
         const mine = !!r.code;
+        const invite = r.invite || '';
         if (!el.dataset.ready) {
             el.dataset.ready = '1';
-            el.innerHTML = '<small class="d2-pill">' + esc(T('Stanza con codice', 'Room code')) + '</small>'
-                + (mine ? '<div class="d2-code" id="d2-code">' + esc(r.code) + '</div><p>' + esc(T('Manda il codice a chi vuoi sfidare: entra da «Entra con codice». La stanza aspetta 10 minuti.', 'Send the code to your opponent: they join with "Join with code". The room waits 10 minutes.')) + '</p>'
+            el.innerHTML = '<small class="d2-pill">' + esc(invite ? T('Sfida a un amico', 'Friend challenge') : T('Stanza con codice', 'Room code')) + '</small>'
+                + (invite ? '<div class="d2-code d2-code-name">' + esc(invite) + '</div><p>' + esc(T('Aspetto che accetti: la sfida arriva nella sua campanella e nei Duelli. Vale 10 minuti.', 'Waiting for them to accept: the challenge shows up in their bell and in Duels. It lasts 10 minutes.')) + '</p>'
+                    : mine ? '<div class="d2-code" id="d2-code">' + esc(r.code) + '</div><p>' + esc(T('Manda il codice a chi vuoi sfidare: entra da «Entra con codice». La stanza aspetta 10 minuti.', 'Send the code to your opponent: they join with "Join with code". The room waits 10 minutes.')) + '</p>'
                     : '<p>' + esc(T('Aspetto che la stanza parta…', 'Waiting for the room to start…')) + '</p>')
                 + '<p class="num" id="d2-wait-left"></p><p>' + esc((r.rules && r.rules.levels === 'max') ? T('Livelli pareggiati', 'Equal levels') : T('Livelli di ognuno', 'Own levels'))
                 + ((r.rules && r.rules.cost_limit) ? ' · ' + T('costo fino a ', 'cost up to ') + r.rules.cost_limit : '') + '</p>'
-                + '<div class="d2-acts">' + (mine ? '<button class="d2-btn d2-btn-w" type="button" id="d2-copy">' + esc(T('Copia il codice', 'Copy code')) + '</button>' : '')
-                + '<button class="d2-btn" type="button" id="d2-close-room">' + esc(T('Chiudi la stanza', 'Close the room')) + '</button></div>';
+                + '<div class="d2-acts">' + (mine && !invite ? '<button class="d2-btn d2-btn-w" type="button" id="d2-copy">' + esc(T('Copia il codice', 'Copy code')) + '</button>' : '')
+                + '<button class="d2-btn" type="button" id="d2-close-room">' + esc(invite ? T('Ritira la sfida', 'Withdraw the challenge') : T('Chiudi la stanza', 'Close the room')) + '</button></div>';
             const copy = $('d2-copy');
             if (copy) copy.addEventListener('click', () => {
                 const done = () => toast(T('Codice copiato', 'Code copied'));
@@ -1758,7 +1822,7 @@
         $('d2-tab-chat').hidden = true;
         S.latest = R.steps[0].dyn;
         applyDyn(R.steps[0].dyn);
-        $('d2-mode').textContent = 'Replay · ' + (MODE[S.st.mode] || S.st.mode);
+        $('d2-mode').textContent = 'Replay · ' + modeLabel();
         $('d2-app').hidden = false;
         replayBar();
         caption(esc(playersLine()), esc(T('Premi play o usa la barra dei turni.', 'Press play or use the turn bar.')));

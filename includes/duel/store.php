@@ -24,6 +24,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/engine.php';
 require_once __DIR__ . '/bot.php';
 require_once __DIR__ . '/text.php';
+require_once __DIR__ . '/season.php';
 
 const DUEL_TURN_SECONDS = 45;      // tempo per turno nelle partite live
 const DUEL_TIMEOUTS_MAX = 3;       // turni scaduti che fanno perdere
@@ -31,6 +32,8 @@ const DUEL_DEADLINE_GRACE = 2;     // secondi di tolleranza per la rete
 const DUEL_BOT_USER = 0;           // il bot in winner_id / loser_id, come nei duelli vecchi
 const DUEL_ELO_K = 32;
 const DUEL_RANKED_PAIR_DAY = 3;    // partite Ranked al giorno contro lo stesso avversario che contano
+const DUEL_ASYNC_SECONDS = 86400;  // in differita: 24 ore a turno
+const DUEL_ASYNC_TIMEOUTS = 2;     // in differita: al secondo turno scaduto si perde
 
 // ─────────────────────────────────────────────────────────────────────────
 // Leggere una partita
@@ -54,8 +57,16 @@ function duel_match_rules(array $row): array
         'levels' => 'own',
         'cost_limit' => 0,
         'turn_seconds' => DUEL_TURN_SECONDS,
+        'timeouts_max' => DUEL_TIMEOUTS_MAX,
+        'async' => false,
         'values' => ['rules' => [], 'status' => []],
     ];
+}
+
+/** Partita in differita (sfida a un amico, 24 ore a turno). */
+function duel_is_async(array $row): bool
+{
+    return (int)($row['is_async'] ?? 0) === 1;
 }
 
 function duel_match_state(array $row): array
@@ -179,7 +190,9 @@ function duel_match_columns(mysqli $m, array $data): array
  *
  * $p: mode (casual|ranked|private|bot), p1, p2 (id utente; 0 col bot),
  * team1, team2 (da duel_team_build), levels ('own'|'max'), cost_limit,
- * turn_seconds, bot_level, room_id (stanza in attesa da far partire).
+ * turn_seconds, bot_level, room_id (stanza in attesa da far partire),
+ * async (in differita: 24 ore a turno, al secondo turno scaduto si perde),
+ * challenge_id (la sfida da cui nasce).
  * Restituisce l'id della partita.
  */
 function duel_match_start(mysqli $m, array $p): int
@@ -193,7 +206,9 @@ function duel_match_start(mysqli $m, array $p): int
         'mode' => $p['mode'],
         'levels' => $p['levels'] ?? 'own',
         'cost_limit' => (int)($p['cost_limit'] ?? 0),
-        'turn_seconds' => $isBot ? 0 : (int)($p['turn_seconds'] ?? DUEL_TURN_SECONDS),
+        'turn_seconds' => $isBot ? 0 : (!empty($p['async']) ? DUEL_ASYNC_SECONDS : (int)($p['turn_seconds'] ?? DUEL_TURN_SECONDS)),
+        'timeouts_max' => !empty($p['async']) ? DUEL_ASYNC_TIMEOUTS : DUEL_TIMEOUTS_MAX,
+        'async' => !empty($p['async']),
         'teams' => [$p['team1']['pids'], $p['team2']['pids']],
         'values' => ['rules' => $over['rules'], 'status' => $over['status']],
     ];
@@ -221,6 +236,8 @@ function duel_match_start(mysqli $m, array $p): int
         'timeouts_p2' => 0,
         'player1_ready' => 1,
         'player2_ready' => 1,
+        'is_async' => !empty($p['async']) ? 1 : 0,
+        'challenge_id' => isset($p['challenge_id']) ? (int)$p['challenge_id'] : null,
     ]);
 
     if (!empty($p['room_id'])) {
@@ -296,6 +313,7 @@ function duel_save(mysqli $m, array &$row, array $st, ?string $clientAction = nu
 {
     $deadline = duel_deadline($row, $st);
     $actorSide = duel_actor_side($st);
+    $prevTurnUser = (int)($row['current_turn_user_id'] ?? 0);
     $data = duel_match_columns($m, [
         'state_json' => json_encode($st, JSON_UNESCAPED_UNICODE),
         'version' => (int)$row['version'],
@@ -318,6 +336,11 @@ function duel_save(mysqli $m, array &$row, array $st, ?string $clientAction = nu
     duel_exec($m, "UPDATE game_matches SET $set WHERE id = ?", $types . 'i', [...$values, (int)$row['id']]);
     $row['turn_deadline'] = $deadline;
     $row['state_json'] = null;
+    $turnUser = $actorSide === null ? 0 : duel_side_user($row, $actorSide);
+    $row['current_turn_user_id'] = $turnUser ?: null;
+    if (duel_is_async($row) && !$st['over'] && $turnUser > 0 && $turnUser !== $prevTurnUser) {
+        duel_async_turn_notice($m, $row, $turnUser, $deadline);
+    }
 
     if ($st['over'] && (string)$row['status'] === 'active') {
         duel_finish($m, $row, $st);
@@ -415,7 +438,7 @@ function duel_tick_locked(mysqli $m, array &$row, array &$st): bool
     $row[$col] = (int)$row[$col] + 1;
     $userId = duel_side_user($row, $side);
 
-    if ($row[$col] >= DUEL_TIMEOUTS_MAX) {
+    if ($row[$col] >= (int)(duel_match_rules($row)['timeouts_max'] ?? DUEL_TIMEOUTS_MAX)) {
         [$st, $events] = duel_forfeit($st, $side, 'timeout');
         duel_step($m, $row, $st, $events, 'timeout', ['side' => $side, 'auto' => 'forfeit'], $userId);
         return true;
@@ -471,6 +494,10 @@ function duel_forfeit_by(mysqli $m, int $matchId, int $userId): array
         }
         if ((string)$row['status'] === 'waiting') {
             duel_exec($m, "UPDATE game_matches SET status = 'cancelled', end_reason = 'closed', finished_at = NOW(), updated_at = NOW() WHERE id = ?", 'i', [$matchId]);
+            // La stanza di una sfida a un amico: anche la sfida e' ritirata, subito.
+            if (!empty($row['challenge_id']) && rt_has_table($m, 'game_challenges')) {
+                duel_exec($m, "UPDATE game_challenges SET status = 'cancelled', answered_at = NOW() WHERE id = ? AND status = 'pending'", 'i', [(int)$row['challenge_id']]);
+            }
             return ['v' => (int)$row['version'], 'closed' => true];
         }
         if ((string)$row['status'] !== 'active') {
@@ -504,6 +531,10 @@ function duel_finish(mysqli $m, array &$row, array $st): void
     $rating = ['wd' => null, 'ld' => null, 'wa' => null, 'la' => null];
     if ((string)$row['mode'] === 'ranked' && $users[0] > 0 && $users[1] > 0) {
         $rating = duel_rating_apply($m, $row, $winnerSide);
+        duel_season_record($m, $row, $rating['sides'], $winnerSide);
+    }
+    if ($winner !== null && $winner > 0) {
+        duel_reward_daily_win($m, $row, $winner);
     }
 
     $data = duel_match_columns($m, [
@@ -532,6 +563,38 @@ function duel_finish(mysqli $m, array &$row, array $st): void
     duel_after_commit(static function () use ($m, $users, $winnerSide): void {
         duel_finish_hooks($m, $users, $winnerSide);
     });
+    if (duel_is_async($row)) {
+        duel_async_end_notice($m, $row, $users, $winnerSide);
+    }
+}
+
+/** In differita: tocca a te (al massimo un avviso ogni ora per partita). */
+function duel_async_turn_notice(mysqli $m, array $row, int $userId, ?string $deadline): void
+{
+    $side = duel_match_side($row, $userId);
+    $other = $side === null ? 0 : duel_side_user($row, 1 - $side);
+    $name = (string)(duel_row($m, 'SELECT username FROM utenti WHERE id = ?', 'i', [$other])['username'] ?? '');
+    $id = (int)$row['id'];
+    $hours = $deadline ? max(1, (int)round((strtotime($deadline) - time()) / 3600)) : 24;
+    duel_after_commit(static fn() => duel_notify($m, $userId, "Duello: tocca a te contro $name", "Duel: your turn against $name",
+        "Hai $hours ore per la tua mossa. Apri la partita da Duelli o da /it/duelli/arena?m=$id.",
+        "You have $hours hours for your move. Open the match from Duels or /en/duelli/arena?m=$id.", 60));
+}
+
+/** In differita: com'e' finita (chi gioca non e' davanti allo schermo). */
+function duel_async_end_notice(mysqli $m, array $row, array $users, ?int $winnerSide): void
+{
+    $names = [];
+    foreach ($users as $side => $userId) {
+        $names[$side] = (string)(duel_row($m, 'SELECT username FROM utenti WHERE id = ?', 'i', [$userId])['username'] ?? '');
+    }
+    $id = (int)$row['id'];
+    foreach ($users as $side => $userId) {
+        $other = $names[1 - $side];
+        [$it, $en] = $winnerSide === null ? ['Pareggio', 'Draw'] : ($winnerSide === $side ? ['Hai vinto', 'You won'] : ['Hai perso', 'You lost']);
+        duel_after_commit(static fn() => duel_notify($m, $userId, "Duello in differita: $it contro $other", "Turn-based duel: $en against $other",
+            "La partita è finita. Il riepilogo è in /it/duelli/fine?m=$id.", "The match is over. The summary is at /en/duelli/fine?m=$id."));
+    }
 }
 
 /** Rewind, missioni, achievement: gli stessi agganci dei duelli vecchi. Il bot resta fuori. */
@@ -610,12 +673,13 @@ function duel_rating_apply(mysqli $m, array $row, ?int $winnerSide): array
             [$won ? 1 : 0, $lost ? 1 : 0, $after[$side], $won ? max(0, $deltas[$side]) : 0, $won ? 1 : 0, $won ? 1 : 0, $users[$side]]);
     }
 
+    $sides = [[$r[0], $after[0]], [$r[1], $after[1]]];
     if ($winnerSide === null) {
-        return ['wd' => $deltas[0], 'ld' => $deltas[1], 'wa' => $after[0], 'la' => $after[1]];
+        return ['wd' => $deltas[0], 'ld' => $deltas[1], 'wa' => $after[0], 'la' => $after[1], 'sides' => $sides];
     }
     return [
         'wd' => $deltas[$winnerSide], 'ld' => $deltas[1 - $winnerSide],
-        'wa' => $after[$winnerSide], 'la' => $after[1 - $winnerSide],
+        'wa' => $after[$winnerSide], 'la' => $after[1 - $winnerSide], 'sides' => $sides,
     ];
 }
 
@@ -661,7 +725,7 @@ function duel_players_view(mysqli $m, array $row): array
         $user = duel_row($m, 'SELECT u.username, s.rating FROM utenti u LEFT JOIN game_player_stats s ON s.user_id = u.id WHERE u.id = ?', 'i', [$userId]);
         $rating = (int)($user['rating'] ?? 1000);
         $out[$side] = ['id' => $userId, 'bot' => false, 'username' => (string)($user['username'] ?? 'Utente'),
-            'avatar' => '/includes/get_pfp.php?id=' . $userId, 'rating' => $rating, 'rank' => duel_rank($rating)];
+            'avatar' => '/includes/get_pfp.php?id=' . $userId, 'rating' => $rating, 'rank' => duel_rank($rating), 'badge' => duel_season_badge($m, $userId)];
     }
     return $out;
 }
@@ -700,6 +764,7 @@ function duel_view_static(mysqli $m, array $row, array $st): array
         'players' => duel_players_view($m, $row),
         'units' => $units,
         'rules' => ['levels' => $rules['levels'], 'cost_limit' => (int)$rules['cost_limit'], 'turn_seconds' => (int)$rules['turn_seconds'],
+            'async' => !empty($rules['async']), 'timeouts_max' => (int)$rules['timeouts_max'],
             'turn_limit' => duel_rules()['turn_limit'], 'ps_max' => duel_rules()['ps_max'], 'charge_max' => duel_rules()['charge_max']],
         'costs' => [(int)($row['team_cost_p1'] ?? 0), (int)($row['team_cost_p2'] ?? 0)],
     ];

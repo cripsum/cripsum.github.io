@@ -8,7 +8,10 @@ declare(strict_types=1);
  *
  * Una persona gioca una partita alla volta: entrare in coda, aprire una
  * stanza o sfidare il bot chiude la stanza che aveva aperto e la toglie
- * dalla coda; con una partita in corso si viene rimandati li'.
+ * dalla coda; con una partita in corso si viene rimandati li'. Le partite in
+ * differita (sfide agli amici, 24 ore a turno) non contano: durano giorni.
+ * Col bot si puo' giocare restando in coda: quando arriva qualcuno la
+ * partita col bot si annulla (non conta) e si va dall'avversario.
  */
 
 require_once __DIR__ . '/store.php';
@@ -17,7 +20,7 @@ require_once __DIR__ . '/notice.php';
 const DUEL_QUEUE_STALE = 15;       // secondi senza segnale: fuori dalla coda
 const DUEL_ROOM_MINUTES = 10;      // una stanza con codice aspetta 10 minuti
 const DUEL_TEAM_SLOTS = 3;
-const DUEL_BOT_BUDGET = ['facile' => 8, 'normale' => 11, 'difficile' => 14];
+const DUEL_BOT_BUDGET = ['facile' => 8, 'normale' => 11, 'difficile' => 14, 'incubo' => 14];
 
 // ─────────────────────────────────────────────────────────────────────────
 // Squadre salvate
@@ -73,11 +76,17 @@ function duel_team_input(mysqli $m, int $userId, array $in): array
 // Una partita alla volta
 // ─────────────────────────────────────────────────────────────────────────
 
-/** La partita 2.0 aperta di un giocatore (in corso o stanza in attesa). */
+/** " AND is_async = 0" se la colonna c'e' (senza la migrazione della fase 6 non c'e'). */
+function duel_live_only(mysqli $m, string $alias = ''): string
+{
+    return rt_has_col($m, 'game_matches', 'is_async') ? " AND {$alias}is_async = 0" : '';
+}
+
+/** La partita 2.0 aperta di un giocatore (in corso o stanza in attesa), fuori dalle differite. */
 function duel_active_for(mysqli $m, int $userId): ?array
 {
     $row = duel_row($m, "SELECT id, status, mode, room_code FROM game_matches
-        WHERE engine_version IS NOT NULL AND status IN ('waiting', 'active') AND (player1_id = ? OR player2_id = ?)
+        WHERE engine_version IS NOT NULL AND status IN ('waiting', 'active') AND (player1_id = ? OR player2_id = ?)" . duel_live_only($m) . "
         ORDER BY (status = 'active') DESC, id DESC LIMIT 1", 'ii', [$userId, $userId]);
     if (!$row) {
         return null;
@@ -93,7 +102,7 @@ function duel_active_for(mysqli $m, int $userId): ?array
 function duel_require_free(mysqli $m, int $userId, bool $keepQueue = false): void
 {
     $active = duel_row($m, "SELECT id FROM game_matches WHERE engine_version IS NOT NULL AND status = 'active'
-        AND (player1_id = ? OR player2_id = ?) LIMIT 1", 'ii', [$userId, $userId]);
+        AND (player1_id = ? OR player2_id = ?)" . duel_live_only($m) . " LIMIT 1", 'ii', [$userId, $userId]);
     if ($active) {
         throw duel_user_error('Hai già una partita in corso.', 'You already have a match in progress.', 409, 'IN_MATCH', ['match' => (int)$active['id']]);
     }
@@ -161,15 +170,20 @@ function duel_bot_team(mysqli $m, string $level, int $cardLevel): array
     return duel_team_build($m, $best[0], $levels, false);
 }
 
-function duel_start_bot(mysqli $m, int $userId, array $pids, string $level): array
+/**
+ * Una partita col bot. $keepQueue: chi aspetta in coda gioca intanto col bot
+ * e resta in coda (la lobby lo propone dopo un minuto di attesa).
+ */
+function duel_start_bot(mysqli $m, int $userId, array $pids, string $level, bool $keepQueue = false): array
 {
     if (!in_array($level, DUEL_BOT_LEVELS, true)) {
         $level = 'normale';
     }
-    duel_require_free($m, $userId);
+    duel_require_free($m, $userId, $keepQueue);
     $team = duel_team_for_user($m, $userId, $pids, false);
     $avg = (int)round(array_sum(array_column($team['kits'], 'level')) / 3);
-    $bot = duel_bot_team($m, $level, max(1, $avg));
+    // Incubo: carte al livello massimo, qualunque sia il tuo.
+    $bot = duel_bot_team($m, $level, $level === 'incubo' ? duel_rules()['level_max'] : max(1, $avg));
     $id = duel_tx($m, static fn() => duel_match_start($m, [
         'mode' => 'bot', 'p1' => $userId, 'p2' => 0, 'team1' => $team, 'team2' => $bot,
         'levels' => 'own', 'bot_level' => $level,
@@ -226,6 +240,20 @@ function duel_queue_leave(mysqli $m, int $userId): void
 {
     if (duel_exec($m, 'DELETE FROM game_queue WHERE user_id = ?', 'i', [$userId]) > 0) {
         duel_notice_close($m, $userId, 'gone');
+    }
+}
+
+/** Le partite col bot in corso di questi giocatori finiscono annullate (non contano). */
+function duel_cancel_bot_matches(mysqli $m, array $userIds, string $reason): void
+{
+    foreach ($userIds as $userId) {
+        foreach (duel_rows($m, "SELECT id FROM game_matches WHERE engine_version IS NOT NULL AND status = 'active' AND mode = 'bot' AND player1_id = ?",
+            'i', [(int)$userId]) as $r) {
+            duel_exec($m, "UPDATE game_matches SET status = 'cancelled', end_reason = ?, finished_at = NOW(), turn_deadline = NULL WHERE id = ?",
+                'si', [$reason, (int)$r['id']]);
+            $id = (int)$r['id'];
+            duel_after_commit(static fn() => duel_stamp($id, ['st' => 'cancelled', 'dl' => 0]));
+        }
     }
 }
 
@@ -291,6 +319,7 @@ function duel_queue_pair(mysqli $m, int $userId): array
             // Chi aspetta da piu' tempo e' il giocatore 1.
             $matchId = duel_tx($m, static function () use ($m, $mode, $otherId, $userId, $teamOther, $teamMe): int {
                 duel_exec($m, 'DELETE FROM game_queue WHERE user_id IN (?, ?)', 'ii', [$otherId, $userId]);
+                duel_cancel_bot_matches($m, [$otherId, $userId], 'queue');
                 return duel_match_start($m, [
                     'mode' => $mode, 'p1' => $otherId, 'p2' => $userId, 'team1' => $teamOther, 'team2' => $teamMe,
                     'levels' => $mode === 'ranked' ? 'max' : 'own', 'cost_limit' => $mode === 'ranked' ? duel_rules()['ranked_budget'] : 0,
@@ -327,7 +356,7 @@ function duel_room_create(mysqli $m, int $userId, array $pids, array $options): 
             "The team costs {$team['cost']}: the limit is $costLimit.", 400, 'TEAM_COST', ['cost' => $team['cost'], 'budget' => $costLimit]);
     }
     $rules = ['mode' => 'private', 'levels' => $levels, 'cost_limit' => $costLimit, 'turn_seconds' => DUEL_TURN_SECONDS,
-        'room' => ['team' => $team['pids']]];
+        'room' => ['team' => $team['pids']] + (!empty($options['invite']) ? ['invite' => (int)$options['invite']] : [])];
     for ($try = 0; $try < 5; $try++) {
         $code = duel_room_code();
         if (!duel_row($m, 'SELECT 1 FROM game_matches WHERE room_code = ? LIMIT 1', 's', [$code])) {
@@ -380,6 +409,9 @@ function duel_room_join(mysqli $m, int $userId, string $code, array $pids): arra
             throw duel_user_error('La stanza non è più disponibile.', 'The room is no longer available.', 409, 'ROOM_GONE');
         }
         $rules = duel_match_rules($row);
+        if (!empty($rules['room']['invite']) && (int)$rules['room']['invite'] !== $userId) {
+            throw duel_user_error('Questa stanza è una sfida per un\'altra persona.', 'This room is a challenge for someone else.', 403, 'ROOM_INVITE');
+        }
         $max = $rules['levels'] === 'max';
         $owner = (int)$row['player1_id'];
         try {
@@ -485,6 +517,10 @@ function duel_hub(mysqli $m, int $userId): array
         'live' => $live,
         'recent' => $recent,
         'queue_now' => duel_queue_now($m),
+        'season' => duel_season_current($m),
+        'season_me' => duel_season_me($m, $userId),
+        'challenges' => duel_challenges_for($m, $userId),
+        'async' => duel_async_for($m, $userId),
         'public' => duel_settings($m)['public'] === '1',
         'budget' => duel_rules()['ranked_budget'],
     ];
@@ -516,3 +552,5 @@ function duel_roster(mysqli $m, int $userId): array
     usort($out, static fn($a, $b) => [$b['cost'], $a['name']] <=> [$a['cost'], $b['name']]);
     return $out;
 }
+
+require_once __DIR__ . '/social.php';

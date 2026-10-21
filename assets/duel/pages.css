@@ -384,3 +384,87 @@ body.d2p :focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
     .d2p-tbl .d2p-v b { min-width: 0; }
     .d2p-tbl th { font-size: 10px; }
 }
+
+/* ── Fase 6: stagione, sfide, foglio «Sfida un amico», pagina Stagione ── */
+.d2p-head-side { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.d2p-season { display: block; width: 360px; color: var(--tx2) !important; }
+.d2p-season p { margin: 0 0 10px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.d2p-season p b { color: var(--tx); font-weight: 600; }
+.d2p-season .d2p-bar { display: block; }
+.d2p-season .d2p-bar i { background: var(--tx); }
+.d2p-season:hover p b { text-decoration: underline; text-underline-offset: 3px; }
+.d2p-rank-more { display: inline-flex; margin-top: 14px; }
+.d2p-av-u { background: var(--c); color: #0a0a0b; font-weight: 600; font-size: 16px; position: relative; }
+.d2p-av-u.d2p-online::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border-radius: 50%; background: var(--ok); border: 2px solid var(--s1); }
+.d2p-join { flex-wrap: wrap; }
+.d2p-sec-t .d2p-link { font: 500 13px var(--font); }
+
+body.d2p-lock { overflow: hidden; }
+.d2p-sheet { position: fixed; inset: 0; z-index: 11000; display: grid; place-items: center; font-family: var(--font); color: var(--tx); }
+.d2p-sheet-bg { position: absolute; inset: 0; background: rgba(0,0,0,.62); animation: d2p-fade .2s ease; }
+.d2p-sheet-panel { position: relative; width: min(440px, calc(100% - 32px)); max-height: min(88vh, 780px); overflow-y: auto; overscroll-behavior: contain;
+    background: var(--s1); border: 1px solid var(--line); border-radius: 26px; padding: 16px 18px 20px; animation: d2p-sheet-in .28s var(--ease); }
+@keyframes d2p-fade { from { opacity: 0; } }
+@keyframes d2p-sheet-in { from { opacity: 0; transform: translateY(16px); } }
+.d2p-sheet-h { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.d2p-sheet-h h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.d2p-sheet .d2p-lab { display: block; margin: 16px 0 8px; }
+.d2p-fl { display: grid; gap: 4px; }
+.d2p-fr { display: grid; grid-template-columns: 40px minmax(0, 1fr) 22px; gap: 12px; align-items: center; width: 100%; padding: 8px 10px; border-radius: 16px; border: 1px solid transparent !important; text-align: left; }
+.d2p-fr:hover:not(:disabled) { background: var(--s2) !important; }
+.d2p-fr[aria-pressed="true"] { border-color: var(--tx) !important; background: var(--s2) !important; }
+.d2p-fr:disabled { opacity: .45; }
+.d2p-fr .d2p-av { width: 40px; height: 40px; }
+.d2p-fr b { display: block; font-size: 14.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.d2p-fr small { display: block; font-size: 12px; color: var(--tx2); }
+.d2p-seg-s { border-radius: 99px; }
+.d2p-seg-s button { height: 38px; font-size: 13.5px; }
+.d2p-seg-s button[aria-pressed="true"] { background: var(--tx); color: #0a0a0b !important; }
+.d2p-srow { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--line2); font-size: 14px; }
+.d2p-srow .d2p-tabs2 { flex-wrap: wrap; justify-content: flex-end; }
+.d2p-mut0 { color: var(--tx2); }
+.d2p-sheet-note { display: flex; gap: 8px; align-items: flex-start; color: var(--tx2); font-size: 12.5px; line-height: 1.5; margin: 14px 0 16px; }
+.d2p-sheet-note .ic { margin-top: 2px; }
+.d2p-sheet .d2p-btn-big { width: 100%; }
+
+.d2p-sz { width: min(720px, calc(100% - 32px)); margin: 0 auto; padding: 7rem 0 4rem; }
+.d2p-sz-top { text-align: center; padding: 18px 0 8px; }
+.d2p-sz-top .d2p-emb { width: 96px; height: 96px; }
+.d2p-sz-top h1 { margin: 16px 0 4px; font-size: 40px; font-weight: 600; letter-spacing: -0.02em; color: var(--tx); }
+.d2p-sz-top p { margin: 0; color: var(--tx2); font-size: 15px; }
+.d2p-sz-bar { margin: 26px 0 8px; }
+.d2p-sz-bar .d2p-bar i { background: var(--tx); }
+.d2p-sz-dates { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--tx2); }
+.d2p-sz .d2p-lab { display: block; margin: 34px 0 6px; }
+.d2p-prize { display: grid; grid-template-columns: 34px minmax(0, 1fr) 28px; gap: 14px; align-items: center; min-height: 58px; padding: 0 12px; margin: 0 -12px; border-radius: 14px; }
+.d2p-prize .d2p-emb { width: 30px; height: 30px; }
+.d2p-prize b { display: block; font-size: 15px; font-weight: 600; }
+.d2p-prize small { display: block; font-size: 12.5px; color: var(--tx2); }
+.d2p-prize.d2p-now { background: var(--s1); }
+.d2p-prize.d2p-locked { opacity: .55; }
+.d2p-prize .d2p-ok { width: 26px; height: 26px; border-radius: 50%; background: var(--tx); color: #0a0a0b; display: grid; place-items: center; font-size: 14px; }
+.d2p-prize .d2p-lock { color: var(--tx3); font-size: 16px; display: grid; place-items: center; }
+.d2p-past { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--line2); font-size: 14px; }
+.d2p-past b { font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+.d2p-past b .d2p-emb { width: 20px; height: 20px; }
+.d2p-sz-note { margin-top: 26px; color: var(--tx2); font-size: 13px; line-height: 1.55; }
+
+@media (max-width: 700px) {
+    .d2p-head { flex-wrap: wrap; }
+    .d2p-head-side { width: 100%; align-items: stretch; }
+    .d2p-season { width: auto; }
+    .d2p-head-side .d2p-link { align-self: flex-start; }
+    .d2p-sheet { place-items: end stretch; }
+    .d2p-sheet-panel { width: 100%; max-height: 90vh; border-radius: 26px 26px 0 0; border-bottom: 0; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+    .d2p-sz { padding-top: 6rem; }
+    .d2p-sz-top h1 { font-size: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .d2p-sheet-bg, .d2p-sheet-panel { animation: none; }
+}
+
+.d2p-code-opts { width: 100%; margin: 14px 0 0; }
+.d2p-sz-bar .d2p-bar { display: block; }
+/* La ricerca: il segno del fuoco sul campo arrotondato, non un rettangolo sull'input. */
+.d2p-search:focus-within { border-color: var(--tx2); box-shadow: 0 0 0 2px var(--tx); }
+body.d2p .d2p-search input:focus-visible { outline: none; }

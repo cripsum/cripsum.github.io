@@ -429,6 +429,15 @@ body.d2 .d2-moves:focus, body.d2 .d2-moves:focus-visible { outline: none; }
 
 .d2-m-only { display: none !important; }
 
+/* Fase 6: emblema di stagione accanto al nome, pillola «in coda» col bot, sfida a un amico in attesa */
+.d2-badge-s { display: inline-flex; align-items: center; gap: 3px; color: var(--tc); vertical-align: -3px; margin-right: 2px; }
+.d2-badge-s svg { width: 16px; height: 16px; }
+.d2-badge-s small { font-size: 10.5px; font-weight: 600; color: var(--tx2); }
+.d2-queue-pill { gap: 8px; cursor: pointer; color: var(--tx) !important; }
+.d2-queue-pill .d2-qdot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: d2-qpulse 1.4s ease-in-out infinite; }
+@keyframes d2-qpulse { 50% { opacity: .35; } }
+.d2-wait .d2-code.d2-code-name { letter-spacing: 0; text-transform: none; }
+
 /* ── Telefono ── */
 @media (max-width: 700px) {
     .d2-m-only { display: grid !important; }

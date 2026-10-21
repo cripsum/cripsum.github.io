@@ -12,7 +12,8 @@ declare(strict_types=1);
  *
  * Cosa fa: turni scaduti delle partite che nessuno sta guardando, chi e'
  * sparito dalla coda, stanze con codice scadute, partite col bot lasciate a
- * meta' da piu' di due ore.
+ * meta' da piu' di due ore. Dalla fase 6 anche: sfide scadute, promemoria
+ * delle partite in differita, fine della stagione con premi e reset.
  */
 
 require_once __DIR__ . '/lobby.php';
@@ -30,7 +31,7 @@ function duel_maintenance_claim(mysqli $m): bool
 
 function duel_maintenance(mysqli $m, bool $force = false): array
 {
-    $done = ['claimed' => false, 'timeouts' => 0, 'queue' => 0, 'rooms' => 0, 'bot' => 0];
+    $done = ['claimed' => false, 'timeouts' => 0, 'queue' => 0, 'rooms' => 0, 'bot' => 0, 'challenges' => 0, 'reminded' => 0, 'season' => null];
     if (!duel_db_ready($m) || (!$force && !duel_maintenance_claim($m))) {
         return $done;
     }
@@ -66,6 +67,16 @@ function duel_maintenance(mysqli $m, bool $force = false): array
         $done['bot'] += duel_exec($m, "UPDATE game_matches SET status = 'cancelled', end_reason = 'idle', finished_at = NOW(), turn_deadline = NULL
             WHERE id = ? AND status = 'active'", 'i', [(int)$row['id']]);
         duel_stamp((int)$row['id'], ['st' => 'cancelled', 'dl' => 0]);
+    }
+
+    // Fase 6: sfide, promemoria in differita, stagioni.
+    try {
+        $social = duel_social_maintenance($m);
+        $done['challenges'] = $social['expired'];
+        $done['reminded'] = $social['reminded'];
+        $done['season'] = duel_season_tick($m);
+    } catch (Throwable $e) {
+        error_log('[duel pulizia] fase 6: ' . $e->getMessage());
     }
 
     return $done;

@@ -34,7 +34,7 @@
         ko: T('Tutte le carte avversarie sono KO.', 'All enemy cards are KO.'),
         limit: T('Limite di turni: vince chi ha più vita in percentuale.', 'Turn limit: the team with more HP % wins.'),
         forfeit: T('Abbandono.', 'Forfeit.'),
-        timeout: T('Tempo scaduto tre volte.', 'Timed out three times.'),
+        timeout: R.async ? T('Tempo scaduto due volte.', 'Timed out twice.') : T('Tempo scaduto tre volte.', 'Timed out three times.'),
     };
 
     function rating() {
@@ -67,10 +67,20 @@
 
     function facts() {
         const rows = [];
+        // Fase 6: i Godos pagati con questa partita e la stagione.
+        (R.rewards || []).forEach((r) => {
+            if (r.kind === 'daily_win') rows.push(['coppa', T('Prima vittoria del giorno', 'First win of the day'), '+' + fmt(r.amount) + ' Godos']);
+        });
+        if (R.season) {
+            const placing = R.season.games < R.season.placement;
+            rows.push(['calendario', T('Stagione ', 'Season ') + R.season.n + (placing ? T(' · piazzamento', ' · placement') : ''),
+                placing ? R.season.games + ' / ' + R.season.placement : T('conta per la stagione', 'counts for the season')]);
+        }
         if (!watcher && R.winner === mine && R.streak >= 2) rows.push(['fulmine', T('Serie di vittorie', 'Win streak'), fmt(R.streak)]);
         if (R.mode === 'bot') rows.push(['robot', T('Contro il bot', 'Vs bot'), T('non conta per la classifica', 'does not count for the ranking')]);
         if (R.mode === 'casual') rows.push(['dadi', T('Veloce', 'Quick'), T('non conta per la classifica', 'does not count for the ranking')]);
-        if (R.mode === 'private') rows.push(['lucchetto', T('Stanza con codice', 'Room'), T('non conta per la classifica', 'does not count for the ranking')]);
+        if (R.mode === 'private') rows.push(R.async ? ['orologio', T('In differita', 'Turn-based'), T('non conta per la classifica', 'does not count for the ranking')]
+            : ['lucchetto', T('Stanza o sfida', 'Room or challenge'), T('non conta per la classifica', 'does not count for the ranking')]);
         if (!rows.length) return '';
         return '<div class="d2p-rew">' + rows.map((r) => '<div>' + ic(r[0]) + '<span>' + esc(r[1]) + '</span><b>' + esc(r[2]) + '</b></div>').join('') + '</div>';
     }
@@ -107,9 +117,9 @@
     function render() {
         const [t, cls] = title();
         const opp = watcher ? (players(0).username || '?') + T(' contro ', ' vs ') + (players(1).username || '?') : T('contro ', 'vs ') + (players(other).username || '?');
-        const BOT_LV = { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard') };
+        const BOT_LV = { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard'), incubo: T('Incubo', 'Nightmare') };
         const botLv = R.bot ? (players(R.side === null || R.side === undefined ? 1 : other).level || '') : '';
-        const sub = [R.bot ? T('Contro il bot ', 'Vs bot ') + (BOT_LV[botLv] || botLv) : D.MODE[R.mode] || R.mode, R.bot ? '' : opp, R.turns + (R.turns === 1 ? T(' turno', ' turn') : T(' turni', ' turns')), duration(R.seconds)].filter(Boolean).join(' · ');
+        const sub = [R.bot ? T('Contro il bot ', 'Vs bot ') + (BOT_LV[botLv] || botLv) : R.async ? T('In differita', 'Turn-based') : D.MODE[R.mode] || R.mode, R.bot ? '' : opp, R.turns + (R.turns === 1 ? T(' turno', ' turn') : T(' turni', ' turns')), duration(R.seconds)].filter(Boolean).join(' · ');
         const acts = (R.rematch ? '<button class="d2p-btn d2p-btn-w d2p-btn-big" type="button" id="d2p-rematch">' + esc(T('Rivincita', 'Rematch')) + '</button>' : '')
             + '<a class="d2p-btn d2p-btn-big' + (R.rematch ? '' : ' d2p-btn-w') + '" href="' + esc(U.replay + '?m=' + R.id) + '">' + ic('replay') + ' ' + esc(T('Rivedi la partita', 'Watch the replay')) + '</a>'
             + '<a class="d2p-btn d2p-btn-big" href="' + esc(U.lobby) + '">' + esc(T('Torna ai duelli', 'Back to duels')) + '</a>';

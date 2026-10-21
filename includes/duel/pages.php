@@ -27,7 +27,7 @@ function duel_urls(string $lang): array
 {
     $base = '/' . $lang . '/duelli/';
     return [
-        'lobby' => $base, 'team' => $base . 'squadra', 'arena' => $base . 'arena', 'end' => $base . 'fine', 'replay' => $base . 'replay',
+        'lobby' => $base, 'team' => $base . 'squadra', 'arena' => $base . 'arena', 'end' => $base . 'fine', 'replay' => $base . 'replay', 'season' => $base . 'stagione',
         'classic' => '/' . $lang . '/game/lobby.php',
     ];
 }
@@ -304,6 +304,16 @@ function duel_summary(mysqli $m, int $userId, array $row, string $lang): array
 
     $players = $static['players'];
     $stats = $side === null ? null : duel_row($m, 'SELECT current_streak, wins, losses FROM game_player_stats WHERE user_id = ?', 'i', [$userId]);
+    // Fase 6: i premi pagati con questa partita e la stagione (piazzamento).
+    $rewards = $side === null ? [] : (duel_rewards_for_match($m, (int)$row['id'])[$userId] ?? []);
+    $season = null;
+    if ($side !== null && (string)$row['mode'] === 'ranked' && !empty($row['season_id'])) {
+        $s = duel_row($m, 'SELECT number, name FROM game_seasons WHERE id = ?', 'i', [(int)$row['season_id']]);
+        $me = duel_row($m, 'SELECT games FROM game_season_ratings WHERE season_id = ? AND user_id = ?', 'ii', [(int)$row['season_id'], $userId]);
+        if ($s) {
+            $season = ['n' => (int)$s['number'], 'name' => (string)($s['name'] ?? ''), 'games' => (int)($me['games'] ?? 0), 'placement' => DUEL_SEASON_PLACEMENT];
+        }
+    }
     return [
         'id' => (int)$row['id'],
         'mode' => (string)$row['mode'],
@@ -317,7 +327,10 @@ function duel_summary(mysqli $m, int $userId, array $row, string $lang): array
         'mvp' => $mvp,
         'rating' => $rating,
         'streak' => $stats ? (int)$stats['current_streak'] : null,
-        'rematch' => $side !== null && (string)$row['mode'] !== 'ranked',
+        'rematch' => $side !== null && (string)$row['mode'] !== 'ranked' && !duel_is_async($row),
         'bot' => duel_is_bot_match($row),
+        'async' => duel_is_async($row),
+        'rewards' => $rewards,
+        'season' => $season,
     ];
 }
