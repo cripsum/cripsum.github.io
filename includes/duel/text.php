@@ -25,14 +25,14 @@ function duel_text_num(float $v): string
 
 /**
  * Articolo davanti a una percentuale: "al 25%" ma "all'8%", "il 30%" ma
- * "l'80%", "del 18%" → "dell'18%". Si elide davanti ai numeri che si
- * leggono con una vocale: 1, 8, 11, 18, 80-89, 800...
+ * "l'80%", "del 18%" (diciotto) ma "dell'11%". Si elide davanti ai numeri
+ * che si leggono con una vocale: 1, 8, 11, 80-89, 800...
  */
 function duel_text_art(string $art, float $v): string
 {
     $n = duel_text_num($v);
     $int = (int)floor($v);
-    $vowel = str_starts_with((string)$int, '8') || in_array($int, [1, 11, 18], true);
+    $vowel = str_starts_with((string)$int, '8') || in_array($int, [1, 11], true);
     if (!$vowel) {
         return "$art $n%";
     }
@@ -222,6 +222,8 @@ function duel_text_effect(array $eff, array $ctx, string $lang): string
             } elseif ($of === 'target_max') {
                 $plural = in_array($to, ['allies', 'allies_other', 'enemies', 'other_enemies'], true);
                 $s = $en ? "Heals $acc for $pct% of their max HP" : "Cura $acc " . duel_text_art('del', (float)($eff['pct'] ?? 0)) . ($plural ? " dei loro HP massimi" : " dei suoi HP massimi");
+            } elseif ($to === 'self') {
+                $s = $en ? "Heals itself for $pct% of its max HP" : "Si cura " . duel_text_art('del', (float)($eff['pct'] ?? 0)) . " dei suoi HP massimi";
             } else {
                 $s = $en ? "Heals $acc for $pct% of its own max HP" : "Cura $acc " . duel_text_art('del', (float)($eff['pct'] ?? 0)) . " degli HP massimi di chi la usa";
             }
@@ -352,6 +354,28 @@ function duel_text_mods(array $mods, string $lang): string
     return implode(', ', $out);
 }
 
+/** Il bonus di un legame a un livello: "HP +6%, ATK +6%" (vedi traits.php). */
+function duel_text_trait_bonus(array $bonus, string $lang): string
+{
+    $en = $lang === 'en';
+    $labels = [
+        'hp' => ['HP +%s%%', 'HP +%s%%'], 'atk' => ['ATK +%s%%', 'ATK +%s%%'], 'def' => ['DEF +%s%%', 'DEF +%s%%'],
+        'crit' => ['Critico +%s', 'Crit rate +%s'], 'cdmg' => ['danno critico +%s%%', 'crit damage +%s%%'], 'spd_pct' => ['Velocità +%s%%', 'Speed +%s%%'],
+        'lifesteal' => ['Rubavita %s%%', 'Lifesteal %s%%'], 'dmg_pct' => ['danni +%s%%', 'damage +%s%%'], 'heal_out_pct' => ['cure +%s%%', 'healing +%s%%'],
+        'heal_in_pct' => ['cure ricevute +%s%%', 'healing received +%s%%'], 'prec' => ['Precisione +%s', 'Accuracy +%s'],
+        'charge' => ['%s di carica iniziale', '%s starting charge'], 'ps' => ['+%s PS iniziale', '+%s starting TP'],
+        'regen' => ['Rigenerazione %s%% iniziale', 'starting Regeneration %s%%'],
+    ];
+    $out = [];
+    foreach ($bonus as $k => $v) {
+        if (isset($labels[$k]) && is_numeric($v)) {
+            $out[] = sprintf($labels[$k][$en ? 1 : 0], duel_text_num((float)$v));
+        }
+    }
+    $text = implode(', ', $out);
+    return $en ? (string)preg_replace('/(?<=\d),(?=\d)/', '.', $text) : $text;
+}
+
 function duel_text_effects(array $effects, array $ctx, string $lang): string
 {
     $parts = [];
@@ -382,7 +406,7 @@ function duel_text_passive(array $kit, string $lang): string
         $mods = duel_text_mods($sc['mods'] ?? [], $lang);
         switch ($sc['type'] ?? '') {
             case 'missing_hp':
-                $parts[] = $en ? "$mods for every 10% of missing HP." : ucfirst($mods) . ' per ogni 10% di vita persa.';
+                $parts[] = $en ? ucfirst($mods) . " for every 10% of missing HP." : ucfirst($mods) . ' per ogni 10% di vita persa.';
                 break;
             case 'hp_above':
                 $parts[] = $en ? "Above {$sc['pct']}% HP: $mods." : "Sopra " . duel_text_art('il', (float)$sc['pct']) . " della vita: $mods.";
@@ -485,5 +509,13 @@ function duel_kit_text(array $kit, string $lang = 'it'): array
         $traits[] = duel_traits()[$t][$en ? 'en' : 'it'] ?? $t;
     }
     $out['traits'] = $traits;
+    if ($en) {
+        // I numeri escono all'italiana (3,5): in inglese il decimale e' il punto.
+        foreach ($out as $k => $v) {
+            if ($k !== 'traits') {
+                $out[$k]['text'] = preg_replace('/(?<=\d),(?=\d)/', '.', $v['text']);
+            }
+        }
+    }
     return $out;
 }

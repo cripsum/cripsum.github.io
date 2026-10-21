@@ -5,17 +5,20 @@ declare(strict_types=1);
 /**
  * Duelli 2.0 — i kit unici.
  *
- * I 30 personaggi che oggi hanno un kit scritto apposta in
+ * I 30 personaggi che avevano un kit scritto apposta in
  * includes/game_config.php, rifatti con gli effetti del catalogo: stessi
  * nomi, stessa idea, numeri riportati nella fascia della loro rarita' e
  * passati per il simulatore. Il ruolo resta quello del database: il kit
  * sostituisce solo le parti che scrive (attacco, abilita', ultimate,
  * passiva, cariche, forme); il resto viene dal kit del ruolo.
  *
+ * Piu' 5 kit per i Segreti arrivati il 21/10/2026 (216, 237, 243, 265 e
+ * il limitato 266): ogni Segreto ha un kit suo, come gli altri.
+ *
  * 'theme' e' il colore della scena dell'ultimate (quello di oggi in
  * assets/js/game.js).
  *
- * Piu' in fondo: i nomi a tema dei 12 Speciali che non hanno un kit unico.
+ * Piu' in fondo: i nomi a tema dei 16 Speciali che non hanno un kit unico.
  */
 
 function duel_unique_kits(): array
@@ -211,7 +214,7 @@ function duel_unique_kits(): array
         ],
         142 => [ // VERGIL — DPS, Segreto limitato
             'theme' => ['color' => '#60a5fa'],
-            'passive' => ['name' => 'Concentrazione Pura', 'triggers' => []],
+            'passive' => ['name' => 'Concentrazione Pura', 'mods' => ['crit' => 10], 'triggers' => []],
             'attack' => ['name' => 'Taglio doppio', 'target' => 'enemy', 'effects' => [$hit(100), $hit(35)]],
             'skill' => ['name' => 'Judgement Cut End', 'cost' => 2, 'target' => 'enemy', 'effects' => [
                 $hit(270), $ap('congelamento', 'target', ['chance' => 40]), $ap('crit_su', 'self', ['v' => 30, 't' => 2]),
@@ -244,7 +247,7 @@ function duel_unique_kits(): array
             ]],
         ],
         145 => [ // TERMINI E CONDIZIONI — DPS, Speciale
-            'passive' => ['name' => 'Clausola Vessatoria', 'triggers' => []],
+            'passive' => ['name' => 'Clausola Vessatoria', 'vs' => [['if' => ['target_has' => 'def_giu'], 'dmg_pct' => 10]], 'triggers' => []],
             'attack' => ['name' => 'Attacco', 'target' => 'enemy', 'effects' => [$hit(100), $ap('def_giu', 'target', ['v' => 25, 't' => 2, 'chance' => 100])]],
             'skill' => ['name' => 'Firma in Calce', 'cost' => 2, 'target' => 'enemy', 'effects' => [$hit(330), ['e' => 'ps', 'n' => 1, 'if' => ['target_has' => 'neg']]]],
             'ultimate' => ['name' => 'Rinnovo Automatico', 'target' => 'enemy', 'effects' => [
@@ -323,7 +326,7 @@ function duel_unique_kits(): array
             ]],
         ],
         153 => [ // LACLY — DPS, Segreto limitato
-            'passive' => ['name' => 'Snipe gol guscio verde', 'triggers' => []],
+            'passive' => ['name' => 'Snipe gol guscio verde', 'mods' => ['prec' => 15], 'triggers' => []],
             'attack' => ['name' => 'Attacco', 'target' => 'enemy', 'effects' => [
                 $hit(100), ['e' => 'ps', 'side' => 'steal', 'n' => 1, 'if' => ['chance' => 35]], $ap('veleno', 'target', ['st' => 1, 'chance' => 50]),
             ]],
@@ -364,14 +367,75 @@ function duel_unique_kits(): array
                 ['e' => 'dispel', 'to' => 'target', 'n' => 99], $hit(420, ['pen' => 40]),
             ]],
         ],
+
+        // ── Aggiunti il 21/10/2026 con i personaggi 216-266 ─────────────────
+        216 => [ // VERITY — DPS, Segreto: la verita' viene fuori
+            'theme' => ['color' => '#facc15'],
+            'passive' => ['name' => 'Occhio della Verità', 'mods' => ['crit' => 10, 'prec' => 20],
+                'vs' => [['if' => ['target_has' => 'esposto'], 'dmg_pct' => 20]], 'triggers' => []],
+            'skill' => ['name' => 'Rivelazione', 'cost' => 2, 'target' => 'enemy', 'effects' => [
+                $hit(240, ['pierce_shield' => true]), $ap('esposto', 'target', ['t' => 2, 'chance' => 100]), $ap('marchio', 'target', ['t' => 2, 'chance' => 100]),
+            ]],
+            'ultimate' => ['name' => 'Verità Assoluta', 'target' => 'enemy', 'effects' => [
+                ['e' => 'dispel', 'to' => 'target', 'n' => 99], $hit(450, ['pen' => 30]),
+            ]],
+        ],
+        237 => [ // LA PEACE — Healer, Segreto: nessuno si fa male
+            'theme' => ['color' => '#86efac'],
+            'passive' => ['name' => 'Nessuno Soffre', 'mods' => ['heal_out_pct' => 10], 'triggers' => [
+                ['when' => 'ally_low', 'below' => 30, 'effects' => [$heal(20, 'trigger', ['of' => 'target_max']), $ap('immunita', 'trigger', ['t' => 1])]],
+            ]],
+            'skill' => ['name' => 'Tregua', 'cost' => 1, 'target' => 'ally', 'effects' => [
+                $heal(28, 'target', ['of' => 'target_max']), ['e' => 'cleanse', 'to' => 'target', 'n' => 2], $ap('rigenerazione', 'target', ['v' => 6, 't' => 2]),
+            ]],
+            'ultimate' => ['name' => 'Pace nel Mondo', 'target' => 'self', 'effects' => [
+                ['e' => 'revive', 'pct' => 30], $heal(30, 'allies', ['of' => 'target_max']), $ap('disarmo', 'enemies', ['t' => 1, 'chance' => 40]),
+            ]],
+        ],
+        243 => [ // MYCHY (DOPPIAGGIO SICILIA) — Support, Segreto: la Famiglia protegge
+            'theme' => ['color' => '#a8a29e'],
+            'passive' => ['name' => 'Accento Siciliano', 'aura' => ['red_pct' => 8], 'mods' => ['ten' => 20], 'triggers' => [
+                ['when' => 'battle_start', 'silent' => true, 'effects' => [$sh(10, 'allies')]],
+            ]],
+            'skill' => ['name' => 'Un\'Offerta che Non Puoi Rifiutare', 'cost' => 1, 'target' => 'enemy', 'effects' => [
+                $hit(120), $ap('fascino', 'target', ['t' => 2, 'chance' => 80]), $sh(18, 'allies'),
+            ]],
+            'ultimate' => ['name' => 'La Famiglia', 'target' => 'self', 'effects' => [
+                $ap('barriera', 'allies'), ['e' => 'guardian', 'to' => 'allies_other', 'v' => 25, 't' => 2], ['e' => 'ps', 'n' => 2],
+            ]],
+        ],
+        265 => [ // GIGACHAD — Burst DPS, Segreto: sguardo e mascella
+            'theme' => ['color' => '#e5e7eb'],
+            'passive' => ['name' => 'Mascella d\'Acciaio', 'first_crit' => true, 'mods' => ['cdmg' => 20, 'ten' => 30], 'triggers' => [
+                ['when' => 'on_kill', 'effects' => [$ap('ispirato', 'allies', ['t' => 2])]],
+            ]],
+            'skill' => ['name' => 'Sguardo Sigma', 'cost' => 2, 'target' => 'enemy', 'effects' => [
+                $hit(270, ['pen' => 20]), $ap('paura', 'target', ['t' => 1, 'chance' => 50]),
+            ]],
+            'ultimate' => ['name' => 'Average Enjoyer', 'target' => 'enemy', 'effects' => [
+                $ap('vulnerabile', 'target', ['t' => 1, 'chance' => 100]), $hit(500, ['bonus' => [['if' => ['target_hp_below' => 40], 'pct' => 35]]]),
+            ]],
+        ],
+        266 => [ // CHRI MUCCA — Bruiser, Segreto limitato: latte e carica
+            'theme' => ['color' => '#fafafa'],
+            'passive' => ['name' => 'Latte Fresco', 'scaling' => [['type' => 'missing_hp', 'mods' => ['dmg_pct' => 3.5]]], 'triggers' => [
+                ['when' => 'turn_start', 'silent' => true, 'effects' => [$heal(4)]],
+            ]],
+            'skill' => ['name' => 'Carica della Mucca', 'cost' => 1, 'target' => 'enemy', 'effects' => [
+                $hit(235), $ap('stordimento', 'target', ['chance' => 30]), $leech(25),
+            ]],
+            'ultimate' => ['name' => 'Stampede', 'target' => 'self', 'effects' => [
+                $all(220), $ap('stordimento', 'enemies', ['chance' => 30]), $heal(25), $ap('def_su', 'self', ['v' => 30, 't' => 2]),
+            ]],
+        ],
     ];
 
     return $kits;
 }
 
 /**
- * I 12 Speciali senza kit unico: tengono i nomi a tema di oggi
- * (game_config.php) su passiva e abilita' del loro ruolo.
+ * I nomi a tema degli Speciali senza kit unico, su passiva e abilita' del
+ * loro ruolo: i 12 di sempre (game_config.php) e i 4 arrivati il 21/10/2026.
  */
 function duel_special_names(): array
 {
@@ -388,5 +452,10 @@ function duel_special_names(): array
         103 => ['Innesco Rapido', 'Carica Esplosiva'],
         112 => ['Portamento Reale', 'Tributo del Re'],
         136 => ['Flusso Sburevole', 'Colpo Incontenibile'],
+        // Aggiunti il 21/10/2026.
+        223 => ['Sarabanda!', 'Indovina la Canzone'],          // ENRICO PAPI, Burst DPS
+        246 => ['Immunità Parlamentare', 'Promessa Elettorale'], // PAUL E. TICIAN, Tank
+        247 => ['Arcobaleno Interiore', 'Colpo Arcobaleno'],     // CODY MILLER, Burst DPS
+        264 => ['Striscia la Notizia', 'Fritto Misto'],          // IL GABIBBO, Controller
     ];
 }

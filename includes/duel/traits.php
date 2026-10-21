@@ -57,6 +57,9 @@ function duel_traits(): array
             'tiers' => [2 => ['spd_pct' => 6]]],
         'xalx' => ['it' => 'Xalx Andrea', 'en' => 'Xalx Andrea', 'ids' => [2, 77],
             'tiers' => [2 => ['atk' => 8]]],
+        // 21/10/2026: le due versioni di Mychy, come le altre coppie.
+        'mychy' => ['it' => 'Mychy', 'en' => 'Mychy', 'ids' => [243, 262],
+            'tiers' => [2 => ['def' => 10]]],
     ];
 }
 

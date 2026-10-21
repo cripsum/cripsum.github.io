@@ -223,6 +223,14 @@ function duel_ctx_close(array $c): array
 function duel_ev(array &$c, array $ev): void
 {
     $ev['n'] = $c['st']['turn'];
+    // Vita e scudo della carta dopo l'evento: l'arena anima le barre colpo
+    // per colpo senza rifare i conti del motore.
+    $who = $ev['dst'] ?? $ev['u'] ?? null;
+    if ($who !== null && isset($c['st']['units'][$who])
+        && in_array($ev['t'], ['hit', 'dot', 'heal', 'reflect', 'detonate', 'curse', 'chain', 'guarded', 'revive', 'shield', 'undying', 'ko'], true)) {
+        $ev['hp'] = $c['st']['units'][$who]['hp'];
+        $ev['sh'] = $c['st']['units'][$who]['shield'];
+    }
     $c['ev'][] = $ev;
 }
 

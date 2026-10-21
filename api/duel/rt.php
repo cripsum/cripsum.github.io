@@ -7,11 +7,12 @@
  * (includes/realtime.php, chiave d:<id>). Quando la versione cambia, o il
  * tempo del turno e' scaduto, il browser chiede api/duel/state.php.
  *
- * GET m=<partita> → {ok, now, v, dl, st, c, r}
+ * GET m=<partita> → {ok, now, v, dl, st, c, r, s}
  *   v  versione della partita (-1 = timbro non ancora scritto: chiedere state.php)
  *   dl scadenza del turno (unix, 0 = nessuna)
  *   st stato (active, finished, cancelled)
  *   c, r ultimo messaggio di chat e ultima reazione
+ *   s    quanti stanno guardando
  *
  * Nel timbro non c'e' niente di privato: chi puo' vedere la partita lo
  * decide state.php.
@@ -38,4 +39,5 @@ rt_json([
     'st' => (string)($stamp['st'] ?? ''),
     'c' => (int)($stamp['c'] ?? 0),
     'r' => (int)($stamp['r'] ?? 0),
+    's' => (int)($stamp['s'] ?? 0),
 ]);

@@ -229,6 +229,16 @@ function duel_queue_leave(mysqli $m, int $userId): void
     }
 }
 
+/** Quanti sono in coda adesso, per modalita' (per la lobby). */
+function duel_queue_now(mysqli $m): array
+{
+    $out = ['casual' => 0, 'ranked' => 0];
+    foreach (duel_rows($m, 'SELECT mode, COUNT(*) AS n FROM game_queue WHERE last_seen >= NOW() - INTERVAL ? SECOND GROUP BY mode', 'i', [DUEL_QUEUE_STALE]) as $r) {
+        $out[(string)$r['mode']] = (int)$r['n'];
+    }
+    return $out;
+}
+
 /** Quanto puo' essere lontano di punti l'avversario Ranked: si allarga con l'attesa. */
 function duel_queue_window(int $waited): int
 {
@@ -474,6 +484,7 @@ function duel_hub(mysqli $m, int $userId): array
         'teams' => duel_teams($m, $userId),
         'live' => $live,
         'recent' => $recent,
+        'queue_now' => duel_queue_now($m),
         'public' => duel_settings($m)['public'] === '1',
         'budget' => duel_rules()['ranked_budget'],
     ];
@@ -495,10 +506,11 @@ function duel_roster(mysqli $m, int $userId): array
         $kit = duel_character_kit($chars[$pid], $level);
         $kitMax = $level === $max ? $kit : duel_character_kit($chars[$pid], $max);
         $out[] = [
-            'id' => $pid, 'name' => (string)$chars[$pid]['nome'], 'img' => (string)$chars[$pid]['img_url'],
+            'id' => $pid, 'name' => (string)$chars[$pid]['nome'], 'img' => duel_media($chars[$pid]['img_url'] ?? ''),
             'rarity' => $kit['rarity'], 'role' => $kit['role'], 'level' => $level, 'cost' => duel_rarity($kit['rarity'])['cost'],
             'unique' => !empty($kit['unique']), 'stats' => $kit['stats'], 'stats_max' => $kitMax['stats'],
-            'kit' => duel_kit_text($kit, $lang),
+            'traits' => array_values($kit['traits'] ?? []), 'theme' => $kit['theme']['color'] ?? null,
+            'kit' => duel_kit_text($kitMax, $lang),
         ];
     }
     usort($out, static fn($a, $b) => [$b['cost'], $a['name']] <=> [$a['cost'], $b['name']]);

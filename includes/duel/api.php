@@ -303,7 +303,28 @@ function duel_state_payload(mysqli $m, int $userId, int $matchId, int $since, in
     if (rt_has_table($m, 'game_match_reactions')) {
         $out['reactions'] = duel_reactions_since($m, $matchId, $reactSince);
     }
+    if (!duel_is_bot_match($row)) {
+        $out['spectators'] = duel_spectator_count($m, $matchId);
+        // Chi gioca lo legge dal timbro (rt.php), senza chiedere lo stato.
+        if ($side === null) {
+            duel_stamp($matchId, ['s' => $out['spectators']]);
+        }
+    }
     return $out;
+}
+
+/** Chi sta guardando adesso (visto negli ultimi 35 secondi). */
+function duel_spectator_count(mysqli $m, int $matchId): int
+{
+    if (!rt_has_table($m, 'game_spectators')) {
+        return 0;
+    }
+    foreach (['last_seen_at', 'last_seen', 'updated_at'] as $col) {
+        if (rt_has_col($m, 'game_spectators', $col)) {
+            return (int)(duel_row($m, "SELECT COUNT(*) AS n FROM game_spectators WHERE match_id = ? AND `$col` >= NOW() - INTERVAL 35 SECOND", 'i', [$matchId])['n'] ?? 0);
+        }
+    }
+    return 0;
 }
 
 function duel_ep_act(mysqli $m, int $userId, array $in): array

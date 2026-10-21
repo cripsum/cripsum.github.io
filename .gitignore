@@ -16,3 +16,5 @@ scratch/esports/
 /subway-builds-br/
 # Timbri del tempo reale (chat, notifiche): il sito li crea da solo, cambiano di continuo.
 /uploads/realtime/
+/.agents
+/.impeccable

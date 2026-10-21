@@ -37,6 +37,13 @@ function duel_character_kit(array $char, int $level, array $opts = []): array
     // Un kit scritto dal pannello (game_kits) vale piu' di quello del codice.
     $unique = duel_overrides()['kits'][$id] ?? duel_unique_kits()[$id] ?? null;
     if ($unique) {
+        // Le cariche del ruolo (lo Slancio del DPS) le fa salire la passiva
+        // del ruolo: se il kit unico scrive la sua passiva senza cariche sue,
+        // quelle del ruolo non salirebbero mai e il testo prometterebbe una
+        // cosa che non succede.
+        if (isset($unique['passive']) && !isset($unique['stacks'])) {
+            unset($kit['stacks']);
+        }
         foreach ($unique as $key => $value) {
             $kit[$key] = $value;
         }

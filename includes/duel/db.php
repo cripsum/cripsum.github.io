@@ -206,6 +206,22 @@ function duel_db_characters(mysqli $m, array $ids): array
     return $out;
 }
 
+/**
+ * L'immagine di un personaggio come indirizzo: nel database c'e' a volte un
+ * percorso, a volte solo il nome del file in /img/ (come gacha_media()).
+ */
+function duel_media(?string $path): string
+{
+    $path = trim((string)$path);
+    if ($path === '') {
+        return '';
+    }
+    if (preg_match('~^https?://~i', $path) || str_starts_with($path, '/')) {
+        return $path;
+    }
+    return '/img/' . implode('/', array_map('rawurlencode', explode('/', str_replace('\\', '/', $path))));
+}
+
 /** I personaggi posseduti tra quelli chiesti: [id => livello]. */
 function duel_db_owned(mysqli $m, int $userId, array $ids): array
 {

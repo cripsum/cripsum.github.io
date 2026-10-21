@@ -678,7 +678,7 @@ function duel_view_static(mysqli $m, array $row, array $st): array
         $units[$id] = [
             'id' => (int)$id, 'side' => (int)$u['side'], 'slot' => (int)$u['slot'], 'pid' => (int)$u['pid'],
             'name' => (string)$u['name'], 'rarity' => (string)$u['rarity'], 'role' => (string)$u['role'], 'level' => (int)$u['level'],
-            'img' => (string)($chars[(int)$u['pid']]['img_url'] ?? ''),
+            'img' => duel_media($chars[(int)$u['pid']]['img_url'] ?? ''),
             'max' => $u['max'],
             'cost' => duel_rarity((string)$u['rarity'])['cost'],
             'theme' => $kit['theme'] ?? null,
@@ -793,6 +793,10 @@ function duel_events_since(mysqli $m, int $matchId, int $since, int $limit = 60)
 /**
  * Il replay: si rigioca la partita dallo stato iniziale con le mosse
  * salvate. Solo a partita finita (prima il dado e' segreto).
+ *
+ * Una partita giocata con un motore di un'altra versione (DUEL_ENGINE_VERSION)
+ * non si puo' rigiocare uguale: si usano gli eventi salvati a ogni passo e lo
+ * stato solo all'inizio e alla fine ('legacy'; l'arena la suona di fila).
  */
 function duel_replay(mysqli $m, array $row): array
 {
@@ -811,8 +815,14 @@ function duel_replay(mysqli $m, array $row): array
 
     $steps = [['v' => 0, 'kind' => 'start', 'ev' => $start['ev'] ?? [], 'dyn' => duel_view_dyn(['version' => 0, 'status' => 'active'] + $row, $st, null)]];
     $first = $st;
+    $legacy = (int)($row['engine_version'] ?? DUEL_ENGINE_VERSION) !== DUEL_ENGINE_VERSION;
     foreach (array_slice($rows, 1) as $r) {
         $p = json_decode((string)$r['payload_json'], true) ?: [];
+        if ($legacy) {
+            $steps[] = ['v' => (int)$r['version'], 'kind' => (string)$r['kind'], 'move' => $p['move'] ?? null, 'target' => $p['target'] ?? null,
+                'side' => $p['side'] ?? null, 'ev' => $p['ev'] ?? [], 'dyn' => null];
+            continue;
+        }
         if (($p['auto'] ?? '') === 'forfeit' || $r['kind'] === 'forfeit') {
             [$st, $events] = duel_forfeit($st, (int)$p['side'], $r['kind'] === 'forfeit' ? 'forfeit' : 'timeout');
         } else {
@@ -821,5 +831,8 @@ function duel_replay(mysqli $m, array $row): array
         $steps[] = ['v' => (int)$r['version'], 'kind' => (string)$r['kind'], 'move' => $p['move'] ?? null, 'target' => $p['target'] ?? null,
             'side' => $p['side'] ?? null, 'ev' => $events, 'dyn' => duel_view_dyn(['version' => (int)$r['version'], 'status' => 'active'] + $row, $st, null)];
     }
-    return ['static' => duel_view_static($m, $row, $first), 'steps' => $steps];
+    if ($legacy && count($steps) > 1) {
+        $steps[count($steps) - 1]['dyn'] = duel_view_dyn(['version' => (int)$row['version'], 'status' => 'active'] + $row, duel_match_state($row), null);
+    }
+    return ['static' => duel_view_static($m, $row, $first), 'steps' => $steps, 'legacy' => $legacy];
 }
