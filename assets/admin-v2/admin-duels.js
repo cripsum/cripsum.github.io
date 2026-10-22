@@ -12,7 +12,9 @@
  * - Partite: in corso e finite, annulla, guarda, replay, abbandoni sospetti,
  *   e gli interruttori «aperti a tutti» e «avvisi su Discord»;
  * - Sfida del giorno e Legami (fase 8): il calendario degli scenari, i
- *   legami da creare e cambiare.
+ *   legami da creare e cambiare;
+ * - La Torre (fase T5): l'interruttore, i premi, i nomi dei tratti, ogni
+ *   piano da cambiare, rifare o provare, e la prova di tutta la Torre.
  *
  * Tutto passa da /api/admin/duels.php.
  */
@@ -1193,7 +1195,8 @@
         const key = input.dataset.switch;
         const on = input.checked;
         const ask = { public: on ? ['Aprire i duelli nuovi a tutti?', 'Da adesso li vede e li usa ogni utente, non solo lo staff.'] : ['Richiudere i duelli allo staff?', 'Chi non è staff vede «I nuovi duelli arrivano presto». Le partite in corso restano.'],
-            seasons: on ? ['Accendere le stagioni?', 'Parte subito una stagione di 6 settimane (o la durata scelta), con premi a fine stagione.'] : ['Spegnere le stagioni?', 'Quella in corso arriva alla sua fine e paga i premi; poi non ne parte un\'altra.'] }[key];
+            seasons: on ? ['Accendere le stagioni?', 'Parte subito una stagione di 6 settimane (o la durata scelta), con premi a fine stagione.'] : ['Spegnere le stagioni?', 'Quella in corso arriva alla sua fine e paga i premi; poi non ne parte un\'altra.'],
+            tower: on ? ['Aprire la Torre a tutti?', 'Da adesso la vede e la gioca ogni utente: il riquadro in lobby, la pagina, le missioni della Torre.'] : ['Richiudere la Torre allo staff?', 'Chi non è staff vede «La Torre apre presto». Progressi e premi restano.'] }[key];
         const go = async () => {
             const data = await post('switch', { key, on });
             showToast(data.message);
@@ -1535,6 +1538,262 @@
         });
     }
     A.registerSection('duel-traits', loadTraits);
+
+    // ════════════════════════════════════════════════════════════════════
+    // La Torre (fase T5)
+    // ════════════════════════════════════════════════════════════════════
+    // L'interruttore, i premi con la formula, i nomi dei tratti; per ogni
+    // tratto i suoi dieci piani con chi c'e' fermo, chi l'ha superato e
+    // l'ultima prova (otto squadre di riferimento). Ogni piano si cambia a
+    // mano (anche lo stesso personaggio piu' volte), si rifà dal generatore
+    // o si prova; «Prova tutta la Torre» chiede un piano alla volta.
+    const twRoot = $('[data-duel-admin="tower"]');
+    const TW = { view: null, sector: 1, running: false, stop: false, done: 0 };
+
+    /** La prova di un piano: otto percentuali, la squadra del tratto in evidenza. */
+    const twTest = (f) => {
+        if (!f.test) return '<small class="admin-muted">mai provato</small>';
+        const t = f.test;
+        const target = t.teams[t.target] || {};
+        const warn = target.win === null || target.win === undefined ? '' : target.win < 30 ? 'difficile' : target.win > 90 ? 'facile' : '';
+        return `<span class="dz-tw-test" title="${e(TW.view.teams.map((x) => `${x.label}: ${t.teams[x.key]?.win ?? '—'}%`).join(' · '))}">${TW.view.teams.map((x) => {
+            const w = t.teams[x.key]?.win;
+            return `<i class="${x.key === t.target ? 'is-target' : ''}">${w === null || w === undefined ? '—' : w}</i>`;
+        }).join('')}</span><small>${e(target.label || '')} ${target.win ?? '—'}%${warn ? ` · <b class="dz-tw-warn">${warn}</b>` : ''} · ${e(dateTime(t.at))}</small>`;
+    };
+
+    const twRule = (f) => [f.boon_text ? `<span class="dz-chip dz-chip--soft"><i class="fa-solid fa-bolt"></i> ${e(f.boon_text)}</span>` : '',
+        f.rule_text ? `<span class="dz-chip dz-chip--soft"><i class="fa-solid fa-scroll"></i> ${e(f.rule_text)}</span>` : ''].join('') || '<small class="admin-muted">—</small>';
+
+    const renderTower = () => {
+        if (!twRoot) return;
+        const v = TW.view;
+        if (!v) { twRoot.innerHTML = '<div class="dz-pad admin-muted">Caricamento…</div>'; return; }
+        const sec = v.sectors.find((s) => s.n === TW.sector) || v.sectors[0];
+        const floors = v.floors.filter((f) => f.sector === sec.n).sort((a, b) => b.n - a.n);
+        const tested = v.floors.filter((f) => f.test);
+        const lastTest = tested.length ? tested.map((f) => f.test.at).sort().pop() : null;
+        twRoot.innerHTML = `
+            <div class="dz-cols">
+                <div class="dz-card">
+                    ${switchHtml('tower', v.on, 'Torre aperta a tutti', v.on ? 'Tutti vedono la Torre in lobby e la giocano.' : 'Per ora la vede e la gioca solo lo staff: gli altri leggono «La Torre apre presto».')}
+                    <div class="dz-tw-nums"><span><b>${num(v.players.count)}</b><small>giocatori</small></span><span><b>${num(v.players.games)}</b><small>partite</small></span><span><b>${num(v.players.top)}</b><small>piano più alto</small></span></div>
+                    ${v.players.board.length ? `<table class="dz-mini"><thead><tr><th>#</th><th>Giocatore</th><th>Piano</th></tr></thead><tbody>${v.players.board.map((r, i) =>
+                        `<tr><td>${i + 1}</td><td>${e(r.username)}</td><td>${num(r.floor)}</td></tr>`).join('')}</tbody></table>` : '<p class="admin-muted">Nessuno ha ancora superato un piano.</p>'}
+                </div>
+                <div class="dz-card">
+                    <p class="dz-label">Premio della prima volta <small>base + passo × piano, più boss × piano ai boss</small></p>
+                    <form class="dz-fields" id="dzTwRewards">
+                        <label class="dz-f"><span>Base</span><input class="admin-input" type="number" name="base" min="0" max="1000" value="${v.rewards.base}"></label>
+                        <label class="dz-f"><span>Passo</span><input class="admin-input" type="number" name="step" min="0" max="1000" value="${v.rewards.step}"></label>
+                        <label class="dz-f"><span>Boss</span><input class="admin-input" type="number" name="boss" min="0" max="1000" value="${v.rewards.boss}"></label>
+                        <button type="button" class="admin-btn" data-tw-rewards>Applica a tutti i piani</button>
+                    </form>
+                    <p class="admin-muted dz-small">Con questi numeri la Torre intera dà ${num(v.floors.reduce((s, f) => s + (v.rewards.base + v.rewards.step * f.n + (f.n % 10 === 0 ? v.rewards.boss * f.n : 0)), 0))} Godos. Ogni piano si cambia anche a mano.</p>
+                    <p class="dz-label">Prova <small>le otto squadre di riferimento giocano ogni piano (6 partite l'una)</small></p>
+                    <div class="dz-tw-run">
+                        <button type="button" class="admin-btn${TW.running ? '' : ' admin-btn--primary'}" data-tw-runall>${TW.running ? 'Ferma la prova' : 'Prova tutta la Torre'}</button>
+                        <span class="admin-muted">${TW.running ? `Piano ${TW.done} di 100…` : `${tested.length} piani su 100 provati${lastTest ? ` · l'ultima ${e(dateTime(lastTest))}` : ''}`}</span>
+                    </div>
+                    ${v.tests ? '' : '<p class="dz-warn">Manca la migrazione migrations/2026_10_22_duelli2_torre_pannello.sql: le prove non restano salvate.</p>'}
+                    <p class="dz-label">Generatore <small>${num(v.floors.filter((f) => f.auto).length)} piani automatici · ${num(v.floors.filter((f) => !f.auto).length)} cambiati a mano</small></p>
+                    <div class="dz-tw-run"><button type="button" class="admin-btn" data-tw-regen-auto>Rifai i piani automatici</button><span class="admin-muted">coi personaggi e la taratura di oggi; quelli cambiati a mano restano.</span></div>
+                </div>
+            </div>
+            <div class="cmod-tabs dz-seg dz-tw-sectors">${v.sectors.map((s) => `<button type="button" class="${s.n === sec.n ? 'is-active' : ''}" data-tw-sector="${s.n}">${s.from}–${s.to} <small>${e(s.it)}</small></button>`).join('')}</div>
+            <form class="dz-fields" id="dzTwSector">
+                <label class="dz-f dz-f--wide"><span>Nome del tratto ${sec.n} (piani ${sec.from}–${sec.to})</span><input class="admin-input" name="it" maxlength="60" value="${e(sec.it)}" placeholder="${e(sec.default)}"></label>
+                <label class="dz-f dz-f--wide"><span>In inglese</span><input class="admin-input" name="en" maxlength="60" value="${e(sec.en)}"></label>
+                <button type="button" class="admin-btn" data-tw-sector-save>Salva il nome</button>
+            </form>
+            <p class="admin-muted dz-small">La squadra che dovrebbe passare questo tratto: <b>${e(v.teams.find((t) => t.key === sec.target)?.label || '')}</b>. Nella prova è quella evidenziata: tra 30% e 90% il piano è nella curva.</p>
+            <table class="admin-table dz-dtable dz-tw-table"><thead><tr><th>Piano</th><th>Nemici</th><th>Potenziamenti e regola</th><th>Premio</th><th>Giocatori</th><th>Prova</th><th></th></tr></thead><tbody>
+                ${floors.map((f) => `<tr class="${f.boss ? 'is-boss' : ''}">
+                    <td data-label="Piano"><b>${f.n}</b><small>${f.boss ? 'boss' : ''}${f.auto ? '' : `${f.boss ? ' · ' : ''}a mano`}</small></td>
+                    <td data-label="Nemici"><span class="dz-who">${faces(f.team)}<span><b>${e(f.title.it || f.team.map((c) => c.name).join(', '))}</b><small>${e(f.team.map((c) => `Lv ${c.level}`).join(' · '))} · bot ${e(BOTS[f.bot] || f.bot)}</small></span></span></td>
+                    <td data-label="Regola"><span class="dz-tw-chips">${twRule(f)}</span></td>
+                    <td data-label="Premio"><b>${num(f.reward)}</b><small>${f.voucher ? `${f.vouchers > 1 ? f.vouchers + ' potenziamenti' : 'potenziamento'} fino a ${e(v.rarities.find((r) => r.key === f.voucher)?.label || f.voucher)}` : 'Godos'}</small></td>
+                    <td data-label="Giocatori"><b>${num(f.stuck)}</b><small>fermi qui · ${num(f.cleared)} l'hanno superato</small></td>
+                    <td data-label="Prova" data-tw-test-cell="${f.n}">${twTest(f)}</td>
+                    <td class="dz-row-actions">
+                        <button type="button" class="admin-btn admin-btn--small" data-tw-edit="${f.n}">Modifica</button>
+                        <button type="button" class="admin-btn admin-btn--small admin-btn--ghost" data-tw-test="${f.n}"${TW.running ? ' disabled' : ''}>Prova</button>
+                        <button type="button" class="admin-btn admin-btn--small admin-btn--ghost" data-tw-regen="${f.n}">Rigenera</button>
+                    </td></tr>`).join('')}
+            </tbody></table>`;
+    };
+
+    const loadTower = async () => {
+        if (!twRoot) return;
+        try {
+            TW.view = await get({ action: 'tower' });
+            renderTower();
+        } catch (error) {
+            twRoot.innerHTML = emptyState('fa-solid fa-triangle-exclamation', 'La Torre non è disponibile', error.message);
+        }
+    };
+
+    /** Prova un piano e aggiorna la sua riga (e la vista, se c'e'). */
+    const testFloor = async (n) => {
+        const data = await post('tower_test', { floor: n, games: 6 });
+        const f = TW.view.floors.find((x) => x.n === n);
+        if (f) f.test = { teams: data.teams, target: data.target, games: data.games, at: data.at };
+        const cell = twRoot.querySelector(`[data-tw-test-cell="${n}"]`);
+        if (cell && f) cell.innerHTML = twTest(f);
+        return data;
+    };
+
+    const runAll = async () => {
+        TW.running = true;
+        TW.stop = false;
+        TW.done = 0;
+        renderTower();
+        try {
+            for (let n = 1; n <= 100 && !TW.stop; n++) {
+                TW.done = n;
+                const label = twRoot.querySelector('.dz-tw-run .admin-muted');
+                if (label) label.textContent = `Piano ${n} di 100…`;
+                await testFloor(n);
+            }
+            showToast(TW.stop ? `Prova fermata al piano ${TW.done}.` : 'Prova finita: tutti i cento piani.');
+        } catch (error) {
+            showToast(error.message, true);
+        }
+        TW.running = false;
+        renderTower();
+    };
+
+    const floorForm = (n) => {
+        const v = TW.view;
+        const f = v.floors.find((x) => x.n === n);
+        const rule = f.rule || {};
+        const boon = f.boon || {};
+        const charOptions = (sel) => v.characters.slice().sort((a, b) => a.name.localeCompare(b.name)).map((c) =>
+            `<option value="${c.id}"${c.id === sel ? ' selected' : ''}>${e(c.name)} · ${e(c.rarity.label)}</option>`).join('');
+        const allowed = rule.rarities && rule.rarities.length ? rule.rarities : v.rarities.map((r) => r.key);
+        A.openModal?.(`Piano ${n}${f.title.it ? ' · ' + f.title.it : ''}`, `Tratto ${f.sector} · ${f.auto ? 'fatto dal generatore' : 'cambiato a mano'} · vale dalla prossima partita`, `
+            <form class="dz-root dz-dform" id="dzTwForm">
+                <div class="dz-fields">
+                    <label class="dz-f dz-f--wide"><span>Titolo (per i boss; vuoto = i nomi dei nemici)</span><input class="admin-input" name="title_it" maxlength="90" value="${e(f.title.it || '')}"></label>
+                    <label class="dz-f dz-f--wide"><span>Titolo in inglese</span><input class="admin-input" name="title_en" maxlength="90" value="${e(f.title.en || '')}"></label>
+                    <label class="dz-f dz-f--check"><input type="checkbox" name="boss"${f.boss ? ' checked' : ''}><span>Boss</span></label>
+                </div>
+                <p class="dz-label">Squadra nemica <small>anche lo stesso personaggio più volte</small></p>
+                ${[0, 1, 2].map((i) => `<div class="dz-fields">
+                    <label class="dz-f dz-f--wide"><span>Personaggio ${i + 1}</span><select class="admin-input" name="team${i}">${charOptions(f.team[i]?.id)}</select></label>
+                    <label class="dz-f"><span>Livello</span><input class="admin-input" type="number" name="level${i}" min="1" max="${v.level_max}" value="${f.team[i]?.level ?? v.level_max}"></label>
+                </div>`).join('')}
+                <div class="dz-fields">
+                    <label class="dz-f"><span>Bot</span><select class="admin-input" name="bot">${Object.entries(BOTS).map(([k, l]) => `<option value="${k}"${f.bot === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+                </div>
+                <p class="dz-label">Potenziamenti dei nemici <small>gli stessi bonus dei legami, a tutta la squadra; 0 = niente</small></p>
+                <div class="dz-tw-boons">${Object.entries(v.boons).map(([k, max]) => `<label class="dz-f"><span>${e(BONUS[k] || k)}</span><input class="admin-input" type="number" name="boon_${k}" min="0" max="${max}" value="${boon[k] || 0}"></label>`).join('')}</div>
+                <p class="dz-label">Regola del piano</p>
+                <div class="dz-fields">
+                    <label class="dz-f dz-f--mid"><span>Terreno da subito</span><select class="admin-input" name="terrain"><option value="">Nessuno</option>${v.terrains.map((t) => `<option value="${e(t.key)}"${rule.terrain === t.key ? ' selected' : ''}>${e(t.label)}</option>`).join('')}</select></label>
+                    <label class="dz-f dz-f--mid"><span>Costo massimo (0 = libero)</span><input class="admin-input" type="number" name="cost_max" min="0" max="30" value="${rule.cost_max || 0}"></label>
+                    <label class="dz-f dz-f--mid"><span>Vinci entro (turni, 0 = libero)</span><input class="admin-input" type="number" name="turns" min="0" max="200" value="${rule.turns || 0}"></label>
+                </div>
+                <p class="dz-label">Rarità ammesse nella squadra di chi gioca</p>
+                <div class="dz-traits">${v.rarities.map((r) => `<label class="dz-trait${allowed.includes(r.key) ? ' is-on' : ''}"><input type="checkbox" name="rar" value="${e(r.key)}"${allowed.includes(r.key) ? ' checked' : ''}><b style="color:${e(r.color)}">${e(r.label)}</b></label>`).join('')}</div>
+                <p class="dz-label">Ruoli vietati</p>
+                <div class="dz-traits">${v.roles.map((r) => `<label class="dz-trait${(rule.no_roles || []).includes(r) ? ' is-on' : ''}"><input type="checkbox" name="norole" value="${e(r)}"${(rule.no_roles || []).includes(r) ? ' checked' : ''}><b>${e(r)}</b></label>`).join('')}</div>
+                <p class="dz-label">Premio della prima volta</p>
+                <div class="dz-fields">
+                    <label class="dz-f dz-f--mid"><span>Godos</span><span class="dz-unit"><input class="admin-input" type="number" name="reward" min="0" max="50000" value="${f.reward}"><em>Godos</em></span></label>
+                    <label class="dz-f dz-f--mid"><span>Potenziamento gratuito fino a</span><select class="admin-input" name="voucher"><option value="">Nessuno</option>${v.rarities.map((r) => `<option value="${e(r.key)}"${f.voucher === r.key ? ' selected' : ''}>${e(r.label)}</option>`).join('')}</select></label>
+                    <label class="dz-f"><span>Quanti</span><input class="admin-input" type="number" name="vouchers" min="1" max="3" value="${Math.max(1, f.vouchers || 1)}"></label>
+                </div>
+            </form>`,
+            '<button type="button" class="admin-btn" data-admin-close="1">Annulla</button><button type="button" class="admin-btn admin-btn--primary" id="dzTwSave">Salva il piano</button>');
+        $('#dzTwSave')?.addEventListener('click', async () => {
+            const form = $('#dzTwForm');
+            const val = (name) => form.elements[name].value;
+            const boons = {};
+            Object.keys(v.boons).forEach((k) => { const x = Number(val(`boon_${k}`)); if (x) boons[k] = x; });
+            try {
+                const data = await post('tower_floor_save', {
+                    floor: n, title_it: val('title_it'), title_en: val('title_en'), boss: form.elements.boss.checked, bot: val('bot'),
+                    team: [0, 1, 2].map((i) => Number(val(`team${i}`))), levels: [0, 1, 2].map((i) => Number(val(`level${i}`))), boon: boons,
+                    rule: { terrain: val('terrain'), cost_max: Number(val('cost_max')), turns: Number(val('turns')),
+                        rarities: $$('[name="rar"]:checked', form).map((x) => x.value), no_roles: $$('[name="norole"]:checked', form).map((x) => x.value) },
+                    reward: Number(val('reward')), voucher: val('voucher'), vouchers: Number(val('vouchers')),
+                });
+                showToast(data.message);
+                A.closeModal?.();
+                TW.view = data;
+                renderTower();
+            } catch (error) {
+                showToast(error.message, true);
+            }
+        });
+    };
+
+    if (twRoot) {
+        twRoot.addEventListener('click', async (ev) => {
+            const t = ev.target.closest('button');
+            if (!t || t.disabled) return;
+            if (t.dataset.twSector) { TW.sector = Number(t.dataset.twSector); renderTower(); return; }
+            if (t.dataset.twEdit) { floorForm(Number(t.dataset.twEdit)); return; }
+            if ('twRunall' in t.dataset) {
+                if (TW.running) { TW.stop = true; return; }
+                confirmBox('Provare tutta la Torre?', '<p class="admin-muted">Cento piani, uno alla volta: ci vogliono alcuni minuti. Puoi fermarla quando vuoi; i piani provati restano.</p>', async () => { runAll(); });
+                return;
+            }
+            if (t.dataset.twTest) {
+                t.disabled = true;
+                t.textContent = 'Prova…';
+                try { await testFloor(Number(t.dataset.twTest)); } catch (error) { showToast(error.message, true); }
+                t.disabled = false;
+                t.textContent = 'Prova';
+                return;
+            }
+            if (t.dataset.twRegen) {
+                const n = Number(t.dataset.twRegen);
+                confirmBox(`Rifare il piano ${n} col generatore?`, '<p class="admin-muted">Squadra, bot, potenziamenti, regola e premi tornano quelli automatici, coi personaggi di oggi. Le partite già cominciate tengono il piano di prima.</p>', async () => {
+                    const data = await post('tower_floor_regen', { floor: n });
+                    showToast(data.message);
+                    TW.view = data;
+                    renderTower();
+                });
+                return;
+            }
+            if ('twRegenAuto' in t.dataset) {
+                confirmBox('Rifare i piani automatici?', '<p class="admin-muted">Ogni piano fatto dal generatore torna quello di oggi: personaggi nuovi, taratura nuova. I piani cambiati a mano restano. Chi li ha già superati li tiene superati; le partite già cominciate tengono il piano di prima.</p>', async () => {
+                    const data = await post('tower_regen_auto');
+                    showToast(data.message);
+                    TW.view = data;
+                    renderTower();
+                });
+                return;
+            }
+            if ('twSectorSave' in t.dataset) {
+                const form = $('#dzTwSector');
+                const names = {};
+                TW.view.sectors.forEach((s) => { names[s.n] = { it: s.it, en: s.en }; });
+                names[TW.sector] = { it: form.elements.it.value, en: form.elements.en.value };
+                try {
+                    const data = await post('tower_sectors_save', { sectors: names });
+                    showToast(data.message);
+                    TW.view = data;
+                    renderTower();
+                } catch (error) { showToast(error.message, true); }
+                return;
+            }
+            if ('twRewards' in t.dataset) {
+                const form = $('#dzTwRewards');
+                const body = { base: Number(form.elements.base.value), step: Number(form.elements.step.value), boss: Number(form.elements.boss.value) };
+                confirmBox('Applicare i premi a tutti i piani?', '<p class="admin-muted">Il premio della prima volta di ogni piano diventa quello della formula, anche dove l\'avevi cambiato a mano. Chi ha già superato un piano non riceve niente in più.</p>', async () => {
+                    const data = await post('tower_rewards_apply', body);
+                    showToast(data.message);
+                    TW.view = data;
+                    renderTower();
+                });
+            }
+        });
+        twRoot.addEventListener('change', (ev) => { if (ev.target.matches('[data-switch]')) toggleSwitch(ev.target, loadTower); });
+    }
+    A.registerSection('duel-tower', loadTower);
 
     // Lasciare la pagina con un kit non salvato: il browser chiede conferma.
     window.addEventListener('beforeunload', (ev) => {

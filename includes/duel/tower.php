@@ -40,7 +40,8 @@ const DUEL_TOWER_SECTORS = [
     7 => ['it' => 'La torre di guardia', 'en' => 'The watchtower', 'rar' => ['speciale', 'segreto'], 'lv' => [5, 6], 'bot' => ['normale', 'difficile'], 'boon' => [0, 0]],
     8 => ['it' => 'Le nubi', 'en' => 'The clouds', 'rar' => ['segreto'], 'lv' => [6, 6], 'bot' => ['difficile', 'difficile'], 'boon' => [0, 5]],
     9 => ['it' => 'La tempesta', 'en' => 'The storm', 'rar' => ['segreto', 'segreto_limitato'], 'lv' => [6, 6], 'bot' => ['difficile', 'difficile'], 'boon' => [0, 5]],
-    10 => ['it' => 'La cima', 'en' => 'The summit', 'rar' => ['segreto_limitato', 'theone'], 'lv' => [6, 6], 'bot' => ['difficile', 'incubo'], 'boon' => [5, 10]],
+    // Fase T5: l'Incubo solo ai boss 90 e 100; coi piani 96–99 a Incubo la taratura li dava piu' duri del 100.
+    10 => ['it' => 'La cima', 'en' => 'The summit', 'rar' => ['segreto_limitato', 'theone'], 'lv' => [6, 6], 'bot' => ['difficile', 'difficile'], 'boon' => [5, 10]],
 ];
 
 /**
@@ -79,6 +80,13 @@ const DUEL_TOWER_RULES = [
     85 => ['no_roles' => ['Tank']],
     95 => ['terrain' => 'cielo_stellato', 'cost_max' => 16],
 ];
+
+/**
+ * I ritocchi dell'ultimo giro di taratura (fase T5): piani che coi nemici
+ * usciti erano molto piu' duri dei vicini (la squadra del tratto vinceva
+ * l'8–17%). Bot o potenziamento al posto di quelli del tratto.
+ */
+const DUEL_TOWER_TUNE = [68 => ['bot' => 'normale'], 89 => ['bot' => 'normale', 'boon' => []], 98 => ['boon' => ['hp' => 5, 'atk' => 3, 'def' => 2]]];
 
 /** Piani con i nemici pronti (nel potenziamento): carica dell'ultimate o PS in piu'. */
 const DUEL_TOWER_READY = [65 => ['charge' => 50], 95 => ['ps' => 1]];
@@ -136,6 +144,7 @@ function duel_tower_generate(array $chars, array $rewards = []): array
     }
     $floors = [];
     $recent = [];                         // i nemici degli ultimi tre piani
+    $used = [];                           // i trii gia' usati (fase T5: mai due piani con la stessa squadra)
     for ($f = 1; $f <= DUEL_TOWER_FLOORS; $f++) {
         $s = duel_tower_sector_of($f);
         $sec = DUEL_TOWER_SECTORS[$s];
@@ -146,6 +155,8 @@ function duel_tower_generate(array $chars, array $rewards = []): array
         $hp = (int)round($sec['boon'][0] + ($sec['boon'][1] - $sec['boon'][0]) * $t);
         $boon = $hp > 0 ? ['hp' => $hp, 'atk' => (int)round($hp * 0.6), 'def' => (int)round($hp * 0.4)] : [];
         $boon = array_filter($boon);
+        $bot = DUEL_TOWER_TUNE[$f]['bot'] ?? $bot;
+        $boon = DUEL_TOWER_TUNE[$f]['boon'] ?? $boon;
         $boss = DUEL_TOWER_BOSSES[$f] ?? null;
         if ($boss) {
             [$it, $en, $ids, $blv, $bbot, $bboon] = $boss;
@@ -153,12 +164,14 @@ function duel_tower_generate(array $chars, array $rewards = []): array
             if (count($team) === 3) {
                 $floors[$f] = duel_tower_floor_make($f, $team, $bbot, $bboon, ['it' => $it, 'en' => $en], true, $rewards);
                 $recent = array_slice([...$recent, array_column($team, 'id')], -3);
+                $used[duel_tower_trio_key(array_column($team, 'id'))] = true;
                 continue;
             }
             // Un boss con un personaggio che non c'e' piu' diventa un piano normale.
         }
-        $team = duel_tower_pick($pool, $sec['rar'], $f, $recent);
+        $team = duel_tower_pick($pool, $sec['rar'], $f, $recent, $used);
         $recent = array_slice([...$recent, array_column($team, 'id')], -3);
+        $used[duel_tower_trio_key(array_column($team, 'id'))] = true;
         $floors[$f] = duel_tower_floor_make($f, array_map(static fn($p) => ['id' => $p['id'], 'level' => $lv], $team), $bot,
             $boon + (DUEL_TOWER_READY[$f] ?? []), null, false, $rewards);
     }
@@ -170,9 +183,10 @@ function duel_tower_generate(array $chars, array $rewards = []): array
  * attaccante e uno che difende o cura. Diversi dai tre piani prima; se i
  * personaggi di quella rarita' sono pochi, almeno dal piano prima. Prima
  * quelli con la foto, se sono abbastanza da non ripetersi. $recent: gli id
- * dei piani prima, il piu' recente in fondo.
+ * dei piani prima, il piu' recente in fondo. $used: i trii gia' usati da
+ * altri piani (chiave di duel_tower_trio_key), da non ripetere.
  */
-function duel_tower_pick(array $pool, array $rarities, int $floor, array $recent): array
+function duel_tower_pick(array $pool, array $rarities, int $floor, array $recent, array $used = []): array
 {
     $rnd = new Random\Randomizer(new Random\Engine\Xoshiro256StarStar(crc32('cripsum-tower:' . $floor)));
     $of = static fn(array $avoid) => array_values(array_filter($pool, static fn($p) => in_array($p['rarity'], $rarities, true) && !in_array($p['id'], $avoid, true)));
@@ -183,12 +197,20 @@ function duel_tower_pick(array $pool, array $rarities, int $floor, array $recent
         for ($try = 0; $try < 600 && count($cand) >= 3; $try++) {
             $pick = array_map(static fn($k) => $cand[$k], $rnd->pickArrayKeys($cand, 3));
             $roles = array_column($pick, 'role');
-            if (array_intersect($roles, DUEL_TOWER_ATTACK) && array_intersect($roles, DUEL_TOWER_GUARD)) {
+            if (array_intersect($roles, DUEL_TOWER_ATTACK) && array_intersect($roles, DUEL_TOWER_GUARD)
+                && !isset($used[duel_tower_trio_key(array_column($pick, 'id'))])) {
                 return $pick;
             }
         }
     }
     return array_slice($list ?: array_values($pool), 0, 3);
+}
+
+/** La chiave di un trio di nemici, a prescindere dall'ordine. */
+function duel_tower_trio_key(array $ids): string
+{
+    sort($ids);
+    return implode(',', $ids);
 }
 
 /** Un piano come riga (prima del database). */
@@ -854,4 +876,412 @@ function duel_tower_summary(mysqli $m, array $row, int $userId, string $lang): ?
                 'i', [$userId]) !== null,
         'next' => $n < DUEL_TOWER_FLOORS && $n + 1 <= $best + 1 && isset($floors[$n + 1]) ? duel_tower_floor_brief($m, $floors[$n + 1], $lang) : null,
     ];
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Pannello (Duelli › Torre, fase T5)
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Le squadre di riferimento della prova di un piano, come la taratura
+ * (strumenti/duelli2/torre-calibra.php): [nome, rarita' ammesse, livello].
+ * Una squadra a caso del suo livello, con un attaccante e uno che difende o
+ * cura, che rispetta la regola del piano; «Le migliori» sono le squadre piu'
+ * forti di oggi (DUEL_TOWER_TEST_BEST), legami compresi.
+ */
+const DUEL_TOWER_TEST_TEAMS = [
+    'r1' => ['Comuni Lv2', ['comune'], 2],
+    'r2' => ['Rari Lv3', ['comune', 'raro'], 3],
+    'r3' => ['Epici Lv4', ['raro', 'epico'], 4],
+    'r4' => ['Leggendari Lv5', ['epico', 'leggendario'], 5],
+    'r5' => ['Speciali Lv5', ['leggendario', 'speciale', 'segreto'], 5],
+    'r6' => ['Segreti Lv6', ['speciale', 'segreto'], 6],
+    'r7' => ['Limitati Lv6', ['segreto', 'segreto_limitato', 'theone'], 6],
+    'r8' => ['Le migliori Lv6', [], 6],
+];
+const DUEL_TOWER_TEST_BEST = [[141, 139, 138], [141, 142, 48], [139, 138, 48], [144, 141, 139], [142, 138, 87], [141, 139, 48]];
+/** Per ogni tratto la squadra che dovrebbe passarlo (la taratura del § 12). */
+const DUEL_TOWER_TEST_TARGET = [1 => 'r1', 2 => 'r2', 3 => 'r3', 4 => 'r4', 5 => 'r5', 6 => 'r5', 7 => 'r6', 8 => 'r7', 9 => 'r8', 10 => 'r8'];
+/** I potenziamenti dei nemici: le chiavi dei legami, coi limiti del pannello (HP, ATK e DEF fino al 100%). */
+const DUEL_TOWER_BOON_LIMITS = ['hp' => 100, 'atk' => 100, 'def' => 100, 'crit' => 50, 'cdmg' => 100, 'spd_pct' => 50, 'lifesteal' => 50,
+    'dmg_pct' => 50, 'heal_out_pct' => 100, 'heal_in_pct' => 100, 'prec' => 50, 'charge' => 100, 'regen' => 20, 'ps' => 2];
+
+/**
+ * La migrazione del pannello c'e' (le colonne della prova). Si chiede al
+ * database: rt_has_col() conosce solo le tabelle della cache del tempo reale.
+ */
+function duel_tower_has_tests(mysqli $m): bool
+{
+    static $has = null;
+    return $has ??= duel_row($m, "SELECT 1 AS x FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'game_tower_floors' AND COLUMN_NAME = 'test_json' LIMIT 1") !== null;
+}
+
+/** Tutto quello che serve alla sezione: interruttore, tratti, piani, giocatori, premi. */
+function duel_tower_admin_view(mysqli $m): array
+{
+    require_once __DIR__ . '/admin.php';
+    if (!duel_tower_ready($m)) {
+        throw duel_user_error('Manca la migrazione della Torre (migrations/2026_10_22_duelli2_torre.sql).', 'Tower migration missing.', 503, 'TOWER_OFF');
+    }
+    $floors = duel_tower_floors($m, true);
+    $chars = duel_db_all_characters($m);
+    $tests = [];
+    if (duel_tower_has_tests($m)) {
+        foreach (duel_rows($m, 'SELECT floor, test_json, test_at FROM game_tower_floors WHERE test_json IS NOT NULL') as $r) {
+            $tests[(int)$r['floor']] = ['at' => (string)$r['test_at']] + (json_decode((string)$r['test_json'], true) ?: []);
+        }
+    }
+    $cleared = [];
+    foreach (duel_rows($m, 'SELECT floor, COUNT(*) AS n FROM game_tower_clears GROUP BY floor') as $r) {
+        $cleared[(int)$r['floor']] = (int)$r['n'];
+    }
+    // Chi e' fermo su un piano: il piano dopo il suo record.
+    $stuck = [];
+    foreach (duel_rows($m, 'SELECT best_floor + 1 AS n, COUNT(*) AS c FROM game_tower_progress WHERE best_floor < ? GROUP BY best_floor', 'i', [DUEL_TOWER_FLOORS]) as $r) {
+        $stuck[(int)$r['n']] = (int)$r['c'];
+    }
+    $list = [];
+    foreach ($floors as $n => $f) {
+        $list[] = [
+            'n' => $n, 'sector' => $f['sector'], 'title' => $f['title'] ?? ['it' => '', 'en' => ''], 'boss' => $f['boss'], 'auto' => $f['auto'],
+            'team' => array_map(static fn($e) => ['id' => $e['id'], 'level' => $e['level'], 'name' => duel_admin_name((string)($chars[$e['id']]['nome'] ?? '?')),
+                'img' => duel_media($chars[$e['id']]['img_url'] ?? ''), 'rarity' => isset($chars[$e['id']]) ? duel_rarity_key((string)$chars[$e['id']]['rarita'], !empty($chars[$e['id']]['limitato'])) : null],
+                $f['team']),
+            'bot' => $f['bot'], 'boon' => (object)$f['boon'], 'boon_text' => $f['boon'] ? duel_text_trait_bonus($f['boon'], 'it') : '',
+            'rule' => (object)$f['rule'], 'rule_text' => duel_tower_rule_text($f['rule'], 'it'),
+            'reward' => $f['reward'], 'voucher' => $f['voucher'], 'vouchers' => $f['vouchers'],
+            'cleared' => $cleared[$n] ?? 0, 'stuck' => $stuck[$n] ?? 0, 'test' => $tests[$n] ?? null,
+        ];
+    }
+    $s = duel_settings($m);
+    $progress = duel_row($m, 'SELECT COUNT(*) AS players, COALESCE(SUM(attempts), 0) AS games, COALESCE(MAX(best_floor), 0) AS top FROM game_tower_progress');
+    return [
+        'on' => ($s['tower'] ?? '0') === '1',
+        'tests' => duel_tower_has_tests($m),
+        'sectors' => array_map(static fn($n, $x) => ['n' => $n, 'it' => $x['it'], 'en' => $x['en'], 'default' => DUEL_TOWER_SECTORS[$n]['it'],
+            'from' => ($n - 1) * 10 + 1, 'to' => $n * 10, 'target' => DUEL_TOWER_TEST_TARGET[$n]], array_keys(duel_tower_sectors($m)), duel_tower_sectors($m)),
+        'floors' => $list,
+        'players' => ['count' => (int)($progress['players'] ?? 0), 'games' => (int)($progress['games'] ?? 0), 'top' => (int)($progress['top'] ?? 0),
+            'board' => duel_tower_board($m, 10)],
+        'rewards' => ['base' => (int)($s['tower_godos_base'] ?? 20), 'step' => (int)($s['tower_godos_step'] ?? 2), 'boss' => (int)($s['tower_godos_boss'] ?? 5)],
+        'teams' => array_map(static fn($k, $t) => ['key' => $k, 'label' => $t[0]], array_keys(DUEL_TOWER_TEST_TEAMS), DUEL_TOWER_TEST_TEAMS),
+        'characters' => array_map(static fn($c) => ['id' => (int)$c['id'], 'name' => duel_admin_name((string)$c['nome']),
+            'rarity' => duel_admin_rarity(duel_rarity_key((string)$c['rarita'], !empty($c['limitato'])))], array_values($chars)),
+        'rarities' => array_map(static fn($k) => duel_admin_rarity($k), array_keys(duel_rarities())),
+        'roles' => DUEL_ROLES,
+        'terrains' => array_map(static fn($k, $t) => ['key' => $k, 'label' => $t['it']], array_keys(duel_terrains()), duel_terrains()),
+        'boons' => DUEL_TOWER_BOON_LIMITS,
+        'level_max' => duel_rules()['level_max'],
+    ];
+}
+
+/**
+ * Un piano dal pannello, controllato. La squadra puo' avere lo stesso
+ * personaggio piu' volte. Vale dalla partita dopo: quelle gia' cominciate
+ * tengono squadra, potenziamenti e regola con cui sono partite.
+ */
+function duel_tower_admin_floor_save(mysqli $m, int $adminId, array $in): array
+{
+    $n = (int)($in['floor'] ?? 0);
+    $old = duel_tower_floors($m, true)[$n] ?? null;
+    if (!$old) {
+        throw duel_user_error('Piano non trovato.', 'Floor not found.', 404, 'INVALID');
+    }
+    $bad = static fn(string $it) => duel_user_error($it, $it, 422, 'INVALID');
+    $max = duel_rules()['level_max'];
+
+    $ids = array_values(array_map('intval', (array)($in['team'] ?? [])));
+    $levels = array_values((array)($in['levels'] ?? []));
+    $chars = duel_db_characters($m, $ids);
+    if (count($ids) !== 3 || count(array_filter($ids, static fn($id) => isset($chars[$id]))) !== 3) {
+        throw $bad('La squadra nemica sono tre personaggi (anche lo stesso più volte).');
+    }
+    $team = [];
+    foreach ($ids as $i => $id) {
+        $team[] = ['id' => $id, 'level' => max(1, min($max, (int)($levels[$i] ?? $max)))];
+    }
+    $bot = (string)($in['bot'] ?? '');
+    if (!in_array($bot, DUEL_BOT_LEVELS, true)) {
+        throw $bad('Livello del bot non valido.');
+    }
+
+    $boon = [];
+    foreach ((array)($in['boon'] ?? []) as $k => $v) {
+        if (!isset(DUEL_TOWER_BOON_LIMITS[$k]) || !is_numeric($v)) {
+            throw $bad('Potenziamento sconosciuto: ' . $k . '.');
+        }
+        $v = (int)$v;
+        if ($v < 0 || $v > DUEL_TOWER_BOON_LIMITS[$k]) {
+            throw $bad("Potenziamento $k: da 0 a " . DUEL_TOWER_BOON_LIMITS[$k] . '.');
+        }
+        if ($v > 0) {
+            $boon[$k] = $v;
+        }
+    }
+
+    $r = (array)($in['rule'] ?? []);
+    $rule = [];
+    $terrain = (string)($r['terrain'] ?? '');
+    if ($terrain !== '') {
+        if (!isset(duel_terrains()[$terrain])) {
+            throw $bad('Terreno sconosciuto.');
+        }
+        $rule['terrain'] = $terrain;
+    }
+    $rarities = array_values(array_intersect(array_keys(duel_rarities()), array_map('strval', (array)($r['rarities'] ?? []))));
+    if ($rarities && count($rarities) < count(duel_rarities())) {
+        $rule['rarities'] = $rarities;
+    }
+    $costMax = (int)($r['cost_max'] ?? 0);
+    if ($costMax < 0 || $costMax > 30 || ($costMax > 0 && $costMax < 3)) {
+        throw $bad('Il costo massimo va da 3 a 30 (0 = libero).');
+    }
+    if ($costMax > 0) {
+        $rule['cost_max'] = $costMax;
+    }
+    $noRoles = array_values(array_intersect(DUEL_ROLES, array_map('strval', (array)($r['no_roles'] ?? []))));
+    if ($noRoles) {
+        $rule['no_roles'] = $noRoles;
+    }
+    $turns = (int)($r['turns'] ?? 0);
+    if ($turns < 0 || $turns > 200 || ($turns > 0 && $turns < 10)) {
+        throw $bad('Vittoria entro: da 10 a 200 turni (0 = nessun limite).');
+    }
+    if ($turns > 0) {
+        $rule['turns'] = $turns;
+    }
+    // Una squadra che rispetta la regola deve esistere (almeno tre personaggi ammessi).
+    $allowed = array_filter(duel_db_all_characters($m), static fn($c) => (!$rarities || in_array(duel_rarity_key((string)$c['rarita'], !empty($c['limitato'])), $rarities, true))
+        && !in_array(duel_role_key((string)$c['ruolo']), $noRoles, true));
+    if (count($allowed) < 3) {
+        throw $bad('Con questa regola non si fa una squadra.');
+    }
+
+    $titleIt = trim((string)($in['title_it'] ?? ''));
+    $titleEn = trim((string)($in['title_en'] ?? ''));
+    if (mb_strlen($titleIt) > 90 || mb_strlen($titleEn) > 90) {
+        throw $bad('Il titolo è lungo al massimo 90 caratteri.');
+    }
+    $boss = !empty($in['boss']);
+    if ($boss && $titleIt === '') {
+        throw $bad('Un boss ha un titolo.');
+    }
+    $voucher = (string)($in['voucher'] ?? '');
+    if ($voucher !== '' && !isset(duel_rarities()[$voucher])) {
+        throw $bad('Rarità del potenziamento gratuito non valida.');
+    }
+    $vouchers = $voucher === '' ? 0 : max(1, min(3, (int)($in['vouchers'] ?? 1)));
+    $reward = (int)($in['reward'] ?? 0);
+    if ($reward < 0 || $reward > 50000) {
+        throw $bad('Il premio va da 0 a 50.000 Godos.');
+    }
+
+    $x = [
+        'floor' => $n, 'sector' => duel_tower_sector_of($n), 'title' => $titleIt === '' ? null : ['it' => $titleIt, 'en' => $titleEn !== '' ? $titleEn : $titleIt],
+        'team' => $team, 'bot' => $bot, 'boon' => $boon, 'rule' => $rule, 'reward' => $reward,
+        'voucher' => $voucher === '' ? null : $voucher, 'vouchers' => $vouchers, 'boss' => $boss, 'auto' => false,
+    ];
+    duel_tower_floor_write($m, $x, $adminId);
+    duel_tower_test_clear($m, $n);
+    duel_tower_floors($m, true);
+    return $x;
+}
+
+/** Il piano rifatto dal generatore, coi personaggi di oggi (torna «automatico»). */
+function duel_tower_admin_floor_regen(mysqli $m, int $adminId, int $n): array
+{
+    if ($n < 1 || $n > DUEL_TOWER_FLOORS) {
+        throw duel_user_error('Piano non trovato.', 'Floor not found.', 404, 'INVALID');
+    }
+    $rewards = [];
+    for ($f = 1; $f <= DUEL_TOWER_FLOORS; $f++) {
+        $rewards[$f] = duel_tower_reward_default($m, $f);
+    }
+    $x = duel_tower_generate(duel_db_all_characters($m), $rewards)[$n];
+    duel_tower_floor_write($m, $x, $adminId);
+    duel_tower_test_clear($m, $n);
+    duel_tower_floors($m, true);
+    return $x;
+}
+
+/**
+ * Tutti i piani fatti dal generatore rifatti coi personaggi e la taratura
+ * di oggi; quelli cambiati a mano restano. Torna quanti piani sono cambiati.
+ */
+function duel_tower_admin_regen_auto(mysqli $m, int $adminId): int
+{
+    $rewards = [];
+    for ($f = 1; $f <= DUEL_TOWER_FLOORS; $f++) {
+        $rewards[$f] = duel_tower_reward_default($m, $f);
+    }
+    $new = duel_tower_generate(duel_db_all_characters($m), $rewards);
+    $changed = 0;
+    foreach (duel_tower_floors($m, true) as $n => $old) {
+        if (!$old['auto'] || !isset($new[$n])) {
+            continue;
+        }
+        $x = $new[$n];
+        $same = $old['team'] === $x['team'] && $old['bot'] === $x['bot'] && $old['boon'] == $x['boon'] && $old['rule'] == $x['rule']
+            && $old['reward'] === $x['reward'] && $old['boss'] === $x['boss'];
+        if (!$same) {
+            duel_tower_floor_write($m, $x, $adminId);
+            duel_tower_test_clear($m, $n);
+            $changed++;
+        }
+    }
+    duel_tower_floors($m, true);
+    return $changed;
+}
+
+/** I nomi dei tratti: [n => [it, en]]; un nome vuoto torna a quello di partenza. Torna i cambi. */
+function duel_tower_admin_sectors_save(mysqli $m, array $names): array
+{
+    $changes = [];
+    $now = duel_tower_sectors($m);
+    foreach (DUEL_TOWER_SECTORS as $n => $def) {
+        $row = (array)($names[$n] ?? $names[(string)$n] ?? []);
+        $it = trim((string)($row['it'] ?? ''));
+        $en = trim((string)($row['en'] ?? ''));
+        if (mb_strlen($it) > 60 || mb_strlen($en) > 60) {
+            throw duel_user_error('Un nome di tratto è lungo al massimo 60 caratteri.', 'Section names are 60 characters at most.', 422, 'INVALID');
+        }
+        if ($it === '' || ($it === $def['it'] && ($en === '' || $en === $def['en']))) {
+            if ($now[$n]['it'] !== $def['it'] || $now[$n]['en'] !== $def['en']) {
+                duel_exec($m, 'DELETE FROM game_tower_sectors WHERE n = ?', 'i', [$n]);
+                $changes['tratto ' . $n] = $def['it'] . ' (di partenza)';
+            }
+            continue;
+        }
+        $en = $en !== '' ? $en : $it;
+        if ($now[$n]['it'] !== $it || $now[$n]['en'] !== $en) {
+            duel_exec($m, 'INSERT INTO game_tower_sectors (n, name_it, name_en) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name_it = VALUES(name_it), name_en = VALUES(name_en)',
+                'iss', [$n, $it, $en]);
+            $changes['tratto ' . $n] = $it;
+        }
+    }
+    return $changes;
+}
+
+/**
+ * I premi della prima volta con una formula: base + passo × piano, piu'
+ * boss × piano ai boss. Salva la formula e la applica a tutti i piani
+ * (anche a quelli cambiati a mano). Torna quanti piani sono cambiati.
+ */
+function duel_tower_admin_rewards_apply(mysqli $m, int $base, int $step, int $boss): int
+{
+    foreach (['base' => $base, 'step' => $step, 'boss' => $boss] as $k => $v) {
+        if ($v < 0 || $v > 1000) {
+            throw duel_user_error('I numeri della formula vanno da 0 a 1.000.', 'Formula numbers go from 0 to 1,000.', 422, 'INVALID');
+        }
+        duel_setting_set($m, 'tower_godos_' . $k, (string)$v);
+    }
+    $changed = 0;
+    for ($f = 1; $f <= DUEL_TOWER_FLOORS; $f++) {
+        $changed += duel_exec($m, 'UPDATE game_tower_floors SET reward = ? WHERE floor = ? AND reward <> ?', 'iii',
+            [duel_tower_reward_default($m, $f), $f, duel_tower_reward_default($m, $f)]);
+    }
+    duel_tower_floors($m, true);
+    return $changed;
+}
+
+function duel_tower_test_clear(mysqli $m, int $n): void
+{
+    if (duel_tower_has_tests($m)) {
+        duel_exec($m, 'UPDATE game_tower_floors SET test_json = NULL, test_at = NULL WHERE floor = ?', 'i', [$n]);
+    }
+}
+
+/**
+ * La prova di un piano: le otto squadre di riferimento lo giocano $games
+ * volte ciascuna (la tua squadra col bot Difficile, piu' o meno un
+ * giocatore attento; i nemici col bot del piano, coi potenziamenti e la
+ * regola). Sempre le stesse partite per lo stesso piano. Il risultato
+ * resta sul piano (la «taratura» che il pannello mostra) finche' il piano
+ * non cambia.
+ */
+function duel_tower_admin_test(mysqli $m, int $n, int $games = 6): array
+{
+    duel_use_current_values($m);
+    $floor = duel_tower_floors($m, true)[$n] ?? null;
+    if (!$floor) {
+        throw duel_user_error('Piano non trovato.', 'Floor not found.', 404, 'INVALID');
+    }
+    $games = max(2, min(20, $games));
+    $enemy = duel_tower_enemy($m, $floor)['kits'];
+    $chars = duel_db_all_characters($m);
+    $info = [];
+    foreach ($chars as $id => $c) {
+        $r = duel_rarity_key((string)$c['rarita'], !empty($c['limitato']));
+        $info[(int)$id] = ['rarity' => $r, 'role' => duel_role_key((string)$c['ruolo']), 'cost' => duel_rarity($r)['cost']];
+    }
+    $opts = [];
+    if ($floor['boon']) {
+        $opts['boons'] = [1 => $floor['boon']];
+    }
+    if (!empty($floor['rule']['terrain'])) {
+        $opts['terrain'] = ['k' => (string)$floor['rule']['terrain']];
+    }
+    $rule = $floor['rule'];
+    $turnsMax = (int)($rule['turns'] ?? 0);
+
+    $out = [];
+    foreach (DUEL_TOWER_TEST_TEAMS as $key => [$label, $rar, $lv]) {
+        $rnd = new Random\Randomizer(new Random\Engine\Xoshiro256StarStar($n * 7919 + crc32($key)));
+        $wins = 0;
+        $played = 0;
+        for ($g = 0; $g < $games; $g++) {
+            $ids = $rar ? duel_tower_test_team($info, $rar, $rule, $rnd) : (DUEL_TOWER_TEST_BEST[$g % count(DUEL_TOWER_TEST_BEST)] ?? null);
+            if ($ids && !$rar && (array_diff($ids, array_keys($info))
+                || duel_tower_team_error($rule, array_map(static fn($id) => $info[$id], $ids)))) {
+                $ids = null; // le migliori non ci sono o la regola non le vuole
+            }
+            if (!$ids) {
+                break;
+            }
+            $mine = array_map(static function ($id) use ($chars, $lv) {
+                $k = duel_character_kit($chars[$id], $lv);
+                $k['pid'] = $id;
+                $k['level'] = $lv;
+                return $k;
+            }, $ids);
+            [$st] = duel_new_match([$mine, $enemy], $n * 100003 + $g * 17 + crc32($key) % 1000, $opts);
+            for ($i = 0; $i < 900 && !$st['over']; $i++) {
+                $side = $st['units'][$st['actor']]['side'] ?? 0;
+                [$mv, $tg] = duel_bot_choose($st, $side === 0 ? 'difficile' : $floor['bot'], $g * 31 + $i);
+                [$st] = duel_apply($st, $mv, $tg);
+            }
+            $played++;
+            $wins += ($st['winner'] === 0 && ($turnsMax <= 0 || $st['turn'] <= $turnsMax)) ? 1 : 0;
+        }
+        $out[$key] = ['label' => $label, 'games' => $played, 'win' => $played ? (int)round(100 * $wins / $played) : null];
+    }
+    $result = ['teams' => $out, 'target' => DUEL_TOWER_TEST_TARGET[$floor['sector']], 'games' => $games];
+    if (duel_tower_has_tests($m)) {
+        duel_exec($m, 'UPDATE game_tower_floors SET test_json = ?, test_at = NOW() WHERE floor = ?', 'si', [json_encode($result), $n]);
+    }
+    return $result + ['at' => date('Y-m-d H:i:s')];
+}
+
+/** Una squadra a caso tra quelle rarita', con un attaccante e uno che difende o cura, dentro la regola. */
+function duel_tower_test_team(array $info, array $rarities, array $rule, Random\Randomizer $rnd): ?array
+{
+    $allowed = $rule['rarities'] ?? null;
+    $pool = array_filter($info, static fn($x) => in_array($x['rarity'], $rarities, true) && (!$allowed || in_array($x['rarity'], $allowed, true))
+        && !in_array($x['role'], (array)($rule['no_roles'] ?? []), true));
+    if (count($pool) < 3) {
+        return null;
+    }
+    for ($try = 0; $try < 4000; $try++) {
+        $ids = $rnd->pickArrayKeys($pool, 3);
+        $roles = array_map(static fn($i) => $pool[$i]['role'], $ids);
+        $cost = array_sum(array_map(static fn($i) => $pool[$i]['cost'], $ids));
+        if (($rule['cost_max'] ?? 0) > 0 && $cost > $rule['cost_max']) {
+            continue;
+        }
+        if (array_intersect($roles, DUEL_TOWER_ATTACK) && array_intersect($roles, DUEL_TOWER_GUARD)) {
+            return $ids;
+        }
+    }
+    return null;
 }

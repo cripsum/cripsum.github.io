@@ -11,6 +11,8 @@
  *      | values_save | values_sim | balance_sim_start | balance_sim_chunk
  *      | switch | season_save | season_rules | season_close | match_cancel
  *      | daily_save | daily_delete | trait_save | trait_delete (fase 8)
+ *      | tower_floor_save | tower_floor_regen | tower_regen_auto | tower_sectors_save | tower_rewards_apply | tower_test (Torre, fase T5)
+ * GET  action=tower (Torre, fase T5)
  */
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../../includes/duel/admin.php';
@@ -229,6 +231,58 @@ try {
             admin_ok(['message' => 'Legame tolto.'] + duel_admin_traits($m));
             break;
 
+        // ── La Torre (fase T5) ───────────────────────────────────────────
+        case 'tower':
+            require_once __DIR__ . '/../../includes/duel/tower.php';
+            admin_ok(duel_tower_admin_view($m));
+            break;
+
+        case 'tower_floor_save':
+            require_once __DIR__ . '/../../includes/duel/tower.php';
+            $x = duel_tower_admin_floor_save($m, $adminId, $input);
+            admin_log($m, $adminId, 'duel_tower_floor', null, ['piano' => $x['floor'], 'squadra' => implode(', ', array_map(static fn($t) => $t['id'] . ' Lv' . $t['level'], $x['team'])),
+                'bot' => $x['bot'], 'premio' => $x['reward']]);
+            admin_ok(['message' => 'Piano ' . $x['floor'] . ' salvato: vale dalla prossima partita.'] + duel_tower_admin_view($m));
+            break;
+
+        case 'tower_floor_regen':
+            require_once __DIR__ . '/../../includes/duel/tower.php';
+            $x = duel_tower_admin_floor_regen($m, $adminId, (int)($input['floor'] ?? 0));
+            admin_log($m, $adminId, 'duel_tower_floor', null, ['piano' => $x['floor'], 'nota' => 'rifatto dal generatore']);
+            admin_ok(['message' => 'Piano ' . $x['floor'] . ' rifatto dal generatore.'] + duel_tower_admin_view($m));
+            break;
+
+        case 'tower_regen_auto':
+            require_once __DIR__ . '/../../includes/duel/tower.php';
+            $changed = duel_tower_admin_regen_auto($m, $adminId);
+            admin_log($m, $adminId, 'duel_tower_floor', null, ['nota' => 'piani automatici rifatti dal generatore', 'piani cambiati' => $changed]);
+            admin_ok(['message' => $changed ? "Rifatti $changed piani automatici." : 'I piani automatici erano già quelli del generatore.'] + duel_tower_admin_view($m));
+            break;
+
+        case 'tower_sectors_save':
+            require_once __DIR__ . '/../../includes/duel/tower.php';
+            $changes = duel_tower_admin_sectors_save($m, (array)($input['sectors'] ?? []));
+            if ($changes) {
+                admin_log($m, $adminId, 'duel_tower_sectors', null, $changes);
+            }
+            admin_ok(['message' => $changes ? 'Nomi dei tratti salvati.' : 'Niente da salvare.'] + duel_tower_admin_view($m));
+            break;
+
+        case 'tower_rewards_apply':
+            require_once __DIR__ . '/../../includes/duel/tower.php';
+            $changed = duel_tower_admin_rewards_apply($m, (int)($input['base'] ?? 0), (int)($input['step'] ?? 0), (int)($input['boss'] ?? 0));
+            admin_log($m, $adminId, 'duel_tower_rewards', null, ['base' => (int)($input['base'] ?? 0), 'passo' => (int)($input['step'] ?? 0),
+                'boss' => (int)($input['boss'] ?? 0), 'piani cambiati' => $changed]);
+            admin_ok(['message' => $changed ? "Premi applicati: $changed piani cambiati." : 'I premi erano già questi.'] + duel_tower_admin_view($m));
+            break;
+
+        case 'tower_test':
+            // Un piano per richiesta: il pannello prova tutta la Torre chiedendone uno alla volta.
+            require_once __DIR__ . '/../../includes/duel/tower.php';
+            @set_time_limit(120);
+            admin_ok(['floor' => (int)($input['floor'] ?? 0)] + duel_tower_admin_test($m, (int)($input['floor'] ?? 0), (int)($input['games'] ?? 6)));
+            break;
+
         // ── Partite e interruttori ───────────────────────────────────────
         case 'matches':
             admin_ok(duel_admin_matches($m, (string)($input['filter'] ?? 'live'), (string)($input['mode'] ?? ''), (int)($input['page'] ?? 1)));
@@ -246,7 +300,8 @@ try {
             $out = duel_admin_switch($m, $key, !empty($input['on']));
             admin_log($m, $adminId, 'duel_switch', null, ['interruttore' => $key, 'acceso' => $out['on'] ? 'sì' : 'no']);
             $labels = ['public' => ['Duelli aperti a tutti.', 'Duelli di nuovo solo per lo staff.'], 'discord' => ['Avvisi su Discord accesi.', 'Avvisi su Discord spenti.'],
-                'seasons' => ['Stagioni accese.', 'Stagioni spente: quella in corso arriva alla fine, poi non ne parte un\'altra.']];
+                'seasons' => ['Stagioni accese.', 'Stagioni spente: quella in corso arriva alla fine, poi non ne parte un\'altra.'],
+                'tower' => ['La Torre è aperta a tutti.', 'La Torre di nuovo solo per lo staff.']];
             admin_ok($out + ['message' => $labels[$key][$out['on'] ? 0 : 1]]);
             break;
 

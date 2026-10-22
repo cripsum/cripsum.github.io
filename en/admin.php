@@ -64,6 +64,7 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
                 <button type="button" data-section="duel-balance"><i class="fa-solid fa-scale-balanced"></i><span>Bilanciamento</span></button>
                 <button type="button" data-section="duel-seasons"><i class="fa-solid fa-calendar"></i><span>Stagioni</span></button>
                 <button type="button" data-section="duel-daily"><i class="fa-solid fa-calendar-day"></i><span>Sfida del giorno</span></button>
+                <button type="button" data-section="duel-tower"><i class="fa-solid fa-chess-rook"></i><span>Torre</span></button>
                 <button type="button" data-section="duel-matches"><i class="fa-solid fa-chess-board"></i><span>Partite</span></button>
                 <span class="admin-nav-label">Gacha</span>
                 <button type="button" data-section="gacha-banner"><i class="fa-solid fa-star"></i><span>Banners</span></button>
@@ -267,6 +268,16 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
                     </div>
                 </div>
                 <div class="dz-root" data-duel-admin="daily"></div>
+            </section>
+
+            <section class="admin-section" id="section-duel-tower" data-section-panel="duel-tower">
+                <div class="admin-toolbar">
+                    <div>
+                        <strong>Torre</strong>
+                        <small>I cento piani: squadra, bot, potenziamenti, regola e premi di ognuno, i nomi dei tratti, la prova con le squadre di riferimento. Qui si apre la Torre a tutti.</small>
+                    </div>
+                </div>
+                <div class="dz-root" data-duel-admin="tower"></div>
             </section>
 
             <section class="admin-section" id="section-duel-matches" data-section-panel="duel-matches">

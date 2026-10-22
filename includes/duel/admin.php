@@ -1270,7 +1270,7 @@ function duel_admin_match_cancel(mysqli $m, int $id): array
 /** Gli interruttori del pannello: duelli aperti a tutti, avvisi su Discord, stagioni. */
 function duel_admin_switch(mysqli $m, string $key, bool $on): array
 {
-    if (!in_array($key, ['public', 'discord', 'seasons'], true)) {
+    if (!in_array($key, ['public', 'discord', 'seasons', 'tower'], true)) {
         throw duel_user_error('Interruttore sconosciuto.', 'Unknown switch.', 400, 'INVALID');
     }
     duel_setting_set($m, $key, $on ? '1' : '0');

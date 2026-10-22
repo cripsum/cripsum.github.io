@@ -2289,3 +2289,33 @@ select.dz-chip[multiple] { height: auto; padding: .2rem; }
     .dz-wbar { width: 5rem; }
     .dz-head h3 { font-size: 1.3rem; }
 }
+
+/* La Torre (fase T5 della Torre) */
+.dz-tw-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+.dz-tw-nums span { display: grid; gap: .1rem; }
+.dz-tw-nums b { font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dz-tw-nums small { color: var(--nx-text-2, #a1a1a6); font-size: .78rem; }
+.dz-tw-run { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; }
+.dz-tw-run .admin-muted { font-size: .82rem; }
+.dz-tw-sectors { flex-wrap: wrap; margin: 1.2rem 0 .8rem; }
+.dz-tw-sectors button { flex-direction: column; align-items: flex-start; gap: .1rem; font-variant-numeric: tabular-nums; }
+.dz-tw-sectors button small { font-size: .72rem; }
+.dz-tw-table td { vertical-align: middle; }
+.dz-tw-table tr.is-boss td { background: var(--nx-surface-2, #1f1f21); }
+.dz-tw-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+.dz-tw-chips .dz-chip { white-space: normal; height: auto; min-height: 1.7rem; }
+.dz-tw-test { display: inline-grid; grid-template-columns: repeat(8, 1.9rem); gap: 2px; font-size: .72rem; font-variant-numeric: tabular-nums; }
+.dz-tw-test i { display: grid; place-items: center; height: 1.5rem; border-radius: 5px; background: var(--nx-surface-2, #1f1f21); color: var(--nx-text-2, #a1a1a6); font-style: normal; }
+.dz-tw-test i.is-target { outline: 1.5px solid var(--nx-text, #f5f5f7); color: var(--nx-text, #f5f5f7); font-weight: 600; }
+.dz-tw-table td[data-label="Prova"] small { margin-top: .25rem; }
+.dz-tw-warn { color: var(--nx-warn, #ffd60a); font-weight: 600; }
+.dz-card .dz-warn { overflow-wrap: anywhere; }
+.dz-tw-boons { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: .6rem; }
+.dz-tw-boons .dz-f { min-width: 0; }
+@media (max-width: 640px) {
+    .dz-tw-test { grid-template-columns: repeat(8, minmax(0, 1fr)); width: 100%; }
+    .dz-tw-sectors button { flex: 1 1 28%; }
+    /* Le azioni delle righe vanno a capo: sul telefono i pulsanti sono larghi quanto la card. */
+    .dz-row-actions { display: flex !important; flex-wrap: wrap; gap: .4rem; white-space: normal; }
+    .dz-row-actions .admin-btn { flex: 1 1 auto; width: auto; margin: 0 !important; }
+}
