@@ -47,6 +47,7 @@
                 visita:       'Esplora',
                 streak:       'Streak',
                 giochi:       'Giochi',
+                duelli:       'Duelli',
                 contenuti:    'Contenuti',
                 progressione: 'Progressi',
                 economia:     'Economia',
@@ -83,6 +84,7 @@
                 visita:       'Explore',
                 streak:       'Streak',
                 giochi:       'Games',
+                duelli:       'Duels',
                 contenuti:    'Content',
                 progressione: 'Progress',
                 economia:     'Economy',
@@ -240,6 +242,7 @@
             profilo: 'fa-user',      edit:         'fa-film',
             visita:  'fa-compass',   streak:       'fa-calendar-check',
             giochi:  'fa-gamepad',   contenuti:    'fa-pen-nib',
+            duelli:  'fa-khanda',
             progressione: 'fa-medal', economia:    'fa-coins',
         }[cat] || 'fa-tag';
 

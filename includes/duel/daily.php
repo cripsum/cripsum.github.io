@@ -406,7 +406,9 @@ function duel_daily_record(mysqli $m, array $row, array $st, array $daily): ?arr
         }
     }
     $paid = $completed && $sc['reward'] > 0 && duel_reward_grant($m, $userId, 'daily_ch', $sc['day'], $sc['reward'], (int)$row['id']);
-    return ['won' => $won, 'turns' => $turns, 'completed' => $completed, 'better' => $better || !$old && $won, 'paid' => $paid];
+    // first_done: centrata adesso per la prima volta (missioni della fase T3: una per sfida).
+    return ['won' => $won, 'turns' => $turns, 'completed' => $completed, 'better' => $better || !$old && $won, 'paid' => $paid,
+        'first_done' => $completed && (!$old || (int)$old['completed'] === 0)];
 }
 
 /** Per la fine partita: com'e' andata la sfida del giorno. */

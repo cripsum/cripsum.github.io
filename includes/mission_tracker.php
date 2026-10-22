@@ -64,6 +64,17 @@ const MISSION_EVENTS = [
     'win_duel'             => 'Duello vinto',
     'upgrade_character'    => 'Personaggio potenziato',
 
+    // ── Duelli 2.0 (dalla fine partita: includes/duel/store.php) ──
+    'play_ranked'          => 'Ranked giocata',
+    'win_ranked'           => 'Ranked vinta',
+    'duel_ultimate'        => 'Ultimate usata in duello',
+    'duel_ko'              => 'Carta messa KO in duello',
+    'daily_challenge_done' => 'Sfida del giorno centrata (la prima volta)',
+    'win_friend_challenge' => 'Sfida con un amico vinta',
+    'beat_incubo'          => 'Bot Incubo battuto',
+    'tower_floor_clear'    => 'Piano nuovo della Torre superato',
+    'tower_boss_clear'     => 'Boss della Torre battuto (la prima volta)',
+
     // ── Profilo, progressione ed economia ─────────────────────
     'edit_profile'       => 'Profilo modificato',
     'unlock_achievement' => 'Achievement sbloccato',

@@ -58,6 +58,7 @@ const ACH_CATEGORIES = [
     'esplorazione' => ['it' => 'Esplorazione', 'en' => 'Exploration', 'icon' => 'fa-compass'],
     'gacha'        => ['it' => 'Gacha',        'en' => 'Gacha',       'icon' => 'fa-box-open'],
     'giochi'       => ['it' => 'Giochi',       'en' => 'Games',       'icon' => 'fa-gamepad'],
+    'duelli'       => ['it' => 'Duelli',       'en' => 'Duels',       'icon' => 'fa-khanda'],
     'social'       => ['it' => 'Social',       'en' => 'Social',      'icon' => 'fa-user-group'],
     'contenuti'    => ['it' => 'Contenuti',    'en' => 'Content',     'icon' => 'fa-image'],
     'progressione' => ['it' => 'Progressione', 'en' => 'Progress',    'icon' => 'fa-chart-line'],
@@ -175,6 +176,19 @@ function ach_metric_defs(): array
 
         'duel_wins'           => ['source' => 'duels',      'format' => 'number',   'it' => 'Duelli vinti', 'en' => 'Duels won'],
         'duel_best_streak'    => ['source' => 'duels',      'format' => 'number',   'it' => 'Vittorie classificate di fila', 'en' => 'Ranked wins in a row'],
+        'ranked_wins'         => ['source' => 'duels',      'format' => 'number',   'it' => 'Ranked vinte', 'en' => 'Ranked wins'],
+        'duel_best_rating'    => ['source' => 'duels',      'format' => 'number',   'it' => 'Punti Ranked più alti raggiunti', 'en' => 'Highest Ranked points reached'],
+        'seasons_placed'      => ['source' => 'duels',      'format' => 'number',   'it' => 'Stagioni finite piazzato', 'en' => 'Seasons finished placed'],
+        'daily_done'          => ['source' => 'duels',      'format' => 'number',   'it' => 'Sfide del giorno centrate', 'en' => 'Daily challenges done'],
+        'incubo_wins'         => ['source' => 'duels',      'format' => 'number',   'it' => 'Vittorie contro il bot Incubo', 'en' => 'Wins against the Nightmare bot'],
+        'friend_wins'         => ['source' => 'duels',      'format' => 'number',   'it' => 'Sfide con gli amici vinte', 'en' => 'Friend challenges won'],
+        'duel_kos'            => ['source' => 'duels',      'format' => 'number',   'it' => 'KO in duello', 'en' => 'KOs in duels'],
+        'duel_ults'           => ['source' => 'duels',      'format' => 'number',   'it' => 'Ultimate usate in duello', 'en' => 'Ultimates used in duels'],
+        'perfect_wins'        => ['source' => 'duels',      'format' => 'number',   'it' => 'Ranked vinte senza perdere una carta', 'en' => 'Ranked wins without losing a card'],
+
+        'tower_floor'         => ['source' => 'tower',      'format' => 'number',   'it' => 'Piano più alto della Torre', 'en' => 'Highest Tower floor'],
+        'tower_humble'        => ['source' => 'tower',      'format' => 'number',   'it' => 'Boss della Torre dal 50 senza Segreti né The One', 'en' => 'Tower bosses from 50 up without Secrets or The One'],
+        'tower_first_try'     => ['source' => 'tower',      'format' => 'bool',     'it' => 'Piano 100 al primo tentativo', 'en' => 'Floor 100 on the first try'],
 
         'friends'             => ['source' => 'friends',    'format' => 'number',   'it' => 'Amici', 'en' => 'Friends'],
         'missions_done'       => ['source' => 'missions',   'format' => 'number',   'it' => 'Missioni completate', 'en' => 'Missions completed'],
@@ -423,6 +437,108 @@ function ach_source_duels(mysqli $mysqli, int $userId): array
     $streak = ach_scalar($mysqli, 'SELECT best_streak FROM game_player_stats WHERE user_id = ? LIMIT 1', 'i', [$userId]);
     if ($streak !== null) {
         $values['duel_best_streak'] = $streak;
+    }
+
+    // Duelli 2.0 (fase T3 della Torre): tutto dalle tabelle dei duelli.
+    $ranked = ach_row(
+        $mysqli,
+        "SELECT COUNT(*) AS wins, COALESCE(MAX(winner_rating_after), 0) AS peak FROM game_matches
+         WHERE winner_id = ? AND mode = 'ranked' AND status = 'finished'",
+        'i',
+        [$userId]
+    );
+    if ($ranked !== null) {
+        $values['ranked_wins'] = (int)$ranked['wins'];
+        // Il punteggio sale solo vincendo: il più alto di sempre è l'ultimo
+        // «dopo» di una vittoria, o i punti di adesso, o il picco di una stagione.
+        $best = max((int)$ranked['peak'], (int)(ach_scalar($mysqli, 'SELECT rating FROM game_player_stats WHERE user_id = ? LIMIT 1', 'i', [$userId]) ?? 0));
+        $seasonPeak = ach_scalar($mysqli, 'SELECT COALESCE(MAX(peak), 0) FROM game_season_ratings WHERE user_id = ?', 'i', [$userId]);
+        $values['duel_best_rating'] = max($best, (int)($seasonPeak ?? 0));
+    }
+
+    // Stagioni chiuse con un piazzamento: la fascia la scrive solo la chiusura.
+    $placed = ach_scalar($mysqli, 'SELECT COUNT(*) FROM game_season_ratings WHERE user_id = ? AND tier IS NOT NULL', 'i', [$userId]);
+    if ($placed !== null) {
+        $values['seasons_placed'] = $placed;
+    }
+
+    $daily = ach_scalar($mysqli, 'SELECT COUNT(*) FROM game_daily_results WHERE user_id = ? AND completed = 1', 'i', [$userId]);
+    if ($daily !== null) {
+        $values['daily_done'] = $daily;
+    }
+
+    $incubo = ach_scalar($mysqli, "SELECT COUNT(*) FROM game_matches WHERE winner_id = ? AND mode = 'bot' AND bot_level = 'incubo' AND status = 'finished'", 'i', [$userId]);
+    if ($incubo !== null) {
+        $values['incubo_wins'] = $incubo;
+    }
+
+    // Le sfide live sono legate dalla sfida (game_challenges.match_id), quelle in differita anche da challenge_id.
+    $friends = ach_scalar($mysqli, "SELECT COUNT(*) FROM game_matches g WHERE g.winner_id = ? AND g.status = 'finished'
+        AND (g.challenge_id IS NOT NULL OR EXISTS (SELECT 1 FROM game_challenges c WHERE c.match_id = g.id))", 'i', [$userId]);
+    if ($friends !== null) {
+        $values['friend_wins'] = $friends;
+    }
+
+    // KO, ultimate e vittorie perfette li somma la fine partita (game_player_totals).
+    $totals = ach_row($mysqli, 'SELECT kos, ults, perfect FROM game_player_totals WHERE user_id = ?', 'i', [$userId]);
+    if ($totals !== null) {
+        $values['duel_kos'] = (int)($totals['kos'] ?? 0);
+        $values['duel_ults'] = (int)($totals['ults'] ?? 0);
+        $values['perfect_wins'] = (int)($totals['perfect'] ?? 0);
+    }
+
+    return $values;
+}
+
+/**
+ * La Torre dei duelli: il piano più alto, i boss dal 50 in su battuti con
+ * una squadra senza Segreti, limitati o The One (la squadra la salva il
+ * record del piano), e il piano 100 battuto alla prima partita su quel piano.
+ */
+function ach_source_tower(mysqli $mysqli, int $userId): array
+{
+    $best = ach_scalar($mysqli, 'SELECT best_floor FROM game_tower_progress WHERE user_id = ?', 'i', [$userId]);
+    if ($best === null) {
+        return []; // la Torre non c'è
+    }
+    $values = ['tower_floor' => $best, 'tower_humble' => 0, 'tower_first_try' => 0];
+    if ($best < 50) {
+        return $values;
+    }
+
+    $bosses = ach_rows($mysqli, 'SELECT floor, team_json, match_id FROM game_tower_clears WHERE user_id = ? AND floor >= 50 AND MOD(floor, 10) = 0', 'i', [$userId]) ?? [];
+    $teams = [];
+    $ids = [];
+    foreach ($bosses as $boss) {
+        $team = array_values(array_filter(array_map(static fn($e) => (int)($e['id'] ?? 0), (array)json_decode((string)($boss['team_json'] ?? ''), true))));
+        if (count($team) === 3) {
+            $teams[] = $team;
+            $ids = array_merge($ids, $team);
+        }
+    }
+    if ($ids !== []) {
+        $ids = array_values(array_unique($ids));
+        $rows = ach_rows($mysqli, 'SELECT id, `rarità` AS r, limitato FROM personaggi WHERE id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')',
+            str_repeat('i', count($ids)), $ids) ?? [];
+        $top = [];
+        foreach ($rows as $row) {
+            $key = ach_rarity_key($row['r'] ?? '');
+            $top[(int)$row['id']] = in_array($key, ['segreto', 'theone'], true) || (int)($row['limitato'] ?? 0) === 1;
+        }
+        foreach ($teams as $team) {
+            if (!array_filter($team, static fn($id) => $top[$id] ?? true)) {
+                $values['tower_humble']++;
+            }
+        }
+    }
+
+    // Il piano 100 alla prima partita: nessuna partita su quel piano prima di quella che l'ha battuto.
+    foreach ($bosses as $boss) {
+        if ((int)$boss['floor'] === 100 && (int)($boss['match_id'] ?? 0) > 0) {
+            $before = ach_scalar($mysqli, "SELECT COUNT(*) FROM game_matches WHERE player1_id = ? AND mode = 'bot' AND id < ? AND rules_json LIKE ?",
+                'iis', [$userId, (int)$boss['match_id'], '%"tower":{"floor":100,%']);
+            $values['tower_first_try'] = $before === 0 ? 1 : 0;
+        }
     }
 
     return $values;

@@ -71,6 +71,64 @@ function missionUserHasDiscord(mysqli $mysqli, int $userId): bool
     return $linked;
 }
 
+/** Gli eventi delle missioni dei duelli (fase T3 della Torre), e quelli della Torre. */
+const MISSION_DUEL_EVENTS = ['play_ranked', 'win_ranked', 'duel_ultimate', 'duel_ko', 'daily_challenge_done',
+    'win_friend_challenge', 'beat_incubo', 'tower_floor_clear', 'tower_boss_clear'];
+const MISSION_TOWER_EVENTS = ['tower_floor_clear', 'tower_boss_clear'];
+
+/**
+ * Le missioni dei duelli che per questo utente oggi sarebbero impossibili:
+ *  - tutte, se i duelli non sono aperti a tutti o non ha tre personaggi;
+ *  - quelle della Torre, se la Torre è spenta o l'ha già finita;
+ *  - le sfide con gli amici, se non ha amici.
+ * Un errore qui non deve fermare la generazione: in quel caso non toglie niente.
+ *
+ * @return string[] eventi da togliere dal pool
+ */
+function missionBlockedEvents(mysqli $mysqli, int $userId): array
+{
+    try {
+        if (!auth_table_exists($mysqli, 'game_settings')) {
+            return MISSION_DUEL_EVENTS;
+        }
+        $settings = [];
+        $result = $mysqli->query("SELECT k, v FROM game_settings WHERE k IN ('public', 'tower')");
+        while ($result && ($row = $result->fetch_assoc())) {
+            $settings[(string)$row['k']] = (string)$row['v'];
+        }
+
+        $one = static function (string $sql) use ($mysqli, $userId): int {
+            $stmt = $mysqli->prepare($sql);
+            if (!$stmt) {
+                return 0;
+            }
+            $params = array_fill(0, substr_count($sql, '?'), $userId);
+            $stmt->bind_param(str_repeat('i', count($params)), ...$params);
+            $stmt->execute();
+            $value = (int)($stmt->get_result()->fetch_row()[0] ?? 0);
+            $stmt->close();
+            return $value;
+        };
+
+        if (($settings['public'] ?? '0') !== '1' || $one('SELECT COUNT(*) FROM utenti_personaggi WHERE utente_id = ?') < 3) {
+            return MISSION_DUEL_EVENTS;
+        }
+
+        $blocked = [];
+        if (($settings['tower'] ?? '0') !== '1' || !auth_table_exists($mysqli, 'game_tower_progress')
+            || $one('SELECT COALESCE(MAX(best_floor), 0) FROM game_tower_progress WHERE user_id = ?') >= 100) {
+            $blocked = MISSION_TOWER_EVENTS;
+        }
+        if (!auth_table_exists($mysqli, 'friendships') || $one('SELECT COUNT(*) FROM friendships WHERE user_one_id = ? OR user_two_id = ?') === 0) {
+            $blocked[] = 'win_friend_challenge';
+        }
+        return $blocked;
+    } catch (Throwable $e) {
+        error_log('[missioni] filtro dei duelli: ' . $e->getMessage());
+        return [];
+    }
+}
+
 /**
  * Ritorna la data odierna nel formato DATE per il periodo daily.
  */
@@ -152,7 +210,7 @@ function ensureUserMissions(mysqli $mysqli, int $userId, string $tipo): array
 
     // ── 2. Genera nuove missioni ─────────────────────────────
     $recent   = fetchRecentMissionIds($mysqli, $userId, $tipo, $periodo);
-    $selected = selectMissionsFromPool($mysqli, $tipo, $count, $recent, missionUserHasDiscord($mysqli, $userId));
+    $selected = selectMissionsFromPool($mysqli, $tipo, $count, $recent, missionUserHasDiscord($mysqli, $userId), missionBlockedEvents($mysqli, $userId));
 
     if (empty($selected)) {
         // Pool vuoto o troppo pochi — ritorna vuoto senza crashare
@@ -192,7 +250,7 @@ function ensureUserMissions(mysqli $mysqli, int $userId, string $tipo): array
  * @param int[]  $exclude id di missioni viste di recente, da evitare
  * @return array  Array di righe missions (id, slug, categoria, incompatibili, ...)
  */
-function selectMissionsFromPool(mysqli $mysqli, string $tipo, int $count, array $exclude = [], bool $withDiscord = true): array
+function selectMissionsFromPool(mysqli $mysqli, string $tipo, int $count, array $exclude = [], bool $withDiscord = true, array $blockedEvents = []): array
 {
     $pool = fetchMissionPool($mysqli, $tipo);
 
@@ -202,6 +260,15 @@ function selectMissionsFromPool(mysqli $mysqli, string $tipo, int $count, array 
         $pool = array_values(array_filter(
             $pool,
             static fn(array $mission): bool => !str_starts_with((string)$mission['evento_trigger'], 'discord_')
+        ));
+    }
+
+    // Stesso principio per i duelli (missionBlockedEvents).
+    if ($blockedEvents !== []) {
+        $blocked = array_flip($blockedEvents);
+        $pool = array_values(array_filter(
+            $pool,
+            static fn(array $mission): bool => !isset($blocked[(string)$mission['evento_trigger']])
         ));
     }
 

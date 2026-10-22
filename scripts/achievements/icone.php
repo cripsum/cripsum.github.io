@@ -79,6 +79,9 @@ $G = [
     'medal'      => '<circle cx="12" cy="14.500" r="5.500"/><circle cx="12" cy="14.500" r="2"/><path d="M8.500 3.500l2.500 5.600M15.500 3.500L13 9.100"/>',
     'coins'      => '<ellipse cx="12" cy="6.500" rx="7" ry="3"/><path d="M5 6.500V12c0 1.700 3.100 3 7 3s7-1.300 7-3V6.500"/><path d="M5 12v5.500c0 1.700 3.100 3 7 3s7-1.300 7-3V12"/>',
     'question'   => '<path d="M8.800 9a3.200 3.200 0 1 1 4.900 2.700c-1 .7-1.700 1.400-1.700 2.800"/><path d="M12 18.500h.01"/>',
+    // Duelli: la Torre, e lo scudo dell'Oro coi tre gradi (come l'emblema del rango).
+    'tower'      => '<path d="M5.5 20.5h13"/><path d="M7 20.5V10h10v10.5"/><path d="M6 10V4.5h3v2h2v-2h2v2h2v-2h3V10"/><path d="M10.5 20.5v-3a1.5 1.5 0 0 1 3 0v3"/>',
+    'chevrons3'  => '<path d="M12 3l7.500 2.800v6.300c0 4.700-3.200 7.800-7.500 9.400-4.300-1.600-7.500-4.700-7.500-9.400V5.800z"/><path d="M8.500 8.500l3.500 2.400 3.500-2.400M8.500 12l3.500 2.400 3.500-2.400M8.500 15.500l3.500 2.400 3.500-2.400"/>',
 ];
 
 // ── Livelli: metallo (chiaro, medio, scuro), fondo, colore del simbolo ─────

@@ -545,16 +545,30 @@ function duel_finish(mysqli $m, array &$row, array $st): void
     }
     // Fase 8: la sfida del giorno conta il tentativo, il risultato migliore e il premio.
     $daily = duel_match_rules($row)['daily'] ?? null;
+    $dailyDone = null;
     if ($daily) {
         require_once __DIR__ . '/daily.php';
-        duel_daily_record($m, $row, $st, $daily);
+        $dailyDone = duel_daily_record($m, $row, $st, $daily);
     }
     // La Torre: il tentativo e, la prima volta che si supera il piano, record e premi.
     $tower = duel_match_rules($row)['tower'] ?? null;
+    $towerDone = null;
     if ($tower) {
         require_once __DIR__ . '/tower.php';
-        duel_tower_record($m, $row, $st, $tower);
+        $towerDone = duel_tower_record($m, $row, $st, $tower);
     }
+    // Fase T3 della Torre: KO, ultimate e vittorie perfette per achievement e missioni.
+    $facts = duel_finish_facts($m, $row, $st, $winnerSide);
+    duel_totals_add($m, $users, $facts);
+    // Una sfida a un amico: la partita in differita ha challenge_id, quella
+    // live e' legata dalla sfida (game_challenges.match_id).
+    $challenge = !empty($row['challenge_id']) || ((string)$row['mode'] === 'private' && rt_has_table($m, 'game_challenges')
+        && duel_row($m, 'SELECT id FROM game_challenges WHERE match_id = ? LIMIT 1', 'i', [(int)$row['id']]) !== null);
+    $hookInfo = [
+        'mode' => (string)$row['mode'], 'bot' => duel_is_bot_match($row) ? (string)$row['bot_level'] : null,
+        'challenge' => $challenge, 'facts' => $facts,
+        'daily_done' => !empty($dailyDone['first_done']), 'tower' => $towerDone,
+    ];
 
     $data = duel_match_columns($m, [
         'winner_rating_delta' => $rating['wd'],
@@ -579,8 +593,8 @@ function duel_finish(mysqli $m, array &$row, array $st): void
     $row['loser_id'] = $loser;
     $row['end_reason'] = $reason;
 
-    duel_after_commit(static function () use ($m, $users, $winnerSide): void {
-        duel_finish_hooks($m, $users, $winnerSide);
+    duel_after_commit(static function () use ($m, $users, $winnerSide, $hookInfo): void {
+        duel_finish_hooks($m, $users, $winnerSide, $hookInfo);
     });
     if (duel_is_async($row)) {
         duel_async_end_notice($m, $row, $users, $winnerSide);
@@ -616,8 +630,13 @@ function duel_async_end_notice(mysqli $m, array $row, array $users, ?int $winner
     }
 }
 
-/** Rewind, missioni, achievement: gli stessi agganci dei duelli vecchi. Il bot resta fuori. */
-function duel_finish_hooks(mysqli $m, array $users, ?int $winnerSide): void
+/**
+ * Rewind, missioni, achievement: gli stessi agganci dei duelli vecchi, piu'
+ * gli eventi dei duelli della fase T3 (duel_mission_events). Il bot resta fuori.
+ * Gli achievement si ricontano a ogni partita, non solo dopo una vittoria:
+ * KO, ultimate, sfide del giorno e piani contano anche quando perdi.
+ */
+function duel_finish_hooks(mysqli $m, array $users, ?int $winnerSide, array $info = []): void
 {
     require_once __DIR__ . '/../stats_tracker.php';
     require_once __DIR__ . '/../mission_tracker.php';
@@ -634,14 +653,102 @@ function duel_finish_hooks(mysqli $m, array $users, ?int $winnerSide): void
                 if ($won) {
                     trackMissionProgress($m, $userId, 'win_duel');
                 }
+                // Il Rewind conta gia' il duello qui sopra: questi eventi solo per le missioni.
+                foreach (duel_mission_events($info, (int)$side, $won) as [$event, $times]) {
+                    trackMissionProgress($m, $userId, $event, $times, false);
+                }
             }
-            if ($won) {
-                require_once __DIR__ . '/../achievements.php';
-                ach_sync($m, $userId, ['duels']);
-            }
+            require_once __DIR__ . '/../achievements.php';
+            ach_sync($m, $userId, empty($info['tower']) ? ['duels'] : ['duels', 'tower']);
         } catch (Throwable $e) {
             error_log('[duel] agganci di fine partita: ' . $e->getMessage());
         }
+    }
+}
+
+/**
+ * Gli eventi delle missioni dei duelli (fase T3) per chi ha giocato il lato
+ * $side: [[evento, quante volte], ...]. La sfida del giorno e i piani della
+ * Torre contano solo la prima volta (il record li ha gia' guardati).
+ */
+function duel_mission_events(array $info, int $side, bool $won): array
+{
+    $out = [];
+    if (($info['mode'] ?? '') === 'ranked') {
+        $out[] = ['play_ranked', 1];
+        if ($won) {
+            $out[] = ['win_ranked', 1];
+        }
+    }
+    $facts = $info['facts'][$side] ?? [];
+    if (($facts['ults'] ?? 0) > 0) {
+        $out[] = ['duel_ultimate', (int)$facts['ults']];
+    }
+    if (($facts['kos'] ?? 0) > 0) {
+        $out[] = ['duel_ko', (int)$facts['kos']];
+    }
+    if ($won && !empty($info['challenge'])) {
+        $out[] = ['win_friend_challenge', 1];
+    }
+    if ($won && ($info['bot'] ?? null) === 'incubo') {
+        $out[] = ['beat_incubo', 1];
+    }
+    // Sfida del giorno e Torre si giocano sempre dal lato 0, contro il bot.
+    if ($side === 0 && !empty($info['daily_done'])) {
+        $out[] = ['daily_challenge_done', 1];
+    }
+    if ($side === 0 && !empty($info['tower']['first'])) {
+        $out[] = ['tower_floor_clear', 1];
+        if (!empty($info['tower']['boss'])) {
+            $out[] = ['tower_boss_clear', 1];
+        }
+    }
+    return $out;
+}
+
+/**
+ * Per achievement e missioni (fase T3): i KO e le ultimate di ogni lato, e
+ * se chi ha vinto una Ranked l'ha vinta senza perdere una carta. I KO dalle
+ * statistiche del motore, le ultimate dalle mosse salvate (tutte gia' scritte:
+ * duel_step viene prima di duel_save).
+ */
+function duel_finish_facts(mysqli $m, array $row, array $st, ?int $winnerSide): array
+{
+    $facts = [0 => ['kos' => 0, 'ults' => 0, 'perfect' => false], 1 => ['kos' => 0, 'ults' => 0, 'perfect' => false]];
+    $sideOf = [];
+    foreach ($st['units'] as $id => $u) {
+        $side = (int)$u['side'];
+        $sideOf[(int)$id] = $side;
+        $facts[$side]['kos'] += (int)($u['stats']['kos'] ?? 0);
+    }
+    foreach (duel_rows($m, "SELECT payload_json FROM game_match_events WHERE match_id = ? AND version > 0 AND payload_json LIKE '%\"ultimate\"%'",
+        'i', [(int)$row['id']]) as $r) {
+        foreach ((json_decode((string)$r['payload_json'], true) ?: [])['ev'] ?? [] as $e) {
+            if (($e['t'] ?? '') === 'move' && ($e['m'] ?? '') === 'ultimate' && isset($sideOf[(int)($e['u'] ?? 0)])) {
+                $facts[$sideOf[(int)$e['u']]]['ults']++;
+            }
+        }
+    }
+    if ($winnerSide !== null && (string)$row['mode'] === 'ranked' && $facts[1 - $winnerSide]['kos'] === 0) {
+        $facts[$winnerSide]['perfect'] = !array_filter($st['units'], static fn($u) => (int)$u['side'] === $winnerSide && !empty($u['ko']));
+    }
+    return $facts;
+}
+
+/** Somma KO, ultimate e vittorie perfette in game_player_totals (migrazione della fase T3). */
+function duel_totals_add(mysqli $m, array $users, array $facts): void
+{
+    if (!rt_has_table($m, 'game_player_totals')) {
+        return;
+    }
+    foreach ($users as $side => $userId) {
+        $f = $facts[$side] ?? null;
+        if ($userId <= 0 || !$f || (!$f['kos'] && !$f['ults'] && !$f['perfect'])) {
+            continue;
+        }
+        duel_exec($m, 'INSERT INTO game_player_totals (user_id, kos, ults, perfect) VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE kos = kos + VALUES(kos), ults = ults + VALUES(ults), perfect = perfect + VALUES(perfect)',
+            'iiii', [$userId, $f['kos'], $f['ults'], $f['perfect'] ? 1 : 0]);
     }
 }
 
