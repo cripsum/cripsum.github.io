@@ -73,6 +73,16 @@ function profile_stats_catalog(): array
         'pullspot_won'     => ['group' => 'games', 'icon' => 'fa-solid fa-magnifying-glass', 'it' => 'Pullspot indovinati', 'en' => 'Pullspot solved', 'format' => 'number'],
         'animespot_points' => ['group' => 'games', 'icon' => 'fa-solid fa-music', 'it' => 'Punti Animespot', 'en' => 'Animespot points', 'format' => 'number'],
 
+        // Duelli (fase T4 della Torre): solo dall'editor, non tra quelle di base.
+        // Il rank e' «testo»: la fascia, con l'emblema al posto dell'icona e i punti nell'etichetta.
+        'duel_rank'        => ['group' => 'duels', 'icon' => 'fa-solid fa-shield-halved', 'it' => 'Rank nei duelli', 'en' => 'Duel rank', 'format' => 'text'],
+        'duel_rank_best'   => ['group' => 'duels', 'icon' => 'fa-solid fa-shield-halved', 'it' => 'Rank migliore', 'en' => 'Best rank', 'format' => 'text'],
+        'tower_floor'      => ['group' => 'duels', 'icon' => 'fa-solid fa-chess-rook', 'it' => 'Piano della Torre', 'en' => 'Tower floor', 'format' => 'floor'],
+        'ranked_wins'      => ['group' => 'duels', 'icon' => 'fa-solid fa-trophy', 'it' => 'Ranked vinte', 'en' => 'Ranked wins', 'format' => 'number'],
+        'ranked_winrate'   => ['group' => 'duels', 'icon' => 'fa-solid fa-chart-line', 'it' => 'Vittorie in Ranked', 'en' => 'Ranked win rate', 'format' => 'percent'],
+        'daily_done'       => ['group' => 'duels', 'icon' => 'fa-solid fa-calendar-check', 'it' => 'Sfide del giorno centrate', 'en' => 'Daily challenges done', 'format' => 'number'],
+        'ranked_streak'    => ['group' => 'duels', 'icon' => 'fa-solid fa-fire-flame-curved', 'it' => 'Ranked vinte di fila (record)', 'en' => 'Ranked win streak (best)', 'format' => 'number'],
+
         // Economia
         'godos'            => ['group' => 'economy', 'icon' => 'fa-solid fa-coins', 'image' => '/img/godos.png', 'it' => 'Godos', 'en' => 'Godos', 'format' => 'number'],
         'godos_earned'     => ['group' => 'economy', 'icon' => 'fa-solid fa-sack-dollar', 'image' => '/img/godos.png', 'it' => 'Godos guadagnati', 'en' => 'Godos earned', 'format' => 'number'],
@@ -89,6 +99,7 @@ function profile_stats_groups(string $lang = 'it'): array
         'progress'   => $it ? 'Progressi' : 'Progress',
         'social'     => $it ? 'Social e contenuti' : 'Social and content',
         'games'      => $it ? 'Giochi' : 'Games',
+        'duels'      => $it ? 'Duelli' : 'Duels',
         'economy'    => $it ? 'Economia' : 'Economy',
     ];
 }
@@ -206,12 +217,12 @@ function profile_stats_scalar(mysqli $mysqli, string $sql, string $types, array 
 /**
  * Valori grezzi delle statistiche richieste.
  *
- * Numeri per quasi tutto, stringhe per le statistiche di testo, null quando
- * il dato non esiste. Le query che servono a piu' statistiche girano una
- * volta sola.
+ * Numeri per quasi tutto, stringhe per le statistiche di testo (il rank dei
+ * duelli e' un array con emblema e nota), null quando il dato non esiste.
+ * Le query che servono a piu' statistiche girano una volta sola.
  *
  * @param string[] $keys
- * @return array<string,int|string|null>
+ * @return array<string,int|string|array|null>
  */
 function profile_stats_raw(mysqli $mysqli, array $profile, array $keys, string $lang = 'it'): array
 {
@@ -268,6 +279,17 @@ function profile_stats_raw(mysqli $mysqli, array $profile, array $keys, string $
         'iii',
         [$userId, $userId, $userId]
     ));
+
+    // Duelli: le Ranked giocate e vinte, e la riga dei punti, una volta sola.
+    $ranked = static fn() => $once('ranked', static fn() => profile_stats_row(
+        $mysqli,
+        "SELECT COUNT(*) AS played, COALESCE(SUM(winner_id = ?), 0) AS wins
+         FROM game_matches
+         WHERE mode = 'ranked' AND status = 'finished' AND (player1_id = ? OR player2_id = ?)",
+        'iii',
+        [$userId, $userId, $userId]
+    ));
+    $duelStats = static fn() => $once('duel_stats', static fn() => profile_stats_row($mysqli, 'SELECT rating, best_streak FROM game_player_stats WHERE user_id = ?', 'i', [$userId]));
 
     $catalogue = static fn(string $table) => $once('catalogue_' . $table, static fn() => profile_stats_scalar(
         $mysqli,
@@ -432,6 +454,53 @@ function profile_stats_raw(mysqli $mysqli, array $profile, array $keys, string $
                 $values[$key] = ($row && (int)$row['played'] > 0) ? (int)round((int)$row['wins'] / (int)$row['played'] * 100) : null;
                 break;
 
+            // Duelli: nascoste finche' non c'e' niente da mostrare, anche se scelte.
+            case 'duel_rank':
+                $row = $ranked();
+                $stats = $duelStats();
+                $values[$key] = ($row && (int)$row['played'] > 0 && $stats)
+                    ? profile_stats_duel_rank(profile_stats_duel_tier((int)$stats['rating']), number_format((int)$stats['rating'], 0, ',', $lang === 'en' ? ',' : '.') . ($lang === 'en' ? ' points' : ' punti'), $lang)
+                    : null;
+                break;
+
+            case 'duel_rank_best':
+                // La fascia piu' alta di una stagione chiusa da piazzato; a pari fascia la piu' recente.
+                $row = profile_stats_row(
+                    $mysqli,
+                    "SELECT s.number, r.tier FROM game_season_ratings r INNER JOIN game_seasons s ON s.id = r.season_id
+                     WHERE r.user_id = ? AND r.tier IS NOT NULL AND s.status = 'closed'
+                     ORDER BY FIELD(r.tier, 'leggenda', 'campione', 'diamante', 'oro', 'argento', 'bronzo'), s.number DESC LIMIT 1",
+                    'i',
+                    [$userId]
+                );
+                $values[$key] = $row ? profile_stats_duel_rank((string)$row['tier'], ($lang === 'en' ? 'season ' : 'stagione ') . (int)$row['number'], $lang) : null;
+                break;
+
+            case 'tower_floor':
+                $floor = profile_stats_scalar($mysqli, 'SELECT best_floor FROM game_tower_progress WHERE user_id = ?', 'i', [$userId]);
+                $values[$key] = $floor ?: null;
+                break;
+
+            case 'ranked_wins':
+                $row = $ranked();
+                $values[$key] = $row && (int)$row['wins'] > 0 ? (int)$row['wins'] : null;
+                break;
+
+            case 'ranked_winrate':
+                $row = $ranked();
+                $values[$key] = $row && (int)$row['played'] >= 5 ? (int)round((int)$row['wins'] / (int)$row['played'] * 100) : null;
+                break;
+
+            case 'daily_done':
+                $done = profile_stats_scalar($mysqli, 'SELECT COUNT(*) FROM game_daily_results WHERE user_id = ? AND completed = 1', 'i', [$userId]);
+                $values[$key] = $done ?: null;
+                break;
+
+            case 'ranked_streak':
+                $stats = $duelStats();
+                $values[$key] = $stats && (int)$stats['best_streak'] > 0 ? (int)$stats['best_streak'] : null;
+                break;
+
             case 'subway_best':
                 $values[$key] = profile_stats_scalar($mysqli, 'SELECT best_time_ms FROM subway_leaderboard WHERE utente_id = ? LIMIT 1', 'i', [$userId]);
                 break;
@@ -457,6 +526,34 @@ function profile_stats_raw(mysqli $mysqli, array $profile, array $keys, string $
     }
 
     return $values;
+}
+
+/**
+ * La fascia dei duelli dai punti: le stesse soglie di duel_rank()
+ * (includes/duel/store.php), qui per non caricare i duelli nel profilo.
+ */
+function profile_stats_duel_tier(int $rating): string
+{
+    foreach ([1900 => 'leggenda', 1600 => 'campione', 1400 => 'diamante', 1200 => 'oro', 1000 => 'argento'] as $min => $key) {
+        if ($rating >= $min) {
+            return $key;
+        }
+    }
+    return 'bronzo';
+}
+
+/**
+ * Una statistica di rank: il nome della fascia, il suo emblema al posto
+ * dell'icona (img/duelli/rank-<fascia>-nudo.svg) e la nota dopo l'etichetta.
+ *
+ * @return array{text:string,image:string,note:string}
+ */
+function profile_stats_duel_rank(string $tier, string $note, string $lang): array
+{
+    $names = ['bronzo' => ['Bronzo', 'Bronze'], 'argento' => ['Argento', 'Silver'], 'oro' => ['Oro', 'Gold'], 'diamante' => ['Diamante', 'Diamond'],
+        'campione' => ['Campione', 'Champion'], 'leggenda' => ['Leggenda', 'Legend']];
+    $tier = isset($names[$tier]) ? $tier : 'bronzo';
+    return ['text' => $names[$tier][$lang === 'en' ? 1 : 0], 'image' => '/img/duelli/rank-' . $tier . '-nudo.svg', 'note' => $note];
 }
 
 /** Il nome leggibile di una sezione del sito, come nel Rewind. */
@@ -493,7 +590,11 @@ function profile_stats_format(string $key, $raw, string $lang = 'it'): ?array
 
     switch ($def['format']) {
         case 'text':
-            return ['value' => (string)$raw, 'unit' => ''];
+            // Il rank dei duelli arriva con l'emblema e la nota (profile_stats_duel_rank).
+            return ['value' => is_array($raw) ? (string)$raw['text'] : (string)$raw, 'unit' => ''];
+
+        case 'floor':
+            return ['value' => (string)(int)$raw, 'unit' => '/100'];
 
         case 'percent':
             return ['value' => (string)(int)$raw, 'unit' => '%'];
@@ -535,18 +636,19 @@ function profile_stats_cards(mysqli $mysqli, array $profile, string $lang = 'it'
     foreach ($selection['keys'] as $key) {
         $value = $raw[$key] ?? null;
         // Le quattro di sempre nascondono gli zeri; una scelta esplicita li mostra.
-        if ($value === null || (!$selection['explicit'] && (int)$value === 0)) {
+        if ($value === null || (!$selection['explicit'] && !is_array($value) && (int)$value === 0)) {
             continue;
         }
         $formatted = profile_stats_format($key, $value, $lang);
         if ($formatted === null) {
             continue;
         }
+        $label = $lang === 'en' ? $catalog[$key]['en'] : $catalog[$key]['it'];
         $cards[] = [
             'key'    => $key,
             'icon'   => $catalog[$key]['icon'],
-            'image'  => $catalog[$key]['image'] ?? null,
-            'label'  => $lang === 'en' ? $catalog[$key]['en'] : $catalog[$key]['it'],
+            'image'  => is_array($value) && !empty($value['image']) ? $value['image'] : ($catalog[$key]['image'] ?? null),
+            'label'  => is_array($value) && !empty($value['note']) ? $label . ' · ' . $value['note'] : $label,
             'value'  => $formatted['value'],
             'unit'   => $formatted['unit'],
             'format' => $catalog[$key]['format'],
@@ -573,7 +675,7 @@ function profile_stats_editor_catalog(mysqli $mysqli, array $profile, string $la
             'key'   => $key,
             'group' => $def['group'],
             'icon'  => $def['icon'],
-            'image' => $def['image'] ?? null,
+            'image' => is_array($raw[$key] ?? null) && !empty($raw[$key]['image']) ? $raw[$key]['image'] : ($def['image'] ?? null),
             'label' => $lang === 'en' ? $def['en'] : $def['it'],
             'value' => $formatted ? $formatted['value'] . ($formatted['unit'] !== '' ? ($def['format'] === 'percent' ? '' : ' ') . $formatted['unit'] : '') : null,
         ];

@@ -114,6 +114,8 @@
         if (TW.cleared && TW.first && TW.voucher) {
             rows.push(['piu', TW.top ? T('Due potenziamenti gratuiti', 'Two free level-ups') : T('Potenziamento gratuito', 'Free level-up'), upTo(TW.voucher)]);
         }
+        // Fase T4: il badge del piano 100.
+        if (TW.cleared && TW.first && TW.top && TW.badge) rows.push(['check', T('Badge «In cima alla Torre»', 'Badge «Top of the Tower»'), T('sul profilo', 'on your profile')]);
         if (TW.cleared && !TW.first) rows.push(['check', T('Già superato prima', 'Already beaten before'), T('senza premio', 'no rewards')]);
         if (TW.won && !TW.cleared) rows.push(['orologio', T('Vinta in ' + R.turns + ' turni', 'Won in ' + R.turns + ' turns'), T('il piano chiede entro ' + TW.turns_max, 'the floor asks for ' + TW.turns_max + ' at most')]);
         if (!TW.cleared) {

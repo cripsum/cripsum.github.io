@@ -1826,6 +1826,7 @@ $ogMeta = cripsum_og_profile($mysqli, $profile);
                                             'artist' => ($lang === 'it') ? 'Artista' : 'Artist',
                                             'rare' => ($lang === 'it') ? 'Raro' : 'Rare',
                                             'custom' => ($lang === 'it') ? 'Speciale' : 'Special',
+                                            'duelli' => ($lang === 'it') ? 'Stagione dei duelli' : 'Duel season',
                                         ];
                                         $subtitle = $badgeTypeLabels[$badge['badge_type'] ?? 'custom'] ?? (($lang === 'it') ? 'Speciale' : 'Special');
                                     } else {

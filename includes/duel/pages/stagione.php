@@ -104,7 +104,7 @@ $dEmb = static fn(string $key, string $cls = '') => '<span class="d2p-emb ' . $c
                 <div class="d2p-past">
                     <span><?= $h($dT('Stagione ', 'Season ') . $p['n'] . ($p['name'] !== '' ? ' · ' . $p['name'] : '')) ?></span>
                     <b><?php if ($p['tier']): ?><?= $dEmb($p['tier']) ?><?= $h(duel_rank_label($p['tier'], $dLang)) ?><?php else: ?><?= $h($dT('senza piazzamento', 'not placed')) ?><?php endif; ?>
-                        <?= $p['rating'] !== null ? $h(' · ' . $dNum($p['rating'])) : '' ?><?= $p['reward'] ? $h(' · +' . $dNum($p['reward']) . ' Godos') : '' ?></b>
+                        <?= $p['rating'] !== null ? $h(' · ' . $dNum($p['rating'])) : '' ?><?= $p['reward'] ? $h(' · +' . $dNum($p['reward']) . ' Godos') : '' ?><?= !empty($p['badge']) ? $h(' · ' . $dT('badge sul profilo', 'profile badge')) : '' ?></b>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>

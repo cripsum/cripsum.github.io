@@ -518,6 +518,14 @@ function duel_tower_record(mysqli $m, array $row, array $st, array $tower): ?arr
     }
     if ($floorNo === DUEL_TOWER_FLOORS) {
         duel_tower_notice_top($m, $userId);
+        // Fase T4: il badge «In cima alla Torre». Se non si crea, il piano resta battuto.
+        try {
+            require_once __DIR__ . '/badges.php';
+            $badge = duel_tower_top_badge($m);
+            $out['badge'] = $badge !== null && duel_badge_give($m, $userId, $badge);
+        } catch (Throwable $e) {
+            error_log('[duel torre] badge del piano 100: ' . $e->getMessage());
+        }
     }
     return $out;
 }
@@ -840,6 +848,10 @@ function duel_tower_summary(mysqli $m, array $row, int $userId, string $lang): ?
         'pick' => $vouchers ? duel_tower_pick_list($m, $userId, $vouchers[0]['max']) : [],
         'power' => ['you' => duel_tower_power($mine), 'rec' => (int)round(duel_tower_power($theirs, $boon) * 1.05)],
         'attempts' => $attempts, 'best' => $best, 'top' => $n === DUEL_TOWER_FLOORS,
+        // Fase T4: il badge «In cima alla Torre» e' sul profilo.
+        'badge' => $n === DUEL_TOWER_FLOORS && rt_has_table($m, 'custom_badges') && rt_has_table($m, 'user_custom_badges')
+            && duel_row($m, "SELECT 1 AS x FROM user_custom_badges ub JOIN custom_badges b ON b.id = ub.badge_id WHERE ub.utente_id = ? AND b.slug = 'duelli-torre-cima'",
+                'i', [$userId]) !== null,
         'next' => $n < DUEL_TOWER_FLOORS && $n + 1 <= $best + 1 && isset($floors[$n + 1]) ? duel_tower_floor_brief($m, $floors[$n + 1], $lang) : null,
     ];
 }

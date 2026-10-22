@@ -259,14 +259,35 @@ function duel_season_close(mysqli $m, int $seasonId): bool
             FROM game_season_ratings r LEFT JOIN game_player_stats s ON s.user_id = r.user_id WHERE r.season_id = ?', 'i', [$seasonId]);
         $paid = [];
         $godos = duel_season_rewards($m);
+        // Fase T4: il badge della stagione nella fascia del picco (includes/duel/badges.php).
+        require_once __DIR__ . '/badges.php';
+        $badges = [];
         foreach ($players as $p) {
             $userId = (int)$p['user_id'];
             $placed = (int)$p['games'] >= DUEL_SEASON_PLACEMENT;
             $tier = $placed ? duel_rank((int)$p['peak'])['key'] : null;
             $reward = $tier ? ($godos[$tier] ?? 0) : 0;
-            $now = duel_tx($m, static function () use ($m, $seasonId, $userId, $p, $tier, $reward): bool {
+            // Il badge si crea fuori dalla transazione del giocatore: resta anche se la sua si annulla.
+            // Un badge che non si crea non ferma la chiusura ne' i premi.
+            if ($tier && !array_key_exists($tier, $badges)) {
+                try {
+                    $badges[$tier] = duel_season_badge_id($m, $n, $tier);
+                } catch (Throwable $e) {
+                    error_log('[duel stagione] badge ' . $tier . ': ' . $e->getMessage());
+                    $badges[$tier] = null;
+                }
+            }
+            $badgeId = $tier ? $badges[$tier] : null;
+            $now = duel_tx($m, static function () use ($m, $seasonId, $userId, $p, $tier, $reward, $badgeId): bool {
                 duel_exec($m, 'UPDATE game_season_ratings SET rating_end = ?, tier = ?, reward = ? WHERE season_id = ? AND user_id = ?', 'isiii',
                     [(int)$p['rating'], $tier, $reward, $seasonId, $userId]);
+                if ($badgeId) {
+                    try {
+                        duel_badge_give($m, $userId, $badgeId);
+                    } catch (Throwable $e) {
+                        error_log('[duel stagione] badge a ' . $userId . ': ' . $e->getMessage());
+                    }
+                }
                 return duel_reward_grant($m, $userId, 'season', (string)$seasonId, $reward);
             });
             if ($now) {
@@ -284,9 +305,11 @@ function duel_season_close(mysqli $m, int $seasonId): bool
         foreach ($paid as [$userId, $tier, $reward]) {
             $it = duel_rank_label($tier, 'it');
             $en = duel_rank_label($tier, 'en');
+            $badgeIt = !empty($badges[$tier]) ? " e il badge «Stagione $n · {$it}» sul profilo" : '';
+            $badgeEn = !empty($badges[$tier]) ? " and the «Season $n · {$en}» profile badge" : '';
             duel_notify($m, $userId, "Stagione $n finita: $it", "Season $n is over: $en",
-                "Hai raggiunto $it nei duelli: +$reward Godos. I punti ripartono più vicini a 1.000 e comincia la stagione dopo.",
-                "You reached $en in duels: +$reward Godos. Points move closer to 1,000 and the next season begins.");
+                "Hai raggiunto $it nei duelli: +$reward Godos$badgeIt. I punti ripartono più vicini a 1.000 e comincia la stagione dopo.",
+                "You reached $en in duels: +$reward Godos$badgeEn. Points move closer to 1,000 and the next season begins.");
         }
         return $closed;
     } finally {
@@ -334,10 +357,15 @@ function duel_season_page(mysqli $m, int $userId): array
     }
     $past = [];
     if (duel_phase6_ready($m)) {
-        foreach (duel_rows($m, "SELECT s.number, s.name, r.tier, r.rating_end, r.games, r.reward FROM game_season_ratings r
+        // Fase T4: se il badge della stagione e' sul profilo (includes/duel/badges.php).
+        require_once __DIR__ . '/badges.php';
+        $badge = duel_badges_ready($m) ? "EXISTS (SELECT 1 FROM user_custom_badges ub JOIN custom_badges b ON b.id = ub.badge_id
+            WHERE ub.utente_id = r.user_id AND b.slug = CONCAT('duelli-s', s.number, '-', r.tier))" : '0';
+        foreach (duel_rows($m, "SELECT s.number, s.name, r.tier, r.rating_end, r.games, r.reward, $badge AS badge FROM game_season_ratings r
             JOIN game_seasons s ON s.id = r.season_id WHERE r.user_id = ? AND s.status = 'closed' ORDER BY s.number DESC LIMIT 20", 'i', [$userId]) as $r) {
             $past[] = ['n' => (int)$r['number'], 'name' => (string)($r['name'] ?? ''), 'tier' => $r['tier'] !== null ? (string)$r['tier'] : null,
-                'rating' => $r['rating_end'] !== null ? (int)$r['rating_end'] : null, 'games' => (int)$r['games'], 'reward' => (int)$r['reward']];
+                'rating' => $r['rating_end'] !== null ? (int)$r['rating_end'] : null, 'games' => (int)$r['games'], 'reward' => (int)$r['reward'],
+                'badge' => (bool)$r['badge']];
         }
     }
     return [
