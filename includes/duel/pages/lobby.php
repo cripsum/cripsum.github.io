@@ -62,6 +62,7 @@ $dConfig = duel_page_config($dLang, $dUserId);
                 <div class="d2p-play" id="d2p-play"></div>
                 <div class="d2p-block" id="d2p-going" hidden></div>
                 <div class="d2p-block" id="d2p-daily" hidden></div>
+                <div class="d2p-block d2p-tw-lobby" id="d2p-tower" hidden></div>
             </section>
 
             <aside class="d2p-side">

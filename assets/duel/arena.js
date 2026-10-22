@@ -476,6 +476,8 @@
         const st = S.st || {};
         const daily = st.rules && st.rules.daily;
         if (daily) return T('Sfida del giorno', 'Daily challenge') + (goal && daily.goal ? ' · ' + T('entro ' + daily.goal + ' turni', 'within ' + daily.goal + ' turns') : '');
+        const tower = st.rules && st.rules.tower;
+        if (tower) return T('Torre · Piano ', 'Tower · Floor ') + tower.floor + (goal && tower.turns ? ' · ' + T('entro ' + tower.turns + ' turni', 'within ' + tower.turns + ' turns') : '');
         if (st.rules && st.rules.async) return T('In differita', 'Turn-based');
         return MODE[st.mode] || st.mode || '';
     }
@@ -487,6 +489,11 @@
         const badge = p.badge && window.D2Icons ? '<span class="d2-badge-s" style="--tc: var(--t-' + esc(p.badge.tier) + ')" title="' + esc(T('Stagione ', 'Season ') + p.badge.n) + '">'
             + window.D2Icons.emblem(p.badge.tier) + '<small>S' + p.badge.n + '</small></span>' : '';
         return '<span class="d2-sw"></span>' + esc(p.username || '?') + ' ' + badge + rank + ' ' + ps;
+    }
+    /** Il potenziamento della Torre di una carta nemica (testo), o ''. */
+    function boonOf(id) {
+        const tw = S.st && S.st.rules && S.st.rules.tower;
+        return tw && tw.boon && unitSt(id).side === 1 ? tw.boon : '';
     }
     function botLevel(l) {
         return { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard'), incubo: T('Incubo', 'Nightmare') }[l] || l || '';
@@ -504,7 +511,7 @@
         el.innerHTML = '<div class="d2-art">'
             + (u.img ? '<img src="' + esc(u.img) + '" alt="" onerror="this.remove()">' : '')
             + '<span class="d2-ini">' + esc(uName(id).charAt(0)) + '</span>'
-            + '<span class="d2-lv">' + (u.level >= 6 ? 'MAX' : 'Lv ' + u.level) + '</span>'
+            + '<span class="d2-lv"' + (boonOf(id) ? ' title="' + esc(boonOf(id)) + '"' : '') + '>' + (u.level >= 6 ? 'MAX' : 'Lv ' + u.level) + (boonOf(id) ? ic('fulmine') : '') + '</span>'
             + '<span class="d2-role" title="' + esc(u.role) + '">' + ic(ROLE_ICON[u.role] || 'dps') + '</span>'
             + '<div class="d2-vis"></div></div>'
             + '<div class="d2-name"><span>' + esc(uName(id)) + '</span><small>' + esc(rarName(u.rarity)) + '</small></div>'
@@ -1283,6 +1290,7 @@
                 case 'steal': floatNum(e.dst, T('Rubato: ', 'Stolen: ') + ((CFG.statuses[e.k] || {}).n || e.k), 'd2-txt'); await wait(400); break;
                 case 'confused': floatNum(e.u, T('Confuso', 'Confused'), 'd2-txt'); await wait(400); break;
                 case 'trait': if ((e.units || []).length) banner(T('Legame attivo', 'Bond active') + ' · ' + traitName(e)); await wait(500); break;
+                case 'boon': if ((e.units || []).length) banner(T('Nemici potenziati', 'Boosted enemies') + (boonOf(e.units[0]) ? ' · ' + boonOf(e.units[0]) : '')); await wait(500); break;
                 default: break;
             }
         }
@@ -1486,6 +1494,7 @@
         const e = d.eff || {};
         $('d2-kit').innerHTML = '<div class="d2-kit-h">' + avatar(id) + '<div><b>' + esc(uName(id)) + '</b><small>' + esc(u.role) + ' · ' + esc(rarName(u.rarity)) + ' · ' + (u.level >= 6 ? 'MAX' : 'Lv ' + u.level)
             + (k.traits && k.traits.length ? ' · ' + esc(k.traits.join(', ')) : '') + '</small></div></div>'
+            + (boonOf(id) ? part(T('TORRE', 'TOWER'), { name: T('Nemico potenziato', 'Boosted enemy'), text: boonOf(id) }) : '')
             + part(T('PASSIVA', 'PASSIVE'), k.passive) + part(T('ATTACCO', 'ATTACK'), k.attack) + part(T('ABILITÀ', 'SKILL'), k.skill) + part('ULTIMATE', k.ultimate)
             + '<div class="d2-kit-stats">' + [['ATK', e.atk], ['DEF', e.def], [T('VEL', 'SPD'), e.spd], [T('CRIT', 'CRIT'), (e.crit !== undefined ? e.crit + '%' : '')],
                 [T('D. CRIT', 'C. DMG'), e.cdmg !== undefined ? e.cdmg + '%' : ''], [T('PREC', 'ACC'), e.prec], [T('TEN', 'TEN'), e.ten], ['HP', fmt(d.hp)]]
@@ -1637,10 +1646,13 @@
         const el = $('d2-end');
         el.className = 'd2-end ' + cls;
         const canRematch = S.side !== null && S.st.mode !== 'ranked';
+        // La Torre: «Riprova» lo stesso piano, e si torna alla Torre.
+        const tower = S.st.rules && S.st.rules.tower;
         el.innerHTML = '<h2 id="d2-end-t">' + esc(title) + '</h2><p>' + esc(reason) + '</p>' + elo + '<div class="d2-mvp">' + mvp + '</div>'
             + '<div class="d2-acts"><a class="d2-btn d2-btn-w" href="' + esc(CFG.urls.end + '?m=' + S.match) + '">' + esc(T('Riepilogo', 'Summary')) + '</a>'
-            + (canRematch ? '<button class="d2-btn" type="button" id="d2-rematch">' + esc(T('Rivincita', 'Rematch')) + '</button>' : '')
-            + '<a class="d2-btn" href="' + esc(CFG.lobby) + '">' + esc(T('Torna ai duelli', 'Back to duels')) + '</a>'
+            + (canRematch ? '<button class="d2-btn" type="button" id="d2-rematch">' + esc(tower ? T('Riprova', 'Try again') : T('Rivincita', 'Rematch')) + '</button>' : '')
+            + (tower ? '<a class="d2-btn" href="' + esc(CFG.urls.tower) + '">' + esc(T('Torna alla Torre', 'Back to the Tower')) + '</a>'
+                : '<a class="d2-btn" href="' + esc(CFG.lobby) + '">' + esc(T('Torna ai duelli', 'Back to duels')) + '</a>')
             + '<button class="d2-btn" type="button" id="d2-see">' + esc(T('Guarda il campo', 'See the field')) + '</button></div><p id="d2-offer"></p>';
         el.hidden = false;
         SND.play(cls === 'd2-win' ? 'win' : cls === 'd2-lose' ? 'lose' : 'turn');

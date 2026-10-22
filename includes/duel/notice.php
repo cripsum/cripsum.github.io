@@ -11,6 +11,7 @@ declare(strict_types=1);
  * diventa «partita trovata», se smette di cercare «ricerca finita».
  * Al massimo un avviso ogni 30 minuti per giocatore e uno ogni 5 minuti in
  * tutto. Solo con i duelli aperti a tutti e l'interruttore `discord` acceso.
+ * L'altro messaggio e' quello della Torre conquistata (tower.php, op 'post').
  *
  * Il bot (presence-bot) pubblica con /v1/announce, target «duelli» (canale
  * DISCORD_DUELS_CHANNEL_ID nel suo .env, o quello che si chiama «duelli»),
@@ -178,6 +179,9 @@ function duel_discord_flush(mysqli $m): void
             }
         } elseif ($job['op'] === 'edit') {
             duel_bot_post('/v1/announce/edit', $job['payload']);
+        } elseif ($job['op'] === 'post') {
+            // Un messaggio che non cambia piu' (la Torre conquistata).
+            duel_bot_post('/v1/announce', $job['payload']);
         }
     }
 }

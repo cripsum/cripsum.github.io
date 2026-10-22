@@ -128,6 +128,8 @@ body.d2 :focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
 .d2-card .d2-art::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--r); z-index: 2; }
 .d2-lv { position: absolute; top: 8px; left: 8px; height: 22px; padding: 0 8px; border-radius: 99px; background: rgba(10,10,11,.82); font-size: 11.5px; font-weight: 600; display: flex; align-items: center; z-index: 3; }
 .d2-role { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; background: rgba(10,10,11,.82); display: grid; place-items: center; font-size: 14px; z-index: 3; }
+/* La Torre: il nemico potenziato ha il fulmine accanto al livello (il kit dice cosa ha). */
+.d2-lv .ic { width: 11px; height: 11px; margin-left: 4px; }
 .d2-name { margin-top: 9px; font-size: 14px; font-weight: 600; white-space: nowrap; display: flex; justify-content: space-between; gap: 6px; }
 .d2-name span { overflow: hidden; text-overflow: ellipsis; }
 .d2-name small { color: var(--tx3); font-weight: 500; font-size: 12px; flex: none; }

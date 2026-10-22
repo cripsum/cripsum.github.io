@@ -1,6 +1,6 @@
 /*
  * Duelli 2.0 — le pagine con la navbar del sito: lobby «Duelli» (tavola 1),
- * Squadra (tavola 2), fine partita (tavola 5).
+ * Squadra (tavola 2), fine partita (tavola 5), Stagione, la Torre (tavole 21–23).
  *
  * Stessi valori dell'arena (arena.css): nero, bianco, Poppins; colore solo
  * dove porta un'informazione (rarita' coi colori della lootbox, ranghi,
@@ -486,4 +486,154 @@ body.d2p .d2p-search input:focus-visible { outline: none; }
 @media (max-width: 700px) {
     .d2p-daily { grid-template-columns: auto minmax(0, 1fr); gap: 16px; }
     .d2p-daily .d2p-btn { grid-column: 1 / -1; }
+}
+
+/* ── La Torre (fase T2, tavole 21–23) ─────────────────────────────────── */
+/* Lobby: il riquadro sotto la sfida del giorno. */
+.d2p-tw-mini { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 12.5px; color: var(--tx2); }
+.d2p-tw-mini .d2p-bar { width: 160px; height: 4px; }
+.d2p-tw-mini .d2p-bar i { background: var(--tx); }
+
+/* Pagina: il record in alto. */
+.d2p-tw-prog { display: grid; gap: 8px; min-width: 260px; }
+.d2p-tw-prog p { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin: 0; font-size: 13.5px; color: var(--tx2); }
+.d2p-tw-prog p b { color: var(--tx); font-size: 22px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.d2p-tw-prog .d2p-bar { height: 4px; }
+.d2p-tw-prog .d2p-bar i { background: var(--tx); }
+
+/* Il piano in cui sei. */
+.d2p-tw-now { padding-bottom: 34px; border-bottom: 1px solid var(--line2); }
+.d2p-tw-now-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
+.d2p-tw-now-h h2 { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+.d2p-tw-now-h h2 span { color: var(--tx2); font-weight: 500; }
+.d2p-tw-now .d2p-team { margin: 26px 0 22px; align-items: flex-start; }
+.d2p-tw-facts { display: grid; gap: 8px; }
+.d2p-tw-fact { display: flex; gap: 10px; align-items: flex-start; margin: 0; font-size: 13.5px; color: var(--tx2); max-width: 380px; }
+.d2p-tw-fact b { color: var(--tx); font-weight: 600; }
+.d2p-tw-fact .ic { margin-top: 2px; color: var(--tx); }
+
+/* Il potenziamento dei nemici, sotto la carta. */
+.d2p-tw-boon { display: inline-flex; align-items: center; gap: 4px; min-height: 22px; margin-top: 6px; padding: 2px 8px; border-radius: 11px; background: var(--s2); color: var(--tx); font-size: 11.5px; font-weight: 600; line-height: 1.3; }
+.d2p-tw-boon .ic { width: 12px; height: 12px; }
+.d2p-dc .d2p-tw-boon { align-self: flex-start; }
+
+/* La salita: i dieci tratti e i loro piani. */
+.d2p-tw-climb { padding-top: 34px; }
+.d2p-tw-sectors { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; margin: 16px 0 22px; }
+.d2p-tw-sectors button { display: grid; gap: 6px; padding: 8px 0 4px; text-align: left; color: var(--tx3) !important; font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; border-radius: 4px; }
+.d2p-tw-sectors button::before { content: ""; height: 4px; border-radius: 99px; background: var(--s3); }
+.d2p-tw-sectors button:hover { color: var(--tx2) !important; }
+.d2p-tw-sectors button.is-done { color: var(--tx2) !important; }
+.d2p-tw-sectors button.is-done::before { background: var(--tx2); }
+.d2p-tw-sectors button.is-now::before { background: linear-gradient(90deg, var(--tx) var(--p), var(--s3) var(--p)); }
+.d2p-tw-sectors button[aria-pressed="true"] { color: var(--tx) !important; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+
+.d2p-tw-floors { list-style: none; margin: 0; padding: 0; }
+.d2p-tw-f { position: relative; display: grid; grid-template-columns: 26px 44px minmax(0, 1fr) auto; gap: 14px; align-items: center; min-height: 64px; padding: 10px 0; }
+.d2p-tw-f + .d2p-tw-f { border-top: 1px solid var(--line2); }
+/* L'altimetro: una linea che sale, piena fino a dove sei arrivato. */
+.d2p-tw-f::before { content: ""; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: var(--s3); }
+.d2p-tw-f.is-done::before { background: var(--tx2); }
+.d2p-tw-f.is-now::before { background: linear-gradient(var(--s3) 50%, var(--tx2) 50%); }
+.d2p-tw-f:first-child::before { top: 50%; }
+.d2p-tw-f:last-child::before { bottom: 50%; }
+.d2p-tw-dot { position: relative; z-index: 1; justify-self: center; width: 10px; height: 10px; border-radius: 50%; background: var(--s3); box-shadow: 0 0 0 4px var(--bg); }
+.is-done .d2p-tw-dot { background: var(--tx2); }
+.is-now .d2p-tw-dot { width: 14px; height: 14px; background: var(--bg); border: 2px solid var(--tx); box-shadow: 0 0 0 4px var(--s1); }
+.d2p-tw-n { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--tx2); }
+.is-now .d2p-tw-n, .is-boss .d2p-tw-n { color: var(--tx); }
+.is-locked .d2p-tw-n { color: var(--tx3); }
+.d2p-tw-what { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.d2p-tw-what > div { min-width: 0; }
+.d2p-tw-what .d2p-faces span { width: 30px; height: 36px; border-radius: 9px; border-width: 2px; }
+.d2p-tw-what .d2p-faces span + span { margin-left: -10px; }
+.d2p-tw-what .d2p-faces i { font-size: 12px; }
+.d2p-tw-what strong { display: block; font-size: 14.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.d2p-tw-what small { display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--tx2); }
+.is-locked .d2p-tw-what { opacity: .55; }
+.d2p-tw-tag { display: inline-flex; align-items: center; gap: 4px; min-height: 20px; padding: 1px 7px; border-radius: 10px; border: 1px solid var(--line); color: var(--tx); font-size: 11.5px; font-weight: 500; }
+.d2p-tw-tag .ic { width: 12px; height: 12px; }
+.d2p-tw-r { text-align: right; font-size: 12.5px; color: var(--tx2); white-space: nowrap; }
+.d2p-tw-r b { display: flex; align-items: center; justify-content: flex-end; gap: 5px; color: var(--tx); font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.is-done .d2p-tw-r b { color: var(--tx2); font-weight: 500; }
+.d2p-tw-f.is-now { margin: 0 -14px; padding: 10px 14px; border-radius: 16px; background: var(--s1); }
+.d2p-tw-f.is-now + .d2p-tw-f, .d2p-tw-f + .d2p-tw-f.is-now { border-top-color: transparent; }
+.d2p-tw-f.is-now::before { left: 26px; }
+.d2p-tw-f.is-now .d2p-faces span { border-color: var(--s1); }
+/* I boss: piu' alti, la squadra intera. */
+.d2p-tw-f.is-boss { min-height: 96px; }
+.d2p-tw-f.is-boss .d2p-tw-what .d2p-faces span { width: 40px; height: 50px; border-radius: 11px; }
+.d2p-tw-f.is-boss strong { font-size: 17px; }
+/* Tutta la riga apre il foglio del piano. */
+.d2p-tw-hit { position: absolute; inset: 0; z-index: 2; border-radius: 12px; }
+.d2p-tw-f.is-now .d2p-tw-hit { border-radius: 16px; }
+.d2p-tw-f:not(.is-now):hover .d2p-tw-n { color: var(--tx); }
+.d2p-tw-f:not(.is-now):hover .d2p-tw-what strong { text-decoration: underline; text-decoration-color: var(--tx3); text-underline-offset: 3px; }
+
+/* Colonna di lato. */
+.d2p-tw-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.d2p-tw-stats div { display: grid; gap: 2px; }
+.d2p-tw-stats b { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.d2p-tw-stats span { font-size: 12.5px; color: var(--tx2); }
+.d2p-tw-vou { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.d2p-tw-vou + .d2p-tw-vou { margin-top: 12px; }
+.d2p-tw-vou .d2p-av { width: 40px; height: 40px; font-size: 16px; }
+.d2p-tw-vou strong { display: block; font-size: 14.5px; font-weight: 600; }
+.d2p-tw-vou small { font-size: 12.5px; color: var(--tx2); }
+.d2p-tw-board .d2p-av { width: 24px; height: 24px; font-size: 11px; }
+
+/* Foglio del piano. */
+.d2p-tw-sheet .d2p-dcards .d2p-dc { display: flex; flex-direction: column; }
+.d2p-tw-power { display: grid; gap: 8px; margin-top: 4px; }
+.d2p-tw-pw { display: grid; grid-template-columns: 116px minmax(0, 1fr) 44px; gap: 10px; align-items: center; font-size: 12.5px; color: var(--tx2); }
+.d2p-tw-pw b { text-align: right; color: var(--tx); font-weight: 600; font-variant-numeric: tabular-nums; }
+.d2p-tw-pw .d2p-bar { height: 4px; }
+.d2p-tw-pw.is-them .d2p-bar i { background: var(--tx3); }
+.d2p-tw-pw.is-you .d2p-bar i { background: var(--tx); }
+.d2p-tw-prizes { display: grid; gap: 8px; }
+.d2p-tw-prize { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13.5px; color: var(--tx2); }
+.d2p-tw-prize .ic { color: var(--tx); }
+.d2p-tw-prize b { color: var(--tx); font-weight: 600; }
+.d2p-tw-sheet .d2p-fr { grid-template-columns: 40px minmax(0, 1fr) auto; }
+.d2p-tw-sheet .d2p-fr .d2p-num { color: var(--tx2); font-size: 13px; }
+/* Il piano 100: lo stesso foglio, il titolo piu' grande. */
+.d2p-tw-top .d2p-dtitle { font-size: 26px; letter-spacing: -0.02em; }
+.d2p-tw-top .d2p-dcards { gap: 8px; }
+
+/* Scegli chi potenziare: fine partita e foglio della Torre. */
+.d2p-tw-pick { margin-top: 34px; padding-top: 28px; border-top: 1px solid var(--line); }
+.d2p-tw-pick > p { margin: 6px 0 0; color: var(--tx2); font-size: 13.5px; max-width: 560px; }
+.d2p-tw-pick-grid { display: grid; grid-template-columns: repeat(auto-fill, 116px); gap: 16px 12px; margin: 20px 0 22px; }
+.d2p-sheet .d2p-tw-pick-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; margin: 8px 0 0; }
+.d2p-tw-pick-grid .d2p-art { outline: 2px solid transparent; outline-offset: 3px; transition: transform .15s var(--ease), outline-color .15s; }
+.d2p-tw-pick-grid .d2p-dc[aria-pressed="true"] .d2p-art { outline-color: var(--tx); }
+.d2p-tw-pick-grid .d2p-dc:hover .d2p-art { transform: translateY(-2px); }
+.d2p-tw-pick-grid .d2p-sub { font-size: 12px; color: var(--tx2); font-variant-numeric: tabular-nums; }
+.d2p-tw-pick-grid .d2p-sub b { color: var(--tx); font-weight: 600; }
+.d2p-tw-pick-acts { display: flex; flex-wrap: wrap; gap: 10px; }
+.d2p-tw-done { display: flex; align-items: center; gap: 10px; margin: 20px 0 0; font-size: 15px; }
+.d2p-tw-done .ic { color: var(--ok); }
+
+@media (max-width: 700px) {
+    .d2p-tw-mini { display: grid; gap: 6px; }
+    .d2p-tw-mini .d2p-bar { width: 100%; }
+    .d2p-tw-prog { min-width: 0; width: 100%; }
+    .d2p-tw-now-h h2 { font-size: 24px; }
+    .d2p-tw-sectors { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 10px; }
+    .d2p-tw-f { grid-template-columns: 22px 36px minmax(0, 1fr); gap: 10px; }
+    .d2p-tw-f::before { left: 10px; }
+    .d2p-tw-f.is-now { margin: 0 -10px; padding: 10px; }
+    .d2p-tw-f.is-now::before { left: 20px; }
+    .d2p-tw-n { font-size: 17px; }
+    .d2p-tw-r { grid-column: 3; text-align: left; margin-top: -4px; white-space: normal; }
+    .d2p-tw-r b { display: inline-flex; margin-right: 6px; }
+    .d2p-tw-what .d2p-faces { display: none; }
+    .d2p-tw-f.is-boss .d2p-tw-what .d2p-faces { display: flex; }
+    .d2p-tw-pick-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .d2p-tw-pick-acts .d2p-btn { width: 100%; }
+    .d2p-tw-pw { grid-template-columns: 96px minmax(0, 1fr) 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .d2p-tw-pick-grid .d2p-art { transition: none; }
+    .d2p-tw-pick-grid .d2p-dc:hover .d2p-art { transform: none; }
 }

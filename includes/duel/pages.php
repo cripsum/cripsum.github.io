@@ -13,6 +13,7 @@ declare(strict_types=1);
  * - duel_leaderboard(): classifica di tutti e degli amici.
  * - duel_lobby_view(): la lobby intera.
  * - duel_summary(): il riepilogo di una partita finita.
+ * - duel_tower_page(): la pagina della Torre (fase T2).
  */
 
 require_once __DIR__ . '/lobby.php';
@@ -28,6 +29,7 @@ function duel_urls(string $lang): array
     $base = '/' . $lang . '/duelli/';
     return [
         'lobby' => $base, 'team' => $base . 'squadra', 'arena' => $base . 'arena', 'end' => $base . 'fine', 'replay' => $base . 'replay', 'season' => $base . 'stagione',
+        'tower' => $base . 'torre',
         'home' => '/' . $lang . '/home',
     ];
 }
@@ -172,13 +174,8 @@ function duel_leaderboard(mysqli $m, int $userId): array
     }
 
     $friends = [];
-    if (rt_has_table($m, 'friendships')) {
-        $ids = [$userId];
-        foreach (duel_rows($m, 'SELECT IF(user_one_id = ?, user_two_id, user_one_id) AS fid FROM friendships WHERE user_one_id = ? OR user_two_id = ? LIMIT 300',
-            'iii', [$userId, $userId, $userId]) as $f) {
-            $ids[] = (int)$f['fid'];
-        }
-        $ids = array_values(array_unique($ids));
+    $ids = duel_friend_ids($m, $userId);
+    if ($ids !== null) {
         $marks = implode(',', array_fill(0, count($ids), '?'));
         $friends = array_map($row, duel_rows($m, "SELECT u.id, u.username, COALESCE(s.rating, 1000) AS rating FROM utenti u
             LEFT JOIN game_player_stats s ON s.user_id = u.id
@@ -186,6 +183,20 @@ function duel_leaderboard(mysqli $m, int $userId): array
             ORDER BY rating DESC, u.id LIMIT 30", str_repeat('i', count($ids)) . 'i', [...$ids, $userId]));
     }
     return ['all' => $all, 'friends' => $friends, 'pos' => $pos];
+}
+
+/** Tu e i tuoi amici (tabella friendships del sito), o null se la tabella non c'e'. */
+function duel_friend_ids(mysqli $m, int $userId): ?array
+{
+    if (!rt_has_table($m, 'friendships')) {
+        return null;
+    }
+    $ids = [$userId];
+    foreach (duel_rows($m, 'SELECT IF(user_one_id = ?, user_two_id, user_one_id) AS fid FROM friendships WHERE user_one_id = ? OR user_two_id = ? LIMIT 300',
+        'iii', [$userId, $userId, $userId]) as $f) {
+        $ids[] = (int)$f['fid'];
+    }
+    return array_values(array_unique($ids));
 }
 
 /** La lobby: la parte comune (duel_hub) piu' squadre, classifica, coda, partita in corso. */
@@ -199,6 +210,14 @@ function duel_lobby_view(mysqli $m, int $userId, string $lang): array
     // Fase 8: la sfida del giorno (tavola 1).
     require_once __DIR__ . '/daily.php';
     $hub['daily'] = duel_daily_view($m, $userId, $lang);
+    // Torre (fase T2, tavola 21): il riquadro sotto la sfida del giorno.
+    try {
+        require_once __DIR__ . '/tower.php';
+        $hub['tower'] = duel_tower_brief($m, $userId, $lang);
+    } catch (Throwable $e) {
+        error_log('[duel lobby] torre: ' . $e->getMessage());
+        $hub['tower'] = null;
+    }
 
     // La partita aperta con chi e contro chi, e se tocca a te.
     if ($hub['active']) {
@@ -339,5 +358,39 @@ function duel_summary(mysqli $m, int $userId, array $row, string $lang): array
             require_once __DIR__ . '/daily.php';
             return duel_daily_summary($m, $row, $lang);
         })(),
+        'tower' => (static function () use ($m, $row, $userId, $lang) {
+            require_once __DIR__ . '/tower.php';
+            return duel_tower_summary($m, $row, $userId, $lang);
+        })(),
     ];
+}
+
+/**
+ * La pagina della Torre (tavola 21): i piani (duel_tower_view), la classifica
+ * degli amici, il foglio del piano in cui sei con le tue squadre e, se hai
+ * potenziamenti gratuiti da usare, chi puoi potenziare.
+ */
+function duel_tower_page(mysqli $m, int $userId, string $lang): ?array
+{
+    require_once __DIR__ . '/tower.php';
+    $view = duel_tower_view($m, $userId, $lang);
+    if (!$view) {
+        return null;
+    }
+    $friends = duel_friend_ids($m, $userId);
+    $view['board_friends'] = $friends === null ? [] : duel_tower_board($m, 30, $friends);
+    try {
+        $view['sheet'] = duel_tower_sheet($m, $userId, $view['me']['next'], $lang);
+    } catch (DuelUserError $e) {
+        $view['sheet'] = null; // un piano rotto (personaggio tolto): la pagina si vede lo stesso
+    }
+    $top = null;
+    foreach ($view['vouchers'] as $v) {
+        if ($top === null || duel_rarity($v['max'])['tier'] > duel_rarity($top)['tier']) {
+            $top = $v['max'];
+        }
+    }
+    $view['pick'] = $top === null ? [] : duel_tower_pick_list($m, $userId, $top);
+    $view['tiers'] = array_map(static fn($r) => (int)$r['tier'], duel_rarities());
+    return $view;
 }

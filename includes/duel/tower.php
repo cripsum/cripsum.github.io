@@ -516,7 +516,36 @@ function duel_tower_record(mysqli $m, array $row, array $st, array $tower): ?arr
         $out['vouchers'] += duel_exec($m, 'INSERT IGNORE INTO game_tower_vouchers (user_id, floor, n, max_rarity) VALUES (?, ?, ?, ?)',
             'iiis', [$userId, $floorNo, $i, $floor['voucher']]);
     }
+    if ($floorNo === DUEL_TOWER_FLOORS) {
+        duel_tower_notice_top($m, $userId);
+    }
     return $out;
+}
+
+/**
+ * Decisione 9: una riga nel canale dei duelli su Discord quando qualcuno
+ * conquista il piano 100. Solo a Torre aperta a tutti (le prove dello staff
+ * non scrivono) e con l'interruttore `discord` acceso. Parte dopo la
+ * risposta al browser, come gli altri avvisi (notice.php).
+ */
+function duel_tower_notice_top(mysqli $m, int $userId): void
+{
+    $s = duel_settings($m);
+    if (($s['tower'] ?? '0') !== '1' || ($s['discord'] ?? '1') !== '1') {
+        return;
+    }
+    require_once __DIR__ . '/notice.php';
+    $name = (string)(duel_row($m, 'SELECT username FROM utenti WHERE id = ?', 'i', [$userId])['username'] ?? 'Qualcuno');
+    $n = (int)(duel_row($m, 'SELECT COUNT(*) AS n FROM game_tower_clears WHERE floor = ?', 'i', [DUEL_TOWER_FLOORS])['n'] ?? 1);
+    $url = 'https://cripsum.com/it/duelli/torre';
+    duel_discord_queue(['op' => 'post', 'payload' => [
+        'target' => 'duelli',
+        'title' => '🏔️ In cima alla Torre',
+        'description' => "**$name** ha battuto il piano 100 della Torre" . ($n <= 1 ? ', per primo.' : " ({$n}º a riuscirci).") . "\nProva anche tu: $url",
+        'url' => $url,
+        'color' => '#eab308',
+        'footer_text' => 'Duelli · cripsum.com',
+    ]]);
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -611,8 +640,8 @@ function duel_tower_view(mysqli $m, int $userId, string $lang): ?array
     $lang = $lang === 'en' ? 'en' : 'it';
     $floors = duel_tower_floors($m);
     $sectors = duel_tower_sectors($m);
-    $best = duel_tower_best($m, $userId);
-    $me = duel_row($m, 'SELECT attempts, wins FROM game_tower_progress WHERE user_id = ?', 'i', [$userId]);
+    $me = duel_row($m, 'SELECT best_floor, best_at, attempts, wins FROM game_tower_progress WHERE user_id = ?', 'i', [$userId]);
+    $best = (int)($me['best_floor'] ?? 0);
     $clears = [];
     foreach (duel_rows($m, 'SELECT floor, turns FROM game_tower_clears WHERE user_id = ?', 'i', [$userId]) as $r) {
         $clears[(int)$r['floor']] = (int)$r['turns'];
@@ -635,20 +664,31 @@ function duel_tower_view(mysqli $m, int $userId, string $lang): ?array
             'reward' => $f['reward'], 'voucher' => $f['voucher'], 'vouchers' => $f['vouchers'],
             'state' => isset($clears[$n]) ? 'done' : ($n === $best + 1 ? 'now' : ($n <= $best ? 'done' : 'locked')),
             'turns' => $clears[$n] ?? null,
+            // Come duel_tower_power_recommended, ma dalle facce: rarita' e livello bastano.
+            'power' => (int)round(duel_tower_power($faces, $f['boon']) * 1.05),
         ];
+    }
+    // La tua posizione: piu' in alto prima, a pari piano chi ci e' arrivato prima.
+    $pos = null;
+    if ($best > 0 && !empty($me['best_at'])) {
+        $pos = 1 + (int)(duel_row($m, 'SELECT COUNT(*) AS n FROM game_tower_progress WHERE best_floor > ? OR (best_floor = ? AND best_at < ?)',
+            'iis', [$best, $best, (string)$me['best_at']])['n'] ?? 0);
     }
     return [
         'floors' => $list,
         'sectors' => array_values(array_map(static fn($s) => $s[$lang], $sectors)),
         'me' => ['best' => $best, 'next' => min(DUEL_TOWER_FLOORS, $best + 1), 'attempts' => (int)($me['attempts'] ?? 0), 'wins' => (int)($me['wins'] ?? 0),
-            'bosses' => count(array_filter(array_keys($clears), static fn($n) => $n % 10 === 0)), 'done' => $best >= DUEL_TOWER_FLOORS],
+            'bosses' => count(array_filter(array_keys($clears), static fn($n) => $n % 10 === 0)), 'done' => $best >= DUEL_TOWER_FLOORS, 'pos' => $pos],
         'vouchers' => duel_tower_vouchers($m, $userId),
         'board' => duel_tower_board($m, 20),
         'open' => duel_tower_open_for($m),
     ];
 }
 
-/** Il foglio di un piano: squadra nemica, potenza, premi. */
+/**
+ * Il foglio di un piano: squadra nemica, potenza, premi, e le tue squadre
+ * salvate con la loro potenza e, se la regola del piano non le vuole, perche'.
+ */
 function duel_tower_sheet(mysqli $m, int $userId, int $floorNo, string $lang): array
 {
     $floor = duel_tower_floors($m)[$floorNo] ?? null;
@@ -657,14 +697,149 @@ function duel_tower_sheet(mysqli $m, int $userId, int $floorNo, string $lang): a
     }
     $lang = $lang === 'en' ? 'en' : 'it';
     $enemy = duel_tower_enemy($m, $floor);
+    $terrain = !empty($floor['rule']['terrain']) ? (duel_terrains()[$floor['rule']['terrain']] ?? null) : null;
     return [
         'n' => $floorNo, 'sector' => duel_tower_sectors($m)[$floor['sector']][$lang], 'title' => $floor['title'][$lang] ?? null, 'boss' => $floor['boss'],
         'bot' => $floor['bot'], 'enemy' => duel_tower_cards($m, $floor), 'boon' => $floor['boon'],
         'boon_text' => $floor['boon'] ? duel_text_trait_bonus($floor['boon'], $lang) : '',
         'rule' => $floor['rule'], 'rule_text' => duel_tower_rule_text($floor['rule'], $lang),
+        'terrain' => $terrain ? ['k' => (string)$floor['rule']['terrain'], 'n' => $terrain[$lang], 'd' => $terrain['d_' . $lang], 'g' => (int)$terrain['g']] : null,
         'power' => duel_tower_power_recommended($enemy['kits'], $floor['boon']),
         'reward' => $floor['reward'], 'voucher' => $floor['voucher'], 'vouchers' => $floor['vouchers'],
         'cleared' => duel_row($m, 'SELECT 1 AS x FROM game_tower_clears WHERE user_id = ? AND floor = ?', 'ii', [$userId, $floorNo]) !== null,
         'open' => $floorNo <= duel_tower_best($m, $userId) + 1,
+        'teams' => duel_tower_teams($m, $userId, $floor['rule'], $lang),
+    ];
+}
+
+/**
+ * Le tue squadre salvate davanti a un piano: chi c'e', la potenza e,
+ * se non vanno bene, perche' (lo stesso controllo di duel_tower_start).
+ */
+function duel_tower_teams(mysqli $m, int $userId, array $rule, string $lang): array
+{
+    require_once __DIR__ . '/pages.php';
+    $en = $lang === 'en';
+    $out = [];
+    foreach (duel_teams_view($m, $userId, $lang) as $t) {
+        $error = null;
+        if (count($t['cards']) < 3 || $t['missing']) {
+            $error = $en ? 'Incomplete team' : 'Squadra incompleta';
+        } elseif ($e = duel_tower_team_error($rule, $t['cards'])) {
+            $error = $e[$en ? 1 : 0];
+        }
+        $out[] = ['slot' => $t['slot'], 'name' => $t['name'], 'names' => array_column($t['cards'], 'name'),
+            'power' => duel_tower_power($t['cards']), 'error' => $error];
+    }
+    return $out;
+}
+
+/** Un piano in breve, per il riquadro della lobby e la fine partita. */
+function duel_tower_floor_brief(mysqli $m, array $floor, string $lang): array
+{
+    $lang = $lang === 'en' ? 'en' : 'it';
+    $levels = array_column($floor['team'], 'level') ?: [1];
+    return [
+        'n' => $floor['floor'], 'sector' => duel_tower_sectors($m)[$floor['sector']][$lang], 'title' => $floor['title'][$lang] ?? null,
+        'boss' => $floor['boss'], 'bot' => $floor['bot'], 'levels' => [min($levels), max($levels)], 'team' => duel_tower_cards($m, $floor),
+        'boon_text' => $floor['boon'] ? duel_text_trait_bonus($floor['boon'], $lang) : '', 'rule_text' => duel_tower_rule_text($floor['rule'], $lang),
+        'reward' => $floor['reward'], 'voucher' => $floor['voucher'],
+    ];
+}
+
+/** Il riquadro della lobby (tavola 21): il piano in cui sei. Null se la Torre e' spenta per te. */
+function duel_tower_brief(mysqli $m, int $userId, string $lang): ?array
+{
+    if (!duel_tower_ready($m) || !duel_tower_open_for($m)) {
+        return null;
+    }
+    $best = duel_tower_best($m, $userId);
+    $floor = duel_tower_floors($m)[min(DUEL_TOWER_FLOORS, $best + 1)] ?? null;
+    if (!$floor) {
+        return null;
+    }
+    return ['best' => $best, 'floors' => DUEL_TOWER_FLOORS, 'done' => $best >= DUEL_TOWER_FLOORS, 'vouchers' => count(duel_tower_vouchers($m, $userId)),
+        'floor' => duel_tower_floor_brief($m, $floor, $lang)];
+}
+
+/**
+ * Chi si puo' potenziare con un buono fino a $maxRarity: i tuoi personaggi
+ * di quella rarita' o sotto, non gia' al livello massimo. Prima quelli
+ * delle squadre salvate, poi i piu' rari e i piu' alti.
+ */
+function duel_tower_pick_list(mysqli $m, int $userId, string $maxRarity): array
+{
+    $collection = duel_db_collection($m, $userId);
+    if (!$collection) {
+        return [];
+    }
+    $maxTier = duel_rarity($maxRarity)['tier'];
+    $levelMax = duel_rules()['level_max'];
+    $inTeams = array_flip(array_merge([], ...array_map(static fn($t) => $t['team'], duel_teams($m, $userId))));
+    $out = [];
+    foreach (duel_db_characters($m, array_keys($collection)) as $id => $c) {
+        $rarity = duel_rarity_key((string)$c['rarita'], !empty($c['limitato']));
+        $level = $collection[$id] ?? 1;
+        $tier = duel_rarity($rarity)['tier'];
+        if ($tier > $maxTier || $level >= $levelMax) {
+            continue;
+        }
+        $kit = duel_character_kit($c, $level);
+        $out[] = ['id' => (int)$id, 'name' => (string)$c['nome'], 'img' => duel_media($c['img_url'] ?? ''), 'rarity' => $rarity, 'role' => $kit['role'],
+            'level' => $level, 'cost' => duel_rarity($rarity)['cost'], 'tier' => $tier, 'team' => isset($inTeams[$id])];
+    }
+    usort($out, static fn($a, $b) => [$b['team'], $b['tier'], $b['level'], $a['name']] <=> [$a['team'], $a['tier'], $a['level'], $b['name']]);
+    return $out;
+}
+
+/**
+ * La Torre nella fine partita (tavola 23): il piano, se e' superato (anche
+ * la regola dei turni), se era la prima volta, i buoni appena vinti con chi
+ * si puo' potenziare, la potenza per il consiglio, il piano dopo.
+ */
+function duel_tower_summary(mysqli $m, array $row, int $userId, string $lang): ?array
+{
+    $tower = duel_match_rules($row)['tower'] ?? null;
+    if (!$tower || !duel_tower_ready($m) || (int)$row['player1_id'] !== $userId) {
+        return null;
+    }
+    $n = (int)($tower['floor'] ?? 0);
+    $floors = duel_tower_floors($m);
+    $floor = $floors[$n] ?? null;
+    if (!$floor) {
+        return null;
+    }
+    $lang = $lang === 'en' ? 'en' : 'it';
+    $st = duel_match_state($row);
+    $turnsMax = (int)($tower['turns'] ?? 0);
+    $won = ($st['winner'] ?? null) === 0;
+    $first = duel_row($m, 'SELECT 1 AS x FROM game_tower_clears WHERE user_id = ? AND floor = ? AND match_id = ?', 'iii', [$userId, $n, (int)$row['id']]) !== null;
+
+    // I buoni di questo piano ancora da usare (vinti adesso, o prima e mai usati).
+    $vouchers = array_values(array_filter(duel_tower_vouchers($m, $userId), static fn($v) => $v['floor'] === $n));
+    $mine = [];
+    $theirs = [];
+    foreach ($st['units'] as $u) {
+        $k = ['rarity' => (string)$u['rarity'], 'level' => (int)$u['level']];
+        if ((int)$u['side'] === 0) {
+            $mine[] = $k;
+        } else {
+            $theirs[] = $k;
+        }
+    }
+    $boon = (array)($tower['engine']['boons'][1] ?? []);
+    // Quante volte hai giocato questo piano (le regole della partita dicono quale).
+    $attempts = (int)(duel_row($m, "SELECT COUNT(*) AS n FROM game_matches WHERE player1_id = ? AND mode = 'bot' AND status = 'finished' AND rules_json LIKE ?",
+        'is', [$userId, '%"tower":{"floor":' . $n . ',%'])['n'] ?? 0);
+    $best = duel_tower_best($m, $userId);
+    return [
+        'n' => $n, 'sector' => duel_tower_sectors($m)[$floor['sector']][$lang], 'title' => $floor['title'][$lang] ?? null, 'boss' => $floor['boss'],
+        'won' => $won, 'cleared' => $won && ($turnsMax <= 0 || (int)$st['turn'] <= $turnsMax), 'turns_max' => $turnsMax,
+        'first' => $first, 'replay' => !empty($tower['replay']), 'reward' => $floor['reward'],
+        'voucher' => $floor['voucher'], 'vouchers' => $vouchers,
+        'pick' => $vouchers ? duel_tower_pick_list($m, $userId, $vouchers[0]['max']) : [],
+        'power' => ['you' => duel_tower_power($mine), 'rec' => (int)round(duel_tower_power($theirs, $boon) * 1.05)],
+        'attempts' => $attempts, 'best' => $best, 'top' => $n === DUEL_TOWER_FLOORS,
+        'next' => $n < DUEL_TOWER_FLOORS && $n + 1 <= $best + 1 && isset($floors[$n + 1]) ? duel_tower_floor_brief($m, $floors[$n + 1], $lang) : null,
     ];
 }

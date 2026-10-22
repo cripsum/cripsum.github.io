@@ -786,6 +786,10 @@ function duel_view_static(mysqli $m, array $row, array $st): array
         'rules' => ['levels' => $rules['levels'], 'cost_limit' => (int)$rules['cost_limit'], 'turn_seconds' => (int)$rules['turn_seconds'],
             'async' => !empty($rules['async']), 'timeouts_max' => (int)$rules['timeouts_max'],
             'daily' => !empty($rules['daily']) ? ['goal' => (int)$rules['daily']['goal'], 'title' => (string)($rules['daily']['title'][$lang] ?? $rules['daily']['title']['it'] ?? '')] : null,
+            // La Torre (fase T2): il piano, la regola dei turni e i potenziamenti dei nemici.
+            'tower' => !empty($rules['tower']) ? ['floor' => (int)$rules['tower']['floor'], 'boss' => !empty($rules['tower']['boss']),
+                'turns' => (int)($rules['tower']['turns'] ?? 0), 'replay' => !empty($rules['tower']['replay']),
+                'boon' => duel_text_trait_bonus((array)($rules['tower']['engine']['boons'][1] ?? []), $lang)] : null,
             'turn_limit' => duel_rules()['turn_limit'], 'ps_max' => duel_rules()['ps_max'], 'charge_max' => duel_rules()['charge_max']],
         'costs' => [(int)($row['team_cost_p1'] ?? 0), (int)($row['team_cost_p2'] ?? 0)],
     ];

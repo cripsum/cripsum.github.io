@@ -16,6 +16,8 @@
  * Incubo. Le sfide arrivano anche dal timbro personale (evento 'dc').
  *
  * Fase 8: la sfida del giorno, sotto «Le tue sfide», con il suo foglio.
+ *
+ * Fase T2: il riquadro della Torre sotto la sfida del giorno.
  */
 (function () {
     'use strict';
@@ -349,7 +351,8 @@
             const res = r.draw ? ['P', 'd2p-l', T('Pareggio', 'Draw')] : r.won ? ['V', '', T('Vittoria', 'Victory')] : ['S', 'd2p-l', T('Sconfitta', 'Defeat')];
             const d = r.rating_delta;
             return '<div class="d2p-hist"><a class="d2p-hist-main" href="' + esc(U.end + '?m=' + r.id) + '"><span class="d2p-r ' + res[1] + '" title="' + esc(res[2]) + '">' + (D.EN ? res[2].charAt(0) : res[0]) + '</span>'
-                + '<span><span class="d2p-hist-who">' + esc(T('contro ', 'vs ') + r.opponent) + '</span><small>' + esc((r.daily ? T('Sfida del giorno', 'Daily challenge') : D.MODE[r.mode] || r.mode) +' · ' + D.ago(r.at)) + '</small></span>'
+                + '<span><span class="d2p-hist-who">' + esc(T('contro ', 'vs ') + r.opponent) + '</span><small>' + esc((r.daily ? T('Sfida del giorno', 'Daily challenge')
+                    : r.tower ? T('Torre · piano ', 'Tower · floor ') + r.tower : D.MODE[r.mode] || r.mode) + ' · ' + D.ago(r.at)) + '</small></span>'
                 + (d !== null && d !== undefined ? '<span class="d2p-dl d2p-num ' + (d > 0 ? 'd2p-up' : d < 0 ? 'd2p-dn' : '') + '">' + (d > 0 ? '+' : d < 0 ? '−' : '') + fmt(Math.abs(d)) + '</span>' : '<span></span>') + '</a>'
                 + '<a class="d2p-ibtn" href="' + esc(U.replay + '?m=' + r.id) + '" aria-label="' + esc(T('Rivedi la partita', 'Watch the replay')) + '" title="' + esc(T('Rivedi la partita', 'Watch the replay')) + '">' + ic('replay') + '</a></div>';
         }).join('');
@@ -380,6 +383,7 @@
         renderPlay();
         renderGoing();
         renderDaily();
+        renderTower();
         renderRank();
         renderBoard();
         renderLive();
@@ -528,6 +532,34 @@
             + (board + mine || '<p class="d2p-mut">' + esc(T('Ancora nessuno: la prima vittoria è in cima.', 'Nobody yet: the first win goes to the top.')) + '</p>')
             + '<button class="d2p-btn d2p-btn-w d2p-btn-big" type="button" data-dplay="1"' + (DY.slot === null || DY.busy ? ' disabled' : '') + '>' + esc(T('Gioca la sfida', 'Play the challenge')) + '</button>';
         D.hydrate($('d2p-sheet-p'));
+    }
+
+    // ── La Torre (fase T2, tavola 21) ────────────────────────────────────
+    // Il piano in cui sei con le facce della squadra da battere e la barra
+    // dei cento piani; «Sali» apre la pagina della Torre col foglio del piano.
+    function renderTower() {
+        const box = $('d2p-tower');
+        const tw = H.tower;
+        if (!box) return;
+        if (!tw) { box.hidden = true; return; }
+        box.hidden = false;
+        const f = tw.floor;
+        const BOT = { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard'), incubo: T('Incubo', 'Nightmare') };
+        const lv = f.levels[0] === f.levels[1] ? T('livello ', 'level ') + f.levels[0] : T('livelli ', 'levels ') + f.levels[0] + '–' + f.levels[1];
+        const who = f.title || f.team.map((c) => D.niceName(c.name)).join(', ');
+        const line = tw.done ? T('Hai superato tutti i ' + tw.floors + ' piani: si rigiocano senza premio.', 'You beat all ' + tw.floors + ' floors: replays give no rewards.')
+            : who + ', ' + lv + ' · bot ' + (BOT[f.bot] || f.bot) + '. ' + T('La prima volta: +' + fmt(f.reward) + ' Godos.', 'First time: +' + fmt(f.reward) + ' Godos.');
+        const extra = tw.vouchers ? ' · ' + (tw.vouchers === 1 ? T('1 potenziamento da usare', '1 level-up to use') : T(tw.vouchers + ' potenziamenti da usare', tw.vouchers + ' level-ups to use')) : '';
+        box.innerHTML = '<div class="d2p-sec-t"><h2 class="d2p-h2">' + esc(T('La Torre', 'The Tower')) + '</h2>'
+            + '<a class="d2p-link" href="' + esc(U.tower) + '">' + esc(T('Tutti i piani', 'All floors')) + ' ' + ic('freccia') + '</a></div>'
+            + '<div class="d2p-daily"><div class="d2p-faces">' + f.team.map((c) => '<span style="--r:' + D.rarColor(c.rarity) + '">'
+                + (c.img ? '<img src="' + esc(c.img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '<i>' + esc(D.niceName(c.name).charAt(0)) + '</i></span>').join('') + '</div>'
+            + '<div><strong>' + (tw.done ? ic('check') + ' ' : '') + esc((tw.done ? T('In cima', 'At the top') : T('Piano ', 'Floor ') + f.n) + ' · ' + f.sector) + '</strong>'
+            + '<p>' + esc(line) + '</p>'
+            + '<div class="d2p-tw-mini"><span class="d2p-bar"><i style="width:' + (tw.best / tw.floors * 100).toFixed(1) + '%"></i></span><span>'
+                + esc(T(tw.best + ' piani su ' + tw.floors, tw.best + ' of ' + tw.floors + ' floors') + extra) + '</span></div></div>'
+            + '<a class="d2p-btn' + (tw.done ? '' : ' d2p-btn-w') + '" href="' + esc(U.tower + (tw.done ? '' : '?piano=' + f.n)) + '">' + esc(tw.done ? T('Apri', 'Open') : T('Sali', 'Climb')) + '</a></div>';
+        D.hydrate(box);
     }
 
     // ── Foglio «Sfida un amico» (tavola 6) ───────────────────────────────
