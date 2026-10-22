@@ -1540,15 +1540,19 @@
     function hidePop() { $('d2-pop').hidden = true; }
 
     // ── Tempo del turno ──────────────────────────────────────────────────
-    let timerRaf = 0;
+    // Un giro solo alla volta: ogni chiamata ferma quello di prima. Il vecchio
+    // giro, già nel suo setTimeout, non si fermava con cancelAnimationFrame e
+    // continuava con la scadenza del turno prima: il numero saltava tra due tempi.
+    let timerGen = 0;
     function tickTimer() {
-        cancelAnimationFrame(timerRaf);
+        const gen = ++timerGen;
         const el = $('d2-timer');
         const dyn = S.latest;
         const total = (S.st && S.st.rules.turn_seconds) || 0;
         if (!dyn || !dyn.deadline || dyn.over || !total) { el.hidden = true; return; }
         el.hidden = false;
         const loop = () => {
+            if (gen !== timerGen) return;
             const left = Math.max(0, dyn.deadline - now());
             const mine = myTurn();
             el.style.setProperty('--p', Math.max(0, Math.min(1, left / total)));
@@ -1558,7 +1562,7 @@
             el.classList.toggle('d2-wait-opp', !mine);
             el.setAttribute('aria-label', (mine ? T('Tempo per la tua mossa: ', 'Time for your move: ') : T('Tempo dell\'avversario: ', 'Opponent\'s time: ')) + Math.ceil(left) + 's');
             if (left <= 0) { schedule(800); return; }
-            timerRaf = requestAnimationFrame(() => setTimeout(loop, 250));
+            requestAnimationFrame(() => setTimeout(loop, 250));
         };
         loop();
     }
@@ -1612,6 +1616,7 @@
         if (S.ended) return;
         S.ended = true;
         stopPolling();
+        timerGen++;
         $('d2-timer').hidden = true;
         const dyn = S.latest;
         const res = dyn.result || {};
