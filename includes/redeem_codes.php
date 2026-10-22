@@ -207,6 +207,19 @@ function cripsum_redeem_codes(): array
             'descrizione' => ['it' => 'W POPPY W POPPY +2000 GODOS', 'en' => 'W POPPY W POPPY +2000 GODOS'],
             'active' => true,
         ],
+        // Aggiornamento del 22/10/2026: la Torre, i duelli nuovi, il banner di Chri Mucca.
+        'muuucca' => [
+            'tipo' => 'punti',
+            'punti' => 2000,
+            'descrizione' => ['it' => 'Muuu! +2000 Godos per il banner di Chri Mucca', 'en' => 'Moo! +2000 Godos for the Chri Mucca banner'],
+            'active' => true,
+        ],
+        'latorre' => [
+            'tipo' => 'punti',
+            'punti' => 2000,
+            'descrizione' => ['it' => '+2000 Godos per salire la Torre', 'en' => '+2000 Godos to climb the Tower'],
+            'active' => true,
+        ],
     ];
 }
 
