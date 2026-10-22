@@ -6,7 +6,7 @@ declare(strict_types=1);
  * La collezione e i potenziamenti dopo il vecchio motore dei duelli (fase 8
  * dei Duelli 2.0).
  *
- * Il vecchio includes/game_helpers.php serviva ancora alla collezione
+ * Il vecchio motore dei duelli (game_helpers) serviva ancora alla collezione
  * (inventario, schede dei personaggi), ai due endpoint dei potenziamenti
  * (api/game/upgrade_*.php) e alla scheda «Duelli» di Personaggi nel
  * pannello. Qui ci sono solo quelle funzioni, con la stessa firma:

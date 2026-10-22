@@ -169,10 +169,12 @@ RewriteRule ^bio(?:\.php)?/?$ /u/cripsum? [R=301,L,NC]
 RewriteRule ^404(?:\.html)?/?$ 404.php [L,NC]
 
 # I duelli di prima sono diventati i Duelli 2.0 (fase 8): i vecchi indirizzi
-# portano per sempre alle pagine nuove. /it/game/arena.php?match_id= lo
-# rimanda it/game/arena.php.
-RewriteRule ^(it|en)/game(?:/(?:lobby|index)(?:\.php)?)?/?$ /$1/duelli/ [R=301,L,NC]
+# portano per sempre alle pagine nuove (la cartella it/game non c'e' piu').
+# L'arena di una partita vecchia porta all'arena nuova, che rimanda alla lobby.
 RewriteRule ^(it|en)/game/arena/([0-9]+)/?$ /$1/duelli/arena?m=$2 [R=301,L,NC]
+RewriteCond %{QUERY_STRING} (?:^|&)(?:match_id|m)=([0-9]+)
+RewriteRule ^(it|en)/game/arena(?:\.php)?/?$ /$1/duelli/arena?m=%1 [R=301,L,NC]
+RewriteRule ^(it|en)/game(?:/.*)?$ /$1/duelli/? [R=301,L,NC]
 
 
 RewriteCond %{REQUEST_FILENAME}.html -f

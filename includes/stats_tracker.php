@@ -617,6 +617,9 @@ function stats_page_key_from_path(string $path): string
         'missions'     => 'missions',
         'subway'       => 'subway',
         'game'         => 'game',
+        // I Duelli 2.0 (prima stavano in /game): senza questa riga
+        // finirebbero tra gli alias dei profili.
+        'duelli'       => 'game',
         'gambling'     => 'gambling',
         'goonland'     => 'goonland',
         'shitpost'     => 'shitpost',

@@ -145,6 +145,18 @@ function duel_new_match(array $teams, int $seed, array $opts = []): array
     $c = duel_ctx($st);
     duel_ev($c, ['t' => 'start']);
     duel_apply_traits($c);
+    duel_apply_boons($c, (array)($opts['boons'] ?? []));
+    // Torre: un piano col terreno da subito (vale per tutti; la fonte e' la prima carta nemica).
+    if (!empty($opts['terrain']['k'])) {
+        $src = 0;
+        foreach ($c['st']['units'] as $id => $u) {
+            if ($u['side'] === 1) {
+                $src = (int)$id;
+                break;
+            }
+        }
+        duel_set_terrain($c, $src, (string)$opts['terrain']['k'], (int)($opts['terrain']['g'] ?? 0));
+    }
 
     // Passive di inizio partita, carta per carta nell'ordine delle squadre.
     foreach (array_keys($c['st']['units']) as $uid) {
@@ -177,34 +189,62 @@ function duel_apply_traits(array &$c): void
             }
         }
         foreach (duel_team_traits($kits) as $key => [$tier, $who]) {
-            $bonus = $defs[$key]['tiers'][$tier];
             $units = array_map(static fn($i) => $ids[$i], $who);
-            foreach ($units as $uid) {
-                $u = &$c['st']['units'][$uid];
-                foreach (['hp', 'atk', 'def'] as $stat) {
-                    if (!empty($bonus[$stat])) {
-                        $u['max'][$stat] = (int)round($u['max'][$stat] * (1 + $bonus[$stat] / 100));
-                    }
-                }
-                $u['hp'] = $u['max']['hp'];
-                foreach (['crit', 'cdmg', 'spd_pct', 'lifesteal', 'dmg_pct', 'heal_out_pct', 'heal_in_pct', 'prec'] as $mod) {
-                    if (!empty($bonus[$mod])) {
-                        $u['tmods'][$mod] = ($u['tmods'][$mod] ?? 0) + $bonus[$mod];
-                    }
-                }
-                unset($u);
-                if (!empty($bonus['charge'])) {
-                    duel_add_charge($c, $uid, (int)$bonus['charge']);
-                }
-                if (!empty($bonus['regen'])) {
-                    duel_put_status($c, $uid, $uid, 'rigenerazione', (float)$bonus['regen'], 2, 1, []);
-                }
-            }
-            if (!empty($bonus['ps'])) {
-                duel_add_ps($c, $side, (int)$bonus['ps']);
-            }
+            duel_bonus_apply($c, $side, $units, $defs[$key]['tiers'][$tier]);
             duel_ev($c, ['t' => 'trait', 'side' => $side, 'k' => $key, 'tier' => $tier, 'units' => $units]);
         }
+    }
+}
+
+/**
+ * Torre: i potenziamenti di una squadra intera, con le stesse chiavi dei
+ * legami (HP, ATK, DEF in %, critico, carica, PS...). Dopo i legami, prima
+ * delle passive d'inizio partita. $boons: [lato => bonus].
+ */
+function duel_apply_boons(array &$c, array $boons): void
+{
+    foreach ($boons as $side => $bonus) {
+        $side = (int)$side;
+        if (!is_array($bonus) || !$bonus || !in_array($side, [0, 1], true)) {
+            continue;
+        }
+        $units = [];
+        foreach ($c['st']['units'] as $id => $u) {
+            if ($u['side'] === $side) {
+                $units[] = (int)$id;
+            }
+        }
+        duel_bonus_apply($c, $side, $units, $bonus);
+        duel_ev($c, ['t' => 'boon', 'side' => $side, 'b' => $bonus, 'units' => $units]);
+    }
+}
+
+/** Un bonus di legame o di potenziamento su alcune carte di un lato. */
+function duel_bonus_apply(array &$c, int $side, array $units, array $bonus): void
+{
+    foreach ($units as $uid) {
+        $u = &$c['st']['units'][$uid];
+        foreach (['hp', 'atk', 'def'] as $stat) {
+            if (!empty($bonus[$stat])) {
+                $u['max'][$stat] = (int)round($u['max'][$stat] * (1 + $bonus[$stat] / 100));
+            }
+        }
+        $u['hp'] = $u['max']['hp'];
+        foreach (['crit', 'cdmg', 'spd_pct', 'lifesteal', 'dmg_pct', 'heal_out_pct', 'heal_in_pct', 'prec'] as $mod) {
+            if (!empty($bonus[$mod])) {
+                $u['tmods'][$mod] = ($u['tmods'][$mod] ?? 0) + $bonus[$mod];
+            }
+        }
+        unset($u);
+        if (!empty($bonus['charge'])) {
+            duel_add_charge($c, $uid, (int)$bonus['charge']);
+        }
+        if (!empty($bonus['regen'])) {
+            duel_put_status($c, $uid, $uid, 'rigenerazione', (float)$bonus['regen'], 2, 1, []);
+        }
+    }
+    if (!empty($bonus['ps'])) {
+        duel_add_ps($c, $side, (int)$bonus['ps']);
     }
 }
 

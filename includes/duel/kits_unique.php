@@ -15,8 +15,8 @@ declare(strict_types=1);
  * Piu' 5 kit per i Segreti arrivati il 21/10/2026 (216, 237, 243, 265 e
  * il limitato 266): ogni Segreto ha un kit suo, come gli altri.
  *
- * 'theme' e' il colore della scena dell'ultimate (quello di oggi in
- * assets/js/game.js).
+ * 'theme' e' il colore della scena dell'ultimate (lo stesso dei duelli di
+ * prima).
  *
  * Piu' in fondo: i nomi a tema dei 16 Speciali che non hanno un kit unico.
  */

@@ -48,6 +48,7 @@ function duel_api_routes(): array
         'challenge' => ['POST', 'duel_ep_challenge'],
         'season' => ['GET', 'duel_ep_season'],
         'daily' => ['ANY', 'duel_ep_daily'],
+        'tower' => ['ANY', 'duel_ep_tower'],
     ];
 }
 
@@ -249,6 +250,30 @@ function duel_ep_daily(mysqli $m, int $userId, array $in): array
         return duel_daily_start($m, $userId, duel_team_input($m, $userId, $in));
     }
     return ['daily' => duel_daily_view($m, $userId, rt_lang())];
+}
+
+/**
+ * La Torre. GET: la pagina, o il foglio di un piano (?floor=). POST: start
+ * {floor, slot | team} gioca un piano; voucher {voucher, pid} usa un
+ * potenziamento gratuito. Finche' l'interruttore e' spento la vede lo staff.
+ */
+function duel_ep_tower(mysqli $m, int $userId, array $in): array
+{
+    require_once __DIR__ . '/tower.php';
+    if (!duel_tower_open_for($m)) {
+        throw duel_user_error('La Torre apre presto.', 'The Tower opens soon.', 403, 'TOWER_CLOSED');
+    }
+    if (strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'POST') {
+        if (duel_in_str($in, 'action', 12) === 'voucher') {
+            return duel_tower_voucher_use($m, $userId, duel_in_int($in, 'voucher'), duel_in_int($in, 'pid')) + ['vouchers' => duel_tower_vouchers($m, $userId)];
+        }
+        return duel_tower_start($m, $userId, duel_team_input($m, $userId, $in), duel_in_int($in, 'floor'));
+    }
+    $floor = duel_in_int($in, 'floor');
+    if ($floor > 0) {
+        return ['sheet' => duel_tower_sheet($m, $userId, $floor, rt_lang())];
+    }
+    return ['tower' => duel_tower_view($m, $userId, rt_lang())];
 }
 
 function duel_ep_bot(mysqli $m, int $userId, array $in): array

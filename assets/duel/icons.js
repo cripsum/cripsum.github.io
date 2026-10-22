@@ -126,7 +126,7 @@
     const E = {
         bronzo: '<path d="M32 4l22 8v18c0 14-9.5 24-22 30C19.5 54 10 44 10 30V12z" fill="currentColor"/><path d="M32 16v30" stroke="#0a0a0b" stroke-width="3"/>',
         argento: '<path d="M32 4l22 8v18c0 14-9.5 24-22 30C19.5 54 10 44 10 30V12z" fill="currentColor"/><path d="M21 26l11 8 11-8M21 36l11 8 11-8" fill="none" stroke="#0a0a0b" stroke-width="3" stroke-linejoin="round"/>',
-        oro: '<path d="M8 20l12 9 12-19 12 19 12-9-5 32H13z" fill="currentColor"/><path d="M14 44h36" stroke="#0a0a0b" stroke-width="3"/>',
+        oro: '<path d="M32 4l22 8v18c0 14-9.5 24-22 30C19.5 54 10 44 10 30V12z" fill="currentColor"/><path d="M21 20l11 7.5 11-7.5M21 29l11 7.5 11-7.5M21 38l11 7.5 11-7.5" fill="none" stroke="#0a0a0b" stroke-width="3" stroke-linejoin="round"/>',
         diamante: '<path d="M32 4l24 22-24 34L8 26z" fill="currentColor"/><path d="M8 26h48M20 26l12 34 12-34M20 26l12-22 12 22" fill="none" stroke="#0a0a0b" stroke-width="2.5" stroke-linejoin="round"/>',
         campione: '<path d="M32 3l25 14.5v29L32 61 7 46.5v-29z" fill="currentColor"/><path d="M32 17l4.3 9 9.7 1.3-7 6.8 1.7 9.7L32 39.2l-8.7 4.6 1.7-9.7-7-6.8 9.7-1.3z" fill="#0a0a0b"/>',
         leggenda: '<path d="M32 2l7 15 16-6-6 16 15 7-15 7 6 16-16-6-7 15-7-15-16 6 6-16-15-7 15-7-6-16 16 6z" fill="currentColor"/><circle cx="32" cy="34" r="9" fill="#0a0a0b"/>',

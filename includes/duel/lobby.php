@@ -466,6 +466,11 @@ function duel_rematch(mysqli $m, int $userId, int $matchId): array
         }
         return duel_daily_start($m, $userId, $pids);
     }
+    // La Torre: lo stesso piano con la stessa squadra.
+    if (!empty($rules['tower'])) {
+        require_once __DIR__ . '/tower.php';
+        return duel_tower_start($m, $userId, $pids, (int)$rules['tower']['floor']);
+    }
     if (duel_is_bot_match($row)) {
         return duel_start_bot($m, $userId, $pids, (string)$row['bot_level']);
     }

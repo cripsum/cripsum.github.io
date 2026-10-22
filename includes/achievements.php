@@ -78,8 +78,8 @@ const ACH_RANKS = [
 
 /**
  * Soglie dei 25 achievement storici, per quando la migration non c'è ancora.
- * Sono gli stessi numeri che stavano in gacha/notify.php, in
- * api/game/upgrade_character.php e in js/achievements-globali.js.
+ * Sono gli stessi numeri che stavano in gacha/notify.php, nei vecchi
+ * potenziamenti dei duelli e in js/achievements-globali.js.
  */
 const ACH_LEGACY_METRICS = [
     1  => ['account', 1],

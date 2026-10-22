@@ -199,7 +199,8 @@ function duel_match_start(mysqli $m, array $p): int
 {
     $over = duel_use_current_values($m);
     $seed = random_int(1, PHP_INT_MAX);
-    [$st, $events] = duel_new_match([$p['team1']['kits'], $p['team2']['kits']], $seed, ['mode' => $p['mode']]);
+    // engine: opzioni del motore della Torre (potenziamenti dei nemici, terreno da subito).
+    [$st, $events] = duel_new_match([$p['team1']['kits'], $p['team2']['kits']], $seed, ['mode' => $p['mode']] + (array)($p['engine'] ?? []));
 
     $isBot = $p['mode'] === 'bot';
     $rules = [
@@ -217,6 +218,9 @@ function duel_match_start(mysqli $m, array $p): int
     }
     if (!empty($p['daily'])) {
         $rules['daily'] = $p['daily'];
+    }
+    if (!empty($p['tower'])) {
+        $rules['tower'] = $p['tower'] + ['engine' => (array)($p['engine'] ?? [])];
     }
 
     $data = duel_match_columns($m, [
@@ -544,6 +548,12 @@ function duel_finish(mysqli $m, array &$row, array $st): void
     if ($daily) {
         require_once __DIR__ . '/daily.php';
         duel_daily_record($m, $row, $st, $daily);
+    }
+    // La Torre: il tentativo e, la prima volta che si supera il piano, record e premi.
+    $tower = duel_match_rules($row)['tower'] ?? null;
+    if ($tower) {
+        require_once __DIR__ . '/tower.php';
+        duel_tower_record($m, $row, $st, $tower);
     }
 
     $data = duel_match_columns($m, [

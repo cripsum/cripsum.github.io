@@ -1,3 +1,257 @@
+/* Dal vecchio foglio dei duelli (assets/css/game.css, tolto con i Duelli 2.0):
+   solo le regole che usa questa pagina, nello stesso ordine. */
+:root {
+    --game-bg: #070a12;
+    --game-bg2: #0d1220;
+    --game-card: rgba(13, 18, 32, .78);
+    --game-strong: rgba(9, 13, 24, .96);
+    --game-border: rgba(255, 255, 255, .12);
+    --game-text: #f8fbff;
+    --game-muted: #aeb9cc;
+    --game-muted2: #7e8aa1;
+    --game-accent: #7c3aed;
+    --game-accent2: #06b6d4;
+    --game-red: #ef4444;
+    --game-orange: #f59e0b;
+    --game-green: #22c55e;
+    --game-blue: #38bdf8;
+    --game-radius: 28px;
+}
+* {
+    box-sizing: border-box;
+}
+body.game-page {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--game-text);
+    overflow-x: hidden;
+}
+.game-hero, .game-panel, .game-arena {
+    border: 1px solid var(--game-border);
+    border-radius: var(--game-radius);
+    background:
+    linear-gradient(145deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .026)),
+    var(--game-card);
+    box-shadow: 0 24px 72px rgba(0, 0, 0, .34);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+.game-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+    gap: 1rem;
+    align-items: stretch;
+    padding: clamp(1rem, 3vw, 2rem);
+}
+.game-hero-copy {
+    min-width: 0;
+}
+.game-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    width: fit-content;
+    min-height: 2rem;
+    border-radius: 999px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.game-hero h1, .game-panel h2, .game-arena h2 {
+    margin: .65rem 0 .4rem;
+    color: var(--game-text);
+    line-height: .95;
+    letter-spacing: -.065em;
+}
+.game-hero h1 {
+    max-width: 760px; font-size: clamp(2.45rem, 7vw, 5.15rem);
+}
+.game-panel h2, .game-arena h2 {
+    font-size: clamp(1.35rem, 3vw, 2.2rem);
+}
+.game-hero p, .game-hint {
+    max-width: 700px;
+    margin: 0;
+    color: var(--game-muted);
+    line-height: 1.6;
+}
+.game-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+    margin-top: 1rem;
+}
+.game-steps span {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    min-height: 2.55rem;
+    padding: .48rem .68rem;
+    border: 1px solid var(--game-border);
+    border-radius: 999px;
+    color: var(--game-muted);
+    background: rgba(255, 255, 255, .045);
+    font-weight: 850;
+}
+.game-steps b {
+    display: grid;
+    place-items: center;
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 999px;
+}
+.game-btn, .game-icon-btn, .game-mode-card, .game-move, .game-mini-card, .game-card-option {
+    font: inherit;
+    cursor: pointer;
+}
+.game-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 3rem;
+    padding: .76rem 1rem;
+    border-radius: 999px;
+    border: 0;
+    font-weight: 950;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease, opacity .18s ease;
+}
+.game-btn:disabled, .game-move:disabled {
+    opacity: .48; cursor: not-allowed;
+}
+.game-btn:hover:not(:disabled), .game-mode-card:hover, .game-move:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+.game-btn-special {
+    color: #fff;
+    background: linear-gradient(135deg, var(--game-accent), var(--game-accent2));
+    box-shadow: 0 16px 42px rgba(124, 58, 237, .24);
+}
+.game-panel, .game-arena {
+    padding: 1rem;
+}
+.game-panel[hidden], .game-arena[hidden] {
+    display: none !important;
+}
+@media (max-width: 920px) {
+    .game-hero, .game-board {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 680px) {
+    .game-hero, .game-panel, .game-arena {
+        border-radius: 22px;
+    }
+    .game-quick, .game-actions, .game-join-row, .game-btn {
+        width: 100%;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important;
+    }
+}
+:root {
+    --game-cyan: #22d3ee;
+    --game-gold: #facc15;
+    --rank-bronzo: #b77950;
+    --rank-argento: #cbd5e1;
+    --rank-oro: #facc15;
+    --rank-diamante: #67e8f9;
+    --rank-campione: #a78bfa;
+    --rank-leggenda: #fb7185;
+}
+html:root body.game-page {
+    --game-bg: var(--nx-bg);
+    --game-bg2: var(--nx-bg);
+    --game-card: var(--nx-surface);
+    --game-strong: var(--nx-surface-2);
+    --game-border: var(--nx-line);
+    --game-text: var(--nx-text);
+    --game-muted: var(--nx-text-2);
+    --game-muted2: var(--nx-text-3);
+    --game-radius: var(--nx-radius);
+    background: var(--nx-bg);
+}
+html:root body.game-page:not([data-page="duel-arena"]) {
+    --game-accent: #f5f5f7;
+    --game-accent2: #f5f5f7;
+}
+html:root :is(.game-hero, .game-panel, .game-arena, .game-profile-card, .game-result-card, .game-action-banner, .sw-modal-box) {
+    border-color: transparent;
+    background: var(--nx-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+html:root :is(.game-hero, .game-panel, .game-profile-card) {
+    box-shadow: none;
+}
+html:root .game-hero {
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    background: none;
+}
+html:root :is(.game-hero h1, .sw-hero h1) {
+    font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+html:root :is(.game-kicker, .game-side h3, .game-rank-ladder span::after, .subway-lb-table th, .subway-pb-badge) {
+    letter-spacing: 0;
+    text-transform: none;
+}
+html:root .game-kicker {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--nx-text-2);
+    font-size: 0.8125rem;
+    font-weight: 400;
+}
+html:root :is(.game-panel h2, .game-panel h3, .sw-panel-head h2) {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+html:root :is(.game-btn, .game-btn-special) {
+    border: 1px solid var(--nx-line);
+    border-radius: var(--nx-pill);
+    background: transparent;
+    box-shadow: none;
+    color: var(--nx-text);
+    font-weight: 500;
+}
+html:root :is(.game-btn, .game-btn-special):hover:not(:disabled) {
+    border-color: var(--nx-text-3);
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+html:root .game-btn-main, html:root .game-btn-main:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--nx-text);
+    box-shadow: none;
+    color: #000;
+}
+html:root .game-btn-main:hover:not(:disabled) {
+    background: #fff;
+}
+html:root .game-steps b {
+    background: var(--nx-surface-3);
+    color: var(--nx-text);
+}
+html:root .sw-mode button.is-active, html:root .sw-mode button[data-mode="training"].is-active, html:root .sw-chip.is-active, html:root .sw-modal-nav button.is-active, html:root .subway-tab-btn.active {
+    border-color: transparent;
+    background: var(--nx-surface-3);
+    box-shadow: none;
+    color: var(--nx-text);
+}
+html:root :is(.game-btn, .sw-card, .sw-chip, .sw-mode button):focus-visible {
+    outline: 2px solid var(--nx-text);
+    outline-offset: 2px;
+}
+
 /* Subway Surfers WebGL Mod - Style System */
 
 :root {
