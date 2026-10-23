@@ -681,16 +681,260 @@
         return html;
     }
 
-    function renderTerrain() {
-        const el = $('d2-terrain');
-        const t = S.dyn.terrain;
-        if (!t) { el.hidden = true; return; }
-        const def = CFG.terrains[t.k] || { n: t.k };
-        el.dataset.k = t.k;
-        el.innerHTML = ic(t.k) + ' ' + esc(def.n) + (t.left ? ' · ' + Math.ceil(t.left / Math.max(1, t.round)) + ' ' + T('giri', 'rounds') : '');
-        el.title = def.d || '';
-        el.hidden = false;
+    // ── Il terreno nel campo (tavole 26-29) ──────────────────────────────
+    // Un livello sotto le carte (.d2-tr) col disegno del terreno, la fascia
+    // che passa all'entrata e l'etichetta in alto a destra coi giri rimasti.
+    // Entrata e fine arrivano con gli eventi (playStep); aprendo una partita
+    // col terreno gia' in campo c'e' e basta, salvo quando e' appena entrato
+    // (la Torre col terreno da subito): allora l'entrata, una volta, dopo la VS.
+    // A ogni giro una tacca si svuota; nella Palude e' anche il momento del Veleno.
+    const TR = { k: null, el: null, band: null, tag: null, left: 0, giri: 0, out: false, tiles: false, waiting: null, later: 0 };
+    const trRng = (seed) => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    const trSvg = (s) => 'url("data:image/svg+xml,' + encodeURIComponent(s) + '")';
+
+    /** Le trame ripetute (pioggia, onde): una volta per pagina, sempre uguali. */
+    function trTiles() {
+        if (TR.tiles) return;
+        TR.tiles = true;
+        const rain = (w, h, n, len, op, sw, seed) => {
+            const r = trRng(seed);
+            let lines = '';
+            for (let i = 0; i < n; i++) {
+                const x = (r() * w).toFixed(1), y = r() * h, l = len[0] + r() * (len[1] - len[0]);
+                lines += '<line x1="' + x + '" y1="' + y.toFixed(1) + '" x2="' + x + '" y2="' + (y + l).toFixed(1) + '"/>';
+                // La riga che esce sotto rientra sopra: la trama si ripete senza salti.
+                if (y + l > h) lines += '<line x1="' + x + '" y1="' + (y - h).toFixed(1) + '" x2="' + x + '" y2="' + (y + l - h).toFixed(1) + '"/>';
+            }
+            return trSvg('<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '"><g stroke="rgb(214,234,255)" stroke-opacity="' + op + '" stroke-width="' + sw + '" stroke-linecap="round">' + lines + '</g></svg>');
+        };
+        const wave = (fill, crest) => trSvg('<svg xmlns="http://www.w3.org/2000/svg" width="240" height="30"><path d="M0 14 Q30 4 60 14 T120 14 T180 14 T240 14 V30 H0 Z" fill="' + fill + '"/>'
+            + (crest ? '<path d="M0 14 Q30 4 60 14 T120 14 T180 14 T240 14" fill="none" stroke="' + crest + '" stroke-width="1.5"/>' : '') + '</svg>');
+        const st = $('d2-stage').style;
+        st.setProperty('--rain-far', rain(170, 160, 9, [16, 28], .16, 1, 7));
+        st.setProperty('--rain-near', rain(230, 220, 7, [30, 52], .34, 1.4, 19));
+        st.setProperty('--wave-back', wave('#1b2a12'));
+        st.setProperty('--wave-front', wave('#142010', '#2e4419'));
     }
+
+    // Il disegno di ogni terreno (numeri a caso ma fissi).
+    const TR_ART = {
+        notte: () => '<div class="d2-tr-moon"><svg viewBox="0 0 300 300"><defs><mask id="d2-trm"><rect width="300" height="300" fill="#fff"/><circle cx="118" cy="132" r="104" fill="#000"/></mask></defs>'
+            + '<g mask="url(#d2-trm)"><circle cx="150" cy="150" r="110" fill="#d9dde6"/><circle cx="238" cy="160" r="7" fill="#c3c8d3"/><circle cx="226" cy="214" r="5" fill="#c3c8d3"/><circle cx="248" cy="118" r="4" fill="#c3c8d3"/></g></svg></div>',
+        tempesta: () => '<div class="d2-tr-flash"></div><div class="d2-tr-rain far"><i></i></div><div class="d2-tr-rain near"><i></i></div>'
+            + '<svg class="d2-tr-bolt" viewBox="0 0 120 300"><path d="M78 0 L52 92 L74 96 L38 196 L58 200 L30 300"/><path d="M52 92 L22 140"/></svg>',
+        palude: () => {
+            const r = trRng(31);
+            let bubbles = '';
+            for (let i = 0; i < 8; i++) {
+                const s = (6 + r() * 7).toFixed(1);
+                bubbles += '<i class="d2-tr-bubble" style="left:' + (8 + r() * 84).toFixed(1) + '%;width:' + s + 'px;height:' + s + 'px;--d:' + Math.round(2600 + r() * 1800) + 'ms;--w:' + (900 + i * 430) + 'ms;--h:-' + Math.round(40 + r() * 50) + 'px"></i>';
+            }
+            const reed = (x, h, d) => '<g style="animation-delay:' + d + 's"><rect x="' + x + '" y="' + (300 - h) + '" width="5" height="' + h + '" rx="2.5" fill="#15220c"/><rect x="' + (x - 3) + '" y="' + (300 - h - 4) + '" width="11" height="40" rx="5.5" fill="#2b3e17"/></g>';
+            const reeds = '<svg viewBox="0 0 120 300" preserveAspectRatio="xMidYMax meet">' + reed(18, 210, -1) + reed(52, 260, -3) + reed(86, 170, -5) + '</svg>';
+            const ripples = [22, 50, 78].map((x, i) => '<i class="d2-tr-ripple" style="left:' + x + '%;--w:' + (i * 90) + 'ms"></i>').join('');
+            return bubbles + '<div class="d2-tr-water"><i class="wv back"></i><i class="bed"></i><i class="wv front"></i></div>' + ripples
+                + '<div class="d2-tr-reeds l">' + reeds + '</div><div class="d2-tr-reeds r">' + reeds + '</div>';
+        },
+        santuario: () => {
+            const pt = (a, r) => [(Math.cos(a * Math.PI / 180) * r).toFixed(1), (Math.sin(a * Math.PI / 180) * r).toFixed(1)];
+            let ticks = '';
+            for (let a = 0; a < 360; a += 5) {
+                const p1 = pt(a, a % 30 === 0 ? 436 : 452), p2 = pt(a, 470);
+                ticks += '<line x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] + '"/>';
+            }
+            let marks = '';
+            for (let a = 0; a < 360; a += 45) {
+                const [cx, cy] = pt(a, 360).map(Number);
+                marks += '<path d="M' + cx + ' ' + (cy - 14) + ' L' + (cx + 14) + ' ' + cy + ' L' + cx + ' ' + (cy + 14) + ' L' + (cx - 14) + ' ' + cy + ' Z"/>';
+            }
+            return '<div class="d2-tr-seal"><svg viewBox="-590 -590 1180 1180">'
+                + '<circle class="dim" r="560" pathLength="1" style="--i:0"/><circle class="mid" r="470" pathLength="1" style="--i:1"/>'
+                + '<g class="spin"><g class="ticks dim">' + ticks + '</g></g>'
+                + '<g class="spin rev"><circle class="dim" r="360" pathLength="1" style="--i:2"/><g class="ticks mid">' + marks + '</g></g>'
+                + '<circle class="mid" r="250" pathLength="1" style="--i:3"/><circle class="dim" r="232" pathLength="1" style="--i:3"/></svg></div>';
+        },
+        cielo_stellato: (stage) => {
+            const W = stage.clientWidth + 80, H = Math.max(stage.clientHeight, stage.scrollHeight) + 40;
+            const r = trRng(77);
+            const groups = ['', '', ''];
+            const n = Math.round(W * H / 4200);
+            for (let i = 0; i < n; i++) {
+                const gold = r() < .14;
+                groups[i % 3] += '<circle cx="' + (r() * W).toFixed(1) + '" cy="' + (r() * H).toFixed(1) + '" r="' + (gold ? 1.1 + r() * .9 : .5 + r() * 1.1).toFixed(2) + '" fill="' + (gold ? '#ffd60a' : '#e6e6ee') + '"/>';
+            }
+            // In frazioni del campo: le fasce libere a sinistra e a destra delle carte.
+            const cons = [
+                [[.04, .2], [.1, .15], [.16, .24], [.14, .36], [.2, .46], [.13, .54]],
+                [[.8, .62], [.86, .56], [.92, .6], [.95, .71], [.89, .79]],
+                [[.81, .17], [.87, .23], [.93, .2], [.96, .3]],
+                [[.05, .74], [.11, .8], [.08, .88]],
+            ];
+            const con = cons.map((pts, i) => {
+                const xy = pts.map(([x, y]) => [(x * W).toFixed(1), (y * H).toFixed(1)]);
+                return '<g class="con" style="--i:' + i + '"><path pathLength="1" d="M' + xy.map((p) => p.join(' ')).join(' L') + '"/>'
+                    + xy.map((p, j) => '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" style="--i:' + i + ';--j:' + j + '"/>').join('') + '</g>';
+            }).join('');
+            return '<div class="d2-tr-stars"><svg viewBox="0 0 ' + W + ' ' + H + '">'
+                + groups.map((g, i) => '<g class="g" style="--i:' + i + ';--t:' + [3.2, 4.4, 5.6][i] + 's">' + g + '</g>').join('') + con + '</svg></div>';
+        },
+    };
+
+    /** Larghezza, altezza (anche quando il campo scorre) e pendenza della lama, per il livello e la fascia. */
+    function trMeasure() {
+        if (!TR.el) return;
+        const stage = $('d2-stage');
+        const h = Math.max(stage.clientHeight, stage.scrollHeight);
+        const o = Math.round(h * Math.tan(10.2 * Math.PI / 180));
+        TR.el.style.setProperty('--tr-h', h + 'px');
+        [TR.el, TR.band].forEach((n) => { n.style.setProperty('--tr-w', stage.clientWidth + 'px'); n.style.setProperty('--tr-o', o + 'px'); });
+        const s = stage.getBoundingClientRect();
+        const b = TR.band.getBoundingClientRect();
+        const y0 = b.top - s.top + stage.scrollTop;
+        TR.band.style.setProperty('--tr-b1', (o * y0 / h).toFixed(1) + 'px');
+        TR.band.style.setProperty('--tr-b2', (o * (y0 + b.height) / h).toFixed(1) + 'px');
+    }
+
+    function trClear() {
+        [TR.el, TR.band, TR.tag].forEach((n) => n && n.remove());
+        const stage = $('d2-stage');
+        [...stage.classList].filter((c) => c.startsWith('trs-')).forEach((c) => stage.classList.remove(c));
+        delete stage.dataset.tr;
+        Object.assign(TR, { k: null, el: null, band: null, tag: null, left: 0, giri: 0, out: false });
+    }
+
+    const trGiri = (n) => n + ' ' + (n === 1 ? T('giro', 'round') : T('giri', 'rounds'));
+
+    /** Il terreno in campo: enter = con l'entrata (lama, fascia, etichetta). */
+    function trBuild(k, giri, left, enter) {
+        trClear();
+        trTiles();
+        const stage = $('d2-stage');
+        const def = CFG.terrains[k] || { n: k, d: '' };
+        const el = document.createElement('div');
+        el.className = 'd2-tr' + (document.hidden ? ' is-paused' : '');
+        el.setAttribute('aria-hidden', 'true');
+        el.innerHTML = '<div class="d2-tr-sky">' + (TR_ART[k] ? TR_ART[k](stage) : '') + '</div><i class="d2-tr-blade"></i>';
+        const band = document.createElement('div');
+        band.className = 'd2-tr-band';
+        band.setAttribute('aria-hidden', 'true');
+        band.innerHTML = ic(k) + '<b>' + esc(def.n) + '</b><p>' + esc(def.d || '') + '<span>' + esc(trGiri(giri)) + '</span></p>';
+        const tag = document.createElement('button');
+        tag.type = 'button';
+        tag.className = 'd2-tr-tag';
+        tag.innerHTML = ic(k) + '<span>' + esc(def.n) + '</span><span class="d2-tr-pips">' + Array.from({ length: giri }, (_, i) => '<i style="--i:' + i + '"></i>').join('') + '</span>';
+        tag.addEventListener('click', showTerrainPop);
+        tag.addEventListener('focus', showTerrainPop);
+        tag.addEventListener('blur', hidePop);
+        tag.addEventListener('pointerover', (e) => { if (e.pointerType === 'mouse') showTerrainPop(); });
+        tag.addEventListener('pointerout', (e) => { if (e.pointerType === 'mouse') hidePop(); });
+        stage.prepend(el);
+        el.after(band, tag);
+        stage.classList.add('trs-' + k);
+        if (enter) stage.classList.add('trs-in');
+        stage.dataset.tr = k;
+        Object.assign(TR, { k, el, band, tag, giri, left: giri, out: false });
+        trSetLeft(left, false);
+        // Prima le misure, poi le fasi: le animazioni leggono larghezza e pendenza quando partono.
+        trMeasure();
+        el.classList.add(enter ? 'is-in' : 'is-on');
+    }
+
+    function trSetLeft(left, fresh) {
+        TR.tag.querySelectorAll('.d2-tr-pips i').forEach((p, i) => {
+            const gone = i >= left;
+            p.classList.toggle('is-new', fresh && gone && !p.classList.contains('is-gone'));
+            p.classList.toggle('is-gone', gone);
+        });
+        TR.tag.classList.toggle('is-last', left === 1);
+        TR.left = left;
+        const def = CFG.terrains[TR.k] || { n: TR.k, d: '' };
+        TR.tag.setAttribute('aria-label', def.n + T(', ancora ', ', ') + trGiri(left) + T('', ' left') + '. ' + (def.d || ''));
+    }
+
+    /** Un giro passato: una tacca si svuota (nella Palude l'acqua si alza: e' il Veleno). */
+    function trTick(left) {
+        TR.el.classList.remove('is-tick');
+        void TR.el.offsetWidth;
+        trSetLeft(left, true);
+        TR.el.classList.add('is-tick');
+    }
+
+    function trSeen(k) {
+        try { return sessionStorage.getItem('d2.tr.' + S.match) === k; } catch (e) { return true; }
+    }
+    function trMark(k) {
+        try { sessionStorage.setItem('d2.tr.' + S.match, k); } catch (e) { /* niente */ }
+    }
+
+    async function trEnter(k, giri) {
+        trMark(k);
+        trBuild(k, giri, giri, true);
+        await sleep(reducedMq.matches ? 1400 : 1500 * spd());
+        if (TR.k === k) $('d2-stage').classList.remove('trs-in');
+    }
+
+    async function trEnd() {
+        if (!TR.el || TR.out) return;
+        TR.out = true;
+        hidePop();
+        TR.el.classList.add('is-out');
+        $('d2-stage').classList.add('trs-out');
+        await sleep(reducedMq.matches ? 240 : 560 * spd());
+        if (TR.out) trClear();
+    }
+
+    function renderTerrain() {
+        const t = S.dyn && S.dyn.terrain;
+        if (!t) {
+            if (TR.el && !TR.out) trClear();
+            return;
+        }
+        // Al primo caricamento l'arena e' ancora nascosta: si disegna quando il campo ha una misura.
+        if (!$('d2-stage').clientWidth) {
+            if (!TR.later) TR.later = setTimeout(() => { TR.later = 0; renderTerrain(); }, 60);
+            return;
+        }
+        const round = Math.max(1, t.round || 1);
+        const left = Math.max(1, Math.ceil(t.left / round));
+        if (TR.el && TR.k === t.k && !TR.out) {
+            if (left < TR.left) trTick(left);
+            else if (left !== TR.left) trSetLeft(left, false);
+            trMeasure();
+            return;
+        }
+        if (TR.waiting === t.k) return;
+        const giri = Math.max(left, Math.round((t.left + (t.since || 0)) / round));
+        // Appena entrato e mai visto in questa scheda: l'entrata, dopo la presentazione VS.
+        if (!CFG.replay && (t.since || 0) < round && !trSeen(t.k)) {
+            TR.waiting = t.k;
+            const go = () => {
+                if (document.querySelector('.d2-vs')) { setTimeout(go, 150); return; }
+                TR.waiting = null;
+                const now = S.dyn && S.dyn.terrain;
+                if (!now || now.k !== t.k) return;
+                trEnter(t.k, giri).then(() => { if (S.dyn && S.dyn.terrain) renderTerrain(); });
+            };
+            // Non subito: al primo caricamento la VS parte appena dopo applyDyn().
+            setTimeout(go, 80);
+            return;
+        }
+        trBuild(t.k, giri, left, false);
+    }
+
+    function showTerrainPop() {
+        if (!TR.tag) return;
+        const def = CFG.terrains[TR.k] || { n: TR.k, d: '' };
+        const pop = $('d2-pop');
+        pop.innerHTML = '<b>' + ic(TR.k) + ' ' + esc(def.n) + '<small>' + esc(trGiri(TR.left)) + '</small></b><p>' + esc(def.d || '') + '</p>'
+            + '<div class="d2-pop-m">' + esc(T('Vale per tutte le carte in campo, finché dura.', 'Applies to every card on the field while it lasts.')) + '</div>';
+        const r = TR.tag.getBoundingClientRect();
+        pop.style.left = Math.max(8, Math.min(innerWidth - 290, r.right - 280)) + 'px';
+        pop.style.top = (r.bottom + 10) + 'px';
+        pop.hidden = false;
+    }
+
+    document.addEventListener('visibilitychange', () => { if (TR.el) TR.el.classList.toggle('is-paused', document.hidden); });
+    window.addEventListener('resize', trMeasure);
 
     // Ordine dei turni: le icone scorrono al nuovo posto (FLIP).
     function renderTimeline() {
@@ -1264,19 +1508,13 @@
                     break;
                 }
                 case 'terrain': {
+                    // Tavole 26-29: entra di taglio con la fascia, finisce con la lama che ripassa.
                     if (e.op === 'start') {
                         const def = CFG.terrains[e.k] || { n: e.k };
-                        const el = $('d2-terrain');
-                        el.dataset.k = e.k;
-                        el.innerHTML = ic(e.k) + ' ' + esc(def.n) + ' · ' + e.giri + ' ' + T('giri', 'rounds');
-                        el.hidden = false;
-                        el.classList.remove('d2-in');
-                        void el.offsetWidth;
-                        el.classList.add('d2-in');
                         segment.extra.push(T('Terreno: ', 'Terrain: ') + def.n);
-                        await wait(600);
+                        await trEnter(e.k, e.giri || 3);
                     } else {
-                        $('d2-terrain').hidden = true;
+                        await trEnd();
                     }
                     break;
                 }

@@ -438,13 +438,220 @@ body.d2 .d2-moves:focus, body.d2 .d2-moves:focus-visible { outline: none; }
 @keyframes d2-fade-in { from { opacity: 0; } }
 @keyframes d2-fade-out { to { opacity: 0; } }
 
-.d2-terrain { position: absolute; left: 0; top: 0; z-index: 3; height: 34px; padding: 0 22px 0 16px; background: var(--fam-ctrl); color: #0a0a0b; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%); }
-.d2-terrain.d2-in { animation: d2-terrain-in calc(500ms * var(--spd)) var(--ease); }
-@keyframes d2-terrain-in { from { transform: translateX(-100%); } }
-.d2-terrain[data-k="notte"] { background: #5e5ce6; color: #fff; }
-.d2-terrain[data-k="palude"] { background: #30d158; }
-.d2-terrain[data-k="santuario"] { background: var(--tx); }
-.d2-terrain[data-k="cielo_stellato"] { background: #ffd60a; }
+/* ── I terreni nel campo (tavole 26-29, 23 ottobre 2026) ──────────────────
+ * Il terreno entra di taglio con la lama della VS (10,2 gradi): dietro la
+ * lama c'e' gia' il campo nuovo; la fascia con nome, effetto e giri compare
+ * dietro la stessa lama, resta il tempo di leggerla ed esce a destra, da
+ * dove entra l'etichetta coi giri rimasti a tacche. Per finire la lama
+ * ripassa e porta via il terreno. Ogni terreno ha una sola idea, piatta e
+ * sotto le carte: niente aloni, niente sfumature viola-blu, niente vetro.
+ * Le classi: .d2-tr (il livello) .is-in .is-on .is-tick .is-out; sul campo
+ * data-tr (i colori) e .trs-<terreno>. Le animazioni: trin- (entrata),
+ * tramb- (in campo), trtk- (un giro), trout- (la fine). */
+@property --tr-x { syntax: '<length>'; inherits: true; initial-value: 0px; }
+.d2-stage { isolation: isolate; --tr-acc: #f5f5f7; --tr-sky: #0a0a0b; --tr-ink: #0a0a0b; }
+.d2-stage[data-tr="notte"] { --tr-acc: #d9dde6; --tr-sky: #040405; }
+.d2-stage[data-tr="tempesta"] { --tr-acc: #64d2ff; --tr-sky: #070a0d; }
+.d2-stage[data-tr="palude"] { --tr-acc: #9cbf3f; --tr-sky: #060805; }
+.d2-stage[data-tr="santuario"] { --tr-acc: #f1e2b8; --tr-sky: #0b0906; }
+.d2-stage[data-tr="cielo_stellato"] { --tr-acc: #ffd60a; --tr-sky: #04050a; }
+.d2-stage > .d2-half, .d2-stage > .d2-cap { position: relative; z-index: 1; }
+
+/* Il livello: sotto le carte, alto quanto il campo anche quando scorre (--tr-h). */
+.d2-tr { --tr-w: 1000px; --tr-h: 100%; --tr-o: 120px; position: absolute; left: 0; right: 0; top: 0; height: var(--tr-h); z-index: 0; pointer-events: none; contain: strict; overflow: hidden; }
+.d2-tr.is-paused, .d2-tr.is-paused * { animation-play-state: paused !important; }
+.d2-tr-sky { position: absolute; inset: 0; background: var(--tr-sky); overflow: hidden;
+    clip-path: polygon(0 0, var(--tr-x) 0, calc(var(--tr-x) - var(--tr-o)) 100%, 0 100%); }
+.d2-tr.is-on { --tr-x: 200vw; }
+.d2-tr.is-in { animation: trin-sweep calc(560ms * var(--spd)) cubic-bezier(.7, 0, .2, 1) both; }
+.d2-tr.is-out { animation: trout-sweep calc(420ms * var(--spd)) cubic-bezier(.55, 0, .45, 1) calc(120ms * var(--spd)) both; }
+.d2-tr.is-out .d2-tr-sky { clip-path: polygon(var(--tr-x) 0, 100% 0, 100% 100%, calc(var(--tr-x) - var(--tr-o)) 100%); }
+@keyframes trin-sweep { from { --tr-x: -24px; } to { --tr-x: calc(var(--tr-w) + var(--tr-o) + 24px); } }
+@keyframes trout-sweep { from { --tr-x: -24px; } to { --tr-x: calc(var(--tr-w) + var(--tr-o) + 24px); } }
+.d2-tr-blade { position: absolute; top: 0; bottom: 0; left: 0; width: 10px; background: var(--tr-acc); transform-origin: 0 100%;
+    transform: translateX(calc(var(--tr-x) - var(--tr-o) - 10px)) skewX(-10.2deg); opacity: 0; }
+.d2-tr.is-in .d2-tr-blade { animation: trin-blade calc(560ms * var(--spd)) linear both; }
+.d2-tr.is-out .d2-tr-blade { animation: trout-blade calc(420ms * var(--spd)) linear calc(120ms * var(--spd)) both; }
+@keyframes trin-blade { 0%, 96% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes trout-blade { 0%, 96% { opacity: 1; } 100% { opacity: 0; } }
+
+/* La fascia: dietro la lama (--tr-b1/--tr-b2: di quanto pende la lama sopra e sotto la fascia). */
+.d2-tr-band { --tr-w: 1000px; --tr-o: 120px; --tr-b1: 0px; --tr-b2: 0px; position: absolute; left: 0; right: 0; top: 50%; z-index: 4; height: 136px; margin-top: -68px; background: var(--tr-acc); color: var(--tr-ink);
+    display: flex; align-items: center; gap: 28px; padding: 0 56px; pointer-events: none; clip-path: inset(0 100% 0 0); }
+.d2-tr-band .ic { width: 44px; height: 44px; flex: none; }
+.d2-tr-band b { font-size: 92px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; white-space: nowrap; }
+.d2-tr-band p { margin: 0; padding-left: 28px; border-left: 2px solid rgba(10,10,11,.28); max-width: 400px; font-size: 16.5px; font-weight: 500; line-height: 1.4; }
+.d2-tr-band p span { display: block; margin-top: 6px; font-weight: 600; }
+.d2-tr-band > * { transform: translateX(-28px); }
+/* Il ritaglio si anima da se' (stessa durata e curva della lama): un ritaglio che legge una
+ * proprieta' animata sullo stesso elemento il browser non lo ridisegna. */
+.d2-tr.is-in ~ .d2-tr-band { animation: trin-band calc(560ms * var(--spd)) cubic-bezier(.7, 0, .2, 1) both, trin-band-out calc(330ms * var(--spd)) cubic-bezier(.55, 0, .7, .2) calc(1020ms * var(--spd)) forwards; }
+.d2-tr.is-in ~ .d2-tr-band > * { animation: trin-band-in calc(520ms * var(--spd)) var(--ease) calc(160ms * var(--spd)) both; }
+@keyframes trin-band {
+    from { clip-path: polygon(0 0, calc(-24px - var(--tr-b1)) 0, calc(-24px - var(--tr-b2)) 100%, 0 100%); }
+    to { clip-path: polygon(0 0, calc(var(--tr-w) + var(--tr-o) + 24px - var(--tr-b1)) 0, calc(var(--tr-w) + var(--tr-o) + 24px - var(--tr-b2)) 100%, 0 100%); }
+}
+@keyframes trin-band-out { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+@keyframes trin-band-in { to { transform: none; } }
+
+/* L'etichetta: in alto a destra, coi giri rimasti; tocco o puntatore = descrizione. */
+.d2-tr-tag { position: absolute; top: 0; right: 0; z-index: 3; height: 36px; display: flex; align-items: center; gap: 9px; padding: 0 16px 0 30px;
+    background: var(--tr-acc); color: var(--tr-ink); font: 600 13px/1 var(--font); clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%); transform: translateX(105%); }
+.d2-tr-tag .ic { width: 16px; height: 16px; }
+.d2-tr-tag:focus-visible { outline: 2px solid var(--tr-ink); outline-offset: -4px; }
+.d2-tr-pips { display: inline-flex; gap: 4px; margin-left: 4px; }
+.d2-tr-pips i { width: 12px; height: 7px; background: var(--tr-ink); transform: skewX(-10.2deg); }
+.d2-tr-pips i.is-gone { background: rgba(10,10,11,.22); }
+.d2-tr.is-on ~ .d2-tr-tag { transform: none; }
+.d2-tr.is-in ~ .d2-tr-tag { animation: trin-tag calc(380ms * var(--spd)) var(--ease) calc(1160ms * var(--spd)) both; }
+.d2-tr.is-in ~ .d2-tr-tag .d2-tr-pips i { animation: trin-pip calc(180ms * var(--spd)) var(--ease) both; animation-delay: calc((1380ms + var(--i) * 70ms) * var(--spd)); }
+@keyframes trin-tag { from { transform: translateX(105%); } to { transform: none; } }
+@keyframes trin-pip { from { transform: skewX(-10.2deg) scaleX(0); } }
+.d2-tr.is-tick ~ .d2-tr-tag .d2-tr-pips i.is-gone.is-new { animation: trtk-pip calc(260ms * var(--spd)) var(--ease-in) both; }
+@keyframes trtk-pip { from { background: var(--tr-ink); } 40% { transform: skewX(-10.2deg) scaleY(1.6); } to { background: rgba(10,10,11,.22); } }
+.d2-tr.is-tick ~ .d2-tr-tag.is-last .d2-tr-pips i:not(.is-gone) { animation: trtk-last calc(900ms * var(--spd)) linear calc(260ms * var(--spd)) both; }
+@keyframes trtk-last { 0%, 30%, 60%, 100% { opacity: 1; } 15%, 45% { opacity: .2; } }
+.d2-tr.is-out ~ .d2-tr-tag { transform: none; animation: trout-tag calc(240ms * var(--spd)) var(--ease-in) both; }
+@keyframes trout-tag { to { transform: translateX(105%); } }
+
+/* Notte: la falce di luna sale, le foto delle carte in penombra. */
+.d2-tr-moon { position: absolute; right: 40px; top: 66px; width: 230px; height: 230px; }
+.d2-tr-moon svg { width: 100%; height: 100%; display: block; }
+.d2-tr.is-in .d2-tr-moon { animation: trin-moon calc(900ms * var(--spd)) var(--ease) calc(160ms * var(--spd)) both, tramb-float calc(9s * var(--spd)) ease-in-out calc(1100ms * var(--spd)) infinite alternate; }
+.d2-tr.is-on .d2-tr-moon { animation: tramb-float calc(9s * var(--spd)) ease-in-out infinite alternate; }
+@keyframes trin-moon { from { transform: translateY(160px); opacity: 0; } }
+@keyframes tramb-float { to { transform: translateY(-10px); } }
+.d2-stage.trs-notte .d2-card .d2-art img { filter: brightness(.6) saturate(.5); }
+.d2-stage.trs-notte.trs-in .d2-card .d2-art img { animation: trin-dim calc(700ms * var(--spd)) var(--ease) calc(240ms * var(--spd)) both; }
+.d2-stage.trs-notte.trs-out .d2-card .d2-art img { animation: trout-undim calc(380ms * var(--spd)) var(--ease) both; }
+@keyframes trin-dim { from { filter: none; } to { filter: brightness(.6) saturate(.5); } }
+@keyframes trout-undim { from { filter: brightness(.6) saturate(.5); } to { filter: none; } }
+.d2-tr.is-out .d2-tr-moon { animation: trout-moon calc(320ms * var(--spd)) var(--ease-in) both; }
+@keyframes trout-moon { to { transform: translateY(120px); opacity: 0; } }
+
+/* Tempesta: pioggia lungo la diagonale in due strati; un fulmine con la lama, poi ogni 7,2 s
+ * (un salto di luce dell'1-2%, sotto le soglie dei lampi pericolosi). */
+.d2-tr-rain { position: absolute; inset: -30% -20%; transform: rotate(10.2deg); }
+.d2-tr-rain i { position: absolute; left: 0; right: 0; top: -220px; bottom: 0; background-repeat: repeat; }
+.d2-tr-rain.far i { background-image: var(--rain-far); background-size: 170px 160px; top: -160px; animation: tramb-fall-far calc(330ms * var(--spd)) linear infinite; }
+.d2-tr-rain.near i { background-image: var(--rain-near); background-size: 230px 220px; animation: tramb-fall-near calc(240ms * var(--spd)) linear infinite; }
+@keyframes tramb-fall-far { to { transform: translateY(160px); } }
+@keyframes tramb-fall-near { to { transform: translateY(220px); } }
+.d2-tr.is-in .d2-tr-rain { animation: trin-rain calc(700ms * var(--spd)) ease calc(220ms * var(--spd)) both; }
+@keyframes trin-rain { from { opacity: 0; } }
+.d2-tr-flash { position: absolute; inset: 0; background: #1a2430; opacity: 0; }
+.d2-tr-bolt { position: absolute; left: 62%; top: 0; width: 120px; height: 300px; opacity: 0; }
+.d2-tr-bolt path { fill: none; stroke: var(--tr-acc); stroke-width: 3; stroke-linejoin: miter; }
+.d2-tr.is-in .d2-tr-flash { animation: trin-strike calc(520ms * var(--spd)) linear calc(380ms * var(--spd)) both, tramb-flash calc(7.2s * var(--spd)) linear calc(3.4s * var(--spd)) infinite; }
+.d2-tr.is-in .d2-tr-bolt { animation: trin-bolt calc(520ms * var(--spd)) linear calc(380ms * var(--spd)) both, tramb-bolt calc(7.2s * var(--spd)) linear calc(3.4s * var(--spd)) infinite; }
+.d2-tr.is-on .d2-tr-flash { animation: tramb-flash calc(7.2s * var(--spd)) linear calc(2s * var(--spd)) infinite; }
+.d2-tr.is-on .d2-tr-bolt { animation: tramb-bolt calc(7.2s * var(--spd)) linear calc(2s * var(--spd)) infinite; }
+@keyframes trin-strike { 0% { opacity: 0; } 8% { opacity: 1; } 20% { opacity: .3; } 30% { opacity: .9; } 100% { opacity: 0; } }
+@keyframes trin-bolt { 0%, 6% { opacity: 0; } 8%, 34% { opacity: 1; } 46%, 100% { opacity: 0; } }
+@keyframes tramb-flash { 0%, 94% { opacity: 0; } 94.4% { opacity: 1; } 95.4% { opacity: .3; } 96% { opacity: .85; } 99% { opacity: 0; } }
+@keyframes tramb-bolt { 0%, 94.2% { opacity: 0; } 94.4%, 96.2% { opacity: 1; } 97%, 100% { opacity: 0; } }
+.d2-tr.is-out .d2-tr-rain { animation: trout-fade calc(300ms * var(--spd)) ease both; }
+@keyframes trout-fade { to { opacity: 0; } }
+
+/* Palude: l'acqua sale, le canne, le bolle; a fine giro l'acqua si alza col Veleno. */
+.d2-tr-water { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; }
+.d2-tr-water .wv { position: absolute; left: 0; top: -26px; width: calc(100% + 240px); height: 30px; background-repeat: repeat-x; background-size: 240px 30px; }
+.d2-tr-water .wv.back { background-image: var(--wave-back); top: -34px; animation: tramb-wave calc(9s * var(--spd)) linear infinite; }
+.d2-tr-water .wv.front { background-image: var(--wave-front); animation: tramb-wave calc(13s * var(--spd)) linear infinite reverse; }
+.d2-tr-water .bed { position: absolute; inset: 0; background: #142010; }
+@keyframes tramb-wave { to { transform: translateX(-240px); } }
+.d2-tr.is-in .d2-tr-water { animation: trin-water calc(900ms * var(--spd)) var(--ease) calc(160ms * var(--spd)) both; }
+@keyframes trin-water { from { transform: translateY(105%); } }
+.d2-tr-reeds { position: absolute; bottom: 0; width: 120px; height: 300px; }
+.d2-tr-reeds.l { left: 8px; } .d2-tr-reeds.r { right: 8px; transform: scaleX(-1); }
+.d2-tr-reeds svg { width: 100%; height: 100%; overflow: visible; }
+.d2-tr-reeds g { transform-box: fill-box; transform-origin: 50% 100%; animation: tramb-sway calc(6s * var(--spd)) ease-in-out infinite alternate; }
+.d2-tr-reeds g:nth-child(2) { animation-duration: calc(7.4s * var(--spd)); animation-delay: calc(-2s * var(--spd)); }
+.d2-tr-reeds g:nth-child(3) { animation-duration: calc(5.2s * var(--spd)); animation-delay: calc(-4s * var(--spd)); }
+@keyframes tramb-sway { from { transform: rotate(-2.5deg); } to { transform: rotate(2.5deg); } }
+.d2-tr.is-in .d2-tr-reeds { animation: trin-reeds calc(800ms * var(--spd)) var(--ease) calc(320ms * var(--spd)) both; }
+.d2-tr.is-in .d2-tr-reeds.r { animation-name: trin-reeds-r; }
+@keyframes trin-reeds { from { transform: translateY(70%); } }
+@keyframes trin-reeds-r { from { transform: scaleX(-1) translateY(70%); } }
+.d2-tr-bubble { position: absolute; bottom: 34%; width: 10px; height: 10px; margin-bottom: 4px; border: 1.5px solid var(--tr-acc); border-radius: 50%; opacity: 0;
+    animation: tramb-bubble calc(var(--d) * var(--spd)) ease-out calc(var(--w) * var(--spd)) infinite; }
+@keyframes tramb-bubble { 0% { transform: translateY(0) scale(.5); opacity: 0; } 12% { opacity: .9; } 82% { transform: translateY(var(--h)) scale(1); opacity: .9; } 100% { transform: translateY(var(--h)) scale(1.6); opacity: 0; } }
+.d2-tr.is-tick .d2-tr-water { animation: trtk-surge calc(760ms * var(--spd)) var(--ease) both; }
+@keyframes trtk-surge { 30% { transform: translateY(-34px); } to { transform: none; } }
+.d2-tr-ripple { position: absolute; bottom: calc(34% - 14px); width: 180px; height: 34px; margin-left: -90px; border: 2px solid var(--tr-acc); border-radius: 50%; opacity: 0; }
+.d2-tr.is-tick .d2-tr-ripple { animation: trtk-ripple calc(900ms * var(--spd)) var(--ease) calc(var(--w) * var(--spd)) both; }
+@keyframes trtk-ripple { from { transform: scale(.3); opacity: .9; } to { transform: scale(1.25); opacity: 0; } }
+.d2-tr.is-out .d2-tr-water { animation: trout-drain calc(360ms * var(--spd)) var(--ease-in) both; }
+.d2-tr.is-out .d2-tr-reeds { animation: trout-fade calc(260ms * var(--spd)) ease both; }
+@keyframes trout-drain { to { transform: translateY(105%); } }
+
+/* Santuario: il sigillo disegnato a terra, in prospettiva, che gira piano. */
+.d2-tr-seal { position: absolute; left: 50%; top: 52%; width: 1180px; height: 1180px; margin: -590px 0 0 -590px; transform: scaleY(.24); }
+.d2-tr-seal svg { width: 100%; height: 100%; overflow: visible; }
+.d2-tr-seal circle, .d2-tr-seal path, .d2-tr-seal line { fill: none; stroke: var(--tr-acc); stroke-width: 2.2; vector-effect: non-scaling-stroke; }
+.d2-tr-seal .dim { opacity: .18; } .d2-tr-seal .mid { opacity: .44; }
+.d2-tr-seal .spin { transform-origin: 0 0; animation: tramb-spin calc(140s * var(--spd)) linear infinite; }
+.d2-tr-seal .spin.rev { animation-direction: reverse; animation-duration: calc(90s * var(--spd)); }
+@keyframes tramb-spin { to { transform: rotate(360deg); } }
+.d2-tr-seal [pathLength] { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.d2-tr.is-in .d2-tr-seal [pathLength] { animation: trin-draw calc(900ms * var(--spd)) var(--ease) calc((260ms + var(--i, 0) * 120ms) * var(--spd)) both; }
+@keyframes trin-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.d2-tr.is-in .d2-tr-seal .ticks { animation: trin-ticks calc(500ms * var(--spd)) ease calc(900ms * var(--spd)) both; }
+@keyframes trin-ticks { from { opacity: 0; } }
+.d2-tr.is-out .d2-tr-seal { animation: trout-seal calc(340ms * var(--spd)) var(--ease-in) both; }
+@keyframes trout-seal { to { transform: scaleY(.24) scale(.86); opacity: 0; } }
+
+/* Cielo stellato: stelle che brillano a tratti, costellazioni ai lati delle carte. */
+.d2-tr-stars { position: absolute; inset: -20px -40px; animation: tramb-drift calc(50s * var(--spd)) ease-in-out calc(1s * var(--spd)) infinite alternate; }
+.d2-tr-stars svg { width: 100%; height: 100%; }
+@keyframes tramb-drift { to { transform: translateX(-34px); } }
+.d2-tr-stars .g { animation: tramb-twinkle calc(var(--t) * var(--spd)) ease-in-out calc(1.4s * var(--spd)) infinite alternate; }
+.d2-tr.is-in .d2-tr-stars .g { animation: trin-stars calc(600ms * var(--spd)) ease calc((180ms + var(--i) * 160ms) * var(--spd)) both, tramb-twinkle calc(var(--t) * var(--spd)) ease-in-out calc(1.4s * var(--spd)) infinite alternate; }
+@keyframes trin-stars { from { opacity: 0; } }
+@keyframes tramb-twinkle { from { opacity: 1; } to { opacity: .35; } }
+.d2-tr-stars .con path { fill: none; stroke: var(--tr-acc); stroke-width: 1.3; opacity: .55; stroke-dasharray: 1; stroke-dashoffset: 0; vector-effect: non-scaling-stroke; }
+.d2-tr-stars .con circle { fill: var(--tr-acc); }
+.d2-tr.is-in .d2-tr-stars .con path { animation: trin-draw calc(1000ms * var(--spd)) var(--ease) calc((520ms + var(--i) * 180ms) * var(--spd)) both; }
+.d2-tr.is-in .d2-tr-stars .con circle { animation: trin-stars calc(240ms * var(--spd)) ease calc((560ms + var(--i) * 180ms + var(--j) * 90ms) * var(--spd)) both; }
+.d2-tr.is-out .d2-tr-stars { animation: trout-fade calc(320ms * var(--spd)) ease both; }
+
+/* Il telefono: la fascia a due righe, il disegno dove c'e' spazio. */
+@media (max-width: 700px) {
+    .d2-tr-band { flex-wrap: wrap; align-content: center; height: 150px; margin-top: -75px; gap: 6px 12px; padding: 0 20px; }
+    .d2-tr-band .ic { width: 30px; height: 30px; }
+    .d2-tr-band b { font-size: 48px; }
+    .d2-tr-band p { flex-basis: 100%; padding: 6px 0 0; border-left: 0; border-top: 1.5px solid rgba(10,10,11,.28); font-size: 13px; max-width: none; }
+    .d2-tr-band p span { margin-top: 2px; }
+    .d2-tr-tag { height: 30px; font-size: 12px; padding: 0 12px 0 24px; clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%); }
+    .d2-tr-pips i { width: 9px; height: 6px; }
+    .d2-tr-moon { width: 112px; height: 112px; right: -26px; top: calc(50% - 74px); }
+    .d2-tr-water { height: 30%; }
+    .d2-tr-bubble { bottom: 30%; }
+    .d2-tr-ripple { bottom: calc(30% - 12px); width: 110px; height: 24px; margin-left: -55px; }
+    .d2-tr-reeds { width: 70px; height: 190px; }
+    .d2-tr-seal { width: 720px; height: 720px; margin: -360px 0 0 -360px; }
+}
+
+/* Riduci movimento: il terreno compare e se ne va in dissolvenza, il campo e' fermo
+ * (niente lama, pioggia, bolle, fulmini); la fascia resta il tempo di leggerla. */
+@media (prefers-reduced-motion: reduce) {
+    .d2-tr *, .d2-tr ~ .d2-tr-band, .d2-tr ~ .d2-tr-band *, .d2-tr ~ .d2-tr-tag, .d2-tr ~ .d2-tr-tag * { animation-name: none !important; }
+    .d2-tr.is-in, .d2-tr.is-out { animation: none; }
+    .d2-tr-blade, .d2-tr-bubble, .d2-tr-flash, .d2-tr-bolt { display: none; }
+    .d2-tr-sky { clip-path: none !important; }
+    .d2-tr.is-in .d2-tr-sky { animation: trin-fade 240ms ease both !important; }
+    .d2-tr.is-out .d2-tr-sky { animation: trout-fade 200ms ease both !important; }
+    @keyframes trin-fade { from { opacity: 0; } }
+    .d2-tr.is-in ~ .d2-tr-band { clip-path: none; animation: trin-band-rm 1400ms linear both !important; }
+    @keyframes trin-band-rm { 0%, 6% { opacity: 0; } 18%, 80% { opacity: 1; } 96%, 100% { opacity: 0; } }
+    .d2-tr-band > * { transform: none; }
+    .d2-tr ~ .d2-tr-tag { transform: none; }
+    .d2-tr.is-in ~ .d2-tr-tag { animation: trin-fade 240ms ease 1200ms both !important; }
+    .d2-tr.is-out ~ .d2-tr-tag { animation: trout-fade 200ms ease both !important; }
+    .d2-stage.trs-notte .d2-card .d2-art img { animation: none !important; }
+}
+
+.d2-banner { z-index: 4; }
 .d2-banner { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); background: var(--tx); color: #0a0a0b; font-weight: 600; font-size: 18px; padding: 10px 22px; border-radius: 99px; animation: d2-total calc(1500ms * var(--spd)) var(--ease) forwards; white-space: nowrap; }
 .d2-banner.d2-warn { background: var(--warn); }
 .d2-react-fly { position: absolute; bottom: 10%; font-size: 30px; animation: d2-fly 2.2s ease-out forwards; }

@@ -146,7 +146,6 @@ $dConfig = [
             </aside>
 
             <section class="d2-stage" id="d2-stage" aria-label="<?= $h($dT('Campo', 'Field')) ?>">
-                <div class="d2-terrain" id="d2-terrain" hidden></div>
                 <div class="d2-half d2-half-foe">
                     <div class="d2-side-h d2-foe" id="d2-head-foe"></div>
                     <div class="d2-row d2-row-foe" id="d2-row-foe"></div>
