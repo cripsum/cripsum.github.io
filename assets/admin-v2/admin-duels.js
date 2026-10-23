@@ -6,7 +6,8 @@
  *   (ogni effetto e' una riga con i suoi numeri), il testo che legge il
  *   giocatore nelle due lingue, la prova con 2.000 partite tra bot con il
  *   prima e dopo, le versioni, i legami, colore e musica dell'ultimate;
- * - Stati e regole: i valori base degli stati del catalogo e le costanti, con la prova;
+ * - Stati, terreni e regole: i valori base degli stati del catalogo, cosa fanno
+ *   i terreni e le costanti, con la prova;
  * - Bilanciamento: partite vere degli ultimi giorni e prove tra bot;
  * - Stagioni: accese o spente, nome, fine, premi, archivio;
  * - Partite: in corso e finite, annulla, guarda, replay, abbandoni sospetti,
@@ -817,14 +818,76 @@
     A.registerSection('duel-kits', () => { loadKits(); if (K.id && !K.dirty) openKit(K.id); });
 
     // ════════════════════════════════════════════════════════════════════
-    // Stati e regole
+    // Stati, terreni e regole
     // ════════════════════════════════════════════════════════════════════
     const valRoot = $('[data-duel-admin="values"]');
-    const V = { view: null, draft: { rules: {}, status: {} }, sim: null, simRunning: false, fam: 'all' };
+    const emptyDraft = () => ({ rules: {}, status: {}, terrain: {} });
+    const V = { view: null, draft: emptyDraft(), sim: null, simRunning: false, fam: 'all' };
 
-    const valuesDirty = () => Object.keys(V.draft.rules).length + Object.keys(V.draft.status).length > 0;
+    const valuesDirty = () => Object.keys(V.draft.rules).length + Object.keys(V.draft.status).length + Object.keys(V.draft.terrain).length > 0;
     const ruleValue = (r) => (r.key in V.draft.rules ? V.draft.rules[r.key] : r.value);
     const statusValue = (s, f) => (V.draft.status[s.key] && f in V.draft.status[s.key] ? V.draft.status[s.key][f] : s.value[f]);
+    // Nella bozza dei terreni null = torna al codice.
+    const terrainValue = (t, f) => {
+        const d = V.draft.terrain[t.key];
+        return d && f in d ? (d[f] ?? t.base[f]) : t.value[f];
+    };
+    const terrainBlocks = (t) => {
+        const d = V.draft.terrain[t.key];
+        return d && 'blocks' in d ? (d.blocks ?? t.base.blocks) : t.value.blocks;
+    };
+    const sameList = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
+    const statusLabel = (k) => V.view?.statuses.find((s) => s.key === k)?.name || k;
+    // Come duel_terrain_text() di catalog.php: quello che fa il terreno con i numeri della bozza.
+    const terrainText = (t) => {
+        const v = (f) => Number(terrainValue(t, f)) || 0;
+        const and = (list) => (list.length > 1 ? `${list.slice(0, -1).join(', ')} e ${list[list.length - 1]}` : list[0] || '');
+        const mods = [['heal_pct', 'Cure'], ['crit', 'Critico'], ['spd_pct', 'Velocità'], ['regen_pct', 'Rigenerazione']]
+            .filter(([f]) => v(f) !== 0).map(([f, name]) => `${name} ${v(f) > 0 ? '+' : '−'}${Math.abs(v(f))}%`);
+        const out = [];
+        if (mods.length) out.push(`${and(mods)} a tutti.`);
+        if (v('stealth_bonus') > 0) out.push(v('stealth_bonus') === 1 ? 'La Furtività dura un turno in più.' : `La Furtività dura ${v('stealth_bonus')} turni in più.`);
+        if (v('shock_ps') > 0) out.push(`Chi è Elettrizzato perde ${v('shock_ps')} PS in più.`);
+        if (v('round_poison') > 0) out.push(`A fine giro ${v('round_poison') === 1 ? '1 carica' : `${v('round_poison')} cariche`} di Veleno a chi non ne ha.`);
+        const blocked = terrainBlocks(t).map(statusLabel);
+        if (blocked.length) out.push(`${and(blocked)} ${blocked.length === 1 ? 'non si può mettere.' : 'non si possono mettere.'}`);
+        return out.length ? out.join(' ') : 'Nessun effetto.';
+    };
+    // Dove compare: i kit (anche quelli che vengono dal ruolo) e i piani della Torre col terreno da subito.
+    const terrainUsers = (t) => {
+        const parts = [];
+        if (t.kits.length) parts.push(`${t.kits.length} kit`);
+        if (t.floors.length) parts.push(t.floors.length === 1 ? `piano ${t.floors[0]} della Torre` : `${t.floors.length} piani della Torre`);
+        if (!parts.length) return '<p class="dz-vterr-used">Per ora non compare in nessun kit né piano della Torre.</p>';
+        return `<details class="dz-vterr-used"><summary>Dove compare: ${parts.join(' · ')}</summary>
+            ${t.kits.length ? `<p><b>Kit:</b> ${t.kits.map(e).join(', ')}</p>` : ''}
+            ${t.floors.length ? `<p><b>Torre, da subito:</b> ${t.floors.length === 1 ? 'piano' : 'piani'} ${t.floors.join(', ')}</p>` : ''}</details>`;
+    };
+    const renderTerrains = (v) => `
+        <div class="dz-card">
+            <div class="dz-vhead"><p class="dz-label">Terreni <small>· valgono per tutto il campo finché durano</small></p></div>
+            <div class="dz-vterr-list">${v.terrains.map((t) => {
+                const mod = !!V.draft.terrain[t.key] || t.changed;
+                const blocks = terrainBlocks(t);
+                const free = v.statuses.filter((s) => !blocks.includes(s.key));
+                return `<div class="dz-vterr${mod ? ' is-mod' : ''}">
+                    <div class="dz-vterr-head"><b>${e(t.name)} <small>${e(t.name_en)}</small></b>
+                        ${mod ? `<button type="button" class="dz-tool" data-terrain-reset="${e(t.key)}" title="Torna ai valori del codice" aria-label="${e(t.name)}: torna ai valori del codice">↺</button>` : ''}</div>
+                    <p class="dz-vterr-desc">${e(terrainText(t))}</p>
+                    ${terrainUsers(t)}
+                    <div class="dz-vterr-fields">${v.terrain_fields.map((f) => {
+                        const val = terrainValue(t, f.key);
+                        return `<label class="dz-f" title="${e(f.help)}"><span>${e(f.label)} <small>${e(f.unit)}</small></span>
+                            <input type="number" class="admin-input dz-vin" step="1" min="${f.min}" max="${f.max}" data-terrain="${e(t.key)}" data-f="${e(f.key)}" value="${val}" aria-label="${e(t.name)}: ${e(f.label)} (${e(f.unit)})">
+                            ${Number(val) !== Number(t.base[f.key]) ? `<small class="dz-base">codice ${num(t.base[f.key])}</small>` : ''}</label>`;
+                    }).join('')}</div>
+                    <div class="dz-vterr-blocks"><span class="dz-label">Stati che non si possono mettere</span>
+                        <div class="dz-members">${blocks.map((k) => `<span class="dz-member">${e(statusLabel(k))}<button type="button" class="dz-tool" data-terrain-unblock="${e(t.key)}" data-status="${e(k)}" aria-label="${e(t.name)}: sblocca ${e(statusLabel(k))}"><i class="fa-solid fa-xmark"></i></button></span>`).join('')}
+                            <select class="dz-chip dz-chip--soft" data-terrain-block="${e(t.key)}" aria-label="${e(t.name)}: blocca uno stato"><option value="">+ blocca uno stato…</option>${free.map((s) => `<option value="${e(s.key)}">${e(s.name)}</option>`).join('')}</select></div>
+                    </div>
+                </div>`;
+            }).join('')}</div>
+        </div>`;
 
     const renderValues = () => {
         if (!valRoot) return;
@@ -875,7 +938,8 @@
                         }).join('')}
                     </tbody></table>
                 </div>
-            </div>`;
+            </div>
+            ${renderTerrains(v)}`;
     };
 
     const loadValues = async () => {
@@ -943,20 +1007,47 @@
                 V.sim = null;
                 renderValues();
             }
+            if (el.dataset.terrain) {
+                const tr = V.view.terrains.find((x) => x.key === el.dataset.terrain);
+                const f = el.dataset.f;
+                const d = V.draft.terrain[tr.key] || {};
+                if (el.value === '' || Number(el.value) === Number(tr.value[f])) delete d[f];
+                else d[f] = Number(el.value);
+                if (Object.keys(d).length) V.draft.terrain[tr.key] = d; else delete V.draft.terrain[tr.key];
+                V.sim = null;
+                renderValues();
+            }
+            if (el.dataset.terrainBlock && el.value) setTerrainBlocks(el.dataset.terrainBlock, (list) => [...list, el.value]);
         });
+        // Gli stati bloccati vanno al server come elenco intero.
+        const setTerrainBlocks = (key, change) => {
+            const tr = V.view.terrains.find((x) => x.key === key);
+            const list = change(terrainBlocks(tr));
+            const d = V.draft.terrain[key] || {};
+            if (sameList(list, tr.value.blocks)) delete d.blocks; else d.blocks = list;
+            if (Object.keys(d).length) V.draft.terrain[key] = d; else delete V.draft.terrain[key];
+            V.sim = null;
+            renderValues();
+        };
         valRoot.addEventListener('click', async (ev) => {
             const t = ev.target.closest('button');
             if (!t) return;
             if (t.dataset.ruleReset) { V.draft.rules[t.dataset.ruleReset] = null; renderValues(); }
             if (t.dataset.statusReset) { V.draft.status[t.dataset.statusReset] = { v: null, t: null, max: null }; renderValues(); }
-            if ('vUndo' in t.dataset) { V.draft = { rules: {}, status: {} }; V.sim = null; renderValues(); }
+            if (t.dataset.terrainReset) {
+                V.draft.terrain[t.dataset.terrainReset] = Object.fromEntries([...V.view.terrain_fields.map((f) => [f.key, null]), ['blocks', null]]);
+                V.sim = null;
+                renderValues();
+            }
+            if (t.dataset.terrainUnblock) setTerrainBlocks(t.dataset.terrainUnblock, (list) => list.filter((k) => k !== t.dataset.status));
+            if ('vUndo' in t.dataset) { V.draft = emptyDraft(); V.sim = null; renderValues(); }
             if ('vSim' in t.dataset) runValuesSim();
             if ('vSave' in t.dataset) {
                 try {
                     const data = await post('values_save', { values: V.draft });
                     showToast(data.message);
                     V.view = data;
-                    V.draft = { rules: {}, status: {} };
+                    V.draft = emptyDraft();
                     V.sim = null;
                     renderValues();
                 } catch (error) {

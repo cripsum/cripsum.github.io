@@ -124,5 +124,16 @@
         if (window.D2Icons) window.D2Icons.hydrate(root || document);
     }
 
-    window.D2P = { CFG, DATA, EN, T, $, esc, fmt, ic, api, toast, niceName, rarColor, rarName, roleName, emblem, card, pips, ago, hydrate, ROLE_ICON, MODE, TIER };
+    // Foto profilo: quella del sito (get_pfp.php risponde sempre con
+    // un'immagine), Poppy per il bot (id 0). Sotto la foto c'e' l'iniziale,
+    // per quando l'immagine non arriva.
+    const POPPY = '/img/duelli/poppy.jpg';
+    const pfpSrc = (id, size) => (Number(id) > 0 ? '/includes/get_pfp.php?id=' + Number(id) + '&size=' + (size || 64) : POPPY);
+    /** La foto tonda di un giocatore. cls: classi in piu' (d2p-av per quella grande); size: lato della miniatura. */
+    function pfp(id, name, cls, size) {
+        return '<span class="d2p-pfp' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><i>' + esc(String(name || '?').charAt(0).toUpperCase()) + '</i>'
+            + '<img src="' + esc(pfpSrc(id, size)) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>';
+    }
+
+    window.D2P = { CFG, DATA, EN, T, $, esc, fmt, ic, api, toast, niceName, rarColor, rarName, roleName, emblem, card, pips, ago, hydrate, pfp, ROLE_ICON, MODE, TIER };
 })();

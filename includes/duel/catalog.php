@@ -204,25 +204,122 @@ function duel_skip_statuses(): array
 }
 
 /**
- * Terreni. Durata in giri: un giro = un turno per ogni carta in piedi nel
- * momento in cui il terreno viene messo.
- * - mods: modificatori per tutte le carte in campo
+ * I numeri di un terreno che il pannello puo' cambiare, coi limiti. Quelli
+ * di DUEL_TERRAIN_MODS stanno dentro 'mods'.
+ */
+const DUEL_TERRAIN_FIELDS = ['g' => [1, 20], 'heal_pct' => [-100, 300], 'crit' => [-50, 100], 'spd_pct' => [-50, 100], 'regen_pct' => [-100, 300],
+    'stealth_bonus' => [0, 5], 'shock_ps' => [0, 5], 'round_poison' => [0, 5]];
+const DUEL_TERRAIN_MODS = ['heal_pct', 'crit', 'spd_pct', 'regen_pct'];
+
+/**
+ * Terreni, come scritti nel codice. Durata in giri: un giro = un turno per
+ * ogni carta in piedi nel momento in cui il terreno viene messo.
+ * - g: durata di base, per chi non scrive la sua (il terreno da subito della Torre)
+ * - mods: modificatori per tutte le carte in campo (cure, critico, velocita', rigenerazione)
+ * - stealth_bonus: turni in piu' di Furtivita'
+ * - shock_ps: PS in piu' persi da chi e' Elettrizzato e usa un'abilita'
+ * - round_poison: cariche di Veleno a fine giro a chi non ne ha
  * - blocks: stati che non si possono mettere finche' c'e'
+ */
+function duel_terrains_code(): array
+{
+    return [
+        'notte' => ['it' => 'Notte', 'en' => 'Night', 'g' => 3, 'mods' => ['crit' => 10], 'stealth_bonus' => 1],
+        'tempesta' => ['it' => 'Tempesta', 'en' => 'Storm', 'g' => 3, 'mods' => ['spd_pct' => 10], 'shock_ps' => 1],
+        'palude' => ['it' => 'Palude', 'en' => 'Swamp', 'g' => 2, 'mods' => ['regen_pct' => -50], 'round_poison' => 1],
+        'santuario' => ['it' => 'Santuario', 'en' => 'Sanctuary', 'g' => 3, 'mods' => ['heal_pct' => 30], 'blocks' => ['bruciatura', 'sanguinamento']],
+        'cielo_stellato' => ['it' => 'Cielo stellato', 'en' => 'Starry sky', 'g' => 3, 'mods' => ['heal_pct' => 20, 'crit' => 5]],
+    ];
+}
+
+/**
+ * I terreni in uso: quelli del codice coi numeri cambiati dal pannello. La
+ * descrizione (d_it, d_en) si scrive dai numeri, cosi' resta giusta anche
+ * quando cambiano.
  */
 function duel_terrains(): array
 {
-    return [
-        'notte' => ['it' => 'Notte', 'en' => 'Night', 'g' => 3, 'mods' => ['crit' => 10], 'stealth_bonus' => 1,
-            'd_it' => 'Critico +10% a tutti. La Furtività dura un turno in più.', 'd_en' => 'Crit +10% to all. Stealth lasts one more turn.'],
-        'tempesta' => ['it' => 'Tempesta', 'en' => 'Storm', 'g' => 3, 'mods' => ['spd_pct' => 10], 'shock_ps' => 1,
-            'd_it' => 'Velocità +10% a tutti. Chi è Elettrizzato perde 1 PS in più.', 'd_en' => 'Speed +10% to all. Shocked units lose 1 more TP.'],
-        'palude' => ['it' => 'Palude', 'en' => 'Swamp', 'g' => 2, 'mods' => ['regen_pct' => -50], 'round_poison' => 1,
-            'd_it' => 'A fine giro 1 carica di Veleno a chi non ne ha. Rigenerazione dimezzata.', 'd_en' => 'At round end, 1 Poison stack to anyone without. Regeneration halved.'],
-        'santuario' => ['it' => 'Santuario', 'en' => 'Sanctuary', 'g' => 3, 'mods' => ['heal_pct' => 30], 'blocks' => ['bruciatura', 'sanguinamento'],
-            'd_it' => 'Cure +30%. Bruciatura e Sanguinamento non si possono mettere.', 'd_en' => 'Healing +30%. Burn and Bleed cannot be applied.'],
-        'cielo_stellato' => ['it' => 'Cielo stellato', 'en' => 'Starry sky', 'g' => 3, 'mods' => ['heal_pct' => 20, 'crit' => 5],
-            'd_it' => 'Cure +20% e Critico +5% a tutti.', 'd_en' => 'Healing +20% and Crit +5% to all.'],
-    ];
+    static $all = null;
+    static $gen = -1;
+    if ($all !== null && $gen === DuelOverrides::$gen) {
+        return $all;
+    }
+    $gen = DuelOverrides::$gen;
+
+    $all = duel_terrains_code();
+    // Solo numeri interi e stati che esistono, come per gli stati.
+    foreach (duel_overrides()['terrain'] as $key => $values) {
+        if (!isset($all[$key])) {
+            continue;
+        }
+        foreach (array_keys(DUEL_TERRAIN_FIELDS) as $field) {
+            if (isset($values[$field]) && is_numeric($values[$field])) {
+                if (in_array($field, DUEL_TERRAIN_MODS, true)) {
+                    $all[$key]['mods'][$field] = (int)round((float)$values[$field]);
+                } else {
+                    $all[$key][$field] = (int)round((float)$values[$field]);
+                }
+            }
+        }
+        foreach ((array)($values['block'] ?? []) as $status => $on) {
+            if (duel_status((string)$status) === null) {
+                continue;
+            }
+            $blocks = array_values(array_diff($all[$key]['blocks'] ?? [], [(string)$status]));
+            if ((int)$on === 1) {
+                $blocks[] = (string)$status;
+            }
+            $all[$key]['blocks'] = $blocks;
+        }
+    }
+    foreach ($all as $key => $t) {
+        $all[$key]['d_it'] = duel_terrain_text($t, 'it');
+        $all[$key]['d_en'] = duel_terrain_text($t, 'en');
+    }
+    return $all;
+}
+
+/** Un numero di un terreno, dentro o fuori da 'mods' (0 = non c'e'). */
+function duel_terrain_field(array $t, string $field): int
+{
+    return (int)(in_array($field, DUEL_TERRAIN_MODS, true) ? ($t['mods'][$field] ?? 0) : ($t[$field] ?? 0));
+}
+
+/** Quello che fa un terreno, a parole: «Cure +20% e Critico +5% a tutti.». */
+function duel_terrain_text(array $t, string $lang): string
+{
+    $en = $lang === 'en';
+    $and = static fn(array $list): string => count($list) > 1
+        ? implode(', ', array_slice($list, 0, -1)) . ($en ? ' and ' : ' e ') . $list[count($list) - 1] : (string)($list[0] ?? '');
+    $names = $en ? ['heal_pct' => 'Healing', 'crit' => 'Crit', 'spd_pct' => 'Speed', 'regen_pct' => 'Regeneration']
+        : ['heal_pct' => 'Cure', 'crit' => 'Critico', 'spd_pct' => 'Velocità', 'regen_pct' => 'Rigenerazione'];
+    $mods = [];
+    foreach ($names as $field => $name) {
+        $n = duel_terrain_field($t, $field);
+        if ($n !== 0) {
+            $mods[] = $name . ' ' . ($n > 0 ? '+' : '−') . abs($n) . '%';
+        }
+    }
+    $out = [];
+    if ($mods) {
+        $out[] = $and($mods) . ($en ? ' to all.' : ' a tutti.');
+    }
+    if (($n = duel_terrain_field($t, 'stealth_bonus')) > 0) {
+        $out[] = $en ? ($n === 1 ? 'Stealth lasts one more turn.' : "Stealth lasts $n more turns.")
+            : ($n === 1 ? 'La Furtività dura un turno in più.' : "La Furtività dura $n turni in più.");
+    }
+    if (($n = duel_terrain_field($t, 'shock_ps')) > 0) {
+        $out[] = $en ? "Shocked units lose $n more TP." : "Chi è Elettrizzato perde $n PS in più.";
+    }
+    if (($n = duel_terrain_field($t, 'round_poison')) > 0) {
+        $out[] = $en ? "At round end, $n Poison stack" . ($n === 1 ? '' : 's') . ' to anyone without.'
+            : 'A fine giro ' . ($n === 1 ? '1 carica' : "$n cariche") . ' di Veleno a chi non ne ha.';
+    }
+    $blocked = array_map(static fn(string $k): string => (string)(duel_status($k)[$lang] ?? $k), $t['blocks'] ?? []);
+    if ($blocked) {
+        $out[] = $and($blocked) . ($en ? ' cannot be applied.' : (count($blocked) === 1 ? ' non si può mettere.' : ' non si possono mettere.'));
+    }
+    return $out ? implode(' ', $out) : ($en ? 'No effect.' : 'Nessun effetto.');
 }
 
 /**

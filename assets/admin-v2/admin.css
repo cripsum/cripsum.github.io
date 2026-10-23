@@ -2202,6 +2202,23 @@ select.dz-chip[multiple] { height: auto; padding: .2rem; }
 .dz-vstat td:first-child { max-width: 20rem; }
 .dz-vstat td:not(:first-child) { width: 5.5rem; }
 .dz-vsim .dz-mini { max-width: 36rem; }
+.dz-values + .dz-card { margin-top: 1rem; }
+.dz-vterr-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: .8rem; }
+.dz-vterr { display: grid; gap: .65rem; align-content: start; min-width: 0; padding: .85rem; border: 1px solid var(--nx-line, #2a2a2d); border-radius: 18px; }
+.dz-vterr-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-height: 2rem; }
+.dz-vterr-head b { font-size: .95rem; font-weight: 600; }
+.dz-vterr-head small { color: var(--nx-text-3, #6e6e73); font-size: .76rem; font-weight: 500; }
+.dz-vterr.is-mod .dz-vterr-head b { color: #ffd60a; }
+.dz-vterr-desc { margin: 0; font-size: .88rem; line-height: 1.45; }
+.dz-vterr-used { margin: 0; color: var(--nx-text-3, #6e6e73); font-size: .78rem; }
+.dz-vterr-used summary { cursor: pointer; color: var(--nx-text-2, #a1a1a6); }
+.dz-vterr-used p { margin: .35rem 0 0; line-height: 1.45; }
+.dz-vterr-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem .7rem; padding-top: .65rem; border-top: 1px solid var(--nx-line, #2a2a2d); }
+.dz-vterr-fields .dz-f { min-width: 0; align-content: start; }
+.dz-vterr-fields .dz-f small { color: var(--nx-text-3, #6e6e73); font-size: .72rem; }
+.dz-vterr-blocks { display: grid; gap: .4rem; }
+.dz-vterr-blocks .dz-member { padding-left: .6rem; }
+.dz-vterr-blocks select.dz-chip { height: 1.9rem; font-size: .8rem; }
 
 /* Bilanciamento */
 .dz-btable .dz-who { display: flex; align-items: center; gap: .6rem; }

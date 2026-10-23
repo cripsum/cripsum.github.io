@@ -235,6 +235,7 @@ function duel_challenges_for(mysqli $m, int $userId): array
         $out[] = [
             'id' => (int)$r['id'], 'sent' => $sent, 'kind' => (string)$r['kind'], 'levels' => (string)$r['levels'],
             'cost_limit' => (int)$r['cost_limit'], 'other' => $sent ? (string)$r['to_name'] : (string)$r['from_name'],
+            'other_id' => $sent ? (int)$r['to_user'] : (int)$r['from_user'],
             'left' => max(0, (int)$r['left_s']), 'match' => $r['match_id'] !== null ? (int)$r['match_id'] : null,
         ];
     }
@@ -264,7 +265,8 @@ function duel_async_for(mysqli $m, int $userId): array
         ORDER BY (m.current_turn_user_id = ?) DESC, m.turn_deadline LIMIT 20", 'iii', [$userId, $userId, $userId]) as $r) {
         $first = (int)$r['player1_id'] === $userId;
         $out[] = [
-            'id' => (int)$r['id'], 'opponent' => (string)($first ? $r['p2'] : $r['p1']), 'turn' => (int)$r['turn_number'],
+            'id' => (int)$r['id'], 'opponent' => (string)($first ? $r['p2'] : $r['p1']), 'opponent_id' => (int)($first ? $r['player2_id'] : $r['player1_id']),
+            'turn' => (int)$r['turn_number'],
             'my_turn' => (int)($r['current_turn_user_id'] ?? 0) === $userId, 'left' => $r['left_s'] !== null ? max(0, (int)$r['left_s']) : null,
         ];
     }

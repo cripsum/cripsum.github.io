@@ -250,19 +250,21 @@
 
     function render() {
         const [t, cls] = title();
-        const opp = watcher ? (players(0).username || '?') + T(' contro ', ' vs ') + (players(1).username || '?') : T('contro ', 'vs ') + (players(other).username || '?');
+        // Chi ha giocato, con le foto: prima tu (o il primo giocatore, per chi guarda), poi l'altro.
+        const who = (p) => '<span class="d2p-res-p">' + D.pfp(p.id, p.username, '', 96) + '<b>' + esc(p.username || '?') + '</b></span>';
+        const vs = '<div class="d2p-res-vs">' + who(players(watcher ? 0 : mine)) + '<span>' + esc(T('contro', 'vs')) + '</span>' + who(players(watcher ? 1 : other)) + '</div>';
         const BOT_LV = { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard'), incubo: T('Incubo', 'Nightmare') };
         const botLv = R.bot ? (players(R.side === null || R.side === undefined ? 1 : other).level || '') : '';
         // La Torre: il piano davanti (o lo stato, se il titolo e' gia' il piano).
         const lead = !TW ? [] : TW.cleared && !(TW.first && (TW.boss || TW.top))
             ? [TW.first ? T('Superato', 'Beaten') : T('Superato di nuovo, senza premio', 'Beaten again, no rewards')]
             : [T('Piano ', 'Floor ') + TW.n + (TW.title ? ' · ' + TW.title : '')];
-        const sub = [...lead, R.bot ? T('Contro il bot ', 'Vs bot ') + (BOT_LV[botLv] || botLv) : R.async ? T('In differita', 'Turn-based') : D.MODE[R.mode] || R.mode, R.bot ? '' : opp, R.turns + (R.turns === 1 ? T(' turno', ' turn') : T(' turni', ' turns')), duration(R.seconds)].filter(Boolean).join(' · ');
+        const sub = [...lead, R.bot ? T('Contro il bot ', 'Vs bot ') + (BOT_LV[botLv] || botLv) : R.async ? T('In differita', 'Turn-based') : D.MODE[R.mode] || R.mode, R.turns + (R.turns === 1 ? T(' turno', ' turn') : T(' turni', ' turns')), duration(R.seconds)].filter(Boolean).join(' · ');
         const again = R.daily ? (R.daily.today ? T('Riprova la sfida', 'Try the challenge again') : '') : T('Rivincita', 'Rematch');
         const acts = TW ? towerActs() : (R.rematch && again ? '<button class="d2p-btn d2p-btn-w d2p-btn-big" type="button" id="d2p-rematch">' + esc(again) + '</button>' : '')
             + '<a class="d2p-btn d2p-btn-big' + (R.rematch ? '' : ' d2p-btn-w') + '" href="' + esc(U.replay + '?m=' + R.id) + '">' + ic('replay') + ' ' + esc(T('Rivedi la partita', 'Watch the replay')) + '</a>'
             + '<a class="d2p-btn d2p-btn-big" href="' + esc(U.lobby) + '">' + esc(T('Torna ai duelli', 'Back to duels')) + '</a>';
-        $('d2p-res').innerHTML = '<section><h1 class="d2p-res-big ' + cls + '">' + esc(t) + '</h1><p class="d2p-res-sub">' + esc(sub) + '</p>'
+        $('d2p-res').innerHTML = '<section>' + vs + '<h1 class="d2p-res-big ' + cls + '">' + esc(t) + '</h1><p class="d2p-res-sub">' + esc(sub) + '</p>'
             + (REASON[R.reason] && !(TW && TW.cleared) ? '<p class="d2p-res-why">' + esc(REASON[R.reason]) + '</p>' : '') + towerWhy()
             + rating() + facts() + (TW ? '<div class="d2p-tw-pick" id="d2p-tw-pick" hidden></div>' : '')
             + '<div class="d2p-res-acts" id="d2p-acts"' + (P.on ? ' hidden' : '') + '>' + acts + '</div><p class="d2p-offer" id="d2p-offer" aria-live="polite"></p></section>'

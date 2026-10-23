@@ -227,6 +227,7 @@ function duel_lobby_view(mysqli $m, int $userId, string $lang): array
             $players = duel_players_view($m, $row);
             $opp = $side === null ? null : ($players[1 - $side] ?? null);
             $hub['active']['opponent'] = $opp ? (string)$opp['username'] : null;
+            $hub['active']['opponent_id'] = $opp ? (int)$opp['id'] : null;
             $hub['active']['turn'] = (int)$row['turn_number'];
             $hub['active']['my_turn'] = $side !== null && (string)$row['status'] === 'active' && (int)($row['current_turn_user_id'] ?? 0) === $userId;
             $hub['active']['expires'] = (string)$row['status'] === 'waiting' ? strtotime((string)$row['created_at']) + DUEL_ROOM_MINUTES * 60 : null;

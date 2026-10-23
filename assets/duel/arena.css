@@ -101,6 +101,9 @@ body.d2 :focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
 .d2-side-h .d2-sw { width: 10px; height: 10px; border-radius: 3px; background: var(--you); flex: none; }
 .d2-side-h.d2-foe .d2-sw { background: var(--foe); }
 .d2-side-h .d2-pill { height: 24px; font-size: 12px; }
+/* La foto di chi gioca (Poppy per il bot): l'iniziale sotto, la foto sopra. */
+.d2-hpfp { position: relative; width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--s2); color: var(--tx2); font-size: 11px; }
+.d2-hpfp img, .d2-vs-pfp img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .d2-ps { display: inline-flex; gap: 4px; margin-left: 4px; }
 .d2-ps i { width: 11px; height: 11px; transform: rotate(45deg); border: 1.5px solid var(--tx2); border-radius: 2px; transition: background .2s, border-color .2s; }
 .d2-ps i.f { background: var(--tx); border-color: var(--tx); }
@@ -403,7 +406,13 @@ body.d2 .d2-moves:focus, body.d2 .d2-moves:focus-visible { outline: none; }
 .d2-vs-cards span:nth-child(n+4) { animation-delay: calc(640ms * var(--spd)); }
 @keyframes d2-vs-card-l { from { transform: translateX(-60px) rotate(-4deg); opacity: 0; } }
 @keyframes d2-vs-card-r { from { transform: translateX(60px) rotate(4deg); opacity: 0; } }
-.d2-vs-name { align-self: stretch; overflow: hidden; padding-bottom: 6px; font-size: clamp(44px, 5.6vw, 92px); }
+/* La foto accanto al nome, sul bordo esterno; il nome si stringe nello spazio che resta (fitText). */
+.d2-vs-who { display: flex; align-items: center; gap: clamp(12px, 1.4vw, 22px); align-self: stretch; min-width: 0; }
+.d2-vs-foe .d2-vs-who { flex-direction: row-reverse; }
+.d2-vs-pfp { position: relative; width: clamp(58px, 5.6vw, 92px); height: clamp(58px, 5.6vw, 92px); flex: none; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(10,10,11,.12); box-shadow: 0 0 0 3px currentColor; font-size: 28px; font-weight: 600; animation: d2-vs-pfp calc(460ms * var(--spd)) var(--ease) calc(520ms * var(--spd)) both; }
+@keyframes d2-vs-pfp { from { transform: scale(.4); opacity: 0; } }
+.d2-vs-name { flex: 1; min-width: 0; align-self: stretch; overflow: hidden; padding-bottom: 6px; font-size: clamp(44px, 5.6vw, 92px); }
 .d2-vs-name b { display: inline-block; font-size: 1em; line-height: 1; font-weight: 600; letter-spacing: -0.035em; white-space: nowrap;
     animation: d2-vs-up calc(520ms * var(--spd)) var(--ease) calc(560ms * var(--spd)) both; }
 @keyframes d2-vs-up { from { transform: translateY(150%); } }
@@ -597,6 +606,7 @@ body.d2 .d2-moves:focus, body.d2 .d2-moves:focus-visible { outline: none; }
     .d2-vs-foe .d2-vs-in { top: auto; bottom: 11vh; }
     .d2-vs-cards span { width: 25vw; border-radius: 12px; }
     .d2-vs-name { font-size: 46px; }
+    .d2-vs-pfp { width: 50px; height: 50px; font-size: 20px; }
     .d2-vs-seam { width: 12px; }
     .d2-vs-mid { width: 104px; height: 104px; margin: -52px 0 0 -52px; font-size: 42px; box-shadow: 0 0 0 5px #fff; }
     .d2-vs-tag { top: 3vh; }
@@ -627,6 +637,7 @@ body.d2 .d2-moves:focus, body.d2 .d2-moves:focus-visible { outline: none; }
     .d2-vs-cards { gap: 10px; }
     .d2-vs-cards span { width: 17vw; }
     .d2-vs-name { font-size: 34px; }
+    .d2-vs-pfp { width: 40px; height: 40px; font-size: 16px; box-shadow: 0 0 0 2px currentColor; }
     .d2-vs-meta { height: 32px; padding: 0 12px; font-size: 14px; }
     .d2-vs-mid { width: 88px; height: 88px; margin: -44px 0 0 -44px; font-size: 36px; }
 }

@@ -610,7 +610,7 @@ function duel_admin_traits_seed(mysqli $m): void
         return;
     }
     $over = duel_overrides();
-    duel_overrides(['rules' => $over['rules'], 'status' => $over['status'], 'kits' => $over['kits'], 'traits' => null]);
+    duel_overrides(['rules' => $over['rules'], 'status' => $over['status'], 'terrain' => $over['terrain'], 'kits' => $over['kits'], 'traits' => null]);
     $code = duel_traits();
     duel_overrides($over);
     $sort = 0;
@@ -696,15 +696,77 @@ function duel_admin_rule_labels(): array
     ];
 }
 
-/** I valori di base (codice) e quelli in uso di regole e stati. */
+/** I numeri dei terreni nel pannello: nome, unita' e a cosa servono. */
+const DUEL_ADMIN_TERRAIN_LABELS = [
+    'g' => ['Durata di base', 'giri', 'Per il terreno da subito della Torre e per i kit che non scrivono la loro durata.'],
+    'heal_pct' => ['Cure', '%', 'Le cure che fanno tutti, in più o in meno.'],
+    'crit' => ['Critico', '%', 'Probabilità di critico di tutti.'],
+    'spd_pct' => ['Velocità', '%', 'Velocità di tutti.'],
+    'regen_pct' => ['Rigenerazione', '%', 'Quanto cura lo stato Rigenerazione.'],
+    'stealth_bonus' => ['Furtività', 'turni in più', 'La Furtività messa mentre c\'è il terreno dura di più.'],
+    'shock_ps' => ['Elettrizzato', 'PS persi in più', 'Chi è Elettrizzato e usa un\'abilità perde più PS.'],
+    'round_poison' => ['Veleno a fine giro', 'cariche', 'A chi non ha già Veleno.'],
+];
+
+/** I numeri e gli stati bloccati di un terreno, per il pannello. */
+function duel_admin_terrain_fields(array $t): array
+{
+    $out = [];
+    foreach (array_keys(DUEL_TERRAIN_FIELDS) as $field) {
+        $out[$field] = duel_terrain_field($t, $field);
+    }
+    return $out + ['blocks' => array_values($t['blocks'] ?? [])];
+}
+
+/** Le chiavi dei terreni che un kit mette, ovunque stiano (passive, mosse, forme). */
+function duel_admin_terrain_keys(array $node): array
+{
+    $out = ($node['e'] ?? null) === 'terrain' && isset($node['k']) ? [(string)$node['k']] : [];
+    foreach ($node as $child) {
+        if (is_array($child)) {
+            $out = array_merge($out, duel_admin_terrain_keys($child));
+        }
+    }
+    return array_values(array_unique($out));
+}
+
+/** Chi mette ogni terreno: [kits => [terreno => nomi], floors => [terreno => piani della Torre]]. */
+function duel_admin_terrain_users(mysqli $m): array
+{
+    $kits = [];
+    foreach (duel_admin_characters($m) as $c) {
+        foreach (duel_admin_terrain_keys(duel_character_kit($c, 1)) as $key) {
+            $kits[$key][] = duel_admin_name((string)$c['nome']);
+        }
+    }
+    foreach ($kits as &$names) {
+        sort($names, SORT_NATURAL | SORT_FLAG_CASE);
+    }
+    unset($names);
+    // I piani come sono scritti, senza far partire il generatore della Torre.
+    $floors = [];
+    if (rt_has_table($m, 'game_tower_floors')) {
+        foreach (duel_rows($m, 'SELECT floor, rule_json FROM game_tower_floors ORDER BY floor') as $r) {
+            $rule = json_decode((string)($r['rule_json'] ?? ''), true);
+            if (is_array($rule) && !empty($rule['terrain'])) {
+                $floors[(string)$rule['terrain']][] = (int)$r['floor'];
+            }
+        }
+    }
+    return ['kits' => $kits, 'floors' => $floors];
+}
+
+/** I valori di base (codice) e quelli in uso di regole, stati e terreni. */
 function duel_admin_values(mysqli $m): array
 {
     $over = duel_use_current_values($m, true);
     $now = duel_rules();
     $nowStatus = duel_statuses();
+    $nowTerrain = duel_terrains();
     duel_overrides(['kits' => $over['kits'], 'traits' => $over['traits']]);
     $base = duel_rules();
     $baseStatus = duel_statuses();
+    $baseTerrain = duel_terrains();
     duel_overrides($over);
 
     $groups = [];
@@ -725,17 +787,35 @@ function duel_admin_values(mysqli $m): array
             'changed' => isset($over['status'][$key]),
         ];
     }
-    return ['groups' => $groups, 'statuses' => $statuses];
+    $users = duel_admin_terrain_users($m);
+    $terrains = [];
+    foreach ($baseTerrain as $key => $t) {
+        $terrains[] = [
+            'key' => $key, 'name' => $t['it'], 'name_en' => $t['en'], 'desc' => $nowTerrain[$key]['d_it'],
+            'base' => duel_admin_terrain_fields($t), 'value' => duel_admin_terrain_fields($nowTerrain[$key]),
+            'changed' => isset($over['terrain'][$key]),
+            'kits' => $users['kits'][$key] ?? [], 'floors' => $users['floors'][$key] ?? [],
+        ];
+    }
+    $fields = [];
+    foreach (DUEL_TERRAIN_FIELDS as $key => [$min, $max]) {
+        [$label, $unit, $help] = DUEL_ADMIN_TERRAIN_LABELS[$key];
+        $fields[] = ['key' => $key, 'label' => $label, 'unit' => $unit, 'help' => $help, 'min' => $min, 'max' => $max, 'mod' => in_array($key, DUEL_TERRAIN_MODS, true)];
+    }
+    return ['groups' => $groups, 'statuses' => $statuses, 'terrains' => $terrains, 'terrain_fields' => $fields];
 }
 
 /**
  * Valori dal pannello, controllati: [rules => [k => numero|null], status =>
- * [k => [v|t|max => numero|null]]]. null = torna al valore del codice.
+ * [k => [v|t|max => numero|null]], terrain => [k => [numero => valore|null,
+ * block => [stato => 1|0|null]]]]. null = torna al valore del codice. Per i
+ * terreni arriva l'elenco intero degli stati bloccati (blocks): qui diventa
+ * uno stato per riga, solo dove e' diverso dal codice.
  */
 function duel_admin_values_check(array $in): array
 {
     $err = [];
-    $out = ['rules' => [], 'status' => []];
+    $out = ['rules' => [], 'status' => [], 'terrain' => []];
     $allowed = [];
     foreach (duel_admin_rule_labels() as $keys) {
         $allowed += $keys;
@@ -770,15 +850,73 @@ function duel_admin_values_check(array $in): array
             }
         }
     }
+    $codeTerrains = duel_terrains_code();
+    foreach ((array)($in['terrain'] ?? []) as $k => $fields) {
+        $def = $codeTerrains[(string)$k] ?? null;
+        if (!$def || !is_array($fields)) {
+            $err[] = "Terreno sconosciuto: $k.";
+            continue;
+        }
+        foreach ($fields as $f => $v) {
+            if ($f === 'blocks') {
+                $want = $v === null ? ($def['blocks'] ?? []) : (is_array($v) ? array_map('strval', $v) : null);
+                if ($want === null) {
+                    $err[] = "{$def['it']}: stati bloccati non validi.";
+                    continue;
+                }
+                foreach (array_diff($want, array_keys(duel_statuses())) as $bad) {
+                    $err[] = "{$def['it']}: stato sconosciuto ($bad).";
+                }
+                foreach (array_keys(duel_statuses()) as $s) {
+                    $on = in_array($s, $want, true);
+                    $out['terrain'][$k]['block'][$s] = $on === in_array($s, $def['blocks'] ?? [], true) ? null : ($on ? 1 : 0);
+                }
+            } elseif (!isset(DUEL_TERRAIN_FIELDS[$f])) {
+                $err[] = "{$def['it']}: campo sconosciuto.";
+            } elseif ($v === null || $v === '') {
+                $out['terrain'][$k][$f] = null;
+            } else {
+                [$min, $max] = DUEL_TERRAIN_FIELDS[$f];
+                if (!is_numeric($v) || (float)$v != (int)$v || (int)$v < $min || (int)$v > $max) {
+                    $err[] = "{$def['it']}, " . DUEL_ADMIN_TERRAIN_LABELS[$f][0] . ": un numero intero da $min a $max.";
+                } else {
+                    $out['terrain'][$k][$f] = (int)$v;
+                }
+            }
+        }
+    }
     if ($err) {
         throw new DuelKitInvalid($err);
     }
     return $out;
 }
 
-/** Le regole e gli stati di prova sopra quelli in uso (per la prova tra bot). */
+/** Le regole, gli stati e i terreni di prova sopra quelli in uso (per la prova tra bot). */
 function duel_admin_values_merge(array $over, array $values): array
 {
+    foreach ($values['terrain'] ?? [] as $k => $fields) {
+        foreach ($fields as $f => $v) {
+            if ($f === 'block') {
+                foreach ($v as $s => $on) {
+                    if ($on === null) {
+                        unset($over['terrain'][$k]['block'][$s]);
+                    } else {
+                        $over['terrain'][$k]['block'][$s] = $on;
+                    }
+                }
+                if (empty($over['terrain'][$k]['block'])) {
+                    unset($over['terrain'][$k]['block']);
+                }
+            } elseif ($v === null) {
+                unset($over['terrain'][$k][$f]);
+            } else {
+                $over['terrain'][$k][$f] = $v;
+            }
+        }
+        if (empty($over['terrain'][$k])) {
+            unset($over['terrain'][$k]);
+        }
+    }
     foreach ($values['rules'] ?? [] as $k => $v) {
         if ($v === null) {
             unset($over['rules'][$k]);
@@ -808,9 +946,10 @@ function duel_admin_values_save(mysqli $m, int $adminId, array $values): array
     duel_overrides(['kits' => $over['kits'], 'traits' => $over['traits']]);
     $base = duel_rules();
     $baseStatus = duel_statuses();
+    $baseTerrain = duel_terrains();
     duel_overrides($over);
     $changes = [];
-    duel_tx($m, static function () use ($m, $adminId, $values, $base, $baseStatus, &$changes): void {
+    duel_tx($m, static function () use ($m, $adminId, $values, $base, $baseStatus, $baseTerrain, &$changes): void {
         $put = static function (string $key, ?float $value, float $codeValue) use ($m, $adminId, &$changes): void {
             if ($value === null || abs($value - $codeValue) < 0.0005) {
                 if (duel_exec($m, 'DELETE FROM game_catalog_values WHERE k = ?', 's', [$key]) > 0) {
@@ -828,6 +967,17 @@ function duel_admin_values_save(mysqli $m, int $adminId, array $values): array
         foreach ($values['status'] as $k => $fields) {
             foreach ($fields as $f => $v) {
                 $put("status.$k.$f", $v, (float)$baseStatus[$k][$f]);
+            }
+        }
+        foreach ($values['terrain'] ?? [] as $k => $fields) {
+            foreach ($fields as $f => $v) {
+                if ($f === 'block') {
+                    foreach ($v as $s => $on) {
+                        $put("terrain.$k.block.$s", $on === null ? null : (float)$on, in_array($s, $baseTerrain[$k]['blocks'] ?? [], true) ? 1.0 : 0.0);
+                    }
+                } else {
+                    $put("terrain.$k.$f", $v === null ? null : (float)$v, (float)duel_terrain_field($baseTerrain[$k], $f));
+                }
             }
         }
     });

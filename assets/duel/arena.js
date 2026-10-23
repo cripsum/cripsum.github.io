@@ -488,7 +488,12 @@
         // Fase 6: l'emblema dell'ultima stagione finita (si vede solo nei duelli).
         const badge = p.badge && window.D2Icons ? '<span class="d2-badge-s" style="--tc: var(--t-' + esc(p.badge.tier) + ')" title="' + esc(T('Stagione ', 'Season ') + p.badge.n) + '">'
             + window.D2Icons.emblem(p.badge.tier) + '<small>S' + p.badge.n + '</small></span>' : '';
-        return '<span class="d2-sw"></span>' + esc(p.username || '?') + ' ' + badge + rank + ' ' + ps;
+        return '<span class="d2-sw"></span>' + playerPfp(p, 'd2-hpfp') + esc(p.username || '?') + ' ' + badge + rank + ' ' + ps;
+    }
+    /** La foto di chi gioca (Poppy per il bot), con l'iniziale sotto per quando non arriva. */
+    function playerPfp(p, cls) {
+        return '<span class="' + cls + '" aria-hidden="true">' + esc(String(p.username || '?').charAt(0).toUpperCase())
+            + (p.avatar ? '<img src="' + esc(p.avatar) + '" alt="" decoding="async" onerror="this.remove()">' : '') + '</span>';
     }
     /** Il potenziamento della Torre di una carta nemica (testo), o ''. */
     function boonOf(id) {
@@ -1590,7 +1595,7 @@
             const meta = pl.rank ? '<span style="color: var(--t-' + esc(pl.rank.key) + ')">' + (window.D2Icons ? window.D2Icons.emblem(pl.rank.key) : '') + '</span>' + esc(pl.rank.label) + ' · ' + fmt(pl.rating)
                 : pl.bot ? 'Bot · ' + esc(botLevel(pl.level)) : '';
             return '<div class="d2-vs-half ' + cls + '"><div class="d2-vs-in"><div class="d2-vs-cards">' + cards + '</div>'
-                + '<div class="d2-vs-name"><b>' + esc(pl.username || '?') + '</b></div>' + (meta ? '<span class="d2-vs-meta">' + meta + '</span>' : '') + '</div></div>';
+                + '<div class="d2-vs-who">' + playerPfp(pl, 'd2-vs-pfp') + '<div class="d2-vs-name"><b>' + esc(pl.username || '?') + '</b></div></div>' + (meta ? '<span class="d2-vs-meta">' + meta + '</span>' : '') + '</div></div>';
         };
         const el = document.createElement('div');
         el.className = 'd2-vs';

@@ -40,8 +40,7 @@
     if (H.sheet) S.sheets[H.sheet.n] = H.sheet;
 
     const BOT = { facile: T('Facile', 'Easy'), normale: T('Normale', 'Normal'), difficile: T('Difficile', 'Hard'), incubo: T('Incubo', 'Nightmare') };
-    const AV = ['#ffd60a', '#64d2ff', '#ff9f0a', '#30d158', '#ff375f', '#bf5af2'];
-    const go = (id) => { location.href = U.arena + '?m=' + id; };
+    const go =(id) => { location.href = U.arena + '?m=' + id; };
 
     // ── Testi ────────────────────────────────────────────────────────────
     function names(list) {
@@ -67,11 +66,6 @@
         const el = $('d2p-say');
         el.textContent = '';
         setTimeout(() => { el.textContent = text; }, 30);
-    }
-    function avatar(name) {
-        let h = 0;
-        for (const ch of String(name || '?')) h = (h * 31 + ch.codePointAt(0)) >>> 0;
-        return '<span class="d2p-av d2p-av-u" style="--c:' + AV[h % AV.length] + '">' + esc(String(name || '?').charAt(0).toUpperCase()) + '</span>';
     }
     const face = (c) => '<span style="--r:' + D.rarColor(c.rarity) + '">' + (c.img ? '<img src="' + esc(c.img) + '" alt="" loading="lazy" onerror="this.remove()">' : '')
         + '<i>' + esc(D.niceName(c.name).charAt(0)) + '</i></span>';
@@ -201,10 +195,10 @@
     function renderBoard() {
         const list = S.board === 'friends' ? H.board_friends : H.board;
         const meIn = list.some((x) => x.id === CFG.me);
-        let rows = list.map((x, i) => '<div class="d2p-lb' + (x.id === CFG.me ? ' d2p-me' : '') + '"><span class="d2p-p">' + (i + 1) + '</span>' + avatar(x.username)
+        let rows = list.map((x, i) => '<div class="d2p-lb' + (x.id === CFG.me ? ' d2p-me' : '') + '"><span class="d2p-p">' + (i + 1) + '</span>' + D.pfp(x.id, x.username)
             + '<b>' + esc(x.username) + '</b><span class="d2p-d d2p-num">' + esc(x.floor >= FLOORS ? T('in cima', 'top') : T('piano ', 'floor ') + x.floor) + '</span></div>').join('');
         if (S.board === 'all' && !meIn && H.me.pos) {
-            rows += '<div class="d2p-lb d2p-me d2p-gap"><span class="d2p-p">' + H.me.pos + '</span>' + avatar(T('Tu', 'You')) + '<b>' + esc(T('Tu', 'You')) + '</b><span class="d2p-d d2p-num">'
+            rows += '<div class="d2p-lb d2p-me d2p-gap"><span class="d2p-p">' + H.me.pos + '</span>' + D.pfp(CFG.me, T('Tu', 'You')) + '<b>' + esc(T('Tu', 'You')) + '</b><span class="d2p-d d2p-num">'
                 + esc(T('piano ', 'floor ') + H.me.best) + '</span></div>';
         }
         if (!list.length) rows = '<p class="d2p-mut">' + esc(T('Ancora nessuno: il primo piano superato ti mette in cima.', 'Nobody yet: beating the first floor puts you on top.')) + '</p>';

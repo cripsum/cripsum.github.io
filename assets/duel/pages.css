@@ -147,6 +147,10 @@ body.d2p :focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
 #d2p-going { margin-top: 36px; }
 .d2p-chl { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; }
 .d2p-chl + .d2p-chl { border-top: 1px solid var(--line2); }
+/* Foto profilo (D.pfp): l'iniziale sotto, la foto sopra. Prima di .d2p-av, che la fa grande. */
+.d2p-pfp { position: relative; width: 28px; height: 28px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--s2); color: var(--tx2); font-size: 12px; font-weight: 600; }
+.d2p-pfp i { font-style: normal; }
+.d2p-pfp img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .d2p-av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--s2); color: var(--tx); font-size: 18px; }
 .d2p-chl strong { font-size: 15px; font-weight: 600; display: block; }
 .d2p-chl > div > span { font-size: 13px; color: var(--tx2); }
@@ -161,21 +165,29 @@ body.d2p :focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
 .d2p-rank-note { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--tx2); }
 .d2p-rank-wl { display: flex; gap: 18px; margin-top: 16px; font-size: 13px; color: var(--tx2); }
 .d2p-rank-wl b { color: var(--tx); font-weight: 600; }
-.d2p-lb { display: grid; grid-template-columns: 26px 24px minmax(0, 1fr) auto; gap: 10px; align-items: center; height: 42px; padding: 0 10px; margin: 0 -10px; border-radius: 12px; font-size: 14px; }
+.d2p-lb { display: grid; grid-template-columns: 26px 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; height: 42px; padding: 0 10px; margin: 0 -10px; border-radius: 12px; font-size: 14px; }
 .d2p-lb .d2p-p { color: var(--tx3); font-weight: 600; font-size: 13px; }
 .d2p-lb b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .d2p-lb.d2p-me { background: var(--s1); }
 .d2p-lb.d2p-gap { margin-top: 8px; }
-.d2p-lb .d2p-d { color: var(--tx2); font-size: 13px; }
-.d2p-live { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px 0; }
+/* A destra il numero, con l'emblema del rango o la spunta della sfida del giorno. */
+.d2p-lb .d2p-d { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; color: var(--tx2); font-size: 13px; }
+.d2p-lb .d2p-d .d2p-emb { width: 18px; height: 18px; }
+/* La diretta: le due foto una sopra l'altra, poi chi gioca. */
+.d2p-pair { display: inline-flex; flex: none; }
+.d2p-pair .d2p-pfp { width: 32px; height: 32px; box-shadow: 0 0 0 2px var(--bg); }
+.d2p-pair .d2p-pfp + .d2p-pfp { margin-left: -10px; }
+.d2p-live { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 0; }
 .d2p-live + .d2p-live { border-top: 1px solid var(--line2); }
 .d2p-live strong { font-size: 14px; font-weight: 600; display: block; }
-.d2p-live span { font-size: 12.5px; color: var(--tx2); display: inline-flex; align-items: center; gap: 6px; }
+.d2p-live > div > span { font-size: 12.5px; color: var(--tx2); display: inline-flex; align-items: center; gap: 6px; }
 .d2p-hist { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
 .d2p-hist-main { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 6px; margin-left: -6px; border-radius: 12px; font-size: 13.5px; }
 .d2p-hist-main:hover { background: var(--s1); }
 .d2p-hist-main small { display: block; color: var(--tx3); font-size: 11.5px; }
-.d2p-hist-who { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.d2p-hist-who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.d2p-hist-who .d2p-pfp { width: 22px; height: 22px; font-size: 10px; }
+.d2p-hist-who > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .d2p-hist .d2p-r { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-weight: 600; font-size: 12px; background: var(--tx); color: #0a0a0b; }
 .d2p-hist .d2p-r.d2p-l { background: var(--s2); color: var(--tx2); }
 .d2p-dl { font-weight: 600; }
@@ -266,6 +278,11 @@ body.d2p :focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
 .d2p-res-big { font-size: 104px; font-weight: 600; letter-spacing: -0.05em; line-height: .95; margin: 0; color: var(--tx); }
 .d2p-res-big.d2p-lose { color: var(--tx2); }
 .d2p-res-sub { margin: 14px 0 0; color: var(--tx2); font-size: 15px; }
+/* Sopra il risultato: chi ha giocato, con le foto. */
+.d2p-res-vs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 22px; color: var(--tx3); font-size: 13.5px; }
+.d2p-res-p { display: inline-flex; align-items: center; gap: 8px; min-width: 0; color: var(--tx); font-size: 15px; }
+.d2p-res-p b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.d2p-res-p .d2p-pfp { width: 34px; height: 34px; font-size: 14px; }
 .d2p-res-why { margin: 6px 0 0; color: var(--tx3); font-size: 13.5px; }
 .d2p-rate { margin-top: 38px; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 20px; align-items: center; }
 .d2p-rate .d2p-emb { width: 72px; height: 72px; }
@@ -394,8 +411,7 @@ body.d2p :focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
 .d2p-season .d2p-bar i { background: var(--tx); }
 .d2p-season:hover p b { text-decoration: underline; text-underline-offset: 3px; }
 .d2p-rank-more { display: inline-flex; margin-top: 14px; }
-.d2p-av-u { background: var(--c); color: #0a0a0b; font-weight: 600; font-size: 16px; position: relative; }
-.d2p-av-u.d2p-online::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border-radius: 50%; background: var(--ok); border: 2px solid var(--s1); }
+.d2p-pfp.d2p-online::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border-radius: 50%; background: var(--ok); border: 2px solid var(--s1); }
 .d2p-join { flex-wrap: wrap; }
 .d2p-sec-t .d2p-link { font: 500 13px var(--font); }
 
@@ -580,7 +596,6 @@ body.d2p .d2p-search input:focus-visible { outline: none; }
 .d2p-tw-vou .d2p-av { width: 40px; height: 40px; font-size: 16px; }
 .d2p-tw-vou strong { display: block; font-size: 14.5px; font-weight: 600; }
 .d2p-tw-vou small { font-size: 12.5px; color: var(--tx2); }
-.d2p-tw-board .d2p-av { width: 24px; height: 24px; font-size: 11px; }
 
 /* Foglio del piano. */
 .d2p-tw-sheet .d2p-dcards .d2p-dc { display: flex; flex-direction: column; }

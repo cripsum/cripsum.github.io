@@ -60,7 +60,7 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
                 <span class="admin-nav-label">Duelli</span>
                 <button type="button" data-section="duel-kits"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Kit personaggi</span></button>
                 <button type="button" data-section="duel-traits"><i class="fa-solid fa-link"></i><span>Legami</span></button>
-                <button type="button" data-section="duel-values"><i class="fa-solid fa-sliders"></i><span>Stati e regole</span></button>
+                <button type="button" data-section="duel-values"><i class="fa-solid fa-sliders"></i><span>Stati, terreni e regole</span></button>
                 <button type="button" data-section="duel-balance"><i class="fa-solid fa-scale-balanced"></i><span>Bilanciamento</span></button>
                 <button type="button" data-section="duel-seasons"><i class="fa-solid fa-calendar"></i><span>Stagioni</span></button>
                 <button type="button" data-section="duel-daily"><i class="fa-solid fa-calendar-day"></i><span>Sfida del giorno</span></button>
@@ -223,8 +223,8 @@ if (admin_table_exists($mysqli, 'cripsumpedia_revisions') && ($pendingResult = $
             <section class="admin-section" id="section-duel-values" data-section-panel="duel-values">
                 <div class="admin-toolbar">
                     <div>
-                        <strong>Stati e regole</strong>
-                        <small>I valori base degli stati del catalogo e le costanti del combattimento. Cambiarne uno vale per tutti i kit che lo usano.</small>
+                        <strong>Stati, terreni e regole</strong>
+                        <small>I valori base degli stati del catalogo, cosa fanno i terreni e le costanti del combattimento. Cambiarne uno vale per tutti i kit che lo usano.</small>
                     </div>
                 </div>
                 <div class="dz-root" data-duel-admin="values"></div>

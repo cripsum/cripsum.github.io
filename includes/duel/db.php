@@ -276,7 +276,8 @@ function duel_db_collection(mysqli $m, int $userId): array
 
 /**
  * Quello che il pannello ha cambiato, nel formato di duel_overrides():
- * game_catalog_values ('rule.turn_limit', 'status.veleno.v'...), game_kits,
+ * game_catalog_values ('rule.turn_limit', 'status.veleno.v',
+ * 'terrain.notte.crit', 'terrain.santuario.block.veleno'...), game_kits,
  * game_traits con game_character_traits. Tabelle vuote o assenti = niente.
  */
 function duel_db_overrides(mysqli $m, bool $fresh = false): array
@@ -285,7 +286,7 @@ function duel_db_overrides(mysqli $m, bool $fresh = false): array
     if ($loaded !== null && !$fresh) {
         return $loaded;
     }
-    $out = ['rules' => [], 'status' => [], 'kits' => [], 'traits' => null];
+    $out = ['rules' => [], 'status' => [], 'terrain' => [], 'kits' => [], 'traits' => null];
 
     if (rt_has_table($m, 'game_catalog_values')) {
         $res = $m->query('SELECT k, v FROM game_catalog_values');
@@ -295,6 +296,10 @@ function duel_db_overrides(mysqli $m, bool $fresh = false): array
                 $out['rules'][$parts[1]] = (float)$row['v'];
             } elseif ($parts[0] === 'status' && count($parts) === 3) {
                 $out['status'][$parts[1]][$parts[2]] = (float)$row['v'];
+            } elseif ($parts[0] === 'terrain' && count($parts) === 3) {
+                $out['terrain'][$parts[1]][$parts[2]] = (float)$row['v'];
+            } elseif ($parts[0] === 'terrain' && count($parts) === 4 && $parts[2] === 'block') {
+                $out['terrain'][$parts[1]]['block'][$parts[3]] = (int)$row['v'];
             }
         }
     }
@@ -361,5 +366,6 @@ function duel_use_match_values(array $rules): void
     duel_overrides([
         'rules' => $rules['values']['rules'] ?? [],
         'status' => $rules['values']['status'] ?? [],
+        'terrain' => $rules['values']['terrain'] ?? [],
     ]);
 }

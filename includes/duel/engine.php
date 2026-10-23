@@ -759,7 +759,7 @@ function duel_terrain_tick(array &$c): void
     if (!empty($def['round_poison']) && $t['round'] > 0 && $t['since'] % $t['round'] === 0) {
         foreach ($c['st']['units'] as $id => $u) {
             if (!$u['ko'] && !duel_has($c['st'], (int)$id, 'veleno')) {
-                duel_put_status($c, (int)$t['src'], (int)$id, 'veleno', duel_status('veleno')['v'], 2, 1, ['chance' => 100, 'terrain' => true]);
+                duel_put_status($c, (int)$t['src'], (int)$id, 'veleno', duel_status('veleno')['v'], 2, (int)$def['round_poison'], ['chance' => 100, 'terrain' => true]);
             }
         }
     }

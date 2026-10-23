@@ -496,12 +496,12 @@ function duel_hub(mysqli $m, int $userId): array
     $queue = duel_row($m, 'SELECT mode, TIMESTAMPDIFF(SECOND, joined_at, NOW()) AS waited FROM game_queue WHERE user_id = ?', 'i', [$userId]);
 
     $live = [];
-    foreach (duel_rows($m, "SELECT m.id, m.mode, m.turn_number, u1.username AS p1, u2.username AS p2
+    foreach (duel_rows($m, "SELECT m.id, m.mode, m.turn_number, m.player1_id, m.player2_id, u1.username AS p1, u2.username AS p2
         FROM game_matches m LEFT JOIN utenti u1 ON u1.id = m.player1_id LEFT JOIN utenti u2 ON u2.id = m.player2_id
         WHERE m.engine_version IS NOT NULL AND m.status = 'active' AND m.mode <> 'bot' AND m.spectator_allowed = 1
         ORDER BY m.updated_at DESC LIMIT 8") as $r) {
         $live[] = ['id' => (int)$r['id'], 'mode' => (string)$r['mode'], 'turn' => (int)$r['turn_number'],
-            'players' => [(string)($r['p1'] ?? ''), (string)($r['p2'] ?? '')]];
+            'players' => [(string)($r['p1'] ?? ''), (string)($r['p2'] ?? '')], 'ids' => [(int)$r['player1_id'], (int)($r['player2_id'] ?? 0)]];
     }
 
     $recent = [];
@@ -514,10 +514,13 @@ function duel_hub(mysqli $m, int $userId): array
         $mine = (int)$r['player1_id'] === $userId ? 0 : 1;
         $won = $r['winner_id'] !== null && (int)$r['winner_id'] === $userId;
         $draw = $r['winner_id'] === null;
-        $opponent = (string)$r['mode'] === 'bot' ? 'Cripsum Bot' : (string)($mine === 0 ? ($r['p2'] ?? '') : ($r['p1'] ?? ''));
+        $isBot = (string)$r['mode'] === 'bot';
+        $opponent = $isBot ? DUEL_BOT_NAME : (string)($mine === 0 ? ($r['p2'] ?? '') : ($r['p1'] ?? ''));
+        $opponentId = $isBot ? DUEL_BOT_USER : (int)($mine === 0 ? ($r['player2_id'] ?? 0) : $r['player1_id']);
         // La Torre: il piano giocato (fase T2).
         $tower = $r['tower'] !== null ? (int)(json_decode((string)$r['tower'], true)['tower']['floor'] ?? 0) : 0;
-        $recent[] = ['id' => (int)$r['id'], 'mode' => (string)$r['mode'], 'daily' => (bool)$r['daily'], 'tower' => $tower ?: null, 'opponent' => $opponent, 'won' => $won, 'draw' => $draw,
+        $recent[] = ['id' => (int)$r['id'], 'mode' => (string)$r['mode'], 'daily' => (bool)$r['daily'], 'tower' => $tower ?: null,
+            'opponent' => $opponent, 'opponent_id' => $opponentId, 'won' => $won, 'draw' => $draw,
             'reason' => (string)$r['end_reason'], 'at' => (string)$r['finished_at'],
             'rating_delta' => $draw ? null : ($won ? ($r['winner_rating_delta'] !== null ? (int)$r['winner_rating_delta'] : null)
                 : ($r['loser_rating_delta'] !== null ? (int)$r['loser_rating_delta'] : null))];

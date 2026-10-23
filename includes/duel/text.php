@@ -299,7 +299,8 @@ function duel_text_effect(array $eff, array $ctx, string $lang): string
             break;
         case 'terrain':
             $t = duel_terrains()[$eff['k']] ?? ['it' => $eff['k'], 'en' => $eff['k'], 'g' => 2];
-            $g = (int)($eff['g'] ?? $t['g']);
+            // Come il motore: senza una durata sua vale quella di base del terreno.
+            $g = (int)($eff['g'] ?? 0) ?: (int)$t['g'];
             $s = $en ? "Terrain {$t['en']} for $g rounds" : "Terreno {$t['it']} per $g giri";
             break;
         case 'form':

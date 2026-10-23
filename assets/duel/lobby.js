@@ -211,12 +211,7 @@
     }
 
     // ── Le tue sfide: partita in corso, stanza aperta, sfide, differita ──
-    const AV = ['#ffd60a', '#64d2ff', '#ff9f0a', '#30d158', '#ff375f', '#bf5af2'];
-    function avatar(name) {
-        let h = 0;
-        for (const ch of String(name || '?')) h = (h * 31 + ch.codePointAt(0)) >>> 0;
-        return '<span class="d2p-av d2p-av-u" style="--c:' + AV[h % AV.length] + '">' + esc(String(name || '?').charAt(0).toUpperCase()) + '</span>';
-    }
+    const avatar = (id, name, cls) => D.pfp(id, name, 'd2p-av' + (cls ? ' ' + cls : ''), 96);
     function leftText(s) {
         if (s === null || s === undefined) return '';
         if (s >= 3600) {
@@ -238,24 +233,24 @@
                 '<a class="d2p-btn d2p-btn-w d2p-btn-sm" href="' + esc(U.arena + '?m=' + a.id) + '">' + esc(T('Apri', 'Open')) + '</a>'
                 + '<button class="d2p-btn d2p-btn-sm" type="button" data-act="close-room">' + esc(T('Chiudi', 'Close')) + '</button>'));
         } else if (a) {
-            rows.push(chl('<span class="d2p-av">' + ic('attacco') + '</span>', '<strong>' + (a.my_turn ? '<span class="d2p-badge">' + esc(T('Tocca a te', 'Your turn')) + '</span>' : '')
+            rows.push(chl(a.opponent_id !== null && a.opponent_id !== undefined ? avatar(a.opponent_id, a.opponent) : '<span class="d2p-av">' + ic('attacco') + '</span>', '<strong>' + (a.my_turn ? '<span class="d2p-badge">' + esc(T('Tocca a te', 'Your turn')) + '</span>' : '')
                 + esc(a.opponent ? T('contro ', 'vs ') + a.opponent : T('Partita in corso', 'Match in progress')) + '</strong>'
                 + '<span>' + esc(D.MODE[a.mode] || a.mode) + (a.turn ? ' · ' + T('turno ', 'turn ') + a.turn : '') + '</span>',
                 '<a class="d2p-btn d2p-btn-w d2p-btn-sm" href="' + esc(U.arena + '?m=' + a.id) + '">' + esc(T('Torna in campo', 'Back to the match')) + '</a>'));
         }
         (H.async || []).forEach((g) => {
-            rows.push(chl(avatar(g.opponent), '<strong>' + (g.my_turn ? '<span class="d2p-badge">' + esc(T('Tocca a te', 'Your turn')) + '</span>' + esc(T('contro ', 'vs ') + g.opponent) : esc(T('In attesa di ', 'Waiting for ') + g.opponent)) + '</strong>'
+            rows.push(chl(avatar(g.opponent_id, g.opponent), '<strong>' + (g.my_turn ? '<span class="d2p-badge">' + esc(T('Tocca a te', 'Your turn')) + '</span>' + esc(T('contro ', 'vs ') + g.opponent) : esc(T('In attesa di ', 'Waiting for ') + g.opponent)) + '</strong>'
                 + '<span>' + esc(T('In differita · turno ', 'Turn-based · turn ') + g.turn + (g.left !== null ? ' · ' + T('scade tra ', 'expires in ') + leftText(g.left) : '')) + '</span>',
                 '<a class="d2p-btn ' + (g.my_turn ? 'd2p-btn-w ' : '') + 'd2p-btn-sm" href="' + esc(U.arena + '?m=' + g.id) + '">' + esc(g.my_turn ? T('Gioca', 'Play') : T('Guarda', 'View')) + '</a>'));
         });
         (H.challenges || []).forEach((c) => {
             const kind = (c.kind === 'async' ? T('In differita', 'Turn-based') : T('Live', 'Live')) + (c.levels === 'max' ? T(' · livelli pareggiati', ' · equal levels') : '');
             if (c.sent) {
-                rows.push(chl(avatar(c.other), '<strong>' + esc(T('In attesa di ', 'Waiting for ') + c.other) + '</strong><span>' + esc(kind + ' · ' + T('scade tra ', 'expires in ') + leftText(c.left)) + '</span>',
+                rows.push(chl(avatar(c.other_id, c.other), '<strong>' + esc(T('In attesa di ', 'Waiting for ') + c.other) + '</strong><span>' + esc(kind + ' · ' + T('scade tra ', 'expires in ') + leftText(c.left)) + '</span>',
                     (c.kind === 'live' && c.match ? '<a class="d2p-btn d2p-btn-sm" href="' + esc(U.arena + '?m=' + c.match) + '">' + esc(T('Apri', 'Open')) + '</a>' : '')
                     + '<button class="d2p-btn d2p-btn-sm" type="button" data-act="withdraw" data-id="' + c.id + '">' + esc(T('Ritira', 'Withdraw')) + '</button>'));
             } else {
-                rows.push(chl(avatar(c.other), '<strong>' + esc(c.other + T(' ti sfida', ' challenges you')) + '</strong><span>' + esc(kind + ' · ' + T('scade tra ', 'expires in ') + leftText(c.left)) + '</span>',
+                rows.push(chl(avatar(c.other_id, c.other), '<strong>' + esc(c.other + T(' ti sfida', ' challenges you')) + '</strong><span>' + esc(kind + ' · ' + T('scade tra ', 'expires in ') + leftText(c.left)) + '</span>',
                     '<button class="d2p-btn d2p-btn-w d2p-btn-sm" type="button" data-act="accept" data-id="' + c.id + '">' + esc(T('Accetta', 'Accept')) + '</button>'
                     + '<button class="d2p-btn d2p-btn-sm" type="button" data-act="decline" data-id="' + c.id + '">' + esc(T('No', 'No')) + '</button>'));
             }
@@ -326,9 +321,9 @@
         if (S.board === null) S.board = b.friends.length > 1 ? 'friends' : 'all';
         const list = b[S.board];
         const meIn = list.some((x) => x.id === CFG.me);
-        let rows = list.map((x, i) => '<div class="d2p-lb' + (x.id === CFG.me ? ' d2p-me' : '') + '"><span class="d2p-p">' + (i + 1) + '</span>' + D.emblem(x.rank) + '<b>' + esc(x.username) + '</b><span class="d2p-d d2p-num">' + fmt(x.rating) + '</span></div>').join('');
+        let rows = list.map((x, i) => '<div class="d2p-lb' + (x.id === CFG.me ? ' d2p-me' : '') + '"><span class="d2p-p">' + (i + 1) + '</span>' + D.pfp(x.id, x.username) + '<b>' + esc(x.username) + '</b><span class="d2p-d d2p-num">' + D.emblem(x.rank) + fmt(x.rating) + '</span></div>').join('');
         if (S.board === 'all' && !meIn && b.pos) {
-            rows += '<div class="d2p-lb d2p-me d2p-gap"><span class="d2p-p">' + b.pos + '</span>' + D.emblem(H.me.rank.key) + '<b>' + esc(T('Tu', 'You')) + '</b><span class="d2p-d d2p-num">' + fmt(H.me.rating) + '</span></div>';
+            rows += '<div class="d2p-lb d2p-me d2p-gap"><span class="d2p-p">' + b.pos + '</span>' + D.pfp(CFG.me, T('Tu', 'You')) + '<b>' + esc(T('Tu', 'You')) + '</b><span class="d2p-d d2p-num">' + D.emblem(H.me.rank.key) + fmt(H.me.rating) + '</span></div>';
         }
         if (!list.length) rows = '<p class="d2p-mut">' + esc(T('Ancora nessuno in classifica.', 'Nobody in the ranking yet.')) + '</p>';
         if (S.board === 'friends' && b.friends.length <= 1) rows += '<p class="d2p-mut">' + esc(T('Quando i tuoi amici giocano compaiono qui.', 'Your friends show up here once they play.')) + '</p>';
@@ -338,7 +333,7 @@
     }
 
     function renderLive() {
-        const rows = H.live.map((l) => '<div class="d2p-live"><div><strong>' + esc((l.players[0] || '?') + T(' contro ', ' vs ') + (l.players[1] || '?')) + '</strong>'
+        const rows = H.live.map((l) => '<div class="d2p-live"><span class="d2p-pair">' + D.pfp((l.ids || [])[0], l.players[0]) + D.pfp((l.ids || [])[1], l.players[1]) + '</span><div><strong>' + esc((l.players[0] || '?') + T(' contro ', ' vs ') + (l.players[1] || '?')) + '</strong>'
             + '<span>' + esc(D.MODE[l.mode] || l.mode) + ' · ' + esc(T('turno ', 'turn ')) + l.turn + (l.watchers ? ' · ' + ic('occhio') + ' ' + l.watchers : '') + '</span></div>'
             + '<a class="d2p-btn d2p-btn-sm" href="' + esc(U.arena + '?m=' + l.id) + '">' + esc(T('Guarda', 'Watch')) + '</a></div>').join('');
         $('d2p-live').innerHTML = '<div class="d2p-sec-t"><h2 class="d2p-h2">' + esc(T('In diretta', 'Live')) + '</h2></div>'
@@ -351,7 +346,7 @@
             const res = r.draw ? ['P', 'd2p-l', T('Pareggio', 'Draw')] : r.won ? ['V', '', T('Vittoria', 'Victory')] : ['S', 'd2p-l', T('Sconfitta', 'Defeat')];
             const d = r.rating_delta;
             return '<div class="d2p-hist"><a class="d2p-hist-main" href="' + esc(U.end + '?m=' + r.id) + '"><span class="d2p-r ' + res[1] + '" title="' + esc(res[2]) + '">' + (D.EN ? res[2].charAt(0) : res[0]) + '</span>'
-                + '<span><span class="d2p-hist-who">' + esc(T('contro ', 'vs ') + r.opponent) + '</span><small>' + esc((r.daily ? T('Sfida del giorno', 'Daily challenge')
+                + '<span><span class="d2p-hist-who">' + D.pfp(r.opponent_id, r.opponent) + '<span>' + esc(T('contro ', 'vs ') + r.opponent) + '</span></span><small>' + esc((r.daily ? T('Sfida del giorno', 'Daily challenge')
                     : r.tower ? T('Torre · piano ', 'Tower · floor ') + r.tower : D.MODE[r.mode] || r.mode) + ' · ' + D.ago(r.at)) + '</small></span>'
                 + (d !== null && d !== undefined ? '<span class="d2p-dl d2p-num ' + (d > 0 ? 'd2p-up' : d < 0 ? 'd2p-dn' : '') + '">' + (d > 0 ? '+' : d < 0 ? '−' : '') + fmt(Math.abs(d)) + '</span>' : '<span></span>') + '</a>'
                 + '<a class="d2p-ibtn" href="' + esc(U.replay + '?m=' + r.id) + '" aria-label="' + esc(T('Rivedi la partita', 'Watch the replay')) + '" title="' + esc(T('Rivedi la partita', 'Watch the replay')) + '">' + ic('replay') + '</a></div>';
@@ -509,10 +504,10 @@
         const d = H.daily;
         const me = d.me;
         const board = d.board.map((x, i) => '<div class="d2p-lb' + (x.id === CFG.me ? ' d2p-me' : '') + '"><span class="d2p-p">' + (i + 1) + '</span>'
-            + '<span>' + (x.completed ? ic('check') : '') + '</span><b>' + esc(x.username) + '</b><span class="d2p-d d2p-num">'
+            + D.pfp(x.id, x.username) + '<b>' + esc(x.username) + '</b><span class="d2p-d d2p-num">' + (x.completed ? ic('check') : '')
             + esc(x.best !== null ? T(x.best + ' turni', x.best + ' turns') : T('non ancora', 'not yet')) + '</span></div>').join('');
         const mine = me && me.pos && !d.board.some((x) => x.id === CFG.me)
-            ? '<div class="d2p-lb d2p-me d2p-gap"><span class="d2p-p">' + me.pos + '</span><span>' + (me.completed ? ic('check') : '') + '</span><b>' + esc(T('Tu', 'You')) + '</b><span class="d2p-d d2p-num">' + esc(T(me.best + ' turni', me.best + ' turns')) + '</span></div>' : '';
+            ? '<div class="d2p-lb d2p-me d2p-gap"><span class="d2p-p">' + me.pos + '</span>' + D.pfp(CFG.me, T('Tu', 'You')) + '<b>' + esc(T('Tu', 'You')) + '</b><span class="d2p-d d2p-num">' + (me.completed ? ic('check') : '') + esc(T(me.best + ' turni', me.best + ' turns')) + '</span></div>' : '';
         const teams = H.teams.map((t) => {
             const err = dailyError(t);
             return '<button type="button" class="d2p-fr d2p-dteam" data-dslot="' + t.slot + '" aria-pressed="' + (t.slot === DY.slot) + '"' + (err ? ' disabled' : '') + '>'
@@ -618,7 +613,7 @@
         const q = F.q.trim().toLowerCase();
         const shown = F.list.filter((f) => !q || f.username.toLowerCase().includes(q));
         const rows = shown.map((f) => '<button type="button" class="d2p-fr" data-friend="' + f.id + '" aria-pressed="' + (f.id === F.pick) + '"' + (f.open ? ' disabled' : '') + '>'
-            + avatar(f.username).replace('d2p-av d2p-av-u', 'd2p-av d2p-av-u' + (f.online ? ' d2p-online' : ''))
+            + avatar(f.id, f.username, f.online ? 'd2p-online' : '')
             + '<span><b>' + esc(f.username) + '</b><small>' + esc([f.open ? T('Sfida già aperta', 'Challenge already open') : seenText(f), f.games ? D.TIER[f.rank] : ''].filter(Boolean).join(' · ')) + '</small></span>'
             + (f.games ? D.emblem(f.rank) : '<span></span>') + '</button>').join('');
         const listHtml = rows || '<p class="d2p-mut">' + esc(F.list.length ? T('Nessun amico con questo nome.', 'No friend with this name.') : T('Non hai ancora amici sul sito: aggiungili dalla pagina Amici.', 'You have no friends on the site yet: add them from the Friends page.'))

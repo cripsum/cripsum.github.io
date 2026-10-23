@@ -29,6 +29,8 @@ const DUEL_ROLES = ['Tank', 'Bruiser', 'DPS', 'Burst DPS', 'Sub DPS', 'Support',
  *
  * - rules:  [chiave di duel_rules() => valore]
  * - status: [stato => ['v' => .., 't' => .., 'max' => ..]]
+ * - terrain: [terreno => [numero di DUEL_TERRAIN_FIELDS => ..,
+ *            'block' => [stato => 1 bloccato | 0 non bloccato]]]
  * - kits:   [id del personaggio => kit come quelli di kits_unique.php]
  * - traits: elenco dei legami come duel_traits(), o null = quelli del codice
  *
@@ -43,6 +45,7 @@ function duel_overrides(?array $set = null): array
             'gen' => DuelOverrides::$gen,
             'rules' => $set['rules'] ?? [],
             'status' => $set['status'] ?? [],
+            'terrain' => $set['terrain'] ?? [],
             'kits' => $set['kits'] ?? [],
             'traits' => $set['traits'] ?? null,
         ];
@@ -58,7 +61,7 @@ function duel_overrides(?array $set = null): array
 final class DuelOverrides
 {
     public static int $gen = 0;
-    public static array $data = ['gen' => 0, 'rules' => [], 'status' => [], 'kits' => [], 'traits' => null];
+    public static array $data = ['gen' => 0, 'rules' => [], 'status' => [], 'terrain' => [], 'kits' => [], 'traits' => null];
 }
 
 /**

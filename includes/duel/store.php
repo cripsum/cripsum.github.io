@@ -30,6 +30,8 @@ const DUEL_TURN_SECONDS = 45;      // tempo per turno nelle partite live
 const DUEL_TIMEOUTS_MAX = 3;       // turni scaduti che fanno perdere
 const DUEL_DEADLINE_GRACE = 2;     // secondi di tolleranza per la rete
 const DUEL_BOT_USER = 0;           // il bot in winner_id / loser_id, come nei duelli vecchi
+const DUEL_BOT_NAME = 'Poppy';     // il bot ha il nome e la foto di Poppy
+const DUEL_BOT_AVATAR = '/img/duelli/poppy.jpg';
 const DUEL_ELO_K = 32;
 const DUEL_RANKED_PAIR_DAY = 3;    // partite Ranked al giorno contro lo stesso avversario che contano
 const DUEL_ASYNC_SECONDS = 86400;  // in differita: 24 ore a turno
@@ -59,7 +61,7 @@ function duel_match_rules(array $row): array
         'turn_seconds' => DUEL_TURN_SECONDS,
         'timeouts_max' => DUEL_TIMEOUTS_MAX,
         'async' => false,
-        'values' => ['rules' => [], 'status' => []],
+        'values' => ['rules' => [], 'status' => [], 'terrain' => []],
     ];
 }
 
@@ -211,7 +213,7 @@ function duel_match_start(mysqli $m, array $p): int
         'timeouts_max' => !empty($p['async']) ? DUEL_ASYNC_TIMEOUTS : DUEL_TIMEOUTS_MAX,
         'async' => !empty($p['async']),
         'teams' => [$p['team1']['pids'], $p['team2']['pids']],
-        'values' => ['rules' => $over['rules'], 'status' => $over['status']],
+        'values' => ['rules' => $over['rules'], 'status' => $over['status'], 'terrain' => $over['terrain']],
     ];
     if (!empty($p['room_options'])) {
         $rules['room'] = $p['room_options'];
@@ -837,6 +839,16 @@ function duel_rank(int $rating): array
     return ['key' => 'bronzo', 'label' => rt_t('Bronzo', 'Bronze'), 'min' => 0, 'next' => 1000];
 }
 
+/**
+ * La foto profilo di chi gioca, come la serve il sito (get_pfp.php risponde
+ * sempre con un'immagine, anche senza foto); per il bot quella di Poppy.
+ * $size: uno dei lati delle miniature (avatar_thumbnail.php).
+ */
+function duel_avatar(int $userId, int $size = 96): string
+{
+    return $userId === DUEL_BOT_USER ? DUEL_BOT_AVATAR : '/includes/get_pfp.php?id=' . $userId . '&size=' . $size;
+}
+
 /** Nome, immagine e punti di chi gioca. */
 function duel_players_view(mysqli $m, array $row): array
 {
@@ -844,14 +856,15 @@ function duel_players_view(mysqli $m, array $row): array
     foreach ([0, 1] as $side) {
         $userId = duel_side_user($row, $side);
         if ($userId === DUEL_BOT_USER) {
-            $out[$side] = ['id' => 0, 'bot' => true, 'username' => 'Cripsum Bot', 'avatar' => '/img/Susremaster.png',
+            $out[$side] = ['id' => 0, 'bot' => true, 'username' => DUEL_BOT_NAME, 'avatar' => DUEL_BOT_AVATAR,
                 'level' => (string)$row['bot_level'], 'rating' => null, 'rank' => null];
             continue;
         }
         $user = duel_row($m, 'SELECT u.username, s.rating FROM utenti u LEFT JOIN game_player_stats s ON s.user_id = u.id WHERE u.id = ?', 'i', [$userId]);
         $rating = (int)($user['rating'] ?? 1000);
+        // Grande: la usa anche la presentazione VS.
         $out[$side] = ['id' => $userId, 'bot' => false, 'username' => (string)($user['username'] ?? 'Utente'),
-            'avatar' => '/includes/get_pfp.php?id=' . $userId, 'rating' => $rating, 'rank' => duel_rank($rating), 'badge' => duel_season_badge($m, $userId)];
+            'avatar' => duel_avatar($userId, 192), 'rating' => $rating, 'rank' => duel_rank($rating), 'badge' => duel_season_badge($m, $userId)];
     }
     return $out;
 }
