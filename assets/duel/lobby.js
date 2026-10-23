@@ -185,12 +185,16 @@
         renderModes();
         renderPlay();
         say(T('Cerco un avversario.', 'Looking for an opponent.'));
+        let failures = 0;
         const tick = async () => {
             if (!S.search) return;
             const p = await api('queue', null, { action: 'ping' });
             if (!S.search) return;
             if (p.ok && p.status === 'matched') { say(T('Avversario trovato.', 'Opponent found.')); go(p.match); return; }
             if (p.ok && p.status === 'idle') { stopSearch(); D.toast(T('Ricerca finita.', 'Search ended.')); render(); return; }
+            // Errori dal server: la ricerca continua, ma lo si dice (prima restava in silenzio).
+            failures = p.ok ? 0 : failures + 1;
+            if (failures === 3) D.toast((p.error || T('La ricerca non risponde.', 'The search is not responding.')) + ' ' + T('Riprovo…', 'Retrying…'), true);
             renderPlay();
             S.search.timer = setTimeout(tick, 4000);
         };

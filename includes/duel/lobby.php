@@ -267,13 +267,19 @@ function duel_queue_now(mysqli $m): array
     return $out;
 }
 
-/** Quanto puo' essere lontano di punti l'avversario Ranked: si allarga con l'attesa. */
+/**
+ * Quanto puo' essere lontano di punti l'avversario Ranked: si allarga in
+ * fretta con l'attesa. Siamo in pochi e i punti vengono dai duelli di
+ * sempre: prima con un minuto di attesa due amici lontani di 600 punti
+ * sembravano non trovarsi mai (24 ottobre 2026). Dopo 20 secondi va bene
+ * chiunque; tra piu' persone in coda si sceglie la piu' vicina (duel_queue_pair).
+ */
 function duel_queue_window(int $waited): int
 {
-    if ($waited >= 60) {
+    if ($waited >= 20) {
         return PHP_INT_MAX;
     }
-    return 100 + 50 * intdiv($waited, 10);
+    return 200 + 100 * intdiv($waited, 5);
 }
 
 /**
@@ -298,6 +304,11 @@ function duel_queue_pair(mysqli $m, int $userId): array
         $candidates = duel_rows($m, 'SELECT *, TIMESTAMPDIFF(SECOND, joined_at, NOW()) AS waited FROM game_queue
             WHERE mode = ? AND user_id <> ? AND last_seen >= NOW() - INTERVAL ? SECOND ORDER BY joined_at LIMIT 20',
             'sii', [$mode, $userId, DUEL_QUEUE_STALE]);
+        if ($mode === 'ranked') {
+            // Prima chi ha i punti piu' vicini; a pari distanza chi aspetta da piu' tempo.
+            $mine = (int)$me['rating'];
+            usort($candidates, static fn(array $a, array $b): int => [abs((int)$a['rating'] - $mine), $a['joined_at']] <=> [abs((int)$b['rating'] - $mine), $b['joined_at']]);
+        }
 
         foreach ($candidates as $other) {
             $otherId = (int)$other['user_id'];
