@@ -24,6 +24,7 @@ $footerYear = date('Y');
         <div class="footer-section">
             <h6 class="footer-subtitle">Link utili</h6>
             <ul class="footer-links">
+                <li><a href="/it/lore" class="footer-link"><i class="fa-solid fa-book-open" style="margin-right: 4px;" aria-hidden="true"></i>La lore di cripsum.com</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/privacy" class="footer-link"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i>Privacy</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/tos" class="footer-link"><i class="fa-solid fa-file-contract" style="margin-right: 4px;"></i>Termini</a></li>
                 <li><a href="/<?= htmlspecialchars($footerLang, ENT_QUOTES, 'UTF-8') ?>/supporto" class="footer-link"><i class="fa-solid fa-headset" style="margin-right: 4px;"></i>Supporto</a></li>
