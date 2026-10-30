@@ -30,9 +30,15 @@ if (!function_exists('lore_h')) {
 
     function lore_local_url(string $value): string
     {
-        return preg_match('~^/(?!/)[^\\\\\\\\\\x00-\\x20]*$~D', $value) === 1 ? $value : '';
+        if (!str_starts_with($value, '/') || str_starts_with($value, '//') ||
+            str_contains($value, '\\') || preg_match('~[\x00-\x20\x7f]~', $value)) {
+            return '';
+        }
+        return $value;
     }
 }
+
+require_once __DIR__ . '/images.php';
 
 $ogTitle = $loreStrings['title'];
 $ogDescription = $loreStrings['description'];
@@ -81,13 +87,17 @@ $ogUrl = 'https://cripsum.com/' . $loreLang . '/lore';
                             <?php foreach ($loreEvent['paragraphs'] as $loreParagraph): ?>
                                 <p><?= lore_h($loreParagraph) ?></p>
                             <?php endforeach; ?>
-                            <?php foreach ($loreEvent['images'] ?? [] as $loreImage): ?>
-                                <?php $loreImageUrl = lore_local_url($loreImage['src']); if ($loreImageUrl === '') { continue; } ?>
-                                <figure class="lore-image">
-                                    <img src="<?= lore_h($loreImageUrl) ?>" alt="<?= lore_h($loreImage['alt']) ?>" width="<?= max(1, (int)$loreImage['width']) ?>" height="<?= max(1, (int)$loreImage['height']) ?>" loading="lazy" decoding="async">
-                                    <?php if (!empty($loreImage['caption'])): ?><figcaption><?= lore_h($loreImage['caption']) ?></figcaption><?php endif; ?>
-                                </figure>
-                            <?php endforeach; ?>
+                            <?php $loreImages = lore_event_images($loreEvent); ?>
+                            <?php if ($loreImages): ?>
+                                <div class="lore-gallery">
+                                    <?php foreach ($loreImages as $loreImage): ?>
+                                        <figure class="lore-image">
+                                            <a href="<?= lore_h($loreImage['src']) ?>" target="_blank" rel="noopener noreferrer"><img src="<?= lore_h($loreImage['src']) ?>" alt="<?= lore_h($loreImage['alt']) ?>" width="<?= (int)$loreImage['width'] ?>" height="<?= (int)$loreImage['height'] ?>" loading="lazy" decoding="async"></a>
+                                            <?php if ($loreImage['caption'] !== ''): ?><figcaption><?= lore_h($loreImage['caption']) ?></figcaption><?php endif; ?>
+                                        </figure>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                             <?php if (!empty($loreEvent['links'])): ?>
                                 <ul class="lore-links" aria-label="<?= lore_h($loreStrings['related']) ?>">
                                     <?php foreach ($loreEvent['links'] as $loreLink): ?>

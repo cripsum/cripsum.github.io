@@ -1,15 +1,15 @@
 <?php
 /**
- * Storia editoriale, in ordine cronologico, con id uguali nelle due lingue.
- * I ricordi del 2023 e la migrazione di giugno 2025 provengono dall'autore.
- * Le altre date indicano le tracce di sviluppo conservate in Git: non sono
- * conferme indipendenti della data di pubblicazione in produzione.
- * sources conserva i riferimenti per aggiornare il racconto; non viene mostrato.
+ * Storia editoriale in ordine cronologico, con id uguali fra IT ed EN.
+ * Ricordi di Google Sites e migrazione di giugno 2025: racconto dell'autore.
+ * Altre date: tracce di sviluppo in Git, non conferme di pubblicazione.
+ * Il ramo origin/backup-disastro-pre-php conserva i vecchi esperimenti HTML.
+ * sources conserva i riferimenti senza mostrarli nella pagina.
  *
- * Capitolo: id, title, events. Evento: id, paragraphs.
- * Facoltativi: title, date (YYYY-MM-DD, YYYY-MM o YYYY), period, images, links.
- * Immagine: src, alt, caption, width, height. Link: href, label.
- * Testi senza HTML; URL locali con / iniziale. Aggiungere solo date documentate.
+ * Ogni evento accetta images: percorsi locali o array con src, alt, caption.
+ * Le dimensioni delle immagini vengono rilevate dal file.
+ * In alternativa, aggiungere foto in img/lore/ID-EVENTO/: appaiono da sole.
+ * Vedi img/lore/README.md per esempi e identificativi degli eventi.
  */
 return [
     'it' => [
@@ -26,16 +26,19 @@ return [
                     'sources' => [
                         'author:2026-10-30',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'dark-shop-and-ban',
                     'title' => 'Il Dark Shop, TikTok e il ban',
                     'paragraphs' => [
-                        'Poi aggiunsi il Dark Shop: un negozio finto dove, per il meme, si potevano “comprare” bambini, schiavi e tool strani. Pubblicai il sito su TikTok, il video diventò virale e il sito venne bannato.',
+                        'Poi aggiunsi il Dark Shop: un negozio finto dove, per il meme, si potevano “comprare” bambini, schiavi e tool strani. Pubblicai su TikTok un video del sito e diventò virale.',
+                        'Nei commenti alcuni iniziarono ad accusarmi di aver creato un honeypot, cioè un sito-esca per attirare le persone e raccogliere informazioni su di loro. Alcuni segnalarono il sito, che venne poi bannato.',
                     ],
                     'sources' => [
                         'author:2026-10-30',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'github-pages',
@@ -50,6 +53,117 @@ return [
                         'git:b85318b0',
                         'git:af014d0f',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'early-downloads',
+                    'date' => '2023-11-27',
+                    'period' => '27 novembre',
+                    'title' => 'Italiano, inglese, osu! e Fortnite',
+                    'paragraphs' => [
+                        'Sistemo il cambio lingua e aggiungo le prime pagine dedicate a osu! e Fortnite. La versione scritta a mano comincia ad avere le sue sezioni, anche se molte sono ancora vuote.',
+                    ],
+                    'sources' => [
+                        'git:d4633565',
+                        'git:2f62cec2',
+                        'git:7000de36',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'wise-tree-home',
+                    'date' => '2023-11-28',
+                    'period' => '28 novembre',
+                    'title' => 'Il Wise Mystical Tree e lo Spinjitzu',
+                    'paragraphs' => [
+                        'Completo la prima home: Cripsum re del Congo, il Wise Mystical Tree, Felicità, Tristezza e Stupore. C’è anche Jay che propone di imparare lo Spinjitzu, insieme al link per i “V-bucks gratis” che porta a un rickroll.',
+                    ],
+                    'sources' => [
+                        'git:0a9e2e2c',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'quandel57',
+                    'date' => '2023-12-02',
+                    'period' => '2 dicembre',
+                    'title' => 'Quandel57',
+                    'paragraphs' => [
+                        'Quandel57 ottiene una pagina tutta sua, con il meme di TikTok e l’audio “Screaming in Public Restrooms”. È uno dei primi personaggi ad avere una sezione dedicata.',
+                    ],
+                    'sources' => [
+                        'git:56c676eb',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'first-shitpost',
+                    'date' => '2023-12-05',
+                    'period' => '5 dicembre',
+                    'title' => 'Il primo Shitpost',
+                    'paragraphs' => [
+                        'Riempio Shitpost di immagini e GIF: beans, scheletri, Dame Tu Cosita e altri meme. È ancora una raccolta scelta e inserita a mano, molto prima dei post pubblicati dagli utenti.',
+                    ],
+                    'sources' => [
+                        'git:e60a5ce3',
+                        'git:d7340ba9',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'fake-store',
+                    'date' => '2023-12-15',
+                    'period' => '15–20 dicembre',
+                    'title' => 'Il negozio e il checkout finto',
+                    'paragraphs' => [
+                        'Aggiungo un negozio con prodotti come iPhone 20, PS6, RTX 4090, Renegade Raider e la tastiera a due tasti per osu!. Il 20 dicembre arriva anche il checkout: fa parte dello scherzo, non di un vero servizio di vendita.',
+                    ],
+                    'sources' => [
+                        'git:8650fc12',
+                        'git:51325314',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'minecraft-alphabet',
+                    'date' => '2023-12-16',
+                    'period' => '16 dicembre',
+                    'title' => 'La home in alfabeto Minecraft',
+                    'paragraphs' => [
+                        'Creo una versione della home scritta con i simboli dell’alfabeto del tavolo degli incantesimi di Minecraft. Anche il titolo, i meme e i collegamenti vengono trasformati.',
+                    ],
+                    'sources' => [
+                        'git:04f063e7',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'first-edits',
+                    'date' => '2023-12-23',
+                    'period' => '23 dicembre',
+                    'title' => 'Nasce la pagina Edits',
+                    'paragraphs' => [
+                        'Gli edit ricevono una pagina dedicata, con video incorporati da TikTok. La raccolta continuerà a crescere e a cambiare piattaforma quando i vecchi embed smetteranno di funzionare.',
+                    ],
+                    'sources' => [
+                        'git:5917a53b',
+                        'git:e9b73fda',
+                        'git:1b3dbdda',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'first-merch',
+                    'date' => '2023-12-26',
+                    'period' => '26 dicembre',
+                    'title' => 'Il merch',
+                    'paragraphs' => [
+                        'La pagina merch prende forma con vestiti e accessori: magliette, felpe, cappellini e altri prodotti. Anche questa sezione fa parte dei primi esperimenti del sito statico.',
+                    ],
+                    'sources' => [
+                        'git:ec239033',
+                    ],
+                    'images' => [],
                 ],
             ],
         ],
@@ -58,18 +172,62 @@ return [
             'title' => '2024',
             'events' => [
                 [
+                    'id' => 'download-music',
+                    'date' => '2024-01-07',
+                    'period' => '7 gennaio',
+                    'title' => 'Download con la musica',
+                    'paragraphs' => [
+                        'Aggiorno le pagine di download per Fortnite e osu! e aggiungo la riproduzione musicale alla sezione. Anche scaricare qualcosa diventa una scusa per mettere audio e pulsanti nel sito.',
+                    ],
+                    'sources' => [
+                        'git:a4da46d8',
+                        'git:3937918c',
+                        'git:965b1e88',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'elevator-loading',
+                    'date' => '2024-05-19',
+                    'period' => '19 maggio',
+                    'title' => 'Il caricamento con la musica da ascensore',
+                    'paragraphs' => [
+                        'La pagina TikTokPedia ha un’attesa di caricamento con musica da ascensore. Porto il tempo a dieci secondi: anche prima di entrare nella pagina c’è già un troll.',
+                    ],
+                    'sources' => [
+                        'git:6b93ead2',
+                        'git:db47e71c',
+                    ],
+                    'images' => [],
+                ],
+                [
                     'id' => 'tiktokpedia',
                     'date' => '2024-06',
                     'period' => 'Giugno',
-                    'title' => 'Arriva la TikTokPedia',
+                    'title' => 'La TikTokPedia si riempie',
                     'paragraphs' => [
-                        'A giugno compare la TikTokPedia, inizialmente come pagina ancora da riempire. Nei giorni successivi cominciano ad arrivare immagini, descrizioni e personaggi: anche i meme di TikTok trovano il loro posto nel sito.',
+                        'A giugno la TikTokPedia passa dai placeholder ai primi personaggi, con immagini e descrizioni. I meme di TikTok iniziano ad avere una raccolta dedicata.',
                     ],
                     'sources' => [
                         'git:5db0b659',
                         'git:7a0760c9',
                         'git:217d9a60',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'first-top-rimasti',
+                    'date' => '2024-06',
+                    'period' => 'Giugno',
+                    'title' => 'La vecchia Top Rimasti',
+                    'paragraphs' => [
+                        'Top Rimasti è già presente nella versione HTML. A giugno aggiorno immagini e contenuti: è una pagina compilata a mano, prima del sistema con invii e voti degli utenti.',
+                    ],
+                    'sources' => [
+                        'git:1148aef8',
+                        'git:f2f4a194',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'gambling',
@@ -83,6 +241,7 @@ return [
                         'git:8502ab42',
                         'git:9e992fc6',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'first-redesign',
@@ -98,6 +257,22 @@ return [
                         'git:f9b2704d',
                         'git:f8b9399a',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'old-personal-pages',
+                    'date' => '2024-10',
+                    'period' => 'Ottobre',
+                    'title' => 'Le pagine personali di prima',
+                    'paragraphs' => [
+                        'Prima dei profili modificabili esistono pagine HTML dedicate alle singole persone. A ottobre ritocco bio, collegamenti e pagine personali come quella di Zakator e aggiungo quella di Simone Tussi.',
+                    ],
+                    'sources' => [
+                        'git:51660b89',
+                        'git:58715353',
+                        'git:4605875b',
+                    ],
+                    'images' => [],
                 ],
             ],
         ],
@@ -105,6 +280,21 @@ return [
             'id' => 'year-2025',
             'title' => '2025',
             'events' => [
+                [
+                    'id' => 'bio-discord-status',
+                    'date' => '2025-01-23',
+                    'period' => '23 gennaio',
+                    'title' => 'Il primo stato Discord nella bio',
+                    'paragraphs' => [
+                        'Provo a mostrare nella bio lo stato e l’attività di Discord tramite Lanyard. L’integrazione viene modificata già nello stesso giorno: è uno dei primi esperimenti che collegano il sito a Discord.',
+                    ],
+                    'sources' => [
+                        'git:693be2f0',
+                        'git:c288ffea',
+                        'git:c5f36325',
+                    ],
+                    'images' => [],
+                ],
                 [
                     'id' => 'first-lootboxes',
                     'date' => '2025-02-03',
@@ -119,6 +309,24 @@ return [
                         'git:70c0896e',
                         'git:b65bf441',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'lootbox-specials-and-codes',
+                    'date' => '2025-02-04',
+                    'period' => '4–10 febbraio',
+                    'title' => 'Musiche, speciali e codici segreti',
+                    'paragraphs' => [
+                        'Ogni personaggio delle lootbox riceve la propria musica. Il 7 febbraio aggiungo la rarità speciale e venti personaggi; arrivano poi il filtro SoloPoppy, i codici segreti e il conteggio della collezione.',
+                    ],
+                    'sources' => [
+                        'git:69d7cb8e',
+                        'git:ebf2ed87',
+                        'git:fde4acbf',
+                        'git:70c0896e',
+                        'git:d4f0dd8f',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'first-achievements',
@@ -133,6 +341,51 @@ return [
                         'git:d325431c',
                         'git:1135d26c',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'theme-settings',
+                    'date' => '2025-03-05',
+                    'period' => '5 marzo',
+                    'title' => 'Le impostazioni del tema',
+                    'paragraphs' => [
+                        'Aggiungo il controllo del tema alle impostazioni insieme alla lingua. Le preferenze della grafica iniziano a essere gestite e salvate dal browser.',
+                    ],
+                    'sources' => [
+                        'git:8826aad3',
+                        'git:7b0596a9',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'school-opendata',
+                    'date' => '2025-05-23',
+                    'period' => '23 maggio',
+                    'title' => 'Opendata e le ZTL di Cremona',
+                    'paragraphs' => [
+                        'Sul sito compare anche Opendata, una pagina sulle ZTL di Cremona con elenco delle vie e mappa. Tra i meme trova posto pure un lavoro per la scuola, aperto da “Buongiorno prof!” e “Ci dia 10 pls :P”.',
+                    ],
+                    'sources' => [
+                        'git:58699171',
+                        'git:80a4c617',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'rich-presence',
+                    'date' => '2025-05-24',
+                    'period' => '24 maggio',
+                    'title' => 'La Rich Presence',
+                    'paragraphs' => [
+                        'Aggiungo uno script di Rich Presence alle pagine HTML. Nei giorni successivi lo stato si aggiorna in base alla pagina, agli edit e alla collezione delle lootbox.',
+                    ],
+                    'sources' => [
+                        'git:3b3ab610',
+                        'git:9fecbaa6',
+                        'git:51daf566',
+                        'git:d11cea8a',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'hostinger-php',
@@ -145,6 +398,7 @@ return [
                     'sources' => [
                         'author:2026-10-30',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'accounts-and-chat',
@@ -163,6 +417,7 @@ return [
                         'git:ed890696',
                         'git:bee903eb',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'goonland',
@@ -177,6 +432,36 @@ return [
                         'git:2f4ddc53',
                         'git:f3ccfa69',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'uwu-and-aura',
+                    'date' => '2025-09',
+                    'period' => 'Settembre–ottobre',
+                    'title' => 'UWU e Aura',
+                    'paragraphs' => [
+                        'Continuano a comparire pagine nate per il meme: UWU, con sfondo animato e scritte lampeggianti, e poi Aura, con immagini e animazioni che rimbalzano nello schermo.',
+                    ],
+                    'sources' => [
+                        'git:b7675f1f',
+                        'git:ac7ee63d',
+                        'git:b3a20813',
+                        'git:c7302866',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'top-rimasti-votes',
+                    'date' => '2025-09-07',
+                    'period' => '7 settembre',
+                    'title' => 'Top Rimasti con invii e voti',
+                    'paragraphs' => [
+                        'Top Rimasti viene rifatta con invio dei contenuti e votazioni. La vecchia raccolta HTML comincia a diventare una sezione alimentata anche dagli utenti.',
+                    ],
+                    'sources' => [
+                        'git:d4b24ff5',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'first-cripsumpedia',
@@ -190,6 +475,7 @@ return [
                         'git:6f98bd2e',
                         'git:80f247f8',
                     ],
+                    'images' => [],
                 ],
             ],
         ],
@@ -210,6 +496,7 @@ return [
                         'git:00dbd891',
                         'git:85e477c9',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'first-duels',
@@ -223,6 +510,7 @@ return [
                         'git:b5a84399',
                         'git:c95923ee',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'gacha-missions',
@@ -239,6 +527,21 @@ return [
                         'git:b5c8dd6e',
                         'git:8f95b8de',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'goonland-minigames',
+                    'date' => '2026-05-01',
+                    'period' => '1 maggio',
+                    'title' => 'Quiz e Smash or Pass',
+                    'paragraphs' => [
+                        'GoonLand si allarga con Anime Girl Quiz e Smash or Pass. Alla sezione del generatore si affiancano altri giochi.',
+                    ],
+                    'sources' => [
+                        'git:6c72e1c3',
+                        'git:27140694',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'custom-profiles-premium',
@@ -258,6 +561,7 @@ return [
                         'git:c1de90bd',
                         'git:fd32eb15',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'friends-and-inbox',
@@ -271,6 +575,22 @@ return [
                         'git:ccc36520',
                         'git:693507dc',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'private-and-group-chat',
+                    'date' => '2026-06-29',
+                    'period' => '29–30 giugno',
+                    'title' => 'Chat private e gruppi',
+                    'paragraphs' => [
+                        'Alla chat globale si affiancano le chat private e i gruppi, con gestione dei membri, permessi e reazioni. Si può parlare direttamente con altri utenti e creare conversazioni separate.',
+                    ],
+                    'sources' => [
+                        'git:b2731c5d',
+                        'git:59f64771',
+                        'git:ac81ce82',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'subway-surfers',
@@ -285,18 +605,7 @@ return [
                         'git:a9fcf7dc',
                         'git:464945fb',
                     ],
-                ],
-                [
-                    'id' => 'rewind',
-                    'date' => '2026-09-07',
-                    'period' => '7 settembre',
-                    'title' => 'Cripsum Rewind',
-                    'paragraphs' => [
-                        'Arriva Cripsum Rewind: un riepilogo dell’attività sul sito, con statistiche e una scheda da condividere.',
-                    ],
-                    'sources' => [
-                        'git:de65c452',
-                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'pullspot-animespot',
@@ -310,6 +619,7 @@ return [
                         'git:e6ce0999',
                         'git:f8851762',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'discord-bot',
@@ -324,6 +634,7 @@ return [
                         'git:da231e38',
                         'git:f19f235f',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'shop-gacha-esports',
@@ -340,6 +651,34 @@ return [
                         'git:90b6b33c',
                         'git:25dcabe9',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'account-export',
+                    'date' => '2026-09-05',
+                    'period' => '5 settembre',
+                    'title' => 'Esportare i dati e cancellare l’account',
+                    'paragraphs' => [
+                        'Aggiungo alle impostazioni l’esportazione dei propri dati e la possibilità di avviare la cancellazione dell’account.',
+                    ],
+                    'sources' => [
+                        'git:4705a65f',
+                        'git:568b87cd',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'rewind',
+                    'date' => '2026-09-07',
+                    'period' => '7 settembre',
+                    'title' => 'Cripsum Rewind',
+                    'paragraphs' => [
+                        'Arriva Cripsum Rewind: un riepilogo dell’attività sul sito, con statistiche e una scheda da condividere.',
+                    ],
+                    'sources' => [
+                        'git:de65c452',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'site-theme',
@@ -355,6 +694,7 @@ return [
                         'git:4c96faef',
                         'git:2a1e0087',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'wiki-and-bio',
@@ -372,6 +712,7 @@ return [
                         'git:9295be84',
                         'git:3d998fd6',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'duels-2',
@@ -388,6 +729,22 @@ return [
                         'git:4a04dba3',
                         'git:85c1e520',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'push-notifications',
+                    'date' => '2026-10-02',
+                    'period' => '2 ottobre',
+                    'title' => 'Le notifiche push',
+                    'paragraphs' => [
+                        'Arrivano le notifiche push e i nuovi pannelli per notifiche e posta. Anche le menzioni nella chat globale vengono collegate agli avvisi.',
+                    ],
+                    'sources' => [
+                        'git:77f53d80',
+                        'git:dc3108e6',
+                        'git:dbc26cfa',
+                    ],
+                    'images' => [],
                 ],
             ],
         ],
@@ -406,16 +763,19 @@ return [
                     'sources' => [
                         'author:2026-10-30',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'dark-shop-and-ban',
                     'title' => 'The Dark Shop, TikTok and the ban',
                     'paragraphs' => [
-                        'Then I added the Dark Shop: a fake store where, as a meme, you could “buy” children, slaves and weird tools. I posted the site on TikTok, the video went viral and the site got banned.',
+                        'Then I added the Dark Shop: a fake store where, as a meme, you could “buy” children, slaves and weird tools. I posted a video of the site on TikTok and it went viral.',
+                        'In the comments, some people started accusing me of creating a honeypot: a decoy site to attract people and collect information about them. Some reported the site, which was later banned.',
                     ],
                     'sources' => [
                         'author:2026-10-30',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'github-pages',
@@ -430,6 +790,117 @@ return [
                         'git:b85318b0',
                         'git:af014d0f',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'early-downloads',
+                    'date' => '2023-11-27',
+                    'period' => '27 November',
+                    'title' => 'Italian, English, osu! and Fortnite',
+                    'paragraphs' => [
+                        'I fix the language switch and add the first pages for osu! and Fortnite. The hand-coded version begins to have its own sections, although many are still empty.',
+                    ],
+                    'sources' => [
+                        'git:d4633565',
+                        'git:2f62cec2',
+                        'git:7000de36',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'wise-tree-home',
+                    'date' => '2023-11-28',
+                    'period' => '28 November',
+                    'title' => 'The Wise Mystical Tree and Spinjitzu',
+                    'paragraphs' => [
+                        'I finish the first home page: Cripsum, king of Congo, the Wise Mystical Tree, Happiness, Sadness and Astonishment. Jay offers to teach Spinjitzu, alongside a “free V-bucks” link leading to a rickroll.',
+                    ],
+                    'sources' => [
+                        'git:0a9e2e2c',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'quandel57',
+                    'date' => '2023-12-02',
+                    'period' => '2 December',
+                    'title' => 'Quandel57',
+                    'paragraphs' => [
+                        'Quandel57 gets a page of its own, with the TikTok meme and the “Screaming in Public Restrooms” audio. It is one of the first characters to have a dedicated section.',
+                    ],
+                    'sources' => [
+                        'git:56c676eb',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'first-shitpost',
+                    'date' => '2023-12-05',
+                    'period' => '5 December',
+                    'title' => 'The first Shitpost',
+                    'paragraphs' => [
+                        'I fill Shitpost with images and GIFs: beans, skeletons, Dame Tu Cosita and other memes. It is still a manually selected collection, long before users can publish their own posts.',
+                    ],
+                    'sources' => [
+                        'git:e60a5ce3',
+                        'git:d7340ba9',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'fake-store',
+                    'date' => '2023-12-15',
+                    'period' => '15–20 December',
+                    'title' => 'The store and the fake checkout',
+                    'paragraphs' => [
+                        'I add a store with products such as the iPhone 20, PS6, RTX 4090, Renegade Raider and a two-key osu! keyboard. The checkout arrives on 20 December: it is part of the joke, rather than a real sales service.',
+                    ],
+                    'sources' => [
+                        'git:8650fc12',
+                        'git:51325314',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'minecraft-alphabet',
+                    'date' => '2023-12-16',
+                    'period' => '16 December',
+                    'title' => 'The home page in the Minecraft alphabet',
+                    'paragraphs' => [
+                        'I create a version of the home page written in the Minecraft enchanting-table alphabet. The title, memes and links are all transformed.',
+                    ],
+                    'sources' => [
+                        'git:04f063e7',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'first-edits',
+                    'date' => '2023-12-23',
+                    'period' => '23 December',
+                    'title' => 'The Edits page begins',
+                    'paragraphs' => [
+                        'Edits get a dedicated page, with embedded TikTok videos. The collection keeps growing and changes platforms when old embeds stop working.',
+                    ],
+                    'sources' => [
+                        'git:5917a53b',
+                        'git:e9b73fda',
+                        'git:1b3dbdda',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'first-merch',
+                    'date' => '2023-12-26',
+                    'period' => '26 December',
+                    'title' => 'Merch',
+                    'paragraphs' => [
+                        'The merch page takes shape with clothing and accessories: shirts, hoodies, caps and other products. It is another of the early experiments on the static site.',
+                    ],
+                    'sources' => [
+                        'git:ec239033',
+                    ],
+                    'images' => [],
                 ],
             ],
         ],
@@ -438,18 +909,62 @@ return [
             'title' => '2024',
             'events' => [
                 [
+                    'id' => 'download-music',
+                    'date' => '2024-01-07',
+                    'period' => '7 January',
+                    'title' => 'Downloads with music',
+                    'paragraphs' => [
+                        'I update the Fortnite and osu! download pages and add music playback to the section. Even downloading something becomes a reason to put audio and buttons on the site.',
+                    ],
+                    'sources' => [
+                        'git:a4da46d8',
+                        'git:3937918c',
+                        'git:965b1e88',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'elevator-loading',
+                    'date' => '2024-05-19',
+                    'period' => '19 May',
+                    'title' => 'Loading with elevator music',
+                    'paragraphs' => [
+                        'TikTokPedia gets a loading wait with elevator music. I set it to ten seconds: there is already a troll before you even reach the page.',
+                    ],
+                    'sources' => [
+                        'git:6b93ead2',
+                        'git:db47e71c',
+                    ],
+                    'images' => [],
+                ],
+                [
                     'id' => 'tiktokpedia',
                     'date' => '2024-06',
                     'period' => 'June',
-                    'title' => 'TikTokPedia arrives',
+                    'title' => 'TikTokPedia fills up',
                     'paragraphs' => [
-                        'TikTokPedia appears in June, initially as a placeholder. Images, descriptions and characters follow over the next few days, giving TikTok memes their own place on the site.',
+                        'In June, TikTokPedia moves from placeholders to its first characters, with images and descriptions. TikTok memes begin to have a dedicated collection.',
                     ],
                     'sources' => [
                         'git:5db0b659',
                         'git:7a0760c9',
                         'git:217d9a60',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'first-top-rimasti',
+                    'date' => '2024-06',
+                    'period' => 'June',
+                    'title' => 'The old Top Rimasti',
+                    'paragraphs' => [
+                        'Top Rimasti is already part of the HTML version. In June I update its images and content: it is a manually maintained page, before user submissions and voting.',
+                    ],
+                    'sources' => [
+                        'git:1148aef8',
+                        'git:f2f4a194',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'gambling',
@@ -463,6 +978,7 @@ return [
                         'git:8502ab42',
                         'git:9e992fc6',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'first-redesign',
@@ -478,6 +994,22 @@ return [
                         'git:f9b2704d',
                         'git:f8b9399a',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'old-personal-pages',
+                    'date' => '2024-10',
+                    'period' => 'October',
+                    'title' => 'The old personal pages',
+                    'paragraphs' => [
+                        'Before editable profiles, there are individual HTML pages for different people. In October I update the bio, links and personal pages such as Zakator’s, and add Simone Tussi’s page.',
+                    ],
+                    'sources' => [
+                        'git:51660b89',
+                        'git:58715353',
+                        'git:4605875b',
+                    ],
+                    'images' => [],
                 ],
             ],
         ],
@@ -485,6 +1017,21 @@ return [
             'id' => 'year-2025',
             'title' => '2025',
             'events' => [
+                [
+                    'id' => 'bio-discord-status',
+                    'date' => '2025-01-23',
+                    'period' => '23 January',
+                    'title' => 'The first Discord status in the bio',
+                    'paragraphs' => [
+                        'I try showing Discord status and activity in the bio through Lanyard. The integration changes again that same day: it is one of the first experiments connecting the site to Discord.',
+                    ],
+                    'sources' => [
+                        'git:693be2f0',
+                        'git:c288ffea',
+                        'git:c5f36325',
+                    ],
+                    'images' => [],
+                ],
                 [
                     'id' => 'first-lootboxes',
                     'date' => '2025-02-03',
@@ -499,6 +1046,24 @@ return [
                         'git:70c0896e',
                         'git:b65bf441',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'lootbox-specials-and-codes',
+                    'date' => '2025-02-04',
+                    'period' => '4–10 February',
+                    'title' => 'Music, specials and secret codes',
+                    'paragraphs' => [
+                        'Lootbox characters get their own music. On 7 February I add special rarity and twenty characters; the SoloPoppy filter, secret codes and collection counts follow.',
+                    ],
+                    'sources' => [
+                        'git:69d7cb8e',
+                        'git:ebf2ed87',
+                        'git:fde4acbf',
+                        'git:70c0896e',
+                        'git:d4f0dd8f',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'first-achievements',
@@ -513,6 +1078,51 @@ return [
                         'git:d325431c',
                         'git:1135d26c',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'theme-settings',
+                    'date' => '2025-03-05',
+                    'period' => '5 March',
+                    'title' => 'Theme settings',
+                    'paragraphs' => [
+                        'I add theme controls to the settings alongside language selection. Appearance preferences begin to be managed and saved in the browser.',
+                    ],
+                    'sources' => [
+                        'git:8826aad3',
+                        'git:7b0596a9',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'school-opendata',
+                    'date' => '2025-05-23',
+                    'period' => '23 May',
+                    'title' => 'Opendata and Cremona’s restricted traffic zones',
+                    'paragraphs' => [
+                        'Opendata appears on the site: a page about Cremona’s restricted traffic zones, with a street list and a map. Among the memes there is also room for a school project, opening with “Good morning, teacher!” and a request for a top grade.',
+                    ],
+                    'sources' => [
+                        'git:58699171',
+                        'git:80a4c617',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'rich-presence',
+                    'date' => '2025-05-24',
+                    'period' => '24 May',
+                    'title' => 'Rich Presence',
+                    'paragraphs' => [
+                        'I add a Rich Presence script to the HTML pages. Over the following days, the status updates according to the page, edits and lootbox collection.',
+                    ],
+                    'sources' => [
+                        'git:3b3ab610',
+                        'git:9fecbaa6',
+                        'git:51daf566',
+                        'git:d11cea8a',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'hostinger-php',
@@ -525,6 +1135,7 @@ return [
                     'sources' => [
                         'author:2026-10-30',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'accounts-and-chat',
@@ -543,6 +1154,7 @@ return [
                         'git:ed890696',
                         'git:bee903eb',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'goonland',
@@ -557,6 +1169,36 @@ return [
                         'git:2f4ddc53',
                         'git:f3ccfa69',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'uwu-and-aura',
+                    'date' => '2025-09',
+                    'period' => 'September–October',
+                    'title' => 'UWU and Aura',
+                    'paragraphs' => [
+                        'Pages made for the meme keep appearing: UWU, with an animated background and flashing text, followed by Aura, with images and animations bouncing around the screen.',
+                    ],
+                    'sources' => [
+                        'git:b7675f1f',
+                        'git:ac7ee63d',
+                        'git:b3a20813',
+                        'git:c7302866',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'top-rimasti-votes',
+                    'date' => '2025-09-07',
+                    'period' => '7 September',
+                    'title' => 'Top Rimasti gets submissions and voting',
+                    'paragraphs' => [
+                        'Top Rimasti is rebuilt with content submissions and voting. The old HTML collection begins becoming a section that users can contribute to.',
+                    ],
+                    'sources' => [
+                        'git:d4b24ff5',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'first-cripsumpedia',
@@ -570,6 +1212,7 @@ return [
                         'git:6f98bd2e',
                         'git:80f247f8',
                     ],
+                    'images' => [],
                 ],
             ],
         ],
@@ -590,6 +1233,7 @@ return [
                         'git:00dbd891',
                         'git:85e477c9',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'first-duels',
@@ -603,6 +1247,7 @@ return [
                         'git:b5a84399',
                         'git:c95923ee',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'gacha-missions',
@@ -619,6 +1264,21 @@ return [
                         'git:b5c8dd6e',
                         'git:8f95b8de',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'goonland-minigames',
+                    'date' => '2026-05-01',
+                    'period' => '1 May',
+                    'title' => 'Quizzes and Smash or Pass',
+                    'paragraphs' => [
+                        'GoonLand expands with Anime Girl Quiz and Smash or Pass, adding more games alongside the generator.',
+                    ],
+                    'sources' => [
+                        'git:6c72e1c3',
+                        'git:27140694',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'custom-profiles-premium',
@@ -638,6 +1298,7 @@ return [
                         'git:c1de90bd',
                         'git:fd32eb15',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'friends-and-inbox',
@@ -651,6 +1312,22 @@ return [
                         'git:ccc36520',
                         'git:693507dc',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'private-and-group-chat',
+                    'date' => '2026-06-29',
+                    'period' => '29–30 June',
+                    'title' => 'Private chats and groups',
+                    'paragraphs' => [
+                        'Private chats and groups join global chat, with member management, permissions and reactions. Users can talk directly and create separate conversations.',
+                    ],
+                    'sources' => [
+                        'git:b2731c5d',
+                        'git:59f64771',
+                        'git:ac81ce82',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'subway-surfers',
@@ -665,18 +1342,7 @@ return [
                         'git:a9fcf7dc',
                         'git:464945fb',
                     ],
-                ],
-                [
-                    'id' => 'rewind',
-                    'date' => '2026-09-07',
-                    'period' => '7 September',
-                    'title' => 'Cripsum Rewind',
-                    'paragraphs' => [
-                        'Cripsum Rewind arrives: a recap of activity on the site, with statistics and a shareable card.',
-                    ],
-                    'sources' => [
-                        'git:de65c452',
-                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'pullspot-animespot',
@@ -690,6 +1356,7 @@ return [
                         'git:e6ce0999',
                         'git:f8851762',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'discord-bot',
@@ -704,6 +1371,7 @@ return [
                         'git:da231e38',
                         'git:f19f235f',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'shop-gacha-esports',
@@ -720,6 +1388,34 @@ return [
                         'git:90b6b33c',
                         'git:25dcabe9',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'account-export',
+                    'date' => '2026-09-05',
+                    'period' => '5 September',
+                    'title' => 'Data export and account deletion',
+                    'paragraphs' => [
+                        'I add options in settings to export your data and start the account deletion process.',
+                    ],
+                    'sources' => [
+                        'git:4705a65f',
+                        'git:568b87cd',
+                    ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'rewind',
+                    'date' => '2026-09-07',
+                    'period' => '7 September',
+                    'title' => 'Cripsum Rewind',
+                    'paragraphs' => [
+                        'Cripsum Rewind arrives: a recap of activity on the site, with statistics and a shareable card.',
+                    ],
+                    'sources' => [
+                        'git:de65c452',
+                    ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'site-theme',
@@ -735,6 +1431,7 @@ return [
                         'git:4c96faef',
                         'git:2a1e0087',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'wiki-and-bio',
@@ -752,6 +1449,7 @@ return [
                         'git:9295be84',
                         'git:3d998fd6',
                     ],
+                    'images' => [],
                 ],
                 [
                     'id' => 'duels-2',
@@ -768,6 +1466,22 @@ return [
                         'git:4a04dba3',
                         'git:85c1e520',
                     ],
+                    'images' => [],
+                ],
+                [
+                    'id' => 'push-notifications',
+                    'date' => '2026-10-02',
+                    'period' => '2 October',
+                    'title' => 'Push notifications',
+                    'paragraphs' => [
+                        'Push notifications and new notification and inbox panels arrive. Global chat mentions are also connected to alerts.',
+                    ],
+                    'sources' => [
+                        'git:77f53d80',
+                        'git:dc3108e6',
+                        'git:dbc26cfa',
+                    ],
+                    'images' => [],
                 ],
             ],
         ],

@@ -96,14 +96,34 @@
     font-size: 0.75rem;
 }
 
-.lore-image {
+.lore-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
     margin: 1.5rem 0;
+}
+
+.lore-image {
+    min-width: 0;
+    margin: 0;
+}
+
+.lore-image:only-child {
+    grid-column: 1 / -1;
+}
+
+.lore-image a {
+    display: block;
 }
 
 .lore-image img {
     display: block;
     width: 100%;
     height: auto;
+    max-height: 36rem;
+    border-radius: 0;
+    object-fit: contain;
+    object-position: left center;
 }
 
 .lore-image figcaption {
@@ -161,5 +181,9 @@
     .lore-index {
         gap: 0.25rem 1.25rem;
         margin-bottom: 2rem;
+    }
+
+    .lore-gallery {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
