@@ -769,6 +769,31 @@ a.nx-tab:hover { color: var(--nx-text); }
     .bh-area > a { grid-template-columns: minmax(0, 1fr); gap: 10px; }
 }
 
+/* Evita che il contenuto minimo di elementi flex/grid allarghi il pannello
+   «La tua pagina» sui telefoni stretti, comprese le stringhe lunghe e le cifre. */
+@media (max-width: 900px) {
+    .bh-dash,
+    .bh-dash__main,
+    .bh-dash section,
+    .bh-side,
+    .bh-panel,
+    .bh-me > div,
+    .bh-me__actions { min-width: 0; max-width: 100%; }
+
+    .bh-me__link,
+    .bh-todo li > span,
+    .bh-switch-row > div,
+    .bh-claim-card > div,
+    .bh-picks__lead,
+    .bh-picks .bh-small { overflow-wrap: anywhere; }
+
+    .bh-stat { min-width: 0; padding-right: 12px; padding-left: 12px; }
+    .bh-stat dd { overflow-wrap: anywhere; font-size: clamp(1.125rem, 6vw, 1.5rem); }
+
+    .bh-picks__add { min-width: 0; }
+    .bh-picks__add .nx-input { flex: 1 1 auto; width: 100%; min-width: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .bh-card__bg :is(img, video),
     .bh-card > a,
