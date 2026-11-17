@@ -20,7 +20,7 @@ $hxIsEn = ($homeLang ?? 'it') === 'en';
 $hxLang = $hxIsEn ? 'en' : 'it';
 
 // Metti false per disattivare lo splash e mostrare subito la homepage.
-$hxSplashEnabled = true;
+$hxSplashEnabled = false;
 
 $hx = $hxIsEn
     ? [
