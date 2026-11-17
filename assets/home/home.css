@@ -39,7 +39,7 @@
     overflow: hidden;
     background: #000;
     opacity: 1;
-    transition: opacity 1.5s ease;
+    transition: opacity 0.5s ease;
 }
 
 .home-splash.is-fading {
@@ -62,7 +62,7 @@ body.home-splash-active > :not(#homeSplash) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .home-splash { transition-duration: 1.5s; }
+    .home-splash { transition-duration: 0.5s; }
 }
 
 .home-next *,
