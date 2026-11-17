@@ -31,6 +31,40 @@
     line-height: 1.5;
 }
 
+/* Video iniziale: copre la pagina senza spostarne il contenuto. */
+.home-splash {
+    position: fixed;
+    z-index: 2147483647;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+    opacity: 1;
+    transition: opacity 1.5s ease;
+}
+
+.home-splash.is-fading {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.home-splash__video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+body.home-splash-active > :not(#homeSplash) {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-splash { transition-duration: 1.5s; }
+}
+
 .home-next *,
 .home-next *::before,
 .home-next *::after {

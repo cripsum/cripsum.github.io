@@ -18,10 +18,8 @@ $isPremium = false;
 $supporters = [];
 $supportersTotal = 0;
 
-/** Riga di chi sta guardando: serve al suo posto fisso tra i supporter. */
 $viewerRow = [];
 
-/** Tante facce bastano: la fila e' decorativa, non un elenco da consultare. */
 const HOME_SUPPORTERS_LIMIT = 40;
 
 if (isset($mysqli) && $mysqli instanceof mysqli) {
@@ -37,7 +35,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     }
 
     require_once __DIR__ . '/../includes/account_data_helpers.php';
-    // Deactivated accounts (deletion pending) drop out of the list.
+
     $suppActive = account_active_sql($mysqli);
     $suppActiveClause = $suppActive !== '' ? ' AND ' . $suppActive : '';
     $stmtSupp = $mysqli->prepare("SELECT id, username, display_name, discord_use_display_name, discord_global_name, discord_username, profile_updated_at, accent_color, avatar_ring_color FROM utenti WHERE is_premium = 1 $suppActiveClause ORDER BY id DESC LIMIT " . HOME_SUPPORTERS_LIMIT);
@@ -50,7 +48,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         $stmtSupp->close();
     }
 
-    // La fila si ferma a HOME_SUPPORTERS_LIMIT facce, il conteggio no.
     $supportersTotal = count($supporters);
     $stmtSuppCount = $mysqli->prepare("SELECT COUNT(*) AS totale FROM utenti WHERE is_premium = 1 $suppActiveClause");
     if ($stmtSuppCount) {
@@ -76,8 +73,6 @@ $ogDescription = 'Homepage di Cripsum™. Edit, meme, gambling, profili custom, 
 $ogTitle = 'Cripsum™ — meme, edit, lootbox e profili della community';
 $ogUrl = 'https://cripsum.com' . strtok((string)($_SERVER['REQUEST_URI'] ?? '/it/home'), '#');
 
-// Questo file prepara i dati; la pagina la disegna includes/home_next.php,
-// la stessa per le due lingue.
 require_once __DIR__ . '/../includes/theme.php';
 $homeLang = 'it';
 require __DIR__ . '/../includes/home_next.php';

@@ -1,6 +1,41 @@
 (() => {
     'use strict';
 
+    const initSplash = () => {
+        const splash = document.getElementById('homeSplash');
+        const video = document.getElementById('homeSplashVideo');
+        if (!splash || !video) return;
+
+        const portraitQuery = window.matchMedia('(orientation: portrait)');
+        const chooseVideo = () => {
+            const source = portraitQuery.matches ? video.dataset.portraitSrc : video.dataset.landscapeSrc;
+            if (video.getAttribute('src') === source) return;
+            video.src = source;
+            video.load();
+            const playback = video.play();
+            if (playback && typeof playback.catch === 'function') playback.catch(() => {});
+        };
+
+        const finishSplash = () => {
+            if (!splash.isConnected) return;
+            splash.remove();
+            document.body.classList.remove('home-splash-active');
+        };
+
+        video.addEventListener('error', finishSplash, { once: true });
+        chooseVideo();
+        if (portraitQuery.addEventListener) portraitQuery.addEventListener('change', chooseVideo);
+        else if (portraitQuery.addListener) portraitQuery.addListener(chooseVideo);
+
+        window.setTimeout(() => {
+            splash.classList.add('is-fading');
+            splash.addEventListener('transitionend', finishSplash, { once: true });
+            // Fallback se il browser non emette transitionend, per esempio
+            // quando la scheda viene sospesa durante la dissolvenza.
+            window.setTimeout(finishSplash, 1700);
+        }, 3500);
+    };
+
     /**
      * Homepage: la vetrina "Cosa puoi fare", la comparsa allo scorrimento e
      * il contatore di Discord.
@@ -356,6 +391,7 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+        initSplash();
         initReveal();
         initDiscordCount();
         initShowcase();

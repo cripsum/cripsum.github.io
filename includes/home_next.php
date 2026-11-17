@@ -19,6 +19,9 @@
 $hxIsEn = ($homeLang ?? 'it') === 'en';
 $hxLang = $hxIsEn ? 'en' : 'it';
 
+// Metti false per disattivare lo splash e mostrare subito la homepage.
+$hxSplashEnabled = true;
+
 $hx = $hxIsEn
     ? [
         'meta_title'   => 'Cripsum™ — memes, edits, lootboxes and community profiles',
@@ -198,11 +201,19 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
     </script>
     <?php /* Senza script niente farebbe comparire le sezioni: le si mostra subito. */ ?>
     <noscript><style>.home-reveal { opacity: 1 !important; filter: none !important; transform: none !important; }</style></noscript>
+    <noscript><style>.home-splash { display: none !important; } body.home-splash-active > :not(#homeSplash) { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }</style></noscript>
     <script src="<?= home_h($hxHomeJs) ?>" defer></script>
     <script src="/assets/news/news-popup.js?v=1.1" defer></script>
 </head>
 
-<body class="home-next-body">
+<body class="home-next-body<?= $hxSplashEnabled ? ' home-splash-active' : '' ?>">
+    <?php if ($hxSplashEnabled): ?>
+        <div class="home-splash" id="homeSplash" aria-hidden="true">
+            <video class="home-splash__video" id="homeSplashVideo" autoplay muted playsinline preload="auto"
+                data-portrait-src="/vid/splash-portrait.mp4"
+                data-landscape-src="/vid/splash-landscape.mp4"></video>
+        </div>
+    <?php endif; ?>
     <?php include __DIR__ . '/navbar.php'; ?>
 
     <main class="home-next">
