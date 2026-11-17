@@ -37,7 +37,7 @@
             // Fallback se il browser non emette transitionend, per esempio
             // quando la scheda viene sospesa durante la dissolvenza.
             window.setTimeout(finishSplash, 700);
-        }, 3000);
+        }, 3500);
         return true;
     };
 
