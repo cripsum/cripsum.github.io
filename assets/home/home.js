@@ -1,10 +1,10 @@
 (() => {
     'use strict';
 
-    const initSplash = () => {
+    const initSplash = (onFinish) => {
         const splash = document.getElementById('homeSplash');
         const video = document.getElementById('homeSplashVideo');
-        if (!splash || !video) return;
+        if (!splash || !video) return false;
 
         const portraitQuery = window.matchMedia('(orientation: portrait)');
         const chooseVideo = () => {
@@ -20,6 +20,10 @@
             if (!splash.isConnected) return;
             splash.remove();
             document.body.classList.remove('home-splash-active');
+            const root = document.documentElement;
+            root.classList.remove('home-splash-wait');
+            if (root.classList.contains('home-fonts-ready')) root.classList.remove('home-wait');
+            onFinish();
         };
 
         video.addEventListener('error', finishSplash, { once: true });
@@ -34,6 +38,7 @@
             // quando la scheda viene sospesa durante la dissolvenza.
             window.setTimeout(finishSplash, 1700);
         }, 3500);
+        return true;
     };
 
     /**
@@ -390,10 +395,13 @@
         })();
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initSplash();
+    const initHomepage = () => {
         initReveal();
         initDiscordCount();
         initShowcase();
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!initSplash(initHomepage)) initHomepage();
     });
 })();

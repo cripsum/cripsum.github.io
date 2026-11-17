@@ -190,9 +190,14 @@ $hxFooter = __DIR__ . ($hxIsEn ? '/footer-en.php' : '/footer.php');
     <script>
         (function () {
             var root = document.documentElement;
-            if (!document.fonts || !document.fonts.load) return;
-            var go = function () { root.classList.remove('home-wait'); };
+            var splashEnabled = <?= $hxSplashEnabled ? 'true' : 'false' ?>;
+            var go = function () {
+                root.classList.add('home-fonts-ready');
+                if (!root.classList.contains('home-splash-wait')) root.classList.remove('home-wait');
+            };
             root.classList.add('home-wait');
+            if (splashEnabled) root.classList.add('home-splash-wait');
+            if (!document.fonts || !document.fonts.load) { go(); return; }
             Promise.all(['600', '500', 'italic 500', '400'].map(function (face) {
                 return document.fonts.load(face + ' 1em Poppins');
             })).then(go, go);
